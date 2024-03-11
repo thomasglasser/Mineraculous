@@ -22,13 +22,18 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "dev.thomasglasser.multiloadertemplate.MultiloaderTemplateFabric"
+            "dev.thomasglasser.miraculous.MiraculousFabric"
+        ],
+        "client": [
+            "dev.thomasglasser.miraculous.client.MiraculousFabricClient"
         ]
     },
     "mixins": [
         "${mod_id}.mixins.json",
         "${mod_id}.fabric.mixins.json"
     ],
+
+    "accessWidener": "${mod_id}.accesswidener",
 
     "depends": {
         "fabricloader": ">=${fabric_loader_version}",

@@ -56,11 +56,12 @@ dependencies {
     implementation("dev.thomasglasser.tommylib:tommylib-neoforge-${minecraft_version}:${tommylib_version}") {
         transitive = false
     }
+    implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 
     // Runtime
 //    runtimeOnly "maven.modrinth:jade:${jade_version}-neoforge"
-    runtimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:$rei_version"
-    runtimeOnly "me.shedaniel.cloth:cloth-config-neoforge:$cloth_config_version"
+//    runtimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:$rei_version"
+//    runtimeOnly "me.shedaniel.cloth:cloth-config-neoforge:$cloth_config_version"
 
     // JarJar
     jarJar(group: "dev.thomasglasser.tommylib", name: "tommylib-neoforge-${minecraft_version}", version: "[${tommylib_version},${tommylib_next_major_version})") {

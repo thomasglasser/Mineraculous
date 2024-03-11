@@ -27,6 +27,8 @@ dependencies {
     modImplementation("dev.thomasglasser.tommylib:tommylib-common-${minecraft_version}:${tommylib_version}") {
         transitive = false
     }
+
+    modCompileOnly "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}"
 }
 
 import net.fabricmc.loom.task.AbstractRemapJarTask

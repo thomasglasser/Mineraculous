@@ -20,6 +20,8 @@ dependencies {
         transitive = false
     }
 
+    modImplementation "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}"
+
     // Runtime
     modRuntimeOnly "com.terraformersmc:modmenu:${modmenu_version}"
     modRuntimeOnly "maven.modrinth:jade:${jade_version}"

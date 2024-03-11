@@ -29,5 +29,5 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'MultiLoader Template'
+rootProject.name = 'Miraculous'
 include("common", "fabric", "neoforge")

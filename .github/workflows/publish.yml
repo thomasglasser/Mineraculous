@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Replace with GitHub name
-      changelog: '**Full Changelog**: https://github.com/thomasglasser/Multiloader-Template/compare/'
+      changelog: '**Full Changelog**: https://github.com/thomasglasser/Miraculous/compare/'
     permissions:
       contents: write
     strategy:
@@ -45,8 +45,7 @@ jobs:
         uses: actions/download-artifact@v3
         continue-on-error: true
         with:
-          # Replace with mod name
-          name: Multiloader Template
+          name: "Miraculous: Tales of Ladyblock and Craft Noir"
 
       - name: Checking and setting the environment
         id: mod_env
@@ -103,8 +102,7 @@ jobs:
           game-versions: |
             ${{ inputs.game_versions }}
 
-          # Replace with Modrinth ID
-          modrinth-id: abcdef
+          modrinth-id: L4DkUS9E
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
 
       - name: Publish Curseforge Release
@@ -122,6 +120,5 @@ jobs:
           game-versions: |
             ${{ inputs.game_versions }}
 
-          # Replace with CurseForge ID
-          curseforge-id: 123456
+          curseforge-id: 388866
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}

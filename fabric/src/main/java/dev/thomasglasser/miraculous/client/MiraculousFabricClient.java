@@ -1,12 +1,15 @@
 package dev.thomasglasser.miraculous.client;
 
 import dev.thomasglasser.miraculous.client.renderer.MiraculousBlockEntityWithoutLevelRenderer;
+import dev.thomasglasser.miraculous.client.renderer.entity.PlaggRenderer;
+import dev.thomasglasser.miraculous.world.entity.MiraculousEntityTypes;
 import dev.thomasglasser.miraculous.world.item.MiraculousItems;
 import dev.thomasglasser.tommylib.api.registration.RegistryObject;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.model.loading.v1.PreparableModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -45,5 +48,12 @@ public class MiraculousFabricClient implements ClientModInitializer
 			return CompletableFuture.supplyAsync(() -> rls, executor);
 		}), (data, pluginContext) ->
 				pluginContext.addModels(data));
+
+		onRegisterRenderers();
+	}
+
+	private void onRegisterRenderers()
+	{
+		EntityRendererRegistry.register(MiraculousEntityTypes.PLAGG.get(), PlaggRenderer::new);
 	}
 }

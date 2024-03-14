@@ -2,6 +2,8 @@ package dev.thomasglasser.miraculous;
 
 import dev.thomasglasser.miraculous.client.MiraculousClientConfig;
 import dev.thomasglasser.miraculous.server.MiraculousServerConfig;
+import dev.thomasglasser.miraculous.world.entity.MiraculousEntityTypes;
+import dev.thomasglasser.miraculous.world.entity.kwami.Kwami;
 import dev.thomasglasser.miraculous.world.item.MiraculousCreativeModeTabs;
 import dev.thomasglasser.miraculous.world.item.MiraculousItems;
 import dev.thomasglasser.miraculous.world.item.armor.MiraculousArmors;
@@ -10,6 +12,8 @@ import eu.midnightdust.lib.config.MidnightConfig;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 public class Miraculous
 {
@@ -23,8 +27,14 @@ public class Miraculous
         MiraculousItems.init();
         MiraculousArmors.init();
         MiraculousCreativeModeTabs.init();
+        MiraculousEntityTypes.init();
 
         registerConfigs();
+
+        TommyLibServices.ENTITY.registerDataSerializers(MOD_ID, Map.of(
+                "has_voice", Kwami.HAS_VOICE,
+                "charged", Kwami.CHARGED
+        ));
     }
 
     private static void registerConfigs()

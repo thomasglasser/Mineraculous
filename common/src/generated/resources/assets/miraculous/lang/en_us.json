@@ -1,9 +1,11 @@
 {
+  "entity.miraculous.plagg": "Plagg",
   "item.miraculous.cat_miraculous": "Cat Miraculous",
   "item.miraculous.cat_miraculous_boots": "Cat Miraculous Boots",
   "item.miraculous.cat_miraculous_chestplate": "Cat Miraculous Chestplate",
   "item.miraculous.cat_miraculous_leggings": "Cat Miraculous Leggings",
   "item.miraculous.cat_miraculous_mask": "Cat Miraculous Mask",
+  "item.miraculous.plagg_spawn_egg": "Plagg Spawn Egg",
   "item_group.miraculous.miraculous": "Miraculous",
   "miraculous.midnightconfig.category.miraculous": "Miraculous",
   "miraculous.midnightconfig.enable_custom_hidden_variants": "Enable Custom Hidden Variants",

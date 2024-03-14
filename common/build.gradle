@@ -30,6 +30,8 @@ dependencies {
 
     modCompileOnly "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}"
     modCompileOnly "maven.modrinth:midnightlib:${midnightlib_version}-fabric"
+
+    modImplementation "net.tslat.smartbrainlib:SmartBrainLib-common-${minecraft_version}:${sbl_version}"
 }
 
 import net.fabricmc.loom.task.AbstractRemapJarTask

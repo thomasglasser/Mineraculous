@@ -22,6 +22,7 @@ dependencies {
     include modImplementation("maven.modrinth:midnightlib:${midnightlib_version}-fabric")
 
     modImplementation "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}"
+    modImplementation "net.tslat.smartbrainlib:SmartBrainLib-fabric-${minecraft_version}:${sbl_version}"
 
     // Runtime
     modRuntimeOnly "com.terraformersmc:modmenu:${modmenu_version}"

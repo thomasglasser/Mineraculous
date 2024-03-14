@@ -8,6 +8,7 @@ import net.minecraft.world.item.Item;
 public class MiraculousItemTags
 {
 	public static final TagKey<Item> MIRACULOUS = create("miraculous");
+	public static final TagKey<Item> DESTRUCTION_KWAMI_FOOD = create("destruction_kwami_food");
 
 	private static TagKey<Item> create(String name)
 	{

@@ -3,14 +3,14 @@ package dev.thomasglasser.miraculous.data.models;
 import dev.thomasglasser.miraculous.Miraculous;
 import dev.thomasglasser.miraculous.world.item.MiraculousItems;
 import dev.thomasglasser.miraculous.world.item.armor.MiraculousArmors;
+import dev.thomasglasser.tommylib.api.data.models.ExtendedItemModelProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
-import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.client.model.generators.ModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
-public class MiraculousItemModels extends ItemModelProvider
+public class MiraculousItemModels extends ExtendedItemModelProvider
 {
 	public MiraculousItemModels(PackOutput output, ExistingFileHelper existingFileHelper)
 	{
@@ -45,5 +45,7 @@ public class MiraculousItemModels extends ItemModelProvider
 				singleTexture(item.getId().getPath(), mcLoc("item/generated"), "layer0", modLoc("item/" + armorSet.getName() + "_" + nameForSlot));
 			}));
 		}
+
+		spawnEgg(MiraculousItems.PLAGG_SPAWN_EGG);
 	}
 }

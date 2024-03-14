@@ -3,6 +3,7 @@ package dev.thomasglasser.miraculous.world.item.armor;
 import dev.thomasglasser.miraculous.client.renderer.armor.MiraculousArmorItemRenderer;
 import dev.thomasglasser.tommylib.api.world.item.armor.GeoArmorItem;
 import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 import software.bernie.geckolib.util.GeckoLibUtil;
@@ -34,5 +35,17 @@ public class MiraculousArmorItem extends ArmorItem implements GeoArmorItem
 
 	public String getMiraculousName() {
 		return miraculous;
+	}
+
+	@Override
+	public boolean isEnchantable(ItemStack stack)
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isFoil(ItemStack stack)
+	{
+		return false;
 	}
 }

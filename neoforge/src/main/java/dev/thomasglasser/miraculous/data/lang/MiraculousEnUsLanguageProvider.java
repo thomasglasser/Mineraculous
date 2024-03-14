@@ -2,6 +2,7 @@ package dev.thomasglasser.miraculous.data.lang;
 
 import dev.thomasglasser.miraculous.Miraculous;
 import dev.thomasglasser.miraculous.client.MiraculousClientConfig;
+import dev.thomasglasser.miraculous.world.entity.MiraculousEntityTypes;
 import dev.thomasglasser.miraculous.world.item.MiraculousCreativeModeTabs;
 import dev.thomasglasser.miraculous.world.item.MiraculousItems;
 import dev.thomasglasser.miraculous.world.item.armor.MiraculousArmors;
@@ -19,6 +20,7 @@ public class MiraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 	protected void addTranslations()
 	{
 		add(MiraculousItems.CAT_MIRACULOUS.get(), "Cat Miraculous");
+		add(MiraculousItems.PLAGG_SPAWN_EGG.get(), "Plagg Spawn Egg");
 
 		addCreativeTab(MiraculousCreativeModeTabs.MIRACULOUS, "Miraculous");
 
@@ -31,6 +33,8 @@ public class MiraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 		});
 
 		addConfigs();
+
+		add(MiraculousEntityTypes.PLAGG.get(), "Plagg");
 	}
 
 	private void addConfigs()

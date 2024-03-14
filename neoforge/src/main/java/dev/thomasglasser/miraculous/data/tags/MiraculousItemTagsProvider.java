@@ -6,6 +6,7 @@ import dev.thomasglasser.miraculous.world.item.MiraculousItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.ItemTagsProvider;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
@@ -24,5 +25,9 @@ public class MiraculousItemTagsProvider extends ItemTagsProvider
 	{
 		tag(MiraculousItemTags.MIRACULOUS)
 				.add(MiraculousItems.CAT_MIRACULOUS.get());
+
+		tag(MiraculousItemTags.DESTRUCTION_KWAMI_FOOD)
+				.add(Items.HONEY_BOTTLE)
+				.add(Items.MILK_BUCKET);
 	}
 }

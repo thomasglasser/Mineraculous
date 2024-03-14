@@ -93,6 +93,13 @@ subprojects {
                 includeGroupAndSubgroups 'com.eliotlash.mclib'
             }
         }
+        maven {
+            name = "SmartBrainLib"
+            url = "https://dl.cloudsmith.io/public/tslat/sbl/maven/"
+            content {
+                includeGroupAndSubgroups 'net.tslat.smartbrainlib'
+            }
+        }
 
         // Non-specific
         maven {

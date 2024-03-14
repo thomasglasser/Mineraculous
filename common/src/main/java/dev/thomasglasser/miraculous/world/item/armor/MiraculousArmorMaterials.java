@@ -13,7 +13,7 @@ import java.util.EnumMap;
 
 public enum MiraculousArmorMaterials implements StringRepresentable, ArmorMaterial
 {
-	MIRACULOUS("miraculous", 25, Util.make(new EnumMap<>(ArmorItem.Type.class), (enumMap) -> {
+	MIRACULOUS("miraculous", 0, Util.make(new EnumMap<>(ArmorItem.Type.class), (enumMap) -> {
 		enumMap.put(ArmorItem.Type.BOOTS, 2);
 		enumMap.put(ArmorItem.Type.LEGGINGS, 5);
 		enumMap.put(ArmorItem.Type.CHESTPLATE, 6);

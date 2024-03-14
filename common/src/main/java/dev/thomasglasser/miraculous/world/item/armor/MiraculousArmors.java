@@ -9,6 +9,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Rarity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
 public class MiraculousArmors
 {
 	public static final RegistrationProvider<Item> ARMORS = RegistrationProvider.get(Registries.ITEM, Miraculous.MOD_ID);
-	public static final Item.Properties DEFAULT_PROPERTIES = new Item.Properties().stacksTo(1);
+	public static final Item.Properties DEFAULT_PROPERTIES = new Item.Properties().stacksTo(1).rarity(Rarity.EPIC);
 	public static final List<ArmorSet> MIRACULOUS_SETS = new ArrayList<>();
 
 	public static final ArmorSet CAT_MIRACULOUS = createMiraculousSet("cat", "Cat");

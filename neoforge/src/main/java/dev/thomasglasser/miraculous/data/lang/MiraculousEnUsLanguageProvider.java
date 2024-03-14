@@ -44,6 +44,6 @@ public class MiraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 		addConfigCategory("miraculous", "Miraculous");
 		addConfig("miraculous_comment", MiraculousClientConfig.miraculous_comment);
 		addConfig("enable_custom_hidden_variants_comment", MiraculousClientConfig.enable_custom_hidden_variants_comment);
-		addConfig("enable_custom_hidden_variants", "Enable Custom Hidden Variants");
+		addConfig("enableCustomHiddenVariants", "Enable Custom Hidden Variants");
 	}
 }

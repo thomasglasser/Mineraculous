@@ -16,7 +16,6 @@ public class MiraculousItem extends Item implements ModeledItem
 {
 	public static final String TAG_POWERED = "Powered";
 	public static final String TAG_HOLDER = "Holder";
-	public static final String TAG_VARIANT = "Variant";
 
 	private BlockEntityWithoutLevelRenderer bewlr;
 
@@ -60,11 +59,6 @@ public class MiraculousItem extends Item implements ModeledItem
 	public String getHolder(ItemStack stack)
 	{
 		return stack.getOrCreateTag().getString(TAG_HOLDER);
-	}
-
-	public int getVariant(ItemStack stack)
-	{
-		return stack.getOrCreateTag().getInt(TAG_VARIANT);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package dev.thomasglasser.miraculous.data.lang;
 
 import dev.thomasglasser.miraculous.Miraculous;
+import dev.thomasglasser.miraculous.client.MiraculousClientConfig;
 import dev.thomasglasser.miraculous.world.item.MiraculousCreativeModeTabs;
 import dev.thomasglasser.miraculous.world.item.MiraculousItems;
 import dev.thomasglasser.miraculous.world.item.armor.MiraculousArmors;
@@ -28,5 +29,17 @@ public class MiraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 			add(set.LEGS.get(), set.getDisplayName() + " Leggings");
 			add(set.FEET.get(), set.getDisplayName() + " Boots");
 		});
+
+		addConfigs();
+	}
+
+	private void addConfigs()
+	{
+		addConfigTitle(Miraculous.MOD_NAME);
+
+		addConfigCategory("miraculous", "Miraculous");
+		addConfig("miraculous_comment", MiraculousClientConfig.miraculous_comment);
+		addConfig("enable_custom_hidden_variants_comment", MiraculousClientConfig.enable_custom_hidden_variants_comment);
+		addConfig("enable_custom_hidden_variants", "Enable Custom Hidden Variants");
 	}
 }

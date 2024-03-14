@@ -57,6 +57,7 @@ dependencies {
         transitive = false
     }
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
+    implementation "maven.modrinth:midnightlib:${midnightlib_version}-neoforge"
 
     // Runtime
 //    runtimeOnly "maven.modrinth:jade:${jade_version}-neoforge"

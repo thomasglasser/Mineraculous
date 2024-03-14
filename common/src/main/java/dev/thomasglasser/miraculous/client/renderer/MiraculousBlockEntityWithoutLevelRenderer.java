@@ -2,6 +2,7 @@ package dev.thomasglasser.miraculous.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.thomasglasser.miraculous.Miraculous;
+import dev.thomasglasser.miraculous.client.MiraculousClientConfig;
 import dev.thomasglasser.miraculous.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -27,7 +28,7 @@ public class MiraculousBlockEntityWithoutLevelRenderer extends BlockEntityWithou
 		if (stack.getItem() instanceof MiraculousItem miraculousItem)
 		{
 			ResourceLocation loc = BuiltInRegistries.ITEM.getKey(stack.getItem());
-			if (!miraculousItem.isPowered(stack) && !miraculousItem.getHolder(stack).isEmpty())
+			if (!miraculousItem.isPowered(stack) && !miraculousItem.getHolder(stack).isEmpty() && MiraculousClientConfig.enableCustomHiddenVariants)
 			{
 				TommyLibServices.ITEM.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, Miraculous.MOD_ID, loc.getPath() + "_" + miraculousItem.getHolder(stack).toLowerCase(), loc.getPath() + "_default");
 			}

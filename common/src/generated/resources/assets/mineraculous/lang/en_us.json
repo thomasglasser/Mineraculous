@@ -1,0 +1,16 @@
+{
+  "entity.mineraculous.plagg": "Plagg",
+  "item.mineraculous.cat_miraculous": "Cat Miraculous",
+  "item.mineraculous.cat_miraculous_boots": "Cat Miraculous Boots",
+  "item.mineraculous.cat_miraculous_chestplate": "Cat Miraculous Chestplate",
+  "item.mineraculous.cat_miraculous_leggings": "Cat Miraculous Leggings",
+  "item.mineraculous.cat_miraculous_mask": "Cat Miraculous Mask",
+  "item.mineraculous.plagg_spawn_egg": "Plagg Spawn Egg",
+  "item_group.mineraculous.mineraculous": "Mineraculous",
+  "item_group.mineraculous.miraculous_suits": "Miraculous Suits",
+  "mineraculous.midnightconfig.category.miraculous": "Miraculous",
+  "mineraculous.midnightconfig.enableCustomHiddenVariants": "Enable Custom Hidden Variants",
+  "mineraculous.midnightconfig.enable_custom_hidden_variants_comment": "Enable resource pack support for custom hidden textures",
+  "mineraculous.midnightconfig.miraculous_comment": "Settings for the Miraculous",
+  "mineraculous.midnightconfig.title": "Mineraculous"
+}

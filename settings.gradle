@@ -29,5 +29,5 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'Miraculous'
+rootProject.name = github_name
 include("common", "fabric", "neoforge")

@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous;
 
 import dev.thomasglasser.mineraculous.client.MineraculousNeoForgeClientEvents;
+import dev.thomasglasser.mineraculous.core.MineraculousNeoForgeCoreEvents;
 import dev.thomasglasser.mineraculous.data.MineraculousDataGenerators;
 import dev.thomasglasser.mineraculous.platform.NeoForgeDataHelper;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousNeoForgeEntityEvents;
@@ -24,11 +25,14 @@ public class MineraculousNeoForge
         {
             bus.addListener(MineraculousNeoForgeClientEvents::onRegisterAdditionalModels);
             bus.addListener(MineraculousNeoForgeClientEvents::onRegisterRenderer);
+            bus.addListener(MineraculousNeoForgeClientEvents::onFMLClientSetup);
         }
     }
 
     private void addModListeners(IEventBus bus)
     {
         bus.addListener(MineraculousNeoForgeEntityEvents::onEntityAttributeCreation);
+        bus.addListener(MineraculousNeoForgeCoreEvents::onRegisterPackets);
+        bus.addListener(MineraculousNeoForgeCoreEvents::onFMLCommonSetup);
     }
 }

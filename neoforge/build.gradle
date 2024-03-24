@@ -79,6 +79,7 @@ dependencies {
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     implementation "maven.modrinth:midnightlib:${midnightlib_version}-neoforge"
     implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${sbl_version}"
+    implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
     // Runtime
 //    runtimeOnly "maven.modrinth:jade:${jade_version}-neoforge"

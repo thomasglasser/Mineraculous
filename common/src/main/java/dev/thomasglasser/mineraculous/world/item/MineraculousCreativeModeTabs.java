@@ -34,7 +34,7 @@ public class MineraculousCreativeModeTabs
 		output.acceptAll(itemsToAdd.stream().map(rl -> BuiltInRegistries.ITEM.get(rl).getDefaultInstance()).toList());
 	}, CreativeModeTabs.SPAWN_EGGS));
 
-	public static final RegistryObject<CreativeModeTab> MIRACULOUS_SUITS = TABS.register("miraculous_suits", () -> TommyLibServices.ITEM.newTab(Component.translatable(Mineraculous.modLoc("miraculous_suits").toLanguageKey("item_group")), () -> MineraculousArmors.CAT_MIRACULOUS.HEAD.get().getDefaultInstance(), true, (parameters, output) ->
+	public static final RegistryObject<CreativeModeTab> SUITS = TABS.register("suits", () -> TommyLibServices.ITEM.newTab(Component.translatable(Mineraculous.modLoc("suits").toLanguageKey("item_group")), () -> MineraculousArmors.CAT_MIRACULOUS.HEAD.get().getDefaultInstance(), true, (parameters, output) ->
 	{
 		List<ResourceLocation> itemsToAdd = new ArrayList<>();
 

@@ -22,10 +22,10 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "dev.thomasglasser.miraculous.MiraculousFabric"
+            "dev.thomasglasser.mineraculous.MineraculousFabric"
         ],
         "client": [
-            "dev.thomasglasser.miraculous.client.MiraculousFabricClient"
+            "dev.thomasglasser.mineraculous.client.MineraculousFabricClient"
         ]
     },
     "mixins": [

@@ -1,19 +1,24 @@
 package dev.thomasglasser.mineraculous.client;
 
-import dev.thomasglasser.mineraculous.client.renderer.MineraculousBlockEntityWithoutLevelRenderer;
+import com.mojang.blaze3d.vertex.PoseStack;
+import dev.emi.trinkets.api.SlotReference;
+import dev.emi.trinkets.api.client.TrinketRenderer;
+import dev.emi.trinkets.api.client.TrinketRendererRegistry;
 import dev.thomasglasser.mineraculous.client.renderer.entity.PlaggRenderer;
+import dev.thomasglasser.mineraculous.client.renderer.item.curio.MiraculousItemCurioRenderer;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
-import dev.thomasglasser.tommylib.api.registration.RegistryObject;
-import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.model.loading.v1.PreparableModelLoadingPlugin;
-import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,16 +31,6 @@ public class MineraculousFabricClient implements ClientModInitializer
 	@Override
 	public void onInitializeClient()
 	{
-		MineraculousBlockEntityWithoutLevelRenderer bewlr = new MineraculousBlockEntityWithoutLevelRenderer();
-
-		for (RegistryObject<Item> item : MineraculousItems.ITEMS.getEntries())
-		{
-			if (item.get() instanceof ModeledItem)
-			{
-				BuiltinItemRendererRegistry.INSTANCE.register(item.get(), (bewlr::renderByItem));
-			}
-		}
-
 		PreparableModelLoadingPlugin.register(((resourceManager, executor) ->
 		{
 			Map<ResourceLocation, Resource> map = resourceManager.listResources("models/item", (location -> location.getPath().endsWith(".json") && location.getPath().contains("_miraculous_")));
@@ -49,11 +44,27 @@ public class MineraculousFabricClient implements ClientModInitializer
 		}), (data, pluginContext) ->
 				pluginContext.addModels(data));
 
-		onRegisterRenderers();
+		registerRenderers();
+
+		registerTrinketRenderers();
 	}
 
-	private void onRegisterRenderers()
+	private void registerRenderers()
 	{
 		EntityRendererRegistry.register(MineraculousEntityTypes.PLAGG.get(), PlaggRenderer::new);
+	}
+
+	private void registerTrinketRenderers()
+	{
+		TrinketRendererRegistry.registerRenderer(MineraculousItems.CAT_MIRACULOUS.get(), new TrinketRenderer() {
+			private final MiraculousItemCurioRenderer renderer = new MiraculousItemCurioRenderer();
+
+			@Override
+			public void render(ItemStack stack, SlotReference slotReference, EntityModel<? extends LivingEntity> contextModel, PoseStack matrices, MultiBufferSource vertexConsumers, int light, LivingEntity entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch)
+			{
+				if (contextModel instanceof HumanoidModel<? extends LivingEntity> humanoidModel)
+					renderer.render(stack, entity, humanoidModel, matrices, vertexConsumers, light);
+			}
+		});
 	}
 }

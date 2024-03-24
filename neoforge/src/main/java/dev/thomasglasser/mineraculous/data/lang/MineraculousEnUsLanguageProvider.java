@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.data.lang;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
+import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
@@ -23,7 +24,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 		add(MineraculousItems.PLAGG_SPAWN_EGG.get(), "Plagg Spawn Egg");
 
 		addCreativeTab(MineraculousCreativeModeTabs.MINERACULOUS, "Mineraculous");
-		addCreativeTab(MineraculousCreativeModeTabs.MIRACULOUS_SUITS, "Miraculous Suits");
+		addCreativeTab(MineraculousCreativeModeTabs.SUITS, "Suits");
 
 		MineraculousArmors.MIRACULOUS_SETS.forEach(set ->
 		{
@@ -36,6 +37,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 		addConfigs();
 
 		add(MineraculousEntityTypes.PLAGG.get(), "Plagg");
+
+		add(MineraculousKeyMappings.MIRACULOUS_CATEGORY, "Miraculous");
+		add(MineraculousKeyMappings.TRANSFORM, "Transform");
+		add(MineraculousKeyMappings.ACTIVATE_POWER, "Activate Power");
 	}
 
 	private void addConfigs()

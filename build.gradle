@@ -100,6 +100,27 @@ subprojects {
                 includeGroupAndSubgroups 'net.tslat.smartbrainlib'
             }
         }
+        maven {
+            name = "Illusive Soulworks maven"
+            url = "https://maven.theillusivec4.top/"
+            content {
+                includeGroupAndSubgroups 'top.theillusivec4.curios'
+            }
+        }
+        maven {
+            name = "TerraformersMC"
+            url = "https://maven.terraformersmc.com/"
+            content {
+                includeGroupAndSubgroups 'dev.emi'
+            }
+        }
+        maven {
+            name = "Ladysnake Libs"
+            url = 'https://maven.ladysnake.org/releases'
+            content {
+                includeGroupAndSubgroups 'dev.onyxstudios.cardinal-components-api'
+            }
+        }
 
         // Non-specific
         maven {

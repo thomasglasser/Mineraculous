@@ -393,12 +393,10 @@
 	"display": {
 		"thirdperson_righthand": {
 			"rotation": [0, 90, 0],
-			"translation": [0.5, -2.75, 0.4],
 			"scale": [0.31, 0.31, 0.31]
 		},
 		"thirdperson_lefthand": {
 			"rotation": [0, -90, 0],
-			"translation": [0.5, -2.75, 0.4],
 			"scale": [0.31, 0.31, 0.31]
 		},
 		"firstperson_righthand": {

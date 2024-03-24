@@ -8,15 +8,15 @@ import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
 public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmorItem> {
 
-    private final String miraculous;
+    private final ResourceLocation texture;
 
     public MiraculousArmorItemRenderer(String miraculous) {
         super(new DefaultedItemGeoModel<>(Mineraculous.modLoc("armor/" + miraculous + "_miraculous_suit")));
-        this.miraculous = miraculous;
+        texture = Mineraculous.modLoc("textures/models/armor/" + miraculous + "_miraculous_suit_default.png");
     }
 
     @Override
     public ResourceLocation getTextureLocation(MiraculousArmorItem animatable) {
-        return Mineraculous.modLoc("textures/models/armor/" + miraculous + "_miraculous_suit_default.png");
+        return texture;
     }
 }

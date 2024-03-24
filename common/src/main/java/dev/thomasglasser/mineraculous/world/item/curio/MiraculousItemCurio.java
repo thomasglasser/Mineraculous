@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.world.item.curio;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.network.ServerboundMiraculousTransformPacket;
 import dev.thomasglasser.mineraculous.platform.Services;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -57,7 +58,7 @@ public class MiraculousItemCurio implements Curio
 		{
 			if (stack.getOrCreateTag().getBoolean(MiraculousItem.TAG_POWERED) && !Services.DATA.getMiraculousData(entity).transformed())
 			{
-				((MiraculousItem)stack.getItem()).summonKwami(entity.level(), stack, curiosData, player);
+				MineraculousEntityEvents.summonKwami(entity.level(), stack, curiosData, player);
 				stack.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, false);
 			}
 		}

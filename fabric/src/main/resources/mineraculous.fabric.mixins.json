@@ -5,6 +5,8 @@
   "refmap": "${mod_id}.refmap.json",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "minecraft.server.level.ServerPlayerMixin",
+    "minecraft.world.entity.LivingEntityMixin",
     "miraculous.world.item.armor.MiraculousArmorItemMixin"
   ],
   "client": [

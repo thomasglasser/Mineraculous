@@ -9,5 +9,5 @@ public interface DataHelper
 	ArmorData getStoredArmor(LivingEntity entity);
 	void setStoredArmor(ArmorData data, LivingEntity entity);
 	MiraculousData getMiraculousData(LivingEntity entity);
-	void setMiraculousData(MiraculousData data, LivingEntity entity);
+	void setMiraculousData(MiraculousData data, LivingEntity entity, boolean syncToClient);
 }

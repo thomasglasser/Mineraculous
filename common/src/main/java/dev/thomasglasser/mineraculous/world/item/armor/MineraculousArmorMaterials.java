@@ -14,11 +14,11 @@ import java.util.EnumMap;
 public enum MineraculousArmorMaterials implements StringRepresentable, ArmorMaterial
 {
 	MIRACULOUS("miraculous", 0, Util.make(new EnumMap<>(ArmorItem.Type.class), (enumMap) -> {
-		enumMap.put(ArmorItem.Type.BOOTS, 2);
-		enumMap.put(ArmorItem.Type.LEGGINGS, 5);
-		enumMap.put(ArmorItem.Type.CHESTPLATE, 6);
-		enumMap.put(ArmorItem.Type.HELMET, 2);
-	}), 9, SoundEvents.ARMOR_EQUIP_LEATHER /*TODO:Custom sound?*/, 0.0F, 0.0F);
+		enumMap.put(ArmorItem.Type.BOOTS, 30);
+		enumMap.put(ArmorItem.Type.LEGGINGS, 30);
+		enumMap.put(ArmorItem.Type.CHESTPLATE, 30);
+		enumMap.put(ArmorItem.Type.HELMET, 30);
+	}), 0, SoundEvents.ARMOR_EQUIP_LEATHER /*TODO:Custom sound?*/, 20.0F, 0.0F);
 
 	public static final Codec<MineraculousArmorMaterials> CODEC = StringRepresentable.fromEnum(MineraculousArmorMaterials::values);
 	private static final EnumMap<ArmorItem.Type, Integer> HEALTH_FUNCTION_FOR_TYPE = Util.make(new EnumMap<>(ArmorItem.Type.class), (enumMap) -> {

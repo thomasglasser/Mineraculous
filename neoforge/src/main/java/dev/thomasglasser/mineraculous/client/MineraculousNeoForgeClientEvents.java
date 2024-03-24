@@ -18,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 import top.theillusivec4.curios.api.client.ICurioRenderer;
@@ -54,5 +55,13 @@ public class MineraculousNeoForgeClientEvents
 					renderer.render(stack, slotContext.entity(), humanoidModel, matrixStack, renderTypeBuffer, light);
 			}
 		});
+	}
+
+	public static void onEntityJoinLevel(EntityJoinLevelEvent event)
+	{
+		if (event.getLevel().isClientSide)
+		{
+			MineraculousClientEvents.onEntityJoinLevel(event.getEntity());
+		}
 	}
 }

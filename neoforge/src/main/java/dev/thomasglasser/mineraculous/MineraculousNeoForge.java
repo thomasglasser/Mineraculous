@@ -8,6 +8,7 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousNeoForgeEntityEve
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
 
 @Mod(Mineraculous.MOD_ID)
 public class MineraculousNeoForge
@@ -21,11 +22,15 @@ public class MineraculousNeoForge
 
         addModListeners(bus);
 
+        NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeEntityEvents::onLivingDeath);
+
         if (TommyLibServices.PLATFORM.isClientSide())
         {
             bus.addListener(MineraculousNeoForgeClientEvents::onRegisterAdditionalModels);
             bus.addListener(MineraculousNeoForgeClientEvents::onRegisterRenderer);
             bus.addListener(MineraculousNeoForgeClientEvents::onFMLClientSetup);
+
+            NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeClientEvents::onEntityJoinLevel);
         }
     }
 

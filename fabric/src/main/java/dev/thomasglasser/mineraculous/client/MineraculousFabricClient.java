@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.client.renderer.item.curio.MiraculousItemC
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.model.loading.v1.PreparableModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.minecraft.client.model.EntityModel;
@@ -47,6 +48,9 @@ public class MineraculousFabricClient implements ClientModInitializer
 		registerRenderers();
 
 		registerTrinketRenderers();
+
+		ClientEntityEvents.ENTITY_LOAD.register(((trackedEntity, player) ->
+				MineraculousClientEvents.onEntityJoinLevel(trackedEntity)));
 	}
 
 	private void registerRenderers()

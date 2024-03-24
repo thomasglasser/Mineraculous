@@ -10,4 +10,9 @@ public record CuriosData(int slot, String category, String name)
 			Codec.STRING.fieldOf("category").forGetter(CuriosData::category),
 			Codec.STRING.fieldOf("name").forGetter(CuriosData::name)
 	).apply(instance, CuriosData::new));
+
+	public CuriosData()
+	{
+		this(0, "", "");
+	}
 }

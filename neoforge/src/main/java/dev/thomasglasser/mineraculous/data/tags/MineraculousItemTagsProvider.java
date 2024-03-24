@@ -30,7 +30,6 @@ public class MineraculousItemTagsProvider extends ItemTagsProvider
 				.add(Items.HONEY_BOTTLE)
 				.add(Items.MILK_BUCKET);
 
-		// TODO: Bind to slot when transformed
 		curios("ring", "hand/ring", MineraculousItems.CAT_MIRACULOUS.get());
 	}
 

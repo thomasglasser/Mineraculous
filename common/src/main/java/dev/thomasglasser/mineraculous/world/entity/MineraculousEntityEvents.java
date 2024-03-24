@@ -53,7 +53,7 @@ public class MineraculousEntityEvents
 		{
 			if (data.transformed())
 			{
-				handleTransformation(player, data.miraculous(), Services.CURIOS.getCuriosData(entity, data.miraculous()), false);
+				handleTransformation(player, data.miraculous(), data.miraculousData(), false);
 				if (player.serverLevel().getEntity(data.miraculous().getOrCreateTag().getCompound(MiraculousItem.TAG_KWAMIDATA).getUUID("UUID")) instanceof Kwami kwami)
 				{
 					renounceMiraculous(data.miraculous(), kwami);
@@ -104,7 +104,7 @@ public class MineraculousEntityEvents
 
 						ItemStack tool = miraculousItem.getTool() == null ? ItemStack.EMPTY : miraculousItem.getTool().getDefaultInstance();
 						player.addItem(tool);
-						Services.DATA.setMiraculousData(new MiraculousData(true, miraculous, tool, miraculousData.powerLevel()), player, true);
+						Services.DATA.setMiraculousData(new MiraculousData(true, miraculous, curiosData, tool, miraculousData.powerLevel()), player, true);
 						miraculous.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, true);
 						Services.CURIOS.setStackInSlot(player, curiosData, miraculous, true);
 						TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.class, ClientboundMiraculousTransformPacket.write(miraculous, curiosData, transform, Services.DATA.getMiraculousData(player).tool()), serverLevel.getServer());
@@ -146,7 +146,7 @@ public class MineraculousEntityEvents
 				miraculous.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, false);
 				Services.CURIOS.setStackInSlot(player, curiosData, miraculous, true);
 				miraculousData.tool().getOrCreateTag().putBoolean(MiraculousItem.TAG_RECALLED, true);
-				Services.DATA.setMiraculousData(new MiraculousData(false, miraculous, ItemStack.EMPTY, miraculousData.powerLevel()), player, true);
+				Services.DATA.setMiraculousData(new MiraculousData(false, miraculous, curiosData, ItemStack.EMPTY, miraculousData.powerLevel()), player, true);
 				TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.class, ClientboundMiraculousTransformPacket.write(miraculous, curiosData, transform, Services.DATA.getMiraculousData(player).tool()), serverLevel.getServer());
 				MIRACULOUS_EFFECTS.forEach(player::removeEffect);
 			}

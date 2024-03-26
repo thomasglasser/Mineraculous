@@ -22,6 +22,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 	{
 		add(MineraculousItems.CAT_MIRACULOUS.get(), "Cat Miraculous");
 		add(MineraculousItems.PLAGG_SPAWN_EGG.get(), "Plagg Spawn Egg");
+		add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
 
 		addCreativeTab(MineraculousCreativeModeTabs.MINERACULOUS, "Mineraculous");
 		addCreativeTab(MineraculousCreativeModeTabs.SUITS, "Suits");

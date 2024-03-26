@@ -16,6 +16,7 @@ public class MineraculousPackets
 		// Serverbound
 		PACKETS.put(ServerboundMiraculousTransformPacket.class, Pair.of(ServerboundMiraculousTransformPacket.ID, CustomPacket.Direction.CLIENT_TO_SERVER));
 		PACKETS.put(ServerboundRequestMiraculousDataSyncPacket.class, Pair.of(ServerboundRequestMiraculousDataSyncPacket.ID, CustomPacket.Direction.CLIENT_TO_SERVER));
+		PACKETS.put(ServerboundActivatePowerPacket.class, Pair.of(ServerboundActivatePowerPacket.ID, CustomPacket.Direction.CLIENT_TO_SERVER));
 
 		// Clientbound
 		PACKETS.put(ClientboundMiraculousTransformPacket.class, Pair.of(ClientboundMiraculousTransformPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));

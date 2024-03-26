@@ -1,0 +1,9 @@
+{
+  "values": [
+    "mineraculous:cataclysm_dust",
+    {
+      "id": "#tommylib:unbreakable",
+      "required": false
+    }
+  ]
+}

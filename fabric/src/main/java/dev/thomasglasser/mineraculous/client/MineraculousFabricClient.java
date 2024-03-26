@@ -34,7 +34,7 @@ public class MineraculousFabricClient implements ClientModInitializer
 	{
 		PreparableModelLoadingPlugin.register(((resourceManager, executor) ->
 		{
-			Map<ResourceLocation, Resource> map = resourceManager.listResources("models/item", (location -> location.getPath().endsWith(".json") && location.getPath().contains("_miraculous_")));
+			Map<ResourceLocation, Resource> map = resourceManager.listResources("models/item/miraculous", (location -> location.getPath().endsWith(".json")));
 			List<ModelResourceLocation> rls = new ArrayList<>();
 			for (ResourceLocation rl : map.keySet())
 			{

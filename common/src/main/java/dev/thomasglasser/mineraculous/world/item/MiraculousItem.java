@@ -27,8 +27,11 @@ public class MiraculousItem extends BaseModeledItem
 	public static final String TAG_HOLDER = "Holder";
 	public static final String TAG_KWAMIDATA = "KwamiData";
 	public static final String TAG_RECALLED = "Recalled";
-	public static final String TAG_TRANSFORMTICKS = "TransformTicks";
-	public static final String TAG_DETRANSFORMTICKS = "DetransformTicks";
+	public static final String TAG_TRANSFORMINGTICKS = "TransformingTicks";
+	public static final String TAG_DETRANSFORMINGTICKS = "DetransformingTicks";
+	public static final String TAG_REMAININGTICKS = "RemainingTicks";
+
+	public static final int FIVE_MINUTES = 6000;
 
 	private final ArmorSet armor;
 	private final Supplier<Item> tool;
@@ -79,7 +82,7 @@ public class MiraculousItem extends BaseModeledItem
 			if (MineraculousEntityEvents.renounceMiraculous(stack, kwami))
 				return InteractionResult.SUCCESS;
 		}
-		return InteractionResult.PASS;
+		return InteractionResult.sidedSuccess(player.level().isClientSide);
 	}
 
 	public boolean isPowered(ItemStack stack)

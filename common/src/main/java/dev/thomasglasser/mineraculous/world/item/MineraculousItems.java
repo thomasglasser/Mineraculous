@@ -25,7 +25,10 @@ public class MineraculousItems
 {
 	public static final RegistrationProvider<Item> ITEMS = RegistrationProvider.get(Registries.ITEM, Mineraculous.MOD_ID);
 
+	// Miraculous
 	public static final RegistryObject<MiraculousItem> CAT_MIRACULOUS = registerMiraculous("cat", MineraculousArmors.CAT_MIRACULOUS, null /*TODO: Stick */, null /* TODO: Transform sound */, MineraculousEntityTypes.PLAGG::get, List.of("ring"));
+
+	public static final RegistryObject<Item> CATACLYSM_DUST = register("cataclysm_dust", () -> new Item(new Item.Properties()), List.of(MineraculousCreativeModeTabs.MINERACULOUS.getResourceKey()));
 
 	// SPAWN EGGS
 	public static final RegistryObject<SpawnEggItem> PLAGG_SPAWN_EGG = registerSpawnEgg("plagg_spawn_egg", MineraculousEntityTypes.PLAGG::get, 0x1c1b20, 0xb6fa02);

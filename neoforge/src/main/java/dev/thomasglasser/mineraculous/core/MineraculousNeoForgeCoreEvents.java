@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.core;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.network.MineraculousPackets;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.world.item.curio.CatMiraculousItemCurio;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.MiraculousItemCurio;
 import dev.thomasglasser.tommylib.api.network.NeoForgePacketUtils;
@@ -25,7 +26,7 @@ public class MineraculousNeoForgeCoreEvents
 	public static void onFMLCommonSetup(FMLCommonSetupEvent event)
 	{
 		CuriosApi.registerCurio(MineraculousItems.CAT_MIRACULOUS.get(), new ICurioItem() {
-			private final MiraculousItemCurio curio = new MiraculousItemCurio();
+			private final MiraculousItemCurio curio = new CatMiraculousItemCurio();
 
 			@Override
 			public void curioTick(SlotContext slotContext, ItemStack stack)

@@ -44,13 +44,13 @@ public class ClientboundMiraculousTransformPacket implements CustomPacket
 		if (transform)
 		{
 			// TODO: Start player anim
-			miraculous.getOrCreateTag().putInt(MiraculousItem.TAG_TRANSFORMTICKS, 0 /* TODO: Set it to however long the transform anim is */);
+			miraculous.getOrCreateTag().putInt(MiraculousItem.TAG_TRANSFORMINGTICKS, 0 /* TODO: Set it to however long the transform anim is */);
 			Services.CURIOS.setStackInSlot(player, curiosData, miraculous, false);
 		}
 		else
 		{
 			// TODO: Start player anim
-			miraculous.getOrCreateTag().putInt(MiraculousItem.TAG_DETRANSFORMTICKS, 0 /* TODO: Set it to however long the detransform anim is */);
+			miraculous.getOrCreateTag().putInt(MiraculousItem.TAG_DETRANSFORMINGTICKS, 0 /* TODO: Set it to however long the detransform anim is */);
 			Services.CURIOS.setStackInSlot(player, curiosData, miraculous, false);
 		}
 	}

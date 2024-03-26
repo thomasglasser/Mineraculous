@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.world.entity.kwami;
 
+import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -175,17 +176,19 @@ public abstract class Kwami extends TamableAnimal implements SmartBrainOwner<Kwa
 	@Override
 	public InteractionResult mobInteract(Player player, InteractionHand hand)
 	{
-		if (player == getOwner())
+		if (!player.level().isClientSide && player == getOwner())
 		{
 			ItemStack stack = player.getItemInHand(hand);
-			if (isFood(stack))
+			if (!isCharged())
 			{
-				if (!isCharged())
+				if (isTreat(stack) || (isFood(stack) && random.nextInt(3) == 0))
 				{
 					setCharged(true);
+				}
+				if (isTreat(stack) || isFood(stack))
+				{
 					ItemStack remainder = ItemUtils.safeShrink(1, stack, player);
-					if (!remainder.isEmpty())
-						player.addItem(remainder);
+					if (!remainder.isEmpty()) player.addItem(remainder);
 					return InteractionResult.SUCCESS;
 				}
 			}
@@ -209,7 +212,15 @@ public abstract class Kwami extends TamableAnimal implements SmartBrainOwner<Kwa
 		return cache;
 	}
 
-	public abstract boolean isFood(ItemStack stack);
+	public boolean isFood(ItemStack stack)
+	{
+		return stack.is(MineraculousItemTags.KWAMI_FOODS);
+	}
+
+	public boolean isTreat(ItemStack stack)
+	{
+		return stack.is(MineraculousItemTags.KWAMI_TREATS);
+	}
 
 	public abstract SoundEvent getHungrySound();
 

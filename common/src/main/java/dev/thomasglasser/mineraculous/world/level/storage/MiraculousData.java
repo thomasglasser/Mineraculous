@@ -5,18 +5,20 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import net.minecraft.world.item.ItemStack;
 
-public record MiraculousData(boolean transformed, ItemStack miraculous, CuriosData miraculousData, ItemStack tool, int powerLevel)
+public record MiraculousData(boolean transformed, ItemStack miraculous, CuriosData miraculousData, ItemStack tool, int powerLevel, boolean powerActivated, boolean powerActive)
 {
 	public static final Codec<MiraculousData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.BOOL.fieldOf("transformed").forGetter(MiraculousData::transformed),
 			ItemStack.CODEC.fieldOf("miraculous").forGetter(MiraculousData::miraculous),
 			CuriosData.CODEC.fieldOf("miraculous_data").forGetter(MiraculousData::miraculousData),
 			ItemStack.CODEC.fieldOf("tool").forGetter(MiraculousData::tool),
-			Codec.INT.fieldOf("power_level").forGetter(MiraculousData::powerLevel)
+			Codec.INT.fieldOf("power_level").forGetter(MiraculousData::powerLevel),
+			Codec.BOOL.fieldOf("power_activated").forGetter(MiraculousData::powerActivated),
+			Codec.BOOL.fieldOf("power_active").forGetter(MiraculousData::powerActive)
 	).apply(instance, MiraculousData::new));
 
 	public MiraculousData()
 	{
-		this(false, ItemStack.EMPTY, new CuriosData(), ItemStack.EMPTY, 0);
+		this(false, ItemStack.EMPTY, new CuriosData(), ItemStack.EMPTY, 0, false, false);
 	}
 }

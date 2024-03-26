@@ -3,17 +3,25 @@ package dev.thomasglasser.mineraculous.world.entity;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.network.ClientboundMiraculousTransformPacket;
 import dev.thomasglasser.mineraculous.platform.Services;
+import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
+import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
+import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.registration.RegistryObject;
+import dev.thomasglasser.tommylib.api.world.entity.DataHolder;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -25,6 +33,7 @@ import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +41,8 @@ import java.util.function.BiFunction;
 
 public class MineraculousEntityEvents
 {
+	public static final String TAG_CATACLYSMED = "Cataclysmed";
+
 	public static final BiFunction<MobEffect, Integer, MobEffectInstance> INFINITE_HIDDEN_EFFECT = (effect, amplifier) -> new MobEffectInstance(effect, -1, amplifier, false, false, false);
 
 	public static final List<MobEffect> MIRACULOUS_EFFECTS = List.of(
@@ -104,18 +115,20 @@ public class MineraculousEntityEvents
 
 						ItemStack tool = miraculousItem.getTool() == null ? ItemStack.EMPTY : miraculousItem.getTool().getDefaultInstance();
 						player.addItem(tool);
-						Services.DATA.setMiraculousData(new MiraculousData(true, miraculous, curiosData, tool, miraculousData.powerLevel()), player, true);
+						Services.DATA.setMiraculousData(new MiraculousData(true, miraculous, curiosData, tool, miraculousData.powerLevel(), false, false), player, true);
 						miraculous.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, true);
 						Services.CURIOS.setStackInSlot(player, curiosData, miraculous, true);
 						TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.class, ClientboundMiraculousTransformPacket.write(miraculous, curiosData, transform, Services.DATA.getMiraculousData(player).tool()), serverLevel.getServer());
 						MIRACULOUS_EFFECTS.forEach(effect -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, miraculousData.powerLevel())));
+						if (miraculous.is(MineraculousItems.CAT_MIRACULOUS.get()))
+							player.addEffect(INFINITE_HIDDEN_EFFECT.apply(MobEffects.NIGHT_VISION, 1));
 						kwami.discard();
 						// TODO: Advancement trigger with miraculous context
 					}
 					else
 					{
 						// TODO: Hungry sound
-//						level.playSound(null, player.getX(), player.getY(), player.getZ(), kwami.getHungrySound(), kwami.getSoundSource(), 1, 1);
+//						kwami.playSound(kwami.getHungrySound());
 					}
 				}
 				else
@@ -144,11 +157,14 @@ public class MineraculousEntityEvents
 				}
 				miraculous.removeTagKey("Enchantments");
 				miraculous.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, false);
+				miraculous.getOrCreateTag().remove(MiraculousItem.TAG_REMAININGTICKS);
 				Services.CURIOS.setStackInSlot(player, curiosData, miraculous, true);
 				miraculousData.tool().getOrCreateTag().putBoolean(MiraculousItem.TAG_RECALLED, true);
-				Services.DATA.setMiraculousData(new MiraculousData(false, miraculous, curiosData, ItemStack.EMPTY, miraculousData.powerLevel()), player, true);
+				Services.DATA.setMiraculousData(new MiraculousData(false, miraculous, curiosData, ItemStack.EMPTY, miraculousData.powerLevel(), false, false), player, true);
 				TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.class, ClientboundMiraculousTransformPacket.write(miraculous, curiosData, transform, Services.DATA.getMiraculousData(player).tool()), serverLevel.getServer());
 				MIRACULOUS_EFFECTS.forEach(player::removeEffect);
+				if (miraculous.is(MineraculousItems.CAT_MIRACULOUS.get()))
+					player.removeEffect(MobEffects.NIGHT_VISION);
 			}
 		}
 	}
@@ -205,5 +221,97 @@ public class MineraculousEntityEvents
 			Services.CURIOS.setStackInSlot(player, curiosData, itemStack, true);
 		}
 		return kwami;
+	}
+
+	public static InteractionResult testAndApplyCataclysmEffects(LivingEntity entity, Entity target, InteractionHand hand)
+	{
+		MiraculousData miraculousData = Services.DATA.getMiraculousData(entity);
+		if (!entity.level().isClientSide && hand == InteractionHand.MAIN_HAND && miraculousData.transformed() && miraculousData.miraculous().is(MineraculousItems.CAT_MIRACULOUS.get()) && miraculousData.powerActive())
+		{
+			int level = miraculousData.powerLevel();
+			if (target instanceof LivingEntity livingEntity)
+			{
+				List<MobEffect> CATACLYSM_EFFECTS = List.of(
+						MobEffects.WITHER,
+						MobEffects.BLINDNESS,
+						MobEffects.WEAKNESS,
+						MobEffects.MOVEMENT_SLOWDOWN,
+						MobEffects.HUNGER,
+						MobEffects.CONFUSION,
+						MobEffects.DIG_SLOWDOWN
+				);
+				CATACLYSM_EFFECTS.forEach(effect -> livingEntity.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, level)));
+			}
+			else
+			{
+				target.hurt(entity.damageSources().indirectMagic(entity, entity), 1024);
+			}
+			((DataHolder)(target)).getPersistentData().putBoolean(TAG_CATACLYSMED, true);
+			Services.DATA.setMiraculousData(new MiraculousData(true, miraculousData.miraculous(), miraculousData.miraculousData(), miraculousData.tool(), miraculousData.powerLevel(), true, false), entity, true);
+			return InteractionResult.SUCCESS;
+		}
+		return InteractionResult.PASS;
+	}
+
+	public static InteractionResult onEntityInteract(LivingEntity entity, Entity target, InteractionHand hand)
+	{
+		return testAndApplyCataclysmEffects(entity, target, hand);
+	}
+
+	public static InteractionResult onAttackEntity(Player player, Entity entity)
+	{
+		if (!(entity instanceof LivingEntity))
+			return testAndApplyCataclysmEffects(player, entity, InteractionHand.MAIN_HAND);
+		return InteractionResult.PASS;
+	}
+
+	public static void onLivingAttack(LivingEntity target, DamageSource source)
+	{
+		if (source.getDirectEntity() instanceof LivingEntity livingEntity)
+		{
+			testAndApplyCataclysmEffects(livingEntity, target, InteractionHand.MAIN_HAND);
+		}
+	}
+
+	public static InteractionResult testAndApplyCataclysmToBlocks(LivingEntity entity, BlockPos pos, InteractionHand hand)
+	{
+		Level level = entity.level();
+		MiraculousData miraculousData = Services.DATA.getMiraculousData(entity);
+		if (!level.isClientSide && hand == InteractionHand.MAIN_HAND && miraculousData.transformed() && miraculousData.miraculous().is(MineraculousItems.CAT_MIRACULOUS.get()) && miraculousData.powerActive())
+		{
+			if (level.getBlockState(pos).is(MineraculousBlockTags.CATACLYSM_IMMUNE))
+				return InteractionResult.PASS;
+
+			// TODO: Cataclysmize block and nearby blocks
+			level.destroyBlock(pos, false, entity);
+			Services.DATA.setMiraculousData(new MiraculousData(true, miraculousData.miraculous(), miraculousData.miraculousData(), miraculousData.tool(), miraculousData.powerLevel(), true, false), entity, true);
+
+			return InteractionResult.SUCCESS;
+		}
+		return InteractionResult.PASS;
+	}
+
+	public static InteractionResult onBlockInteract(LivingEntity entity, BlockHitResult hitResult, InteractionHand hand)
+	{
+		return testAndApplyCataclysmToBlocks(entity, hitResult.getBlockPos(), hand);
+	}
+
+	public static InteractionResult onBlockLeftClick(Player player, BlockPos pos, InteractionHand hand)
+	{
+		return testAndApplyCataclysmToBlocks(player, pos, hand);
+	}
+
+	public static ItemStack convertToMiraculousDust(ItemStack stack)
+	{
+		if (!stack.is(MineraculousItemTags.CATACLYSM_IMMUNE))
+		{
+			return MineraculousItems.CATACLYSM_DUST.get().getDefaultInstance();
+		}
+		return stack;
+	}
+
+	public static boolean isCataclysmed(Entity entity)
+	{
+		return ((DataHolder)entity).getPersistentData().getBoolean(TAG_CATACLYSMED);
 	}
 }

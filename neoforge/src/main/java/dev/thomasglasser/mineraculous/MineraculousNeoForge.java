@@ -5,6 +5,7 @@ import dev.thomasglasser.mineraculous.core.MineraculousNeoForgeCoreEvents;
 import dev.thomasglasser.mineraculous.data.MineraculousDataGenerators;
 import dev.thomasglasser.mineraculous.platform.NeoForgeDataHelper;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousNeoForgeEntityEvents;
+import dev.thomasglasser.mineraculous.world.level.storage.loot.modifier.MineraculousLootModifiers;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -17,12 +18,19 @@ public class MineraculousNeoForge
         Mineraculous.init();
 
         NeoForgeDataHelper.ATTACHMENT_TYPES.register(bus);
+        MineraculousLootModifiers.LOOT_MODIFIERS.register(bus);
 
         bus.addListener(MineraculousDataGenerators::onGatherData);
 
         addModListeners(bus);
 
         NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeEntityEvents::onLivingDeath);
+        NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeEntityEvents::onEntityInteract);
+        NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeEntityEvents::onBlockInteract);
+        NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeEntityEvents::onAttackEntity);
+        NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeEntityEvents::onLivingAttack);
+        NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeEntityEvents::onBlockLeftClick);
+        NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeEntityEvents::onEffectRemoved);
 
         if (TommyLibServices.PLATFORM.isClientSide())
         {

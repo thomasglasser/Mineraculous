@@ -1,14 +1,14 @@
 package dev.thomasglasser.mineraculous.data;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.data.lang.MineraculousEnUsLanguageProvider;
+import dev.thomasglasser.mineraculous.data.loot.modifier.MineraculousGlobalLootModifierProvider;
 import dev.thomasglasser.mineraculous.data.models.MineraculousItemModels;
+import dev.thomasglasser.mineraculous.data.tags.MineraculousBlockTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousItemTagsProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
-import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
@@ -27,15 +27,11 @@ public class MineraculousDataGenerators
 		boolean onClient = event.includeClient();
 
 		// Server
-		BlockTagsProvider blockTagsProvider = new BlockTagsProvider(packOutput, registries, Mineraculous.MOD_ID, existingFileHelper)
-		{
-			@Override
-			protected void addTags(HolderLookup.Provider pProvider)
-			{}
-		};
+		MineraculousBlockTagsProvider blockTagsProvider = new MineraculousBlockTagsProvider(packOutput, registries, existingFileHelper);
 		generator.addProvider(onServer, blockTagsProvider);
 		generator.addProvider(onServer, new MineraculousItemTagsProvider(packOutput, registries, blockTagsProvider.contentsGetter(), existingFileHelper));
 		generator.addProvider(onServer, new MineraculousCuriosProvider(packOutput, existingFileHelper, registries));
+		generator.addProvider(onServer, new MineraculousGlobalLootModifierProvider(packOutput));
 
 		// Client
 		generator.addProvider(onClient, new MineraculousItemModels(packOutput, existingFileHelper));

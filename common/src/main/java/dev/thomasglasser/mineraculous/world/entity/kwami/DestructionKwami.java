@@ -14,9 +14,9 @@ public class DestructionKwami extends Kwami
 	}
 
 	@Override
-	public boolean isFood(ItemStack stack)
+	public boolean isTreat(ItemStack stack)
 	{
-		return stack.is(MineraculousItemTags.DESTRUCTION_KWAMI_FOOD);
+		return super.isTreat(stack) || stack.is(MineraculousItemTags.DESTRUCTION_KWAMI_TREATS);
 	}
 
 	@Override

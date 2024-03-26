@@ -79,13 +79,6 @@ subprojects {
             }
         }
         maven {
-            name = "Mixin Extras"
-            url = "https://jitpack.io/"
-            content {
-                includeGroupAndSubgroups 'com.github.llamalad7.mixinextras'
-            }
-        }
-        maven {
             name = 'GeckoLib'
             url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
             content {

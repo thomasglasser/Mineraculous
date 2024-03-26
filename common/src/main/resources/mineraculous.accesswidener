@@ -13,3 +13,4 @@ accessible field net/minecraft/world/item/CreativeModeTabs INGREDIENTS Lnet/mine
 accessible field net/minecraft/world/item/CreativeModeTabs OP_BLOCKS Lnet/minecraft/resources/ResourceKey;
 accessible field net/minecraft/client/resources/model/ModelManager bakedRegistry Ljava/util/Map;
 accessible field net/minecraft/client/KeyMapping CATEGORY_SORT_ORDER Ljava/util/Map;
+accessible method net/minecraft/client/renderer/GameRenderer loadEffect (Lnet/minecraft/resources/ResourceLocation;)V

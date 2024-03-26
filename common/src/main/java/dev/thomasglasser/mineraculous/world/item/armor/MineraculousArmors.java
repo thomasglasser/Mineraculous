@@ -7,7 +7,6 @@ import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
 

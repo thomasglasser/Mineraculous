@@ -128,6 +128,7 @@ public abstract class Kwami extends TamableAnimal implements SmartBrainOwner<Kwa
 	public BrainActivityGroup<? extends Kwami> getCoreTasks()
 	{
 		return BrainActivityGroup.coreTasks(
+				new AvoidEntity<>().noCloserThan(5).stopCaringAfter(10).speedModifier(2f).avoiding(livingEntity -> livingEntity instanceof Player && livingEntity != getOwner()),
 				new FollowOwner<>().speedMod(10f).stopFollowingWithin(4).teleportToTargetAfter(10),
 				new SetWalkTargetToAttackTarget<>(),
 				new MoveToWalkTarget<>(),

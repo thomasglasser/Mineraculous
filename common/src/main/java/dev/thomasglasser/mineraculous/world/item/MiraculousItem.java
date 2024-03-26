@@ -1,11 +1,12 @@
 package dev.thomasglasser.mineraculous.world.item;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
 import dev.thomasglasser.tommylib.api.world.item.BaseModeledItem;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -38,8 +39,9 @@ public class MiraculousItem extends BaseModeledItem
 	private final SoundEvent transformSound;
 	private final Supplier<EntityType<? extends Kwami>> kwamiType;
 	private final List<String> acceptableSlots;
+	private final TextColor powerColor;
 
-	public MiraculousItem(Properties properties, ArmorSet armor, Supplier<Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, List<String> acceptableSlots)
+	public MiraculousItem(Properties properties, ArmorSet armor, Supplier<Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, List<String> acceptableSlots, TextColor powerColor)
 	{
 		super(properties.stacksTo(1).fireResistant().rarity(Rarity.EPIC));
 		this.armor = armor;
@@ -47,6 +49,7 @@ public class MiraculousItem extends BaseModeledItem
 		this.transformSound = transformSound;
 		this.kwamiType = kwamiType;
 		this.acceptableSlots = acceptableSlots;
+		this.powerColor = powerColor;
 	}
 
 	@Override
@@ -98,7 +101,7 @@ public class MiraculousItem extends BaseModeledItem
 	@Override
 	public BlockEntityWithoutLevelRenderer getBEWLR()
 	{
-		return Mineraculous.getBewlr();
+		return MineraculousClientUtils.getBewlr();
 	}
 
 	public Item getTool()
@@ -131,5 +134,10 @@ public class MiraculousItem extends BaseModeledItem
 	public boolean isFoil(ItemStack stack)
 	{
 		return false;
+	}
+
+	public TextColor getPowerColor()
+	{
+		return powerColor;
 	}
 }

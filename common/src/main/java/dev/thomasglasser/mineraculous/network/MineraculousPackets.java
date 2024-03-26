@@ -2,25 +2,28 @@ package dev.thomasglasser.mineraculous.network;
 
 import com.mojang.datafixers.util.Pair;
 import dev.thomasglasser.tommylib.api.network.CustomPacket;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 public class MineraculousPackets
 {
-	public static Map<Class<? extends CustomPacket>, Pair<ResourceLocation, CustomPacket.Direction>> PACKETS = new HashMap<>();
+	public static Map<Function<FriendlyByteBuf, ? extends CustomPacket>, Pair<ResourceLocation, CustomPacket.Direction>> PACKETS = new HashMap<>();
 
 	public static void init()
 	{
 		// Serverbound
-		PACKETS.put(ServerboundMiraculousTransformPacket.class, Pair.of(ServerboundMiraculousTransformPacket.ID, CustomPacket.Direction.CLIENT_TO_SERVER));
-		PACKETS.put(ServerboundRequestMiraculousDataSyncPacket.class, Pair.of(ServerboundRequestMiraculousDataSyncPacket.ID, CustomPacket.Direction.CLIENT_TO_SERVER));
-		PACKETS.put(ServerboundActivatePowerPacket.class, Pair.of(ServerboundActivatePowerPacket.ID, CustomPacket.Direction.CLIENT_TO_SERVER));
+		PACKETS.put(ServerboundMiraculousTransformPacket::new, Pair.of(ServerboundMiraculousTransformPacket.ID, CustomPacket.Direction.CLIENT_TO_SERVER));
+		PACKETS.put(ServerboundRequestMiraculousDataSyncPacket::new, Pair.of(ServerboundRequestMiraculousDataSyncPacket.ID, CustomPacket.Direction.CLIENT_TO_SERVER));
+		PACKETS.put(buf -> new ServerboundActivatePowerPacket(), Pair.of(ServerboundActivatePowerPacket.ID, CustomPacket.Direction.CLIENT_TO_SERVER));
 
 		// Clientbound
-		PACKETS.put(ClientboundMiraculousTransformPacket.class, Pair.of(ClientboundMiraculousTransformPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));
-		PACKETS.put(ClientboundSyncCurioPacket.class, Pair.of(ClientboundSyncCurioPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));
-		PACKETS.put(ClientboundSyncMiraculousDataPacket.class, Pair.of(ClientboundSyncMiraculousDataPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));
+		PACKETS.put(ClientboundMiraculousTransformPacket::new, Pair.of(ClientboundMiraculousTransformPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));
+		PACKETS.put(ClientboundSyncCurioPacket::new, Pair.of(ClientboundSyncCurioPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));
+		PACKETS.put(ClientboundSyncMiraculousDataPacket::new, Pair.of(ClientboundSyncMiraculousDataPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));
+		PACKETS.put(ClientboundToggleCatVisionPacket::new, Pair.of(ClientboundToggleCatVisionPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));
 	}
 }

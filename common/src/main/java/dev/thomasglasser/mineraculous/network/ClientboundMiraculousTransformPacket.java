@@ -4,10 +4,12 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.platform.Services;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.tommylib.api.network.CustomPacket;
 import dev.thomasglasser.tommylib.api.network.PacketUtils;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -46,6 +48,8 @@ public class ClientboundMiraculousTransformPacket implements CustomPacket
 			// TODO: Start player anim
 			miraculous.getOrCreateTag().putInt(MiraculousItem.TAG_TRANSFORMINGTICKS, 0 /* TODO: Set it to however long the transform anim is */);
 			Services.CURIOS.setStackInSlot(player, curiosData, miraculous, false);
+			if (Services.DATA.getMiraculousData(player).name().isEmpty())
+				player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET), true);
 		}
 		else
 		{

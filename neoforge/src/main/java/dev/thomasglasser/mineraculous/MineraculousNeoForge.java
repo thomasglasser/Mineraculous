@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous;
 
 import dev.thomasglasser.mineraculous.client.MineraculousNeoForgeClientEvents;
+import dev.thomasglasser.mineraculous.commands.MineraculousNeoForgeCommandEvents;
 import dev.thomasglasser.mineraculous.core.MineraculousNeoForgeCoreEvents;
 import dev.thomasglasser.mineraculous.data.MineraculousDataGenerators;
 import dev.thomasglasser.mineraculous.platform.NeoForgeDataHelper;
@@ -31,6 +32,7 @@ public class MineraculousNeoForge
         NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeEntityEvents::onLivingAttack);
         NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeEntityEvents::onBlockLeftClick);
         NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeEntityEvents::onEffectRemoved);
+        NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeCommandEvents::onCommandsRegister);
 
         if (TommyLibServices.PLATFORM.isClientSide())
         {

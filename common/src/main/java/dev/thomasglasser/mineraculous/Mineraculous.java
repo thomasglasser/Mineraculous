@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous;
 
 import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
+import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
-import dev.thomasglasser.mineraculous.client.renderer.MineraculousBlockEntityWithoutLevelRenderer;
 import dev.thomasglasser.mineraculous.network.MineraculousPackets;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
@@ -24,8 +24,6 @@ public class Mineraculous
     public static final String MOD_NAME = "Mineraculous";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
 
-    private static final MineraculousBlockEntityWithoutLevelRenderer bewlr = new MineraculousBlockEntityWithoutLevelRenderer();
-
     public static void init() {
         LOGGER.info("Initializing {} for {} in a {} environment...", MOD_NAME, TommyLibServices.PLATFORM.getPlatformName(), TommyLibServices.PLATFORM.getEnvironmentName());
 
@@ -42,6 +40,8 @@ public class Mineraculous
                 "has_voice", Kwami.HAS_VOICE,
                 "charged", Kwami.CHARGED
         ));
+
+        if (TommyLibServices.PLATFORM.isClientSide()) MineraculousClientUtils.init();
     }
 
     private static void registerConfigs()
@@ -53,11 +53,6 @@ public class Mineraculous
     public static ResourceLocation modLoc(String s)
     {
         return new ResourceLocation(MOD_ID, s);
-    }
-
-    public static MineraculousBlockEntityWithoutLevelRenderer getBewlr()
-    {
-        return bewlr;
     }
 
     public enum Dependencies

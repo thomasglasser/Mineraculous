@@ -9,6 +9,7 @@ import dev.thomasglasser.tommylib.api.registration.RegistryObject;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
@@ -35,7 +36,7 @@ public class MineraculousItems
 
 	private static RegistryObject<MiraculousItem> registerMiraculous(String name, ArmorSet armorSet, Supplier<Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, List<String> acceptableSlots)
 	{
-		return register(name + "_miraculous", () -> new MiraculousItem(new Item.Properties(), armorSet, tool, transformSound, kwamiType, acceptableSlots), List.of(CreativeModeTabs.TOOLS_AND_UTILITIES, CreativeModeTabs.COMBAT));
+		return register(name + "_miraculous", () -> new MiraculousItem(new Item.Properties(), armorSet, tool, transformSound, kwamiType, acceptableSlots, TextColor.fromRgb(0xc6f800)), List.of(CreativeModeTabs.TOOLS_AND_UTILITIES, CreativeModeTabs.COMBAT));
 	}
 
 	private static <T extends Item> RegistryObject<T> register(String name, Supplier<T> item, List<ResourceKey<CreativeModeTab>> tabs)

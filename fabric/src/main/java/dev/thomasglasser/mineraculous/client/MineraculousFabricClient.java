@@ -6,12 +6,14 @@ import dev.emi.trinkets.api.client.TrinketRenderer;
 import dev.emi.trinkets.api.client.TrinketRendererRegistry;
 import dev.thomasglasser.mineraculous.client.renderer.entity.PlaggRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.item.curio.MiraculousItemCurioRenderer;
+import dev.thomasglasser.mineraculous.platform.Services;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.model.loading.v1.PreparableModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRenderEvents;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -51,6 +53,7 @@ public class MineraculousFabricClient implements ClientModInitializer
 
 		ClientEntityEvents.ENTITY_LOAD.register(((trackedEntity, player) ->
 				MineraculousClientEvents.onEntityJoinLevel(trackedEntity)));
+		LivingEntityFeatureRenderEvents.ALLOW_CAPE_RENDER.register(player -> !Services.DATA.getMiraculousData(player).transformed());
 	}
 
 	private void registerRenderers()

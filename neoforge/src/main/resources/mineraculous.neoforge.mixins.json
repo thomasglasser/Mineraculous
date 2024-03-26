@@ -6,6 +6,7 @@
     "mixins": [
     ],
     "client": [
+        "minecraft.client.renderer.entity.layers.CapeLayerMixin"
     ],
     "server": [
     ],

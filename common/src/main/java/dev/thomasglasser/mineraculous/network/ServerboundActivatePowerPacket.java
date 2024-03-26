@@ -19,8 +19,8 @@ public class ServerboundActivatePowerPacket implements CustomPacket
 	{
 		MiraculousData data = Services.DATA.getMiraculousData(player);
 		data.miraculous().getOrCreateTag().putInt(MiraculousItem.TAG_REMAININGTICKS, MiraculousItem.FIVE_MINUTES);
-		Services.DATA.setMiraculousData(new MiraculousData(data.transformed(), data.miraculous(), data.miraculousData(), data.tool(), data.powerLevel(), true, true), player, true);
-		Services.CURIOS.setStackInSlot(player, data.miraculousData(), data.miraculous(), true);
+		Services.DATA.setMiraculousData(new MiraculousData(data.transformed(), data.miraculous(), data.curiosData(), data.tool(), data.powerLevel(), true, true, data.name()), player, true);
+		Services.CURIOS.setStackInSlot(player, data.curiosData(), data.miraculous(), true);
 	}
 
 	@Override

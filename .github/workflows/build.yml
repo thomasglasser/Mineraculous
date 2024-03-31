@@ -32,7 +32,7 @@ jobs:
       - name: Upload Jars
         uses: actions/upload-artifact@v3.1.2
         with:
-          name: "Miraculous: Tales of Ladyblock and Craft Noir"
+          name: "Mineraculous"
           if-no-files-found: error
           path: |
             fabric/build/libs

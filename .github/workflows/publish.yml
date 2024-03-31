@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Replace with GitHub name
-      changelog: '**Full Changelog**: https://github.com/thomasglasser/Miraculous/compare/'
+      changelog: '**Full Changelog**: https://github.com/thomasglasser/Mineraculous/compare/'
     permissions:
       contents: write
     strategy:
@@ -45,7 +45,7 @@ jobs:
         uses: actions/download-artifact@v3
         continue-on-error: true
         with:
-          name: "Miraculous: Tales of Ladyblock and Craft Noir"
+          name: "Mineraculous"
 
       - name: Checking and setting the environment
         id: mod_env

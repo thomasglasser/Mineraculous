@@ -1,8 +1,10 @@
 package dev.thomasglasser.mineraculous.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.thomasglasser.mineraculous.client.particle.CataclysmParticle;
 import dev.thomasglasser.mineraculous.client.renderer.entity.PlaggRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.item.curio.MiraculousItemCurioRenderer;
+import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import net.minecraft.client.Minecraft;
@@ -18,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
@@ -63,5 +66,10 @@ public class MineraculousNeoForgeClientEvents
 		{
 			MineraculousClientEvents.onEntityJoinLevel(event.getEntity());
 		}
+	}
+
+	public static void onRegisterParticleProviders(RegisterParticleProvidersEvent event)
+	{
+		event.registerSpriteSet(MineraculousParticleTypes.CATACLYSM.get(), CataclysmParticle.Provider::new);
 	}
 }

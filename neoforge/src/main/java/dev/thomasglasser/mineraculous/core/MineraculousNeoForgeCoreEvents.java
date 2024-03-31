@@ -41,6 +41,12 @@ public class MineraculousNeoForgeCoreEvents
 			}
 
 			@Override
+			public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack)
+			{
+				curio.onUnequip(stack, newStack, new CuriosData(slotContext.index(), "", slotContext.identifier()), slotContext.entity());
+			}
+
+			@Override
 			public boolean canEquipFromUse(SlotContext slotContext, ItemStack stack)
 			{
 				return true;

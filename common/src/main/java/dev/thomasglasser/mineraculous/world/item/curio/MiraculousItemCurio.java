@@ -19,7 +19,7 @@ public class MiraculousItemCurio implements Curio
 	@Override
 	public void tick(ItemStack stack, CuriosData curiosData, LivingEntity entity)
 	{
-		if (entity instanceof Player player && stack.getItem() instanceof MiraculousItem miraculousItem && miraculousItem.getAcceptableSlots().contains(curiosData.name()))
+		if (entity instanceof Player player && stack.getItem() instanceof MiraculousItem miraculousItem && miraculousItem.getAcceptableSlot().getSecond().equals(curiosData.name()) && (curiosData.category().isEmpty() || miraculousItem.getAcceptableSlot().getFirst().equals(curiosData.category())))
 		{
 			MiraculousData data = Services.DATA.getMiraculousData(player);
 			if (data.powerActivated())

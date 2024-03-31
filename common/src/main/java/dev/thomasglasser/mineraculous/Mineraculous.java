@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
+import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.network.MineraculousPackets;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
@@ -33,11 +34,11 @@ public class Mineraculous
         MineraculousEntityTypes.init();
         MineraculousKeyMappings.init();
         MineraculousPackets.init();
+        MineraculousParticleTypes.init();
 
         registerConfigs();
 
         TommyLibServices.ENTITY.registerDataSerializers(MOD_ID, Map.of(
-                "has_voice", Kwami.HAS_VOICE,
                 "charged", Kwami.CHARGED
         ));
 

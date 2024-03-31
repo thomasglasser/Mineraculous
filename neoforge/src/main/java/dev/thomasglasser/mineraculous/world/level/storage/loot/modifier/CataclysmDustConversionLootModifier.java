@@ -30,7 +30,7 @@ public class CataclysmDustConversionLootModifier extends LootModifier
 		ObjectArrayList<ItemStack> dusted = new ObjectArrayList<>();
 		for (ItemStack stack : generatedLoot)
 		{
-			dusted.add(MineraculousEntityEvents.convertToMiraculousDust(stack));
+			dusted.add(MineraculousEntityEvents.convertToCataclysmDust(stack));
 		}
 		return dusted;
 	}

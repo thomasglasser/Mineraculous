@@ -5,6 +5,7 @@ import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.tommylib.api.network.CustomPacket;
 import dev.thomasglasser.tommylib.api.network.PacketUtils;
+import dev.thomasglasser.tommylib.api.world.entity.DataHolder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffects;
@@ -13,8 +14,6 @@ import net.minecraft.world.entity.player.Player;
 public class ClientboundToggleCatVisionPacket implements CustomPacket
 {
 	public static final ResourceLocation ID = Mineraculous.modLoc("clientbound_toggle_cat_vision");
-
-	private static final ResourceLocation CAT_VISION_SHADER = new ResourceLocation("shaders/post/creeper.json");
 
 	private final boolean catVision;
 
@@ -34,7 +33,7 @@ public class ClientboundToggleCatVisionPacket implements CustomPacket
 	{
 		if (catVision)
 		{
-			MineraculousClientUtils.setShader(CAT_VISION_SHADER);
+			MineraculousClientUtils.setShader(MineraculousEntityEvents.CAT_VISION_SHADER);
 			player.addEffect(MineraculousEntityEvents.INFINITE_HIDDEN_EFFECT.apply(MobEffects.NIGHT_VISION, 0));
 		}
 		else
@@ -42,6 +41,7 @@ public class ClientboundToggleCatVisionPacket implements CustomPacket
 			MineraculousClientUtils.setShader(null);
 			player.removeEffect(MobEffects.NIGHT_VISION);
 		}
+		((DataHolder) player).getPersistentData().putBoolean(MineraculousEntityEvents.TAG_HASCATVISION, catVision);
 	}
 
 	@Override

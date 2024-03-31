@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.mixin.minecraft.world.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import dev.thomasglasser.mineraculous.platform.Services;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -10,16 +11,17 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(Entity.class)
-public class EntityMixin
+public abstract class EntityMixin
 {
 	@Unique
 	Entity INSTANCE = (Entity) (Object) this;
+
 	@ModifyReturnValue(method = "getName", at = @At("RETURN"))
 	private Component getName(Component original)
 	{
-		if (INSTANCE instanceof LivingEntity livingEntity)
+		if (INSTANCE instanceof LivingEntity livingEntity && Services.DATA.getMiraculousData(livingEntity).transformed())
 		{
-			return MineraculousEntityEvents.formatDisplayName(livingEntity, original);
+			return MineraculousEntityEvents.formatDisplayName(livingEntity, Entity.removeAction(original.copy().withStyle(style -> style.withHoverEvent(null))));
 		}
 
 		return original;

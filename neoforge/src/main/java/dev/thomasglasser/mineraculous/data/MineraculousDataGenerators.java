@@ -4,6 +4,7 @@ import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.data.lang.MineraculousEnUsLanguageProvider;
 import dev.thomasglasser.mineraculous.data.loot.modifier.MineraculousGlobalLootModifierProvider;
 import dev.thomasglasser.mineraculous.data.models.MineraculousItemModels;
+import dev.thomasglasser.mineraculous.data.particles.MineraculousParticleDescriptionProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousBlockTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousItemTagsProvider;
 import net.minecraft.core.HolderLookup;
@@ -36,5 +37,6 @@ public class MineraculousDataGenerators
 		// Client
 		generator.addProvider(onClient, new MineraculousItemModels(packOutput, existingFileHelper));
 		generator.addProvider(onClient, new MineraculousEnUsLanguageProvider(packOutput));
+		generator.addProvider(onClient, new MineraculousParticleDescriptionProvider(packOutput, existingFileHelper));
 	}
 }

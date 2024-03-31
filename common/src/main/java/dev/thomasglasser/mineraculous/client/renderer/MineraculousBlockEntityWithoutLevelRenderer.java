@@ -30,7 +30,7 @@ public class MineraculousBlockEntityWithoutLevelRenderer extends BlockEntityWith
 			String basePath = "miraculous/" + loc.getPath();
 			if (!miraculousItem.isPowered(stack) && !miraculousItem.getHolder(stack).isEmpty() && MineraculousClientConfig.enableCustomHiddenVariants)
 			{
-				TommyLibServices.ITEM.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_" + miraculousItem.getHolder(stack).toLowerCase(), basePath + "_default");
+				TommyLibServices.ITEM.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_" + miraculousItem.getHolder(stack).toLowerCase(), basePath + "_hidden");
 			}
 			else if (miraculousItem.isPowered(stack))
 			{
@@ -55,7 +55,7 @@ public class MineraculousBlockEntityWithoutLevelRenderer extends BlockEntityWith
 			}
 			else
 			{
-				TommyLibServices.ITEM.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_default");
+				TommyLibServices.ITEM.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_hidden");
 			}
 		}
 		poseStack.popPose();

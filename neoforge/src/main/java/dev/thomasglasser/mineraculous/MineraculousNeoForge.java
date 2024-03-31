@@ -39,6 +39,7 @@ public class MineraculousNeoForge
             bus.addListener(MineraculousNeoForgeClientEvents::onRegisterAdditionalModels);
             bus.addListener(MineraculousNeoForgeClientEvents::onRegisterRenderer);
             bus.addListener(MineraculousNeoForgeClientEvents::onFMLClientSetup);
+            bus.addListener(MineraculousNeoForgeClientEvents::onRegisterParticleProviders);
 
             NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeClientEvents::onEntityJoinLevel);
         }

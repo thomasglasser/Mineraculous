@@ -9,6 +9,8 @@
     "minecraft.world.entity.player.PlayerMixin"
   ],
   "client": [
+    "minecraft.client.MinecraftMixin",
+    "minecraft.client.renderer.GameRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

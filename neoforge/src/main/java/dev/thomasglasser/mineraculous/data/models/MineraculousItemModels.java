@@ -31,7 +31,7 @@ public class MineraculousItemModels extends ExtendedItemModelProvider
 			{
 				ResourceLocation base = Mineraculous.modLoc("item/miraculous/" + key + "_miraculous_base");
 				existingFileHelper.trackGenerated(base, ModelProvider.MODEL);
-				withExistingParent("item/miraculous/" + key + "_miraculous_default", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "_miraculous_default")).texture("symbol", Mineraculous.modLoc("item/empty"));
+				withExistingParent("item/miraculous/" + key + "_miraculous_hidden", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "_miraculous_hidden")).texture("symbol", Mineraculous.modLoc("item/empty"));
 				withExistingParent("item/miraculous/" + key + "_miraculous_powered", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "_miraculous_powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "_symbol"));
 				withExistingParent("item/miraculous/" + key + "_miraculous_powered_0", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "_miraculous_powered")).texture("symbol", Mineraculous.modLoc("item/empty"));
 				withExistingParent("item/miraculous/" + key + "_miraculous_powered_1", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "_miraculous_powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "_symbol_1"));

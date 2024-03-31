@@ -58,10 +58,6 @@ import java.util.List;
 
 public abstract class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoEntity
 {
-	public static final String TAG_HASVOICE = "HasVoice";
-	public static final EntityDataSerializer<Boolean> HAS_VOICE = EntityDataSerializers.BOOLEAN;
-	private static final EntityDataAccessor<Boolean> DATA_HAS_VOICE = SynchedEntityData.defineId(Kwami.class, HAS_VOICE);
-
 	public static final String TAG_CHARGED = "Charged";
 	public static final EntityDataSerializer<Boolean> CHARGED = EntityDataSerializers.BOOLEAN;
 	private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(Kwami.class, CHARGED);
@@ -90,7 +86,6 @@ public abstract class Kwami extends TamableAnimal implements SmartBrainOwner<Kwa
 	protected void defineSynchedData()
 	{
 		super.defineSynchedData();
-		entityData.define(DATA_HAS_VOICE, true);
 		entityData.define(DATA_CHARGED, true);
 	}
 
@@ -152,16 +147,6 @@ public abstract class Kwami extends TamableAnimal implements SmartBrainOwner<Kwa
 						new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60))
 				)
 		);
-	}
-
-	public void setHasVoice(boolean hasVoice)
-	{
-		entityData.set(DATA_HAS_VOICE, hasVoice);
-	}
-
-	public boolean hasVoice()
-	{
-		return entityData.get(DATA_HAS_VOICE);
 	}
 
 	public void setCharged(boolean charged)

@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.world.item;
 
+import com.mojang.datafixers.util.Pair;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
@@ -19,7 +20,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.Level;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 public class MiraculousItem extends BaseModeledItem
@@ -38,17 +38,17 @@ public class MiraculousItem extends BaseModeledItem
 	private final Supplier<Item> tool;
 	private final SoundEvent transformSound;
 	private final Supplier<EntityType<? extends Kwami>> kwamiType;
-	private final List<String> acceptableSlots;
+	private final Pair<String, String> acceptableSlot;
 	private final TextColor powerColor;
 
-	public MiraculousItem(Properties properties, ArmorSet armor, Supplier<Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, List<String> acceptableSlots, TextColor powerColor)
+	public MiraculousItem(Properties properties, ArmorSet armor, Supplier<Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, Pair<String, String> acceptableSlot, TextColor powerColor)
 	{
 		super(properties.stacksTo(1).fireResistant().rarity(Rarity.EPIC));
 		this.armor = armor;
 		this.tool = tool;
 		this.transformSound = transformSound;
 		this.kwamiType = kwamiType;
-		this.acceptableSlots = acceptableSlots;
+		this.acceptableSlot = acceptableSlot;
 		this.powerColor = powerColor;
 	}
 
@@ -119,9 +119,9 @@ public class MiraculousItem extends BaseModeledItem
 		return kwamiType.get();
 	}
 
-	public List<String> getAcceptableSlots()
+	public Pair<String, String> getAcceptableSlot()
 	{
-		return acceptableSlots;
+		return acceptableSlot;
 	}
 
 	@Override

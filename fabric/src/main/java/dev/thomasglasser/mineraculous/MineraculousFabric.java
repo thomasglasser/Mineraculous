@@ -60,6 +60,12 @@ public class MineraculousFabric implements ModInitializer {
             {
                 curio.onEquip(stack, new CuriosData(slot.index(), slot.inventory().getSlotType().getGroup(), slot.inventory().getSlotType().getName()), entity);
             }
+
+            @Override
+            public void onUnequip(ItemStack stack, SlotReference slot, LivingEntity entity)
+            {
+                curio.onUnequip(stack, slot.inventory().getItem(slot.index()), new CuriosData(slot.index(), slot.inventory().getSlotType().getGroup(), slot.inventory().getSlotType().getName()), entity);
+            }
         });
     }
 

@@ -14,6 +14,8 @@ import net.minecraft.world.item.ItemStack;
 
 public class MiraculousItemCurioRenderer
 {
+	ItemInHandRenderer renderer;
+
 	public void render(ItemStack stack, LivingEntity entity, HumanoidModel<?> model, PoseStack poseStack, MultiBufferSource buffer, int packedLight)
 	{
 		if (stack.is(MineraculousItems.CAT_MIRACULOUS.get()))
@@ -29,7 +31,8 @@ public class MiraculousItemCurioRenderer
 		poseStack.mulPose(Axis.XP.rotationDegrees(-90.0F));
 		poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
 		poseStack.translate(1 / 16.0F, -0.05F, -0.625F);
-		ItemInHandRenderer renderer = new ItemInHandRenderer(Minecraft.getInstance(), Minecraft.getInstance().getEntityRenderDispatcher(), Minecraft.getInstance().getItemRenderer());
+		if (renderer == null)
+			renderer = new ItemInHandRenderer(Minecraft.getInstance(), Minecraft.getInstance().getEntityRenderDispatcher(), Minecraft.getInstance().getItemRenderer());
 		renderer.renderItem(entity, stack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false, poseStack, buffer, packedLight);
 		poseStack.popPose();
 	}

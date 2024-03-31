@@ -19,6 +19,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -31,10 +32,13 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.VehicleEntity;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.Arrays;
@@ -44,6 +48,9 @@ import java.util.function.BiFunction;
 public class MineraculousEntityEvents
 {
 	public static final String TAG_CATACLYSMED = "Cataclysmed";
+	public static final String TAG_HASCATVISION = "HasCatVision";
+
+	public static final ResourceLocation CAT_VISION_SHADER = new ResourceLocation("shaders/post/creeper.json");
 
 	public static final BiFunction<MobEffect, Integer, MobEffectInstance> INFINITE_HIDDEN_EFFECT = (effect, amplifier) -> new MobEffectInstance(effect, -1, amplifier, false, false, false);
 
@@ -173,7 +180,6 @@ public class MineraculousEntityEvents
 		CompoundTag data = tag.getCompound(MiraculousItem.TAG_KWAMIDATA);
 		if (data.hasUUID("UUID") && kwami.getUUID().equals(data.getUUID("UUID")))
 		{
-			data.putBoolean(Kwami.TAG_HASVOICE, kwami.hasVoice());
 			data.putBoolean(Kwami.TAG_CHARGED, kwami.isCharged());
 			tag.put(MiraculousItem.TAG_KWAMIDATA, data);
 			tag.putBoolean(MiraculousItem.TAG_POWERED, true);
@@ -192,14 +198,6 @@ public class MineraculousEntityEvents
 			CompoundTag data = itemStack.getOrCreateTag().getCompound(MiraculousItem.TAG_KWAMIDATA);
 			if (data.contains("UUID"))
 				kwami.setUUID(data.getUUID("UUID"));
-			if (data.contains(Kwami.TAG_HASVOICE))
-			{
-				kwami.setHasVoice(data.getBoolean(Kwami.TAG_HASVOICE));
-			}
-			else
-			{
-				kwami.setHasVoice(true);
-			}
 			if (data.contains(Kwami.TAG_CHARGED))
 			{
 				kwami.setCharged(data.getBoolean(Kwami.TAG_CHARGED));
@@ -213,7 +211,6 @@ public class MineraculousEntityEvents
 			level.addFreshEntity(kwami);
 
 			data.putUUID("UUID", kwami.getUUID());
-			data.putBoolean(Kwami.TAG_HASVOICE, kwami.hasVoice());
 			data.putBoolean(Kwami.TAG_CHARGED, kwami.isCharged());
 			itemStack.getOrCreateTag().put(MiraculousItem.TAG_KWAMIDATA, data);
 			Services.CURIOS.setStackInSlot(player, curiosData, itemStack, true);
@@ -239,6 +236,11 @@ public class MineraculousEntityEvents
 						MobEffects.DIG_SLOWDOWN
 				);
 				CATACLYSM_EFFECTS.forEach(effect -> livingEntity.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, level)));
+			}
+			else if (target instanceof VehicleEntity vehicle)
+			{
+				target.discard();
+				Block.popResource(target.level(), vehicle.blockPosition(), MineraculousItems.CATACLYSM_DUST.get().getDefaultInstance());
 			}
 			else
 			{
@@ -277,11 +279,15 @@ public class MineraculousEntityEvents
 		MiraculousData miraculousData = Services.DATA.getMiraculousData(entity);
 		if (!level.isClientSide && hand == InteractionHand.MAIN_HAND && miraculousData.transformed() && miraculousData.miraculous().is(MineraculousItems.CAT_MIRACULOUS.get()) && miraculousData.powerActive())
 		{
-			if (level.getBlockState(pos).is(MineraculousBlockTags.CATACLYSM_IMMUNE))
+			BlockState state = level.getBlockState(pos);
+			if (state.is(MineraculousBlockTags.CATACLYSM_IMMUNE))
 				return InteractionResult.PASS;
 
 			// TODO: Cataclysmize block and nearby blocks
 			level.destroyBlock(pos, false, entity);
+			ServerLevel serverLevel = (ServerLevel) level;
+			Block.getDrops(state, serverLevel, pos, level.getBlockEntity(pos) == null ? null : level.getBlockEntity(pos), entity, ItemStack.EMPTY).stream().map(MineraculousEntityEvents::convertToCataclysmDust).forEach(stack -> Block.popResource(level, pos, stack));
+			state.spawnAfterBreak(serverLevel, pos, ItemStack.EMPTY, true);
 			Services.DATA.setMiraculousData(new MiraculousData(true, miraculousData.miraculous(), miraculousData.curiosData(), miraculousData.tool(), miraculousData.powerLevel(), true, false, miraculousData.name()), entity, true);
 
 			return InteractionResult.SUCCESS;
@@ -299,7 +305,7 @@ public class MineraculousEntityEvents
 		return testAndApplyCataclysmToBlocks(player, pos, hand);
 	}
 
-	public static ItemStack convertToMiraculousDust(ItemStack stack)
+	public static ItemStack convertToCataclysmDust(ItemStack stack)
 	{
 		if (!stack.is(MineraculousItemTags.CATACLYSM_IMMUNE))
 		{
@@ -323,7 +329,6 @@ public class MineraculousEntityEvents
 				return Component.literal(miraculousData.name()).setStyle(newStyle);
 			return original.copy().setStyle(newStyle.withObfuscated(true));
 		}
-
 		return original;
 	}
 }

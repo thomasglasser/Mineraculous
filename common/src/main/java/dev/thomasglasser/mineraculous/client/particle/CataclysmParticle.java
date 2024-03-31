@@ -30,7 +30,7 @@ public class CataclysmParticle extends TextureSheetParticle
 	@Override
 	public @NotNull ParticleRenderType getRenderType()
 	{
-		return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+		return MineraculousParticleRenderTypes.TRANSLUCENT_FIXED;
 	}
 
 	public static class Provider implements ParticleProvider<SimpleParticleType>

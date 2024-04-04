@@ -49,10 +49,14 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 		add(MiraculousData.NAME_NOT_SET, "You haven't set your %s hero name yet! Use /miraculous %s name <name> to set.");
 
 		add(MiraculousCommand.NAME_SUCCESS_SELF, "Your %s hero name has been set to %s.");
-		add(MiraculousCommand.NAME_SUCCESS_OTHER, "Set %3s's %1s hero name to %2s.");
+		add(MiraculousCommand.NAME_SUCCESS_OTHER, "Set %s's %s hero name to %s.");
 		add(MiraculousCommand.NAME_CLEAR_SUCCESS_SELF, "Your %s hero name has been cleared.");
-		add(MiraculousCommand.NAME_CLEAR_SUCCESS_OTHER, "Cleared %2s's %1s hero name.");
+		add(MiraculousCommand.NAME_CLEAR_SUCCESS_OTHER, "Cleared %s's %s hero name.");
+		add(MiraculousCommand.CHARGED_SUCCESS_SELF, "Set charged state of %s kwami to %s");
+		add(MiraculousCommand.CHARGED_SUCCESS_OTHER, "Set charged state of %s's %s kwami to %s");
 		add(MiraculousCommand.NOT_LIVING_ENTITY, "Target must be a living entity.");
+		add(MiraculousCommand.TRANSFORMED, "This command cannot be executed while %s is transformed.");
+		add(MiraculousCommand.KWAMI_NOT_FOUND, "%s's %s kwami not found in the world");
 
 		add(MiraculousType.CAT, "Cat");
 	}

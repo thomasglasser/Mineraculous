@@ -126,10 +126,12 @@ public class MineraculousEntityEvents
 						ItemStack tool = miraculousItem.getTool() == null ? ItemStack.EMPTY : miraculousItem.getTool().getDefaultInstance();
 						player.addItem(tool);
 						miraculousStack.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, true);
-						Services.DATA.getMiraculousDataSet(player).put(player, type, new MiraculousData(true, miraculousStack, data.curiosData(), tool, data.powerLevel(), false, false, data.name()), true);
+						data = new MiraculousData(true, miraculousStack, data.curiosData(), tool, data.powerLevel(), false, false, data.name());
+						Services.DATA.getMiraculousDataSet(player).put(player, type, data, true);
 						Services.CURIOS.setStackInSlot(player, data.curiosData(), miraculousStack, true);
 						TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.class, ClientboundMiraculousTransformPacket.write(type, data), serverLevel.getServer());
-						MIRACULOUS_EFFECTS.forEach(effect -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, data.powerLevel())));
+						int powerLevel = data.powerLevel();
+						MIRACULOUS_EFFECTS.forEach(effect -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, powerLevel)));
 						kwami.discard();
 						// TODO: Advancement trigger with miraculous item context
 					}
@@ -169,7 +171,8 @@ public class MineraculousEntityEvents
 				miraculousStack.getOrCreateTag().remove(MiraculousItem.TAG_REMAININGTICKS);
 				Services.CURIOS.setStackInSlot(player, data.curiosData(), miraculousStack, true);
 				data.tool().getOrCreateTag().putBoolean(MiraculousItem.TAG_RECALLED, true);
-				Services.DATA.getMiraculousDataSet(player).put(player, type, new MiraculousData(false, miraculousStack, data.curiosData(), data.tool(), data.powerLevel(), false, false, data.name()), true);
+				data = new MiraculousData(false, miraculousStack, data.curiosData(), data.tool(), data.powerLevel(), false, false, data.name());
+				Services.DATA.getMiraculousDataSet(player).put(player, type, data, true);
 				TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.class, ClientboundMiraculousTransformPacket.write(type, data), serverLevel.getServer());
 				MIRACULOUS_EFFECTS.forEach(player::removeEffect);
 			}

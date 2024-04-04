@@ -6,6 +6,7 @@ import dev.thomasglasser.tommylib.api.data.tags.ExtendedBlockTagsProvider;
 import dev.thomasglasser.tommylib.api.tags.TommyLibBlockTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,6 +23,10 @@ public class MineraculousBlockTagsProvider extends ExtendedBlockTagsProvider
 	protected void addTags(HolderLookup.Provider pProvider)
 	{
 		tag(MineraculousBlockTags.CATACLYSM_IMMUNE)
+				.add(Blocks.WATER)
+				.add(Blocks.LAVA)
+				.add(Blocks.FIRE)
+				.add(Blocks.SOUL_FIRE)
 				.addOptionalTag(TommyLibBlockTags.UNBREAKABLE);
 	}
 }

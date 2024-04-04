@@ -1,5 +1,9 @@
 {
   "values": [
+    "minecraft:water",
+    "minecraft:lava",
+    "minecraft:fire",
+    "minecraft:soul_fire",
     {
       "id": "#tommylib:unbreakable",
       "required": false

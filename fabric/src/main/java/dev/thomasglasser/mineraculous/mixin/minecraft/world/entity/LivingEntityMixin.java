@@ -54,4 +54,13 @@ public abstract class LivingEntityMixin
 			cir.setReturnValue(false);
 		}
 	}
+
+	@Inject(method = "heal", at = @At("HEAD"), cancellable = true)
+	private void heal(float healAmount, CallbackInfo ci)
+	{
+		if (MineraculousEntityEvents.isCataclysmed(INSTANCE))
+		{
+			ci.cancel();
+		}
+	}
 }

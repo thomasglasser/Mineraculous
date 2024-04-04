@@ -6,7 +6,9 @@ import dev.thomasglasser.mineraculous.network.ClientboundToggleCatVisionPacket;
 import dev.thomasglasser.mineraculous.platform.Services;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -21,14 +23,15 @@ public class CatMiraculousItemCurio extends MiraculousItemCurio
 	public void tick(ItemStack curio, CuriosData curiosData, LivingEntity entity)
 	{
 		super.tick(curio, curiosData, entity);
-		MiraculousData miraculousData = Services.DATA.getMiraculousData(entity);
+		MiraculousDataSet miraculousDataSet = Services.DATA.getMiraculousDataSet(entity);
+		MiraculousData catMiraculousData = miraculousDataSet.get(MiraculousType.CAT);
 		if (!entity.level().isClientSide)
 		{
 			ItemStack mainHandItem = entity.getMainHandItem();
-			if (miraculousData.powerActive() && !mainHandItem.isEmpty() && !mainHandItem.is(MineraculousItemTags.CATACLYSM_IMMUNE))
+			if (catMiraculousData.powerActive() && !mainHandItem.isEmpty() && !mainHandItem.is(MineraculousItemTags.CATACLYSM_IMMUNE))
 			{
 				entity.setItemInHand(InteractionHand.MAIN_HAND, MineraculousEntityEvents.convertToCataclysmDust(mainHandItem));
-				Services.DATA.setMiraculousData(new MiraculousData(miraculousData.transformed(), miraculousData.miraculous(), miraculousData.curiosData(), miraculousData.tool(), miraculousData.powerLevel(), true, false, miraculousData.name()), entity, true);
+				miraculousDataSet.put(entity, MiraculousType.CAT, new MiraculousData(catMiraculousData.transformed(), catMiraculousData.miraculousItem(), catMiraculousData.curiosData(), catMiraculousData.tool(), catMiraculousData.powerLevel(), true, false, catMiraculousData.name()), true);
 			}
 			if (entity instanceof ServerPlayer serverPlayer)
 			{
@@ -37,7 +40,7 @@ public class CatMiraculousItemCurio extends MiraculousItemCurio
 		}
 		else
 		{
-			if (miraculousData.powerActive())
+			if (catMiraculousData.powerActive() && !entity.isSpectator())
 			{
 				double randomShiftForward = 1.0 / entity.level().random.nextInt(8, 15);
 				double randomShiftRight = 1.0 / entity.level().random.nextInt(8, 15);
@@ -70,8 +73,16 @@ public class CatMiraculousItemCurio extends MiraculousItemCurio
 
 	private void checkGreenVision(ServerPlayer serverPlayer)
 	{
-		MiraculousData miraculousData = Services.DATA.getMiraculousData(serverPlayer);
-		if (!miraculousData.transformed())
+		MiraculousData miraculousData = Services.DATA.getMiraculousDataSet(serverPlayer).get(MiraculousType.CAT);
+		if (serverPlayer.isSpectator())
+		{
+			if (greenVision)
+			{
+				greenVision = false;
+				TommyLibServices.NETWORK.sendToClient(ClientboundToggleCatVisionPacket.class, ClientboundToggleCatVisionPacket.write(false), serverPlayer);
+			}
+		}
+		else if (!miraculousData.transformed())
 		{
 			if (greenVision)
 			{

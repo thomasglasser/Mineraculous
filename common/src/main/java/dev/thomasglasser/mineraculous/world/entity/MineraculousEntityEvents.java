@@ -8,9 +8,9 @@ import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
-import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.registration.RegistryObject;
 import dev.thomasglasser.tommylib.api.world.entity.DataHolder;
@@ -68,41 +68,42 @@ public class MineraculousEntityEvents
 
 	public static void onDeath(LivingEntity entity)
 	{
-		MiraculousData data = Services.DATA.getMiraculousData(entity);
+		MiraculousDataSet miraculousDataSet = Services.DATA.getMiraculousDataSet(entity);
 		if (entity instanceof ServerPlayer player)
 		{
-			if (data.transformed())
+			miraculousDataSet.keySet().forEach(type ->
 			{
-				handleTransformation(player, data.miraculous(), data.curiosData(), false);
-				if (player.serverLevel().getEntity(data.miraculous().getOrCreateTag().getCompound(MiraculousItem.TAG_KWAMIDATA).getUUID("UUID")) instanceof Kwami kwami)
+				MiraculousData data = miraculousDataSet.get(type);
+				if (data.transformed())
+					handleTransformation(player, type, data, false);
+				if (player.serverLevel().getEntity(data.miraculousItem().getOrCreateTag().getCompound(MiraculousItem.TAG_KWAMIDATA).getUUID("UUID")) instanceof Kwami kwami)
 				{
-					renounceMiraculous(data.miraculous(), kwami);
+					renounceMiraculous(data.miraculousItem(), kwami);
 				}
-			}
-			player.getInventory().items.stream().filter(stack -> stack.getItem() instanceof MiraculousItem).forEach(stack -> renounceMiraculous(stack, null));
+			});
 		}
 	}
 
-	public static void handleTransformation(Player player, ItemStack miraculous, CuriosData curiosData, boolean transform)
+	public static void handleTransformation(Player player, MiraculousType type, MiraculousData data, boolean transform)
 	{
 		if (player != null)
 		{
 			ServerLevel serverLevel = (ServerLevel) player.level();
-			MiraculousData miraculousData = Services.DATA.getMiraculousData(player);
+			ItemStack miraculousStack = data.miraculousItem();
 			if (transform)
 			{
 				// Transform
-				CompoundTag data = miraculous.getOrCreateTag().getCompound(MiraculousItem.TAG_KWAMIDATA);
-				Entity entity = serverLevel.getEntity(data.getUUID("UUID"));
+				CompoundTag kwamiData = miraculousStack.getOrCreateTag().getCompound(MiraculousItem.TAG_KWAMIDATA);
+				Entity entity = serverLevel.getEntity(kwamiData.getUUID("UUID"));
 				if (entity instanceof Kwami kwami)
 				{
-					if (kwami.isCharged() && miraculous.getItem() instanceof MiraculousItem miraculousItem)
+					if (kwami.isCharged() && miraculousStack.getItem() instanceof MiraculousItem miraculousItem)
 					{
 						// TODO: Sound
 //						level.playSound(null, player.getX(), player.getY(), player.getZ(), transformSound, SoundSource.PLAYERS, 1, 1);
 
 						ArmorData armor = new ArmorData(player.getItemBySlot(EquipmentSlot.HEAD), player.getItemBySlot(EquipmentSlot.CHEST), player.getItemBySlot(EquipmentSlot.LEGS), player.getItemBySlot(EquipmentSlot.FEET));
-						Services.DATA.setStoredArmor(armor, player);
+						Services.DATA.setStoredArmor(player, armor);
 						ArmorSet set = miraculousItem.getArmorSet();
 						if (set != null)
 						{
@@ -119,18 +120,18 @@ public class MineraculousEntityEvents
 							}
 						}
 
-						miraculous.enchant(Enchantments.BINDING_CURSE, 1);
-						miraculous.getOrCreateTag().putBoolean("HideFlags", true);
+						miraculousStack.enchant(Enchantments.BINDING_CURSE, 1);
+						miraculousStack.getOrCreateTag().putBoolean("HideFlags", true);
 
 						ItemStack tool = miraculousItem.getTool() == null ? ItemStack.EMPTY : miraculousItem.getTool().getDefaultInstance();
 						player.addItem(tool);
-						Services.DATA.setMiraculousData(new MiraculousData(true, miraculous, curiosData, tool, miraculousData.powerLevel(), false, false, miraculousData.name()), player, true);
-						miraculous.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, true);
-						Services.CURIOS.setStackInSlot(player, curiosData, miraculous, true);
-						TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.class, ClientboundMiraculousTransformPacket.write(miraculous, curiosData, transform, Services.DATA.getMiraculousData(player).tool()), serverLevel.getServer());
-						MIRACULOUS_EFFECTS.forEach(effect -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, miraculousData.powerLevel())));
+						miraculousStack.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, true);
+						Services.DATA.getMiraculousDataSet(player).put(player, type, new MiraculousData(true, miraculousStack, data.curiosData(), tool, data.powerLevel(), false, false, data.name()), true);
+						Services.CURIOS.setStackInSlot(player, data.curiosData(), miraculousStack, true);
+						TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.class, ClientboundMiraculousTransformPacket.write(type, data), serverLevel.getServer());
+						MIRACULOUS_EFFECTS.forEach(effect -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, data.powerLevel())));
 						kwami.discard();
-						// TODO: Advancement trigger with miraculous context
+						// TODO: Advancement trigger with miraculous item context
 					}
 					else
 					{
@@ -140,21 +141,22 @@ public class MineraculousEntityEvents
 				}
 				else
 				{
-					miraculous.getOrCreateTag().remove(MiraculousItem.TAG_KWAMIDATA);
-					Services.CURIOS.setStackInSlot(player, curiosData, miraculous, true);
+					miraculousStack.getOrCreateTag().remove(MiraculousItem.TAG_KWAMIDATA);
+					Services.CURIOS.setStackInSlot(player, data.curiosData(), miraculousStack, true);
+					Services.DATA.getMiraculousDataSet(player).put(player, type, new MiraculousData(true, miraculousStack, data.curiosData(), data.tool(), data.powerLevel(), false, false, data.name()), true);
 				}
 			}
 			else
 			{
 				// De-transform
-				Kwami kwami = summonKwami(player.level(), miraculous, curiosData, player);
+				Kwami kwami = summonKwami(player.level(), type, data, player);
 				if (kwami != null)
 				{
 					kwami.setCharged(false);
 				}
 				else
 				{
-					Mineraculous.LOGGER.error("Kwami could not be created for player " + player.getName().getString());
+					Mineraculous.LOGGER.error("Kwami could not be created for player " + player.getName().plainCopy().getString());
 					return;
 				}
 				ArmorData armor = Services.DATA.getStoredArmor(player);
@@ -162,13 +164,13 @@ public class MineraculousEntityEvents
 				{
 					player.setItemSlot(slot, armor.forSlot(slot));
 				}
-				miraculous.removeTagKey("Enchantments");
-				miraculous.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, false);
-				miraculous.getOrCreateTag().remove(MiraculousItem.TAG_REMAININGTICKS);
-				Services.CURIOS.setStackInSlot(player, curiosData, miraculous, true);
-				miraculousData.tool().getOrCreateTag().putBoolean(MiraculousItem.TAG_RECALLED, true);
-				Services.DATA.setMiraculousData(new MiraculousData(false, miraculous, curiosData, ItemStack.EMPTY, miraculousData.powerLevel(), false, false, miraculousData.name()), player, true);
-				TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.class, ClientboundMiraculousTransformPacket.write(miraculous, curiosData, transform, Services.DATA.getMiraculousData(player).tool()), serverLevel.getServer());
+				miraculousStack.removeTagKey("Enchantments");
+				miraculousStack.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, false);
+				miraculousStack.getOrCreateTag().remove(MiraculousItem.TAG_REMAININGTICKS);
+				Services.CURIOS.setStackInSlot(player, data.curiosData(), miraculousStack, true);
+				data.tool().getOrCreateTag().putBoolean(MiraculousItem.TAG_RECALLED, true);
+				Services.DATA.getMiraculousDataSet(player).put(player, type, new MiraculousData(false, miraculousStack, data.curiosData(), data.tool(), data.powerLevel(), false, false, data.name()), true);
+				TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.class, ClientboundMiraculousTransformPacket.write(type, data), serverLevel.getServer());
 				MIRACULOUS_EFFECTS.forEach(player::removeEffect);
 			}
 		}
@@ -190,40 +192,45 @@ public class MineraculousEntityEvents
 		return false;
 	}
 
-	public static Kwami summonKwami(Level level, ItemStack itemStack, CuriosData curiosData, Player player)
+	public static Kwami summonKwami(Level level, MiraculousType type, MiraculousData miraculousData, Player player)
 	{
-		Kwami kwami = ((MiraculousItem)itemStack.getItem()).getKwamiType().create(level);
-		if (kwami != null)
+		if (miraculousData.miraculousItem().getItem() instanceof MiraculousItem miraculousItem)
 		{
-			CompoundTag data = itemStack.getOrCreateTag().getCompound(MiraculousItem.TAG_KWAMIDATA);
-			if (data.contains("UUID"))
-				kwami.setUUID(data.getUUID("UUID"));
-			if (data.contains(Kwami.TAG_CHARGED))
+			Kwami kwami = miraculousItem.getKwamiType().create(level);
+			if (kwami != null)
 			{
-				kwami.setCharged(data.getBoolean(Kwami.TAG_CHARGED));
-			}
-			else
-			{
-				kwami.setCharged(true);
-			}
-			kwami.setPos(player.getX() + level.random.nextInt(3), player.getY() + 2, player.getZ() +  + level.random.nextInt(3));
-			kwami.tame(player);
-			level.addFreshEntity(kwami);
+				CompoundTag data = miraculousData.miraculousItem().getOrCreateTag().getCompound(MiraculousItem.TAG_KWAMIDATA);
+				if (data.contains("UUID")) kwami.setUUID(data.getUUID("UUID"));
+				if (data.contains(Kwami.TAG_CHARGED))
+				{
+					kwami.setCharged(data.getBoolean(Kwami.TAG_CHARGED));
+				}
+				else
+				{
+					kwami.setCharged(true);
+				}
+				kwami.setPos(player.getX() + level.random.nextInt(3), player.getY() + 2, player.getZ() + +level.random.nextInt(3));
+				kwami.tame(player);
+				level.addFreshEntity(kwami);
 
-			data.putUUID("UUID", kwami.getUUID());
-			data.putBoolean(Kwami.TAG_CHARGED, kwami.isCharged());
-			itemStack.getOrCreateTag().put(MiraculousItem.TAG_KWAMIDATA, data);
-			Services.CURIOS.setStackInSlot(player, curiosData, itemStack, true);
+				data.putUUID("UUID", kwami.getUUID());
+				data.putBoolean(Kwami.TAG_CHARGED, kwami.isCharged());
+				miraculousData.miraculousItem().getOrCreateTag().put(MiraculousItem.TAG_KWAMIDATA, data);
+				Services.CURIOS.setStackInSlot(player, miraculousData.curiosData(), miraculousData.miraculousItem(), true);
+				Services.DATA.getMiraculousDataSet(player).put(player, type, new MiraculousData(false, miraculousData.miraculousItem(), miraculousData.curiosData(), miraculousData.tool(), miraculousData.powerLevel(), false, false, miraculousData.name()), true);
+			}
+			return kwami;
 		}
-		return kwami;
+		return null;
 	}
 
 	public static InteractionResult testAndApplyCataclysmEffects(LivingEntity entity, Entity target, InteractionHand hand)
 	{
-		MiraculousData miraculousData = Services.DATA.getMiraculousData(entity);
-		if (!entity.level().isClientSide && hand == InteractionHand.MAIN_HAND && miraculousData.transformed() && miraculousData.miraculous().is(MineraculousItems.CAT_MIRACULOUS.get()) && miraculousData.powerActive())
+		MiraculousDataSet miraculousDataSet = Services.DATA.getMiraculousDataSet(entity);
+		MiraculousData catMiraculousData = miraculousDataSet.get(MiraculousType.CAT);
+		if (!entity.level().isClientSide && hand == InteractionHand.MAIN_HAND && catMiraculousData.transformed() && catMiraculousData.powerActive())
 		{
-			int level = miraculousData.powerLevel();
+			int level = catMiraculousData.powerLevel();
 			if (target instanceof LivingEntity livingEntity)
 			{
 				List<MobEffect> CATACLYSM_EFFECTS = List.of(
@@ -247,7 +254,7 @@ public class MineraculousEntityEvents
 				target.hurt(entity.damageSources().indirectMagic(entity, entity), 1024);
 			}
 			((DataHolder)(target)).getPersistentData().putBoolean(TAG_CATACLYSMED, true);
-			Services.DATA.setMiraculousData(new MiraculousData(true, miraculousData.miraculous(), miraculousData.curiosData(), miraculousData.tool(), miraculousData.powerLevel(), true, false, miraculousData.name()), entity, true);
+			miraculousDataSet.put(entity, MiraculousType.CAT, new MiraculousData(true, catMiraculousData.miraculousItem(), catMiraculousData.curiosData(), catMiraculousData.tool(), catMiraculousData.powerLevel(), true, false, catMiraculousData.name()), true);
 			return InteractionResult.SUCCESS;
 		}
 		return InteractionResult.PASS;
@@ -276,8 +283,9 @@ public class MineraculousEntityEvents
 	public static InteractionResult testAndApplyCataclysmToBlocks(LivingEntity entity, BlockPos pos, InteractionHand hand)
 	{
 		Level level = entity.level();
-		MiraculousData miraculousData = Services.DATA.getMiraculousData(entity);
-		if (!level.isClientSide && hand == InteractionHand.MAIN_HAND && miraculousData.transformed() && miraculousData.miraculous().is(MineraculousItems.CAT_MIRACULOUS.get()) && miraculousData.powerActive())
+		MiraculousDataSet miraculousDataSet = Services.DATA.getMiraculousDataSet(entity);
+		MiraculousData catMiraculousData = miraculousDataSet.get(MiraculousType.CAT);
+		if (!level.isClientSide && hand == InteractionHand.MAIN_HAND && catMiraculousData.transformed() && catMiraculousData.powerActive())
 		{
 			BlockState state = level.getBlockState(pos);
 			if (state.is(MineraculousBlockTags.CATACLYSM_IMMUNE))
@@ -288,8 +296,7 @@ public class MineraculousEntityEvents
 			ServerLevel serverLevel = (ServerLevel) level;
 			Block.getDrops(state, serverLevel, pos, level.getBlockEntity(pos) == null ? null : level.getBlockEntity(pos), entity, ItemStack.EMPTY).stream().map(MineraculousEntityEvents::convertToCataclysmDust).forEach(stack -> Block.popResource(level, pos, stack));
 			state.spawnAfterBreak(serverLevel, pos, ItemStack.EMPTY, true);
-			Services.DATA.setMiraculousData(new MiraculousData(true, miraculousData.miraculous(), miraculousData.curiosData(), miraculousData.tool(), miraculousData.powerLevel(), true, false, miraculousData.name()), entity, true);
-
+			miraculousDataSet.put(entity, MiraculousType.CAT, new MiraculousData(true, catMiraculousData.miraculousItem(), catMiraculousData.curiosData(), catMiraculousData.tool(), catMiraculousData.powerLevel(), true, false, catMiraculousData.name()), true);
 			return InteractionResult.SUCCESS;
 		}
 		return InteractionResult.PASS;
@@ -321,13 +328,26 @@ public class MineraculousEntityEvents
 
 	public static Component formatDisplayName(LivingEntity entity, Component original)
 	{
-		MiraculousData miraculousData = Services.DATA.getMiraculousData(entity);
-		if (original != null && miraculousData.transformed())
+		if (original != null)
 		{
-			Style newStyle = original.getStyle().withColor(((MiraculousItem) miraculousData.miraculous().getItem()).getPowerColor());
-			if (!miraculousData.name().isEmpty())
-				return Component.literal(miraculousData.name()).setStyle(newStyle);
-			return original.copy().setStyle(newStyle.withObfuscated(true));
+			Style style = original.getStyle();
+			MiraculousDataSet miraculousDataSet = Services.DATA.getMiraculousDataSet(entity);
+			List<MiraculousType> transformed = miraculousDataSet.getTransformed();
+			if (transformed.size() > 1)
+			{
+				// TODO: Support for name and color based on combinations of miraculous types, like Monarch being purple
+			}
+			else
+			{
+				MiraculousData data = miraculousDataSet.get(transformed.get(0));
+				if (data.miraculousItem().getItem() instanceof MiraculousItem miraculousItem)
+				{
+					Style newStyle = style.withColor(miraculousItem.getPowerColor());
+					if (!data.name().isEmpty())
+						return Component.literal(data.name()).setStyle(newStyle);
+					return original.copy().setStyle(newStyle.withObfuscated(true));
+				}
+			}
 		}
 		return original;
 	}

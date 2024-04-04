@@ -10,18 +10,18 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
-public class ServerboundRequestMiraculousDataSyncPacket implements CustomPacket
+public class ServerboundRequestMiraculousDataSetSyncPacket implements CustomPacket
 {
-	public static final ResourceLocation ID = Mineraculous.modLoc("request_miraculous_data_sync");
+	public static final ResourceLocation ID = Mineraculous.modLoc("request_miraculous_data_set_sync");
 
 	private final int entity;
 
-	public ServerboundRequestMiraculousDataSyncPacket(int entity)
+	public ServerboundRequestMiraculousDataSetSyncPacket(int entity)
 	{
 		this.entity = entity;
 	}
 
-	public ServerboundRequestMiraculousDataSyncPacket(FriendlyByteBuf buffer)
+	public ServerboundRequestMiraculousDataSetSyncPacket(FriendlyByteBuf buffer)
 	{
 		this.entity = buffer.readInt();
 	}
@@ -31,7 +31,7 @@ public class ServerboundRequestMiraculousDataSyncPacket implements CustomPacket
 	public void handle(Player player)
 	{
 		if (player.level().getEntity(entity) instanceof LivingEntity livingEntity)
-			TommyLibServices.NETWORK.sendToTrackingClients(ClientboundSyncMiraculousDataPacket.class, ClientboundSyncMiraculousDataPacket.write(Services.DATA.getMiraculousData(livingEntity), entity), player.level().getServer(), livingEntity);
+			TommyLibServices.NETWORK.sendToTrackingClients(ClientboundSyncMiraculousDataSetPacket.class, ClientboundSyncMiraculousDataSetPacket.write(Services.DATA.getMiraculousDataSet(livingEntity), entity), player.level().getServer(), livingEntity);
 	}
 
 	@Override

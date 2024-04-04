@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
+import dev.thomasglasser.mineraculous.commands.arguments.MineraculousCommandArgumentTypes;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.network.MineraculousPackets;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
@@ -35,6 +36,7 @@ public class Mineraculous
         MineraculousKeyMappings.init();
         MineraculousPackets.init();
         MineraculousParticleTypes.init();
+        MineraculousCommandArgumentTypes.init();
 
         registerConfigs();
 

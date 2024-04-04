@@ -20,7 +20,7 @@ public class PlayerMixin
 	@ModifyReturnValue(method = "getName", at = @At("RETURN"))
 	private Component getName(Component original)
 	{
-		if (Services.DATA.getMiraculousData(INSTANCE).transformed())
+		if (!Services.DATA.getMiraculousDataSet(INSTANCE).getTransformed().isEmpty())
 			return MineraculousEntityEvents.formatDisplayName(INSTANCE, Entity.removeAction(original.copy().withStyle(style -> style.withHoverEvent(null))));
 		return original;
 	}
@@ -28,7 +28,7 @@ public class PlayerMixin
 	@ModifyReturnValue(method = "decorateDisplayNameComponent", at = @At(value = "RETURN"))
 	private MutableComponent decorateDisplayNameComponent(MutableComponent original)
 	{
-		if (Services.DATA.getMiraculousData(INSTANCE).transformed())
+		if (!Services.DATA.getMiraculousDataSet(INSTANCE).getTransformed().isEmpty())
 			return MineraculousEntityEvents.formatDisplayName(INSTANCE, Entity.removeAction(original.withStyle(style -> style.withHoverEvent(null)))).copy();
 		return original;
 	}

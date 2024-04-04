@@ -53,7 +53,7 @@ public class MineraculousFabricClient implements ClientModInitializer
 
 		ClientEntityEvents.ENTITY_LOAD.register(((trackedEntity, player) ->
 				MineraculousClientEvents.onEntityJoinLevel(trackedEntity)));
-		LivingEntityFeatureRenderEvents.ALLOW_CAPE_RENDER.register(player -> !Services.DATA.getMiraculousData(player).transformed());
+		LivingEntityFeatureRenderEvents.ALLOW_CAPE_RENDER.register(player -> !Services.DATA.getMiraculousDataSet(player).getTransformed().isEmpty());
 	}
 
 	private void registerRenderers()

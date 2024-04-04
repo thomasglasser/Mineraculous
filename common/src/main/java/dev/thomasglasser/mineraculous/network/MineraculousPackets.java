@@ -17,13 +17,13 @@ public class MineraculousPackets
 	{
 		// Serverbound
 		PACKETS.put(ServerboundMiraculousTransformPacket::new, Pair.of(ServerboundMiraculousTransformPacket.ID, CustomPacket.Direction.CLIENT_TO_SERVER));
-		PACKETS.put(ServerboundRequestMiraculousDataSyncPacket::new, Pair.of(ServerboundRequestMiraculousDataSyncPacket.ID, CustomPacket.Direction.CLIENT_TO_SERVER));
-		PACKETS.put(buf -> new ServerboundActivatePowerPacket(), Pair.of(ServerboundActivatePowerPacket.ID, CustomPacket.Direction.CLIENT_TO_SERVER));
+		PACKETS.put(ServerboundRequestMiraculousDataSetSyncPacket::new, Pair.of(ServerboundRequestMiraculousDataSetSyncPacket.ID, CustomPacket.Direction.CLIENT_TO_SERVER));
+		PACKETS.put(ServerboundActivatePowerPacket::new, Pair.of(ServerboundActivatePowerPacket.ID, CustomPacket.Direction.CLIENT_TO_SERVER));
 
 		// Clientbound
 		PACKETS.put(ClientboundMiraculousTransformPacket::new, Pair.of(ClientboundMiraculousTransformPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));
 		PACKETS.put(ClientboundSyncCurioPacket::new, Pair.of(ClientboundSyncCurioPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));
-		PACKETS.put(ClientboundSyncMiraculousDataPacket::new, Pair.of(ClientboundSyncMiraculousDataPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));
+		PACKETS.put(ClientboundSyncMiraculousDataSetPacket::new, Pair.of(ClientboundSyncMiraculousDataSetPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));
 		PACKETS.put(ClientboundToggleCatVisionPacket::new, Pair.of(ClientboundToggleCatVisionPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));
 	}
 }

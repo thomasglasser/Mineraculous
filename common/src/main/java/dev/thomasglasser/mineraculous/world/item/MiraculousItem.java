@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.world.item;
 import com.mojang.datafixers.util.Pair;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
 import dev.thomasglasser.tommylib.api.world.item.BaseModeledItem;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
@@ -40,8 +41,9 @@ public class MiraculousItem extends BaseModeledItem
 	private final Supplier<EntityType<? extends Kwami>> kwamiType;
 	private final Pair<String, String> acceptableSlot;
 	private final TextColor powerColor;
+	private final MiraculousType type;
 
-	public MiraculousItem(Properties properties, ArmorSet armor, Supplier<Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, Pair<String, String> acceptableSlot, TextColor powerColor)
+	public MiraculousItem(Properties properties, MiraculousType type, ArmorSet armor, Supplier<Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, Pair<String, String> acceptableSlot, TextColor powerColor)
 	{
 		super(properties.stacksTo(1).fireResistant().rarity(Rarity.EPIC));
 		this.armor = armor;
@@ -50,6 +52,7 @@ public class MiraculousItem extends BaseModeledItem
 		this.kwamiType = kwamiType;
 		this.acceptableSlot = acceptableSlot;
 		this.powerColor = powerColor;
+		this.type = type;
 	}
 
 	@Override
@@ -139,5 +142,10 @@ public class MiraculousItem extends BaseModeledItem
 	public TextColor getPowerColor()
 	{
 		return powerColor;
+	}
+
+	public MiraculousType getType()
+	{
+		return type;
 	}
 }

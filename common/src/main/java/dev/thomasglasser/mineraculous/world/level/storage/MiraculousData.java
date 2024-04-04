@@ -5,11 +5,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import net.minecraft.world.item.ItemStack;
 
-public record MiraculousData(boolean transformed, ItemStack miraculous, CuriosData curiosData, ItemStack tool, int powerLevel, boolean powerActivated, boolean powerActive, String name)
+public record MiraculousData(boolean transformed, ItemStack miraculousItem, CuriosData curiosData, ItemStack tool, int powerLevel, boolean powerActivated, boolean powerActive, String name)
 {
 	public static final Codec<MiraculousData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.BOOL.fieldOf("transformed").forGetter(MiraculousData::transformed),
-			ItemStack.CODEC.fieldOf("miraculous").forGetter(MiraculousData::miraculous),
+			ItemStack.CODEC.fieldOf("miraculous_item").forGetter(MiraculousData::miraculousItem),
 			CuriosData.CODEC.fieldOf("curios_data").forGetter(MiraculousData::curiosData),
 			ItemStack.CODEC.fieldOf("tool").forGetter(MiraculousData::tool),
 			Codec.INT.fieldOf("power_level").forGetter(MiraculousData::powerLevel),

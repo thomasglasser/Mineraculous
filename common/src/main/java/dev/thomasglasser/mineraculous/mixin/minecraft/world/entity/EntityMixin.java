@@ -19,7 +19,7 @@ public abstract class EntityMixin
 	@ModifyReturnValue(method = "getName", at = @At("RETURN"))
 	private Component getName(Component original)
 	{
-		if (INSTANCE instanceof LivingEntity livingEntity && Services.DATA.getMiraculousData(livingEntity).transformed())
+		if (INSTANCE instanceof LivingEntity livingEntity && !Services.DATA.getMiraculousDataSet(livingEntity).getTransformed().isEmpty())
 		{
 			return MineraculousEntityEvents.formatDisplayName(livingEntity, Entity.removeAction(original.copy().withStyle(style -> style.withHoverEvent(null))));
 		}

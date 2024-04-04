@@ -41,7 +41,7 @@ public abstract class LivingEntityMixin
 	{
 		if (((DataHolder)(INSTANCE)).getPersistentData().getBoolean(MineraculousEntityEvents.TAG_CATACLYSMED))
 		{
-			loottable.getRandomItems(lootParams, getLootTableSeed(), stack -> INSTANCE.spawnAtLocation(MineraculousEntityEvents.convertToCataclysmDust(stack), 0.0F));
+			loottable.getRandomItems(lootParams, getLootTableSeed(), stack -> INSTANCE.spawnAtLocation(MineraculousEntityEvents.convertToCataclysmDust(stack)));
 			ci.cancel();
 		}
 	}

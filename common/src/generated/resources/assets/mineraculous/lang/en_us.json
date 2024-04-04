@@ -1,9 +1,9 @@
 {
   "commands.miraculous.failure.not_living_entity": "Target must be a living entity.",
-  "commands.miraculous.name.clear.success.other": "Cleared %s's hero name.",
-  "commands.miraculous.name.clear.success.self": "Your hero name has been cleared.",
-  "commands.miraculous.name.success.other": "Set %2s's hero name to %1s.",
-  "commands.miraculous.name.success.self": "Your hero name has been set to %s.",
+  "commands.miraculous.name.clear.success.other": "Cleared %2s's %1s hero name.",
+  "commands.miraculous.name.clear.success.self": "Your %s hero name has been cleared.",
+  "commands.miraculous.name.success.other": "Set %3s's %1s hero name to %2s.",
+  "commands.miraculous.name.success.self": "Your %s hero name has been set to %s.",
   "entity.mineraculous.plagg": "Plagg",
   "item.mineraculous.cat_miraculous": "Cat Miraculous",
   "item.mineraculous.cat_miraculous_boots": "Cat Miraculous Boots",
@@ -22,5 +22,6 @@
   "mineraculous.midnightconfig.enable_custom_hidden_variants_comment": "Enable resource pack support for custom hidden textures",
   "mineraculous.midnightconfig.miraculous_comment": "Settings for the Miraculous",
   "mineraculous.midnightconfig.title": "Mineraculous",
-  "miraculous_data.name.not_set": "You haven't set your hero name yet! Use /miraculous name <name> to set."
+  "miraculous.cat": "Cat",
+  "miraculous_data.name.not_set": "You haven't set your %s hero name yet! Use /miraculous %s name <name> to set."
 }

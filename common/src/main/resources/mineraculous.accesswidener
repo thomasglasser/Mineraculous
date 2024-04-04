@@ -15,3 +15,4 @@ accessible field net/minecraft/client/resources/model/ModelManager bakedRegistry
 accessible field net/minecraft/client/KeyMapping CATEGORY_SORT_ORDER Ljava/util/Map;
 accessible method net/minecraft/client/renderer/GameRenderer loadEffect (Lnet/minecraft/resources/ResourceLocation;)V
 accessible method net/minecraft/world/entity/Entity removeAction (Lnet/minecraft/network/chat/Component;)Lnet/minecraft/network/chat/Component;
+accessible field net/minecraft/commands/synchronization/ArgumentTypeInfos BY_CLASS Ljava/util/Map;

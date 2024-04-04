@@ -2,8 +2,8 @@ package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.platform.Services;
+import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
-import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.tommylib.api.network.CustomPacket;
 import dev.thomasglasser.tommylib.api.network.PacketUtils;
@@ -12,50 +12,43 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 
 public class ClientboundMiraculousTransformPacket implements CustomPacket
 {
 	public static final ResourceLocation ID = Mineraculous.modLoc("clientbound_miraculous_transform");
 
-	private ItemStack miraculous;
-	private CuriosData curiosData;
-	private boolean transform;
-	private ItemStack tool;
+	private MiraculousType type;
+	private MiraculousData data;
 
-	public ClientboundMiraculousTransformPacket(ItemStack miraculous, CuriosData curiosData, boolean transform, ItemStack tool)
+	public ClientboundMiraculousTransformPacket(MiraculousType type, MiraculousData data)
 	{
-		this.miraculous = miraculous;
-		this.curiosData = curiosData;
-		this.transform = transform;
-		this.tool = tool;
+		this.type = type;
+		this.data = data;
 	}
 
 	public ClientboundMiraculousTransformPacket(FriendlyByteBuf buf)
 	{
-		miraculous = buf.readItem();
-		curiosData = buf.readWithCodecTrusted(NbtOps.INSTANCE, CuriosData.CODEC);
-		transform = buf.readBoolean();
-		tool = buf.readItem();
+		type = buf.readEnum(MiraculousType.class);
+		data = buf.readWithCodecTrusted(NbtOps.INSTANCE, MiraculousData.CODEC);
 	}
 
 	// ON CLIENT
 	@Override
 	public void handle(Player player)
 	{
-		if (transform)
+		if (data.transformed())
 		{
 			// TODO: Start player anim
-			miraculous.getOrCreateTag().putInt(MiraculousItem.TAG_TRANSFORMINGTICKS, 0 /* TODO: Set it to however long the transform anim is */);
-			Services.CURIOS.setStackInSlot(player, curiosData, miraculous, false);
-			if (Services.DATA.getMiraculousData(player).name().isEmpty())
-				player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET), true);
+			data.miraculousItem().getOrCreateTag().putInt(MiraculousItem.TAG_TRANSFORMINGTICKS, 0 /* TODO: Set it to however long the transform anim is */);
+			Services.CURIOS.setStackInSlot(player, data.curiosData(), data.miraculousItem(), false);
+			if (data.name().isEmpty())
+				player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(type.getTranslationKey()), type.getSerializedName()), true);
 		}
 		else
 		{
 			// TODO: Start player anim
-			miraculous.getOrCreateTag().putInt(MiraculousItem.TAG_DETRANSFORMINGTICKS, 0 /* TODO: Set it to however long the detransform anim is */);
-			Services.CURIOS.setStackInSlot(player, curiosData, miraculous, false);
+			data.miraculousItem().getOrCreateTag().putInt(MiraculousItem.TAG_DETRANSFORMINGTICKS, 0 /* TODO: Set it to however long the detransform anim is */);
+			Services.CURIOS.setStackInSlot(player, data.curiosData(), data.miraculousItem(), false);
 		}
 	}
 
@@ -68,19 +61,15 @@ public class ClientboundMiraculousTransformPacket implements CustomPacket
 	@Override
 	public void write(FriendlyByteBuf buffer)
 	{
-		buffer.writeItem(miraculous);
-		buffer.writeWithCodec(NbtOps.INSTANCE, CuriosData.CODEC, curiosData);
-		buffer.writeBoolean(transform);
-		buffer.writeItem(tool);
+		buffer.writeEnum(type);
+		buffer.writeWithCodec(NbtOps.INSTANCE, MiraculousData.CODEC, data);
 	}
 
-	public static FriendlyByteBuf write(ItemStack miraculous, CuriosData curiosData, boolean transform, ItemStack tool)
+	public static FriendlyByteBuf write(MiraculousType type, MiraculousData data)
 	{
 		FriendlyByteBuf buf = PacketUtils.create();
-		buf.writeItem(miraculous);
-		buf.writeWithCodec(NbtOps.INSTANCE, CuriosData.CODEC, curiosData);
-		buf.writeBoolean(transform);
-		buf.writeItem(tool);
+		buf.writeEnum(type);
+		buf.writeWithCodec(NbtOps.INSTANCE, MiraculousData.CODEC, data);
 		return buf;
 	}
 

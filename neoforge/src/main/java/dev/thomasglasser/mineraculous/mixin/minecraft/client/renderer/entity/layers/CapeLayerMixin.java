@@ -16,7 +16,7 @@ public class CapeLayerMixin
 	@Inject(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;FFFFFF)V", at = @At("HEAD"), cancellable = true)
 	private void render(PoseStack pPoseStack, MultiBufferSource pBuffer, int pPackedLight, AbstractClientPlayer pLivingEntity, float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch, CallbackInfo ci)
 	{
-		if (Services.DATA.getMiraculousData(pLivingEntity).transformed())
+		if (!Services.DATA.getMiraculousDataSet(pLivingEntity).getTransformed().isEmpty())
 		{
 			ci.cancel();
 		}

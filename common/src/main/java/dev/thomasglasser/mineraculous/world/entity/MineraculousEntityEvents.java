@@ -231,7 +231,7 @@ public class MineraculousEntityEvents
 	{
 		MiraculousDataSet miraculousDataSet = Services.DATA.getMiraculousDataSet(entity);
 		MiraculousData catMiraculousData = miraculousDataSet.get(MiraculousType.CAT);
-		if (!entity.level().isClientSide && hand == InteractionHand.MAIN_HAND && catMiraculousData.transformed() && catMiraculousData.powerActive())
+		if (!entity.level().isClientSide && hand == InteractionHand.MAIN_HAND && catMiraculousData.transformed() && catMiraculousData.mainPowerActive())
 		{
 			int level = catMiraculousData.powerLevel();
 			if (target instanceof LivingEntity livingEntity)
@@ -288,7 +288,7 @@ public class MineraculousEntityEvents
 		Level level = entity.level();
 		MiraculousDataSet miraculousDataSet = Services.DATA.getMiraculousDataSet(entity);
 		MiraculousData catMiraculousData = miraculousDataSet.get(MiraculousType.CAT);
-		if (!level.isClientSide && hand == InteractionHand.MAIN_HAND && catMiraculousData.transformed() && catMiraculousData.powerActive())
+		if (!level.isClientSide && hand == InteractionHand.MAIN_HAND && catMiraculousData.transformed() && catMiraculousData.mainPowerActive())
 		{
 			BlockState state = level.getBlockState(pos);
 			if (state.is(MineraculousBlockTags.CATACLYSM_IMMUNE))

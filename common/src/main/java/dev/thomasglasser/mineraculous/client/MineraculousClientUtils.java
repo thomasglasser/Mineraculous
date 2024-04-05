@@ -63,5 +63,10 @@ public class MineraculousClientUtils
 		entity.level().addParticle(type, x, y, z, 0.0D, 0.0D, 0.0D);
 	}
 
+	public static boolean hasScreenOpen()
+	{
+		return Minecraft.getInstance().screen != null;
+	}
+
 	public static void init() {}
 }

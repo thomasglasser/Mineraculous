@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import net.minecraft.world.item.ItemStack;
 
-public record MiraculousData(boolean transformed, ItemStack miraculousItem, CuriosData curiosData, ItemStack tool, int powerLevel, boolean powerActivated, boolean powerActive, String name)
+public record MiraculousData(boolean transformed, ItemStack miraculousItem, CuriosData curiosData, ItemStack tool, int powerLevel, boolean mainPowerActivated, boolean mainPowerActive, String name)
 {
 	public static final Codec<MiraculousData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.BOOL.fieldOf("transformed").forGetter(MiraculousData::transformed),
@@ -13,8 +13,8 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
 			CuriosData.CODEC.fieldOf("curios_data").forGetter(MiraculousData::curiosData),
 			ItemStack.CODEC.fieldOf("tool").forGetter(MiraculousData::tool),
 			Codec.INT.fieldOf("power_level").forGetter(MiraculousData::powerLevel),
-			Codec.BOOL.fieldOf("power_activated").forGetter(MiraculousData::powerActivated),
-			Codec.BOOL.fieldOf("power_active").forGetter(MiraculousData::powerActive),
+			Codec.BOOL.fieldOf("main_power_activated").forGetter(MiraculousData::mainPowerActivated),
+			Codec.BOOL.fieldOf("main_power_active").forGetter(MiraculousData::mainPowerActive),
 			Codec.STRING.optionalFieldOf("name", "").forGetter(MiraculousData::name)
 	).apply(instance, MiraculousData::new));
 

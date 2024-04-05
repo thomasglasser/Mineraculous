@@ -1,7 +1,9 @@
 package dev.thomasglasser.mineraculous.world.item.curio;
 
+import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
+import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
-import dev.thomasglasser.mineraculous.network.ServerboundActivatePowerPacket;
+import dev.thomasglasser.mineraculous.network.ServerboundActivateMainPowerPacket;
 import dev.thomasglasser.mineraculous.network.ServerboundMiraculousTransformPacket;
 import dev.thomasglasser.mineraculous.platform.Services;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
@@ -25,7 +27,7 @@ public class MiraculousItemCurio implements Curio
 		{
 			MiraculousType miraculousType = miraculousItem.getType();
 			MiraculousData data = Services.DATA.getMiraculousDataSet(player).get(miraculousType);
-			if (data.powerActivated())
+			if (data.mainPowerActivated())
 				stack.getOrCreateTag().putInt(MiraculousItem.TAG_REMAININGTICKS, stack.getOrCreateTag().getInt(MiraculousItem.TAG_REMAININGTICKS) - 1);
 			if (entity.level().isClientSide)
 			{
@@ -36,9 +38,14 @@ public class MiraculousItemCurio implements Curio
 				{
 					playerData.putInt(waitTicksKey, --waitTicks);
 				}
-				else
+				else if (!MineraculousClientUtils.hasScreenOpen())
 				{
-					if (MineraculousKeyMappings.TRANSFORM.isDown())
+					if (MineraculousKeyMappings.OPEN_POWER_WHEEL.isDown() && data.transformed())
+					{
+						MineraculousClientEvents.openPowerWheel(player);
+						playerData.putInt(waitTicksKey, 10);
+					}
+					else if (MineraculousKeyMappings.TRANSFORM.isDown())
 					{
 						if (data.transformed())
 						{
@@ -50,16 +57,16 @@ public class MiraculousItemCurio implements Curio
 						}
 						playerData.putInt(waitTicksKey, 10);
 					}
-					else if (MineraculousKeyMappings.ACTIVATE_POWER.isDown() && data.transformed() && !data.powerActive() && !data.powerActivated())
+					else if (MineraculousKeyMappings.ACTIVATE_MAIN_POWER.isDown() && data.transformed() && !data.mainPowerActive() && !data.mainPowerActivated())
 					{
-						TommyLibServices.NETWORK.sendToServer(ServerboundActivatePowerPacket.class, ServerboundActivatePowerPacket.write(miraculousType));
+						TommyLibServices.NETWORK.sendToServer(ServerboundActivateMainPowerPacket.class, ServerboundActivateMainPowerPacket.write(miraculousType));
 						playerData.putInt(waitTicksKey, 10);
 					}
 				}
 			}
 			else
 			{
-				if (data.powerActivated() && stack.getOrCreateTag().getInt(MiraculousItem.TAG_REMAININGTICKS) <= 0)
+				if (data.mainPowerActivated() && stack.getOrCreateTag().getInt(MiraculousItem.TAG_REMAININGTICKS) <= 0)
 				{
 					MineraculousEntityEvents.handleTransformation(player, miraculousType, data, false);
 				}
@@ -79,7 +86,7 @@ public class MiraculousItemCurio implements Curio
 			if (stack.getOrCreateTag().getBoolean(MiraculousItem.TAG_POWERED) && !data.transformed())
 			{
 				stack.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, false);
-				data = new MiraculousData(false, stack, curiosData, data.tool(), data.powerLevel(), data.powerActivated(), data.powerActive(), data.name());
+				data = new MiraculousData(false, stack, curiosData, data.tool(), data.powerLevel(), data.mainPowerActivated(), data.mainPowerActive(), data.name());
 				MineraculousEntityEvents.summonKwami(entity.level(), miraculousItem.getType(), data, player);
 			}
 		}
@@ -92,7 +99,7 @@ public class MiraculousItemCurio implements Curio
 		{
 			MiraculousDataSet miraculousDataSet = Services.DATA.getMiraculousDataSet(entity);
 			MiraculousData miraculousData = miraculousDataSet.get(miraculousItem.getType());
-			miraculousDataSet.put(entity, miraculousItem.getType(), new MiraculousData(miraculousData.transformed(), miraculousData.miraculousItem(), new CuriosData(), miraculousData.tool(), miraculousData.powerLevel(), miraculousData.powerActivated(), miraculousData.powerActive(), miraculousData.name()), true);
+			miraculousDataSet.put(entity, miraculousItem.getType(), new MiraculousData(miraculousData.transformed(), miraculousData.miraculousItem(), new CuriosData(), miraculousData.tool(), miraculousData.powerLevel(), miraculousData.mainPowerActivated(), miraculousData.mainPowerActive(), miraculousData.name()), true);
 		}
 	}
 }

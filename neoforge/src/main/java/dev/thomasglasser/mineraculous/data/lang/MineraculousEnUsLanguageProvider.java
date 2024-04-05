@@ -44,7 +44,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 
 		add(MineraculousKeyMappings.MIRACULOUS_CATEGORY, "Miraculous");
 		add(MineraculousKeyMappings.TRANSFORM, "Transform");
-		add(MineraculousKeyMappings.ACTIVATE_POWER, "Activate Power");
+		add(MineraculousKeyMappings.ACTIVATE_MAIN_POWER, "Activate Main Power");
+		add(MineraculousKeyMappings.OPEN_POWER_WHEEL, "Open Power Wheel");
 
 		add(MiraculousData.NAME_NOT_SET, "You haven't set your %s hero name yet! Use /miraculous %s name <name> to set.");
 

@@ -76,7 +76,7 @@ public class MiraculousCommand
 			String newName = StringArgumentType.getString(context, "name");
 			MiraculousDataSet miraculousDataSet = Services.DATA.getMiraculousDataSet(livingEntity);
 			MiraculousData data = miraculousDataSet.get(miraculousType);
-			miraculousDataSet.put(livingEntity, miraculousType, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), data.powerActivated(), data.powerActive(), newName), true);
+			miraculousDataSet.put(livingEntity, miraculousType, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), data.mainPowerActivated(), data.mainPowerActive(), newName), true);
 			context.getSource().sendSuccess(() -> self ? Component.translatable(NAME_SUCCESS_SELF, Component.translatable(miraculousType.getTranslationKey()), newName) : Component.translatable(NAME_SUCCESS_OTHER, oldName, Component.translatable(miraculousType.getTranslationKey()), newName), true);
 			return 1;
 		}
@@ -94,7 +94,7 @@ public class MiraculousCommand
 			MiraculousType miraculousType = MiraculousTypeArgument.getMiraculousType(context, "miraculous_type");
 			MiraculousDataSet miraculousDataSet = Services.DATA.getMiraculousDataSet(livingEntity);
 			MiraculousData data = miraculousDataSet.get(miraculousType);
-			miraculousDataSet.put(livingEntity, miraculousType, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), data.powerActivated(), data.powerActive(), ""), true);
+			miraculousDataSet.put(livingEntity, miraculousType, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), data.mainPowerActivated(), data.mainPowerActive(), ""), true);
 			context.getSource().sendSuccess(() -> self ? Component.translatable(NAME_CLEAR_SUCCESS_SELF, Component.translatable(miraculousType.getTranslationKey())) : Component.translatable(NAME_CLEAR_SUCCESS_OTHER, livingEntity.getDisplayName(), Component.translatable(miraculousType.getTranslationKey())), true);
 			return 1;
 		}

@@ -28,7 +28,7 @@ public class CatMiraculousItemCurio extends MiraculousItemCurio
 		if (!entity.level().isClientSide)
 		{
 			ItemStack mainHandItem = entity.getMainHandItem();
-			if (catMiraculousData.powerActive() && !mainHandItem.isEmpty() && !mainHandItem.is(MineraculousItemTags.CATACLYSM_IMMUNE))
+			if (catMiraculousData.mainPowerActive() && !mainHandItem.isEmpty() && !mainHandItem.is(MineraculousItemTags.CATACLYSM_IMMUNE))
 			{
 				entity.setItemInHand(InteractionHand.MAIN_HAND, MineraculousEntityEvents.convertToCataclysmDust(mainHandItem));
 				miraculousDataSet.put(entity, MiraculousType.CAT, new MiraculousData(catMiraculousData.transformed(), catMiraculousData.miraculousItem(), catMiraculousData.curiosData(), catMiraculousData.tool(), catMiraculousData.powerLevel(), true, false, catMiraculousData.name()), true);
@@ -40,7 +40,7 @@ public class CatMiraculousItemCurio extends MiraculousItemCurio
 		}
 		else
 		{
-			if (catMiraculousData.powerActive() && !entity.isSpectator())
+			if (catMiraculousData.mainPowerActive() && !entity.isSpectator())
 			{
 				double randomShiftForward = 1.0 / entity.level().random.nextInt(8, 15);
 				double randomShiftRight = 1.0 / entity.level().random.nextInt(8, 15);

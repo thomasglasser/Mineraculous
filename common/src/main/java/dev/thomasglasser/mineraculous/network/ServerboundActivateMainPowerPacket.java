@@ -12,18 +12,18 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
-public class ServerboundActivatePowerPacket implements CustomPacket
+public class ServerboundActivateMainPowerPacket implements CustomPacket
 {
-	public static final ResourceLocation ID = Mineraculous.modLoc("serverbound_activate_power");
+	public static final ResourceLocation ID = Mineraculous.modLoc("serverbound_activate_main_power");
 
 	private final MiraculousType type;
 
-	public ServerboundActivatePowerPacket(MiraculousType type)
+	public ServerboundActivateMainPowerPacket(MiraculousType type)
 	{
 		this.type = type;
 	}
 
-	public ServerboundActivatePowerPacket(FriendlyByteBuf buffer)
+	public ServerboundActivateMainPowerPacket(FriendlyByteBuf buffer)
 	{
 		this.type = buffer.readEnum(MiraculousType.class);
 	}

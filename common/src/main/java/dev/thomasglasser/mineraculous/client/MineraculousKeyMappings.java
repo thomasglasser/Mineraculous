@@ -10,7 +10,8 @@ public class MineraculousKeyMappings
 	public static final String MIRACULOUS_CATEGORY = "key.categories.mineraculous";
 
 	public static final KeyMapping TRANSFORM = register("transform", InputConstants.KEY_M, MIRACULOUS_CATEGORY);
-	public static final KeyMapping ACTIVATE_POWER = register("activate_power", InputConstants.KEY_O, MIRACULOUS_CATEGORY);
+	public static final KeyMapping ACTIVATE_MAIN_POWER = register("activate_main_power", InputConstants.KEY_I, MIRACULOUS_CATEGORY);
+	public static final KeyMapping OPEN_POWER_WHEEL = register("open_power_wheel", InputConstants.KEY_O, MIRACULOUS_CATEGORY);
 
 	private static KeyMapping register(String id, int key, String category)
 	{

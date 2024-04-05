@@ -21,13 +21,6 @@ public class ClientboundSyncCurioPacket implements CustomPacket
 	private final CuriosData curiosData;
 	private final ItemStack stack;
 
-	public ClientboundSyncCurioPacket(int entity, CuriosData curiosData, ItemStack stack)
-	{
-		this.entity = entity;
-		this.curiosData = curiosData;
-		this.stack = stack;
-	}
-
 	public ClientboundSyncCurioPacket(FriendlyByteBuf buffer)
 	{
 		entity = buffer.readInt();

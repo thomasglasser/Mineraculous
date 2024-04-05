@@ -18,14 +18,9 @@ public class ServerboundActivateMainPowerPacket implements CustomPacket
 
 	private final MiraculousType type;
 
-	public ServerboundActivateMainPowerPacket(MiraculousType type)
+	public ServerboundActivateMainPowerPacket(FriendlyByteBuf buf)
 	{
-		this.type = type;
-	}
-
-	public ServerboundActivateMainPowerPacket(FriendlyByteBuf buffer)
-	{
-		this.type = buffer.readEnum(MiraculousType.class);
+		this.type = buf.readEnum(MiraculousType.class);
 	}
 
 	// ON SERVER
@@ -46,15 +41,15 @@ public class ServerboundActivateMainPowerPacket implements CustomPacket
 	}
 
 	@Override
-	public void write(FriendlyByteBuf buffer) {
-		buffer.writeEnum(type);
+	public void write(FriendlyByteBuf buf) {
+		buf.writeEnum(type);
 	}
 
 	public static FriendlyByteBuf write(MiraculousType type)
 	{
-		FriendlyByteBuf buffer = PacketUtils.create();
-		buffer.writeEnum(type);
-		return buffer;
+		FriendlyByteBuf buf = PacketUtils.create();
+		buf.writeEnum(type);
+		return buf;
 	}
 
 	@Override

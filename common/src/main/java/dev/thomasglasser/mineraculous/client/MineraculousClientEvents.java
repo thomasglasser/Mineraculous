@@ -11,7 +11,7 @@ public class MineraculousClientEvents
 {
 	public static void onEntityJoinLevel(Entity entity)
 	{
-		TommyLibServices.NETWORK.sendToServer(ServerboundRequestMiraculousDataSetSyncPacket.class, ServerboundRequestMiraculousDataSetSyncPacket.write(entity.getId()));
+		TommyLibServices.NETWORK.sendToServer(ServerboundRequestMiraculousDataSetSyncPacket.ID, ServerboundRequestMiraculousDataSetSyncPacket::new, ServerboundRequestMiraculousDataSetSyncPacket.write(entity.getId()));
 	}
 
 	public static void openPowerWheel(Player player)

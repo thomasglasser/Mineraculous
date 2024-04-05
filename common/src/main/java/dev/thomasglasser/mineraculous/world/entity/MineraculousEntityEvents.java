@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.network.ClientboundLivingEntityCataclysmedPacket;
 import dev.thomasglasser.mineraculous.network.ClientboundMiraculousTransformPacket;
 import dev.thomasglasser.mineraculous.platform.Services;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
@@ -129,7 +130,7 @@ public class MineraculousEntityEvents
 						data = new MiraculousData(true, miraculousStack, data.curiosData(), tool, data.powerLevel(), false, false, data.name());
 						Services.DATA.getMiraculousDataSet(player).put(player, type, data, true);
 						Services.CURIOS.setStackInSlot(player, data.curiosData(), miraculousStack, true);
-						TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.class, ClientboundMiraculousTransformPacket.write(type, data), serverLevel.getServer());
+						TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.ID, ClientboundMiraculousTransformPacket::new, ClientboundMiraculousTransformPacket.write(type, data), serverLevel.getServer());
 						int powerLevel = data.powerLevel();
 						MIRACULOUS_EFFECTS.forEach(effect -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, powerLevel)));
 						kwami.discard();
@@ -173,7 +174,7 @@ public class MineraculousEntityEvents
 				data.tool().getOrCreateTag().putBoolean(MiraculousItem.TAG_RECALLED, true);
 				data = new MiraculousData(false, miraculousStack, data.curiosData(), data.tool(), data.powerLevel(), false, false, data.name());
 				Services.DATA.getMiraculousDataSet(player).put(player, type, data, true);
-				TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.class, ClientboundMiraculousTransformPacket.write(type, data), serverLevel.getServer());
+				TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.ID, ClientboundMiraculousTransformPacket::new, ClientboundMiraculousTransformPacket.write(type, data), serverLevel.getServer());
 				MIRACULOUS_EFFECTS.forEach(player::removeEffect);
 			}
 		}
@@ -246,6 +247,7 @@ public class MineraculousEntityEvents
 						MobEffects.DIG_SLOWDOWN
 				);
 				CATACLYSM_EFFECTS.forEach(effect -> livingEntity.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, level)));
+				TommyLibServices.NETWORK.sendToAllClients(ClientboundLivingEntityCataclysmedPacket.ID, ClientboundLivingEntityCataclysmedPacket::new, ClientboundLivingEntityCataclysmedPacket.write(livingEntity), entity.level().getServer());
 			}
 			else if (target instanceof VehicleEntity vehicle)
 			{

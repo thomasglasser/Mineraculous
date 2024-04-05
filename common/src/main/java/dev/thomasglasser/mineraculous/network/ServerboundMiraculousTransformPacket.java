@@ -21,13 +21,6 @@ public class ServerboundMiraculousTransformPacket implements CustomPacket
 	private final MiraculousData data;
 	private final boolean transform;
 
-	public ServerboundMiraculousTransformPacket(MiraculousType type, MiraculousData data, boolean transform)
-	{
-		this.type = type;
-		this.data = data;
-		this.transform = transform;
-	}
-
 	public ServerboundMiraculousTransformPacket(FriendlyByteBuf buf)
 	{
 		type = buf.readEnum(MiraculousType.class);

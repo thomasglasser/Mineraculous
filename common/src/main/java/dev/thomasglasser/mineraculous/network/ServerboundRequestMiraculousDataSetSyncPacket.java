@@ -16,14 +16,9 @@ public class ServerboundRequestMiraculousDataSetSyncPacket implements CustomPack
 
 	private final int entity;
 
-	public ServerboundRequestMiraculousDataSetSyncPacket(int entity)
+	public ServerboundRequestMiraculousDataSetSyncPacket(FriendlyByteBuf buf)
 	{
-		this.entity = entity;
-	}
-
-	public ServerboundRequestMiraculousDataSetSyncPacket(FriendlyByteBuf buffer)
-	{
-		this.entity = buffer.readInt();
+		this.entity = buf.readInt();
 	}
 
 	// ON SERVER
@@ -31,7 +26,7 @@ public class ServerboundRequestMiraculousDataSetSyncPacket implements CustomPack
 	public void handle(Player player)
 	{
 		if (player.level().getEntity(entity) instanceof LivingEntity livingEntity)
-			TommyLibServices.NETWORK.sendToTrackingClients(ClientboundSyncMiraculousDataSetPacket.class, ClientboundSyncMiraculousDataSetPacket.write(Services.DATA.getMiraculousDataSet(livingEntity), entity), player.level().getServer(), livingEntity);
+			TommyLibServices.NETWORK.sendToTrackingClients(ID, ClientboundSyncMiraculousDataSetPacket::new, ClientboundSyncMiraculousDataSetPacket.write(Services.DATA.getMiraculousDataSet(livingEntity), entity), player.level().getServer(), livingEntity);
 	}
 
 	@Override
@@ -41,16 +36,16 @@ public class ServerboundRequestMiraculousDataSetSyncPacket implements CustomPack
 	}
 
 	@Override
-	public void write(FriendlyByteBuf buffer)
+	public void write(FriendlyByteBuf buf)
 	{
-		buffer.writeInt(entity);
+		buf.writeInt(entity);
 	}
 
 	public static FriendlyByteBuf write(int entity)
 	{
-		FriendlyByteBuf buffer = PacketUtils.create();
-		buffer.writeInt(entity);
-		return buffer;
+		FriendlyByteBuf buf = PacketUtils.create();
+		buf.writeInt(entity);
+		return buf;
 	}
 
 	@Override

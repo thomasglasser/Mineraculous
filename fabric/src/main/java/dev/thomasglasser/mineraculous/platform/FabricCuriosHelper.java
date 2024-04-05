@@ -14,7 +14,7 @@ public class FabricCuriosHelper implements CuriosHelper
 	public void setStackInSlot(LivingEntity entity, CuriosData curiosData, ItemStack stack, boolean syncToClient)
 	{
 		TrinketsApi.getTrinketComponent(entity).orElseThrow().getInventory().get(curiosData.category()).get(curiosData.name()).setItem(curiosData.slot(), stack);
-		if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncCurioPacket.class, ClientboundSyncCurioPacket.write(entity, curiosData, stack), entity.level().getServer());
+		if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncCurioPacket.ID, ClientboundSyncCurioPacket::new, ClientboundSyncCurioPacket.write(entity, curiosData, stack), entity.level().getServer());
 	}
 
 	@Override

@@ -38,6 +38,6 @@ public class FabricDataHelper implements DataHelper
 	public void setMiraculousDataSet(LivingEntity entity, MiraculousDataSet data, boolean syncToClient)
 	{
 		entity.setAttached(MIRACULOUS, data);
-		if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncMiraculousDataSetPacket.class, ClientboundSyncMiraculousDataSetPacket.write(data, entity), entity.level().getServer());
+		if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncMiraculousDataSetPacket.ID, ClientboundSyncMiraculousDataSetPacket::new, ClientboundSyncMiraculousDataSetPacket.write(data, entity), entity.level().getServer());
 	}
 }

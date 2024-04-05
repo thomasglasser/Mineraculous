@@ -16,15 +16,10 @@ public class ClientboundToggleCatVisionPacket implements CustomPacket
 	public static final ResourceLocation ID = Mineraculous.modLoc("clientbound_toggle_cat_vision");
 
 	private final boolean catVision;
-
-	public ClientboundToggleCatVisionPacket(boolean catVision)
+	
+	public ClientboundToggleCatVisionPacket(FriendlyByteBuf buf)
 	{
-		this.catVision = catVision;
-	}
-
-	public ClientboundToggleCatVisionPacket(FriendlyByteBuf buffer)
-	{
-		this.catVision = buffer.readBoolean();
+		this.catVision = buf.readBoolean();
 	}
 
 	// ON CLIENT
@@ -51,16 +46,16 @@ public class ClientboundToggleCatVisionPacket implements CustomPacket
 	}
 
 	@Override
-	public void write(FriendlyByteBuf buffer)
+	public void write(FriendlyByteBuf buf)
 	{
-		buffer.writeBoolean(catVision);
+		buf.writeBoolean(catVision);
 	}
 
 	public static FriendlyByteBuf write(boolean greenVision)
 	{
-		FriendlyByteBuf buffer = PacketUtils.create();
-		buffer.writeBoolean(greenVision);
-		return buffer;
+		FriendlyByteBuf buf = PacketUtils.create();
+		buf.writeBoolean(greenVision);
+		return buf;
 	}
 
 	@Override

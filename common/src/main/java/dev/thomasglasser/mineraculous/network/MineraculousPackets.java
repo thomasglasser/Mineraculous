@@ -25,5 +25,6 @@ public class MineraculousPackets
 		PACKETS.put(ClientboundSyncCurioPacket::new, Pair.of(ClientboundSyncCurioPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));
 		PACKETS.put(ClientboundSyncMiraculousDataSetPacket::new, Pair.of(ClientboundSyncMiraculousDataSetPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));
 		PACKETS.put(ClientboundToggleCatVisionPacket::new, Pair.of(ClientboundToggleCatVisionPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));
+		PACKETS.put(ClientboundLivingEntityCataclysmedPacket::new, Pair.of(ClientboundLivingEntityCataclysmedPacket.ID, CustomPacket.Direction.SERVER_TO_CLIENT));
 	}
 }

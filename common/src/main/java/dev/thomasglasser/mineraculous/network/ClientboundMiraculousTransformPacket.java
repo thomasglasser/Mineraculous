@@ -17,14 +17,8 @@ public class ClientboundMiraculousTransformPacket implements CustomPacket
 {
 	public static final ResourceLocation ID = Mineraculous.modLoc("clientbound_miraculous_transform");
 
-	private MiraculousType type;
-	private MiraculousData data;
-
-	public ClientboundMiraculousTransformPacket(MiraculousType type, MiraculousData data)
-	{
-		this.type = type;
-		this.data = data;
-	}
+	private final MiraculousType type;
+	private final MiraculousData data;
 
 	public ClientboundMiraculousTransformPacket(FriendlyByteBuf buf)
 	{

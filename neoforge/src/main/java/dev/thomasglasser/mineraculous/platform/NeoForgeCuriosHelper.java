@@ -14,7 +14,7 @@ public class NeoForgeCuriosHelper implements CuriosHelper
 	public void setStackInSlot(LivingEntity entity, CuriosData curiosData, ItemStack stack, boolean syncToClient)
 	{
 		CuriosApi.getCuriosInventory(entity).orElseThrow().getCurios().get(curiosData.name()).getStacks().setStackInSlot(curiosData.slot(), stack);
-		if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncCurioPacket.class, ClientboundSyncCurioPacket.write(entity, curiosData, stack), entity.level().getServer());
+		if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncCurioPacket.ID, ClientboundSyncCurioPacket::new, ClientboundSyncCurioPacket.write(entity, curiosData, stack), entity.level().getServer());
 	}
 
 	@Override

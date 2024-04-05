@@ -18,12 +18,6 @@ public class ClientboundSyncMiraculousDataSetPacket implements CustomPacket
 	private final MiraculousDataSet miraculousDataSet;
 	private final int entity;
 
-	public ClientboundSyncMiraculousDataSetPacket(MiraculousDataSet miraculousDataSet, int entity)
-	{
-		this.miraculousDataSet = miraculousDataSet;
-		this.entity = entity;
-	}
-
 	public ClientboundSyncMiraculousDataSetPacket(FriendlyByteBuf buffer)
 	{
 		this.miraculousDataSet = buffer.readWithCodecTrusted(NbtOps.INSTANCE, MiraculousDataSet.CODEC);

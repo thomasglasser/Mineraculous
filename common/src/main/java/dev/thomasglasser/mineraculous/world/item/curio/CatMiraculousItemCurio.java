@@ -79,7 +79,7 @@ public class CatMiraculousItemCurio extends MiraculousItemCurio
 			if (greenVision)
 			{
 				greenVision = false;
-				TommyLibServices.NETWORK.sendToClient(ClientboundToggleCatVisionPacket.class, ClientboundToggleCatVisionPacket.write(false), serverPlayer);
+				TommyLibServices.NETWORK.sendToClient(ClientboundToggleCatVisionPacket.ID, ClientboundToggleCatVisionPacket::new, ClientboundToggleCatVisionPacket.write(false), serverPlayer);
 			}
 		}
 		else if (!miraculousData.transformed())
@@ -87,7 +87,7 @@ public class CatMiraculousItemCurio extends MiraculousItemCurio
 			if (greenVision)
 			{
 				greenVision = false;
-				TommyLibServices.NETWORK.sendToClient(ClientboundToggleCatVisionPacket.class, ClientboundToggleCatVisionPacket.write(false), serverPlayer);
+				TommyLibServices.NETWORK.sendToClient(ClientboundToggleCatVisionPacket.ID, ClientboundToggleCatVisionPacket::new, ClientboundToggleCatVisionPacket.write(false), serverPlayer);
 			}
 		}
 		else if (serverPlayer.level().getMaxLocalRawBrightness(serverPlayer.blockPosition()) < 5)
@@ -95,13 +95,13 @@ public class CatMiraculousItemCurio extends MiraculousItemCurio
 			if (!greenVision)
 			{
 				greenVision = true;
-				TommyLibServices.NETWORK.sendToClient(ClientboundToggleCatVisionPacket.class, ClientboundToggleCatVisionPacket.write(true), serverPlayer);
+				TommyLibServices.NETWORK.sendToClient(ClientboundToggleCatVisionPacket.ID, ClientboundToggleCatVisionPacket::new, ClientboundToggleCatVisionPacket.write(true), serverPlayer);
 			}
 		}
 		else if (greenVision)
 		{
 			greenVision = false;
-			TommyLibServices.NETWORK.sendToClient(ClientboundToggleCatVisionPacket.class, ClientboundToggleCatVisionPacket.write(false), serverPlayer);
+			TommyLibServices.NETWORK.sendToClient(ClientboundToggleCatVisionPacket.ID, ClientboundToggleCatVisionPacket::new, ClientboundToggleCatVisionPacket.write(false), serverPlayer);
 		}
 	}
 }

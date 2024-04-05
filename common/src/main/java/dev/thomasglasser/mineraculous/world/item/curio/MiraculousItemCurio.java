@@ -49,17 +49,17 @@ public class MiraculousItemCurio implements Curio
 					{
 						if (data.transformed())
 						{
-							TommyLibServices.NETWORK.sendToServer(ServerboundMiraculousTransformPacket.class, ServerboundMiraculousTransformPacket.write(miraculousType, data, false));
+							TommyLibServices.NETWORK.sendToServer(ServerboundMiraculousTransformPacket.ID, ServerboundMiraculousTransformPacket::new, ServerboundMiraculousTransformPacket.write(miraculousType, data, false));
 						}
 						else
 						{
-							TommyLibServices.NETWORK.sendToServer(ServerboundMiraculousTransformPacket.class, ServerboundMiraculousTransformPacket.write(miraculousType, data, true));
+							TommyLibServices.NETWORK.sendToServer(ServerboundMiraculousTransformPacket.ID, ServerboundMiraculousTransformPacket::new, ServerboundMiraculousTransformPacket.write(miraculousType, data, true));
 						}
 						playerData.putInt(waitTicksKey, 10);
 					}
 					else if (MineraculousKeyMappings.ACTIVATE_MAIN_POWER.isDown() && data.transformed() && !data.mainPowerActive() && !data.mainPowerActivated())
 					{
-						TommyLibServices.NETWORK.sendToServer(ServerboundActivateMainPowerPacket.class, ServerboundActivateMainPowerPacket.write(miraculousType));
+						TommyLibServices.NETWORK.sendToServer(ServerboundActivateMainPowerPacket.ID, ServerboundActivateMainPowerPacket::new, ServerboundActivateMainPowerPacket.write(miraculousType));
 						playerData.putInt(waitTicksKey, 10);
 					}
 				}

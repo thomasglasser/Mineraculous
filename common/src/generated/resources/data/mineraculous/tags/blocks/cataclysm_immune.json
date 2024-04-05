@@ -4,6 +4,7 @@
     "minecraft:lava",
     "minecraft:fire",
     "minecraft:soul_fire",
+    "mineraculous:cataclysm_block",
     {
       "id": "#tommylib:unbreakable",
       "required": false

@@ -1,4 +1,5 @@
 {
+  "block.mineraculous.cataclysm_block": "Block of Cataclysm",
   "commands.miraculous.charged.success.other": "Set charged state of %s's %s kwami to %s",
   "commands.miraculous.charged.success.self": "Set charged state of %s kwami to %s",
   "commands.miraculous.failure.kwami_not_found": "%s's %s kwami not found in the world",

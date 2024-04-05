@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.tommylib.api.data.lang.ExtendedLanguageProvider;
 import net.minecraft.data.PackOutput;
@@ -37,6 +38,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 			add(set.LEGS.get(), set.getDisplayName() + " Leggings");
 			add(set.FEET.get(), set.getDisplayName() + " Boots");
 		});
+
+		add(MineraculousBlocks.CATACLYSM_BLOCK.get(), "Block of Cataclysm");
 
 		addConfigs();
 

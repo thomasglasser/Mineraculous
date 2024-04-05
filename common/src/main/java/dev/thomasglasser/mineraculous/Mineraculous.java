@@ -12,6 +12,7 @@ import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import eu.midnightdust.lib.config.MidnightConfig;
 import net.minecraft.resources.ResourceLocation;
@@ -37,6 +38,7 @@ public class Mineraculous
         MineraculousPackets.init();
         MineraculousParticleTypes.init();
         MineraculousCommandArgumentTypes.init();
+        MineraculousBlocks.init();
 
         registerConfigs();
 

@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.data.models;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.models.ExtendedItemModelProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -57,5 +58,7 @@ public class MineraculousItemModels extends ExtendedItemModelProvider
 		spawnEgg(MineraculousItems.PLAGG_SPAWN_EGG);
 
 		basicItem(MineraculousItems.CATACLYSM_DUST.get());
+
+		basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK.get());
 	}
 }

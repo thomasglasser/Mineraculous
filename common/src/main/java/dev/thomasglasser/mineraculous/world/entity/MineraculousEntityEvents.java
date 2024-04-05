@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
+import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
@@ -23,6 +24,8 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -39,6 +42,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.MangroveRootsBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
@@ -296,15 +300,54 @@ public class MineraculousEntityEvents
 			if (state.is(MineraculousBlockTags.CATACLYSM_IMMUNE))
 				return InteractionResult.PASS;
 
-			// TODO: Cataclysmize block and nearby blocks
-			level.destroyBlock(pos, false, entity);
-			ServerLevel serverLevel = (ServerLevel) level;
-			Block.getDrops(state, serverLevel, pos, level.getBlockEntity(pos) == null ? null : level.getBlockEntity(pos), entity, ItemStack.EMPTY).stream().map(MineraculousEntityEvents::convertToCataclysmDust).forEach(stack -> Block.popResource(level, pos, stack));
-			state.spawnAfterBreak(serverLevel, pos, ItemStack.EMPTY, true);
+			int range = 3;
+			for (int i = -range; i <= range; i++)
+			{
+				for (int j = -range; j <= range; j++)
+				{
+					BlockPos newPos = pos.offset(i, 0, j);
+					BlockState newState = level.getBlockState(newPos);
+					if (newState.is(BlockTags.LOGS) || newState.is(BlockTags.LEAVES) || newState.getBlock() instanceof MangroveRootsBlock)
+					{
+						level.setBlock(newPos, MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL);
+					}
+				}
+			}
+
+			if (!level.getBlockState(pos.above()).canBeReplaced())
+			{
+				testAndApplyCataclysmToBlocks(entity, pos.above(), hand);
+			}
+
+			RandomSource randomSource = level.random;
+			destroyBlocksWithin(randomSource.nextInt(4, 8), level, pos);
+
 			miraculousDataSet.put(entity, MiraculousType.CAT, new MiraculousData(true, catMiraculousData.miraculousItem(), catMiraculousData.curiosData(), catMiraculousData.tool(), catMiraculousData.powerLevel(), true, false, catMiraculousData.name()), true);
 			return InteractionResult.SUCCESS;
 		}
 		return InteractionResult.PASS;
+	}
+
+	private static void destroyBlocksWithin(int radius, Level level, BlockPos pos)
+	{
+		int iRange = level.random.nextInt(radius);
+		for (int i = -iRange; i <= iRange; i++)
+		{
+			int jRange = level.random.nextInt(radius);
+			for (int j = -jRange; j <= jRange; j++)
+			{
+				int kRange = level.random.nextInt(radius);
+				for (int k = -kRange; k <= kRange; k++)
+				{
+					BlockPos newPos = pos.offset(i, j, k);
+					BlockState newState = level.getBlockState(newPos);
+					if (!newState.is(MineraculousBlockTags.CATACLYSM_IMMUNE) && level.random.nextBoolean())
+					{
+						level.setBlock(newPos, MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL);
+					}
+				}
+			}
+		}
 	}
 
 	public static InteractionResult onBlockInteract(LivingEntity entity, BlockHitResult hitResult, InteractionHand hand)

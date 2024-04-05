@@ -90,7 +90,7 @@ public class CatMiraculousItemCurio extends MiraculousItemCurio
 				TommyLibServices.NETWORK.sendToClient(ClientboundToggleCatVisionPacket.ID, ClientboundToggleCatVisionPacket::new, ClientboundToggleCatVisionPacket.write(false), serverPlayer);
 			}
 		}
-		else if (serverPlayer.level().getMaxLocalRawBrightness(serverPlayer.blockPosition().above(2)) < 5)
+		else if (serverPlayer.level().getMaxLocalRawBrightness(serverPlayer.blockPosition().above()) < 5)
 		{
 			if (!greenVision)
 			{

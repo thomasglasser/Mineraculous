@@ -69,9 +69,9 @@ public class MiraculousItem extends BaseModeledItem
 		super.inventoryTick(stack, level, entity, slotId, isSelected);
 		if (!level.isClientSide)
 		{
-			if (entity instanceof Player && !stack.getOrCreateTag().getString(TAG_HOLDER).equals(entity.getName().getString()))
+			if (entity instanceof Player player && !stack.getOrCreateTag().getString(TAG_HOLDER).equals(entity.getName().getString()))
 			{
-				stack.getOrCreateTag().putString(TAG_HOLDER, entity.getName().getString());
+				stack.getOrCreateTag().putString(TAG_HOLDER, player.getGameProfile().getName());
 			}
 			if (!stack.getOrCreateTag().getBoolean(TAG_POWERED) && !stack.getOrCreateTag().contains(TAG_KWAMIDATA))
 			{

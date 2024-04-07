@@ -5,6 +5,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.living.LivingAttackEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
@@ -59,5 +60,10 @@ public class MineraculousNeoForgeEntityEvents
 	{
 		if (MineraculousEntityEvents.isCataclysmed(event.getEntity()))
 			event.setCanceled(true);
+	}
+
+	public static void onLivingTick(LivingEvent.LivingTickEvent event)
+	{
+		MineraculousEntityEvents.tick(event.getEntity());
 	}
 }

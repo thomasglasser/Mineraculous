@@ -17,3 +17,7 @@ accessible method net/minecraft/client/renderer/GameRenderer loadEffect (Lnet/mi
 accessible method net/minecraft/world/entity/Entity removeAction (Lnet/minecraft/network/chat/Component;)Lnet/minecraft/network/chat/Component;
 accessible field net/minecraft/commands/synchronization/ArgumentTypeInfos BY_CLASS Ljava/util/Map;
 accessible class net/minecraft/client/gui/Gui$HeartType
+accessible method net/minecraft/client/renderer/texture/SimpleTexture getTextureImage (Lnet/minecraft/server/packs/resources/ResourceManager;)Lnet/minecraft/client/renderer/texture/SimpleTexture$TextureImage;
+accessible class net/minecraft/client/renderer/texture/SimpleTexture$TextureImage
+accessible method net/minecraft/client/renderer/texture/PreloadedTexture getTextureImage (Lnet/minecraft/server/packs/resources/ResourceManager;)Lnet/minecraft/client/renderer/texture/SimpleTexture$TextureImage;
+accessible method net/minecraft/client/gui/screens/LoadingOverlay$LogoTexture getTextureImage (Lnet/minecraft/server/packs/resources/ResourceManager;)Lnet/minecraft/client/renderer/texture/SimpleTexture$TextureImage;

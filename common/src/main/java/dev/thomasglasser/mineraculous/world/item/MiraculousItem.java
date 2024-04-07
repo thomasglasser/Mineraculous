@@ -36,14 +36,14 @@ public class MiraculousItem extends BaseModeledItem
 	public static final int FIVE_MINUTES = 6000;
 
 	private final ArmorSet armor;
-	private final Supplier<Item> tool;
+	private final Supplier<? extends Item> tool;
 	private final SoundEvent transformSound;
 	private final Supplier<EntityType<? extends Kwami>> kwamiType;
 	private final Pair<String, String> acceptableSlot;
 	private final TextColor powerColor;
 	private final MiraculousType type;
 
-	public MiraculousItem(Properties properties, MiraculousType type, ArmorSet armor, Supplier<Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, Pair<String, String> acceptableSlot, TextColor powerColor)
+	public MiraculousItem(Properties properties, MiraculousType type, ArmorSet armor, Supplier<? extends Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, Pair<String, String> acceptableSlot, TextColor powerColor)
 	{
 		super(properties.stacksTo(1).fireResistant().rarity(Rarity.EPIC));
 		this.armor = armor;

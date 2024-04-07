@@ -60,5 +60,8 @@ public class MineraculousItemModels extends ExtendedItemModelProvider
 		basicItem(MineraculousItems.CATACLYSM_DUST.get());
 
 		basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK.get());
+
+		// TODO: 2d cat staff
+//		basicInventoryItem(MineraculousItems.CAT_STAFF);
 	}
 }

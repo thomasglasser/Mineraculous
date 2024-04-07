@@ -31,20 +31,23 @@ public class MineraculousItems
 
 	private static final List<RegistryObject<? extends Item>> IN_MOD_TAB = new ArrayList<>();
 
-	// Miraculous
-	public static final RegistryObject<MiraculousItem> CAT_MIRACULOUS = registerMiraculous("cat", MiraculousType.CAT, MineraculousArmors.CAT_MIRACULOUS, null /*TODO: Stick */, null /* TODO: Transform sound */, MineraculousEntityTypes.PLAGG::get, Pair.of("hand", "ring"), 0xc6f800);
+	// Tools
+	public static final RegistryObject<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(3, -2.4F, new Item.Properties().fireResistant().stacksTo(1)), List.of(CreativeModeTabs.TOOLS_AND_UTILITIES, CreativeModeTabs.COMBAT));
 
-	public static final RegistryObject<Item> CATACLYSM_DUST = register("cataclysm_dust", () -> new Item(new Item.Properties()), List.of(MineraculousCreativeModeTabs.MINERACULOUS.getResourceKey()));
+	// Miraculous
+	public static final RegistryObject<MiraculousItem> CAT_MIRACULOUS = registerMiraculous("cat", MiraculousType.CAT, MineraculousArmors.CAT_MIRACULOUS, CAT_STAFF, null /* TODO: Transform sound */, MineraculousEntityTypes.PLAGG::get, Pair.of("hand", "ring"), 0xc6f800);
+
+	public static final RegistryObject<Item> CATACLYSM_DUST = register("cataclysm_dust", () -> new Item(new Item.Properties()), List.of());
 
 	// SPAWN EGGS
 	public static final RegistryObject<SpawnEggItem> PLAGG_SPAWN_EGG = registerSpawnEgg("plagg_spawn_egg", MineraculousEntityTypes.PLAGG::get, 0x1c1b20, 0xb6fa02);
 
-	private static RegistryObject<MiraculousItem> registerMiraculous(String name, MiraculousType type, ArmorSet armorSet, Supplier<Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, Pair<String, String> acceptableSlot, int color)
+	private static RegistryObject<MiraculousItem> registerMiraculous(String name, MiraculousType type, ArmorSet armorSet, Supplier<? extends Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, Pair<String, String> acceptableSlot, int color)
 	{
 		return register(name + "_miraculous", () -> new MiraculousItem(new Item.Properties(), type, armorSet, tool, transformSound, kwamiType, acceptableSlot, TextColor.fromRgb(color)), List.of(CreativeModeTabs.TOOLS_AND_UTILITIES, CreativeModeTabs.COMBAT));
 	}
 
-	private static <T extends Item> RegistryObject<T> register(String name, Supplier<T> item, List<ResourceKey<CreativeModeTab>> tabs, boolean inModTab)
+	public static <T extends Item> RegistryObject<T> register(String name, Supplier<T> item, List<ResourceKey<CreativeModeTab>> tabs, boolean inModTab)
 	{
 		RegistryObject<T> obj = ItemUtils.register(ITEMS, name, item, tabs);
 		if (inModTab)
@@ -52,7 +55,7 @@ public class MineraculousItems
 		return obj;
 	}
 
-	private static <T extends Item> RegistryObject<T> register(String name, Supplier<T> item, List<ResourceKey<CreativeModeTab>> tabs)
+	public static <T extends Item> RegistryObject<T> register(String name, Supplier<T> item, List<ResourceKey<CreativeModeTab>> tabs)
 	{
 		return register(name, item, tabs, true);
 	}

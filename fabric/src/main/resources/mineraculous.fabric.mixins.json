@@ -7,7 +7,8 @@
   "mixins": [
     "minecraft.commands.CommandsMixin",
     "minecraft.server.level.ServerPlayerMixin",
-    "minecraft.world.entity.LivingEntityMixin",
+    "minecraft.world.entity.FabricLivingEntityMixin",
+    "miraculous.world.item.CatStaffItemMixin",
     "miraculous.world.item.armor.MiraculousArmorItemMixin"
   ],
   "client": [

@@ -12,7 +12,6 @@ import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import dev.thomasglasser.tommylib.api.world.entity.DataHolder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -31,19 +30,14 @@ public class MiraculousItemCurio implements Curio
 				stack.getOrCreateTag().putInt(MiraculousItem.TAG_REMAININGTICKS, stack.getOrCreateTag().getInt(MiraculousItem.TAG_REMAININGTICKS) - 1);
 			if (entity.level().isClientSide)
 			{
-				String waitTicksKey = "WaitTicks";
-				CompoundTag playerData = ((DataHolder) player).getPersistentData();
-				int waitTicks = playerData.getInt(waitTicksKey);
-				if (waitTicks > 0)
-				{
-					playerData.putInt(waitTicksKey, --waitTicks);
-				}
-				else if (!MineraculousClientUtils.hasScreenOpen())
+				CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
+				int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
+				if (waitTicks <= 0 && !MineraculousClientUtils.hasScreenOpen())
 				{
 					if (MineraculousKeyMappings.OPEN_POWER_WHEEL.isDown() && data.transformed())
 					{
 						MineraculousClientEvents.openPowerWheel(player);
-						playerData.putInt(waitTicksKey, 10);
+						playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
 					}
 					else if (MineraculousKeyMappings.TRANSFORM.isDown())
 					{
@@ -55,14 +49,15 @@ public class MiraculousItemCurio implements Curio
 						{
 							TommyLibServices.NETWORK.sendToServer(ServerboundMiraculousTransformPacket.ID, ServerboundMiraculousTransformPacket::new, ServerboundMiraculousTransformPacket.write(miraculousType, data, true));
 						}
-						playerData.putInt(waitTicksKey, 10);
+						playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
 					}
 					else if (MineraculousKeyMappings.ACTIVATE_MAIN_POWER.isDown() && data.transformed() && !data.mainPowerActive() && !data.mainPowerActivated())
 					{
 						TommyLibServices.NETWORK.sendToServer(ServerboundActivateMainPowerPacket.ID, ServerboundActivateMainPowerPacket::new, ServerboundActivateMainPowerPacket.write(miraculousType));
-						playerData.putInt(waitTicksKey, 10);
+						playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
 					}
 				}
+				TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
 			}
 			else
 			{

@@ -1,12 +1,12 @@
 package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.network.ClientboundLivingEntityCataclysmedPacket;
 import dev.thomasglasser.mineraculous.network.ClientboundMiraculousTransformPacket;
 import dev.thomasglasser.mineraculous.platform.Services;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
+import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
@@ -15,9 +15,9 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.registration.RegistryObject;
-import dev.thomasglasser.tommylib.api.world.entity.DataHolder;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -28,6 +28,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -46,12 +47,14 @@ import net.minecraft.world.level.block.MangroveRootsBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 
 public class MineraculousEntityEvents
 {
+	public static final String TAG_WAITTICKS = "WaitTicks";
 	public static final String TAG_CATACLYSMED = "Cataclysmed";
 	public static final String TAG_HASCATVISION = "HasCatVision";
 
@@ -70,6 +73,16 @@ public class MineraculousEntityEvents
 			MobEffects.SATURATION,
 			MobEffects.ABSORPTION
 	);
+
+	public static void tick(LivingEntity entity)
+	{
+		CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(entity);
+		int waitTicks = entityData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
+		if (waitTicks > 0)
+		{
+			entityData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, --waitTicks);
+		}
+	}
 
 	public static void onDeath(LivingEntity entity)
 	{
@@ -129,6 +142,7 @@ public class MineraculousEntityEvents
 						miraculousStack.getOrCreateTag().putBoolean("HideFlags", true);
 
 						ItemStack tool = miraculousItem.getTool() == null ? ItemStack.EMPTY : miraculousItem.getTool().getDefaultInstance();
+						tool.getOrCreateTag().putUUID(CatStaffItem.TAG_UUID, kwami.getUUID());
 						player.addItem(tool);
 						miraculousStack.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, true);
 						data = new MiraculousData(true, miraculousStack, data.curiosData(), tool, data.powerLevel(), false, false, data.name());
@@ -175,8 +189,18 @@ public class MineraculousEntityEvents
 				miraculousStack.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, false);
 				miraculousStack.getOrCreateTag().remove(MiraculousItem.TAG_REMAININGTICKS);
 				Services.CURIOS.setStackInSlot(player, data.curiosData(), miraculousStack, true);
+				// TODO: If item not in inventory, make it disappear when found, in item entity or chest or something
 				data.tool().getOrCreateTag().putBoolean(MiraculousItem.TAG_RECALLED, true);
-				data = new MiraculousData(false, miraculousStack, data.curiosData(), data.tool(), data.powerLevel(), false, false, data.name());
+				if (data.tool().getOrCreateTag().hasUUID(CatStaffItem.TAG_UUID))
+				{
+					MiraculousData finalData = data;
+					player.getInventory().clearOrCountMatchingItems(stack -> {
+						if (stack.getOrCreateTag().hasUUID(CatStaffItem.TAG_UUID))
+							return stack.getOrCreateTag().getUUID(CatStaffItem.TAG_UUID).equals(finalData.tool().getOrCreateTag().getUUID(CatStaffItem.TAG_UUID));
+						return false;
+					}, 1, new SimpleContainer(data.tool()));
+				}
+				data = new MiraculousData(false, miraculousStack, data.curiosData(), ItemStack.EMPTY, data.powerLevel(), false, false, data.name());
 				Services.DATA.getMiraculousDataSet(player).put(player, type, data, true);
 				TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.ID, ClientboundMiraculousTransformPacket::new, ClientboundMiraculousTransformPacket.write(type, data), serverLevel.getServer());
 				MIRACULOUS_EFFECTS.forEach(player::removeEffect);
@@ -251,7 +275,6 @@ public class MineraculousEntityEvents
 						MobEffects.DIG_SLOWDOWN
 				);
 				CATACLYSM_EFFECTS.forEach(effect -> livingEntity.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, level)));
-				TommyLibServices.NETWORK.sendToAllClients(ClientboundLivingEntityCataclysmedPacket.ID, ClientboundLivingEntityCataclysmedPacket::new, ClientboundLivingEntityCataclysmedPacket.write(livingEntity), entity.level().getServer());
 			}
 			else if (target instanceof VehicleEntity vehicle)
 			{
@@ -262,7 +285,9 @@ public class MineraculousEntityEvents
 			{
 				target.hurt(entity.damageSources().indirectMagic(entity, entity), 1024);
 			}
-			((DataHolder)(target)).getPersistentData().putBoolean(TAG_CATACLYSMED, true);
+			CompoundTag persistentData = TommyLibServices.ENTITY.getPersistentData(target);
+			persistentData.putBoolean(TAG_CATACLYSMED, true);
+			TommyLibServices.ENTITY.setPersistentData(target, persistentData, true);
 			miraculousDataSet.put(entity, MiraculousType.CAT, new MiraculousData(true, catMiraculousData.miraculousItem(), catMiraculousData.curiosData(), catMiraculousData.tool(), catMiraculousData.powerLevel(), true, false, catMiraculousData.name()), true);
 			return InteractionResult.SUCCESS;
 		}
@@ -289,7 +314,7 @@ public class MineraculousEntityEvents
 		}
 	}
 
-	public static InteractionResult testAndApplyCataclysmToBlocks(LivingEntity entity, BlockPos pos, InteractionHand hand)
+	public static InteractionResult testAndApplyCataclysmToBlocks(LivingEntity entity, BlockPos pos, InteractionHand hand, @Nullable Direction nextPosDirection, int blocksAffected)
 	{
 		Level level = entity.level();
 		MiraculousDataSet miraculousDataSet = Services.DATA.getMiraculousDataSet(entity);
@@ -297,8 +322,9 @@ public class MineraculousEntityEvents
 		if (!level.isClientSide && hand == InteractionHand.MAIN_HAND && catMiraculousData.transformed() && catMiraculousData.mainPowerActive())
 		{
 			BlockState state = level.getBlockState(pos);
-			if (state.is(MineraculousBlockTags.CATACLYSM_IMMUNE))
+			if (state.is(MineraculousBlockTags.CATACLYSM_IMMUNE) || blocksAffected >= Math.max(Services.DATA.getMiraculousDataSet(entity).get(MiraculousType.CAT).powerLevel(), 1) * 100)
 				return InteractionResult.PASS;
+			blocksAffected++;
 
 			int range = 3;
 			for (int i = -range; i <= range; i++)
@@ -314,9 +340,21 @@ public class MineraculousEntityEvents
 				}
 			}
 
-			if (!level.getBlockState(pos.above()).canBeReplaced())
+			if (nextPosDirection == null)
 			{
-				testAndApplyCataclysmToBlocks(entity, pos.above(), hand);
+				nextPosDirection = switch (level.random.nextInt(5))
+				{
+					case 0 -> Direction.NORTH;
+					case 1 -> Direction.EAST;
+					case 2 -> Direction.SOUTH;
+					case 3 -> Direction.WEST;
+					default -> Direction.UP;
+				};
+			}
+
+			if (!level.getBlockState(pos.relative(nextPosDirection)).canBeReplaced())
+			{
+				testAndApplyCataclysmToBlocks(entity, pos.relative(nextPosDirection), hand, nextPosDirection, blocksAffected);
 			}
 
 			RandomSource randomSource = level.random;
@@ -352,12 +390,12 @@ public class MineraculousEntityEvents
 
 	public static InteractionResult onBlockInteract(LivingEntity entity, BlockHitResult hitResult, InteractionHand hand)
 	{
-		return testAndApplyCataclysmToBlocks(entity, hitResult.getBlockPos(), hand);
+		return testAndApplyCataclysmToBlocks(entity, hitResult.getBlockPos(), hand, null, 0);
 	}
 
 	public static InteractionResult onBlockLeftClick(Player player, BlockPos pos, InteractionHand hand)
 	{
-		return testAndApplyCataclysmToBlocks(player, pos, hand);
+		return testAndApplyCataclysmToBlocks(player, pos, hand, null, 0);
 	}
 
 	public static ItemStack convertToCataclysmDust(ItemStack stack)
@@ -371,7 +409,7 @@ public class MineraculousEntityEvents
 
 	public static boolean isCataclysmed(Entity entity)
 	{
-		return ((DataHolder)entity).getPersistentData().getBoolean(TAG_CATACLYSMED);
+		return TommyLibServices.ENTITY.getPersistentData(entity).getBoolean(TAG_CATACLYSMED);
 	}
 
 	public static Component formatDisplayName(LivingEntity entity, Component original)

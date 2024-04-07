@@ -28,7 +28,7 @@ public class MineraculousBlockEntityWithoutLevelRenderer extends BlockEntityWith
 		{
 			ResourceLocation loc = BuiltInRegistries.ITEM.getKey(stack.getItem());
 			String basePath = "miraculous/" + loc.getPath();
-			if (!miraculousItem.isPowered(stack) && !miraculousItem.getHolder(stack).isEmpty() && MineraculousClientConfig.enableCustomHiddenVariants)
+			if (!miraculousItem.isPowered(stack) && !miraculousItem.getHolder(stack).isEmpty() && MineraculousClientConfig.enablePerPlayerCustomization)
 			{
 				TommyLibServices.ITEM.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_" + miraculousItem.getHolder(stack).toLowerCase(), basePath + "_hidden");
 			}

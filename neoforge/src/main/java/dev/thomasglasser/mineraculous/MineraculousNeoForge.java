@@ -34,6 +34,7 @@ public class MineraculousNeoForge
         NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeEntityEvents::onEffectRemoved);
         NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeCommandEvents::onCommandsRegister);
         NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeEntityEvents::onLivingHeal);
+        NeoForge.EVENT_BUS.addListener(MineraculousNeoForgeEntityEvents::onLivingTick);
 
         if (TommyLibServices.PLATFORM.isClientSide())
         {

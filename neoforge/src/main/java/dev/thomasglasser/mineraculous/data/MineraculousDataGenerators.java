@@ -4,7 +4,6 @@ import dev.thomasglasser.mineraculous.data.blockstates.MineraculousBlockStates;
 import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.data.lang.MineraculousEnUsLanguageProvider;
 import dev.thomasglasser.mineraculous.data.loot.MineraculousLootTables;
-import dev.thomasglasser.mineraculous.data.loot.modifier.MineraculousGlobalLootModifierProvider;
 import dev.thomasglasser.mineraculous.data.models.MineraculousItemModels;
 import dev.thomasglasser.mineraculous.data.particles.MineraculousParticleDescriptionProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousBlockTagsProvider;
@@ -34,7 +33,6 @@ public class MineraculousDataGenerators
 		generator.addProvider(onServer, blockTagsProvider);
 		generator.addProvider(onServer, new MineraculousItemTagsProvider(packOutput, registries, blockTagsProvider.contentsGetter(), existingFileHelper));
 		generator.addProvider(onServer, new MineraculousCuriosProvider(packOutput, existingFileHelper, registries));
-		generator.addProvider(onServer, new MineraculousGlobalLootModifierProvider(packOutput));
 		generator.addProvider(onServer, new MineraculousLootTables(packOutput));
 
 		// Client

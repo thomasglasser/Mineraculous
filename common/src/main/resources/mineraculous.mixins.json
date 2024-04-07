@@ -7,11 +7,13 @@
   "mixins": [
     "minecraft.client.gui.GuiMixin",
     "minecraft.world.entity.EntityMixin",
+    "minecraft.world.entity.LivingEntityMixin",
     "minecraft.world.entity.player.PlayerMixin"
   ],
   "client": [
     "minecraft.client.MinecraftMixin",
-    "minecraft.client.renderer.GameRendererMixin"
+    "minecraft.client.renderer.GameRendererMixin",
+    "minecraft.client.renderer.entity.LivingEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

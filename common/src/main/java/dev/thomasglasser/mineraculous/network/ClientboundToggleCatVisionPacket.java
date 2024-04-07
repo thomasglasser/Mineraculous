@@ -5,7 +5,8 @@ import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.tommylib.api.network.CustomPacket;
 import dev.thomasglasser.tommylib.api.network.PacketUtils;
-import dev.thomasglasser.tommylib.api.world.entity.DataHolder;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffects;
@@ -36,7 +37,9 @@ public class ClientboundToggleCatVisionPacket implements CustomPacket
 			MineraculousClientUtils.setShader(null);
 			player.removeEffect(MobEffects.NIGHT_VISION);
 		}
-		((DataHolder) player).getPersistentData().putBoolean(MineraculousEntityEvents.TAG_HASCATVISION, catVision);
+		CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(player);
+		tag.putBoolean(MineraculousEntityEvents.TAG_HASCATVISION, catVision);
+		TommyLibServices.ENTITY.setPersistentData(player, tag, false);
 	}
 
 	@Override

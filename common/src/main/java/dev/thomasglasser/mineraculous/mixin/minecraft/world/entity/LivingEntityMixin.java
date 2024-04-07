@@ -1,65 +1,48 @@
 package dev.thomasglasser.mineraculous.mixin.minecraft.world.entity;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
-import dev.thomasglasser.tommylib.api.world.entity.DataHolder;
+import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin
+public abstract class LivingEntityMixin extends Entity
 {
-	@Unique
-	LivingEntity INSTANCE = (LivingEntity) (Object) this;
-
 	@Shadow public abstract long getLootTableSeed();
 
-	@Inject(method = "die", at = @At("HEAD"))
-	private void die(DamageSource damageSource, CallbackInfo ci)
+	private final LivingEntity INSTANCE = (LivingEntity) (Object) this;
+
+	protected LivingEntityMixin(EntityType<?> entityType, Level level)
 	{
-		MineraculousEntityEvents.onDeath(INSTANCE);
+		super(entityType, level);
 	}
 
-	@Inject(method = "hurt", at = @At("HEAD"))
-	private void hurt(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
+	@ModifyReturnValue(method = "isBlocking", at = @At("RETURN"))
+	private boolean isBlocking(boolean original)
 	{
-		MineraculousEntityEvents.onLivingAttack(INSTANCE, source);
+		return INSTANCE.getUseItem().getItem() == MineraculousItems.CAT_STAFF.get() || original;
 	}
 
 	@Inject(method = "dropFromLootTable", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/storage/loot/LootTable;getRandomItems(Lnet/minecraft/world/level/storage/loot/LootParams;JLjava/util/function/Consumer;)V"), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
 	private void dropFromLootTable(DamageSource damageSource, boolean hitByPlayer, CallbackInfo ci, ResourceLocation resourceLocation, LootTable loottable, LootParams.Builder lootparams$builder, LootParams lootParams)
 	{
-		if (((DataHolder)(INSTANCE)).getPersistentData().getBoolean(MineraculousEntityEvents.TAG_CATACLYSMED))
+		if (TommyLibServices.ENTITY.getPersistentData(INSTANCE).getBoolean(MineraculousEntityEvents.TAG_CATACLYSMED))
 		{
 			loottable.getRandomItems(lootParams, getLootTableSeed(), stack -> INSTANCE.spawnAtLocation(MineraculousEntityEvents.convertToCataclysmDust(stack)));
-			ci.cancel();
-		}
-	}
-
-	@Inject(method = "removeAllEffects", at = @At("HEAD"), cancellable = true)
-	private void removeAllEffects(CallbackInfoReturnable<Boolean> cir)
-	{
-		if (MineraculousEntityEvents.isCataclysmed(INSTANCE))
-		{
-			cir.setReturnValue(false);
-		}
-	}
-
-	@Inject(method = "heal", at = @At("HEAD"), cancellable = true)
-	private void heal(float healAmount, CallbackInfo ci)
-	{
-		if (MineraculousEntityEvents.isCataclysmed(INSTANCE))
-		{
 			ci.cancel();
 		}
 	}

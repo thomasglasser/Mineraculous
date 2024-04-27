@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.world.level.storage.loot.modifier;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -12,7 +12,7 @@ import net.neoforged.neoforge.common.loot.LootModifier;
 
 public class CataclysmDustConversionLootModifier extends LootModifier
 {
-	public static final Codec<CataclysmDustConversionLootModifier> CODEC = RecordCodecBuilder.create(instance -> codecStart(instance).apply(instance, CataclysmDustConversionLootModifier::new));
+	public static final MapCodec<CataclysmDustConversionLootModifier> CODEC = RecordCodecBuilder.mapCodec(instance -> codecStart(instance).apply(instance, CataclysmDustConversionLootModifier::new));
 
 	/**
 	 * Constructs a LootModifier.
@@ -36,7 +36,7 @@ public class CataclysmDustConversionLootModifier extends LootModifier
 	}
 
 	@Override
-	public Codec<? extends IGlobalLootModifier> codec()
+	public MapCodec<? extends IGlobalLootModifier> codec()
 	{
 		return CODEC;
 	}

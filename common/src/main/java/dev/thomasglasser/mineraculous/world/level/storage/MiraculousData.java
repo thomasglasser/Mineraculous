@@ -3,6 +3,10 @@ package dev.thomasglasser.mineraculous.world.level.storage;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
+import dev.thomasglasser.tommylib.api.network.NetworkUtils;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 
 public record MiraculousData(boolean transformed, ItemStack miraculousItem, CuriosData curiosData, ItemStack tool, int powerLevel, boolean mainPowerActivated, boolean mainPowerActive, String name)
@@ -17,6 +21,18 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
 			Codec.BOOL.fieldOf("main_power_active").forGetter(MiraculousData::mainPowerActive),
 			Codec.STRING.optionalFieldOf("name", "").forGetter(MiraculousData::name)
 	).apply(instance, MiraculousData::new));
+
+	public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousData> STREAM_CODEC = NetworkUtils.composite(
+			ByteBufCodecs.BOOL, MiraculousData::transformed,
+			ItemStack.STREAM_CODEC, MiraculousData::miraculousItem,
+			CuriosData.STREAM_CODEC, MiraculousData::curiosData,
+			ItemStack.STREAM_CODEC, MiraculousData::tool,
+			ByteBufCodecs.INT, MiraculousData::powerLevel,
+			ByteBufCodecs.BOOL, MiraculousData::mainPowerActivated,
+			ByteBufCodecs.BOOL, MiraculousData::mainPowerActive,
+			ByteBufCodecs.STRING_UTF8, MiraculousData::name,
+			MiraculousData::new
+	);
 
 	public static final String NAME_NOT_SET = "miraculous_data.name.not_set";
 

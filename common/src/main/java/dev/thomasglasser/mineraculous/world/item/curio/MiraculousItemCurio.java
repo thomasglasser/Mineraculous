@@ -3,8 +3,9 @@ package dev.thomasglasser.mineraculous.world.item.curio;
 import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
-import dev.thomasglasser.mineraculous.network.ServerboundActivateMainPowerPacket;
-import dev.thomasglasser.mineraculous.network.ServerboundMiraculousTransformPacket;
+import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.network.ServerboundActivateMainPowerPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.platform.Services;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
@@ -27,14 +28,14 @@ public class MiraculousItemCurio implements Curio
 			MiraculousType miraculousType = miraculousItem.getType();
 			MiraculousData data = Services.DATA.getMiraculousDataSet(player).get(miraculousType);
 			if (data.mainPowerActivated())
-				stack.getOrCreateTag().putInt(MiraculousItem.TAG_REMAININGTICKS, stack.getOrCreateTag().getInt(MiraculousItem.TAG_REMAININGTICKS) - 1);
+				stack.set(MineraculousDataComponents.REMAINING_TICKS.get(), stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) - 1);
 			if (entity.level().isClientSide)
 			{
 				CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
 				int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
 				if (waitTicks <= 0 && !MineraculousClientUtils.hasScreenOpen())
 				{
-					if (MineraculousKeyMappings.OPEN_POWER_WHEEL.isDown() && data.transformed())
+					if (MineraculousKeyMappings.OPEN_ABILITY_WHEEL.isDown() && data.transformed())
 					{
 						MineraculousClientEvents.openPowerWheel(player);
 						playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
@@ -43,17 +44,17 @@ public class MiraculousItemCurio implements Curio
 					{
 						if (data.transformed())
 						{
-							TommyLibServices.NETWORK.sendToServer(ServerboundMiraculousTransformPacket.ID, ServerboundMiraculousTransformPacket::new, ServerboundMiraculousTransformPacket.write(miraculousType, data, false));
+							TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculousType, data, false));
 						}
 						else
 						{
-							TommyLibServices.NETWORK.sendToServer(ServerboundMiraculousTransformPacket.ID, ServerboundMiraculousTransformPacket::new, ServerboundMiraculousTransformPacket.write(miraculousType, data, true));
+							TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculousType, data, true));
 						}
 						playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
 					}
 					else if (MineraculousKeyMappings.ACTIVATE_MAIN_POWER.isDown() && data.transformed() && !data.mainPowerActive() && !data.mainPowerActivated())
 					{
-						TommyLibServices.NETWORK.sendToServer(ServerboundActivateMainPowerPacket.ID, ServerboundActivateMainPowerPacket::new, ServerboundActivateMainPowerPacket.write(miraculousType));
+						TommyLibServices.NETWORK.sendToServer(new ServerboundActivateMainPowerPayload(miraculousType));
 						playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
 					}
 				}
@@ -61,7 +62,7 @@ public class MiraculousItemCurio implements Curio
 			}
 			else
 			{
-				if (data.mainPowerActivated() && stack.getOrCreateTag().getInt(MiraculousItem.TAG_REMAININGTICKS) <= 0)
+				if (data.mainPowerActivated() && stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) <= 0)
 				{
 					MineraculousEntityEvents.handleTransformation(player, miraculousType, data, false);
 				}
@@ -78,9 +79,9 @@ public class MiraculousItemCurio implements Curio
 		{
 			MiraculousDataSet miraculousDataSet = Services.DATA.getMiraculousDataSet(entity);
 			MiraculousData data = miraculousDataSet.get(miraculousItem.getType());
-			if (stack.getOrCreateTag().getBoolean(MiraculousItem.TAG_POWERED) && !data.transformed())
+			if (stack.getOrDefault(MineraculousDataComponents.POWERED.get(), false) && !data.transformed())
 			{
-				stack.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, false);
+				stack.set(MineraculousDataComponents.POWERED.get(), false);
 				data = new MiraculousData(false, stack, curiosData, data.tool(), data.powerLevel(), data.mainPowerActivated(), data.mainPowerActive(), data.name());
 				MineraculousEntityEvents.summonKwami(entity.level(), miraculousItem.getType(), data, player);
 			}

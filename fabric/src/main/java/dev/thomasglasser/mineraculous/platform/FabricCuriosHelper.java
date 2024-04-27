@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.platform;
 
 import dev.emi.trinkets.api.TrinketsApi;
-import dev.thomasglasser.mineraculous.network.ClientboundSyncCurioPacket;
+import dev.thomasglasser.mineraculous.network.ClientboundSyncCurioPayload;
 import dev.thomasglasser.mineraculous.platform.services.CuriosHelper;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -14,7 +14,7 @@ public class FabricCuriosHelper implements CuriosHelper
 	public void setStackInSlot(LivingEntity entity, CuriosData curiosData, ItemStack stack, boolean syncToClient)
 	{
 		TrinketsApi.getTrinketComponent(entity).orElseThrow().getInventory().get(curiosData.category()).get(curiosData.name()).setItem(curiosData.slot(), stack);
-		if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncCurioPacket.ID, ClientboundSyncCurioPacket::new, ClientboundSyncCurioPacket.write(entity, curiosData, stack), entity.level().getServer());
+		if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncCurioPayload(entity.getId(), curiosData, stack), entity.level().getServer());
 	}
 
 	@Override

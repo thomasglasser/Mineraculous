@@ -2,10 +2,12 @@ package dev.thomasglasser.mineraculous.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
+import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -28,13 +30,13 @@ public class MineraculousBlockEntityWithoutLevelRenderer extends BlockEntityWith
 		{
 			ResourceLocation loc = BuiltInRegistries.ITEM.getKey(stack.getItem());
 			String basePath = "miraculous/" + loc.getPath();
-			if (!miraculousItem.isPowered(stack) && !miraculousItem.getHolder(stack).isEmpty() && MineraculousClientConfig.enablePerPlayerCustomization)
+			if (!stack.getOrDefault(MineraculousDataComponents.POWERED.get(), false) && stack.has(DataComponents.PROFILE) && MineraculousClientConfig.enablePerPlayerCustomization)
 			{
-				TommyLibServices.ITEM.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_" + miraculousItem.getHolder(stack).toLowerCase(), basePath + "_hidden");
+				TommyLibServices.ITEM.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_" + stack.get(DataComponents.PROFILE).name().orElse("hidden"), basePath + "_hidden");
 			}
-			else if (miraculousItem.isPowered(stack))
+			else if (stack.getOrDefault(MineraculousDataComponents.POWERED.get(), false))
 			{
-				int ticks = stack.getOrCreateTag().getInt(MiraculousItem.TAG_REMAININGTICKS);
+				int ticks = stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0);
 				final int second = ticks / 20;
 				final int minute = (second / 60) + 1;
 				if (ticks > 0 && ticks < MiraculousItem.FIVE_MINUTES)

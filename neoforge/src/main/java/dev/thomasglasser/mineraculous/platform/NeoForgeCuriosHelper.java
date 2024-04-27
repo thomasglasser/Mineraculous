@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.platform;
 
-import dev.thomasglasser.mineraculous.network.ClientboundSyncCurioPacket;
+import dev.thomasglasser.mineraculous.network.ClientboundSyncCurioPayload;
 import dev.thomasglasser.mineraculous.platform.services.CuriosHelper;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -14,7 +14,7 @@ public class NeoForgeCuriosHelper implements CuriosHelper
 	public void setStackInSlot(LivingEntity entity, CuriosData curiosData, ItemStack stack, boolean syncToClient)
 	{
 		CuriosApi.getCuriosInventory(entity).orElseThrow().getCurios().get(curiosData.name()).getStacks().setStackInSlot(curiosData.slot(), stack);
-		if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncCurioPacket.ID, ClientboundSyncCurioPacket::new, ClientboundSyncCurioPacket.write(entity, curiosData, stack), entity.level().getServer());
+		if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncCurioPayload(entity.getId(), curiosData, stack), entity.level().getServer());
 	}
 
 	@Override

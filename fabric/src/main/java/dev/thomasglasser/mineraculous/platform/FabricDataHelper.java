@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.platform;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.network.ClientboundSyncMiraculousDataSetPacket;
+import dev.thomasglasser.mineraculous.network.ClientboundSyncMiraculousDataSetPayload;
 import dev.thomasglasser.mineraculous.platform.services.DataHelper;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
@@ -38,6 +38,6 @@ public class FabricDataHelper implements DataHelper
 	public void setMiraculousDataSet(LivingEntity entity, MiraculousDataSet data, boolean syncToClient)
 	{
 		entity.setAttached(MIRACULOUS, data);
-		if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncMiraculousDataSetPacket.ID, ClientboundSyncMiraculousDataSetPacket::new, ClientboundSyncMiraculousDataSetPacket.write(data, entity), entity.level().getServer());
+		if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousDataSetPayload(data, entity.getId()), entity.level().getServer());
 	}
 }

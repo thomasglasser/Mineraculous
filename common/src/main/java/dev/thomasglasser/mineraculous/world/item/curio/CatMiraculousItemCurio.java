@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.world.item.curio;
 
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
-import dev.thomasglasser.mineraculous.network.ClientboundToggleCatVisionPacket;
+import dev.thomasglasser.mineraculous.network.ClientboundToggleCatVisionPayload;
 import dev.thomasglasser.mineraculous.platform.Services;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
@@ -79,7 +79,7 @@ public class CatMiraculousItemCurio extends MiraculousItemCurio
 			if (greenVision)
 			{
 				greenVision = false;
-				TommyLibServices.NETWORK.sendToClient(ClientboundToggleCatVisionPacket.ID, ClientboundToggleCatVisionPacket::new, ClientboundToggleCatVisionPacket.write(false), serverPlayer);
+				TommyLibServices.NETWORK.sendToClient(new ClientboundToggleCatVisionPayload(false), serverPlayer);
 			}
 		}
 		else if (!miraculousData.transformed())
@@ -87,7 +87,7 @@ public class CatMiraculousItemCurio extends MiraculousItemCurio
 			if (greenVision)
 			{
 				greenVision = false;
-				TommyLibServices.NETWORK.sendToClient(ClientboundToggleCatVisionPacket.ID, ClientboundToggleCatVisionPacket::new, ClientboundToggleCatVisionPacket.write(false), serverPlayer);
+				TommyLibServices.NETWORK.sendToClient(new ClientboundToggleCatVisionPayload(false), serverPlayer);
 			}
 		}
 		else if (serverPlayer.level().getMaxLocalRawBrightness(serverPlayer.blockPosition().above()) < 5)
@@ -95,13 +95,13 @@ public class CatMiraculousItemCurio extends MiraculousItemCurio
 			if (!greenVision)
 			{
 				greenVision = true;
-				TommyLibServices.NETWORK.sendToClient(ClientboundToggleCatVisionPacket.ID, ClientboundToggleCatVisionPacket::new, ClientboundToggleCatVisionPacket.write(true), serverPlayer);
+				TommyLibServices.NETWORK.sendToClient(new ClientboundToggleCatVisionPayload(true), serverPlayer);
 			}
 		}
 		else if (greenVision)
 		{
 			greenVision = false;
-			TommyLibServices.NETWORK.sendToClient(ClientboundToggleCatVisionPacket.ID, ClientboundToggleCatVisionPacket::new, ClientboundToggleCatVisionPacket.write(false), serverPlayer);
+			TommyLibServices.NETWORK.sendToClient(new ClientboundToggleCatVisionPayload(false), serverPlayer);
 		}
 	}
 }

@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -38,11 +38,11 @@ public abstract class LivingEntityMixin extends Entity
 	}
 
 	@Inject(method = "dropFromLootTable", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/storage/loot/LootTable;getRandomItems(Lnet/minecraft/world/level/storage/loot/LootParams;JLjava/util/function/Consumer;)V"), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
-	private void dropFromLootTable(DamageSource damageSource, boolean hitByPlayer, CallbackInfo ci, ResourceLocation resourceLocation, LootTable loottable, LootParams.Builder lootparams$builder, LootParams lootParams)
+	private void dropFromLootTable(DamageSource damageSource, boolean hitByPlayer, CallbackInfo ci, ResourceKey<LootTable> resourceKey, LootTable lootTable, LootParams.Builder builder, LootParams lootParams)
 	{
 		if (TommyLibServices.ENTITY.getPersistentData(INSTANCE).getBoolean(MineraculousEntityEvents.TAG_CATACLYSMED))
 		{
-			loottable.getRandomItems(lootParams, getLootTableSeed(), stack -> INSTANCE.spawnAtLocation(MineraculousEntityEvents.convertToCataclysmDust(stack)));
+			lootTable.getRandomItems(lootParams, getLootTableSeed(), stack -> INSTANCE.spawnAtLocation(MineraculousEntityEvents.convertToCataclysmDust(stack)));
 			ci.cancel();
 		}
 	}

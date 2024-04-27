@@ -1,83 +1,54 @@
 package dev.thomasglasser.mineraculous.world.item.armor;
 
-import com.mojang.serialization.Codec;
+import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.tommylib.api.registration.RegistrationProvider;
+import dev.thomasglasser.tommylib.api.registration.RegistryObject;
 import net.minecraft.Util;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.EnumMap;
+import java.util.List;
+import java.util.function.Supplier;
 
-public enum MineraculousArmorMaterials implements StringRepresentable, ArmorMaterial
+public class MineraculousArmorMaterials
 {
-	MIRACULOUS("miraculous", 0, Util.make(new EnumMap<>(ArmorItem.Type.class), (enumMap) -> {
-		enumMap.put(ArmorItem.Type.BOOTS, 30);
-		enumMap.put(ArmorItem.Type.LEGGINGS, 30);
-		enumMap.put(ArmorItem.Type.CHESTPLATE, 30);
-		enumMap.put(ArmorItem.Type.HELMET, 30);
-	}), 0, SoundEvents.ARMOR_EQUIP_LEATHER /*TODO:Custom sound?*/, 20.0F, 0.0F);
+	public static final RegistrationProvider<ArmorMaterial> ARMOR_MATERIALS = RegistrationProvider.get(Registries.ARMOR_MATERIAL, Mineraculous.MOD_ID);
 
-	public static final Codec<MineraculousArmorMaterials> CODEC = StringRepresentable.fromEnum(MineraculousArmorMaterials::values);
-	private static final EnumMap<ArmorItem.Type, Integer> HEALTH_FUNCTION_FOR_TYPE = Util.make(new EnumMap<>(ArmorItem.Type.class), (enumMap) -> {
-		enumMap.put(ArmorItem.Type.BOOTS, 13);
-		enumMap.put(ArmorItem.Type.LEGGINGS, 15);
-		enumMap.put(ArmorItem.Type.CHESTPLATE, 16);
-		enumMap.put(ArmorItem.Type.HELMET, 11);
-	});
-	private final String name;
-	private final int durabilityMultiplier;
-	private final EnumMap<ArmorItem.Type, Integer> protectionFunctionForType;
-	private final int enchantmentValue;
-	private final SoundEvent sound;
-	private final float toughness;
-	private final float knockbackResistance;
+	public static final RegistryObject<ArmorMaterial> MIRACULOUS = register("miraculous", Util.make(new EnumMap<>(ArmorItem.Type.class), p_323379_ -> {
+		p_323379_.put(ArmorItem.Type.BOOTS, 30);
+		p_323379_.put(ArmorItem.Type.LEGGINGS, 30);
+		p_323379_.put(ArmorItem.Type.CHESTPLATE, 30);
+		p_323379_.put(ArmorItem.Type.HELMET, 30);
+		p_323379_.put(ArmorItem.Type.BODY, 30);
+	}), 0, SoundEvents.ARMOR_EQUIP_LEATHER, 20.0F, 0.0F, () -> Ingredient.EMPTY);
 
-	MineraculousArmorMaterials(String name, int durabilityMultiplier, EnumMap protectionFunctionForType, int enchantmentValue, SoundEvent sound, float toughness, float knockbackResistance) {
-		this.name = name;
-		this.durabilityMultiplier = durabilityMultiplier;
-		this.protectionFunctionForType = protectionFunctionForType;
-		this.enchantmentValue = enchantmentValue;
-		this.sound = sound;
-		this.toughness = toughness;
-		this.knockbackResistance = knockbackResistance;
+	private static RegistryObject<ArmorMaterial> register(
+			String name,
+			EnumMap<ArmorItem.Type, Integer> defense,
+			int enchantmentValue,
+			Holder<SoundEvent> equipSound,
+			float toughness,
+			float knockbackResistance,
+			Supplier<Ingredient> repairIngredient
+	) {
+		EnumMap<ArmorItem.Type, Integer> enummap = new EnumMap<>(ArmorItem.Type.class);
+
+		for (ArmorItem.Type armoritem$type : ArmorItem.Type.values()) {
+			enummap.put(armoritem$type, defense.get(armoritem$type));
+		}
+
+		List<ArmorMaterial.Layer> list = List.of(new ArmorMaterial.Layer(new ResourceLocation(name)));
+
+		return ARMOR_MATERIALS.register(name, () -> new ArmorMaterial(enummap, enchantmentValue, equipSound, repairIngredient, list, toughness, knockbackResistance));
 	}
 
-	public int getDurabilityForType(ArmorItem.Type type) {
-		return HEALTH_FUNCTION_FOR_TYPE.get(type) * this.durabilityMultiplier;
-	}
-
-	public int getDefenseForType(ArmorItem.Type type) {
-		return this.protectionFunctionForType.get(type);
-	}
-
-	public int getEnchantmentValue() {
-		return this.enchantmentValue;
-	}
-
-	public SoundEvent getEquipSound() {
-		return this.sound;
-	}
-
-	public Ingredient getRepairIngredient() {
-		return Ingredient.EMPTY;
-	}
-
-	public String getName() {
-		return this.name;
-	}
-
-	public float getToughness() {
-		return this.toughness;
-	}
-
-	public float getKnockbackResistance() {
-		return this.knockbackResistance;
-	}
-
-	public String getSerializedName() {
-		return this.name;
-	}
+	public static void init() {}
 }

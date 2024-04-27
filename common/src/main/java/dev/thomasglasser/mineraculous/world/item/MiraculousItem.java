@@ -2,12 +2,14 @@ package dev.thomasglasser.mineraculous.world.item;
 
 import com.mojang.datafixers.util.Pair;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
+import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
 import dev.thomasglasser.tommylib.api.world.item.BaseModeledItem;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
@@ -19,20 +21,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
 
 import java.util.function.Supplier;
 
 public class MiraculousItem extends BaseModeledItem
 {
-	public static final String TAG_POWERED = "Powered";
-	public static final String TAG_HOLDER = "Holder";
-	public static final String TAG_KWAMIDATA = "KwamiData";
-	public static final String TAG_RECALLED = "Recalled";
-	public static final String TAG_TRANSFORMINGTICKS = "TransformingTicks";
-	public static final String TAG_DETRANSFORMINGTICKS = "DetransformingTicks";
-	public static final String TAG_REMAININGTICKS = "RemainingTicks";
-
 	public static final int FIVE_MINUTES = 6000;
 
 	private final ArmorSet armor;
@@ -45,7 +40,7 @@ public class MiraculousItem extends BaseModeledItem
 
 	public MiraculousItem(Properties properties, MiraculousType type, ArmorSet armor, Supplier<? extends Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, Pair<String, String> acceptableSlot, TextColor powerColor)
 	{
-		super(properties.stacksTo(1).fireResistant().rarity(Rarity.EPIC));
+		super(properties.stacksTo(1).fireResistant().rarity(Rarity.EPIC).component(MineraculousDataComponents.POWERED.get(), true));
 		this.armor = armor;
 		this.tool = tool;
 		this.transformSound = transformSound;
@@ -56,26 +51,18 @@ public class MiraculousItem extends BaseModeledItem
 	}
 
 	@Override
-	public ItemStack getDefaultInstance()
-	{
-		ItemStack stack = super.getDefaultInstance();
-		stack.getOrCreateTag().putBoolean(TAG_POWERED, true);
-		return stack;
-	}
-
-	@Override
 	public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected)
 	{
 		super.inventoryTick(stack, level, entity, slotId, isSelected);
 		if (!level.isClientSide)
 		{
-			if (entity instanceof Player player && !stack.getOrCreateTag().getString(TAG_HOLDER).equals(entity.getName().getString()))
+			if (entity instanceof Player player && (!stack.has(DataComponents.PROFILE) || !stack.get(DataComponents.PROFILE).gameProfile().equals(player.getGameProfile())))
 			{
-				stack.getOrCreateTag().putString(TAG_HOLDER, player.getGameProfile().getName());
+				stack.set(DataComponents.PROFILE, new ResolvableProfile(player.getGameProfile()));
 			}
-			if (!stack.getOrCreateTag().getBoolean(TAG_POWERED) && !stack.getOrCreateTag().contains(TAG_KWAMIDATA))
+			if (!stack.getOrDefault(MineraculousDataComponents.POWERED.get(), false) && !stack.has(MineraculousDataComponents.KWAMI_DATA.get()))
 			{
-				stack.getOrCreateTag().putBoolean(TAG_POWERED, true);
+				stack.set(MineraculousDataComponents.POWERED.get(), true);
 			}
 		}
 	}
@@ -89,16 +76,6 @@ public class MiraculousItem extends BaseModeledItem
 				return InteractionResult.SUCCESS;
 		}
 		return InteractionResult.sidedSuccess(player.level().isClientSide);
-	}
-
-	public boolean isPowered(ItemStack stack)
-	{
-		return stack.getOrCreateTag().getBoolean(TAG_POWERED);
-	}
-
-	public String getHolder(ItemStack stack)
-	{
-		return stack.getOrCreateTag().getString(TAG_HOLDER);
 	}
 
 	@Override

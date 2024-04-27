@@ -3,25 +3,23 @@ package dev.thomasglasser.mineraculous.network;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
-import dev.thomasglasser.tommylib.api.network.CustomPacket;
-import dev.thomasglasser.tommylib.api.network.PacketUtils;
+import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 
-public class ClientboundToggleCatVisionPacket implements CustomPacket
+public record ClientboundToggleCatVisionPayload(boolean catVision) implements ExtendedPacketPayload
 {
-	public static final ResourceLocation ID = Mineraculous.modLoc("clientbound_toggle_cat_vision");
-
-	private final boolean catVision;
-	
-	public ClientboundToggleCatVisionPacket(FriendlyByteBuf buf)
-	{
-		this.catVision = buf.readBoolean();
-	}
+	public static final Type<ClientboundToggleCatVisionPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_toggle_cat_vision"));
+	public static final StreamCodec<ByteBuf, ClientboundToggleCatVisionPayload> CODEC = StreamCodec.composite(
+			ByteBufCodecs.BOOL, ClientboundToggleCatVisionPayload::catVision,
+			ClientboundToggleCatVisionPayload::new
+	);
 
 	// ON CLIENT
 	@Override
@@ -43,27 +41,8 @@ public class ClientboundToggleCatVisionPacket implements CustomPacket
 	}
 
 	@Override
-	public Direction direction()
+	public Type<? extends CustomPacketPayload> type()
 	{
-		return Direction.SERVER_TO_CLIENT;
-	}
-
-	@Override
-	public void write(FriendlyByteBuf buf)
-	{
-		buf.writeBoolean(catVision);
-	}
-
-	public static FriendlyByteBuf write(boolean greenVision)
-	{
-		FriendlyByteBuf buf = PacketUtils.create();
-		buf.writeBoolean(greenVision);
-		return buf;
-	}
-
-	@Override
-	public ResourceLocation id()
-	{
-		return ID;
+		return TYPE;
 	}
 }

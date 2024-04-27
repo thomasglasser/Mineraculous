@@ -6,16 +6,16 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import dev.thomasglasser.mineraculous.commands.arguments.MiraculousTypeArgument;
+import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.platform.Services;
 import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
-import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
+import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -186,10 +186,10 @@ public class MiraculousCommand
 			}
 			else
 			{
-				CompoundTag kwamiData = data.miraculousItem().getOrCreateTag().getCompound(MiraculousItem.TAG_KWAMIDATA);
-				if (kwamiData.hasUUID("UUID"))
+				KwamiData kwamiData = data.miraculousItem().get(MineraculousDataComponents.KWAMI_DATA.get());
+				if (kwamiData != null)
 				{
-					Entity entity = ((ServerLevel)livingEntity.level()).getEntity(kwamiData.getUUID("UUID"));
+					Entity entity = ((ServerLevel)livingEntity.level()).getEntity(kwamiData.uuid());
 					if (entity instanceof Kwami kwami)
 					{
 						context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_QUERY_SUCCESS_SELF, Component.translatable(miraculousType.getTranslationKey()), Component.translatable(kwami.isCharged() ? CHARGED_TRUE : CHARGED_FALSE)) : Component.translatable(CHARGED_QUERY_SUCCESS_OTHER, livingEntity.getDisplayName(), Component.translatable(miraculousType.getTranslationKey()), Component.translatable(kwami.isCharged() ? CHARGED_TRUE : CHARGED_FALSE)), true);
@@ -229,10 +229,10 @@ public class MiraculousCommand
 			}
 			else
 			{
-				CompoundTag kwamiData = data.miraculousItem().getOrCreateTag().getCompound(MiraculousItem.TAG_KWAMIDATA);
-				if (kwamiData.hasUUID("UUID"))
+				KwamiData kwamiData = data.miraculousItem().get(MineraculousDataComponents.KWAMI_DATA.get());
+				if (kwamiData != null)
 				{
-					Entity entity = ((ServerLevel)livingEntity.level()).getEntity(kwamiData.getUUID("UUID"));
+					Entity entity = ((ServerLevel)livingEntity.level()).getEntity(kwamiData.uuid());
 					boolean charged = BoolArgumentType.getBool(context, "charged");
 					if (entity instanceof Kwami kwami)
 					{

@@ -1,14 +1,15 @@
 package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.network.ClientboundMiraculousTransformPacket;
+import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.network.ClientboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.platform.Services;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
-import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
+import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
@@ -18,6 +19,8 @@ import dev.thomasglasser.tommylib.api.registration.RegistryObject;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -26,6 +29,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
@@ -60,9 +64,9 @@ public class MineraculousEntityEvents
 
 	public static final ResourceLocation CAT_VISION_SHADER = new ResourceLocation("shaders/post/creeper.json");
 
-	public static final BiFunction<MobEffect, Integer, MobEffectInstance> INFINITE_HIDDEN_EFFECT = (effect, amplifier) -> new MobEffectInstance(effect, -1, amplifier, false, false, false);
+	public static final BiFunction<Holder<MobEffect>, Integer, MobEffectInstance> INFINITE_HIDDEN_EFFECT = (effect, amplifier) -> new MobEffectInstance(effect, -1, amplifier, false, false, false);
 
-	public static final List<MobEffect> MIRACULOUS_EFFECTS = List.of(
+	public static final List<Holder<MobEffect>> MIRACULOUS_EFFECTS = List.of(
 			MobEffects.DAMAGE_RESISTANCE,
 			MobEffects.DAMAGE_BOOST,
 			MobEffects.MOVEMENT_SPEED,
@@ -94,7 +98,8 @@ public class MineraculousEntityEvents
 				MiraculousData data = miraculousDataSet.get(type);
 				if (data.transformed())
 					handleTransformation(player, type, data, false);
-				if (player.serverLevel().getEntity(data.miraculousItem().getOrCreateTag().getCompound(MiraculousItem.TAG_KWAMIDATA).getUUID("UUID")) instanceof Kwami kwami)
+				KwamiData kwamiData = data.miraculousItem().get(MineraculousDataComponents.KWAMI_DATA.get());
+				if (kwamiData != null && player.serverLevel().getEntity(kwamiData.uuid()) instanceof Kwami kwami)
 				{
 					renounceMiraculous(data.miraculousItem(), kwami);
 				}
@@ -111,8 +116,8 @@ public class MineraculousEntityEvents
 			if (transform)
 			{
 				// Transform
-				CompoundTag kwamiData = miraculousStack.getOrCreateTag().getCompound(MiraculousItem.TAG_KWAMIDATA);
-				Entity entity = serverLevel.getEntity(kwamiData.getUUID("UUID"));
+				KwamiData kwamiData = miraculousStack.get(MineraculousDataComponents.KWAMI_DATA.get());
+				Entity entity = serverLevel.getEntity(kwamiData.uuid());
 				if (entity instanceof Kwami kwami)
 				{
 					if (kwami.isCharged() && miraculousStack.getItem() instanceof MiraculousItem miraculousItem)
@@ -132,23 +137,23 @@ public class MineraculousEntityEvents
 								{
 									ItemStack stack = armorPiece.get().getDefaultInstance();
 									stack.enchant(Enchantments.BINDING_CURSE, 1);
-									stack.getOrCreateTag().putBoolean("HideFlags", true);
+									stack.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
 									player.setItemSlot(slot, stack);
 								}
 							}
 						}
 
 						miraculousStack.enchant(Enchantments.BINDING_CURSE, 1);
-						miraculousStack.getOrCreateTag().putBoolean("HideFlags", true);
+						miraculousStack.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
 
 						ItemStack tool = miraculousItem.getTool() == null ? ItemStack.EMPTY : miraculousItem.getTool().getDefaultInstance();
-						tool.getOrCreateTag().putUUID(CatStaffItem.TAG_UUID, kwami.getUUID());
+						tool.set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
 						player.addItem(tool);
-						miraculousStack.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, true);
+						miraculousStack.set(MineraculousDataComponents.POWERED.get(), true);
 						data = new MiraculousData(true, miraculousStack, data.curiosData(), tool, data.powerLevel(), false, false, data.name());
 						Services.DATA.getMiraculousDataSet(player).put(player, type, data, true);
 						Services.CURIOS.setStackInSlot(player, data.curiosData(), miraculousStack, true);
-						TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.ID, ClientboundMiraculousTransformPacket::new, ClientboundMiraculousTransformPacket.write(type, data), serverLevel.getServer());
+						TommyLibServices.NETWORK.sendToAllClients(new ClientboundMiraculousTransformPayload(type, data), serverLevel.getServer());
 						int powerLevel = data.powerLevel();
 						MIRACULOUS_EFFECTS.forEach(effect -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, powerLevel)));
 						kwami.discard();
@@ -162,7 +167,7 @@ public class MineraculousEntityEvents
 				}
 				else
 				{
-					miraculousStack.getOrCreateTag().remove(MiraculousItem.TAG_KWAMIDATA);
+					miraculousStack.remove(MineraculousDataComponents.KWAMI_DATA.get());
 					Services.CURIOS.setStackInSlot(player, data.curiosData(), miraculousStack, true);
 					Services.DATA.getMiraculousDataSet(player).put(player, type, new MiraculousData(true, miraculousStack, data.curiosData(), data.tool(), data.powerLevel(), false, false, data.name()), true);
 				}
@@ -185,24 +190,24 @@ public class MineraculousEntityEvents
 				{
 					player.setItemSlot(slot, armor.forSlot(slot));
 				}
-				miraculousStack.removeTagKey("Enchantments");
-				miraculousStack.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, false);
-				miraculousStack.getOrCreateTag().remove(MiraculousItem.TAG_REMAININGTICKS);
+				miraculousStack.remove(DataComponents.ENCHANTMENTS);
+				miraculousStack.set(MineraculousDataComponents.POWERED.get(), false);
+				miraculousStack.remove(MineraculousDataComponents.REMAINING_TICKS.get());
 				Services.CURIOS.setStackInSlot(player, data.curiosData(), miraculousStack, true);
 				// TODO: If item not in inventory, make it disappear when found, in item entity or chest or something
-				data.tool().getOrCreateTag().putBoolean(MiraculousItem.TAG_RECALLED, true);
-				if (data.tool().getOrCreateTag().hasUUID(CatStaffItem.TAG_UUID))
+				data.tool().set(MineraculousDataComponents.RECALLED.get(), true);
+				if (data.tool().has(MineraculousDataComponents.KWAMI_DATA.get()))
 				{
 					MiraculousData finalData = data;
 					player.getInventory().clearOrCountMatchingItems(stack -> {
-						if (stack.getOrCreateTag().hasUUID(CatStaffItem.TAG_UUID))
-							return stack.getOrCreateTag().getUUID(CatStaffItem.TAG_UUID).equals(finalData.tool().getOrCreateTag().getUUID(CatStaffItem.TAG_UUID));
+						if (stack.has(MineraculousDataComponents.KWAMI_DATA.get()))
+							return stack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(finalData.tool().get(MineraculousDataComponents.KWAMI_DATA.get()).uuid());
 						return false;
 					}, 1, new SimpleContainer(data.tool()));
 				}
 				data = new MiraculousData(false, miraculousStack, data.curiosData(), ItemStack.EMPTY, data.powerLevel(), false, false, data.name());
 				Services.DATA.getMiraculousDataSet(player).put(player, type, data, true);
-				TommyLibServices.NETWORK.sendToAllClients(ClientboundMiraculousTransformPacket.ID, ClientboundMiraculousTransformPacket::new, ClientboundMiraculousTransformPacket.write(type, data), serverLevel.getServer());
+				TommyLibServices.NETWORK.sendToAllClients(new ClientboundMiraculousTransformPayload(type, data), serverLevel.getServer());
 				MIRACULOUS_EFFECTS.forEach(player::removeEffect);
 			}
 		}
@@ -210,13 +215,11 @@ public class MineraculousEntityEvents
 
 	public static boolean renounceMiraculous(ItemStack miraculous, Kwami kwami)
 	{
-		CompoundTag tag = miraculous.getOrCreateTag();
-		CompoundTag data = tag.getCompound(MiraculousItem.TAG_KWAMIDATA);
-		if (data.hasUUID("UUID") && kwami.getUUID().equals(data.getUUID("UUID")))
+		KwamiData kwamiData = miraculous.get(MineraculousDataComponents.KWAMI_DATA.get());
+		if (kwamiData != null && kwami.getUUID().equals(kwamiData.uuid()))
 		{
-			data.putBoolean(Kwami.TAG_CHARGED, kwami.isCharged());
-			tag.put(MiraculousItem.TAG_KWAMIDATA, data);
-			tag.putBoolean(MiraculousItem.TAG_POWERED, true);
+			miraculous.set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
+			miraculous.set(MineraculousDataComponents.POWERED.get(), true);
 			kwami.discard();
 			// TODO: Play kwami hiding sound
 			return true;
@@ -231,11 +234,11 @@ public class MineraculousEntityEvents
 			Kwami kwami = miraculousItem.getKwamiType().create(level);
 			if (kwami != null)
 			{
-				CompoundTag data = miraculousData.miraculousItem().getOrCreateTag().getCompound(MiraculousItem.TAG_KWAMIDATA);
-				if (data.contains("UUID")) kwami.setUUID(data.getUUID("UUID"));
-				if (data.contains(Kwami.TAG_CHARGED))
+				KwamiData kwamiData = miraculousData.miraculousItem().get(MineraculousDataComponents.KWAMI_DATA.get());
+				if (kwamiData != null)
 				{
-					kwami.setCharged(data.getBoolean(Kwami.TAG_CHARGED));
+					kwami.setUUID(kwamiData.uuid());
+					kwami.setCharged(kwamiData.charged());
 				}
 				else
 				{
@@ -245,9 +248,7 @@ public class MineraculousEntityEvents
 				kwami.tame(player);
 				level.addFreshEntity(kwami);
 
-				data.putUUID("UUID", kwami.getUUID());
-				data.putBoolean(Kwami.TAG_CHARGED, kwami.isCharged());
-				miraculousData.miraculousItem().getOrCreateTag().put(MiraculousItem.TAG_KWAMIDATA, data);
+				miraculousData.miraculousItem().set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
 				Services.CURIOS.setStackInSlot(player, miraculousData.curiosData(), miraculousData.miraculousItem(), true);
 				Services.DATA.getMiraculousDataSet(player).put(player, type, new MiraculousData(false, miraculousData.miraculousItem(), miraculousData.curiosData(), miraculousData.tool(), miraculousData.powerLevel(), false, false, miraculousData.name()), true);
 			}
@@ -265,7 +266,7 @@ public class MineraculousEntityEvents
 			int level = catMiraculousData.powerLevel();
 			if (target instanceof LivingEntity livingEntity)
 			{
-				List<MobEffect> CATACLYSM_EFFECTS = List.of(
+				List<Holder<MobEffect>> CATACLYSM_EFFECTS = List.of(
 						MobEffects.WITHER,
 						MobEffects.BLINDNESS,
 						MobEffects.WEAKNESS,

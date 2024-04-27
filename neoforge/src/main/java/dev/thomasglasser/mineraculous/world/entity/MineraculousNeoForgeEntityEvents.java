@@ -1,7 +1,9 @@
 package dev.thomasglasser.mineraculous.world.entity;
 
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.bus.api.Event;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.living.LivingAttackEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
@@ -47,7 +49,11 @@ public class MineraculousNeoForgeEntityEvents
 
 	public static void onBlockLeftClick(PlayerInteractEvent.LeftClickBlock event)
 	{
-		event.setCancellationResult(MineraculousEntityEvents.onBlockLeftClick(event.getEntity(), event.getPos(), event.getHand()));
+		InteractionResult result = MineraculousEntityEvents.onBlockLeftClick(event.getEntity(), event.getPos(), event.getHand());
+		if (result.consumesAction())
+			event.setUseBlock(Event.Result.ALLOW);
+		else
+			event.setUseBlock(Event.Result.DENY);
 	}
 
 	public static void onEffectRemoved(MobEffectEvent.Remove event)

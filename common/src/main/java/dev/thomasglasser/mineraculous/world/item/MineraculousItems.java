@@ -32,14 +32,14 @@ public class MineraculousItems
 	private static final List<RegistryObject<? extends Item>> IN_MOD_TAB = new ArrayList<>();
 
 	// Tools
-	public static final RegistryObject<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(3, -2.4F, new Item.Properties().fireResistant().stacksTo(1)), List.of(CreativeModeTabs.TOOLS_AND_UTILITIES, CreativeModeTabs.COMBAT));
+	public static final RegistryObject<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(new Item.Properties().fireResistant().stacksTo(1)), List.of(CreativeModeTabs.TOOLS_AND_UTILITIES, CreativeModeTabs.COMBAT));
 
 	// Miraculous
 	public static final RegistryObject<MiraculousItem> CAT_MIRACULOUS = registerMiraculous("cat", MiraculousType.CAT, MineraculousArmors.CAT_MIRACULOUS, CAT_STAFF, null /* TODO: Transform sound */, MineraculousEntityTypes.PLAGG::get, Pair.of("hand", "ring"), 0xc6f800);
 
 	public static final RegistryObject<Item> CATACLYSM_DUST = register("cataclysm_dust", () -> new Item(new Item.Properties()), List.of());
 
-	// SPAWN EGGS
+	// Spawn Eggs
 	public static final RegistryObject<SpawnEggItem> PLAGG_SPAWN_EGG = registerSpawnEgg("plagg_spawn_egg", MineraculousEntityTypes.PLAGG::get, 0x1c1b20, 0xb6fa02);
 
 	private static RegistryObject<MiraculousItem> registerMiraculous(String name, MiraculousType type, ArmorSet armorSet, Supplier<? extends Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, Pair<String, String> acceptableSlot, int color)

@@ -1,10 +1,15 @@
 package dev.thomasglasser.mineraculous.world.level.storage;
 
+import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.platform.Services;
 import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
+import dev.thomasglasser.tommylib.api.network.NetworkUtils;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -15,19 +20,28 @@ import java.util.function.Function;
 
 public class MiraculousDataSet
 {
-	public static final MapCodec<EnumMap<MiraculousType, MiraculousData>> MAP_CODEC = Codec.simpleMap(MiraculousType.CODEC, MiraculousData.CODEC, StringRepresentable.keys(MiraculousType.values())).xmap(map -> map.isEmpty() ? new EnumMap<>(MiraculousType.class) : new EnumMap<>(map), Function.identity());
+	public static final MapCodec<Map<MiraculousType, MiraculousData>> MAP_CODEC = Codec.simpleMap(MiraculousType.CODEC, MiraculousData.CODEC, StringRepresentable.keys(MiraculousType.values())).xmap(map -> map.isEmpty() ? new EnumMap<>(MiraculousType.class) : new EnumMap<>(map), Function.identity());
 	public static final Codec<MiraculousDataSet> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			MAP_CODEC.fieldOf("map").forGetter(set -> set.map)
 	).apply(instance, MiraculousDataSet::new));
+	public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousDataSet> STREAM_CODEC = StreamCodec.composite(
+			ByteBufCodecs.map(
+					Maps::newHashMapWithExpectedSize,
+					NetworkUtils.enumCodec(MiraculousType.class),
+					MiraculousData.STREAM_CODEC
+			),
+			set -> set.map,
+			MiraculousDataSet::new
+	);
 
-	private final EnumMap<MiraculousType, MiraculousData> map;
+	private final Map<MiraculousType, MiraculousData> map;
 
 	public MiraculousDataSet()
 	{
 		this.map = new EnumMap<>(MiraculousType.class);
 	}
 
-	public MiraculousDataSet(EnumMap<MiraculousType, MiraculousData> map)
+	public MiraculousDataSet(Map<MiraculousType, MiraculousData> map)
 	{
 		this.map = map;
 	}

@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.world.entity.kwami;
 
+import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
-import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -50,8 +50,8 @@ import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
@@ -83,10 +83,10 @@ public abstract class Kwami extends TamableAnimal implements SmartBrainOwner<Kwa
 	}
 
 	@Override
-	protected void defineSynchedData()
+	protected void defineSynchedData(SynchedEntityData.Builder builder)
 	{
-		super.defineSynchedData();
-		entityData.define(DATA_CHARGED, true);
+		super.defineSynchedData(builder);
+		builder.define(DATA_CHARGED, true);
 	}
 
 	@Override
@@ -215,11 +215,11 @@ public abstract class Kwami extends TamableAnimal implements SmartBrainOwner<Kwa
 	{
 		if (getOwner() instanceof ServerPlayer player)
 		{
-			List<ItemStack> miraculous = player.getInventory().items.stream().filter(stack -> stack.getOrCreateTag().getCompound(MiraculousItem.TAG_KWAMIDATA).hasUUID("UUID") && stack.getOrCreateTag().getCompound(MiraculousItem.TAG_KWAMIDATA).getUUID("UUID").equals(getUUID())).toList();
+			List<ItemStack> miraculous = player.getInventory().items.stream().filter(stack -> stack.has(MineraculousDataComponents.KWAMI_DATA.get()) && stack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(getUUID())).toList();
 			for (ItemStack stack : miraculous)
 			{
-				stack.getOrCreateTag().putBoolean(MiraculousItem.TAG_POWERED, true);
-				stack.getOrCreateTag().remove(MiraculousItem.TAG_KWAMIDATA);
+				stack.set(MineraculousDataComponents.POWERED.get(), true);
+				stack.remove(MineraculousDataComponents.KWAMI_DATA.get());
 			}
 		}
 		super.die(damageSource);

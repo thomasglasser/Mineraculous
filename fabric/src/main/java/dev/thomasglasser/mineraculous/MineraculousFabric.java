@@ -3,14 +3,14 @@ package dev.thomasglasser.mineraculous;
 import dev.emi.trinkets.api.SlotReference;
 import dev.emi.trinkets.api.Trinket;
 import dev.emi.trinkets.api.TrinketsApi;
-import dev.thomasglasser.mineraculous.network.MineraculousPackets;
+import dev.thomasglasser.mineraculous.network.MineraculousPayloads;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.curio.CatMiraculousItemCurio;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.MiraculousItemCurio;
-import dev.thomasglasser.tommylib.api.network.FabricPacketUtils;
+import dev.thomasglasser.tommylib.api.network.FabricNetworkUtils;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
@@ -29,7 +29,7 @@ public class MineraculousFabric implements ModInitializer {
 
         registerEntityAttributes();
 
-        MineraculousPackets.PACKETS.forEach(FabricPacketUtils::register);
+        MineraculousPayloads.PAYLOADS.forEach(FabricNetworkUtils::register);
 
         registerTrinkets();
 

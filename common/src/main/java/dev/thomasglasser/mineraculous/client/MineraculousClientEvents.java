@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.client;
 
-import dev.thomasglasser.mineraculous.network.ServerboundRequestMiraculousDataSetSyncPacket;
+import dev.thomasglasser.mineraculous.network.ServerboundRequestMiraculousDataSetSyncPayload;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.network.chat.Component;
@@ -11,7 +11,7 @@ public class MineraculousClientEvents
 {
 	public static void onEntityJoinLevel(Entity entity)
 	{
-		TommyLibServices.NETWORK.sendToServer(ServerboundRequestMiraculousDataSetSyncPacket.ID, ServerboundRequestMiraculousDataSetSyncPacket::new, ServerboundRequestMiraculousDataSetSyncPacket.write(entity.getId()));
+		TommyLibServices.NETWORK.sendToServer(new ServerboundRequestMiraculousDataSetSyncPayload(entity.getId()));
 	}
 
 	public static void openPowerWheel(Player player)

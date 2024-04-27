@@ -1,23 +1,26 @@
 package dev.thomasglasser.mineraculous.world.item;
 
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.block.Block;
 
 import java.util.function.Supplier;
 
 public enum MineraculousTiers implements Tier
 {
-	MIRACULOUS(-1, 0, 18.0F, 8.0F, -1, () -> Ingredient.EMPTY);
+	MIRACULOUS(BlockTags.INCORRECT_FOR_NETHERITE_TOOL, -1, 18.0F, 8.0F, -1, () -> Ingredient.EMPTY);
 
-	private final int level;
+	private final TagKey<Block> incorrectBlocksForDrops;
 	private final int uses;
 	private final float speed;
 	private final float damage;
 	private final int enchantmentValue;
 	private final Supplier<Ingredient> repairIngredient;
 
-	MineraculousTiers(int level, int uses, float speed, float damage, int enchantmentValue, Supplier<Ingredient> repairIngredient) {
-		this.level = level;
+	MineraculousTiers(final TagKey<Block> incorrectBlocksForDrops, final int uses, final float speed, final float damage, final int enchantmentValue, final Supplier<Ingredient> repairIngredient) {
+		this.incorrectBlocksForDrops = incorrectBlocksForDrops;
 		this.uses = uses;
 		this.speed = speed;
 		this.damage = damage;
@@ -37,8 +40,8 @@ public enum MineraculousTiers implements Tier
 		return this.damage;
 	}
 
-	public int getLevel() {
-		return this.level;
+	public TagKey<Block> getIncorrectBlocksForDrops() {
+		return this.incorrectBlocksForDrops;
 	}
 
 	public int getEnchantmentValue() {
@@ -46,6 +49,6 @@ public enum MineraculousTiers implements Tier
 	}
 
 	public Ingredient getRepairIngredient() {
-		return this.repairIngredient.get();
+		return (Ingredient)this.repairIngredient.get();
 	}
 }

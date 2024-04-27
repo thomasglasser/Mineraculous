@@ -69,8 +69,7 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
                     }
                 });
             }
-            // TODO: Wait for geckolib 4.5
-//            return playerModels.get(player.getGameProfile().getName().toLowerCase());
+            return playerModels.get(player.getGameProfile().getName().toLowerCase());
         }
         return super.getGeoModel();
     }

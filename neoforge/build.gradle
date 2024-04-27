@@ -9,7 +9,8 @@ subsystems {
         // The Minecraft version for which the Parchment mappings were created.
         // This does not necessarily need to match the Minecraft version your mod targets
         // Defaults to the value of Gradle property neogradle.subsystems.parchment.minecraftVersion
-        minecraftVersion = minecraft_version
+        minecraftVersion = previous_minecraft_version
+//        minecraftVersion = minecraft_version
 
         // The version of Parchment mappings to apply.
         // See https://parchmentmc.org/docs/getting-started for a list.
@@ -48,44 +49,25 @@ runs {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 jarJar.enable()
-def jarJarRangeAttribute = Attribute.of("jarJarRange", String.class);
-configurations {
-    include
-    jarJar {
-        dependencies.addAllLater(project.provider {
-            project.configurations.include.allDependencies.collect {
-                def newDep = it.copy()
-                if (newDep instanceof ModuleDependency) {
-                    newDep.attributes {
-                        it.attribute(jarJarRangeAttribute, "[$newDep.version,)" as String)
-                    }
-                    newDep.setTransitive(false)
-                } else {
-                    throw new RuntimeException("Attempted to 'include' non-module dependency")
-                }
-                newDep
-            }
-        })
-    }
-}
+
 
 dependencies {
     implementation "net.neoforged:neoforge:${neoforge_version}"
     implementation project(":common")
 
-    include implementation("dev.thomasglasser.tommylib:tommylib-neoforge-${minecraft_version}:${tommylib_version}") {
+    jarJar implementation("dev.thomasglasser.tommylib:tommylib-neoforge-${minecraft_version}:${tommylib_version}") {
         transitive = false
     }
-    include implementation("maven.modrinth:midnightlib:${midnightlib_version}-neoforge")
+    jarJar implementation("maven.modrinth:midnightlib:${midnightlib_version}-neoforge")
 
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${sbl_version}"
     implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
     // Runtime
-//    runtimeOnly "maven.modrinth:jade:${jade_version}-neoforge"
-//    runtimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:$rei_version"
-//    runtimeOnly "me.shedaniel.cloth:cloth-config-neoforge:$cloth_config_version"
+    runtimeOnly "maven.modrinth:jade:${jade_version}+neoforge"
+    runtimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:$rei_version"
+    runtimeOnly "me.shedaniel.cloth:cloth-config-neoforge:$cloth_config_version"
 }
 
 // NeoGradle compiles the game, but we don't want to add our common code to the game's code
@@ -105,6 +87,10 @@ tasks.named("sourcesJar", Jar) {
 
 tasks.withType(ProcessResources).matching(notNeoTask).configureEach {
     from project(":common").sourceSets.main.resources
+}
+
+jar {
+    archiveClassifier = 'slim'
 }
 
 tasks.named('jarJar') {

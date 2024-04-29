@@ -55,8 +55,9 @@ public class Mineraculous
 
     private static void registerConfigs()
     {
-        MidnightConfig.init(MOD_ID, MineraculousServerConfig.class);
-        if (TommyLibServices.PLATFORM.isClientSide()) MidnightConfig.init(MOD_ID, MineraculousClientConfig.class);
+        // TODO: Update MidnightLib
+//        MidnightConfig.init(MOD_ID, MineraculousServerConfig.class);
+//        if (TommyLibServices.PLATFORM.isClientSide()) MidnightConfig.init(MOD_ID, MineraculousClientConfig.class);
     }
 
     public static ResourceLocation modLoc(String s)

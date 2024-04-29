@@ -32,7 +32,8 @@ public class MineraculousDataGenerators
 		MineraculousBlockTagsProvider blockTagsProvider = new MineraculousBlockTagsProvider(packOutput, registries, existingFileHelper);
 		generator.addProvider(onServer, blockTagsProvider);
 		generator.addProvider(onServer, new MineraculousItemTagsProvider(packOutput, registries, blockTagsProvider.contentsGetter(), existingFileHelper));
-		generator.addProvider(onServer, new MineraculousCuriosProvider(packOutput, existingFileHelper, registries));
+		// TODO: Update Curios
+//		generator.addProvider(onServer, new MineraculousCuriosProvider(packOutput, existingFileHelper, registries));
 		generator.addProvider(onServer, new MineraculousLootTables(packOutput, registries));
 
 		// Client

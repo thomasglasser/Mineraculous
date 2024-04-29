@@ -39,15 +39,9 @@ public class MineraculousArmorMaterials
 			float knockbackResistance,
 			Supplier<Ingredient> repairIngredient
 	) {
-		EnumMap<ArmorItem.Type, Integer> enummap = new EnumMap<>(ArmorItem.Type.class);
+		List<ArmorMaterial.Layer> list = List.of(new ArmorMaterial.Layer(Mineraculous.modLoc(name)));
 
-		for (ArmorItem.Type armoritem$type : ArmorItem.Type.values()) {
-			enummap.put(armoritem$type, defense.get(armoritem$type));
-		}
-
-		List<ArmorMaterial.Layer> list = List.of(new ArmorMaterial.Layer(new ResourceLocation(name)));
-
-		return ARMOR_MATERIALS.register(name, () -> new ArmorMaterial(enummap, enchantmentValue, equipSound, repairIngredient, list, toughness, knockbackResistance));
+		return ARMOR_MATERIALS.register(name, () -> new ArmorMaterial(defense, enchantmentValue, equipSound, repairIngredient, list, toughness, knockbackResistance));
 	}
 
 	public static void init() {}

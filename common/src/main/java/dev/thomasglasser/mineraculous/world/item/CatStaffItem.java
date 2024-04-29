@@ -80,7 +80,7 @@ public class CatStaffItem extends BaseModeledSwordItem implements GeoItem
 			if (pLevel instanceof ServerLevel)
 			{
 				long animId = GeoItem.getOrAssignId(pStack, (ServerLevel) pLevel);
-				if (pStack.has(MineraculousDataComponents.POWERED.get()) && !pStack.getOrDefault(MineraculousDataComponents.POWERED.get(), false) && cache.getManagerForId(animId).getAnimationControllers().get("use_controller").getCurrentRawAnimation() != RETRACT)
+				if (!pStack.getOrDefault(MineraculousDataComponents.POWERED.get(), false) && cache.getManagerForId(animId).getAnimationControllers().get("use_controller").getCurrentRawAnimation() != RETRACT)
 				{
 					triggerAnim(pEntity, animId, "use_controller", "retracted");
 				}

@@ -48,16 +48,17 @@ public class MineraculousNeoForgeClientEvents
 
 	public static void onFMLClientSetup(FMLClientSetupEvent event)
 	{
-		CuriosRendererRegistry.register(MineraculousItems.CAT_MIRACULOUS.get(), () -> new ICurioRenderer() {
-			private final MiraculousItemCurioRenderer renderer = new MiraculousItemCurioRenderer();
-
-			@Override
-			public <T extends LivingEntity, M extends EntityModel<T>> void render(ItemStack stack, SlotContext slotContext, PoseStack matrixStack, RenderLayerParent<T, M> renderLayerParent, MultiBufferSource renderTypeBuffer, int light, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
-			{
-				if (renderLayerParent.getModel() instanceof HumanoidModel<?> humanoidModel)
-					renderer.render(stack, slotContext.entity(), humanoidModel, matrixStack, renderTypeBuffer, light);
-			}
-		});
+		// TODO: Update Curios
+//		CuriosRendererRegistry.register(MineraculousItems.CAT_MIRACULOUS.get(), () -> new ICurioRenderer() {
+//			private final MiraculousItemCurioRenderer renderer = new MiraculousItemCurioRenderer();
+//
+//			@Override
+//			public <T extends LivingEntity, M extends EntityModel<T>> void render(ItemStack stack, SlotContext slotContext, PoseStack matrixStack, RenderLayerParent<T, M> renderLayerParent, MultiBufferSource renderTypeBuffer, int light, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch)
+//			{
+//				if (renderLayerParent.getModel() instanceof HumanoidModel<?> humanoidModel)
+//					renderer.render(stack, slotContext.entity(), humanoidModel, matrixStack, renderTypeBuffer, light);
+//			}
+//		});
 	}
 
 	public static void onEntityJoinLevel(EntityJoinLevelEvent event)

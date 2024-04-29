@@ -25,32 +25,33 @@ public class MineraculousNeoForgeCoreEvents
 
 	public static void onFMLCommonSetup(FMLCommonSetupEvent event)
 	{
-		CuriosApi.registerCurio(MineraculousItems.CAT_MIRACULOUS.get(), new ICurioItem() {
-			private final MiraculousItemCurio curio = new CatMiraculousItemCurio();
-
-			@Override
-			public void curioTick(SlotContext slotContext, ItemStack stack)
-			{
-				curio.tick(stack, new CuriosData(slotContext.index(), "", slotContext.identifier()), slotContext.entity());
-			}
-
-			@Override
-			public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack)
-			{
-				curio.onEquip(stack, new CuriosData(slotContext.index(), "", slotContext.identifier()), slotContext.entity());
-			}
-
-			@Override
-			public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack)
-			{
-				curio.onUnequip(stack, newStack, new CuriosData(slotContext.index(), "", slotContext.identifier()), slotContext.entity());
-			}
-
-			@Override
-			public boolean canEquipFromUse(SlotContext slotContext, ItemStack stack)
-			{
-				return true;
-			}
-		});
+		// TODO: Update Curios
+//		CuriosApi.registerCurio(MineraculousItems.CAT_MIRACULOUS.get(), new ICurioItem() {
+//			private final MiraculousItemCurio curio = new CatMiraculousItemCurio();
+//
+//			@Override
+//			public void curioTick(SlotContext slotContext, ItemStack stack)
+//			{
+//				curio.tick(stack, new CuriosData(slotContext.index(), "", slotContext.identifier()), slotContext.entity());
+//			}
+//
+//			@Override
+//			public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack)
+//			{
+//				curio.onEquip(stack, new CuriosData(slotContext.index(), "", slotContext.identifier()), slotContext.entity());
+//			}
+//
+//			@Override
+//			public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack)
+//			{
+//				curio.onUnequip(stack, newStack, new CuriosData(slotContext.index(), "", slotContext.identifier()), slotContext.entity());
+//			}
+//
+//			@Override
+//			public boolean canEquipFromUse(SlotContext slotContext, ItemStack stack)
+//			{
+//				return true;
+//			}
+//		});
 	}
 }

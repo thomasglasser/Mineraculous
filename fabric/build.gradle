@@ -21,7 +21,8 @@ dependencies {
     include modImplementation("maven.modrinth:midnightlib:${midnightlib_version}-fabric")
 
     modImplementation "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}"
-    modImplementation "net.tslat.smartbrainlib:SmartBrainLib-fabric-${minecraft_version}:${sbl_version}"
+    modImplementation "net.tslat.smartbrainlib:SmartBrainLib-fabric-1.20.5:${sbl_version}"
+//    modImplementation "net.tslat.smartbrainlib:SmartBrainLib-fabric-${minecraft_version}:${sbl_version}"
 //    modImplementation "dev.emi:trinkets:${trinkets_version}"
 
     // Runtime

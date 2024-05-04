@@ -57,14 +57,6 @@ subprojects {
             }
         }
         maven {
-            name = "Cloth Config"
-            url "https://maven.shedaniel.me/"
-            content {
-                includeGroupAndSubgroups 'me.shedaniel'
-                includeGroupAndSubgroups 'dev.architectury'
-            }
-        }
-        maven {
             name = "Mod Menu"
             url 'https://maven.terraformersmc.com/releases'
             content {
@@ -112,6 +104,13 @@ subprojects {
             url = 'https://maven.ladysnake.org/releases'
             content {
                 includeGroupAndSubgroups 'dev.onyxstudios.cardinal-components-api'
+            }
+        }
+        maven {
+            name = "JEI"
+            url = "https://maven.blamejared.com/"
+            content {
+                includeGroupAndSubgroups 'mezz.jei'
             }
         }
 

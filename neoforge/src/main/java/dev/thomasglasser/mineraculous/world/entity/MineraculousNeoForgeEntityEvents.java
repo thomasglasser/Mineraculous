@@ -7,11 +7,11 @@ import net.neoforged.bus.api.Event;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.living.LivingAttackEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
-import net.neoforged.neoforge.event.entity.living.LivingEvent;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.tick.EntityTickEvent;
 
 public class MineraculousNeoForgeEntityEvents
 {
@@ -68,8 +68,9 @@ public class MineraculousNeoForgeEntityEvents
 			event.setCanceled(true);
 	}
 
-	public static void onLivingTick(LivingEvent.LivingTickEvent event)
+	public static void onLivingTick(EntityTickEvent.Post event)
 	{
-		MineraculousEntityEvents.tick(event.getEntity());
+		if (event.getEntity() instanceof LivingEntity livingEntity)
+			MineraculousEntityEvents.tick(livingEntity);
 	}
 }

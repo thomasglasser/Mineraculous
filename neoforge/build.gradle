@@ -4,21 +4,6 @@ plugins {
     id 'java-library'
 }
 
-subsystems {
-    parchment {
-        // The Minecraft version for which the Parchment mappings were created.
-        // This does not necessarily need to match the Minecraft version your mod targets
-        // Defaults to the value of Gradle property neogradle.subsystems.parchment.minecraftVersion
-        minecraftVersion = previous_minecraft_version
-//        minecraftVersion = minecraft_version
-
-        // The version of Parchment mappings to apply.
-        // See https://parchmentmc.org/docs/getting-started for a list.
-        // Defaults to the value of Gradle property neogradle.subsystems.parchment.mappingsVersion
-        mappingsVersion = parchment_version
-    }
-}
-
 // Automatically enable neoforge AccessTransformers if the file exists
 // This location is hardcoded in FML and can not be changed.
 // https://github.com/neoforged/FancyModLoader/blob/a952595eaaddd571fbc53f43847680b00894e0c1/loader/src/main/java/net/neoforged/fml/loading/moddiscovery/ModFile.java#L118
@@ -50,6 +35,13 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 jarJar.enable()
 
+// Sets up a dependency configuration called 'localRuntime'.
+// This configuration should be used instead of 'runtimeOnly' to declare
+// a dependency that will be present for runtime testing but that is
+// "optional", meaning it will not be pulled by dependents of this mod.
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
 
 dependencies {
     implementation "net.neoforged:neoforge:${neoforge_version}"
@@ -66,9 +58,8 @@ dependencies {
     implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
     // Runtime
-    runtimeOnly "maven.modrinth:jade:${jade_version}+neoforge"
-    runtimeOnly "me.shedaniel:RoughlyEnoughItems-neoforge:$rei_version"
-    runtimeOnly "me.shedaniel.cloth:cloth-config-neoforge:$cloth_config_version"
+//    localRuntime "maven.modrinth:jade:${jade_version}+neoforge"
+    localRuntime "mezz.jei:jei-${previous_minecraft_version}-neoforge:${jei_version}"
 }
 
 // NeoGradle compiles the game, but we don't want to add our common code to the game's code

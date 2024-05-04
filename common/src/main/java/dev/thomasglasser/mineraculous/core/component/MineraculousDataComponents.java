@@ -10,6 +10,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.Unit;
 
 import javax.annotation.Nullable;
 import java.util.function.Supplier;
@@ -21,6 +22,7 @@ public class MineraculousDataComponents
 	// Shared
 	public static final RegistryObject<DataComponentType<Boolean>> POWERED = register("powered", Codec.BOOL, ByteBufCodecs.BOOL, false);
 	public static final RegistryObject<DataComponentType<KwamiData>> KWAMI_DATA = register("kwami_data", KwamiData.CODEC, null, true);
+	public static final RegistryObject<DataComponentType<Unit>> HIDE_ENCHANTMENTS = register("hide_enchantments", Codec.unit(Unit.INSTANCE), StreamCodec.unit(Unit.INSTANCE), false);
 
 	// Miraculous Item
 	public static final RegistryObject<DataComponentType<Boolean>> RECALLED = register("recalled", Codec.BOOL, null, false);

@@ -13,9 +13,9 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
 {
 	public static final Codec<MiraculousData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
 			Codec.BOOL.fieldOf("transformed").forGetter(MiraculousData::transformed),
-			ItemStack.CODEC.fieldOf("miraculous_item").forGetter(MiraculousData::miraculousItem),
+			ItemStack.OPTIONAL_CODEC.fieldOf("miraculous_item").forGetter(MiraculousData::miraculousItem),
 			CuriosData.CODEC.fieldOf("curios_data").forGetter(MiraculousData::curiosData),
-			ItemStack.CODEC.fieldOf("tool").forGetter(MiraculousData::tool),
+			ItemStack.OPTIONAL_CODEC.fieldOf("tool").forGetter(MiraculousData::tool),
 			Codec.INT.fieldOf("power_level").forGetter(MiraculousData::powerLevel),
 			Codec.BOOL.fieldOf("main_power_activated").forGetter(MiraculousData::mainPowerActivated),
 			Codec.BOOL.fieldOf("main_power_active").forGetter(MiraculousData::mainPowerActive),
@@ -24,9 +24,9 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
 
 	public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousData> STREAM_CODEC = NetworkUtils.composite(
 			ByteBufCodecs.BOOL, MiraculousData::transformed,
-			ItemStack.STREAM_CODEC, MiraculousData::miraculousItem,
+			ItemStack.OPTIONAL_STREAM_CODEC, MiraculousData::miraculousItem,
 			CuriosData.STREAM_CODEC, MiraculousData::curiosData,
-			ItemStack.STREAM_CODEC, MiraculousData::tool,
+			ItemStack.OPTIONAL_STREAM_CODEC, MiraculousData::tool,
 			ByteBufCodecs.INT, MiraculousData::powerLevel,
 			ByteBufCodecs.BOOL, MiraculousData::mainPowerActivated,
 			ByteBufCodecs.BOOL, MiraculousData::mainPowerActive,

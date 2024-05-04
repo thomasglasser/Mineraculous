@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -30,9 +29,9 @@ public class MineraculousBlockEntityWithoutLevelRenderer extends BlockEntityWith
 		{
 			ResourceLocation loc = BuiltInRegistries.ITEM.getKey(stack.getItem());
 			String basePath = "miraculous/" + loc.getPath();
-			if (!stack.getOrDefault(MineraculousDataComponents.POWERED.get(), false) && stack.has(DataComponents.PROFILE) && MineraculousClientConfig.enablePerPlayerCustomization)
+			if (!stack.getOrDefault(MineraculousDataComponents.POWERED.get(), false) && stack.has(DataComponents.PROFILE) /*&& MineraculousClientConfig.enablePerPlayerCustomization*/)
 			{
-				TommyLibServices.ITEM.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_" + stack.get(DataComponents.PROFILE).name().orElse("hidden"), basePath + "_hidden");
+				TommyLibServices.ITEM.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_" + stack.get(DataComponents.PROFILE).name().orElse("hidden").toLowerCase(), basePath + "_hidden");
 			}
 			else if (stack.getOrDefault(MineraculousDataComponents.POWERED.get(), false))
 			{

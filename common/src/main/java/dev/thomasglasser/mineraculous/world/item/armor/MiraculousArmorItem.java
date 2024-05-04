@@ -7,6 +7,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.Unbreakable;
 import software.bernie.geckolib.animatable.client.GeoRenderProvider;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
@@ -20,7 +21,9 @@ public class MiraculousArmorItem extends BaseGeoArmorItem
 	private final String miraculous;
 
 	public MiraculousArmorItem(String miraculous, Type type, Properties pProperties) {
-		super(MineraculousArmorMaterials.MIRACULOUS.asHolder(), type, pProperties.component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, false));
+		super(MineraculousArmorMaterials.MIRACULOUS.asHolder(), type, pProperties
+				.component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, false)
+				.component(DataComponents.UNBREAKABLE, new Unbreakable(false)));
 		this.miraculous = miraculous;
 	}
 

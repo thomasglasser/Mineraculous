@@ -137,18 +137,17 @@ public class MineraculousEntityEvents
 								{
 									ItemStack stack = armorPiece.get().getDefaultInstance();
 									stack.enchant(Enchantments.BINDING_CURSE, 1);
-									stack.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
+									stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
 									player.setItemSlot(slot, stack);
 								}
 							}
 						}
 
 						miraculousStack.enchant(Enchantments.BINDING_CURSE, 1);
-						miraculousStack.set(DataComponents.HIDE_ADDITIONAL_TOOLTIP, Unit.INSTANCE);
+						miraculousStack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
 
 						ItemStack tool = miraculousItem.getTool() == null ? ItemStack.EMPTY : miraculousItem.getTool().getDefaultInstance();
 						tool.set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
-						player.addItem(tool);
 						miraculousStack.set(MineraculousDataComponents.POWERED.get(), true);
 						data = new MiraculousData(true, miraculousStack, data.curiosData(), tool, data.powerLevel(), false, false, data.name());
 						Services.DATA.getMiraculousDataSet(player).put(player, type, data, true);
@@ -156,6 +155,7 @@ public class MineraculousEntityEvents
 						TommyLibServices.NETWORK.sendToAllClients(new ClientboundMiraculousTransformPayload(type, data), serverLevel.getServer());
 						int powerLevel = data.powerLevel();
 						MIRACULOUS_EFFECTS.forEach(effect -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, powerLevel)));
+						player.addItem(tool);
 						kwami.discard();
 						// TODO: Advancement trigger with miraculous item context
 					}
@@ -191,8 +191,8 @@ public class MineraculousEntityEvents
 					player.setItemSlot(slot, armor.forSlot(slot));
 				}
 				miraculousStack.remove(DataComponents.ENCHANTMENTS);
-				miraculousStack.set(MineraculousDataComponents.POWERED.get(), false);
 				miraculousStack.remove(MineraculousDataComponents.REMAINING_TICKS.get());
+				miraculousStack.set(MineraculousDataComponents.POWERED.get(), false);
 				Services.CURIOS.setStackInSlot(player, data.curiosData(), miraculousStack, true);
 				// TODO: If item not in inventory, make it disappear when found, in item entity or chest or something
 				data.tool().set(MineraculousDataComponents.RECALLED.get(), true);

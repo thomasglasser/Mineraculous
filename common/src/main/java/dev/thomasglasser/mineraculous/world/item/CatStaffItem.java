@@ -10,6 +10,7 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.BaseModeledSwordItem;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -20,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -44,7 +46,10 @@ public class CatStaffItem extends BaseModeledSwordItem implements GeoItem
 
 	protected CatStaffItem(Properties pProperties)
 	{
-		super(MineraculousTiers.MIRACULOUS, pProperties.attributes(SwordItem.createAttributes(MineraculousTiers.MIRACULOUS, 3, -2.4F)).component(MineraculousDataComponents.TRAVELING.get(), false));
+		super(MineraculousTiers.MIRACULOUS, pProperties
+				.attributes(SwordItem.createAttributes(MineraculousTiers.MIRACULOUS, 3, -2.4F))
+				.component(MineraculousDataComponents.TRAVELING.get(), false)
+				.component(DataComponents.UNBREAKABLE, new Unbreakable(false)));
 		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 
@@ -87,6 +92,7 @@ public class CatStaffItem extends BaseModeledSwordItem implements GeoItem
 				if (pStack.getOrDefault(MineraculousDataComponents.TRAVELING.get(), false))
 				{
 					player.setDeltaMovement(player.getLookAngle().scale(3));
+					player.resetFallDistance();
 					player.hurtMarked = true;
 				}
 			}
@@ -96,7 +102,7 @@ public class CatStaffItem extends BaseModeledSwordItem implements GeoItem
 
 				CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(pEntity);
 				int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
-				if (waitTicks <= 0 && !MineraculousClientUtils.hasScreenOpen() && pStack.has(MineraculousDataComponents.POWERED.get()))
+				if (waitTicks <= 0 && !MineraculousClientUtils.hasScreenOpen())
 				{
 					if (MineraculousKeyMappings.ACTIVATE_TOOL.isDown())
 					{

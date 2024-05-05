@@ -55,6 +55,7 @@ public class MineraculousItemModels extends ExtendedItemModelProvider
 			basicItem(modLoc(armorSet.getName() + "_" + nameForSlot));
 		}));
 
+		spawnEgg(MineraculousItems.TIKKI_SPAWN_EGG);
 		spawnEgg(MineraculousItems.PLAGG_SPAWN_EGG);
 
 		basicItem(MineraculousItems.CATACLYSM_DUST.get());

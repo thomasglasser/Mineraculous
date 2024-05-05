@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.client;
 
-import dev.thomasglasser.mineraculous.client.renderer.entity.PlaggRenderer;
+import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.platform.Services;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import net.fabricmc.api.ClientModInitializer;
@@ -47,7 +48,8 @@ public class MineraculousFabricClient implements ClientModInitializer
 
 	private void registerRenderers()
 	{
-		EntityRendererRegistry.register(MineraculousEntityTypes.PLAGG.get(), PlaggRenderer::new);
+		EntityRendererRegistry.register(MineraculousEntityTypes.TIKKI.get(), context -> new KwamiRenderer<>(context, Mineraculous.modLoc("kwami/tikki")));
+		EntityRendererRegistry.register(MineraculousEntityTypes.PLAGG.get(), context -> new KwamiRenderer<>(context, Mineraculous.modLoc("kwami/plagg")));
 	}
 
 	private void registerTrinketRenderers()

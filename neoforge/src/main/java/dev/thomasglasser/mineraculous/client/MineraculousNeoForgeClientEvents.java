@@ -1,8 +1,9 @@
 package dev.thomasglasser.mineraculous.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.particle.CataclysmParticle;
-import dev.thomasglasser.mineraculous.client.renderer.entity.PlaggRenderer;
+import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.item.curio.MiraculousItemCurioRenderer;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
@@ -43,7 +44,8 @@ public class MineraculousNeoForgeClientEvents
 
 	public static void onRegisterRenderer(EntityRenderersEvent.RegisterRenderers event)
 	{
-		event.registerEntityRenderer(MineraculousEntityTypes.PLAGG.get(), PlaggRenderer::new);
+		event.registerEntityRenderer(MineraculousEntityTypes.TIKKI.get(), context -> new KwamiRenderer<>(context,Mineraculous.modLoc("kwami/tikki")));
+		event.registerEntityRenderer(MineraculousEntityTypes.PLAGG.get(), context -> new KwamiRenderer<>(context,Mineraculous.modLoc("kwami/plagg")));
 	}
 
 	public static void onFMLClientSetup(FMLClientSetupEvent event)

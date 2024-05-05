@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.world.entity;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Plagg;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
+import dev.thomasglasser.mineraculous.world.entity.kwami.Tikki;
 import dev.thomasglasser.tommylib.api.registration.RegistrationProvider;
 import dev.thomasglasser.tommylib.api.registration.RegistryObject;
 import net.minecraft.core.registries.Registries;
@@ -19,6 +20,10 @@ public class MineraculousEntityTypes
 {
 	public static final RegistrationProvider<EntityType<?>> ENTITY_TYPES = RegistrationProvider.get(Registries.ENTITY_TYPE, Mineraculous.MOD_ID);
 
+	public static final RegistryObject<EntityType<Tikki>> TIKKI = register("tikki",
+			EntityType.Builder.of(Tikki::new, MobCategory.CREATURE)
+			// TODO: Figure out size of model
+			.sized(0.6F, 0.9F));
 	public static final RegistryObject<EntityType<Plagg>> PLAGG = register("plagg",
 			EntityType.Builder.of(Plagg::new, MobCategory.CREATURE)
 			// TODO: Figure out size of model
@@ -30,10 +35,17 @@ public class MineraculousEntityTypes
 		return ENTITY_TYPES.register(name, () -> builder.build(name));
 	}
 
+	@SuppressWarnings("unchecked")
 	public static Map<EntityType<? extends LivingEntity>, AttributeSupplier> getAllAttributes() {
 		Map<EntityType<? extends LivingEntity>, AttributeSupplier> map = new HashMap<>();
 
-		map.put(PLAGG.get(), Kwami.createKwamiAttributes().build());
+		for (RegistryObject<EntityType<? extends Kwami>> kwami:new RegistryObject[] {
+				// NOTE: All kwamis go here.
+				TIKKI,
+				PLAGG
+		}) {
+			map.put(kwami.get(), Kwami.createKwamiAttributes().build());
+		}
 
 		return map;
 	}

@@ -7,6 +7,8 @@ import net.minecraft.world.item.Item;
 
 public class MineraculousItemTags
 {
+	public static final TagKey<Item> TIKKI_FOODS = create("tikki_foods");
+	public static final TagKey<Item> TIKKI_TREATS = create("tikki_treats");
 	public static final TagKey<Item> PLAGG_FOODS = create("plagg_foods");
 	public static final TagKey<Item> PLAGG_TREATS = create("plagg_treats");
 	public static final TagKey<Item> CATACLYSM_IMMUNE = create("cataclysm_immune");

@@ -11,6 +11,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
@@ -27,6 +28,12 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider
 	@Override
 	protected void addTags(HolderLookup.Provider pProvider)
 	{
+		tag(MineraculousItemTags.TIKKI_FOODS)
+				.add(Items.BREAD); // The charm in my galette.
+
+		// TODO: Macaroons
+		tag(MineraculousItemTags.TIKKI_TREATS);
+
 		// TODO: Cheese
 		tag(MineraculousItemTags.PLAGG_FOODS);
 

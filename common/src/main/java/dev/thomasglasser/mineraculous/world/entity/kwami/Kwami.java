@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.world.entity.kwami;
 
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -198,15 +197,9 @@ public abstract class Kwami extends TamableAnimal implements SmartBrainOwner<Kwa
 		return cache;
 	}
 
-	public boolean isFood(ItemStack stack)
-	{
-		return stack.is(MineraculousItemTags.KWAMI_FOODS);
-	}
+	public abstract boolean isFood(ItemStack stack);
 
-	public boolean isTreat(ItemStack stack)
-	{
-		return stack.is(MineraculousItemTags.KWAMI_TREATS);
-	}
+	public abstract boolean isTreat(ItemStack stack);
 
 	public abstract SoundEvent getHungrySound();
 

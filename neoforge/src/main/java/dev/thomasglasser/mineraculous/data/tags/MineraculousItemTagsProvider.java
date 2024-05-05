@@ -11,7 +11,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
@@ -28,25 +27,11 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider
 	@Override
 	protected void addTags(HolderLookup.Provider pProvider)
 	{
-		tag(MineraculousItemTags.KWAMI_FOODS)
-				.add(Items.APPLE)
-				.add(Items.MUSHROOM_STEW)
-				.add(Items.BREAD)
-				.add(Items.MELON_SLICE)
-				.add(Items.CARROT)
-				.add(Items.POTATO)
-				.add(Items.BAKED_POTATO)
-				.add(Items.BEETROOT)
-				.add(Items.BEETROOT_SOUP)
-				.add(Items.SWEET_BERRIES)
-				.add(Items.GLOW_BERRIES);
-
-		tag(MineraculousItemTags.KWAMI_TREATS)
-				.add(Items.GOLDEN_APPLE)
-				.add(Items.ENCHANTED_GOLDEN_APPLE);
-
 		// TODO: Cheese
-		tag(MineraculousItemTags.DESTRUCTION_KWAMI_TREATS);
+		tag(MineraculousItemTags.PLAGG_FOODS);
+
+		// TODO: Camembert
+		tag(MineraculousItemTags.PLAGG_TREATS);
 
 		tag(MineraculousItemTags.CATACLYSM_IMMUNE)
 				.add(MineraculousItems.CATACLYSM_DUST.get())

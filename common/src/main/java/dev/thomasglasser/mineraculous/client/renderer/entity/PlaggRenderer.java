@@ -1,13 +1,13 @@
 package dev.thomasglasser.mineraculous.client.renderer.entity;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.world.entity.kwami.DestructionKwami;
+import dev.thomasglasser.mineraculous.world.entity.kwami.Plagg;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.renderer.specialty.DynamicGeoEntityRenderer;
 
-public class PlaggRenderer<T extends DestructionKwami> extends DynamicGeoEntityRenderer<T>
+public class PlaggRenderer<T extends Plagg> extends DynamicGeoEntityRenderer<T>
 {
 	public PlaggRenderer(EntityRendererProvider.Context renderManager)
 	{

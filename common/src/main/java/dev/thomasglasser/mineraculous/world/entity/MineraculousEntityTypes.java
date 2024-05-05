@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.world.entity.kwami.DestructionKwami;
+import dev.thomasglasser.mineraculous.world.entity.kwami.Plagg;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
 import dev.thomasglasser.tommylib.api.registration.RegistrationProvider;
 import dev.thomasglasser.tommylib.api.registration.RegistryObject;
@@ -19,8 +19,8 @@ public class MineraculousEntityTypes
 {
 	public static final RegistrationProvider<EntityType<?>> ENTITY_TYPES = RegistrationProvider.get(Registries.ENTITY_TYPE, Mineraculous.MOD_ID);
 
-	public static final RegistryObject<EntityType<DestructionKwami>> PLAGG = register("plagg",
-			EntityType.Builder.of(DestructionKwami::new, MobCategory.CREATURE)
+	public static final RegistryObject<EntityType<Plagg>> PLAGG = register("plagg",
+			EntityType.Builder.of(Plagg::new, MobCategory.CREATURE)
 			// TODO: Figure out size of model
 			.sized(0.6F, 0.9F));
 

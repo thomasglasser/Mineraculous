@@ -29,10 +29,12 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider
 	protected void addTags(HolderLookup.Provider pProvider)
 	{
 		tag(MineraculousItemTags.TIKKI_FOODS)
-				.add(Items.BREAD); // The charm in my galette.
+				.add(Items.BREAD);
 
 		// TODO: Macaroons
-		tag(MineraculousItemTags.TIKKI_TREATS);
+		tag(MineraculousItemTags.TIKKI_TREATS)
+				.add(Items.COOKIE)
+				.add(Items.CAKE);
 
 		// TODO: Cheese
 		tag(MineraculousItemTags.PLAGG_FOODS);

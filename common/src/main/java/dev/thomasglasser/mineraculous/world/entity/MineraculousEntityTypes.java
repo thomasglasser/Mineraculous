@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Plagg;
-import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Tikki;
 import dev.thomasglasser.tommylib.api.registration.RegistrationProvider;
 import dev.thomasglasser.tommylib.api.registration.RegistryObject;
@@ -35,17 +34,12 @@ public class MineraculousEntityTypes
 		return ENTITY_TYPES.register(name, () -> builder.build(name));
 	}
 
-	@SuppressWarnings("unchecked")
 	public static Map<EntityType<? extends LivingEntity>, AttributeSupplier> getAllAttributes() {
 		Map<EntityType<? extends LivingEntity>, AttributeSupplier> map = new HashMap<>();
 
-		for (RegistryObject<EntityType<? extends Kwami>> kwami:new RegistryObject[] {
-				// NOTE: All kwamis go here.
-				TIKKI,
-				PLAGG
-		}) {
-			map.put(kwami.get(), Kwami.createKwamiAttributes().build());
-		}
+		// Kwamis
+		map.put(TIKKI.get(), Tikki.createKwamiAttributes().build());
+		map.put(PLAGG.get(), Plagg.createKwamiAttributes().build());
 
 		return map;
 	}

@@ -17,6 +17,6 @@ public class KamikoRenderer extends MobRenderer<Kamiko, KamikoModel> {
     }
 
     public ResourceLocation getTextureLocation(Kamiko entity) {
-        return entity.isPowered()?KAMIKO_POWERED_LOCATION:KAMIKO_LOCATION;
+        return entity.isPowered() ? KAMIKO_POWERED_LOCATION : KAMIKO_LOCATION;
     }
 }

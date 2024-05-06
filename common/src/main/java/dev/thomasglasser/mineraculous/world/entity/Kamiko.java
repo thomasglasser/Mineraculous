@@ -7,7 +7,6 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageSources;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -28,7 +27,8 @@ public class Kamiko extends AmbientCreature {
 
     public Kamiko(EntityType<? extends Kamiko> type, Level level) {
         super(type, level);
-        if (!level.isClientSide) this.setResting(true);
+        if (!level.isClientSide)
+            this.setResting(true);
     }
 
     @Override
@@ -54,16 +54,19 @@ public class Kamiko extends AmbientCreature {
         entityData.set(RESTING, resting);
     }
 
-    @Override // Silent
+    @Override
     protected float getSoundVolume() {
-        return 0;
+        return 0.1F;
     }
 
     // No Push
+    @Override
     public boolean isPushable() {
         return false;
     }
+    @Override
     protected void doPush(Entity entity) {}
+    @Override
     protected void pushEntities() {}
 
     @Override
@@ -77,13 +80,11 @@ public class Kamiko extends AmbientCreature {
         }
     }
 
-    @Override
-    protected MovementEmission getMovementEmission() {
-        return MovementEmission.NONE;
-    }
-
     // Flying mobs don't take fall damage.
+    @Override
     protected void checkFallDamage(double y, boolean onGround, BlockState state, BlockPos pos) {}
+
+    @Override
     public boolean isIgnoringBlockTriggers() {
         return true;
     }
@@ -91,19 +92,16 @@ public class Kamiko extends AmbientCreature {
     @Override
     public boolean isInvulnerableTo(DamageSource source) {
         // Kamikos can squeeze through impossibly tight spaces. Including between atomic particles.
-        return level().damageSources().source(DamageTypes.IN_WALL).equals(source) || super.isInvulnerableTo(source);
+        return source.is(DamageTypes.IN_WALL) || super.isInvulnerableTo(source);
     }
 
+    @Override
     public boolean hurt(DamageSource source, float amount) {
-        if (this.isInvulnerableTo(source)) {
-            return false;
-        } else {
-            if (!this.level().isClientSide && this.isResting()) {
-                this.setResting(false);
-            }
-
-            return super.hurt(source, amount);
+        boolean hurt = super.hurt(source, amount);
+        if (hurt && !this.level().isClientSide && this.isResting()) {
+            this.setResting(false);
         }
+        return hurt;
     }
 
     @Override

@@ -12,13 +12,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.List;
+
 public class MineraculousClientEvents
 {
-	@SuppressWarnings("unchecked")
-	public static Pair<ModelLayerLocation,LayerDefinition>[] getEntityModelLayers() {
-		return new Pair[] {
-				new Pair<>(MineraculousModelLayers.KAMIKO,KamikoModel.createBodyLayer())
-		};
+	public static List<Pair<ModelLayerLocation,LayerDefinition>> getEntityModelLayers() {
+		return List.of(
+				new Pair<>(MineraculousModelLayers.KAMIKO, KamikoModel.createBodyLayer())
+		);
 	}
 
 	public static void onEntityJoinLevel(Entity entity)

@@ -45,8 +45,8 @@ public class MineraculousFabricClient implements ClientModInitializer
 
 		registerTrinketRenderers();
 
-		for (Pair<ModelLayerLocation, LayerDefinition> model:MineraculousClientEvents.getEntityModelLayers())
-			EntityModelLayerRegistry.registerModelLayer(model.getFirst(), new TexturedModelDataHelper(model.getSecond()));
+		for (Pair<ModelLayerLocation, LayerDefinition> model: MineraculousClientEvents.getEntityModelLayers())
+			EntityModelLayerRegistry.registerModelLayer(model.getFirst(), model::getSecond);
 		ClientEntityEvents.ENTITY_LOAD.register(((trackedEntity, player) ->
 				MineraculousClientEvents.onEntityJoinLevel(trackedEntity)));
 		LivingEntityFeatureRenderEvents.ALLOW_CAPE_RENDER.register(player -> !Services.DATA.getMiraculousDataSet(player).getTransformed().isEmpty());
@@ -73,10 +73,4 @@ public class MineraculousFabricClient implements ClientModInitializer
 //			}
 //		});
 	}
-
-	private record TexturedModelDataHelper(LayerDefinition layer) implements EntityModelLayerRegistry.TexturedModelDataProvider {
-		public LayerDefinition createModelData() {
-				return layer;
-			}
-		}
 }

@@ -44,6 +44,7 @@ public class MineraculousEntityTypes
 		// Kwamis
 		map.put(TIKKI.get(), Tikki.createKwamiAttributes().build());
 		map.put(PLAGG.get(), Plagg.createKwamiAttributes().build());
+
 		map.put(KAMIKO.get(), Kamiko.createAttributes().build());
 
 		return map;

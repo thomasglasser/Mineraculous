@@ -31,7 +31,6 @@ public class KamikoModel extends EntityModel<Kamiko> {
         PartDefinition root = mesh.getRoot();
         PartDefinition frame = root.addOrReplaceChild("frame",
                 CubeListBuilder.create()
-                        .texOffs(0, 0)
                         .addBox(-1.0F, -1.0F, 0.0F, 2.0F, 2.0F, 0.0F),
                 PartPose.offset( 0.5F, 0.5F, 0.0F)
         );
@@ -42,8 +41,8 @@ public class KamikoModel extends EntityModel<Kamiko> {
     @Override
     public void setupAnim(Kamiko entity, float limbSwing, float limbSwingAmount, float ageInTicks, float headYaw, float headPitch) {
         Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        frame.xRot = camera.getXRot()* Mth.DEG_TO_RAD;
-        frame.yRot = camera.getYRot()*Mth.DEG_TO_RAD;
+        frame.xRot = camera.getXRot() * Mth.DEG_TO_RAD;
+        frame.yRot = camera.getYRot() * Mth.DEG_TO_RAD;
     }
 
     @Override

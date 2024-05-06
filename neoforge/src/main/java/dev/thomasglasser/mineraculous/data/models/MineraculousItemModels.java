@@ -57,6 +57,7 @@ public class MineraculousItemModels extends ExtendedItemModelProvider
 
 		spawnEgg(MineraculousItems.TIKKI_SPAWN_EGG);
 		spawnEgg(MineraculousItems.PLAGG_SPAWN_EGG);
+		spawnEgg(MineraculousItems.KAMIKO_SPAWN_EGG);
 
 		basicItem(MineraculousItems.CATACLYSM_DUST.get());
 

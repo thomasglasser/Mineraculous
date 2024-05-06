@@ -40,8 +40,9 @@ public class MineraculousItems
 	public static final RegistryObject<Item> CATACLYSM_DUST = register("cataclysm_dust", () -> new Item(new Item.Properties()), List.of());
 
 	// Spawn Eggs
-	public static final RegistryObject<SpawnEggItem> TIKKI_SPAWN_EGG = registerSpawnEgg("tikki_spawn_egg", MineraculousEntityTypes.TIKKI::get, 0xeb0944, 0x000000);
-	public static final RegistryObject<SpawnEggItem> PLAGG_SPAWN_EGG = registerSpawnEgg("plagg_spawn_egg", MineraculousEntityTypes.PLAGG::get, 0x1c1b20, 0xb6fa02);
+	public static final RegistryObject<SpawnEggItem> TIKKI_SPAWN_EGG  = registerSpawnEgg("tikki_spawn_egg",  MineraculousEntityTypes.TIKKI::get,  0xeb0944, 0x000000);
+	public static final RegistryObject<SpawnEggItem> PLAGG_SPAWN_EGG  = registerSpawnEgg("plagg_spawn_egg",  MineraculousEntityTypes.PLAGG::get,  0x1c1b20, 0xb6fa02);
+	public static final RegistryObject<SpawnEggItem> KAMIKO_SPAWN_EGG = registerSpawnEgg("kamiko_spawn_egg", MineraculousEntityTypes.KAMIKO::get, 0xf7f8f6, 0x503964);
 
 	private static RegistryObject<MiraculousItem> registerMiraculous(String name, MiraculousType type, ArmorSet armorSet, Supplier<? extends Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, Pair<String, String> acceptableSlot, int color)
 	{

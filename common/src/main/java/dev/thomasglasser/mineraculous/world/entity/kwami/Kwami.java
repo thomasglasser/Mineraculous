@@ -134,6 +134,7 @@ public abstract class Kwami extends TamableAnimal implements SmartBrainOwner<Kwa
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public BrainActivityGroup<? extends Kwami> getIdleTasks()
 	{
 		return BrainActivityGroup.idleTasks(

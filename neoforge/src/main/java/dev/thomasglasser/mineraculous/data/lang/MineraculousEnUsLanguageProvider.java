@@ -28,6 +28,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 		add(MineraculousItems.CAT_MIRACULOUS.get(), "Cat Miraculous");
 		add(MineraculousItems.TIKKI_SPAWN_EGG.get(), "Tikki Spawn Egg");
 		add(MineraculousItems.PLAGG_SPAWN_EGG.get(), "Plagg Spawn Egg");
+		add(MineraculousItems.KAMIKO_SPAWN_EGG.get(), "Kamiko Spawn Egg");
 		add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
 
 		addCreativeTab(MineraculousCreativeModeTabs.MINERACULOUS, "Mineraculous");
@@ -47,6 +48,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 
 		add(MineraculousEntityTypes.TIKKI.get(), "Tikki");
 		add(MineraculousEntityTypes.PLAGG.get(), "Plagg");
+		add(MineraculousEntityTypes.KAMIKO.get(), "Kamiko");
 
 		add(MineraculousKeyMappings.MIRACULOUS_CATEGORY, "Miraculous");
 		add(MineraculousKeyMappings.TRANSFORM, "Transform");

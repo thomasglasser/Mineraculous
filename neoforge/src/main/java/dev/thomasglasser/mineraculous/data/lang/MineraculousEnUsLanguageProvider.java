@@ -54,7 +54,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 		add(MineraculousKeyMappings.MIRACULOUS_CATEGORY, "Miraculous");
 		add(MineraculousKeyMappings.TRANSFORM, "Transform");
 		add(MineraculousKeyMappings.ACTIVATE_MAIN_POWER, "Activate Main Power");
-		add(MineraculousKeyMappings.OPEN_ABILITY_WHEEL, "Open Power Wheel");
+		add(MineraculousKeyMappings.OPEN_ABILITY_WHEEL, "Open Ability Wheel");
 		add(MineraculousKeyMappings.ACTIVATE_TOOL, "Activate Tool");
 		add(MineraculousKeyMappings.ACTIVATE_TRAVELLING, "Activate Travelling");
 

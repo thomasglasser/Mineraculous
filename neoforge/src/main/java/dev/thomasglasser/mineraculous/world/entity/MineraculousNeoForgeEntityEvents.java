@@ -50,7 +50,7 @@ public class MineraculousNeoForgeEntityEvents
 	public static void onBlockLeftClick(PlayerInteractEvent.LeftClickBlock event)
 	{
 		InteractionResult result = MineraculousEntityEvents.onBlockLeftClick(event.getEntity(), event.getPos(), event.getHand());
-		if (result.consumesAction())
+		if (result.consumesAction() || result == InteractionResult.PASS)
 			event.setUseBlock(Event.Result.ALLOW);
 		else
 			event.setUseBlock(Event.Result.DENY);

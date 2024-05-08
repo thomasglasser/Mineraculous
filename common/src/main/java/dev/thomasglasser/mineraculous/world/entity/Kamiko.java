@@ -18,9 +18,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Evil form is known as an Akuma.
- */
 public class Kamiko extends AmbientCreature {
     private static final EntityDataAccessor<Boolean> RESTING = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> POWERED = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.BOOLEAN);

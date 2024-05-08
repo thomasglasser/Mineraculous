@@ -8,7 +8,7 @@ import software.bernie.geckolib.renderer.specialty.DynamicGeoEntityRenderer;
 
 public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T>
 {
-	private ResourceLocation tiredTexture;
+	private ResourceLocation hungryTexture;
 
 	public KwamiRenderer(EntityRendererProvider.Context renderManager, ResourceLocation location)
 	{
@@ -19,13 +19,13 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T>
 	@Override
 	public ResourceLocation getTextureLocation(T animatable)
 	{
-		if (tiredTexture == null)
+		if (hungryTexture == null)
 		{
 			ResourceLocation original = super.getTextureLocation(animatable);
-			tiredTexture = new ResourceLocation(original.getNamespace(), original.getPath().replace(".png", "_tired.png"));
+			hungryTexture = new ResourceLocation(original.getNamespace(), original.getPath().replace(".png", "_hungry.png"));
 		}
 		if (!animatable.isCharged())
-			return tiredTexture;
+			return hungryTexture;
 		return super.getTextureLocation(animatable);
 	}
 }

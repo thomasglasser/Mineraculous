@@ -39,8 +39,9 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider
 		// TODO: Cheese
 		tag(MineraculousItemTags.PLAGG_FOODS);
 
-		// TODO: Camembert
-		tag(MineraculousItemTags.PLAGG_TREATS);
+		// TODO: Camembert block
+ 		tag(MineraculousItemTags.PLAGG_TREATS)
+				.add(MineraculousItems.WEDGE_OF_CAMEMBERT.get());
 
 		tag(MineraculousItemTags.CATACLYSM_IMMUNE)
 				.add(MineraculousItems.CATACLYSM_DUST.get())

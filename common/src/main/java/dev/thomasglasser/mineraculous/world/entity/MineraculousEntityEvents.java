@@ -263,6 +263,11 @@ public class MineraculousEntityEvents
 		MiraculousData catMiraculousData = miraculousDataSet.get(MiraculousType.CAT);
 		if (!entity.level().isClientSide && hand == InteractionHand.MAIN_HAND && catMiraculousData.transformed() && catMiraculousData.mainPowerActive())
 		{
+
+			CompoundTag persistentData = TommyLibServices.ENTITY.getPersistentData(target);
+			persistentData.putBoolean(TAG_CATACLYSMED, true);
+			TommyLibServices.ENTITY.setPersistentData(target, persistentData, true);
+			miraculousDataSet.put(entity, MiraculousType.CAT, new MiraculousData(true, catMiraculousData.miraculousItem(), catMiraculousData.curiosData(), catMiraculousData.tool(), catMiraculousData.powerLevel(), true, false, catMiraculousData.name()), true);
 			int level = catMiraculousData.powerLevel();
 			if (target instanceof LivingEntity livingEntity)
 			{
@@ -275,7 +280,13 @@ public class MineraculousEntityEvents
 						MobEffects.CONFUSION,
 						MobEffects.DIG_SLOWDOWN
 				);
-				CATACLYSM_EFFECTS.forEach(effect -> livingEntity.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, level)));
+				CATACLYSM_EFFECTS.forEach(effect -> {
+					MobEffectInstance instance = INFINITE_HIDDEN_EFFECT.apply(effect, level);
+					if (livingEntity.canBeAffected(instance))
+						livingEntity.addEffect(instance);
+					else
+						livingEntity.hurt(entity.damageSources().indirectMagic(entity, entity), 100);
+				});
 			}
 			else if (target instanceof VehicleEntity vehicle)
 			{
@@ -286,10 +297,6 @@ public class MineraculousEntityEvents
 			{
 				target.hurt(entity.damageSources().indirectMagic(entity, entity), 1024);
 			}
-			CompoundTag persistentData = TommyLibServices.ENTITY.getPersistentData(target);
-			persistentData.putBoolean(TAG_CATACLYSMED, true);
-			TommyLibServices.ENTITY.setPersistentData(target, persistentData, true);
-			miraculousDataSet.put(entity, MiraculousType.CAT, new MiraculousData(true, catMiraculousData.miraculousItem(), catMiraculousData.curiosData(), catMiraculousData.tool(), catMiraculousData.powerLevel(), true, false, catMiraculousData.name()), true);
 			return InteractionResult.SUCCESS;
 		}
 		return InteractionResult.PASS;

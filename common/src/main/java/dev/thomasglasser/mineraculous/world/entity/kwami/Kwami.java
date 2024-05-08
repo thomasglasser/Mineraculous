@@ -57,7 +57,6 @@ import java.util.List;
 
 public abstract class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoEntity
 {
-	public static final String TAG_CHARGED = "Charged";
 	public static final EntityDataSerializer<Boolean> CHARGED = EntityDataSerializers.BOOLEAN;
 	private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(Kwami.class, CHARGED);
 

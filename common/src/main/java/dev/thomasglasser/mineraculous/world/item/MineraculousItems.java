@@ -5,11 +5,13 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
+import dev.thomasglasser.mineraculous.world.food.MineraculousFoods;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.tommylib.api.registration.RegistrationProvider;
 import dev.thomasglasser.tommylib.api.registration.RegistryObject;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceKey;
@@ -43,6 +45,9 @@ public class MineraculousItems
 	public static final RegistryObject<SpawnEggItem> TIKKI_SPAWN_EGG = registerSpawnEgg("tikki_spawn_egg",  MineraculousEntityTypes.TIKKI::get,  0xeb0944, 0x000000);
 	public static final RegistryObject<SpawnEggItem> PLAGG_SPAWN_EGG = registerSpawnEgg("plagg_spawn_egg",  MineraculousEntityTypes.PLAGG::get,  0x1c1b20, 0xb6fa02);
 	public static final RegistryObject<SpawnEggItem> KAMIKO_SPAWN_EGG = registerSpawnEgg("kamiko_spawn_egg", MineraculousEntityTypes.KAMIKO::get, 0xf7f8f6, 0x503964); // TODO: Colors
+
+	// Cheese
+	public static final RegistryObject<Item> WEDGE_OF_CAMEMBERT = register("wedge_of_camembert", () -> new Item(new Item.Properties().component(DataComponents.FOOD, MineraculousFoods.WEDGE_OF_CAMEMBERT)), List.of(CreativeModeTabs.FOOD_AND_DRINKS));
 
 	private static RegistryObject<MiraculousItem> registerMiraculous(String name, MiraculousType type, ArmorSet armorSet, Supplier<? extends Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, Pair<String, String> acceptableSlot, int color)
 	{

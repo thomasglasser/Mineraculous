@@ -30,6 +30,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 		add(MineraculousItems.PLAGG_SPAWN_EGG.get(), "Plagg Spawn Egg");
 		add(MineraculousItems.KAMIKO_SPAWN_EGG.get(), "Kamiko Spawn Egg");
 		add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
+		add(MineraculousItems.WEDGE_OF_CAMEMBERT.get(), "Wedge of Camembert");
 
 		addCreativeTab(MineraculousCreativeModeTabs.MINERACULOUS, "Mineraculous");
 		addCreativeTab(MineraculousCreativeModeTabs.SUITS, "Suits");

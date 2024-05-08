@@ -60,6 +60,7 @@ public class MineraculousItemModels extends ExtendedItemModelProvider
 		spawnEgg(MineraculousItems.KAMIKO_SPAWN_EGG);
 
 		basicItem(MineraculousItems.CATACLYSM_DUST.get());
+		basicItem(MineraculousItems.WEDGE_OF_CAMEMBERT.get());
 
 		basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK.get());
 

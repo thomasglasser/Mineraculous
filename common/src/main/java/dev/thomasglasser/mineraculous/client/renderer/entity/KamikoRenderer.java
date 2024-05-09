@@ -1,22 +1,23 @@
 package dev.thomasglasser.mineraculous.client.renderer.entity;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.model.KamikoModel;
-import dev.thomasglasser.mineraculous.client.model.geom.MineraculousModelLayers;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
+import software.bernie.geckolib.model.DefaultedEntityGeoModel;
+import software.bernie.geckolib.renderer.specialty.DynamicGeoEntityRenderer;
 
-public class KamikoRenderer extends MobRenderer<Kamiko, KamikoModel> {
-    private static final ResourceLocation KAMIKO_LOCATION = new ResourceLocation(Mineraculous.MOD_ID, "textures/entity/kamiko.png");
-    private static final ResourceLocation KAMIKO_POWERED_LOCATION = new ResourceLocation(Mineraculous.MOD_ID, "textures/entity/kamiko_powered.png");
+public class KamikoRenderer<T extends Kamiko> extends DynamicGeoEntityRenderer<T> {
+    private static final ResourceLocation KAMIKO_LOCATION = Mineraculous.modLoc("textures/entity/kamiko.png");
+    private static final ResourceLocation KAMIKO_POWERED_LOCATION = Mineraculous.modLoc("textures/entity/kamiko_powered.png");
 
     public KamikoRenderer(EntityRendererProvider.Context context) {
-        super(context, new KamikoModel(context.bakeLayer(MineraculousModelLayers.KAMIKO)), 0.25F);
+        super(context, new DefaultedEntityGeoModel<>(Mineraculous.modLoc("kamiko")));
+        withScale(0.2F);
     }
 
-    public ResourceLocation getTextureLocation(Kamiko entity) {
-        return entity.isPowered() ? KAMIKO_POWERED_LOCATION : KAMIKO_LOCATION;
+    @Override
+    public ResourceLocation getTextureLocation(T kamiko) {
+        return kamiko.isPowered() ? KAMIKO_POWERED_LOCATION : KAMIKO_LOCATION;
     }
 }

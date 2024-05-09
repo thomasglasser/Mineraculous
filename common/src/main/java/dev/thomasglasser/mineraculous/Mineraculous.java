@@ -1,13 +1,11 @@
 package dev.thomasglasser.mineraculous;
 
-import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.commands.arguments.MineraculousCommandArgumentTypes;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.network.MineraculousPayloads;
-import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
@@ -16,7 +14,6 @@ import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmorMaterial
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import eu.midnightdust.lib.config.MidnightConfig;
 import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

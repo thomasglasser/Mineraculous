@@ -1,8 +1,6 @@
 package dev.thomasglasser.mineraculous.client;
 
 import com.mojang.datafixers.util.Pair;
-import dev.thomasglasser.mineraculous.client.model.KamikoModel;
-import dev.thomasglasser.mineraculous.client.model.geom.MineraculousModelLayers;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestMiraculousDataSetSyncPayload;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -17,9 +15,7 @@ import java.util.List;
 public class MineraculousClientEvents
 {
 	public static List<Pair<ModelLayerLocation,LayerDefinition>> getEntityModelLayers() {
-		return List.of(
-				new Pair<>(MineraculousModelLayers.KAMIKO, KamikoModel.createBodyLayer())
-		);
+		return List.of();
 	}
 
 	public static void onEntityJoinLevel(Entity entity)

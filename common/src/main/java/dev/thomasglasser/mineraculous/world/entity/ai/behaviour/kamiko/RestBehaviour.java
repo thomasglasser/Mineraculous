@@ -28,15 +28,13 @@ public class RestBehaviour<E extends Kamiko> extends ExtendedBehaviour<E> {
     }
 
     public static boolean canRest(Kamiko entity, LevelAccessor level) {
-        return level.getBlockCollisions(entity, entity.getBoundingBox().move(0,-1.0/32.0,0)).iterator().hasNext();
+        return level.getBlockCollisions(entity, entity.getBoundingBox().move(0,-1.0/16.0,0)).iterator().hasNext();
     }
 
     @Override
     protected boolean shouldKeepRunning(E entity) {
-        return entity.isResting();
+        return entity.isResting() && canRest(entity,entity.level());
     }
-
-
 
     @Override
     protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {

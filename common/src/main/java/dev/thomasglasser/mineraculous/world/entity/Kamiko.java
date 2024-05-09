@@ -1,6 +1,8 @@
 package dev.thomasglasser.mineraculous.world.entity;
 
+import com.mojang.logging.LogUtils;
 import dev.thomasglasser.mineraculous.world.entity.ai.behaviour.kamiko.RestBehaviour;
+import dev.thomasglasser.mineraculous.world.entity.ai.behaviour.kamiko.move.SetRandomRestTarget;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -183,7 +185,6 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public BrainActivityGroup<? extends Kamiko> getCoreTasks() {
         return BrainActivityGroup.coreTasks(
                 new MoveToWalkTarget<Kamiko>()
@@ -199,7 +200,7 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
         return BrainActivityGroup.idleTasks(
                 new OneRandomBehaviour<>(
                         new SetRandomFlyingTarget<>(),
-                        new SetRandomWalkTarget<Kamiko>()
+                        new SetRandomRestTarget<Kamiko>()
                                 .setRadius(10,64)
                                 .startCondition(kamiko -> !kamiko.isResting())
                 )

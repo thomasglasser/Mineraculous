@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.client;
 
-import com.mojang.datafixers.util.Pair;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KamikoRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.platform.Services;
@@ -8,11 +7,8 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.model.loading.v1.PreparableModelLoadingPlugin;
-import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRenderEvents;
-import net.minecraft.client.model.geom.ModelLayerLocation;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -45,8 +41,6 @@ public class MineraculousFabricClient implements ClientModInitializer
 
 		registerTrinketRenderers();
 
-		for (Pair<ModelLayerLocation, LayerDefinition> model: MineraculousClientEvents.getEntityModelLayers())
-			EntityModelLayerRegistry.registerModelLayer(model.getFirst(), model::getSecond);
 		ClientEntityEvents.ENTITY_LOAD.register(((trackedEntity, player) ->
 				MineraculousClientEvents.onEntityJoinLevel(trackedEntity)));
 		LivingEntityFeatureRenderEvents.ALLOW_CAPE_RENDER.register(player -> !Services.DATA.getMiraculousDataSet(player).getTransformed().isEmpty());

@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.datafixers.util.Pair;
 import dev.thomasglasser.mineraculous.client.particle.CataclysmParticle;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KamikoRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
@@ -12,8 +11,6 @@ import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelLayerLocation;
-import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.resources.ResourceLocation;
@@ -50,11 +47,6 @@ public class MineraculousNeoForgeClientEvents
 		event.registerEntityRenderer(MineraculousEntityTypes.TIKKI.get(), context -> new KwamiRenderer<>(context, MineraculousEntityTypes.TIKKI.getId()));
 		event.registerEntityRenderer(MineraculousEntityTypes.PLAGG.get(), context -> new KwamiRenderer<>(context, MineraculousEntityTypes.PLAGG.getId()));
 		event.registerEntityRenderer(MineraculousEntityTypes.KAMIKO.get(), KamikoRenderer::new);
-	}
-
-	public static void registerEntityLayers(EntityRenderersEvent.RegisterLayerDefinitions event) {
-		for (Pair<ModelLayerLocation, LayerDefinition> model:MineraculousClientEvents.getEntityModelLayers())
-			event.registerLayerDefinition(model.getFirst(), model::getSecond);
 	}
 
 	public static void onFMLClientSetup(FMLClientSetupEvent event)

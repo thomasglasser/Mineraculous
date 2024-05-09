@@ -6,10 +6,13 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -22,7 +25,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
-import net.tslat.smartbrainlib.api.core.SmartBrain;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
 import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowEntity;
@@ -33,8 +35,11 @@ import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.animation.*;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
@@ -42,6 +47,7 @@ import java.util.List;
 public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, GeoEntity {
     private static final EntityDataAccessor<Boolean> RESTING = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> POWERED = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.BOOLEAN);
+
     private BlockPos followingPosition = null;
 
     private final AnimatableInstanceCache animCache = GeckoLibUtil.createInstanceCache(this);
@@ -49,6 +55,7 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
     public Kamiko(EntityType<? extends Kamiko> type, Level level) {
         super(type, level);
         moveControl = new FlyingMoveControl(this, 180, true);
+        setNoGravity(true);
     }
 
     @Override
@@ -108,13 +115,9 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
 
     @Override
     protected void customServerAiStep() {
-        if (this.followingPosition==null) this.followingPosition = this.blockPosition();
+        if (this.followingPosition == null)
+            this.followingPosition = this.blockPosition();
         tickBrain(this);
-    }
-
-    @Override // Kamikos are unconstrained by gravity.
-    protected double getDefaultGravity() {
-        return 0;
     }
 
     // Flying mobs don't take fall damage.
@@ -159,7 +162,8 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, 1) // Butterflies are weak, okay.
                 .add(Attributes.MOVEMENT_SPEED, 0.3)
-                .add(Attributes.FLYING_SPEED, 1);
+                .add(Attributes.FLYING_SPEED, 1)
+                .add(Attributes.GRAVITY, 0);
     }
 
     // AI
@@ -182,9 +186,9 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
     @SuppressWarnings("unchecked")
     public BrainActivityGroup<? extends Kamiko> getCoreTasks() {
         return BrainActivityGroup.coreTasks(
-                new MoveToWalkTarget<>()
-                        .startCondition(kamiko -> ((SmartBrain<Kamiko>)kamiko.getBrain()).getBehaviours().filter(b -> b instanceof RestBehaviour).map(b->(RestBehaviour<Kamiko>)b).findFirst().get().timedOut(kamiko.level().getGameTime())) // Long line of logic that is impossible to read.
-                        .stopIf(kamiko -> kamiko.getTarget()!=null),
+                new MoveToWalkTarget<Kamiko>()
+                        .startCondition(kamiko -> !kamiko.isResting())
+                        .stopIf(kamiko -> kamiko.getTarget() != null),
                 new RestBehaviour<>().runFor(kamiko -> kamiko.random.nextInt(60,200)).cooldownFor(kamiko -> 600)
         );
     }
@@ -209,7 +213,7 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
                         .following(Mob::getTarget)
                         .stopFollowingWithin(0)
                         .speedMod(3)
-                        .startCondition(kamiko -> (kamiko.getTarget()!=null) && (kamiko.isPowered()))
+                        .startCondition(kamiko -> (kamiko.getTarget() != null) && (kamiko.isPowered()))
                         .noTimeout().stopIf(kamiko -> (kamiko.getTarget() == null) || (kamiko.getTarget().isRemoved()))
         );
     }
@@ -227,11 +231,8 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
 
     private <T extends Kamiko> PlayState animations(AnimationState<T> animationState) {
         if (animationState.getAnimatable().isResting()) {
-            animationState.getController().setAnimationSpeed(1);
-            return animationState.setAndContinue(RawAnimation.begin().then("idle", Animation.LoopType.LOOP));
+            return animationState.setAndContinue(DefaultAnimations.IDLE);
         }
-
-        animationState.getController().setAnimationSpeed(4);
-        return animationState.setAndContinue(RawAnimation.begin().then("flying", Animation.LoopType.LOOP));
+        return animationState.setAndContinue(DefaultAnimations.FLY);
     }
 }

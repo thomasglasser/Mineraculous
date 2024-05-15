@@ -4,6 +4,7 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.tommylib.api.data.tags.ExtendedItemTagsProvider;
 import dev.thomasglasser.tommylib.api.tags.TommyLibItemTags;
 import net.minecraft.core.HolderLookup;
@@ -36,12 +37,26 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider
 				.add(Items.COOKIE)
 				.add(Items.CAKE);
 
-		// TODO: Cheese
-		tag(MineraculousItemTags.PLAGG_FOODS);
+		// Let's not add the cheese blocks to Plagg's food pool.
+		// In the show, Plagg only needs a slice of cheese to recharge,
+		// not an entire cubic meter (though he probably could eat that ngl).
+		tag(MineraculousItemTags.PLAGG_FOODS)
+				.addTag(MineraculousItemTags.CHEESE);
 
-		// TODO: Camembert block
- 		tag(MineraculousItemTags.PLAGG_TREATS)
-				.add(MineraculousItems.WEDGE_OF_CAMEMBERT.get());
+		tag(MineraculousItemTags.PLAGG_TREATS)
+				.addTag(MineraculousItemTags.CAMEMBERT);
+
+		tag(MineraculousItemTags.COMMON_CHEESE)
+				.addTag(MineraculousItemTags.CHEESE)
+				.addTag(MineraculousItemTags.CAMEMBERT);
+
+		IntrinsicTagAppender<Item> cheese = tag(MineraculousItemTags.PLAGG_FOODS);
+ 		IntrinsicTagAppender<Item> camembert = tag(MineraculousItemTags.PLAGG_TREATS);
+
+		for (CheeseBlock.Age age: CheeseBlock.Age.values()) {
+			cheese.add(MineraculousItems.CHEESE.get(age).get());
+			camembert.add(MineraculousItems.CAMEMBERT.get(age).get());
+		}
 
 		tag(MineraculousItemTags.CATACLYSM_IMMUNE)
 				.add(MineraculousItems.CATACLYSM_DUST.get())

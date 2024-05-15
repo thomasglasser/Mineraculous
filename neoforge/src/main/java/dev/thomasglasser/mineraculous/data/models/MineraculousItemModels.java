@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.data.models;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.models.ExtendedItemModelProvider;
 import net.minecraft.data.PackOutput;
@@ -60,7 +61,11 @@ public class MineraculousItemModels extends ExtendedItemModelProvider
 		spawnEgg(MineraculousItems.KAMIKO_SPAWN_EGG);
 
 		basicItem(MineraculousItems.CATACLYSM_DUST.get());
-		basicItem(MineraculousItems.WEDGE_OF_CAMEMBERT.get());
+
+		for (CheeseBlock.Age age: CheeseBlock.Age.values()) {
+			basicItem(MineraculousItems.CHEESE.get(age).get());
+			basicItem(MineraculousItems.CAMEMBERT.get(age).get());
+		}
 
 		basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK.get());
 

@@ -5,7 +5,9 @@ import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
+import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.tags.ExtendedItemTagsProvider;
+import dev.thomasglasser.tommylib.api.registration.RegistryObject;
 import dev.thomasglasser.tommylib.api.tags.TommyLibItemTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -17,6 +19,7 @@ import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider
@@ -37,26 +40,18 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider
 				.add(Items.COOKIE)
 				.add(Items.CAKE);
 
-		// Let's not add the cheese blocks to Plagg's food pool.
-		// In the show, Plagg only needs a slice of cheese to recharge,
-		// not an entire cubic meter (though he probably could eat that ngl).
 		tag(MineraculousItemTags.PLAGG_FOODS)
-				.addTag(MineraculousItemTags.CHEESE);
+				.addTag(MineraculousItemTags.CHEESES_FOODS);
 
 		tag(MineraculousItemTags.PLAGG_TREATS)
 				.addTag(MineraculousItemTags.CAMEMBERT);
 
-		tag(MineraculousItemTags.COMMON_CHEESE)
+		tag(MineraculousItemTags.CHEESES_FOODS)
 				.addTag(MineraculousItemTags.CHEESE)
 				.addTag(MineraculousItemTags.CAMEMBERT);
 
-		IntrinsicTagAppender<Item> cheese = tag(MineraculousItemTags.PLAGG_FOODS);
- 		IntrinsicTagAppender<Item> camembert = tag(MineraculousItemTags.PLAGG_TREATS);
-
-		for (CheeseBlock.Age age: CheeseBlock.Age.values()) {
-			cheese.add(MineraculousItems.CHEESE.get(age).get());
-			camembert.add(MineraculousItems.CAMEMBERT.get(age).get());
-		}
+		cheese(MineraculousItemTags.CHEESE, MineraculousItems.CHEESE_WEDGES, MineraculousBlocks.CHEESE_BLOCKS, MineraculousBlocks.WAXED_CHEESE_BLOCKS);
+		cheese(MineraculousItemTags.CAMEMBERT, MineraculousItems.CAMEMBERT_WEDGES, MineraculousBlocks.CAMEMBERT_BLOCKS, MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS);
 
 		tag(MineraculousItemTags.CATACLYSM_IMMUNE)
 				.add(MineraculousItems.CATACLYSM_DUST.get())
@@ -77,5 +72,17 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider
 			curios.add(item);
 			trinkets.add(item);
 		}
+	}
+
+	protected void cheese(IntrinsicTagAppender<Item> tag, Map<CheeseBlock.Age, RegistryObject<Item>> wedges, Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> blocks, Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> waxed)
+	{
+		wedges.values().stream().map(RegistryObject::get).forEach(tag::add);
+		blocks.values().stream().map(RegistryObject::get).map(Block::asItem).forEach(tag::add);
+		waxed.values().stream().map(RegistryObject::get).map(Block::asItem).forEach(tag::add);
+	}
+
+	protected void cheese(TagKey<Item> tag, Map<CheeseBlock.Age, RegistryObject<Item>> wedges, Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> blocks, Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> waxed)
+	{
+		cheese(tag(tag), wedges, blocks, waxed);
 	}
 }

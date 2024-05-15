@@ -13,8 +13,12 @@ import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.tommylib.api.data.lang.ExtendedLanguageProvider;
+import dev.thomasglasser.tommylib.api.registration.RegistryObject;
 import net.minecraft.data.PackOutput;
+import net.minecraft.world.item.Item;
 import org.apache.commons.lang3.text.WordUtils;
+
+import java.util.Map;
 
 public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 {
@@ -32,10 +36,6 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 		add(MineraculousItems.PLAGG_SPAWN_EGG.get(), "Plagg Spawn Egg");
 		add(MineraculousItems.KAMIKO_SPAWN_EGG.get(), "Kamiko Spawn Egg");
 		add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
-		for (CheeseBlock.Age age: CheeseBlock.Age.values()) {
-			add(MineraculousItems.CHEESE.get(age).get(), WordUtils.capitalize(age.getSerializedName()).replace('_','-') + " Wedge of Cheese");
-			add(MineraculousItems.CAMEMBERT.get(age).get(), WordUtils.capitalize(age.getSerializedName()).replace('_','-') + " Wedge of Camembert");
-		}
 
 		addCreativeTab(MineraculousCreativeModeTabs.MINERACULOUS, "Mineraculous");
 		addCreativeTab(MineraculousCreativeModeTabs.SUITS, "Suits");
@@ -49,12 +49,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 		});
 
 		add(MineraculousBlocks.CATACLYSM_BLOCK.get(), "Block of Cataclysm");
-		for (CheeseBlock.Age age: CheeseBlock.Age.values()) {
-			add(MineraculousBlocks.CHEESE_BLOCK.get(age).get(), WordUtils.capitalize(age.getSerializedName()).replace('_','-') + " Block of Cheese");
-			add(MineraculousBlocks.CHEESE_BLOCK.get(age).get(), "Waxed " + WordUtils.capitalize(age.getSerializedName()).replace('_','-') + " Block of Cheese");
-			add(MineraculousBlocks.CAMEMBERT_BLOCK.get(age).get(), WordUtils.capitalize(age.getSerializedName()).replace('_','-') + " Block of Camembert");
-			add(MineraculousBlocks.CAMEMBERT_BLOCK.get(age).get(), "Waxed " + WordUtils.capitalize(age.getSerializedName()).replace('_','-') + " Block of Camembert");
-		}
+
+		cheese("Cheese", MineraculousItems.CHEESE_WEDGES, MineraculousBlocks.CHEESE_BLOCKS, MineraculousBlocks.WAXED_CHEESE_BLOCKS);
+		cheese("Camembert", MineraculousItems.CAMEMBERT_WEDGES, MineraculousBlocks.CAMEMBERT_BLOCKS, MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS);
 
 		addConfigs();
 
@@ -108,5 +105,14 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 	protected void add(MiraculousType type, String name)
 	{
 		add(type.getTranslationKey(), name);
+	}
+
+	protected void cheese(String name, Map<CheeseBlock.Age, RegistryObject<Item>> wedges, Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> blocks, Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> waxedBlocks)
+	{
+		for (CheeseBlock.Age age: CheeseBlock.Age.values()) {
+			add(wedges.get(age).get(), WordUtils.capitalize(age.getSerializedName()).replace('_','-') + " Wedge of " + name);
+			add(blocks.get(age).get(), WordUtils.capitalize(age.getSerializedName()).replace('_','-') + " Block of " + name);
+			add(waxedBlocks.get(age).get(), "Waxed " + WordUtils.capitalize(age.getSerializedName()).replace('_','-') + " Block of " + name);
+		}
 	}
 }

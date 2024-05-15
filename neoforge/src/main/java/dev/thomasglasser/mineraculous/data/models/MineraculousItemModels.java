@@ -62,10 +62,11 @@ public class MineraculousItemModels extends ExtendedItemModelProvider
 
 		basicItem(MineraculousItems.CATACLYSM_DUST.get());
 
-		for (CheeseBlock.Age age: CheeseBlock.Age.values()) {
-			basicItem(MineraculousItems.CHEESE.get(age).get());
-			basicItem(MineraculousItems.CAMEMBERT.get(age).get());
-		}
+		// TODO: Cheese wedges
+//		for (CheeseBlock.Age age: CheeseBlock.Age.values()) {
+//			basicItem(MineraculousItems.CHEESE_WEDGES.get(age).get());
+//			basicItem(MineraculousItems.CAMEMBERT_WEDGES.get(age).get());
+//		}
 
 		basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK.get());
 

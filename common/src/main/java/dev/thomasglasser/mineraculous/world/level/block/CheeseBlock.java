@@ -9,7 +9,6 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -32,22 +31,22 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
     }
 
     /**
-     * Override to set map for cheese oxidation and unwaxing.
+     * Override to set map for cheese aging and unwaxing.
      */
-    public Map<Age,RegistryObject<CheeseBlock>> cheeseMap() {
-        return MineraculousBlocks.CHEESE_BLOCK;
+    public Map<Age, RegistryObject<CheeseBlock>> cheeseMap() {
+        return MineraculousBlocks.CHEESE_BLOCKS;
     }
 
     /**
      * Override to set map for cheese waxing.
      */
     public Map<Age,RegistryObject<CheeseBlock>> waxMap() {
-        return MineraculousBlocks.WAXED_CHEESE_BLOCK;
+        return MineraculousBlocks.WAXED_CHEESE_BLOCKS;
     }
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
-        if (!waxed && stack.is(Items.HONEYCOMB)) level.setBlock(pos, waxMap().get(age).get().defaultBlockState(), 2);
+        if (!waxed && stack.is(Items.HONEYCOMB)) level.setBlock(pos, waxMap().get(age).get().defaultBlockState(), Block.UPDATE_ALL);
         return super.useItemOn(stack, state, level, pos, player, hand, result);
     }
 

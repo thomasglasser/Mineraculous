@@ -25,37 +25,25 @@ public class MineraculousBlocks
 
 	public static final RegistryObject<CataclysmBlock> CATACLYSM_BLOCK = registerWithItem("cataclysm_block", () -> new CataclysmBlock(Block.Properties.of().noCollission()), List.of(CreativeModeTabs.NATURAL_BLOCKS));
 
-	public static final Map<CheeseBlock.Age,RegistryObject<CheeseBlock>> CHEESE_BLOCK = cheese();
-	public static final Map<CheeseBlock.Age,RegistryObject<CheeseBlock>> WAXED_CHEESE_BLOCK = waxed_cheese();
-	public static final Map<CheeseBlock.Age,RegistryObject<CheeseBlock>> CAMEMBERT_BLOCK = camembert();
-	public static final Map<CheeseBlock.Age,RegistryObject<CheeseBlock>> WAXED_CAMEMBERT_BLOCK = waxed_camembert();
+	// Cheese
+	public static final Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> CHEESE_BLOCKS = cheese("cheese");
+	public static final Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> WAXED_CHEESE_BLOCKS = waxed("cheese");
+	public static final Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> CAMEMBERT_BLOCKS = cheese("camembert");
+	public static final Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> WAXED_CAMEMBERT_BLOCKS = waxed("camembert");
 
-	private static Map<CheeseBlock.Age,RegistryObject<CheeseBlock>> cheese() {
-		Map<CheeseBlock.Age,RegistryObject<CheeseBlock>> cheese = new HashMap<>(5);
+
+	private static Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> cheese(String name) {
+		Map<CheeseBlock.Age,RegistryObject<CheeseBlock>> cheese = new HashMap<>(CheeseBlock.Age.values().length);
 		for (CheeseBlock.Age age: CheeseBlock.Age.values())
-			cheese.put(age, registerWithItem(age.getSerializedName() + "_cheese_block", () -> new CheeseBlock(age, false, BlockBehaviour.Properties.of().strength(20, 2).sound(SoundType.SPONGE).mapColor(MapColor.GOLD).randomTicks()),List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
+			cheese.put(age, registerWithItem(age.getSerializedName() + "_" + name + "_block", () -> new CheeseBlock(age, false, BlockBehaviour.Properties.of().strength(0.5f).forceSolidOn().sound(SoundType.SPONGE).mapColor(MapColor.GOLD).randomTicks()), List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
 		return cheese;
 	}
 
-	private static Map<CheeseBlock.Age,RegistryObject<CheeseBlock>> waxed_cheese() {
-		Map<CheeseBlock.Age,RegistryObject<CheeseBlock>> cheese = new HashMap<>(5);
+	private static Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> waxed(String name) {
+		Map<CheeseBlock.Age,RegistryObject<CheeseBlock>> cheese = new HashMap<>(CheeseBlock.Age.values().length);
 		for (CheeseBlock.Age age: CheeseBlock.Age.values())
-			cheese.put(age, registerWithItem("waxed_" + age.getSerializedName() + "_cheese_block", () -> new CheeseBlock(age, true, BlockBehaviour.Properties.of().strength(20, 2).sound(SoundType.SPONGE).mapColor(MapColor.GOLD).randomTicks()),List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
+			cheese.put(age, registerWithItem("waxed_" + age.getSerializedName() + "_" + name + "_block", () -> new CheeseBlock(age, true, BlockBehaviour.Properties.of().strength(1f).forceSolidOn().sound(SoundType.SPONGE).mapColor(MapColor.GOLD).randomTicks()), List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
 		return cheese;
-	}
-
-	private static Map<CheeseBlock.Age,RegistryObject<CheeseBlock>> camembert() {
-		Map<CheeseBlock.Age,RegistryObject<CheeseBlock>> camembert = new HashMap<>(5);
-		for (CheeseBlock.Age age: CheeseBlock.Age.values())
-			camembert.put(age, registerWithItem(age.getSerializedName() + "_camembert_block", () -> new CheeseBlock(age, false, BlockBehaviour.Properties.of().strength(20, 2).sound(SoundType.SPONGE).mapColor(MapColor.GOLD).randomTicks()),List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
-		return camembert;
-	}
-
-	private static Map<CheeseBlock.Age,RegistryObject<CheeseBlock>> waxed_camembert() {
-		Map<CheeseBlock.Age,RegistryObject<CheeseBlock>> camembert = new HashMap<>(5);
-		for (CheeseBlock.Age age: CheeseBlock.Age.values())
-			camembert.put(age, registerWithItem("waxed_" + age.getSerializedName() + "_camembert_block", () -> new CheeseBlock(age, true, BlockBehaviour.Properties.of().strength(20, 2).sound(SoundType.SPONGE).mapColor(MapColor.GOLD).randomTicks()),List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
-		return camembert;
 	}
 
 	private static <T extends Block> RegistryObject<T> registerWithItem(String name, Supplier<T> block, List<ResourceKey<CreativeModeTab>> tabs)

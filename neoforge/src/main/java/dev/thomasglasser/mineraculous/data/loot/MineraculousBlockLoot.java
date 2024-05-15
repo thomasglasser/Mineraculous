@@ -20,6 +20,11 @@ public class MineraculousBlockLoot extends ExtendedBlockLootSubProvider
 	protected void generate()
 	{
 		dropOther(MineraculousBlocks.CATACLYSM_BLOCK.get(), MineraculousItems.CATACLYSM_DUST.get());
+
+		MineraculousBlocks.CHEESE_BLOCKS.values().stream().map(RegistryObject::get).forEach(this::dropSelf);
+		MineraculousBlocks.WAXED_CHEESE_BLOCKS.values().stream().map(RegistryObject::get).forEach(this::dropSelf);
+		MineraculousBlocks.CAMEMBERT_BLOCKS.values().stream().map(RegistryObject::get).forEach(this::dropSelf);
+		MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.values().stream().map(RegistryObject::get).forEach(this::dropSelf);
 	}
 
 	@Override

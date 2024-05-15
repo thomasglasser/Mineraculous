@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -49,21 +50,15 @@ public class MineraculousItems
 	public static final RegistryObject<SpawnEggItem> KAMIKO_SPAWN_EGG = registerSpawnEgg("kamiko_spawn_egg", MineraculousEntityTypes.KAMIKO::get, 0x130122, 0xffffff);
 
 	// Cheese
-	public static final Map<CheeseBlock.Age,RegistryObject<Item>> CHEESE = cheese();
-	public static final Map<CheeseBlock.Age,RegistryObject<Item>> CAMEMBERT = camembert();
+	// TODO: How to obtain? From block?
+	public static final Map<CheeseBlock.Age, RegistryObject<Item>> CHEESE_WEDGES = wedges("cheese", MineraculousFoods.CHEESE);
+	public static final Map<CheeseBlock.Age, RegistryObject<Item>> CAMEMBERT_WEDGES = wedges("camembert", MineraculousFoods.CAMEMBERT);
 
-	private static Map<CheeseBlock.Age,RegistryObject<Item>> cheese() {
-		HashMap<CheeseBlock.Age,RegistryObject<Item>> cheese = new HashMap<>(5);
+	private static Map<CheeseBlock.Age,RegistryObject<Item>> wedges(String name, FoodProperties foodProperties) {
+		HashMap<CheeseBlock.Age, RegistryObject<Item>> cheese = new HashMap<>(CheeseBlock.Age.values().length);
 		for (CheeseBlock.Age age: CheeseBlock.Age.values())
-			cheese.put(age, register(age.getSerializedName() + "_wedge_of_cheese", () -> new Item(new Item.Properties().food(MineraculousFoods.CHEESE)), List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
+			cheese.put(age, register(age.getSerializedName() + "_wedge_of_" + name, () -> new Item(new Item.Properties().food(foodProperties)), List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
 		return cheese;
-	}
-
-	private static Map<CheeseBlock.Age,RegistryObject<Item>> camembert() {
-		HashMap<CheeseBlock.Age,RegistryObject<Item>> camembert = new HashMap<>(5);
-		for (CheeseBlock.Age age: CheeseBlock.Age.values())
-			camembert.put(age, register(age.getSerializedName() + "_wedge_of_camembert", () -> new Item(new Item.Properties().food(MineraculousFoods.CAMEMBERT)), List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
-		return camembert;
 	}
 
 	private static RegistryObject<MiraculousItem> registerMiraculous(String name, MiraculousType type, ArmorSet armorSet, Supplier<? extends Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, Pair<String, String> acceptableSlot, int color)

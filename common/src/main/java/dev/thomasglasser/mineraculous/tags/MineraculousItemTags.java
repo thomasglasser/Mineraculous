@@ -8,15 +8,20 @@ import net.minecraft.world.item.Item;
 
 public class MineraculousItemTags
 {
+	// Kwami Foods and Treats
 	public static final TagKey<Item> TIKKI_FOODS = create("tikki_foods");
 	public static final TagKey<Item> TIKKI_TREATS = create("tikki_treats");
 	public static final TagKey<Item> PLAGG_FOODS = create("plagg_foods");
 	public static final TagKey<Item> PLAGG_TREATS = create("plagg_treats");
 
-	public static final TagKey<Item> COMMON_CHEESE = TagKey.create(Registries.ITEM,new ResourceLocation("c:cheese"));
+	// Blocks
+	public static final TagKey<Item> CATACLYSM_IMMUNE = create("cataclysm_immune");
+
+	// Cheeses
+	// TODO: Move to TommyLib
+	public static final TagKey<Item> CHEESES_FOODS = TagKey.create(Registries.ITEM, new ResourceLocation("c:foods/cheeses"));
 	public static final TagKey<Item> CHEESE = create("cheese");
 	public static final TagKey<Item> CAMEMBERT = create("camembert");
-	public static final TagKey<Item> CATACLYSM_IMMUNE = create("cataclysm_immune");
 
 	private static TagKey<Item> create(String name)
 	{

@@ -4,6 +4,8 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.server.commands.MiraculousCommand;
+import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
+import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
@@ -13,7 +15,8 @@ import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.tommylib.api.data.lang.ExtendedLanguageProvider;
-import dev.thomasglasser.tommylib.api.registration.RegistryObject;
+import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
+import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Item;
 import org.apache.commons.lang3.text.WordUtils;
@@ -90,6 +93,17 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 		add(MiraculousCommand.KWAMI_NOT_FOUND, "%s's %s kwami not found in the world");
 
 		add(MiraculousType.CAT, "Cat");
+
+		add(MineraculousItemTags.TIKKI_FOODS, "Tikki Foods");
+		add(MineraculousItemTags.TIKKI_TREATS, "Tikki Treats");
+		add(MineraculousItemTags.PLAGG_FOODS, "Plagg Foods");
+		add(MineraculousItemTags.PLAGG_TREATS, "Plagg Treats");
+		add(MineraculousItemTags.CATACLYSM_IMMUNE, "Cataclysm Immune");
+		add(MineraculousItemTags.CHEESES_FOODS, "Cheeses");
+		add(MineraculousItemTags.CHEESE, "Cheese");
+		add(MineraculousItemTags.CAMEMBERT, "Camembert");
+
+		add(MineraculousBlockTags.CATACLYSM_IMMUNE, "Cataclysm Immune");
 	}
 
 	private void addConfigs()
@@ -107,7 +121,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 		add(type.getTranslationKey(), name);
 	}
 
-	protected void cheese(String name, Map<CheeseBlock.Age, RegistryObject<Item>> wedges, Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> blocks, Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> waxedBlocks)
+	protected void cheese(String name, Map<CheeseBlock.Age, DeferredItem<Item>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxedBlocks)
 	{
 		for (CheeseBlock.Age age: CheeseBlock.Age.values()) {
 			add(wedges.get(age).get(), WordUtils.capitalize(age.getSerializedName()).replace('_','-') + " Wedge of " + name);

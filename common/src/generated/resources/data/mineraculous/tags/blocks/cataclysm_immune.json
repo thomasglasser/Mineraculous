@@ -6,7 +6,7 @@
     "minecraft:soul_fire",
     "mineraculous:cataclysm_block",
     {
-      "id": "#tommylib:unbreakable",
+      "id": "#c:unbreakable_blocks",
       "required": false
     }
   ]

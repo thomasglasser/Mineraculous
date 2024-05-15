@@ -1,17 +1,15 @@
 package dev.thomasglasser.mineraculous.world.item.armor;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.tommylib.api.registration.RegistrationProvider;
-import dev.thomasglasser.tommylib.api.registration.RegistryObject;
+import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
+import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ArmorMaterial;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 
 import java.util.EnumMap;
@@ -20,9 +18,9 @@ import java.util.function.Supplier;
 
 public class MineraculousArmorMaterials
 {
-	public static final RegistrationProvider<ArmorMaterial> ARMOR_MATERIALS = RegistrationProvider.get(Registries.ARMOR_MATERIAL, Mineraculous.MOD_ID);
+	public static final DeferredRegister<ArmorMaterial> ARMOR_MATERIALS = DeferredRegister.create(Registries.ARMOR_MATERIAL, Mineraculous.MOD_ID);
 
-	public static final RegistryObject<ArmorMaterial> MIRACULOUS = register("miraculous", Util.make(new EnumMap<>(ArmorItem.Type.class), p_323379_ -> {
+	public static final DeferredHolder<ArmorMaterial, ArmorMaterial> MIRACULOUS = register("miraculous", Util.make(new EnumMap<>(ArmorItem.Type.class), p_323379_ -> {
 		p_323379_.put(ArmorItem.Type.BOOTS, 30);
 		p_323379_.put(ArmorItem.Type.LEGGINGS, 30);
 		p_323379_.put(ArmorItem.Type.CHESTPLATE, 30);
@@ -30,7 +28,7 @@ public class MineraculousArmorMaterials
 		p_323379_.put(ArmorItem.Type.BODY, 30);
 	}), 0, SoundEvents.ARMOR_EQUIP_LEATHER, 20.0F, 0.0F, () -> Ingredient.EMPTY);
 
-	private static RegistryObject<ArmorMaterial> register(
+	private static DeferredHolder<ArmorMaterial, ArmorMaterial> register(
 			String name,
 			EnumMap<ArmorItem.Type, Integer> defense,
 			int enchantmentValue,

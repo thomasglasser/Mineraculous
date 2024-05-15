@@ -77,5 +77,14 @@
   "mineraculous.midnightconfig.miraculous_comment": "Settings for the Miraculous",
   "mineraculous.midnightconfig.title": "Mineraculous",
   "miraculous.cat": "Cat",
-  "miraculous_data.name.not_set": "You haven't set your %s hero name yet! Use /miraculous %s name <name> to set."
+  "miraculous_data.name.not_set": "You haven't set your %s hero name yet! Use /miraculous %s name <name> to set.",
+  "tag.block.mineraculous.cataclysm_immune": "Cataclysm Immune",
+  "tag.item.c.foods.cheeses": "Cheeses",
+  "tag.item.mineraculous.camembert": "Camembert",
+  "tag.item.mineraculous.cataclysm_immune": "Cataclysm Immune",
+  "tag.item.mineraculous.cheese": "Cheese",
+  "tag.item.mineraculous.plagg_foods": "Plagg Foods",
+  "tag.item.mineraculous.plagg_treats": "Plagg Treats",
+  "tag.item.mineraculous.tikki_foods": "Tikki Foods",
+  "tag.item.mineraculous.tikki_treats": "Tikki Treats"
 }

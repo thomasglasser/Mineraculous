@@ -21,7 +21,7 @@ public class MiraculousArmorItem extends BaseGeoArmorItem
 	private final String miraculous;
 
 	public MiraculousArmorItem(String miraculous, Type type, Properties pProperties) {
-		super(MineraculousArmorMaterials.MIRACULOUS.asHolder(), type, pProperties
+		super(MineraculousArmorMaterials.MIRACULOUS, type, pProperties
 				.component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, false)
 				.component(DataComponents.UNBREAKABLE, new Unbreakable(false)));
 		this.miraculous = miraculous;

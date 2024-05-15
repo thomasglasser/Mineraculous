@@ -7,8 +7,9 @@ import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.tags.ExtendedItemTagsProvider;
-import dev.thomasglasser.tommylib.api.registration.RegistryObject;
-import dev.thomasglasser.tommylib.api.tags.TommyLibItemTags;
+import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
+import dev.thomasglasser.tommylib.api.registration.DeferredItem;
+import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
@@ -55,7 +56,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider
 
 		tag(MineraculousItemTags.CATACLYSM_IMMUNE)
 				.add(MineraculousItems.CATACLYSM_DUST.get())
-				.addOptionalTag(TommyLibItemTags.UNBREAKABLE);
+				.addOptionalTag(ConventionalItemTags.UNBREAKABLE_BLOCKS);
 
 		MineraculousArmors.MIRACULOUS_SETS.forEach(this::armorSet);
 
@@ -74,14 +75,14 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider
 		}
 	}
 
-	protected void cheese(IntrinsicTagAppender<Item> tag, Map<CheeseBlock.Age, RegistryObject<Item>> wedges, Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> blocks, Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> waxed)
+	protected void cheese(IntrinsicTagAppender<Item> tag, Map<CheeseBlock.Age, DeferredItem<Item>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxed)
 	{
-		wedges.values().stream().map(RegistryObject::get).forEach(tag::add);
-		blocks.values().stream().map(RegistryObject::get).map(Block::asItem).forEach(tag::add);
-		waxed.values().stream().map(RegistryObject::get).map(Block::asItem).forEach(tag::add);
+		wedges.values().stream().map(DeferredItem::get).forEach(tag::add);
+		blocks.values().stream().map(DeferredBlock::asItem).forEach(tag::add);
+		waxed.values().stream().map(DeferredBlock::asItem).forEach(tag::add);
 	}
 
-	protected void cheese(TagKey<Item> tag, Map<CheeseBlock.Age, RegistryObject<Item>> wedges, Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> blocks, Map<CheeseBlock.Age, RegistryObject<CheeseBlock>> waxed)
+	protected void cheese(TagKey<Item> tag, Map<CheeseBlock.Age, DeferredItem<Item>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxed)
 	{
 		cheese(tag(tag), wedges, blocks, waxed);
 	}

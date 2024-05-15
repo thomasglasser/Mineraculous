@@ -15,7 +15,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import dev.thomasglasser.tommylib.api.registration.RegistryObject;
+import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -132,7 +132,7 @@ public class MineraculousEntityEvents
 						{
 							for (EquipmentSlot slot : EquipmentSlot.values())
 							{
-								RegistryObject<ArmorItem> armorPiece = set.getForSlot(slot);
+								DeferredItem<ArmorItem> armorPiece = set.getForSlot(slot);
 								if (!(armorPiece == null))
 								{
 									ItemStack stack = armorPiece.get().getDefaultInstance();

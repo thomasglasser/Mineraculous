@@ -2,7 +2,7 @@
   "values": [
     "mineraculous:cataclysm_dust",
     {
-      "id": "#tommylib:unbreakable",
+      "id": "#c:unbreakable_blocks",
       "required": false
     }
   ]

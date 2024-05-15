@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.world.level.block;
 
 import com.mojang.serialization.Codec;
-import dev.thomasglasser.tommylib.api.registration.RegistryObject;
+import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -33,14 +33,14 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
     /**
      * Override to set map for cheese aging and unwaxing.
      */
-    public Map<Age, RegistryObject<CheeseBlock>> cheeseMap() {
+    public Map<Age, DeferredBlock<CheeseBlock>> cheeseMap() {
         return MineraculousBlocks.CHEESE_BLOCKS;
     }
 
     /**
      * Override to set map for cheese waxing.
      */
-    public Map<Age,RegistryObject<CheeseBlock>> waxMap() {
+    public Map<Age, DeferredBlock<CheeseBlock>> waxMap() {
         return MineraculousBlocks.WAXED_CHEESE_BLOCKS;
     }
 

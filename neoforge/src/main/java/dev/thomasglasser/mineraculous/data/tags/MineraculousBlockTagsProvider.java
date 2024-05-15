@@ -4,7 +4,7 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.tags.ExtendedBlockTagsProvider;
-import dev.thomasglasser.tommylib.api.tags.TommyLibBlockTags;
+import dev.thomasglasser.tommylib.api.tags.ConventionalBlockTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.block.Blocks;
@@ -29,6 +29,6 @@ public class MineraculousBlockTagsProvider extends ExtendedBlockTagsProvider
 				.add(Blocks.FIRE)
 				.add(Blocks.SOUL_FIRE)
 				.add(MineraculousBlocks.CATACLYSM_BLOCK.get())
-				.addOptionalTag(TommyLibBlockTags.UNBREAKABLE);
+				.addOptionalTag(ConventionalBlockTags.UNBREAKABLE_BLOCKS);
 	}
 }

@@ -9,6 +9,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -29,13 +30,14 @@ public record ServerboundActivateToolPayload(boolean activate, ItemStack stack, 
 	@Override
 	public void handle(Player player)
 	{
-		player.getItemInHand(hand).set(MineraculousDataComponents.POWERED.get(), activate);
 		if (activate)
 		{
+			player.getItemInHand(hand).set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
 			((SingletonGeoAnimatable)stack.getItem()).triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerLevel) player.level()), "use_controller", "extend");
 		}
 		else
 		{
+			player.getItemInHand(hand).remove(MineraculousDataComponents.POWERED.get());
 			((SingletonGeoAnimatable)stack.getItem()).triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerLevel) player.level()), "use_controller", "retract");
 		}
 	}

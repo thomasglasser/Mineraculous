@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.world.entity;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Plagg;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Tikki;
+import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import net.minecraft.core.registries.Registries;
@@ -30,6 +31,12 @@ public class MineraculousEntityTypes
 	public static final DeferredHolder<EntityType<?>, EntityType<Kamiko>> KAMIKO = register("kamiko",
 			EntityType.Builder.of(Kamiko::new, MobCategory.MISC)
 					.sized(0.2F,0.2F)
+	);
+
+	// Projectiles
+	public static final DeferredHolder<EntityType<?>, EntityType<ThrownCatStaff>> THROWN_CAT_STAFF = register("thrown_cat_staff",
+			EntityType.Builder.<ThrownCatStaff>of(ThrownCatStaff::new, MobCategory.MISC)
+					.sized(0.5F, 0.5F)
 	);
 
 	private static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> register(String name, EntityType.Builder<T> builder)

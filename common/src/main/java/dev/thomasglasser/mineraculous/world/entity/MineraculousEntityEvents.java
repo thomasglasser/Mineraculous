@@ -148,7 +148,7 @@ public class MineraculousEntityEvents
 
 						ItemStack tool = miraculousItem.getTool() == null ? ItemStack.EMPTY : miraculousItem.getTool().getDefaultInstance();
 						tool.set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
-						miraculousStack.set(MineraculousDataComponents.POWERED.get(), true);
+						miraculousStack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
 						data = new MiraculousData(true, miraculousStack, data.curiosData(), tool, data.powerLevel(), false, false, data.name());
 						Services.DATA.getMiraculousDataSet(player).put(player, type, data, true);
 						Services.CURIOS.setStackInSlot(player, data.curiosData(), miraculousStack, true);
@@ -192,7 +192,7 @@ public class MineraculousEntityEvents
 				}
 				miraculousStack.remove(DataComponents.ENCHANTMENTS);
 				miraculousStack.remove(MineraculousDataComponents.REMAINING_TICKS.get());
-				miraculousStack.set(MineraculousDataComponents.POWERED.get(), false);
+				miraculousStack.remove(MineraculousDataComponents.POWERED.get());
 				Services.CURIOS.setStackInSlot(player, data.curiosData(), miraculousStack, true);
 				// TODO: If item not in inventory, make it disappear when found, in item entity or chest or something
 				data.tool().set(MineraculousDataComponents.RECALLED.get(), true);
@@ -219,7 +219,7 @@ public class MineraculousEntityEvents
 		if (kwamiData != null && kwami.getUUID().equals(kwamiData.uuid()))
 		{
 			miraculous.set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
-			miraculous.set(MineraculousDataComponents.POWERED.get(), true);
+			miraculous.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
 			kwami.discard();
 			// TODO: Play kwami hiding sound
 			return true;

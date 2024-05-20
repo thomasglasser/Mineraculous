@@ -20,7 +20,7 @@ public class MineraculousDataComponents
 	public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS = DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, Mineraculous.MOD_ID);
 
 	// Shared
-	public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> POWERED = register("powered", Codec.BOOL, ByteBufCodecs.BOOL, false);
+	public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> POWERED = register("powered", Codec.unit(Unit.INSTANCE), StreamCodec.unit(Unit.INSTANCE), false);
 	public static final DeferredHolder<DataComponentType<?>, DataComponentType<KwamiData>> KWAMI_DATA = register("kwami_data", KwamiData.CODEC, null, true);
 	public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> HIDE_ENCHANTMENTS = register("hide_enchantments", Codec.unit(Unit.INSTANCE), StreamCodec.unit(Unit.INSTANCE), false);
 

@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -40,7 +41,7 @@ public class MiraculousItem extends BaseModeledItem
 
 	public MiraculousItem(Properties properties, MiraculousType type, ArmorSet armor, Supplier<? extends Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, Pair<String, String> acceptableSlot, TextColor powerColor)
 	{
-		super(properties.stacksTo(1).fireResistant().rarity(Rarity.EPIC).component(MineraculousDataComponents.POWERED.get(), true));
+		super(properties.stacksTo(1).fireResistant().rarity(Rarity.EPIC).component(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE));
 		this.armor = armor;
 		this.tool = tool;
 		this.transformSound = transformSound;
@@ -60,9 +61,9 @@ public class MiraculousItem extends BaseModeledItem
 			{
 				stack.set(DataComponents.PROFILE, new ResolvableProfile(player.getGameProfile()));
 			}
-			if (!stack.getOrDefault(MineraculousDataComponents.POWERED.get(), false) && !stack.has(MineraculousDataComponents.KWAMI_DATA.get()))
+			if (!stack.has(MineraculousDataComponents.POWERED.get()) && !stack.has(MineraculousDataComponents.KWAMI_DATA.get()))
 			{
-				stack.set(MineraculousDataComponents.POWERED.get(), true);
+				stack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
 			}
 		}
 	}

@@ -7,20 +7,23 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundActivateToolAbilityPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundActivateToolPayload;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import dev.thomasglasser.tommylib.api.world.item.BaseModeledSwordItem;
+import dev.thomasglasser.tommylib.api.world.item.BaseModeledThrowableSwordItem;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.stats.Stats;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
 import software.bernie.geckolib.animatable.GeoAnimatable;
@@ -34,7 +37,7 @@ import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class CatStaffItem extends BaseModeledSwordItem implements GeoItem
+public class CatStaffItem extends BaseModeledThrowableSwordItem implements GeoItem
 {
 	public static final RawAnimation EXTEND = RawAnimation.begin().thenPlay("attack.extend");
 	public static final RawAnimation RETRACT = RawAnimation.begin().thenPlay("attack.retract");
@@ -85,7 +88,7 @@ public class CatStaffItem extends BaseModeledSwordItem implements GeoItem
 			if (pLevel instanceof ServerLevel)
 			{
 				long animId = GeoItem.getOrAssignId(pStack, (ServerLevel) pLevel);
-				if (!pStack.getOrDefault(MineraculousDataComponents.POWERED.get(), false) && cache.getManagerForId(animId).getAnimationControllers().get("use_controller").getCurrentRawAnimation() != RETRACT)
+				if (!pStack.has(MineraculousDataComponents.POWERED.get()) && cache.getManagerForId(animId).getAnimationControllers().get("use_controller").getCurrentRawAnimation() != RETRACT)
 				{
 					triggerAnim(pEntity, animId, "use_controller", "retracted");
 				}
@@ -106,12 +109,19 @@ public class CatStaffItem extends BaseModeledSwordItem implements GeoItem
 				{
 					if (MineraculousKeyMappings.ACTIVATE_TOOL.isDown())
 					{
-						boolean activate = !pStack.getOrDefault(MineraculousDataComponents.POWERED.get(), false);
-						pStack.set(MineraculousDataComponents.POWERED.get(), activate);
+						boolean activate = !pStack.has(MineraculousDataComponents.POWERED.get());
+						if (activate)
+						{
+							pStack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
+						}
+						else
+						{
+							pStack.remove(MineraculousDataComponents.POWERED.get());
+						}
 						TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, pStack, hand));
 						playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
 					}
-					else if (pStack.getOrDefault(MineraculousDataComponents.POWERED.get(), false) && MineraculousKeyMappings.ACTIVATE_TRAVELLING.isDown())
+					else if (pStack.has(MineraculousDataComponents.POWERED.get()) && MineraculousKeyMappings.ACTIVATE_TRAVELLING.isDown())
 					{
 						if (!pStack.getOrDefault(MineraculousDataComponents.TRAVELING.get(), false))
 						{
@@ -135,36 +145,37 @@ public class CatStaffItem extends BaseModeledSwordItem implements GeoItem
 	}
 
 	@Override
-	public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-		if (level instanceof ServerLevel && player.getItemInHand(hand).getOrDefault(MineraculousDataComponents.POWERED.get(), false))
-		{
-			player.startUsingItem(hand);
-			// TODO: Move shield to power wheel, switch using to throwing
-			triggerAnim(player, GeoItem.getOrAssignId(player.getItemInHand(hand), (ServerLevel) level), "use_controller", "shield");
-			return InteractionResultHolder.consume(player.getItemInHand(hand));
+	public void releaseUsing(ItemStack pStack, Level pLevel, LivingEntity pEntityLiving, int pTimeLeft) {
+		if (pEntityLiving instanceof Player player) {
+			int i = this.getUseDuration(pStack) - pTimeLeft;
+			if (i >= 10) {
+				if (!pLevel.isClientSide) {
+					pStack.hurtAndBreak(1, player, LivingEntity.getEquipmentSlotForItem(pStack));
+					ThrownCatStaff thrownCatStaff = new ThrownCatStaff(player, pLevel, pStack);
+					thrownCatStaff.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F, 1.0F);
+					if (player.getAbilities().instabuild) {
+						thrownCatStaff.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
+					}
+
+					pLevel.addFreshEntity(thrownCatStaff);
+					// TODO:Throw Sound
+//					pLevel.playSound(null, thrownCatStaff, null, SoundSource.PLAYERS, 1.0F, 1.0F);
+					if (!player.getAbilities().instabuild) {
+						player.getInventory().removeItem(pStack);
+					}
+				}
+
+				player.awardStat(Stats.ITEM_USED.get(this));
+			}
 		}
-		return InteractionResultHolder.pass(player.getItemInHand(hand));
 	}
 
 	@Override
-	public UseAnim getUseAnimation(ItemStack pStack)
+	public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand)
 	{
-		if (TommyLibServices.PLATFORM.isClientSide() && MineraculousClientUtils.isFirstPerson())
-			return UseAnim.NONE;
-		return UseAnim.TOOT_HORN;
-	}
-
-	@Override
-	public int getUseDuration(ItemStack stack)
-	{
-		return Integer.MAX_VALUE;
-	}
-
-	@Override
-	public void releaseUsing(ItemStack pStack, Level pLevel, LivingEntity pLivingEntity, int pTimeCharged) {
-		if (pLevel instanceof ServerLevel serverLevel)
-		{
-			triggerAnim(pLivingEntity, GeoItem.getOrAssignId(pStack, serverLevel), "use_controller", "idle");
-		}
+		ItemStack stack = pPlayer.getItemInHand(pHand);
+		if (!stack.has(MineraculousDataComponents.POWERED.get()))
+			return InteractionResultHolder.fail(stack);
+		return super.use(pLevel, pPlayer, pHand);
 	}
 }

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.thomasglasser.mineraculous.client.particle.CataclysmParticle;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KamikoRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
+import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownCatStaffRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.item.curio.MiraculousItemCurioRenderer;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
@@ -47,6 +48,7 @@ public class MineraculousNeoForgeClientEvents
 		event.registerEntityRenderer(MineraculousEntityTypes.TIKKI.get(), context -> new KwamiRenderer<>(context, MineraculousEntityTypes.TIKKI.getId()));
 		event.registerEntityRenderer(MineraculousEntityTypes.PLAGG.get(), context -> new KwamiRenderer<>(context, MineraculousEntityTypes.PLAGG.getId()));
 		event.registerEntityRenderer(MineraculousEntityTypes.KAMIKO.get(), KamikoRenderer::new);
+		event.registerEntityRenderer(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), ThrownCatStaffRenderer::new);
 	}
 
 	public static void onFMLClientSetup(FMLClientSetupEvent event)

@@ -29,11 +29,11 @@ public class MineraculousBlockEntityWithoutLevelRenderer extends BlockEntityWith
 		{
 			ResourceLocation loc = BuiltInRegistries.ITEM.getKey(stack.getItem());
 			String basePath = "miraculous/" + loc.getPath();
-			if (!stack.getOrDefault(MineraculousDataComponents.POWERED.get(), false) && stack.has(DataComponents.PROFILE) /*&& MineraculousClientConfig.enablePerPlayerCustomization*/)
+			if (!stack.has(MineraculousDataComponents.POWERED.get()) && stack.has(DataComponents.PROFILE) /*&& MineraculousClientConfig.enablePerPlayerCustomization*/)
 			{
 				TommyLibServices.ITEM.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_" + stack.get(DataComponents.PROFILE).name().orElse("hidden").toLowerCase(), basePath + "_hidden");
 			}
-			else if (stack.getOrDefault(MineraculousDataComponents.POWERED.get(), false))
+			else if (stack.has(MineraculousDataComponents.POWERED.get()))
 			{
 				int ticks = stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0);
 				final int second = ticks / 20;

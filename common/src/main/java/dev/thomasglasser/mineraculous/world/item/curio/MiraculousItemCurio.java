@@ -79,9 +79,9 @@ public class MiraculousItemCurio implements Curio
 		{
 			MiraculousDataSet miraculousDataSet = Services.DATA.getMiraculousDataSet(entity);
 			MiraculousData data = miraculousDataSet.get(miraculousItem.getType());
-			if (stack.getOrDefault(MineraculousDataComponents.POWERED.get(), false) && !data.transformed())
+			if (stack.has(MineraculousDataComponents.POWERED.get()) && !data.transformed())
 			{
-				stack.set(MineraculousDataComponents.POWERED.get(), false);
+				stack.remove(MineraculousDataComponents.POWERED.get());
 				data = new MiraculousData(false, stack, curiosData, data.tool(), data.powerLevel(), data.mainPowerActivated(), data.mainPowerActive(), data.name());
 				MineraculousEntityEvents.summonKwami(entity.level(), miraculousItem.getType(), data, player);
 			}

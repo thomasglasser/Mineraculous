@@ -10,6 +10,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -211,7 +212,7 @@ public abstract class Kwami extends TamableAnimal implements SmartBrainOwner<Kwa
 			List<ItemStack> miraculous = player.getInventory().items.stream().filter(stack -> stack.has(MineraculousDataComponents.KWAMI_DATA.get()) && stack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(getUUID())).toList();
 			for (ItemStack stack : miraculous)
 			{
-				stack.set(MineraculousDataComponents.POWERED.get(), true);
+				stack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
 				stack.remove(MineraculousDataComponents.KWAMI_DATA.get());
 			}
 		}

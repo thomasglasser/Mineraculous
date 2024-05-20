@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.client;
 
 import dev.thomasglasser.mineraculous.client.renderer.entity.KamikoRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
+import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownCatStaffRenderer;
 import dev.thomasglasser.mineraculous.platform.Services;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import net.fabricmc.api.ClientModInitializer;
@@ -51,6 +52,7 @@ public class MineraculousFabricClient implements ClientModInitializer
 		EntityRendererRegistry.register(MineraculousEntityTypes.TIKKI.get(), context -> new KwamiRenderer<>(context, MineraculousEntityTypes.TIKKI.getId()));
 		EntityRendererRegistry.register(MineraculousEntityTypes.PLAGG.get(), context -> new KwamiRenderer<>(context, MineraculousEntityTypes.PLAGG.getId()));
 		EntityRendererRegistry.register(MineraculousEntityTypes.KAMIKO.get(), KamikoRenderer::new);
+		EntityRendererRegistry.register(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), ThrownCatStaffRenderer::new);
 	}
 
 	private void registerTrinketRenderers()

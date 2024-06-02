@@ -56,7 +56,6 @@ public class MiraculousArmorItem extends BaseGeoArmorItem
 			public <T extends LivingEntity> HumanoidModel<?> getGeoArmorRenderer(@Nullable T livingEntity, ItemStack itemStack, @Nullable EquipmentSlot equipmentSlot, @Nullable HumanoidModel<T> original) {
 				if (this.renderer == null)
 					this.renderer = new MiraculousArmorItemRenderer(miraculous);
-				// Defer creation of our renderer then cache it so that it doesn't get instantiated too early
 
 				return this.renderer;
 			}

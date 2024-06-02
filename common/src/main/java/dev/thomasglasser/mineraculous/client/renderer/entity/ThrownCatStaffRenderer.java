@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -12,15 +13,30 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.cache.texture.AutoGlowingTexture;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class ThrownCatStaffRenderer extends GeoEntityRenderer<ThrownCatStaff>
 {
-    public static final ResourceLocation TEXTURE = Mineraculous.modLoc("textures/item/geo/cat_staff.png");
-
-    public ThrownCatStaffRenderer(EntityRendererProvider.Context context) {
+    public ThrownCatStaffRenderer(EntityRendererProvider.Context context)
+    {
         super(context, new DefaultedItemGeoModel<>(Mineraculous.modLoc("cat_staff")));
+        addRenderLayer(new AutoGlowingGeoLayer<>(this)
+        {
+            static RenderType RENDER_TYPE;
+
+            @Override
+            protected RenderType getRenderType(ThrownCatStaff animatable)
+            {
+                if (RENDER_TYPE == null)
+                {
+                    RENDER_TYPE = RenderType.eyes(AutoGlowingTexture.getEmissiveResource(CatStaffRenderer.TEXTURE));
+                }
+                return RENDER_TYPE;
+            }
+        });
     }
 
     @Override
@@ -38,6 +54,6 @@ public class ThrownCatStaffRenderer extends GeoEntityRenderer<ThrownCatStaff>
     @Override
     public ResourceLocation getTextureLocation(ThrownCatStaff animatable)
     {
-        return TEXTURE;
+        return CatStaffRenderer.TEXTURE;
     }
 }

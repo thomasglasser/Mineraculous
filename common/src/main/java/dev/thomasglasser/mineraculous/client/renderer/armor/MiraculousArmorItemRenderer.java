@@ -3,13 +3,16 @@ package dev.thomasglasser.mineraculous.client.renderer.armor;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.item.armor.MiraculousArmorItem;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import software.bernie.geckolib.cache.GeckoLibCache;
+import software.bernie.geckolib.cache.texture.AutoGlowingTexture;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
+import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +34,14 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
             }
         });
         this.miraculous = miraculous;
+        addRenderLayer(new AutoGlowingGeoLayer<>(this)
+        {
+            @Override
+            protected RenderType getRenderType(MiraculousArmorItem animatable)
+            {
+                return RenderType.eyes(AutoGlowingTexture.getEmissiveResource(getTextureResource(animatable)));
+            }
+        });
     }
 
     @Override

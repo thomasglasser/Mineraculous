@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous;
 import dev.thomasglasser.mineraculous.network.MineraculousPayloads;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.tommylib.api.network.FabricNetworkUtils;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
@@ -10,6 +11,7 @@ import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
+import net.fabricmc.fabric.api.registry.OxidizableBlocksRegistry;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -26,6 +28,8 @@ public class MineraculousFabric implements ModInitializer {
         registerTrinkets();
 
         registerEvents();
+
+        CheeseBlock.WAXABLES.get().forEach(OxidizableBlocksRegistry::registerWaxableBlockPair);
     }
 
     private void registerEntityAttributes()

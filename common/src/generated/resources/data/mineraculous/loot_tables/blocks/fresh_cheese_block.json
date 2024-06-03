@@ -1,5 +1,14 @@
 {
   "type": "minecraft:block",
+  "functions": [
+    {
+      "block": "mineraculous:fresh_cheese_block",
+      "function": "minecraft:copy_state",
+      "properties": [
+        "bites"
+      ]
+    }
+  ],
   "pools": [
     {
       "bonus_rolls": 0.0,

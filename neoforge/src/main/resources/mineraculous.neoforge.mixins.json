@@ -4,6 +4,8 @@
   "package": "dev.thomasglasser.mineraculous.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "minecraft.world.item.HoneycombItemMixin",
+    "mineraculous.world.level.block.CheeseBlockMixin"
   ],
   "client": [
     "minecraft.client.renderer.entity.layers.CapeLayerMixin"

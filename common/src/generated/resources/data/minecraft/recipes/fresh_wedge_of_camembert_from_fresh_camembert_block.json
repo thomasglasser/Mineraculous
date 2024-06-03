@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "fresh_wedge_of_camembert",
+  "ingredients": [
+    {
+      "item": "mineraculous:fresh_camembert_block"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "id": "mineraculous:fresh_wedge_of_camembert"
+  }
+}

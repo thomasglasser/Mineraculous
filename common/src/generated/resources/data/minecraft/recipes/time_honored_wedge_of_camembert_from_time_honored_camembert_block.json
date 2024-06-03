@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "time_honored_wedge_of_camembert",
+  "ingredients": [
+    {
+      "item": "mineraculous:time_honored_camembert_block"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "id": "mineraculous:time_honored_wedge_of_camembert"
+  }
+}

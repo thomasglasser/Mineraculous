@@ -18,13 +18,20 @@ public class MineraculousItemTags
 	public static final TagKey<Item> CATACLYSM_IMMUNE = create("cataclysm_immune");
 
 	// Cheeses
-	// TODO: Move to TommyLib
-	public static final TagKey<Item> CHEESES_FOODS = TagKey.create(Registries.ITEM, new ResourceLocation("c:foods/cheeses"));
+	public static final TagKey<Item> CHEESES_FOODS = createC("foods/cheeses");
+	public static final TagKey<Item> CHEESES_BLOCKS_FOODS = createC("foods/cheeses_blocks");
+
 	public static final TagKey<Item> CHEESE = create("cheese");
+	public static final TagKey<Item> CHEESE_BLOCKS = create("cheese_blocks");
 	public static final TagKey<Item> CAMEMBERT = create("camembert");
+	public static final TagKey<Item> CAMEMBERT_BLOCKS = create("camembert_blocks");
 
 	private static TagKey<Item> create(String name)
 	{
 		return TagKey.create(Registries.ITEM, Mineraculous.modLoc(name));
+	}
+	private static TagKey<Item> createC(String name)
+	{
+		return TagKey.create(Registries.ITEM, new ResourceLocation("c", name));
 	}
 }

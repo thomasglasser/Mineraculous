@@ -49,7 +49,6 @@ public class MineraculousItems
 	public static final DeferredItem<SpawnEggItem> KAMIKO_SPAWN_EGG = registerSpawnEgg("kamiko_spawn_egg", MineraculousEntityTypes.KAMIKO::get, 0x130122, 0xffffff);
 
 	// Cheese
-	// TODO: How to obtain? From block?
 	public static final SortedMap<CheeseBlock.Age, DeferredItem<Item>> CHEESE_WEDGES = wedges("cheese", MineraculousFoods.CHEESE);
 	public static final SortedMap<CheeseBlock.Age, DeferredItem<Item>> CAMEMBERT_WEDGES = wedges("camembert", MineraculousFoods.CAMEMBERT);
 

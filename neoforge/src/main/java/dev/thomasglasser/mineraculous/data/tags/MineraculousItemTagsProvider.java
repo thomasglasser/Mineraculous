@@ -51,8 +51,18 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider
 				.addTag(MineraculousItemTags.CHEESE)
 				.addTag(MineraculousItemTags.CAMEMBERT);
 
-		cheese(MineraculousItemTags.CHEESE, MineraculousItems.CHEESE_WEDGES, MineraculousBlocks.CHEESE_BLOCKS, MineraculousBlocks.WAXED_CHEESE_BLOCKS);
-		cheese(MineraculousItemTags.CAMEMBERT, MineraculousItems.CAMEMBERT_WEDGES, MineraculousBlocks.CAMEMBERT_BLOCKS, MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS);
+		tag(MineraculousItemTags.CHEESES_BLOCKS_FOODS)
+				.addTag(MineraculousItemTags.CHEESE_BLOCKS)
+				.addTag(MineraculousItemTags.CAMEMBERT_BLOCKS);
+
+		tag(ConventionalItemTags.FOODS)
+				.addTag(MineraculousItemTags.CHEESES_FOODS);
+
+		tag(ConventionalItemTags.EDIBLE_WHEN_PLACED_FOODS)
+				.addTag(MineraculousItemTags.CHEESES_BLOCKS_FOODS);
+
+		cheese(MineraculousItemTags.CHEESE, MineraculousItemTags.CHEESE_BLOCKS, MineraculousItems.CHEESE_WEDGES, MineraculousBlocks.CHEESE_BLOCKS, MineraculousBlocks.WAXED_CHEESE_BLOCKS);
+		cheese(MineraculousItemTags.CAMEMBERT, MineraculousItemTags.CAMEMBERT_BLOCKS, MineraculousItems.CAMEMBERT_WEDGES, MineraculousBlocks.CAMEMBERT_BLOCKS, MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS);
 
 		tag(MineraculousItemTags.CATACLYSM_IMMUNE)
 				.add(MineraculousItems.CATACLYSM_DUST.get())
@@ -75,15 +85,19 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider
 		}
 	}
 
-	protected void cheese(IntrinsicTagAppender<Item> tag, Map<CheeseBlock.Age, DeferredItem<Item>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxed)
+	protected void cheese(IntrinsicTagAppender<Item> tag, IntrinsicTagAppender<Item> blockTag, Map<CheeseBlock.Age, DeferredItem<Item>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxed)
 	{
 		wedges.values().stream().map(DeferredItem::get).forEach(tag::add);
-		blocks.values().stream().map(DeferredBlock::asItem).forEach(tag::add);
+		blocks.values().stream().map(DeferredBlock::asItem).forEach(item ->
+		{
+			tag.add(item);
+			blockTag.add(item);
+		});
 		waxed.values().stream().map(DeferredBlock::asItem).forEach(tag::add);
 	}
 
-	protected void cheese(TagKey<Item> tag, Map<CheeseBlock.Age, DeferredItem<Item>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxed)
+	protected void cheese(TagKey<Item> tag, TagKey<Item> blockTag, Map<CheeseBlock.Age, DeferredItem<Item>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxed)
 	{
-		cheese(tag(tag), wedges, blocks, waxed);
+		cheese(tag(tag), tag(blockTag), wedges, blocks, waxed);
 	}
 }

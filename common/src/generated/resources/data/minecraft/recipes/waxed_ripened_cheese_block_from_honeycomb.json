@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "waxed_ripened_cheese_block",
+  "ingredients": [
+    {
+      "item": "mineraculous:ripened_cheese_block"
+    },
+    {
+      "item": "minecraft:honeycomb"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "mineraculous:waxed_ripened_cheese_block"
+  }
+}

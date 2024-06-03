@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.data.loot;
 
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.loot.ExtendedBlockLootSubProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
@@ -22,10 +23,10 @@ public class MineraculousBlockLoot extends ExtendedBlockLootSubProvider
 	{
 		dropOther(MineraculousBlocks.CATACLYSM_BLOCK.get(), MineraculousItems.CATACLYSM_DUST.get());
 
-		MineraculousBlocks.CHEESE_BLOCKS.values().stream().map(DeferredHolder::get).forEach(this::dropSelf);
-		MineraculousBlocks.WAXED_CHEESE_BLOCKS.values().stream().map(DeferredHolder::get).forEach(this::dropSelf);
-		MineraculousBlocks.CAMEMBERT_BLOCKS.values().stream().map(DeferredHolder::get).forEach(this::dropSelf);
-		MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.values().stream().map(DeferredHolder::get).forEach(this::dropSelf);
+		MineraculousBlocks.CHEESE_BLOCKS.values().stream().map(DeferredHolder::get).forEach(block -> dropWithProperties(block, CheeseBlock.BITES));
+		MineraculousBlocks.WAXED_CHEESE_BLOCKS.values().stream().map(DeferredHolder::get).forEach(block -> dropWithProperties(block, CheeseBlock.BITES));
+		MineraculousBlocks.CAMEMBERT_BLOCKS.values().stream().map(DeferredHolder::get).forEach(block -> dropWithProperties(block, CheeseBlock.BITES));
+		MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.values().stream().map(DeferredHolder::get).forEach(block -> dropWithProperties(block, CheeseBlock.BITES));
 	}
 
 	@Override

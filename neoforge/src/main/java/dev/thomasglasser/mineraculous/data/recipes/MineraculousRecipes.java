@@ -53,14 +53,14 @@ public class MineraculousRecipes extends ExtendedRecipeProvider
 				);
 	}
 
+	// TODO: Figure out how to drop the amount of bites in the block (custom recipe type?)
 	protected static void cheeseWedgeRecipes(RecipeOutput recipeOutput, SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, SortedMap<CheeseBlock.Age, DeferredItem<Item>> wedges)
 	{
-		blocks.forEach((age, block) -> {
-			ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, wedges.get(age), 4)
+		blocks.forEach((age, block) ->
+				ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, wedges.get(age), 4)
 					.requires(block)
 					.group(getItemName(wedges.get(age)))
 					.unlockedBy(getHasName(block), has(block))
-					.save(recipeOutput, getConversionRecipeName(wedges.get(age), block));
-		});
+					.save(recipeOutput, getConversionRecipeName(wedges.get(age), block)));
 	}
 }

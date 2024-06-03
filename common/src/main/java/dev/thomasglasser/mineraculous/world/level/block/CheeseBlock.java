@@ -94,7 +94,7 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
     }
 
     public static int getOutputSignal(int eaten) {
-        return (7 - eaten) * 2;
+        return (4 - eaten) * 2;
     }
 
     protected boolean hasAnalogOutputSignal(BlockState state) {

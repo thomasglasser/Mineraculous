@@ -41,7 +41,6 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FloatToSurfaceOfFl
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowOwner;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomFlyingTarget;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetPlayerLookTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetRandomLookTarget;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
@@ -124,12 +123,10 @@ public abstract class Kwami extends TamableAnimal implements SmartBrainOwner<Kwa
 		return BrainActivityGroup.coreTasks(
 				new AvoidEntity<>().noCloserThan(5).stopCaringAfter(10).speedModifier(2f).avoiding(livingEntity -> livingEntity instanceof Player && livingEntity != getOwner()),
 				new FollowOwner<>().speedMod(10f).stopFollowingWithin(4).teleportToTargetAfter(10),
-				new SetWalkTargetToAttackTarget<>(),
 				new MoveToWalkTarget<>(),
 				new FleeTarget<>().speedModifier(1.5f),
 				new LookAtTarget<>(),
-				new FloatToSurfaceOfFluid<>(),
-				new AvoidEntity<>().avoiding(livingEntity -> livingEntity instanceof Player)
+				new FloatToSurfaceOfFluid<>()
 		);
 	}
 

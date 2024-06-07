@@ -49,11 +49,11 @@ public class MineraculousItems
 	public static final DeferredItem<SpawnEggItem> KAMIKO_SPAWN_EGG = registerSpawnEgg("kamiko_spawn_egg", MineraculousEntityTypes.KAMIKO::get, 0x130122, 0xffffff);
 
 	// Cheese
-	public static final SortedMap<CheeseBlock.Age, DeferredItem<Item>> CHEESE_WEDGES = wedges("cheese", MineraculousFoods.CHEESE);
-	public static final SortedMap<CheeseBlock.Age, DeferredItem<Item>> CAMEMBERT_WEDGES = wedges("camembert", MineraculousFoods.CAMEMBERT);
+	public static final SortedMap<CheeseBlock.Age, DeferredItem<?>> CHEESE_WEDGES = wedges("cheese", MineraculousFoods.CHEESE);
+	public static final SortedMap<CheeseBlock.Age, DeferredItem<?>> CAMEMBERT_WEDGES = wedges("camembert", MineraculousFoods.CAMEMBERT);
 
-	private static SortedMap<CheeseBlock.Age,DeferredItem<Item>> wedges(String name, FoodProperties foodProperties) {
-		SortedMap<CheeseBlock.Age, DeferredItem<Item>> cheese = new Object2ObjectLinkedOpenHashMap<>(CheeseBlock.Age.values().length);
+	private static SortedMap<CheeseBlock.Age, DeferredItem<?>> wedges(String name, FoodProperties foodProperties) {
+		SortedMap<CheeseBlock.Age, DeferredItem<?>> cheese = new Object2ObjectLinkedOpenHashMap<>(CheeseBlock.Age.values().length);
 		for (CheeseBlock.Age age: CheeseBlock.Age.values())
 			cheese.put(age, register(age.getSerializedName() + "_wedge_of_" + name, () -> new Item(new Item.Properties().food(foodProperties)), List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
 		return cheese;

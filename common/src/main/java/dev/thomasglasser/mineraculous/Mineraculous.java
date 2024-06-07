@@ -12,6 +12,7 @@ import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmorMaterials;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.world.item.crafting.MineraculousRecipeSerializers;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.resources.ResourceLocation;
@@ -40,6 +41,7 @@ public class Mineraculous
         MineraculousBlocks.init();
         MineraculousArmorMaterials.init();
         MineraculousDataComponents.init();
+        MineraculousRecipeSerializers.init();
 
         registerConfigs();
 

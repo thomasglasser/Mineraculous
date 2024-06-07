@@ -1,22 +1,18 @@
 package dev.thomasglasser.mineraculous.data.recipes;
 
-import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.world.item.crafting.CheeseWedgeRecipe;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
-import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.recipes.ExtendedRecipeProvider;
-import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
-import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 
-import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 
 public class MineraculousRecipes extends ExtendedRecipeProvider
@@ -32,8 +28,7 @@ public class MineraculousRecipes extends ExtendedRecipeProvider
 	{
 		cheeseWaxRecipes(pRecipeOutput, FeatureFlags.DEFAULT_FLAGS);
 
-		cheeseWedgeRecipes(pRecipeOutput, MineraculousBlocks.CHEESE_BLOCKS, MineraculousItems.CHEESE_WEDGES);
-		cheeseWedgeRecipes(pRecipeOutput, MineraculousBlocks.CAMEMBERT_BLOCKS, MineraculousItems.CAMEMBERT_WEDGES);
+		SpecialRecipeBuilder.special(CheeseWedgeRecipe::new).save(pRecipeOutput, "cheese_wedge");
 	}
 
 	protected static void cheeseWaxRecipes(RecipeOutput pRecipeOutput, FeatureFlagSet pRequiredFeatures) {
@@ -51,16 +46,5 @@ public class MineraculousRecipes extends ExtendedRecipeProvider
 							}
 						}
 				);
-	}
-
-	// TODO: Figure out how to drop the amount of bites in the block (custom recipe type?)
-	protected static void cheeseWedgeRecipes(RecipeOutput recipeOutput, SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, SortedMap<CheeseBlock.Age, DeferredItem<Item>> wedges)
-	{
-		blocks.forEach((age, block) ->
-				ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, wedges.get(age), 4)
-					.requires(block)
-					.group(getItemName(wedges.get(age)))
-					.unlockedBy(getHasName(block), has(block))
-					.save(recipeOutput, getConversionRecipeName(wedges.get(age), block)));
 	}
 }

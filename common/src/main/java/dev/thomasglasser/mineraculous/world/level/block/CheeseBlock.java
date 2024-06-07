@@ -5,6 +5,7 @@ import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
+import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -54,13 +55,15 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
     private final Age age;
     private final boolean waxed;
     private final Map<Age, DeferredBlock<CheeseBlock>> cheeseMap;
+    private final Map<Age, DeferredItem<?>> wedgeMap;
     private final FoodProperties foodProperties;
 
-    public CheeseBlock(Age age, boolean waxed, SortedMap<Age, DeferredBlock<CheeseBlock>> stages, FoodProperties foodProperties, Properties properties) {
+    public CheeseBlock(Age age, boolean waxed, SortedMap<Age, DeferredBlock<CheeseBlock>> stages, SortedMap<Age, DeferredItem<?>> wedgeMap, FoodProperties foodProperties, Properties properties) {
         super(properties);
         this.age = age;
         this.waxed = waxed;
         this.cheeseMap = stages;
+        this.wedgeMap = wedgeMap;
         this.foodProperties = foodProperties;
         this.registerDefaultState(this.stateDefinition.any().setValue(BITES, 0));
     }
@@ -156,6 +159,16 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
 
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
         return getOutputSignal(state.getValue(BITES));
+    }
+
+    public DeferredItem<?> getWedge(Age age)
+    {
+        return wedgeMap.get(age);
+    }
+
+    public boolean isWaxed()
+    {
+        return waxed;
     }
 
     public enum Age implements StringRepresentable {

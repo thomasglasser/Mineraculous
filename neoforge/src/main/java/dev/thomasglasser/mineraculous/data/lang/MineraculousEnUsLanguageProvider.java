@@ -18,7 +18,6 @@ import dev.thomasglasser.tommylib.api.data.lang.ExtendedLanguageProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import net.minecraft.data.PackOutput;
-import net.minecraft.world.item.Item;
 import org.apache.commons.lang3.text.WordUtils;
 
 import java.util.Map;
@@ -121,7 +120,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 		add(type.getTranslationKey(), name);
 	}
 
-	protected void cheese(String name, Map<CheeseBlock.Age, DeferredItem<Item>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxedBlocks)
+	protected void cheese(String name, Map<CheeseBlock.Age, DeferredItem<?>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxedBlocks)
 	{
 		for (CheeseBlock.Age age: CheeseBlock.Age.values()) {
 			add(wedges.get(age).get(), WordUtils.capitalize(age.getSerializedName()).replace('_','-') + " Wedge of " + name);

@@ -85,7 +85,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider
 		}
 	}
 
-	protected void cheese(IntrinsicTagAppender<Item> tag, IntrinsicTagAppender<Item> blockTag, Map<CheeseBlock.Age, DeferredItem<Item>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxed)
+	protected void cheese(IntrinsicTagAppender<Item> tag, IntrinsicTagAppender<Item> blockTag, Map<CheeseBlock.Age, DeferredItem<?>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxed)
 	{
 		wedges.values().stream().map(DeferredItem::get).forEach(tag::add);
 		blocks.values().stream().map(DeferredBlock::asItem).forEach(item ->
@@ -96,7 +96,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider
 		waxed.values().stream().map(DeferredBlock::asItem).forEach(tag::add);
 	}
 
-	protected void cheese(TagKey<Item> tag, TagKey<Item> blockTag, Map<CheeseBlock.Age, DeferredItem<Item>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxed)
+	protected void cheese(TagKey<Item> tag, TagKey<Item> blockTag, Map<CheeseBlock.Age, DeferredItem<?>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxed)
 	{
 		cheese(tag(tag), tag(blockTag), wedges, blocks, waxed);
 	}

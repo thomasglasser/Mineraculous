@@ -4,24 +4,19 @@ import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.network.ServerboundActivateToolAbilityPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundActivateToolPayload;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
-import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import dev.thomasglasser.tommylib.api.world.item.BaseModeledThrowableSwordItem;
+import dev.thomasglasser.tommylib.api.world.item.BaseModeledSwordItem;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.stats.Stats;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.component.Unbreakable;
@@ -37,7 +32,7 @@ import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class CatStaffItem extends BaseModeledThrowableSwordItem implements GeoItem
+public class CatStaffItem extends BaseModeledSwordItem implements GeoItem
 {
 	public static final RawAnimation EXTEND = RawAnimation.begin().thenPlay("attack.extend");
 	public static final RawAnimation RETRACT = RawAnimation.begin().thenPlay("attack.retract");
@@ -51,7 +46,6 @@ public class CatStaffItem extends BaseModeledThrowableSwordItem implements GeoIt
 	{
 		super(MineraculousTiers.MIRACULOUS, pProperties
 				.attributes(SwordItem.createAttributes(MineraculousTiers.MIRACULOUS, 3, -2.4F))
-				.component(MineraculousDataComponents.TRAVELING.get(), false)
 				.component(DataComponents.UNBREAKABLE, new Unbreakable(false)));
 		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
@@ -92,12 +86,6 @@ public class CatStaffItem extends BaseModeledThrowableSwordItem implements GeoIt
 				{
 					triggerAnim(pEntity, animId, "use_controller", "retracted");
 				}
-				if (pStack.getOrDefault(MineraculousDataComponents.TRAVELING.get(), false))
-				{
-					player.setDeltaMovement(player.getLookAngle().scale(3));
-					player.resetFallDistance();
-					player.hurtMarked = true;
-				}
 			}
 			else if (player.getMainHandItem() == pStack || player.getOffhandItem() == pStack)
 			{
@@ -121,53 +109,12 @@ public class CatStaffItem extends BaseModeledThrowableSwordItem implements GeoIt
 						TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, pStack, hand));
 						playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
 					}
-					else if (pStack.has(MineraculousDataComponents.POWERED.get()) && MineraculousKeyMappings.ACTIVATE_TRAVELLING.isDown())
-					{
-						if (!pStack.getOrDefault(MineraculousDataComponents.TRAVELING.get(), false))
-						{
-							pStack.set(MineraculousDataComponents.TRAVELING.get(), true);
-							TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolAbilityPayload(true, hand));
-							playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
-						}
-					}
-					else if (pStack.getOrDefault(MineraculousDataComponents.TRAVELING.get(), false))
-					{
-						pStack.set(MineraculousDataComponents.TRAVELING.get(), false);
-						TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolAbilityPayload(false, hand));
-						playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
-					}
 				}
 				TommyLibServices.ENTITY.setPersistentData(pEntity, playerData, false);
 			}
 		}
 
 		super.inventoryTick(pStack, pLevel, pEntity, pSlotId, pIsSelected);
-	}
-
-	@Override
-	public void releaseUsing(ItemStack pStack, Level pLevel, LivingEntity pEntityLiving, int pTimeLeft) {
-		if (pEntityLiving instanceof Player player) {
-			int i = this.getUseDuration(pStack) - pTimeLeft;
-			if (i >= 10) {
-				if (!pLevel.isClientSide) {
-					pStack.hurtAndBreak(1, player, LivingEntity.getEquipmentSlotForItem(pStack));
-					ThrownCatStaff thrownCatStaff = new ThrownCatStaff(player, pLevel, pStack);
-					thrownCatStaff.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F, 1.0F);
-					if (player.getAbilities().instabuild) {
-						thrownCatStaff.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
-					}
-
-					pLevel.addFreshEntity(thrownCatStaff);
-					// TODO:Throw Sound
-//					pLevel.playSound(null, thrownCatStaff, null, SoundSource.PLAYERS, 1.0F, 1.0F);
-					if (!player.getAbilities().instabuild) {
-						player.getInventory().removeItem(pStack);
-					}
-				}
-
-				player.awardStat(Stats.ITEM_USED.get(this));
-			}
-		}
 	}
 
 	@Override

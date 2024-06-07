@@ -30,9 +30,6 @@ public class MineraculousDataComponents
 	public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> DETRANSFORMING_ANIM_TICKS = register("detransforming_anim_ticks", Codec.INT, null, false);
 	public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> REMAINING_TICKS = register("remaining_ticks", Codec.INT, ByteBufCodecs.INT, false);
 
-	// Cat Staff
-	public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> TRAVELING = register("traveling", Codec.BOOL, ByteBufCodecs.BOOL, false);
-
 	private static <T> DeferredHolder<DataComponentType<?>, DataComponentType<T>> register(String name, @Nullable Codec<T> diskCodec, @Nullable StreamCodec<? super RegistryFriendlyByteBuf, T> networkCodec, boolean cache)
 	{
 		Supplier<DataComponentType<T>> component = () ->

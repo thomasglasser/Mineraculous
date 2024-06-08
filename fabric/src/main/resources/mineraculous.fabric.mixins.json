@@ -7,7 +7,8 @@
   "mixins": [
     "minecraft.commands.CommandsMixin",
     "minecraft.server.level.ServerPlayerMixin",
-    "minecraft.world.entity.FabricLivingEntityMixin"
+    "minecraft.world.entity.FabricLivingEntityMixin",
+    "minecraft.world.entity.player.FabricPlayerMixin"
   ],
   "client": [
   ],

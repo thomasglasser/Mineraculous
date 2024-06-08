@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.platform;
 
 import dev.thomasglasser.mineraculous.platform.services.CuriosHelper;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 

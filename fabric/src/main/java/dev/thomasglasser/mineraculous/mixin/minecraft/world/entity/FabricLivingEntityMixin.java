@@ -49,6 +49,6 @@ public abstract class FabricLivingEntityMixin
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void tick(CallbackInfo ci)
 	{
-		MineraculousEntityEvents.tick(INSTANCE);
+		MineraculousEntityEvents.livingTick(INSTANCE);
 	}
 }

@@ -33,7 +33,7 @@ public class MiraculousItemCurio implements Curio
 			{
 				CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
 				int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
-				if (waitTicks <= 0 && !MineraculousClientUtils.hasScreenOpen())
+				if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen())
 				{
 					if (MineraculousKeyMappings.OPEN_ABILITY_WHEEL.isDown() && data.transformed())
 					{

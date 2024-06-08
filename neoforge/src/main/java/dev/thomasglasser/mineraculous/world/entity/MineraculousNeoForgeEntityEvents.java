@@ -71,6 +71,11 @@ public class MineraculousNeoForgeEntityEvents
 	public static void onLivingTick(EntityTickEvent.Post event)
 	{
 		if (event.getEntity() instanceof LivingEntity livingEntity)
-			MineraculousEntityEvents.tick(livingEntity);
+			MineraculousEntityEvents.livingTick(livingEntity);
+	}
+
+	public static void onPlayerTick(PlayerTickEvent.Post event)
+	{
+		MineraculousEntityEvents.playerTick(event.getEntity());
 	}
 }

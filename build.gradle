@@ -113,6 +113,13 @@ subprojects {
                 includeGroupAndSubgroups 'mezz.jei'
             }
         }
+        maven {
+            name = 'Ladysnake Mods'
+            url = 'https://maven.ladysnake.org/releases'
+            content {
+                includeGroupAndSubgroups 'org.ladysnake.cardinal-components-api'
+            }
+        }
 
         // Non-specific
         maven {

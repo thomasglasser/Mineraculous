@@ -93,7 +93,7 @@ public class CatStaffItem extends BaseModeledSwordItem implements GeoItem
 
 				CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(pEntity);
 				int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
-				if (waitTicks <= 0 && !MineraculousClientUtils.hasScreenOpen())
+				if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen())
 				{
 					if (MineraculousKeyMappings.ACTIVATE_TOOL.isDown())
 					{

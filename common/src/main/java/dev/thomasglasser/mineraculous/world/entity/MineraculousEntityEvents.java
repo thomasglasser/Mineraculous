@@ -61,6 +61,7 @@ public class MineraculousEntityEvents
 	public static final String TAG_WAITTICKS = "WaitTicks";
 	public static final String TAG_CATACLYSMED = "Cataclysmed";
 	public static final String TAG_HASCATVISION = "HasCatVision";
+	public static final String TAG_TAKETICKS = "TakeTicks";
 
 	public static final ResourceLocation CAT_VISION_SHADER = new ResourceLocation("shaders/post/creeper.json");
 
@@ -78,13 +79,41 @@ public class MineraculousEntityEvents
 			MobEffects.ABSORPTION
 	);
 
-	public static void tick(LivingEntity entity)
+	public static void livingTick(LivingEntity entity)
 	{
 		CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(entity);
 		int waitTicks = entityData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
 		if (waitTicks > 0)
 		{
 			entityData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, --waitTicks);
+		}
+		TommyLibServices.ENTITY.setPersistentData(entity, entityData, false);
+	}
+
+	public static void playerTick(Player player)
+	{
+		CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
+
+		if (player.level().isClientSide)
+		{
+			int takeTicks = entityData.getInt(MineraculousEntityEvents.TAG_TAKETICKS);
+			if (MineraculousKeyMappings.TAKE_ITEM.isDown() && player.getMainHandItem().isEmpty() && MineraculousClientUtils.getLookEntity() instanceof Player target)
+			{
+				// TODO: Visual indication of progress (wheel?)
+				entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, ++takeTicks);
+				if (takeTicks > (20 * 5))
+				{
+					// TODO: Stealing functionality
+//					ClientUtils.setScreen(new ExternalInventoryScreen(target));
+					entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, 0);
+				}
+				TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
+			}
+			else if (takeTicks > 0)
+			{
+				entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, 0);
+				TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
+			}
 		}
 	}
 

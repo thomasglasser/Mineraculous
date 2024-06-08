@@ -1,5 +1,7 @@
 package dev.thomasglasser.mineraculous.platform;
 
+import dev.emi.trinkets.api.TrinketsApi;
+import dev.thomasglasser.mineraculous.network.ClientboundSyncCurioPayload;
 import dev.thomasglasser.mineraculous.platform.services.CuriosHelper;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;

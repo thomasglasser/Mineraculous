@@ -4,11 +4,11 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalInventoryScreen;
+import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.server.commands.MiraculousCommand;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
@@ -107,7 +107,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 
 		add(MineraculousBlockTags.CATACLYSM_IMMUNE, "Cataclysm Immune");
 
-		add(MineraculousEntityEvents.STEALING_WARNING_KEY, "You may not rest now, there are thieves nearby.");
+		add(ServerboundWakeUpPayload.STEALING_WARNING_KEY, "You may not rest now, there are thieves nearby.");
 		add(ExternalInventoryScreen.ITEM_BOUND_KEY, "This item is bound to the player.");
 	}
 

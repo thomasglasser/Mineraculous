@@ -6,6 +6,7 @@ import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ClientboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.platform.Services;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
@@ -18,7 +19,6 @@ import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
@@ -29,7 +29,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -68,9 +67,7 @@ public class MineraculousEntityEvents
 	public static final String TAG_CATACLYSMED = "Cataclysmed";
 	public static final String TAG_HASCATVISION = "HasCatVision";
 	public static final String TAG_TAKETICKS = "TakeTicks";
-
-	public static final String STEALING_WARNING_KEY = "mineraculous.stealing_warning";
-
+	
 	public static final ResourceLocation CAT_VISION_SHADER = new ResourceLocation("shaders/post/creeper.json");
 
 	public static final BiFunction<Holder<MobEffect>, Integer, MobEffectInstance> INFINITE_HIDDEN_EFFECT = (effect, amplifier) -> new MobEffectInstance(effect, -1, amplifier, false, false, false);
@@ -105,13 +102,12 @@ public class MineraculousEntityEvents
 		if (player.level().isClientSide)
 		{
 			int takeTicks = entityData.getInt(MineraculousEntityEvents.TAG_TAKETICKS);
-			if (MineraculousKeyMappings.TAKE_ITEM.isDown() && player.getMainHandItem().isEmpty() && MineraculousClientUtils.getLookEntity() instanceof Player target && (MineraculousServerConfig.enableUniversalStealing || /*TODO: Is akumatized*/ Services.DATA.getMiraculousDataSet(player).isTransformed()) && (MineraculousServerConfig.enableSleepStealing || !player.isSleeping()))
+			if (MineraculousKeyMappings.TAKE_ITEM.isDown() && player.getMainHandItem().isEmpty() && MineraculousClientUtils.getLookEntity() instanceof Player target && (MineraculousServerConfig.enableUniversalStealing || /*TODO: Is akumatized*/ Services.DATA.getMiraculousDataSet(player).isTransformed()) && (MineraculousServerConfig.enableSleepStealing || !target.isSleeping()))
 			{
 				entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, ++takeTicks);
-				if (player.isSleeping() && MineraculousServerConfig.wakeUpChance > 0 && player.getRandom().nextInt(0, 100) < (MineraculousServerConfig.wakeUpChance / MineraculousServerConfig.stealingDuration))
+				if (target.isSleeping() && MineraculousServerConfig.wakeUpChance > 0 && (MineraculousServerConfig.wakeUpChance >= 100 || player.getRandom().nextFloat() < MineraculousServerConfig.wakeUpChance / (20f * 5 * 100)))
 				{
-					ClientUtils.getMinecraft().getConnection().send(new ServerboundPlayerCommandPacket(player, ServerboundPlayerCommandPacket.Action.STOP_SLEEPING));
-					player.displayClientMessage(Component.translatable(STEALING_WARNING_KEY), true);
+					TommyLibServices.NETWORK.sendToServer(new ServerboundWakeUpPayload(target.getUUID(), true));
 				}
 				if (takeTicks > (20 * MineraculousServerConfig.stealingDuration))
 				{

@@ -1,6 +1,8 @@
 package dev.thomasglasser.mineraculous.world.entity.kwami;
 
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.platform.Services;
+import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -53,7 +55,11 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
 
 public abstract class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoEntity
 {
@@ -206,12 +212,23 @@ public abstract class Kwami extends TamableAnimal implements SmartBrainOwner<Kwa
 	{
 		if (getOwner() instanceof ServerPlayer player)
 		{
-			List<ItemStack> miraculous = player.getInventory().items.stream().filter(stack -> stack.has(MineraculousDataComponents.KWAMI_DATA.get()) && stack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(getUUID())).toList();
-			for (ItemStack stack : miraculous)
+			Predicate<ItemStack> isMyJewel = stack -> stack.has(MineraculousDataComponents.KWAMI_DATA.get()) && stack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(getUUID());
+			List<ItemStack> miraculous = new ArrayList<>(player.getInventory().items.stream().filter(isMyJewel).toList());
+			Map<CuriosData, ItemStack> allCurios = Services.CURIOS.getAllItems(player);
+			Map<CuriosData, ItemStack> curios = new HashMap<>();
+			allCurios.forEach(((curiosData, stack) ->
+			{
+				if (isMyJewel.test(stack))
+					curios.put(curiosData, stack);
+			}));
+			List<ItemStack> all = new ArrayList<>(miraculous);
+			all.addAll(curios.values());
+			for (ItemStack stack : all)
 			{
 				stack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
 				stack.remove(MineraculousDataComponents.KWAMI_DATA.get());
 			}
+			curios.forEach((data, stack) -> Services.CURIOS.setStackInSlot(player, data, stack, true));
 		}
 		super.die(damageSource);
 	}

@@ -21,3 +21,10 @@ accessible method net/minecraft/client/renderer/texture/SimpleTexture getTexture
 accessible class net/minecraft/client/renderer/texture/SimpleTexture$TextureImage
 accessible method net/minecraft/client/renderer/texture/PreloadedTexture getTextureImage (Lnet/minecraft/server/packs/resources/ResourceManager;)Lnet/minecraft/client/renderer/texture/SimpleTexture$TextureImage;
 accessible method net/minecraft/client/gui/screens/LoadingOverlay$LogoTexture getTextureImage (Lnet/minecraft/server/packs/resources/ResourceManager;)Lnet/minecraft/client/renderer/texture/SimpleTexture$TextureImage;
+accessible field net/minecraft/client/gui/screens/inventory/InventoryScreen xMouse F
+accessible field net/minecraft/client/gui/screens/inventory/InventoryScreen yMouse F
+mutable field net/minecraft/world/entity/player/Inventory items Lnet/minecraft/core/NonNullList;
+mutable field net/minecraft/world/entity/player/Inventory armor Lnet/minecraft/core/NonNullList;
+mutable field net/minecraft/world/entity/player/Inventory offhand Lnet/minecraft/core/NonNullList;
+accessible field net/minecraft/world/entity/player/Inventory compartments Ljava/util/List;
+mutable field net/minecraft/world/entity/player/Inventory compartments Ljava/util/List;

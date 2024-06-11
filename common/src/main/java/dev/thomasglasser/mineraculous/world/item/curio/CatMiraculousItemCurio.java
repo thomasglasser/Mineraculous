@@ -65,6 +65,7 @@ public class CatMiraculousItemCurio extends MiraculousItemCurio
 	@Override
 	public void onUnequip(ItemStack oldStack, ItemStack newStack, CuriosData curiosData, LivingEntity entity)
 	{
+		super.onUnequip(oldStack, newStack, curiosData, entity);
 		if (greenVision && entity instanceof ServerPlayer serverPlayer)
 		{
 			checkGreenVision(serverPlayer);

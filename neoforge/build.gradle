@@ -4,11 +4,9 @@ plugins {
     id 'java-library'
 }
 
-// Automatically enable neoforge AccessTransformers if the file exists
-// This location is hardcoded in FML and can not be changed.
-// https://github.com/neoforged/FancyModLoader/blob/a952595eaaddd571fbc53f43847680b00894e0c1/loader/src/main/java/net/neoforged/fml/loading/moddiscovery/ModFile.java#L118
-if (file('src/main/resources/META-INF/accesstransformer.cfg').exists()) {
-    minecraft.accessTransformers.file file('src/main/resources/META-INF/accesstransformer.cfg')
+var at = file('src/main/resources/META-INF/accesstransformer.cfg')
+if (at.exists()) {
+    minecraft.accessTransformers.file at
 }
 
 subsystems {
@@ -65,7 +63,7 @@ dependencies {
     implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
     // Runtime
-//    localRuntime "maven.modrinth:jade:${jade_version}+neoforge"
+    localRuntime "maven.modrinth:jade:${jade_version}+neoforge"
     localRuntime "mezz.jei:jei-${previous_minecraft_version}-neoforge:${jei_version}"
 }
 

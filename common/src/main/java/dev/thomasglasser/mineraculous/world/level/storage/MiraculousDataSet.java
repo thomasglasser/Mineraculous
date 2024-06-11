@@ -72,4 +72,9 @@ public class MiraculousDataSet
 	{
 		return map.entrySet().stream().filter(entry -> entry.getValue().transformed()).map(Map.Entry::getKey).toList();
 	}
+
+	public boolean isTransformed()
+	{
+		return map.values().stream().anyMatch(MiraculousData::transformed);
+	}
 }

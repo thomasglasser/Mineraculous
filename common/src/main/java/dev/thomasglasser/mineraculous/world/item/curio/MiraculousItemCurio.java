@@ -87,15 +87,4 @@ public class MiraculousItemCurio implements Curio
 			}
 		}
 	}
-
-	@Override
-	public void onUnequip(ItemStack oldStack, ItemStack newStack, CuriosData curiosData, LivingEntity entity)
-	{
-		if (oldStack.getItem() instanceof MiraculousItem miraculousItem)
-		{
-			MiraculousDataSet miraculousDataSet = Services.DATA.getMiraculousDataSet(entity);
-			MiraculousData miraculousData = miraculousDataSet.get(miraculousItem.getType());
-			miraculousDataSet.put(entity, miraculousItem.getType(), new MiraculousData(miraculousData.transformed(), miraculousData.miraculousItem(), new CuriosData(), miraculousData.tool(), miraculousData.powerLevel(), miraculousData.mainPowerActivated(), miraculousData.mainPowerActive(), miraculousData.name()), true);
-		}
-	}
 }

@@ -19,7 +19,7 @@ public record ClientboundSyncCurioPayload(int entity, CuriosData curiosData, Ite
 	public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundSyncCurioPayload> CODEC = StreamCodec.composite(
 			ByteBufCodecs.INT, ClientboundSyncCurioPayload::entity,
 			CuriosData.STREAM_CODEC, ClientboundSyncCurioPayload::curiosData,
-			ItemStack.STREAM_CODEC, ClientboundSyncCurioPayload::stack,
+			ItemStack.OPTIONAL_STREAM_CODEC, ClientboundSyncCurioPayload::stack,
 			ClientboundSyncCurioPayload::new
 	);
 

@@ -8,9 +8,11 @@
     "minecraft.commands.CommandsMixin",
     "minecraft.server.level.ServerPlayerMixin",
     "minecraft.world.entity.FabricLivingEntityMixin",
-    "minecraft.world.entity.player.FabricPlayerMixin"
+    "minecraft.world.entity.player.FabricPlayerMixin",
+    "trinkets.api.TrinketInventoryAccessor"
   ],
   "client": [
+    "minecraft.client.gui.FabricGuiMixin"
   ],
   "server": [
   ],

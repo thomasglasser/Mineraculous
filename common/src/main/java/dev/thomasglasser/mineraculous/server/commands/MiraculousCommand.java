@@ -20,6 +20,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 
 public class MiraculousCommand
 {
@@ -229,7 +230,10 @@ public class MiraculousCommand
 			}
 			else
 			{
-				KwamiData kwamiData = data.miraculousItem().get(MineraculousDataComponents.KWAMI_DATA.get());
+				ItemStack miraculousItem = data.miraculousItem();
+				if (miraculousItem.getCount() == 0)
+					miraculousItem.setCount(1);
+				KwamiData kwamiData = miraculousItem.get(MineraculousDataComponents.KWAMI_DATA.get());
 				if (kwamiData != null)
 				{
 					Entity entity = ((ServerLevel)livingEntity.level()).getEntity(kwamiData.uuid());

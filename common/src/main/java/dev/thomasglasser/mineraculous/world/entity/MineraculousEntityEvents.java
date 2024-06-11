@@ -5,7 +5,9 @@ import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ClientboundMiraculousTransformPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
 import dev.thomasglasser.mineraculous.platform.Services;
+import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
@@ -16,6 +18,7 @@ import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
@@ -26,6 +29,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -65,6 +69,8 @@ public class MineraculousEntityEvents
 	public static final String TAG_HASCATVISION = "HasCatVision";
 	public static final String TAG_TAKETICKS = "TakeTicks";
 
+	public static final String STEALING_WARNING_KEY = "mineraculous.stealing_warning";
+
 	public static final ResourceLocation CAT_VISION_SHADER = new ResourceLocation("shaders/post/creeper.json");
 
 	public static final BiFunction<Holder<MobEffect>, Integer, MobEffectInstance> INFINITE_HIDDEN_EFFECT = (effect, amplifier) -> new MobEffectInstance(effect, -1, amplifier, false, false, false);
@@ -99,14 +105,18 @@ public class MineraculousEntityEvents
 		if (player.level().isClientSide)
 		{
 			int takeTicks = entityData.getInt(MineraculousEntityEvents.TAG_TAKETICKS);
-			if (MineraculousKeyMappings.TAKE_ITEM.isDown() && player.getMainHandItem().isEmpty() && MineraculousClientUtils.getLookEntity() instanceof Player target)
+			if (MineraculousKeyMappings.TAKE_ITEM.isDown() && player.getMainHandItem().isEmpty() && MineraculousClientUtils.getLookEntity() instanceof Player target && (MineraculousServerConfig.enableUniversalStealing || /*TODO: Is akumatized*/ Services.DATA.getMiraculousDataSet(player).isTransformed()) && (MineraculousServerConfig.enableSleepStealing || !player.isSleeping()))
 			{
-				// TODO: Visual indication of progress (wheel?)
 				entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, ++takeTicks);
-				if (takeTicks > (20 * 5))
+				if (player.isSleeping() && MineraculousServerConfig.wakeUpChance > 0 && player.getRandom().nextInt(0, 100) < (MineraculousServerConfig.wakeUpChance / MineraculousServerConfig.stealingDuration))
 				{
-					// TODO: Stealing functionality
-//					ClientUtils.setScreen(new ExternalInventoryScreen(target));
+					ClientUtils.getMinecraft().getConnection().send(new ServerboundPlayerCommandPacket(player, ServerboundPlayerCommandPacket.Action.STOP_SLEEPING));
+					player.displayClientMessage(Component.translatable(STEALING_WARNING_KEY), true);
+				}
+				if (takeTicks > (20 * MineraculousServerConfig.stealingDuration))
+				{
+					TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
+					Services.CURIOS.openExternalInventory(target);
 					entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, 0);
 				}
 				TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
@@ -226,6 +236,7 @@ public class MineraculousEntityEvents
 				miraculousStack.remove(MineraculousDataComponents.POWERED.get());
 				Services.CURIOS.setStackInSlot(player, data.curiosData(), miraculousStack, true);
 				// TODO: If item not in inventory, make it disappear when found, in item entity or chest or something
+				data.tool().setCount(1);
 				data.tool().set(MineraculousDataComponents.RECALLED.get(), true);
 				if (data.tool().has(MineraculousDataComponents.KWAMI_DATA.get()))
 				{

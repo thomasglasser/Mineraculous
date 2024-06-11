@@ -3,9 +3,12 @@ package dev.thomasglasser.mineraculous.data.lang;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
+import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalInventoryScreen;
+import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.server.commands.MiraculousCommand;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
@@ -103,6 +106,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 		add(MineraculousItemTags.CAMEMBERT, "Camembert");
 
 		add(MineraculousBlockTags.CATACLYSM_IMMUNE, "Cataclysm Immune");
+
+		add(MineraculousEntityEvents.STEALING_WARNING_KEY, "You may not rest now, there are thieves nearby.");
+		add(ExternalInventoryScreen.ITEM_BOUND_KEY, "This item is bound to the player.");
 	}
 
 	private void addConfigs()
@@ -113,6 +119,17 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider
 		addConfig("miraculous_comment", MineraculousClientConfig.miraculous_comment);
 		addConfig("enable_per_player_customization_comment", MineraculousClientConfig.enable_per_player_customization_comment);
 		addConfig("enablePerPlayerCustomization", "Enable Per Player Customization");
+
+		addConfigCategory("stealing", "Item Stealing");
+		addConfig("stealing_comment", MineraculousServerConfig.stealing_comment);
+		addConfig("stealing_duration_comment", MineraculousServerConfig.stealing_duration_comment);
+		addConfig("stealingDuration", "Stealing Duration");
+		addConfig("enable_universal_stealing_comment", MineraculousServerConfig.enable_universal_stealing_comment);
+		addConfig("enableUniversalStealing", "Enable Universal Stealing");
+		addConfig("enable_sleep_stealing_comment", MineraculousServerConfig.enable_sleep_stealing_comment);
+		addConfig("enableSleepStealing", "Enable Sleep Stealing");
+		addConfig("wake_up_chance_comment", MineraculousServerConfig.wake_up_chance_comment);
+		addConfig("wakeUpChance", "Wake Up Chance");
 	}
 
 	protected void add(MiraculousType type, String name)

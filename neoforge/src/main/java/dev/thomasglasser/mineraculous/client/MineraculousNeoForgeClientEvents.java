@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.particle.CataclysmParticle;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KamikoRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
@@ -22,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import top.theillusivec4.curios.api.SlotContext;
@@ -76,5 +78,10 @@ public class MineraculousNeoForgeClientEvents
 	public static void onRegisterParticleProviders(RegisterParticleProvidersEvent event)
 	{
 		event.registerSpriteSet(MineraculousParticleTypes.CATACLYSM.get(), CataclysmParticle.Provider::new);
+	}
+
+	public static void onRegisterGuiLayers(RegisterGuiLayersEvent event)
+	{
+		event.registerAboveAll(Mineraculous.modLoc("stealing_progress_bar"), MineraculousClientEvents::renderStealingProgressBar);
 	}
 }

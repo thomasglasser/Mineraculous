@@ -28,6 +28,3 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
-
-rootProject.name = github_name
-include("common", "fabric", "neoforge")

@@ -1,0 +1,24 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.thomasglasser.mineraculous.mixin",
+  "refmap": "${mod_id}.refmap.json",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "minecraft.client.gui.GuiMixin",
+    "minecraft.world.entity.EntityMixin",
+    "minecraft.world.entity.LivingEntityMixin",
+    "minecraft.world.entity.player.PlayerMixin",
+    "minecraft.world.item.ItemStackMixin",
+    "minecraft.world.item.HoneycombItemMixin"
+  ],
+  "client": [
+    "minecraft.client.MinecraftMixin",
+    "minecraft.client.renderer.GameRendererMixin",
+    "minecraft.client.renderer.entity.LivingEntityRendererMixin",
+    "minecraft.client.renderer.entity.layers.CapeLayerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

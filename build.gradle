@@ -1,243 +1,194 @@
 plugins {
-    id 'idea'
-    id 'net.neoforged.gradle.userdev' version '7.0.142'
     id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+    id 'net.neoforged.moddev' version "${mdg_version}"
 }
 
-apply plugin: 'java'
-apply plugin: 'maven-publish'
-apply plugin: 'signing'
+tasks.named('wrapper', Wrapper).configure {
+    distributionType = Wrapper.DistributionType.BIN
+}
 
 base {
-    archivesName = "${mod_id}-${project.name}-${minecraft_version}"
+    archivesName = "${mod_id}-${minecraft_version}"
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
-java.withSourcesJar()
-java.withJavadocJar()
-
-var at = file('src/main/resources/META-INF/accesstransformer.cfg')
-if (at.exists()) {
-    minecraft.accessTransformers.file at
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(java_version)
+    withSourcesJar()
+    withJavadocJar()
 }
 
-subsystems {
-    parchment {
-        minecraftVersion = parchment_minecraft_version
-        mappingsVersion = parchment_version
+repositories {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Modrinth'
+                url = 'https://api.modrinth.com/maven'
+            }
+        }
+        filter { includeGroupAndSubgroups "maven.modrinth" }
     }
-}
-
-runs {
-    configureEach {
-        modSource project.sourceSets.main
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'JEI'
+                url = 'https://maven.blamejared.com/'
+            }
+        }
+        filter { includeGroupAndSubgroups "mezz.jei" }
     }
-    client {
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'GeckoLib'
+                url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+            }
+        }
+        filter {
+            includeGroupAndSubgroups 'software.bernie.geckolib'
+            includeGroupAndSubgroups 'com.eliotlash.mclib'
+        }
     }
-    client_alt {
-        configure('client')
-
-        programArguments.addAll '--username', 'DevAlt'
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'SmartBrainLib'
+                url = "https://dl.cloudsmith.io/public/tslat/sbl/maven/"
+            }
+        }
+        filter { includeGroupAndSubgroups 'net.tslat.smartbrainlib' }
     }
-    server {
-        programArgument '--nogui'
+    // TODO: Replace with maven for curios replacement
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Curios'
+                url = "https://maven.theillusivec4.top/"
+            }
+        }
+        filter { includeGroupAndSubgroups 'top.theillusivec4.curios' }
     }
-
-    data {
-        programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+    maven {
+        name = 'TommyLib'
+        url = 'https://dl.cloudsmith.io/public/thomasglasser/tommylib/maven/'
+        content {
+            includeGroupAndSubgroups("dev.thomasglasser.tommylib")
+        }
     }
+    maven {
+        name = 'NeoForge'
+        url = 'https://maven.neoforged.net/releases'
+    }
+    maven {
+        name = 'Mojang Meta'
+        url = 'https://maven.neoforged.net/mojang-meta'
+    }
+    mavenCentral()
+    mavenLocal()
 }
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
-jarJar.enable()
+neoForge {
+    version = "${neoforge_version}"
 
-// Sets up a dependency configuration called 'localRuntime'.
-// This configuration should be used instead of 'runtimeOnly' to declare
-// a dependency that will be present for runtime testing but that is
-// "optional", meaning it will not be pulled by dependents of this mod.
+    parchment {
+        minecraftVersion = parchment_minecraft_version
+        mappingsVersion = parchment_version
+    }
+
+    def at = 'src/main/resources/META-INF/accesstransformer.cfg'
+    if (file(at).exists()) {
+        accessTransformers = [at]
+    }
+
+    runs {
+        client {
+            client()
+            ideName = "Client"
+            gameDirectory = project.layout.projectDirectory.dir('runs/client')
+        }
+        client_alt {
+            client()
+            ideName = "Client 2"
+            gameDirectory = project.layout.projectDirectory.dir('runs/client_alt')
+            programArguments = ["--username", "DevAlt"]
+        }
+        server {
+            server()
+            ideName = "Server"
+            gameDirectory = project.layout.projectDirectory.dir('runs/server')
+        }
+        data {
+            data()
+            ideName = "Data Generation"
+            gameDirectory = project.layout.projectDirectory.dir('runs/data')
+            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+    }
+
+    mods {
+        mineraculous {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
 configurations {
     runtimeClasspath.extendsFrom localRuntime
 }
 
 dependencies {
-    implementation "net.neoforged:neoforge:${neoforge_version}"
+    jarJar implementation("dev.thomasglasser.tommylib:tommylib-neoforge-${minecraft_version}:${tommylib_version}")
 
-    jarJar implementation("dev.thomasglasser.tommylib:tommylib-neoforge-${minecraft_version}:${tommylib_version}") {
-        transitive = false
-    }
     jarJar implementation("maven.modrinth:midnightlib:${midnightlib_version}-neoforge")
 
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
-    implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-1.20.5:${sbl_version}"
-//    implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${sbl_version}"
-    implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+    implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${sbl_version}"
+    // TODO: Replace with curios replacement
+//    implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 
     // Runtime
     localRuntime "maven.modrinth:jade:${jade_version}+neoforge"
-    localRuntime "mezz.jei:jei-${previous_minecraft_version}-neoforge:${jei_version}"
-}
-
-jar {
-    from(rootProject.file("LICENSE")) {
-        rename { "${it}_${mod_name}" }
-    }
-    manifest {
-        attributes([
-                'Specification-Title'     : mod_name,
-                'Specification-Vendor'    : mod_author,
-                'Specification-Version'   : project.jar.archiveVersion,
-                'Implementation-Title'    : project.name,
-                'Implementation-Version'  : project.jar.archiveVersion,
-                'Implementation-Vendor'   : mod_author,
-                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                'Timestamp'               : System.currentTimeMillis(),
-                'Built-On-Java'           : "${System.getProperty('java.vm.version')} (${System.getProperty('java.vm.vendor')})",
-                'Built-On-Minecraft'      : minecraft_version
-        ])
-    }
-}
-
-sourcesJar {
-    from(rootProject.file("LICENSE")) {
-        rename { "${it}_${mod_name}" }
-    }
-}
-
-repositories {
-    maven {
-        name = 'Parchment'
-        url = 'https://maven.parchmentmc.org'
-        content {
-            includeGroupAndSubgroups 'org.parchmentmc.data'
-        }
-    }
-    maven {
-        name = 'Fabric'
-        url = 'https://maven.fabricmc.net/'
-        content {
-            includeGroupAndSubgroups 'net.fabricmc.fabric-api'
-        }
-    }
-    maven {
-        name = "Mod Menu"
-        url 'https://maven.terraformersmc.com/releases'
-        content {
-            includeGroupAndSubgroups 'com.terraformersmc'
-        }
-    }
-    maven {
-        name = "Modrinth"
-        url = "https://api.modrinth.com/maven"
-        content {
-            includeGroupAndSubgroups 'maven.modrinth'
-        }
-    }
-    maven {
-        name = 'GeckoLib'
-        url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
-        content {
-            includeGroupAndSubgroups 'software.bernie.geckolib'
-            includeGroupAndSubgroups 'com.eliotlash.mclib'
-        }
-    }
-    maven {
-        name = "SmartBrainLib"
-        url = "https://dl.cloudsmith.io/public/tslat/sbl/maven/"
-        content {
-            includeGroupAndSubgroups 'net.tslat.smartbrainlib'
-        }
-    }
-    maven {
-        name = "Illusive Soulworks maven"
-        url = "https://maven.theillusivec4.top/"
-        content {
-            includeGroupAndSubgroups 'top.theillusivec4.curios'
-        }
-    }
-    maven {
-        name = "TerraformersMC"
-        url = "https://maven.terraformersmc.com/"
-        content {
-            includeGroupAndSubgroups 'dev.emi'
-        }
-    }
-    maven {
-        name = "Ladysnake Libs"
-        url = 'https://maven.ladysnake.org/releases'
-        content {
-            includeGroupAndSubgroups 'dev.onyxstudios.cardinal-components-api'
-        }
-    }
-    maven {
-        name = "JEI"
-        url = "https://maven.blamejared.com/"
-        content {
-            includeGroupAndSubgroups 'mezz.jei'
-        }
-    }
-    maven {
-        name = 'Ladysnake Mods'
-        url = 'https://maven.ladysnake.org/releases'
-        content {
-            includeGroupAndSubgroups 'org.ladysnake.cardinal-components-api'
-        }
-    }
-
-    // Non-specific
-    maven {
-        name = 'NeoForged'
-        url = 'https://maven.neoforged.net/releases'
-    }
-    maven {
-        name = 'Mojang and Mixins'
-        url = 'https://repo.spongepowered.org/repository/maven-public/'
-    }
-    mavenLocal()
+    localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 }
 
 processResources {
-    var replaceProperties = [
-            mod_name: mod_name,
-            mod_id: mod_id,
-            major_fml_version: major_fml_version,
-            version: project.version,
-            description: project.description,
-            mod_author: mod_author,
-            contributors: contributors,
-            license: license,
-            icon: icon,
-            github_name: github_name,
-            neoforge_version: neoforge_version,
-            fabric_loader_version: fabric_loader_version,
-            fabric_version: fabric_version,
-            minecraft_version: minecraft_version,
-            next_minecraft_version: next_minecraft_version,
-            tommylib_version: tommylib_version
+    def expandProps = [
+            "version": version,
+            "group": project.group,
+            "minecraft_version": minecraft_version,
+            "next_minecraft_version": next_minecraft_version,
+            "mod_name": mod_name,
+            "mod_author": mod_author,
+            "mod_id": mod_id,
+            "license": license,
+            "description": project.description,
+            "neoforge_version": neoforge_version,
+            "major_fml_version": major_fml_version,
+            "contributors": contributors,
+            "java_version": java_version,
+            "icon": icon,
+            "github_name": github_name,
+            "tommylib_version": tommylib_version
     ]
-    inputs.properties replaceProperties
 
-    filesMatching(['META-INF/neoforge.mods.toml','fabric.mod.json','**/pack.mcmeta','*.mixins.json']) {
-        expand replaceProperties + [project: project]
+    filesMatching(['META-INF/neoforge.mods.toml', '*.mixins.json']) {
+        expand expandProps
     }
-}
-
-// Disables Gradle's custom module metadata from being published to maven. The
-// metadata includes mapped dependencies which are not reasonably consumable by
-// other mod developers.
-tasks.withType(GenerateModuleMetadata) {
-
-    enabled = false
+    inputs.properties(expandProps)
 }
 
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-            groupId = project.group
-            artifactId = base.archivesName.get()
-            version project.version
+        register('mavenJava', MavenPublication) {
+            artifactId base.archivesName.get()
             from components.java
+        }
 
+        maven(MavenPublication) {
             pom {
                 name = project.mod_name
                 description = project.description
@@ -258,24 +209,23 @@ publishing {
                     system = 'GitHub'
                     url = "https://github.com/thomasglasser/${github_name}/issues"
                 }
-                scm
-                        {
-                            connection = "scm:git:git://github.com/thomasglasser/${github_name}.git"
-                            developerConnection = "scm:git:ssh://github.com:thomasglasser/${github_name}.git"
-                            url = "https://github.com/thomasglasser/${github_name}/tree/${minecraft_version}"
-                        }
+                scm {
+                    connection = "scm:git:git://github.com/thomasglasser/${github_name}.git"
+                    developerConnection = "scm:git:ssh://github.com:thomasglasser/${github_name}.git"
+                    url = "https://github.com/thomasglasser/${github_name}/tree/${minecraft_version}"
+                }
             }
         }
     }
 
     repositories {
         maven {
+            name = "Cloudsmith"
+            url = "https://maven.cloudsmith.io/thomasglasser/${mod_id}/"
             credentials {
-                username = project.findProperty("MAVEN_USER") ?: System.getenv("MAVEN_USER")
-                password = project.findProperty("MAVEN_PASSWORD") ?: System.getenv("MAVEN_PASSWORD")
+                username = project.findProperty("CLOUDSMITH_USERNAME") ?: System.getenv("CLOUDSMITH_USERNAME")
+                password = project.findProperty("CLOUDSMITH_API_KEY") ?: System.getenv("CLOUDSMITH_API_KEY")
             }
-
-            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
         }
     }
 }
@@ -283,4 +233,38 @@ publishing {
 signing {
     useGpgCmd()
     sign publishing.publications
+}
+
+// Declare capabilities on the outgoing configurations.
+// Read more about capabilities here: https://docs.gradle.org/current/userguide/component_capabilities.html#sec:declaring-additional-capabilities-for-a-local-component
+['apiElements', 'runtimeElements', 'sourcesElements', 'javadocElements'].each { variant ->
+    configurations."$variant".outgoing {
+        capability("$group:${base.archivesName.get()}:$version")
+        capability("$group:$mod_id-${project.name}-${minecraft_version}:$version")
+        capability("$group:$mod_id:$version")
+    }
+    publishing.publications.configureEach {
+        suppressPomMetadataWarningsFor(variant)
+    }
+}
+
+jar {
+    manifest {
+        attributes([
+                'Specification-Title'   : mod_name,
+                'Specification-Vendor'  : mod_author,
+                'Specification-Version' : project.jar.archiveVersion,
+                'Implementation-Title'  : project.name,
+                'Implementation-Version': project.jar.archiveVersion,
+                'Implementation-Vendor' : mod_author,
+                'Built-On-Minecraft'    : minecraft_version
+        ])
+    }
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
+    }
 }

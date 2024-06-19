@@ -17,9 +17,9 @@ public class ThrownCatStaff extends AbstractArrow implements GeoEntity
 {
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-	public ThrownCatStaff(LivingEntity owner, Level level, ItemStack pickupItemStack)
+	public ThrownCatStaff(LivingEntity owner, Level level, ItemStack pickupItemStack, ItemStack firedBy)
 	{
-		super(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), owner, level, pickupItemStack);
+		super(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), owner, level, pickupItemStack, firedBy);
 	}
 
 	public ThrownCatStaff(EntityType<? extends ThrownCatStaff> entityType, Level level)

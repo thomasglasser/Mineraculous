@@ -12,7 +12,7 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T>
 
 	public KwamiRenderer(EntityRendererProvider.Context renderManager, ResourceLocation location)
 	{
-		super(renderManager, new DefaultedEntityGeoModel<>(new ResourceLocation(location.getNamespace(), "kwami/" + location.getPath())));
+		super(renderManager, new DefaultedEntityGeoModel<>(ResourceLocation.fromNamespaceAndPath(location.getNamespace(), "kwami/" + location.getPath())));
 		withScale(0.4F);
 	}
 
@@ -22,7 +22,7 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T>
 		if (hungryTexture == null)
 		{
 			ResourceLocation original = super.getTextureLocation(animatable);
-			hungryTexture = new ResourceLocation(original.getNamespace(), original.getPath().replace(".png", "_hungry.png"));
+			hungryTexture = ResourceLocation.fromNamespaceAndPath(original.getNamespace(), original.getPath().replace(".png", "_hungry.png"));
 		}
 		if (!animatable.isCharged())
 			return hungryTexture;

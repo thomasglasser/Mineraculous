@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.world.entity;
 
-import com.mojang.logging.LogUtils;
 import dev.thomasglasser.mineraculous.world.entity.ai.behaviour.kamiko.RestBehaviour;
 import dev.thomasglasser.mineraculous.world.entity.ai.behaviour.kamiko.move.SetRandomRestTarget;
 import net.minecraft.core.BlockPos;
@@ -21,7 +20,6 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -32,7 +30,6 @@ import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowEntity;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomFlyingTarget;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -102,8 +99,9 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
     @Override
     protected void pushEntities() {}
 
-    @Override // Butterflies can't be leashed.
-    public boolean canBeLeashed(Player player) {
+    @Override
+    public boolean canBeLeashed()
+    {
         return false;
     }
 

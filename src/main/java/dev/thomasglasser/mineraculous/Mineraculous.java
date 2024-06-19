@@ -104,7 +104,7 @@ public class Mineraculous
 
     public static ResourceLocation modLoc(String s)
     {
-        return new ResourceLocation(MOD_ID, s);
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, s);
     }
 
     public enum Dependencies
@@ -125,7 +125,7 @@ public class Mineraculous
 
         public ResourceLocation modLoc(String s)
         {
-            return new ResourceLocation(getId(), s);
+            return ResourceLocation.fromNamespaceAndPath(getId(), s);
         }
     }
 }

@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.world.entity;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
-import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ClientboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
@@ -21,7 +20,6 @@ import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
@@ -29,6 +27,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -80,7 +79,7 @@ public class MineraculousEntityEvents
 	public static final String TAG_HASCATVISION = "HasCatVision";
 	public static final String TAG_TAKETICKS = "TakeTicks";
 	
-	public static final ResourceLocation CAT_VISION_SHADER = new ResourceLocation("shaders/post/creeper.json");
+	public static final ResourceLocation CAT_VISION_SHADER = ResourceLocation.withDefaultNamespace("shaders/post/creeper.json");
 
 	public static final BiFunction<Holder<MobEffect>, Integer, MobEffectInstance> INFINITE_HIDDEN_EFFECT = (effect, amplifier) -> new MobEffectInstance(effect, -1, amplifier, false, false, false);
 
@@ -125,7 +124,8 @@ public class MineraculousEntityEvents
 				if (takeTicks > (20 * MineraculousServerConfig.stealingDuration))
 				{
 					TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
-					ClientUtils.setScreen(new ExternalCuriosInventoryScreen(target));
+					// TODO: Update curios
+//					ClientUtils.setScreen(new ExternalCuriosInventoryScreen(target));
 					entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, 0);
 				}
 				TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
@@ -187,14 +187,14 @@ public class MineraculousEntityEvents
 								if (!(armorPiece == null))
 								{
 									ItemStack stack = armorPiece.get().getDefaultInstance();
-									stack.enchant(Enchantments.BINDING_CURSE, 1);
+									stack.enchant(serverLevel.registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(Enchantments.BINDING_CURSE), 1);
 									stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
 									player.setItemSlot(slot, stack);
 								}
 							}
 						}
 
-						miraculousStack.enchant(Enchantments.BINDING_CURSE, 1);
+						miraculousStack.enchant(serverLevel.registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(Enchantments.BINDING_CURSE), 1);
 						miraculousStack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
 
 						ItemStack tool = miraculousItem.getTool() == null ? ItemStack.EMPTY : miraculousItem.getTool().getDefaultInstance();
@@ -237,7 +237,7 @@ public class MineraculousEntityEvents
 					return;
 				}
 				ArmorData armor = player.getData(MineraculousAttachmentTypes.STORED_ARMOR);
-				for (EquipmentSlot slot : Arrays.stream(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.ARMOR).toArray(EquipmentSlot[]::new))
+				for (EquipmentSlot slot : Arrays.stream(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR).toArray(EquipmentSlot[]::new))
 				{
 					player.setItemSlot(slot, armor.forSlot(slot));
 				}

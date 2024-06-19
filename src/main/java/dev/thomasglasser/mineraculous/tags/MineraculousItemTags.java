@@ -32,6 +32,6 @@ public class MineraculousItemTags
 	}
 	private static TagKey<Item> createC(String name)
 	{
-		return TagKey.create(Registries.ITEM, new ResourceLocation("c", name));
+		return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", name));
 	}
 }

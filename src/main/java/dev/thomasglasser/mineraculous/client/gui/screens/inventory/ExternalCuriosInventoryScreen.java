@@ -27,7 +27,7 @@ import java.util.List;
 
 public class ExternalCuriosInventoryScreen extends CuriosScreen
 {
-	static final ResourceLocation CURIO_INVENTORY = new ResourceLocation(CuriosConstants.MOD_ID,
+	static final ResourceLocation CURIO_INVENTORY = ResourceLocation.fromNamespaceAndPath(CuriosConstants.MOD_ID,
 			"textures/gui/curios/inventory.png");
 
 	private static int scrollCooldown = 0;

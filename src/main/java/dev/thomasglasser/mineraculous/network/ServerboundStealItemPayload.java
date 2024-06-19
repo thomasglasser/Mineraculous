@@ -19,6 +19,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
 import java.util.UUID;
@@ -50,7 +51,7 @@ public record ServerboundStealItemPayload(UUID target, int slot) implements Exte
 						MineraculousEntityEvents.renounceMiraculous(stack, kwami);
 				}
 			}
-			if (EnchantmentHelper.hasBindingCurse(stack))
+			if (EnchantmentHelper.has(stack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE))
 			{
 				player.displayClientMessage(Component.translatable(ExternalInventoryScreen.ITEM_BOUND_KEY), true);
 			}

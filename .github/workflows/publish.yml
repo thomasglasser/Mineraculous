@@ -30,52 +30,43 @@ jobs:
     needs: call-build-workflow
     runs-on: ubuntu-latest
     env:
-      # Replace with GitHub name
       changelog: '**Full Changelog**: https://github.com/thomasglasser/Mineraculous/compare/'
     permissions:
       contents: write
     strategy:
       matrix:
-        loader: [ common, neoforge, fabric ]
         website: [ modrinth, curseforge, github_release ]
-    name: ${{ matrix.website }} (${{ matrix.loader }})
+    name: ${{ matrix.website }}
 
     steps:
       - name: Download mod artifact
         uses: actions/download-artifact@v3
         continue-on-error: true
         with:
-          name: "Mineraculous"
+          name: Mineraculous
 
       - name: Checking and setting the environment
         id: mod_env
         continue-on-error: true
         run: |
-          export loader=${{ matrix.loader }}
-          export name=$(ls ${loader}/build/libs/ | grep shadow -v | grep sources -v | grep javadoc -v | awk -F.jar '{print $1}')
+          export name=$(ls build/libs/ | grep shadow -v | grep sources -v | grep javadoc -v | awk -F.jar '{print $1}')
           export mod_name=$(echo $name | awk -F- '{print $1}')
-          export loader_name=$(echo $name | awk -F- '{print $2}')
           export mc_version=$(echo $name | awk -F- '{print $3}')
           export mod_version=$(echo $name | awk -F- '{print $4}')
           echo "name=$name" >> $GITHUB_OUTPUT
           echo "mod_name=$mod_name" >> $GITHUB_OUTPUT
-          echo "loader_name=$loader_name" >> $GITHUB_OUTPUT
           echo "mc_version=$mc_version" >> $GITHUB_OUTPUT
           echo "mod_version=$mod_version" >> $GITHUB_OUTPUT
-          rm ${loader}/build/libs/*shadow.jar
+          rm /build/libs/*shadow.jar
 
       - name: Publish Github Release
         uses: Kir-Antipov/mc-publish@v3.3
         continue-on-error: true
-        if : (matrix.website == 'github_release' && matrix.loader == 'common')
+        if : (matrix.website == 'github_release')
         with:
           files: |
-            common/build/libs/!(*-@(dev|sources|javadoc)).jar
-            common/build/libs/*-@(dev|sources|javadocs).jar
-            neoforge/build/libs/!(*-@(dev|sources|javadoc)).jar
-            neoforge/build/libs/*-@(dev|sources|javadocs).jar
-            fabric/build/libs/!(*-@(dev|sources|javadoc)).jar
-            fabric/build/libs/*-@(dev|sources|javadocs).jar
+            build/libs/!(*-@(dev|sources|javadoc)).jar
+            build/libs/*-@(dev|sources|javadocs).jar
           name : ${{ inputs.title }}
           version: ${{ steps.mod_env.outputs.mod_version }}
           changelog: ${{ env.changelog }}${{ inputs.last_version }}...${{ inputs.version }}
@@ -90,11 +81,11 @@ jobs:
       - name: Publish Modrinth Release
         uses: Kir-Antipov/mc-publish@v3.3
         continue-on-error: true
-        if : (matrix.website == 'modrinth' && matrix.loader != 'common')
+        if : (matrix.website == 'modrinth')
         with:
           files: |
-            ${{ matrix.loader }}/build/libs/!(*-@(dev|sources|javadoc)).jar
-            ${{ matrix.loader }}/build/libs/*-@(dev|sources|javadocs).jar
+            build/libs/!(*-@(dev|sources|javadoc|slim)).jar
+            build/libs/*-@(dev|sources|javadocs).jar
           name: ${{ inputs.title }}
           version: ${{ steps.mod_env.outputs.mod_version }}
           changelog: ${{ env.changelog }}${{ inputs.last_version }}...${{ inputs.version }}
@@ -102,17 +93,18 @@ jobs:
           game-versions: |
             ${{ inputs.game_versions }}
 
-          modrinth-id: L4DkUS9E
+          # Replace with Modrinth ID
+          modrinth-id: abcdef
           modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
 
       - name: Publish Curseforge Release
         uses: Kir-Antipov/mc-publish@v3.3
         continue-on-error: true
-        if: (matrix.website == 'curseforge' && matrix.loader != 'common')
+        if: (matrix.website == 'curseforge')
         with:
           files: |
-            ${{ matrix.loader }}/build/libs/!(*-@(dev|sources|javadoc)).jar
-            ${{ matrix.loader }}/build/libs/*-@(dev|sources|javadocs).jar
+            build/libs/!(*-@(dev|sources|javadoc|slim)).jar
+            build/libs/*-@(dev|sources|javadocs).jar
           name: ${{ inputs.title }}
           version: ${{ steps.mod_env.outputs.mod_version }}
           changelog: ${{ env.changelog }}${{ inputs.last_version }}...${{ inputs.version }}
@@ -120,5 +112,6 @@ jobs:
           game-versions: |
             ${{ inputs.game_versions }}
 
-          curseforge-id: 388866
+          # Replace with CurseForge ID
+          curseforge-id: 123456
           curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}

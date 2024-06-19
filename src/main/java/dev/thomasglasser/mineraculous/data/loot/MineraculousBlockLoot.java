@@ -5,17 +5,16 @@ import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.loot.ExtendedBlockLootSubProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.flag.FeatureFlags;
-import net.minecraft.world.level.block.Block;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class MineraculousBlockLoot extends ExtendedBlockLootSubProvider
 {
-	protected MineraculousBlockLoot()
+	protected MineraculousBlockLoot(HolderLookup.Provider provider)
 	{
-		super(Set.of(), FeatureFlags.REGISTRY.allFlags());
+		super(Set.of(), FeatureFlags.REGISTRY.allFlags(), provider, MineraculousBlocks.BLOCKS);
 	}
 
 	@Override
@@ -27,10 +26,5 @@ public class MineraculousBlockLoot extends ExtendedBlockLootSubProvider
 		MineraculousBlocks.WAXED_CHEESE_BLOCKS.values().stream().map(DeferredHolder::get).forEach(block -> dropWithProperties(block, CheeseBlock.BITES));
 		MineraculousBlocks.CAMEMBERT_BLOCKS.values().stream().map(DeferredHolder::get).forEach(block -> dropWithProperties(block, CheeseBlock.BITES));
 		MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.values().stream().map(DeferredHolder::get).forEach(block -> dropWithProperties(block, CheeseBlock.BITES));
-	}
-
-	@Override
-	protected Iterable<Block> getKnownBlocks() {
-		return MineraculousBlocks.BLOCKS.getEntries().stream().map(DeferredHolder::get).collect(Collectors.toSet());
 	}
 }

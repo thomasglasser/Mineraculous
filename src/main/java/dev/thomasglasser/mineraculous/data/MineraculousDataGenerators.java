@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.data;
 
 import dev.thomasglasser.mineraculous.data.blockstates.MineraculousBlockStates;
-import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.data.lang.MineraculousEnUsLanguageProvider;
 import dev.thomasglasser.mineraculous.data.loot.MineraculousLootTables;
 import dev.thomasglasser.mineraculous.data.models.MineraculousItemModels;
@@ -33,7 +32,8 @@ public class MineraculousDataGenerators
 		MineraculousBlockTagsProvider blockTagsProvider = new MineraculousBlockTagsProvider(packOutput, registries, existingFileHelper);
 		generator.addProvider(onServer, blockTagsProvider);
 		generator.addProvider(onServer, new MineraculousItemTagsProvider(packOutput, registries, blockTagsProvider.contentsGetter(), existingFileHelper));
-		generator.addProvider(onServer, new MineraculousCuriosProvider(packOutput, existingFileHelper, registries));
+		// TODO: Update curios
+//		generator.addProvider(onServer, new MineraculousCuriosProvider(packOutput, existingFileHelper, registries));
 		generator.addProvider(onServer, new MineraculousLootTables(packOutput, registries));
 		generator.addProvider(onServer, new MineraculousRecipes(packOutput, registries));
 

@@ -33,7 +33,7 @@ public class MineraculousBlockEntityWithoutLevelRenderer extends BlockEntityWith
 			String basePath = "item/miraculous/" + loc.getPath();
 			if (!stack.has(MineraculousDataComponents.POWERED.get()) && stack.has(DataComponents.PROFILE) && MineraculousClientConfig.enablePerPlayerCustomization)
 			{
-				ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(loc.getNamespace(), basePath + "_" + stack.get(DataComponents.PROFILE).name().orElse("hidden").toLowerCase())), ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(loc.getNamespace(), basePath + "_hidden")));
+				ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_" + stack.get(DataComponents.PROFILE).name().orElse("hidden").toLowerCase(), basePath + "_hidden");
 			}
 			else if (stack.has(MineraculousDataComponents.POWERED.get()))
 			{
@@ -44,21 +44,21 @@ public class MineraculousBlockEntityWithoutLevelRenderer extends BlockEntityWith
 				{
 					// To make it blink every other second
 					if (second % 2 == 0)
-						ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(loc.getNamespace(), basePath + "_powered_" + (minute - 1))));
+						ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_powered_" + (minute - 1));
 					// First blink level should reference the normal powered model
 					else if (minute == 5)
-						ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(loc.getNamespace(), basePath + "_powered")));
+						ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_powered");
 					else
-						ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(loc.getNamespace(), basePath + "_powered_" + minute)));
+						ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_powered_" + minute);
 				}
 				else
 				{
-					ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(loc.getNamespace(), basePath + "_powered")));
+					ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_powered");
 				}
 			}
 			else
 			{
-				ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(loc.getNamespace(), basePath + "_hidden")));
+				ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_hidden");
 			}
 		}
 		poseStack.popPose();

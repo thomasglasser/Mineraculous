@@ -98,11 +98,6 @@ neoForge {
         mappingsVersion = parchment_version
     }
 
-    def at = 'src/main/resources/META-INF/accesstransformer.cfg'
-    if (file(at).exists()) {
-        accessTransformers = [at]
-    }
-
     runs {
         client {
             client()

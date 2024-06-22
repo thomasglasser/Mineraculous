@@ -1,14 +1,23 @@
 package dev.thomasglasser.mineraculous.world.item;
 
+import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
+import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.network.ClientboundToggleCatVisionPayload;
+import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import top.theillusivec4.curios.api.SlotContext;
 
 public class CatMiraculousItem extends MiraculousItem
 {
@@ -19,7 +28,7 @@ public class CatMiraculousItem extends MiraculousItem
 		super(properties, MiraculousType.CAT, MineraculousArmors.CAT_MIRACULOUS, MineraculousItems.CAT_STAFF, null /* TODO: Transform sound */, MineraculousEntityTypes.PLAGG::get, "ring", TextColor.fromRgb(0xc6f800));
 	}
 
-	/*@Override
+	@Override
 	public void curioTick(SlotContext slotContext, ItemStack stack)
 	{
 		super.curioTick(slotContext, stack);
@@ -71,7 +80,7 @@ public class CatMiraculousItem extends MiraculousItem
 		{
 			checkGreenVision(serverPlayer);
 		}
-	}*/
+	}
 
 	private void checkGreenVision(ServerPlayer serverPlayer)
 	{

@@ -7,7 +7,6 @@ import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -30,7 +29,7 @@ public class MineraculousBlockEntityWithoutLevelRenderer extends BlockEntityWith
 		if (stack.getItem() instanceof MiraculousItem miraculousItem)
 		{
 			ResourceLocation loc = BuiltInRegistries.ITEM.getKey(stack.getItem());
-			String basePath = "item/miraculous/" + loc.getPath();
+			String basePath = "miraculous/" + loc.getPath();
 			if (!stack.has(MineraculousDataComponents.POWERED.get()) && stack.has(DataComponents.PROFILE) && MineraculousClientConfig.enablePerPlayerCustomization)
 			{
 				ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, loc.getNamespace(), basePath + "_" + stack.get(DataComponents.PROFILE).name().orElse("hidden").toLowerCase(), basePath + "_hidden");

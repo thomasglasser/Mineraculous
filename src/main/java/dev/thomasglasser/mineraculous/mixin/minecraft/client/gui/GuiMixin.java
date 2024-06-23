@@ -2,8 +2,6 @@ package dev.thomasglasser.mineraculous.mixin.minecraft.client.gui;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(Gui.class)
 public abstract class GuiMixin
 {
-	// TODO: Add cataclysmed heart textures
 	@Unique
 	private final ResourceLocation mineraculous$full = Mineraculous.modLoc("hud/heart/cataclysmed_full");
 	@Unique
@@ -36,10 +33,11 @@ public abstract class GuiMixin
 	@ModifyExpressionValue(method = "renderHeart", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Gui$HeartType;getSprite(ZZZ)Lnet/minecraft/resources/ResourceLocation;"))
 	private ResourceLocation renderHeart(ResourceLocation original, GuiGraphics pGuiGraphics, Gui.HeartType pHeartType, int pX, int pY, boolean pHardcore, boolean pHalfHeart, boolean pBlinking)
 	{
-		if (MineraculousEntityEvents.isCataclysmed(ClientUtils.getMainClientPlayer()))
-		{
-			return mineraculous$getSprite(pHardcore, pHalfHeart, pBlinking);
-		}
+		// TODO: Add cataclysmed heart textures
+		//		if (MineraculousEntityEvents.isCataclysmed(ClientUtils.getMainClientPlayer()))
+//		{
+//			return mineraculous$getSprite(pHardcore, pHalfHeart, pBlinking);
+//		}
 		return original;
 	}
 

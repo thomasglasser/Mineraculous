@@ -25,7 +25,7 @@ public class LivingEntityRendererMixin
 	{
 		if (MineraculousEntityEvents.isCataclysmed(livingEntity))
 		{
-			int cataclysmColor = -14673643; //0x201915FF;
+			int cataclysmColor = 0x201915FF;
 			ResourceLocation result = ResourceLocation.fromNamespaceAndPath(original.getNamespace(), original.getPath() + "_cataclysmed");
 			try (AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(original))
 			{

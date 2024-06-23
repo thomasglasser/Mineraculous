@@ -58,6 +58,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.MangroveRootsBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.living.LivingAttackEvent;
@@ -325,6 +326,7 @@ public class MineraculousEntityEvents
 			if (target instanceof LivingEntity livingEntity)
 			{
 				List<Holder<MobEffect>> CATACLYSM_EFFECTS = List.of(
+						MobEffects.POISON,
 						MobEffects.WITHER,
 						MobEffects.BLINDNESS,
 						MobEffects.WEAKNESS,
@@ -335,7 +337,7 @@ public class MineraculousEntityEvents
 				);
 				CATACLYSM_EFFECTS.forEach(effect -> {
 					MobEffectInstance instance = INFINITE_HIDDEN_EFFECT.apply(effect, level);
-					if (livingEntity.canBeAffected(instance))
+					if (CommonHooks.canMobEffectBeApplied(livingEntity, instance))
 						livingEntity.addEffect(instance);
 					else
 						livingEntity.hurt(entity.damageSources().indirectMagic(entity, entity), 100);

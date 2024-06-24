@@ -1,8 +1,5 @@
 package dev.thomasglasser.mineraculous.world.level.block;
 
-import com.google.common.base.Suppliers;
-import com.google.common.collect.BiMap;
-import com.google.common.collect.ImmutableBiMap;
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
@@ -14,8 +11,11 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -36,38 +36,29 @@ import net.neoforged.neoforge.common.ToolAction;
 import net.neoforged.neoforge.common.ToolActions;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.SortedMap;
-import java.util.function.Supplier;
 
 public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBlock.Age> {
-    public static final Supplier<BiMap<Block, Block>> WAXABLES = Suppliers.memoize(
-            () -> {
-                 ImmutableBiMap.Builder<Block, Block> builder = ImmutableBiMap.builder();
-                 MineraculousBlocks.CHEESE_BLOCKS.forEach((age, block) -> builder.put(block.get(), MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(age).get()));
-                 MineraculousBlocks.CAMEMBERT_BLOCKS.forEach((age, block) -> builder.put(block.get(), MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(age).get()));
-                 return builder.build();
-            }
-    );
-    public static final Supplier<BiMap<Block, Block>> WAX_OFF_BY_BLOCK = Suppliers.memoize(() -> WAXABLES.get().inverse());
-
     public static final int MAX_BITES = 3;
     public static final IntegerProperty BITES = IntegerProperty.create("bites", 0, MAX_BITES);
     protected static final VoxelShape SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 3.0, 12.0);
 
     private final Age age;
     private final boolean waxed;
-    private final Map<Age, DeferredBlock<CheeseBlock>> cheeseMap;
-    private final Map<Age, DeferredItem<?>> wedgeMap;
+    private final DeferredBlock<CheeseBlock> next;
+    private final DeferredBlock<CheeseBlock> waxedBlock;
+    private final DeferredBlock<CheeseBlock> unwaxedBlock;
+    private final DeferredItem<?> wedge;
     private final FoodProperties foodProperties;
 
-    public CheeseBlock(Age age, boolean waxed, SortedMap<Age, DeferredBlock<CheeseBlock>> stages, SortedMap<Age, DeferredItem<?>> wedgeMap, FoodProperties foodProperties, Properties properties) {
+    public CheeseBlock(Age age, boolean waxed, DeferredBlock<CheeseBlock> next, DeferredBlock<CheeseBlock> waxedBlock, DeferredBlock<CheeseBlock> unwaxedBlock, DeferredItem<?> wedge, FoodProperties foodProperties, Properties properties) {
         super(properties);
         this.age = age;
         this.waxed = waxed;
-        this.cheeseMap = stages;
-        this.wedgeMap = wedgeMap;
+        this.next = next;
+        this.waxedBlock = waxedBlock;
+        this.unwaxedBlock = unwaxedBlock;
+        this.wedge = wedge;
         this.foodProperties = foodProperties;
         this.registerDefaultState(this.stateDefinition.any().setValue(BITES, 0));
     }
@@ -81,13 +72,7 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
     @Override
     public Optional<BlockState> getNext(BlockState state) {
         if (Age.TIME_HONORED.equals(age)) return Optional.empty();
-        return Optional.of(cheeseMap.get(switch (age) {
-            case FRESH -> Age.AGED;
-            case AGED -> Age.RIPENED;
-            case RIPENED -> Age.EXQUISITE;
-            case EXQUISITE -> Age.TIME_HONORED;
-            default -> Age.FRESH; // This should never happen.
-        }).get().defaultBlockState());
+        return Optional.of(next.get().withPropertiesOf(state));
     }
 
     @Override
@@ -114,6 +99,14 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
 
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(ItemStack pStack, BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHitResult)
+    {
+        if (pStack.is(Items.HONEYCOMB))
+            return ItemInteractionResult.FAIL;
+        return super.useItemOn(pStack, pState, pLevel, pPos, pPlayer, pHand, pHitResult);
     }
 
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
@@ -165,9 +158,9 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
         return getOutputSignal(state.getValue(BITES));
     }
 
-    public DeferredItem<?> getWedge(Age age)
+    public DeferredItem<?> getWedge()
     {
-        return wedgeMap.get(age);
+        return wedge;
     }
 
     public boolean isWaxed()
@@ -178,12 +171,16 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
     @Override
     public @Nullable BlockState getToolModifiedState(BlockState state, UseOnContext context, ToolAction toolAction, boolean simulate)
     {
-        Block block = CheeseBlock.WAX_OFF_BY_BLOCK.get().get(this);
-        if (toolAction == ToolActions.AXE_WAX_OFF && block != null)
+        if (toolAction == ToolActions.AXE_WAX_OFF && unwaxedBlock != null)
         {
-            return block.defaultBlockState();
+            return unwaxedBlock.get().withPropertiesOf(state);
         }
         return super.getToolModifiedState(state, context, toolAction, simulate);
+    }
+
+    public DeferredBlock<CheeseBlock> getWaxedBlock()
+    {
+        return waxedBlock;
     }
 
     public enum Age implements StringRepresentable {
@@ -198,6 +195,12 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
         @Override
         public String getSerializedName() {
             return name().toLowerCase();
+        }
+
+        public Age getNext()
+        {
+            if (ordinal() >= values().length - 1) return null;
+            return values()[ordinal() + 1];
         }
     }
 }

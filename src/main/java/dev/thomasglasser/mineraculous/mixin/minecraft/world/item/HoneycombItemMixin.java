@@ -15,9 +15,9 @@ public class HoneycombItemMixin
 	@ModifyReturnValue(method = "getWaxed", at = @At("RETURN"))
 	private static Optional<BlockState> getWaxed(Optional<BlockState> result, BlockState original)
 	{
-		if (original.getBlock() instanceof CheeseBlock cheeseBlock)
+		if (original.getBlock() instanceof CheeseBlock cheeseBlock && !cheeseBlock.isWaxed())
 		{
-			return Optional.of(CheeseBlock.WAXABLES.get().get(cheeseBlock).defaultBlockState());
+			return Optional.of(cheeseBlock.getWaxedBlock().get().withPropertiesOf(original));
 		}
 		return result;
 	}

@@ -53,7 +53,7 @@ public class CheeseWedgeRecipe extends CustomRecipe
 			if (properties != null)
 				bites = properties.get(CheeseBlock.BITES);
 			if (bites == null) bites = 0;
-			return new ItemStack(cheeseBlock.getWedge(cheeseBlock.getAge()).get(), 4 - bites);
+			return new ItemStack(cheeseBlock.getWedge().get(), 4 - bites);
 		}
 		return ItemStack.EMPTY;	}
 

@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.world.entity.ai.behaviour.kamiko.RestBehaviour;
 import dev.thomasglasser.mineraculous.world.entity.ai.behaviour.kamiko.move.SetRandomRestTarget;
+import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -31,7 +32,6 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowEntity;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomFlyingTarget;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
-import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -40,8 +40,6 @@ import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
-
-import java.util.List;
 
 public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, GeoEntity {
     private static final EntityDataAccessor<Boolean> RESTING = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.BOOLEAN);
@@ -94,14 +92,15 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
     public boolean isPushable() {
         return false;
     }
+
     @Override
     protected void doPush(Entity entity) {}
+
     @Override
     protected void pushEntities() {}
 
     @Override
-    public boolean canBeLeashed()
-    {
+    public boolean canBeLeashed() {
         return false;
     }
 
@@ -168,7 +167,7 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
 
     // AI
     @Override
-    protected PathNavigation createNavigation(@NotNull Level level) {
+    protected PathNavigation createNavigation(Level level) {
         return new FlyingPathNavigation(this, level);
     }
 
@@ -188,8 +187,7 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
                 new MoveToWalkTarget<Kamiko>()
                         .startCondition(kamiko -> !kamiko.isResting())
                         .stopIf(kamiko -> kamiko.getTarget() != null),
-                new RestBehaviour<>().runFor(kamiko -> kamiko.random.nextInt(60,200)).cooldownFor(kamiko -> 600)
-        );
+                new RestBehaviour<>().runFor(kamiko -> kamiko.random.nextInt(60, 200)).cooldownFor(kamiko -> 600));
     }
 
     @Override
@@ -199,22 +197,19 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
                 new OneRandomBehaviour<>(
                         new SetRandomFlyingTarget<>(),
                         new SetRandomRestTarget<Kamiko>()
-                                .setRadius(10,64)
-                                .startCondition(kamiko -> !kamiko.isResting())
-                )
-        );
+                                .setRadius(10, 64)
+                                .startCondition(kamiko -> !kamiko.isResting())));
     }
 
     @Override
     public BrainActivityGroup<? extends Kamiko> getFightTasks() {
         return BrainActivityGroup.fightTasks(
-                new FollowEntity<Kamiko,LivingEntity>()
+                new FollowEntity<Kamiko, LivingEntity>()
                         .following(Mob::getTarget)
                         .stopFollowingWithin(0)
                         .speedMod(3)
                         .startCondition(kamiko -> (kamiko.getTarget() != null) && (kamiko.isPowered()))
-                        .noTimeout().stopIf(kamiko -> (kamiko.getTarget() == null) || (kamiko.getTarget().isRemoved()))
-        );
+                        .noTimeout().stopIf(kamiko -> (kamiko.getTarget() == null) || (kamiko.getTarget().isRemoved())));
     }
 
     // ANIMATION

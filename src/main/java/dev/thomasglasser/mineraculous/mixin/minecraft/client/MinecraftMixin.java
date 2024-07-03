@@ -11,21 +11,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Minecraft.class)
-public class MinecraftMixin
-{
-	@Inject(method = "handleKeybinds", at = @At("TAIL"))
-	private void handleKeybinds(CallbackInfo ci)
-	{
-		if (Minecraft.getInstance().gameRenderer.currentEffect() == null)
-		{
-			if (TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer()).getBoolean(MineraculousEntityEvents.TAG_HASCATVISION))
-			{
-				MineraculousClientUtils.setShader(MineraculousEntityEvents.CAT_VISION_SHADER);
-			}
-			else
-			{
-				MineraculousClientUtils.setShader(null);
-			}
-		}
-	}
+public class MinecraftMixin {
+    @Inject(method = "handleKeybinds", at = @At("TAIL"))
+    private void handleKeybinds(CallbackInfo ci) {
+        if (Minecraft.getInstance().gameRenderer.currentEffect() == null) {
+            if (TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer()).getBoolean(MineraculousEntityEvents.TAG_HASCATVISION)) {
+                MineraculousClientUtils.setShader(MineraculousEntityEvents.CAT_VISION_SHADER);
+            } else {
+                MineraculousClientUtils.setShader(null);
+            }
+        }
+    }
 }

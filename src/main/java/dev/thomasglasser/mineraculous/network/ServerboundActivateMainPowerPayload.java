@@ -15,28 +15,24 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
-public record ServerboundActivateMainPowerPayload(MiraculousType miraculousType) implements ExtendedPacketPayload
-{
-	public static final Type<ServerboundActivateMainPowerPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_activate_main_power"));
-	public static final StreamCodec<FriendlyByteBuf, ServerboundActivateMainPowerPayload> CODEC = StreamCodec.composite(
-			NetworkUtils.enumCodec(MiraculousType.class), ServerboundActivateMainPowerPayload::miraculousType,
-			ServerboundActivateMainPowerPayload::new
-	);
+public record ServerboundActivateMainPowerPayload(MiraculousType miraculousType) implements ExtendedPacketPayload {
+    public static final Type<ServerboundActivateMainPowerPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_activate_main_power"));
+    public static final StreamCodec<FriendlyByteBuf, ServerboundActivateMainPowerPayload> CODEC = StreamCodec.composite(
+            NetworkUtils.enumCodec(MiraculousType.class), ServerboundActivateMainPowerPayload::miraculousType,
+            ServerboundActivateMainPowerPayload::new);
 
-	// ON SERVER
-	@Override
-	public void handle(Player player)
-	{
-		MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-		MiraculousData data = miraculousDataSet.get(miraculousType);
-		data.miraculousItem().set(MineraculousDataComponents.REMAINING_TICKS.get(), MiraculousItem.FIVE_MINUTES);
-		miraculousDataSet.put(player, miraculousType, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), true, true, data.name()), true);
-		CuriosUtils.setStackInSlot(player, data.curiosData(), data.miraculousItem(), true);
-	}
+    // ON SERVER
+    @Override
+    public void handle(Player player) {
+        MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
+        MiraculousData data = miraculousDataSet.get(miraculousType);
+        data.miraculousItem().set(MineraculousDataComponents.REMAINING_TICKS.get(), MiraculousItem.FIVE_MINUTES);
+        miraculousDataSet.put(player, miraculousType, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), true, true, data.name()), true);
+        CuriosUtils.setStackInSlot(player, data.curiosData(), data.miraculousItem(), true);
+    }
 
-	@Override
-	public Type<? extends CustomPacketPayload> type()
-	{
-		return TYPE;
-	}
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 }

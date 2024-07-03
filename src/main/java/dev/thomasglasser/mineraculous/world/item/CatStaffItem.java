@@ -32,97 +32,81 @@ import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class CatStaffItem extends BaseModeledSwordItem implements GeoItem
-{
-	public static final RawAnimation EXTEND = RawAnimation.begin().thenPlay("attack.extend");
-	public static final RawAnimation RETRACT = RawAnimation.begin().thenPlay("attack.retract");
-	public static final RawAnimation IDLE_RETRACTED = RawAnimation.begin().thenPlay("misc.idle.retracted");
+public class CatStaffItem extends BaseModeledSwordItem implements GeoItem {
+    public static final RawAnimation EXTEND = RawAnimation.begin().thenPlay("attack.extend");
+    public static final RawAnimation RETRACT = RawAnimation.begin().thenPlay("attack.retract");
+    public static final RawAnimation IDLE_RETRACTED = RawAnimation.begin().thenPlay("misc.idle.retracted");
 
-	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-	private BlockEntityWithoutLevelRenderer bewlr;
+    private BlockEntityWithoutLevelRenderer bewlr;
 
-	protected CatStaffItem(Properties pProperties)
-	{
-		super(MineraculousTiers.MIRACULOUS, pProperties
-				.attributes(SwordItem.createAttributes(MineraculousTiers.MIRACULOUS, 3, -2.4F))
-				.component(DataComponents.UNBREAKABLE, new Unbreakable(false)));
-		SingletonGeoAnimatable.registerSyncedAnimatable(this);
-	}
+    protected CatStaffItem(Properties pProperties) {
+        super(MineraculousTiers.MIRACULOUS, pProperties
+                .attributes(SwordItem.createAttributes(MineraculousTiers.MIRACULOUS, 3, -2.4F))
+                .component(DataComponents.UNBREAKABLE, new Unbreakable(false)));
+        SingletonGeoAnimatable.registerSyncedAnimatable(this);
+    }
 
-	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers)
-	{
-		controllers.add(new AnimationController<GeoAnimatable>(this, "use_controller", state -> PlayState.CONTINUE)
-				.triggerableAnim("extend", EXTEND)
-				.triggerableAnim("shield", DefaultAnimations.ATTACK_BLOCK)
-				.triggerableAnim("throw", DefaultAnimations.ATTACK_THROW)
-				.triggerableAnim("idle", DefaultAnimations.IDLE)
-				.triggerableAnim("retract", RETRACT)
-				.triggerableAnim("retracted", IDLE_RETRACTED));
-	}
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<GeoAnimatable>(this, "use_controller", state -> PlayState.CONTINUE)
+                .triggerableAnim("extend", EXTEND)
+                .triggerableAnim("shield", DefaultAnimations.ATTACK_BLOCK)
+                .triggerableAnim("throw", DefaultAnimations.ATTACK_THROW)
+                .triggerableAnim("idle", DefaultAnimations.IDLE)
+                .triggerableAnim("retract", RETRACT)
+                .triggerableAnim("retracted", IDLE_RETRACTED));
+    }
 
-	@Override
-	public BlockEntityWithoutLevelRenderer getBEWLR()
-	{
-		if (bewlr == null) bewlr = new CatStaffRenderer();
-		return bewlr;
-	}
+    @Override
+    public BlockEntityWithoutLevelRenderer getBEWLR() {
+        if (bewlr == null) bewlr = new CatStaffRenderer();
+        return bewlr;
+    }
 
-	@Override
-	public AnimatableInstanceCache getAnimatableInstanceCache()
-	{
-		return cache;
-	}
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
+    }
 
-	@Override
-	public void inventoryTick(ItemStack pStack, Level pLevel, Entity pEntity, int pSlotId, boolean pIsSelected) {
-		if (pEntity instanceof Player player && !player.isUsingItem())
-		{
-			if (pLevel instanceof ServerLevel)
-			{
-				long animId = GeoItem.getOrAssignId(pStack, (ServerLevel) pLevel);
-				if (!pStack.has(MineraculousDataComponents.POWERED.get()) && cache.getManagerForId(animId).getAnimationControllers().get("use_controller").getCurrentRawAnimation() != RETRACT)
-				{
-					triggerAnim(pEntity, animId, "use_controller", "retracted");
-				}
-			}
-			else if (player.getMainHandItem() == pStack || player.getOffhandItem() == pStack)
-			{
-				InteractionHand hand = player.getMainHandItem() == pStack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+    @Override
+    public void inventoryTick(ItemStack pStack, Level pLevel, Entity pEntity, int pSlotId, boolean pIsSelected) {
+        if (pEntity instanceof Player player && !player.isUsingItem()) {
+            if (pLevel instanceof ServerLevel) {
+                long animId = GeoItem.getOrAssignId(pStack, (ServerLevel) pLevel);
+                if (!pStack.has(MineraculousDataComponents.POWERED.get()) && cache.getManagerForId(animId).getAnimationControllers().get("use_controller").getCurrentRawAnimation() != RETRACT) {
+                    triggerAnim(pEntity, animId, "use_controller", "retracted");
+                }
+            } else if (player.getMainHandItem() == pStack || player.getOffhandItem() == pStack) {
+                InteractionHand hand = player.getMainHandItem() == pStack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
 
-				CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(pEntity);
-				int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
-				if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen())
-				{
-					if (MineraculousKeyMappings.ACTIVATE_TOOL.isDown())
-					{
-						boolean activate = !pStack.has(MineraculousDataComponents.POWERED.get());
-						if (activate)
-						{
-							pStack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
-						}
-						else
-						{
-							pStack.remove(MineraculousDataComponents.POWERED.get());
-						}
-						TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, pStack, hand));
-						playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
-					}
-				}
-				TommyLibServices.ENTITY.setPersistentData(pEntity, playerData, false);
-			}
-		}
+                CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(pEntity);
+                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
+                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen()) {
+                    if (MineraculousKeyMappings.ACTIVATE_TOOL.isDown()) {
+                        boolean activate = !pStack.has(MineraculousDataComponents.POWERED.get());
+                        if (activate) {
+                            pStack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
+                        } else {
+                            pStack.remove(MineraculousDataComponents.POWERED.get());
+                        }
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, pStack, hand));
+                        playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                    }
+                }
+                TommyLibServices.ENTITY.setPersistentData(pEntity, playerData, false);
+            }
+        }
 
-		super.inventoryTick(pStack, pLevel, pEntity, pSlotId, pIsSelected);
-	}
+        super.inventoryTick(pStack, pLevel, pEntity, pSlotId, pIsSelected);
+    }
 
-	@Override
-	public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand)
-	{
-		ItemStack stack = pPlayer.getItemInHand(pHand);
-		if (!stack.has(MineraculousDataComponents.POWERED.get()))
-			return InteractionResultHolder.fail(stack);
-		return super.use(pLevel, pPlayer, pHand);
-	}
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand) {
+        ItemStack stack = pPlayer.getItemInHand(pHand);
+        if (!stack.has(MineraculousDataComponents.POWERED.get()))
+            return InteractionResultHolder.fail(stack);
+        return super.use(pLevel, pPlayer, pHand);
+    }
 }

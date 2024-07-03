@@ -8,22 +8,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class CataclysmBlock extends Block
-{
-	public CataclysmBlock(Properties properties)
-	{
-		super(properties.randomTicks());
-	}
+public class CataclysmBlock extends Block {
+    public CataclysmBlock(Properties properties) {
+        super(properties.randomTicks());
+    }
 
-	@Override
-	public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random)
-	{
-		level.destroyBlock(pos, true);
-	}
+    @Override
+    public void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        level.destroyBlock(pos, true);
+    }
 
-	@Override
-	public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity)
-	{
-		level.destroyBlock(pos, true);
-	}
+    @Override
+    public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+        level.destroyBlock(pos, true);
+    }
 }

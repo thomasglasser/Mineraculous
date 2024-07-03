@@ -20,30 +20,26 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity
-{
-	@Shadow public abstract long getLootTableSeed();
+public abstract class LivingEntityMixin extends Entity {
+    @Shadow
+    public abstract long getLootTableSeed();
 
-	private final LivingEntity INSTANCE = (LivingEntity) (Object) this;
+    private final LivingEntity INSTANCE = (LivingEntity) (Object) this;
 
-	protected LivingEntityMixin(EntityType<?> entityType, Level level)
-	{
-		super(entityType, level);
-	}
+    protected LivingEntityMixin(EntityType<?> entityType, Level level) {
+        super(entityType, level);
+    }
 
-	@ModifyReturnValue(method = "isBlocking", at = @At("RETURN"))
-	private boolean isBlocking(boolean original)
-	{
-		return INSTANCE.getUseItem().getItem() == MineraculousItems.CAT_STAFF.get() || original;
-	}
+    @ModifyReturnValue(method = "isBlocking", at = @At("RETURN"))
+    private boolean isBlocking(boolean original) {
+        return INSTANCE.getUseItem().getItem() == MineraculousItems.CAT_STAFF.get() || original;
+    }
 
-	@Inject(method = "dropFromLootTable", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/storage/loot/LootTable;getRandomItems(Lnet/minecraft/world/level/storage/loot/LootParams;JLjava/util/function/Consumer;)V"), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
-	private void dropFromLootTable(DamageSource damageSource, boolean hitByPlayer, CallbackInfo ci, ResourceKey<LootTable> resourceKey, LootTable lootTable, LootParams.Builder builder, LootParams lootParams)
-	{
-		if (TommyLibServices.ENTITY.getPersistentData(INSTANCE).getBoolean(MineraculousEntityEvents.TAG_CATACLYSMED))
-		{
-			lootTable.getRandomItems(lootParams, getLootTableSeed(), stack -> INSTANCE.spawnAtLocation(MineraculousEntityEvents.convertToCataclysmDust(stack)));
-			ci.cancel();
-		}
-	}
+    @Inject(method = "dropFromLootTable", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/storage/loot/LootTable;getRandomItems(Lnet/minecraft/world/level/storage/loot/LootParams;JLjava/util/function/Consumer;)V"), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
+    private void dropFromLootTable(DamageSource damageSource, boolean hitByPlayer, CallbackInfo ci, ResourceKey<LootTable> resourceKey, LootTable lootTable, LootParams.Builder builder, LootParams lootParams) {
+        if (TommyLibServices.ENTITY.getPersistentData(INSTANCE).getBoolean(MineraculousEntityEvents.TAG_CATACLYSMED)) {
+            lootTable.getRandomItems(lootParams, getLootTableSeed(), stack -> INSTANCE.spawnAtLocation(MineraculousEntityEvents.convertToCataclysmDust(stack)));
+            ci.cancel();
+        }
+    }
 }

@@ -13,36 +13,29 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
 
-public record ClientboundToggleCatVisionPayload(boolean catVision) implements ExtendedPacketPayload
-{
-	public static final Type<ClientboundToggleCatVisionPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_toggle_cat_vision"));
-	public static final StreamCodec<ByteBuf, ClientboundToggleCatVisionPayload> CODEC = StreamCodec.composite(
-			ByteBufCodecs.BOOL, ClientboundToggleCatVisionPayload::catVision,
-			ClientboundToggleCatVisionPayload::new
-	);
+public record ClientboundToggleCatVisionPayload(boolean catVision) implements ExtendedPacketPayload {
+    public static final Type<ClientboundToggleCatVisionPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_toggle_cat_vision"));
+    public static final StreamCodec<ByteBuf, ClientboundToggleCatVisionPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.BOOL, ClientboundToggleCatVisionPayload::catVision,
+            ClientboundToggleCatVisionPayload::new);
 
-	// ON CLIENT
-	@Override
-	public void handle(Player player)
-	{
-		if (catVision)
-		{
-			MineraculousClientUtils.setShader(MineraculousEntityEvents.CAT_VISION_SHADER);
-			player.addEffect(MineraculousEntityEvents.INFINITE_HIDDEN_EFFECT.apply(MobEffects.NIGHT_VISION, 0));
-		}
-		else
-		{
-			MineraculousClientUtils.setShader(null);
-			player.removeEffect(MobEffects.NIGHT_VISION);
-		}
-		CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(player);
-		tag.putBoolean(MineraculousEntityEvents.TAG_HASCATVISION, catVision);
-		TommyLibServices.ENTITY.setPersistentData(player, tag, false);
-	}
+    // ON CLIENT
+    @Override
+    public void handle(Player player) {
+        if (catVision) {
+            MineraculousClientUtils.setShader(MineraculousEntityEvents.CAT_VISION_SHADER);
+            player.addEffect(MineraculousEntityEvents.INFINITE_HIDDEN_EFFECT.apply(MobEffects.NIGHT_VISION, 0));
+        } else {
+            MineraculousClientUtils.setShader(null);
+            player.removeEffect(MobEffects.NIGHT_VISION);
+        }
+        CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(player);
+        tag.putBoolean(MineraculousEntityEvents.TAG_HASCATVISION, catVision);
+        TommyLibServices.ENTITY.setPersistentData(player, tag, false);
+    }
 
-	@Override
-	public Type<? extends CustomPacketPayload> type()
-	{
-		return TYPE;
-	}
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 }

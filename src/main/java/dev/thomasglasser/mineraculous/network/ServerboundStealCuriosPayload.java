@@ -11,6 +11,7 @@ import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
+import java.util.UUID;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -24,53 +25,41 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
-import java.util.UUID;
+public record ServerboundStealCuriosPayload(UUID target, CuriosData data) implements ExtendedPacketPayload {
+    public static final Type<ServerboundStealCuriosPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_steal_curios"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundStealCuriosPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), ServerboundStealCuriosPayload::target,
+            CuriosData.STREAM_CODEC, ServerboundStealCuriosPayload::data,
+            ServerboundStealCuriosPayload::new);
 
-public record ServerboundStealCuriosPayload(UUID target, CuriosData data) implements ExtendedPacketPayload
-{
-	public static final Type<ServerboundStealCuriosPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_steal_curios"));
-	public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundStealCuriosPayload> CODEC = StreamCodec.composite(
-			ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), ServerboundStealCuriosPayload::target,
-			CuriosData.STREAM_CODEC, ServerboundStealCuriosPayload::data,
-			ServerboundStealCuriosPayload::new
-	);
+    // ON SERVER
+    @Override
+    public void handle(Player player) {
+        Player target = player.level().getPlayerByUUID(this.target);
+        if (target != null) {
+            ItemStack stack = CuriosUtils.getStackInSlot(target, this.data);
+            if (stack.getItem() instanceof MiraculousItem miraculousItem) {
+                MiraculousData miraculousData = target.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculousItem.getType());
+                if (miraculousData.miraculousItem() == stack) {
+                    if (miraculousData.transformed())
+                        MineraculousEntityEvents.handleTransformation(target, miraculousItem.getType(), miraculousData, false);
+                    Entity entity = ((ServerLevel) player.level()).getEntity(stack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid());
+                    if (entity instanceof Kwami kwami)
+                        MineraculousEntityEvents.renounceMiraculous(stack, kwami);
+                    stack = CuriosUtils.getStackInSlot(target, this.data);
+                }
+            }
+            if (EnchantmentHelper.has(stack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE)) {
+                player.displayClientMessage(Component.translatable(ExternalInventoryScreen.ITEM_BOUND_KEY), true);
+            } else {
+                player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+                CuriosUtils.setStackInSlot(target, this.data, ItemStack.EMPTY, true);
+            }
+        }
+    }
 
-	// ON SERVER
-	@Override
-	public void handle(Player player)
-	{
-		Player target = player.level().getPlayerByUUID(this.target);
-		if (target != null)
-		{
-			ItemStack stack = CuriosUtils.getStackInSlot(target, this.data);
-			if (stack.getItem() instanceof MiraculousItem miraculousItem)
-			{
-				MiraculousData miraculousData = target.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculousItem.getType());
-				if (miraculousData.miraculousItem() == stack)
-				{
-					if (miraculousData.transformed())
-						MineraculousEntityEvents.handleTransformation(target, miraculousItem.getType(), miraculousData, false);
-					Entity entity = ((ServerLevel) player.level()).getEntity(stack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid());
-					if (entity instanceof Kwami kwami)
-						MineraculousEntityEvents.renounceMiraculous(stack, kwami);
-					stack = CuriosUtils.getStackInSlot(target, this.data);
-				}
-			}
-			if (EnchantmentHelper.has(stack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE))
-			{
-				player.displayClientMessage(Component.translatable(ExternalInventoryScreen.ITEM_BOUND_KEY), true);
-			}
-			else
-			{
-				player.setItemInHand(InteractionHand.MAIN_HAND, stack);
-				CuriosUtils.setStackInSlot(target, this.data, ItemStack.EMPTY, true);
-			}
-		}
-	}
-
-	@Override
-	public Type<? extends CustomPacketPayload> type()
-	{
-		return TYPE;
-	}
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 }

@@ -13,28 +13,25 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-public record ClientboundSyncCurioPayload(int entity, CuriosData curiosData, ItemStack stack) implements ExtendedPacketPayload
-{
-	public static final Type<ClientboundSyncCurioPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_sync_curio"));
-	public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundSyncCurioPayload> CODEC = StreamCodec.composite(
-			ByteBufCodecs.INT, ClientboundSyncCurioPayload::entity,
-			CuriosData.STREAM_CODEC, ClientboundSyncCurioPayload::curiosData,
-			ItemStack.OPTIONAL_STREAM_CODEC, ClientboundSyncCurioPayload::stack,
-			ClientboundSyncCurioPayload::new
-	);
+public record ClientboundSyncCurioPayload(int entity, CuriosData curiosData, ItemStack stack) implements ExtendedPacketPayload {
 
-	// ON CLIENT
-	@Override
-	public void handle(Player player)
-	{
-		Entity found = player.level().getEntity(entity);
-		if (found instanceof LivingEntity livingEntity)
-			CuriosUtils.setStackInSlot(livingEntity, curiosData, stack, false);
-	}
+    public static final Type<ClientboundSyncCurioPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_sync_curio"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundSyncCurioPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT, ClientboundSyncCurioPayload::entity,
+            CuriosData.STREAM_CODEC, ClientboundSyncCurioPayload::curiosData,
+            ItemStack.OPTIONAL_STREAM_CODEC, ClientboundSyncCurioPayload::stack,
+            ClientboundSyncCurioPayload::new);
 
-	@Override
-	public Type<? extends CustomPacketPayload> type()
-	{
-		return TYPE;
-	}
+    // ON CLIENT
+    @Override
+    public void handle(Player player) {
+        Entity found = player.level().getEntity(entity);
+        if (found instanceof LivingEntity livingEntity)
+            CuriosUtils.setStackInSlot(livingEntity, curiosData, stack, false);
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 }

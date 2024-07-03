@@ -18,20 +18,15 @@ import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
-public class ThrownCatStaffRenderer extends GeoEntityRenderer<ThrownCatStaff>
-{
-    public ThrownCatStaffRenderer(EntityRendererProvider.Context context)
-    {
+public class ThrownCatStaffRenderer extends GeoEntityRenderer<ThrownCatStaff> {
+    public ThrownCatStaffRenderer(EntityRendererProvider.Context context) {
         super(context, new DefaultedItemGeoModel<>(Mineraculous.modLoc("cat_staff")));
-        addRenderLayer(new AutoGlowingGeoLayer<>(this)
-        {
+        addRenderLayer(new AutoGlowingGeoLayer<>(this) {
             static RenderType RENDER_TYPE;
 
             @Override
-            protected RenderType getRenderType(ThrownCatStaff animatable)
-            {
-                if (RENDER_TYPE == null)
-                {
+            protected RenderType getRenderType(ThrownCatStaff animatable) {
+                if (RENDER_TYPE == null) {
                     RENDER_TYPE = RenderType.eyes(AutoGlowingTexture.getEmissiveResource(CatStaffRenderer.TEXTURE));
                 }
                 return RENDER_TYPE;
@@ -40,8 +35,7 @@ public class ThrownCatStaffRenderer extends GeoEntityRenderer<ThrownCatStaff>
     }
 
     @Override
-    public void actuallyRender(PoseStack poseStack, ThrownCatStaff animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour)
-    {
+    public void actuallyRender(PoseStack poseStack, ThrownCatStaff animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot()) - 90.0F));
         poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot()) + 90.0F));
@@ -52,8 +46,7 @@ public class ThrownCatStaffRenderer extends GeoEntityRenderer<ThrownCatStaff>
     }
 
     @Override
-    public ResourceLocation getTextureLocation(ThrownCatStaff animatable)
-    {
+    public ResourceLocation getTextureLocation(ThrownCatStaff animatable) {
         return CatStaffRenderer.TEXTURE;
     }
 }

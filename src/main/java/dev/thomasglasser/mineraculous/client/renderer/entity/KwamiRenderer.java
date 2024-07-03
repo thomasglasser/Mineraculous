@@ -6,26 +6,22 @@ import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.renderer.specialty.DynamicGeoEntityRenderer;
 
-public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T>
-{
-	private ResourceLocation hungryTexture;
+public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> {
+    private ResourceLocation hungryTexture;
 
-	public KwamiRenderer(EntityRendererProvider.Context renderManager, ResourceLocation location)
-	{
-		super(renderManager, new DefaultedEntityGeoModel<>(ResourceLocation.fromNamespaceAndPath(location.getNamespace(), "kwami/" + location.getPath())));
-		withScale(0.4F);
-	}
+    public KwamiRenderer(EntityRendererProvider.Context renderManager, ResourceLocation location) {
+        super(renderManager, new DefaultedEntityGeoModel<>(ResourceLocation.fromNamespaceAndPath(location.getNamespace(), "kwami/" + location.getPath())));
+        withScale(0.4F);
+    }
 
-	@Override
-	public ResourceLocation getTextureLocation(T animatable)
-	{
-		if (hungryTexture == null)
-		{
-			ResourceLocation original = super.getTextureLocation(animatable);
-			hungryTexture = ResourceLocation.fromNamespaceAndPath(original.getNamespace(), original.getPath().replace(".png", "_hungry.png"));
-		}
-		if (!animatable.isCharged())
-			return hungryTexture;
-		return super.getTextureLocation(animatable);
-	}
+    @Override
+    public ResourceLocation getTextureLocation(T animatable) {
+        if (hungryTexture == null) {
+            ResourceLocation original = super.getTextureLocation(animatable);
+            hungryTexture = ResourceLocation.fromNamespaceAndPath(original.getNamespace(), original.getPath().replace(".png", "_hungry.png"));
+        }
+        if (!animatable.isCharged())
+            return hungryTexture;
+        return super.getTextureLocation(animatable);
+    }
 }

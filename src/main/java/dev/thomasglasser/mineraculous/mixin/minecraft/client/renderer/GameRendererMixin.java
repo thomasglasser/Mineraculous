@@ -10,14 +10,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
-public abstract class GameRendererMixin
-{
-	@Inject(method = "togglePostEffect", at = @At("HEAD"), cancellable = true)
-	private void togglePostEffect(CallbackInfo ci)
-	{
-		if (TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer()).getBoolean(MineraculousEntityEvents.TAG_HASCATVISION))
-		{
-			ci.cancel();
-		}
-	}
+public abstract class GameRendererMixin {
+    @Inject(method = "togglePostEffect", at = @At("HEAD"), cancellable = true)
+    private void togglePostEffect(CallbackInfo ci) {
+        if (TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer()).getBoolean(MineraculousEntityEvents.TAG_HASCATVISION)) {
+            ci.cancel();
+        }
+    }
 }

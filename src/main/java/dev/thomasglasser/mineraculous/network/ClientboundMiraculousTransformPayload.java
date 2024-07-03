@@ -12,36 +12,29 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
-public record ClientboundMiraculousTransformPayload(MiraculousType miraculousType, MiraculousData data) implements ExtendedPacketPayload
-{
-	public static final Type<ClientboundMiraculousTransformPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_miraculous_transform"));
-	public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundMiraculousTransformPayload> CODEC = StreamCodec.composite(
-			NetworkUtils.enumCodec(MiraculousType.class), ClientboundMiraculousTransformPayload::miraculousType,
-			MiraculousData.STREAM_CODEC, ClientboundMiraculousTransformPayload::data,
-			ClientboundMiraculousTransformPayload::new
-	);
+public record ClientboundMiraculousTransformPayload(MiraculousType miraculousType, MiraculousData data) implements ExtendedPacketPayload {
+    public static final Type<ClientboundMiraculousTransformPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_miraculous_transform"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundMiraculousTransformPayload> CODEC = StreamCodec.composite(
+            NetworkUtils.enumCodec(MiraculousType.class), ClientboundMiraculousTransformPayload::miraculousType,
+            MiraculousData.STREAM_CODEC, ClientboundMiraculousTransformPayload::data,
+            ClientboundMiraculousTransformPayload::new);
 
-	// ON CLIENT
-	@Override
-	public void handle(Player player)
-	{
-		if (data.transformed())
-		{
-			// TODO: Start player anim
-			data.miraculousItem().set(MineraculousDataComponents.TRANSFORMING_ANIM_TICKS.get(), 0 /* TODO: Set it to however long the transform anim is */);
-			if (data.name().isEmpty())
-				player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(miraculousType.getTranslationKey()), miraculousType.getSerializedName()), true);
-		}
-		else
-		{
-			// TODO: Start player anim
-			data.miraculousItem().set(MineraculousDataComponents.DETRANSFORMING_ANIM_TICKS.get(), 0 /* TODO: Set it to however long the detransform anim is */);
-		}
-	}
+    // ON CLIENT
+    @Override
+    public void handle(Player player) {
+        if (data.transformed()) {
+            // TODO: Start player anim
+            data.miraculousItem().set(MineraculousDataComponents.TRANSFORMING_ANIM_TICKS.get(), 0 /* TODO: Set it to however long the transform anim is */);
+            if (data.name().isEmpty())
+                player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(miraculousType.getTranslationKey()), miraculousType.getSerializedName()), true);
+        } else {
+            // TODO: Start player anim
+            data.miraculousItem().set(MineraculousDataComponents.DETRANSFORMING_ANIM_TICKS.get(), 0 /* TODO: Set it to however long the detransform anim is */);
+        }
+    }
 
-	@Override
-	public Type<? extends CustomPacketPayload> type()
-	{
-		return TYPE;
-	}
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 }

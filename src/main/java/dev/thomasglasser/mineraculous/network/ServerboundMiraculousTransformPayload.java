@@ -13,26 +13,23 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-public record ServerboundMiraculousTransformPayload(MiraculousType miraculousType, MiraculousData data, boolean transform) implements ExtendedPacketPayload
-{
-	public static final Type<ServerboundMiraculousTransformPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_miraculous_transform"));
-	public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundMiraculousTransformPayload> CODEC = StreamCodec.composite(
-			NetworkUtils.enumCodec(MiraculousType.class), ServerboundMiraculousTransformPayload::miraculousType,
-			MiraculousData.STREAM_CODEC, ServerboundMiraculousTransformPayload::data,
-			ByteBufCodecs.BOOL, ServerboundMiraculousTransformPayload::transform,
-			ServerboundMiraculousTransformPayload::new
-	);
+public record ServerboundMiraculousTransformPayload(MiraculousType miraculousType, MiraculousData data, boolean transform) implements ExtendedPacketPayload {
 
-	// ON SERVER
-	@Override
-	public void handle(@Nullable Player player)
-	{
-		MineraculousEntityEvents.handleTransformation(player, miraculousType, data, transform);
-	}
+    public static final Type<ServerboundMiraculousTransformPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_miraculous_transform"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundMiraculousTransformPayload> CODEC = StreamCodec.composite(
+            NetworkUtils.enumCodec(MiraculousType.class), ServerboundMiraculousTransformPayload::miraculousType,
+            MiraculousData.STREAM_CODEC, ServerboundMiraculousTransformPayload::data,
+            ByteBufCodecs.BOOL, ServerboundMiraculousTransformPayload::transform,
+            ServerboundMiraculousTransformPayload::new);
 
-	@Override
-	public Type<? extends CustomPacketPayload> type()
-	{
-		return TYPE;
-	}
+    // ON SERVER
+    @Override
+    public void handle(@Nullable Player player) {
+        MineraculousEntityEvents.handleTransformation(player, miraculousType, data, transform);
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 }

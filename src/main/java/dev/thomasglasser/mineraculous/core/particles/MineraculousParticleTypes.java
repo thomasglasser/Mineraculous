@@ -9,11 +9,10 @@ import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.Registries;
 
-public class MineraculousParticleTypes
-{
-	public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(Registries.PARTICLE_TYPE, Mineraculous.MOD_ID);
+public class MineraculousParticleTypes {
+    public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(Registries.PARTICLE_TYPE, Mineraculous.MOD_ID);
 
-	public static final DeferredHolder<ParticleType<?>, SimpleParticleType> CATACLYSM = PARTICLE_TYPES.register("cataclysm", () -> TommyLibServices.PARTICLE.simple("cataclysm", CataclysmParticle.Provider::new, true));
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> CATACLYSM = PARTICLE_TYPES.register("cataclysm", () -> TommyLibServices.PARTICLE.simple("cataclysm", CataclysmParticle.Provider::new, true));
 
-	public static void init() {}
+    public static void init() {}
 }

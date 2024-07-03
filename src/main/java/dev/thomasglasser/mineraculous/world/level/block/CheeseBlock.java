@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.world.level.block;
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
+import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -36,8 +37,6 @@ import net.neoforged.neoforge.common.ToolAction;
 import net.neoforged.neoforge.common.ToolActions;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-
 public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBlock.Age> {
     public static final int MAX_BITES = 3;
     public static final IntegerProperty BITES = IntegerProperty.create("bites", 0, MAX_BITES);
@@ -66,7 +65,7 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
     @Override
     protected void randomTick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         // No change if waxed.
-        if (!waxed) changeOverTime(state,level,pos,random);
+        if (!waxed) changeOverTime(state, level, pos, random);
     }
 
     @Override
@@ -102,8 +101,7 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
     }
 
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack pStack, BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHitResult)
-    {
+    protected ItemInteractionResult useItemOn(ItemStack pStack, BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHitResult) {
         if (pStack.is(Items.HONEYCOMB))
             return ItemInteractionResult.FAIL;
         return super.useItemOn(pStack, pState, pLevel, pPos, pPlayer, pHand, pHitResult);
@@ -158,28 +156,23 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
         return getOutputSignal(state.getValue(BITES));
     }
 
-    public DeferredItem<?> getWedge()
-    {
+    public DeferredItem<?> getWedge() {
         return wedge;
     }
 
-    public boolean isWaxed()
-    {
+    public boolean isWaxed() {
         return waxed;
     }
 
     @Override
-    public @Nullable BlockState getToolModifiedState(BlockState state, UseOnContext context, ToolAction toolAction, boolean simulate)
-    {
-        if (toolAction == ToolActions.AXE_WAX_OFF && unwaxedBlock != null)
-        {
+    public @Nullable BlockState getToolModifiedState(BlockState state, UseOnContext context, ToolAction toolAction, boolean simulate) {
+        if (toolAction == ToolActions.AXE_WAX_OFF && unwaxedBlock != null) {
             return unwaxedBlock.get().withPropertiesOf(state);
         }
         return super.getToolModifiedState(state, context, toolAction, simulate);
     }
 
-    public DeferredBlock<CheeseBlock> getWaxedBlock()
-    {
+    public DeferredBlock<CheeseBlock> getWaxedBlock() {
         return waxedBlock;
     }
 
@@ -197,8 +190,7 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
             return name().toLowerCase();
         }
 
-        public Age getNext()
-        {
+        public Age getNext() {
             if (ordinal() >= values().length - 1) return null;
             return values()[ordinal() + 1];
         }

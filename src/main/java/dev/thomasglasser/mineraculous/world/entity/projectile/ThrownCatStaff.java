@@ -7,39 +7,33 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class ThrownCatStaff extends AbstractArrow implements GeoEntity
-{
-	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-	public ThrownCatStaff(LivingEntity owner, Level level, ItemStack pickupItemStack, ItemStack firedBy)
-	{
-		super(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), owner, level, pickupItemStack, firedBy);
-	}
+    public ThrownCatStaff(LivingEntity owner, Level level, ItemStack pickupItemStack, ItemStack firedBy) {
+        super(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), owner, level, pickupItemStack, firedBy);
+    }
 
-	public ThrownCatStaff(EntityType<? extends ThrownCatStaff> entityType, Level level)
-	{
-		super(entityType, level);
-		this.pickup = AbstractArrow.Pickup.ALLOWED;
-	}
+    public ThrownCatStaff(EntityType<? extends ThrownCatStaff> entityType, Level level) {
+        super(entityType, level);
+        this.pickup = AbstractArrow.Pickup.ALLOWED;
+    }
 
-	@Override
-	protected @NotNull ItemStack getDefaultPickupItem()
-	{
-		return MineraculousItems.CAT_STAFF.toStack();
-	}
+    @Override
+    protected ItemStack getDefaultPickupItem() {
+        return MineraculousItems.CAT_STAFF.toStack();
+    }
 
-	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {}
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {}
 
-	@Override
-	public AnimatableInstanceCache getAnimatableInstanceCache()
-	{
-		return cache;
-	}
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
+    }
 }

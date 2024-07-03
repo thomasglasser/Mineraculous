@@ -16,35 +16,29 @@ import net.minecraft.world.item.ItemStack;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 
-public record ServerboundActivateToolPayload(boolean activate, ItemStack stack, InteractionHand hand) implements ExtendedPacketPayload
-{
-	public static final Type<ServerboundActivateToolPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_activate_tool"));
-	public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundActivateToolPayload> CODEC = StreamCodec.composite(
-			ByteBufCodecs.BOOL, ServerboundActivateToolPayload::activate,
-			ItemStack.STREAM_CODEC, ServerboundActivateToolPayload::stack,
-			NetworkUtils.enumCodec(InteractionHand.class), ServerboundActivateToolPayload::hand,
-			ServerboundActivateToolPayload::new
-	);
+public record ServerboundActivateToolPayload(boolean activate, ItemStack stack, InteractionHand hand) implements ExtendedPacketPayload {
 
-	// ON SERVER
-	@Override
-	public void handle(Player player)
-	{
-		if (activate)
-		{
-			player.getItemInHand(hand).set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
-			((SingletonGeoAnimatable)stack.getItem()).triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerLevel) player.level()), "use_controller", "extend");
-		}
-		else
-		{
-			player.getItemInHand(hand).remove(MineraculousDataComponents.POWERED.get());
-			((SingletonGeoAnimatable)stack.getItem()).triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerLevel) player.level()), "use_controller", "retract");
-		}
-	}
+    public static final Type<ServerboundActivateToolPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_activate_tool"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundActivateToolPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.BOOL, ServerboundActivateToolPayload::activate,
+            ItemStack.STREAM_CODEC, ServerboundActivateToolPayload::stack,
+            NetworkUtils.enumCodec(InteractionHand.class), ServerboundActivateToolPayload::hand,
+            ServerboundActivateToolPayload::new);
 
-	@Override
-	public Type<? extends CustomPacketPayload> type()
-	{
-		return TYPE;
-	}
+    // ON SERVER
+    @Override
+    public void handle(Player player) {
+        if (activate) {
+            player.getItemInHand(hand).set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
+            ((SingletonGeoAnimatable) stack.getItem()).triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerLevel) player.level()), "use_controller", "extend");
+        } else {
+            player.getItemInHand(hand).remove(MineraculousDataComponents.POWERED.get());
+            ((SingletonGeoAnimatable) stack.getItem()).triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerLevel) player.level()), "use_controller", "retract");
+        }
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 }

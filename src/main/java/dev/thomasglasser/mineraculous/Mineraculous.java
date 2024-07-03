@@ -33,8 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Mod(Mineraculous.MOD_ID)
-public class Mineraculous
-{
+public class Mineraculous {
     public static final String MOD_ID = "mineraculous";
     public static final String MOD_NAME = "Mineraculous";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
@@ -78,8 +77,7 @@ public class Mineraculous
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingTick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerTick);
 
-        if (TommyLibServices.PLATFORM.isClientSide())
-        {
+        if (TommyLibServices.PLATFORM.isClientSide()) {
             bus.addListener(MineraculousClientEvents::onRegisterAdditionalModels);
             bus.addListener(MineraculousClientEvents::onRegisterRenderer);
             bus.addListener(MineraculousClientEvents::onFMLClientSetup);
@@ -90,41 +88,34 @@ public class Mineraculous
         }
     }
 
-    private void addModListeners(IEventBus bus)
-    {
+    private void addModListeners(IEventBus bus) {
         bus.addListener(MineraculousEntityEvents::onEntityAttributeCreation);
         bus.addListener(MineraculousCoreEvents::onRegisterPackets);
     }
 
-    private static void registerConfigs()
-    {
+    private static void registerConfigs() {
         MidnightConfig.init(MOD_ID, MineraculousServerConfig.class);
         if (TommyLibServices.PLATFORM.isClientSide()) MidnightConfig.init(MOD_ID, MineraculousClientConfig.class);
     }
 
-    public static ResourceLocation modLoc(String s)
-    {
+    public static ResourceLocation modLoc(String s) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, s);
     }
 
-    public enum Dependencies
-    {
+    public enum Dependencies {
         CURIOS("curios");
 
         private String id;
 
-        Dependencies(String id)
-        {
+        Dependencies(String id) {
             this.id = id;
         }
 
-        public String getId()
-        {
+        public String getId() {
             return id;
         }
 
-        public ResourceLocation modLoc(String s)
-        {
+        public ResourceLocation modLoc(String s) {
             return ResourceLocation.fromNamespaceAndPath(getId(), s);
         }
     }

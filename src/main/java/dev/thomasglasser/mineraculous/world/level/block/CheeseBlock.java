@@ -33,8 +33,8 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.common.ToolAction;
-import net.neoforged.neoforge.common.ToolActions;
+import net.neoforged.neoforge.common.ItemAbilities;
+import net.neoforged.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.Nullable;
 
 public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBlock.Age> {
@@ -165,11 +165,11 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
     }
 
     @Override
-    public @Nullable BlockState getToolModifiedState(BlockState state, UseOnContext context, ToolAction toolAction, boolean simulate) {
-        if (toolAction == ToolActions.AXE_WAX_OFF && unwaxedBlock != null) {
+    public @Nullable BlockState getToolModifiedState(BlockState state, UseOnContext context, ItemAbility itemAbility, boolean simulate) {
+        if (itemAbility == ItemAbilities.AXE_WAX_OFF && unwaxedBlock != null) {
             return unwaxedBlock.get().withPropertiesOf(state);
         }
-        return super.getToolModifiedState(state, context, toolAction, simulate);
+        return super.getToolModifiedState(state, context, itemAbility, simulate);
     }
 
     public DeferredBlock<CheeseBlock> getWaxedBlock() {

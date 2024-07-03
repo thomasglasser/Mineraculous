@@ -64,7 +64,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
-import net.neoforged.neoforge.event.entity.living.LivingAttackEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
@@ -315,7 +315,7 @@ public class MineraculousEntityEvents {
             testAndApplyCataclysmEffects(event.getEntity(), event.getTarget(), InteractionHand.MAIN_HAND);
     }
 
-    public static void onLivingAttack(LivingAttackEvent event) {
+    public static void onLivingAttack(LivingDamageEvent.Post event) {
         if (event.getSource().getDirectEntity() instanceof LivingEntity livingEntity) {
             testAndApplyCataclysmEffects(livingEntity, event.getEntity(), InteractionHand.MAIN_HAND);
         }

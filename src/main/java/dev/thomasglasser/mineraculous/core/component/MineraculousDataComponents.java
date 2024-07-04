@@ -37,7 +37,10 @@ public class MineraculousDataComponents {
             if (networkCodec != null) {
                 builder.networkSynchronized(networkCodec);
             }
-            return builder.cacheEncoding().build();
+            if (cache) {
+                builder.cacheEncoding();
+            }
+            return builder.build();
         };
         return DATA_COMPONENTS.register(name, component);
     }

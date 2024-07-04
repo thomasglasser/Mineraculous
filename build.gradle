@@ -137,8 +137,6 @@ configurations {
 dependencies {
 	jarJar implementation("dev.thomasglasser.tommylib:tommylib-neoforge-${minecraft_version}:${tommylib_version}")
 
-	jarJar implementation("maven.modrinth:midnightlib:${midnightlib_version}-neoforge")
-
 	implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 	implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${sbl_version}"
 	implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
@@ -208,6 +206,10 @@ spotless {
 }
 
 tasks.named('spotlessMiscCheck') {
+	dependsOn 'spotlessApply'
+}
+
+tasks.named('compileJava') {
 	dependsOn 'spotlessApply'
 }
 

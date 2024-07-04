@@ -24,10 +24,11 @@ import dev.thomasglasser.mineraculous.world.item.crafting.MineraculousRecipeSeri
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.modifier.MineraculousLootModifiers;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import eu.midnightdust.lib.config.MidnightConfig;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ public class Mineraculous {
     public static final String MOD_NAME = "Mineraculous";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
 
-    public Mineraculous(IEventBus bus) {
+    public Mineraculous(IEventBus bus, ModContainer modContainer) {
         LOGGER.info("Initializing {} for {} in a {} environment...", MOD_NAME, TommyLibServices.PLATFORM.getPlatformName(), TommyLibServices.PLATFORM.getEnvironmentName());
 
         MineraculousItems.init();
@@ -57,7 +58,7 @@ public class Mineraculous {
         MineraculousLootModifiers.init();
         MineraculousEntityDataSerializers.init();
 
-        registerConfigs();
+        registerConfigs(modContainer);
 
         if (TommyLibServices.PLATFORM.isClientSide()) MineraculousClientUtils.init();
 
@@ -85,6 +86,7 @@ public class Mineraculous {
             bus.addListener(MineraculousClientEvents::onRegisterGuiLayers);
 
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onEntityJoinLevel);
+            NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onGetPlayerHeartType);
         }
     }
 
@@ -93,9 +95,9 @@ public class Mineraculous {
         bus.addListener(MineraculousCoreEvents::onRegisterPackets);
     }
 
-    private static void registerConfigs() {
-        MidnightConfig.init(MOD_ID, MineraculousServerConfig.class);
-        if (TommyLibServices.PLATFORM.isClientSide()) MidnightConfig.init(MOD_ID, MineraculousClientConfig.class);
+    private static void registerConfigs(ModContainer modContainer) {
+        modContainer.registerConfig(ModConfig.Type.SERVER, MineraculousServerConfig.INSTANCE.getConfigSpec());
+        modContainer.registerConfig(ModConfig.Type.CLIENT, MineraculousClientConfig.INSTANCE.getConfigSpec());
     }
 
     public static ResourceLocation modLoc(String s) {

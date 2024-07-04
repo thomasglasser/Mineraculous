@@ -1,12 +1,29 @@
 package dev.thomasglasser.mineraculous.client;
 
-import eu.midnightdust.lib.config.MidnightConfig;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
-public class MineraculousClientConfig extends MidnightConfig {
-    @Comment(category = "miraculous", centered = true)
-    public static final String miraculous_comment = "Settings for the Miraculous";
-    @Comment(category = "miraculous")
-    public static final String enable_per_player_customization_comment = "Enable resource pack support for per-player customization of miraculous items";
-    @Entry(category = "miraculous")
-    public static boolean enablePerPlayerCustomization = false;
+public class MineraculousClientConfig {
+    public static final MineraculousClientConfig INSTANCE = new MineraculousClientConfig();
+
+    private final ModConfigSpec configSpec;
+
+    // Miraculous
+    public final ModConfigSpec.BooleanValue enablePerPlayerCustomization;
+
+    public MineraculousClientConfig() {
+        ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
+
+        builder.comment("Settings for the Miraculous");
+        builder.push("miraculous");
+        enablePerPlayerCustomization = builder
+                .comment("Enable resource pack support for per-player customization of miraculous items")
+                .define("enable_per_player_customization", false);
+        builder.pop();
+
+        configSpec = builder.build();
+    }
+
+    public ModConfigSpec getConfigSpec() {
+        return configSpec;
+    }
 }

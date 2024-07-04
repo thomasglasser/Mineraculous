@@ -1,8 +1,6 @@
 package dev.thomasglasser.mineraculous.mixin.minecraft.world.entity;
 
-import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
-import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageSource;
@@ -14,6 +12,7 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -24,21 +23,17 @@ public abstract class LivingEntityMixin extends Entity {
     @Shadow
     public abstract long getLootTableSeed();
 
-    private final LivingEntity INSTANCE = (LivingEntity) (Object) this;
+    @Unique
+    private final LivingEntity mineraculous$INSTANCE = (LivingEntity) (Object) this;
 
     protected LivingEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
     }
 
-    @ModifyReturnValue(method = "isBlocking", at = @At("RETURN"))
-    private boolean isBlocking(boolean original) {
-        return INSTANCE.getUseItem().getItem() == MineraculousItems.CAT_STAFF.get() || original;
-    }
-
     @Inject(method = "dropFromLootTable", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/storage/loot/LootTable;getRandomItems(Lnet/minecraft/world/level/storage/loot/LootParams;JLjava/util/function/Consumer;)V"), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
     private void dropFromLootTable(DamageSource damageSource, boolean hitByPlayer, CallbackInfo ci, ResourceKey<LootTable> resourceKey, LootTable lootTable, LootParams.Builder builder, LootParams lootParams) {
-        if (TommyLibServices.ENTITY.getPersistentData(INSTANCE).getBoolean(MineraculousEntityEvents.TAG_CATACLYSMED)) {
-            lootTable.getRandomItems(lootParams, getLootTableSeed(), stack -> INSTANCE.spawnAtLocation(MineraculousEntityEvents.convertToCataclysmDust(stack)));
+        if (TommyLibServices.ENTITY.getPersistentData(mineraculous$INSTANCE).getBoolean(MineraculousEntityEvents.TAG_CATACLYSMED)) {
+            lootTable.getRandomItems(lootParams, getLootTableSeed(), stack -> mineraculous$INSTANCE.spawnAtLocation(MineraculousEntityEvents.convertToCataclysmDust(stack)));
             ci.cancel();
         }
     }

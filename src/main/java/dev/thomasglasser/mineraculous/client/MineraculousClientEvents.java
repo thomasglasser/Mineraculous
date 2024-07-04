@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.client;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.client.particle.CataclysmParticle;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KamikoRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
@@ -32,6 +33,7 @@ import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 public class MineraculousClientEvents {
@@ -86,5 +88,10 @@ public class MineraculousClientEvents {
             guiGraphics.fill(RenderType.guiOverlay(), x, y, x + 20, y + 5, -16777216);
             guiGraphics.fill(RenderType.guiOverlay(), x, y, (int) (x + (width / 5.0)), y + 5, 0xFFFFFFF | -16777216);
         }
+    }
+
+    public static void onGetPlayerHeartType(PlayerHeartTypeEvent event) {
+        if (MineraculousEntityEvents.isCataclysmed(event.getEntity()))
+            event.setType(MineraculousHeartTypes.CATACLYSMED.getValue());
     }
 }

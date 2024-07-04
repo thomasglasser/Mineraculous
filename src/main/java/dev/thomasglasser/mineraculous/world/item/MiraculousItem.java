@@ -33,6 +33,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
@@ -49,7 +50,9 @@ public class MiraculousItem extends BaseModeledItem implements ICurioItem {
     private final MiraculousType type;
 
     public MiraculousItem(Properties properties, MiraculousType type, ArmorSet armor, Supplier<? extends Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, String acceptableSlot, TextColor powerColor) {
-        super(properties.stacksTo(1).fireResistant().rarity(Rarity.EPIC).component(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE));
+        super(properties.stacksTo(1).fireResistant().rarity(Rarity.EPIC)
+                .component(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE)
+                .component(DataComponents.UNBREAKABLE, new Unbreakable(true)));
         this.armor = armor;
         this.tool = tool;
         this.transformSound = transformSound;

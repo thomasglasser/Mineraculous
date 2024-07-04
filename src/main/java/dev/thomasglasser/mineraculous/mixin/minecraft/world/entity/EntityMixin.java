@@ -13,11 +13,11 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(Entity.class)
 public abstract class EntityMixin {
     @Unique
-    Entity INSTANCE = (Entity) (Object) this;
+    Entity mineraculous$INSTANCE = (Entity) (Object) this;
 
     @ModifyReturnValue(method = "getName", at = @At("RETURN"))
     private Component getName(Component original) {
-        if (INSTANCE instanceof LivingEntity livingEntity && livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).isTransformed()) {
+        if (mineraculous$INSTANCE instanceof LivingEntity livingEntity && livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).isTransformed()) {
             return MineraculousEntityEvents.formatDisplayName(livingEntity, Entity.removeAction(original.copy().withStyle(style -> style.withHoverEvent(null))));
         }
 

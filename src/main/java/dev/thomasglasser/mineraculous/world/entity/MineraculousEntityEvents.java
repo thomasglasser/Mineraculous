@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCurio
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ClientboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
@@ -32,7 +33,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -80,6 +80,8 @@ public class MineraculousEntityEvents {
     public static final String TAG_HASCATVISION = "HasCatVision";
     public static final String TAG_TAKETICKS = "TakeTicks";
 
+    public static final String ITEM_BROKEN_KEY = "mineraculous.item_broken";
+
     public static final ResourceLocation CAT_VISION_SHADER = ResourceLocation.withDefaultNamespace("shaders/post/creeper.json");
 
     public static final BiFunction<Holder<MobEffect>, Integer, MobEffectInstance> INFINITE_HIDDEN_EFFECT = (effect, amplifier) -> new MobEffectInstance(effect, -1, amplifier, false, false, false);
@@ -110,17 +112,24 @@ public class MineraculousEntityEvents {
 
         if (player.level().isClientSide) {
             int takeTicks = entityData.getInt(MineraculousEntityEvents.TAG_TAKETICKS);
-            if (MineraculousKeyMappings.TAKE_ITEM.isDown() && player.getMainHandItem().isEmpty() && MineraculousClientUtils.getLookEntity() instanceof Player target && (MineraculousServerConfig.enableUniversalStealing || /*TODO: Is akumatized*/ player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).isTransformed()) && (MineraculousServerConfig.enableSleepStealing || !target.isSleeping())) {
-                entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, ++takeTicks);
-                if (target.isSleeping() && MineraculousServerConfig.wakeUpChance > 0 && (MineraculousServerConfig.wakeUpChance >= 100 || player.getRandom().nextFloat() < MineraculousServerConfig.wakeUpChance / (20f * 5 * 100))) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundWakeUpPayload(target.getUUID(), true));
+            if (MineraculousKeyMappings.TAKE_BREAK_ITEM.isDown()) {
+                ItemStack mainHandItem = player.getMainHandItem();
+                if (mainHandItem.isEmpty()) {
+                    if (MineraculousClientUtils.getLookEntity() instanceof Player target && (MineraculousServerConfig.INSTANCE.enableUniversalStealing.get() || /*TODO: Is akumatized*/ player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).isTransformed()) && (MineraculousServerConfig.INSTANCE.enableSleepStealing.get() || !target.isSleeping())) {
+                        entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, ++takeTicks);
+                        if (target.isSleeping() && MineraculousServerConfig.INSTANCE.wakeUpChance.get() > 0 && (MineraculousServerConfig.INSTANCE.wakeUpChance.get() >= 100 || player.getRandom().nextFloat() < MineraculousServerConfig.INSTANCE.wakeUpChance.get() / (20f * 5 * 100))) {
+                            TommyLibServices.NETWORK.sendToServer(new ServerboundWakeUpPayload(target.getUUID(), true));
+                        }
+                        if (takeTicks > (20 * MineraculousServerConfig.INSTANCE.stealingDuration.get())) {
+                            TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
+                            ClientUtils.setScreen(new ExternalCuriosInventoryScreen(target));
+                            entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, 0);
+                        }
+                        TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
+                    }
+                } else {
+                    TommyLibServices.NETWORK.sendToServer(ServerboundTryBreakItemPayload.INSTANCE);
                 }
-                if (takeTicks > (20 * MineraculousServerConfig.stealingDuration)) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
-                    ClientUtils.setScreen(new ExternalCuriosInventoryScreen(target));
-                    entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, 0);
-                }
-                TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
             } else if (takeTicks > 0) {
                 entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, 0);
                 TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
@@ -165,14 +174,14 @@ public class MineraculousEntityEvents {
                                 DeferredItem<ArmorItem> armorPiece = set.getForSlot(slot);
                                 if (!(armorPiece == null)) {
                                     ItemStack stack = armorPiece.get().getDefaultInstance();
-                                    stack.enchant(serverLevel.registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(Enchantments.BINDING_CURSE), 1);
+                                    stack.enchant(serverLevel.holderOrThrow(Enchantments.BINDING_CURSE), 1);
                                     stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
                                     player.setItemSlot(slot, stack);
                                 }
                             }
                         }
 
-                        miraculousStack.enchant(serverLevel.registryAccess().registryOrThrow(Registries.ENCHANTMENT).getHolderOrThrow(Enchantments.BINDING_CURSE), 1);
+                        miraculousStack.enchant(serverLevel.holderOrThrow(Enchantments.BINDING_CURSE), 1);
                         miraculousStack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
 
                         ItemStack tool = miraculousItem.getTool() == null ? ItemStack.EMPTY : miraculousItem.getTool().getDefaultInstance();
@@ -403,7 +412,7 @@ public class MineraculousEntityEvents {
         return TommyLibServices.ENTITY.getPersistentData(entity).getBoolean(TAG_CATACLYSMED);
     }
 
-    public static Component formatDisplayName(LivingEntity entity, Component original) {
+    public static Component formatDisplayName(Entity entity, Component original) {
         if (original != null) {
             Style style = original.getStyle();
             MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS);

@@ -1,14 +1,14 @@
 package dev.thomasglasser.mineraculous.data.lang;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalInventoryScreen;
+import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
-import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.server.commands.MiraculousCommand;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
@@ -64,7 +64,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider {
         add(MineraculousKeyMappings.ACTIVATE_MAIN_POWER, "Activate Main Power");
         add(MineraculousKeyMappings.OPEN_ABILITY_WHEEL, "Open Ability Wheel");
         add(MineraculousKeyMappings.ACTIVATE_TOOL, "Activate Tool");
-        add(MineraculousKeyMappings.TAKE_ITEM, "Take Item");
+        add(MineraculousKeyMappings.TAKE_BREAK_ITEM, "Take/Break Item");
 
         add(MiraculousData.NAME_NOT_SET, "You haven't set your %s hero name yet! Use /miraculous %s name <name> to set.");
 
@@ -104,26 +104,12 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider {
 
         add(ServerboundWakeUpPayload.STEALING_WARNING_KEY, "You may not rest now, there are thieves nearby.");
         add(ExternalInventoryScreen.ITEM_BOUND_KEY, "This item is bound to the player.");
+        add(ServerboundTryBreakItemPayload.ITEM_UNBREAKABLE_KEY, "This item is unbreakable by normal means.");
+        add(MineraculousEntityEvents.ITEM_BROKEN_KEY, "Broken");
     }
 
     private void addConfigs() {
-        addConfigTitle(Mineraculous.MOD_NAME);
-
-        addConfigCategory("miraculous", "Miraculous");
-        addConfig("miraculous_comment", MineraculousClientConfig.miraculous_comment);
-        addConfig("enable_per_player_customization_comment", MineraculousClientConfig.enable_per_player_customization_comment);
-        addConfig("enablePerPlayerCustomization", "Enable Per Player Customization");
-
-        addConfigCategory("stealing", "Item Stealing");
-        addConfig("stealing_comment", MineraculousServerConfig.stealing_comment);
-        addConfig("stealing_duration_comment", MineraculousServerConfig.stealing_duration_comment);
-        addConfig("stealingDuration", "Stealing Duration");
-        addConfig("enable_universal_stealing_comment", MineraculousServerConfig.enable_universal_stealing_comment);
-        addConfig("enableUniversalStealing", "Enable Universal Stealing");
-        addConfig("enable_sleep_stealing_comment", MineraculousServerConfig.enable_sleep_stealing_comment);
-        addConfig("enableSleepStealing", "Enable Sleep Stealing");
-        addConfig("wake_up_chance_comment", MineraculousServerConfig.wake_up_chance_comment);
-        addConfig("wakeUpChance", "Wake Up Chance");
+        // TODO: Add config translations
     }
 
     protected void add(MiraculousType type, String name) {

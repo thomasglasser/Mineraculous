@@ -11,6 +11,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 public class MineraculousLootTables extends ExtendedLootTableProvider {
     public MineraculousLootTables(PackOutput pOutput, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         super(pOutput, Set.of(), List.of(
-                new SubProviderEntry(MineraculousBlockLoot::new, LootContextParamSets.BLOCK)), lookupProvider);
+                new SubProviderEntry(MineraculousBlockLoot::new, LootContextParamSets.BLOCK),
+                new SubProviderEntry(MineraculousGiftLoot::new, LootContextParamSets.GIFT)), lookupProvider);
     }
 }

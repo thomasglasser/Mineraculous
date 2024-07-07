@@ -1,0 +1,109 @@
+{
+  "base": {
+    "parent": "minecraft:builtin/entity",
+    "display": {
+      "firstperson_lefthand": {
+        "rotation": [
+          0,
+          165,
+          0
+        ],
+        "scale": [
+          0.7,
+          0.7,
+          0.7
+        ],
+        "translation": [
+          0,
+          1.5,
+          1.25
+        ]
+      },
+      "firstperson_righthand": {
+        "rotation": [
+          0,
+          165,
+          0
+        ],
+        "scale": [
+          0.7,
+          0.7,
+          0.7
+        ],
+        "translation": [
+          0,
+          1.5,
+          1.25
+        ]
+      },
+      "head": {
+        "rotation": [
+          -54,
+          0,
+          0
+        ],
+        "translation": [
+          0,
+          1.75,
+          -2.75
+        ]
+      },
+      "thirdperson_lefthand": {
+        "rotation": [
+          0,
+          -180,
+          0
+        ],
+        "scale": [
+          0.7,
+          0.7,
+          0.7
+        ],
+        "translation": [
+          0,
+          -3.5,
+          1.25
+        ]
+      },
+      "thirdperson_righthand": {
+        "rotation": [
+          0,
+          -180,
+          0
+        ],
+        "scale": [
+          0.7,
+          0.7,
+          0.7
+        ],
+        "translation": [
+          0,
+          -3.5,
+          1.25
+        ]
+      }
+    }
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "fixed": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/cat_staff_extended"
+      }
+    },
+    "ground": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/cat_staff_extended"
+      }
+    },
+    "gui": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/cat_staff_extended"
+      }
+    }
+  }
+}

@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.data;
 
 import dev.thomasglasser.mineraculous.data.blockstates.MineraculousBlockStates;
 import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
+import dev.thomasglasser.mineraculous.data.datamaps.MineraculousDataMapProvider;
 import dev.thomasglasser.mineraculous.data.lang.MineraculousEnUsLanguageProvider;
 import dev.thomasglasser.mineraculous.data.loot.MineraculousLootTables;
 import dev.thomasglasser.mineraculous.data.models.MineraculousItemModels;
@@ -9,6 +10,7 @@ import dev.thomasglasser.mineraculous.data.particles.MineraculousParticleDescrip
 import dev.thomasglasser.mineraculous.data.recipes.MineraculousRecipes;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousBlockTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousItemTagsProvider;
+import dev.thomasglasser.mineraculous.data.tags.MineraculousPoiTypeTagsProvider;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
@@ -33,6 +35,8 @@ public class MineraculousDataGenerators {
         generator.addProvider(onServer, new MineraculousCuriosProvider(packOutput, existingFileHelper, registries));
         generator.addProvider(onServer, new MineraculousLootTables(packOutput, registries));
         generator.addProvider(onServer, new MineraculousRecipes(packOutput, registries));
+        generator.addProvider(onServer, new MineraculousPoiTypeTagsProvider(packOutput, registries, existingFileHelper));
+        generator.addProvider(onServer, new MineraculousDataMapProvider(packOutput, registries));
 
         // Client
         generator.addProvider(onClient, new MineraculousBlockStates(packOutput, existingFileHelper));

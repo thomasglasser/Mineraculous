@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.data.models;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
@@ -9,6 +10,8 @@ import java.util.List;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
@@ -55,13 +58,27 @@ public class MineraculousItemModels extends ExtendedItemModelProvider {
 
         // TODO: Cheese wedges
 //		for (CheeseBlock.Age age: CheeseBlock.Age.values()) {
-//			basicItem(MineraculousItems.CHEESE_WEDGES.get(age).get());
-//			basicItem(MineraculousItems.CAMEMBERT_WEDGES.get(age).get());
+//			basicBlockItem(MineraculousItems.CHEESE_WEDGES.get(age).get());
+//			basicBlockItem(MineraculousItems.CAMEMBERT_WEDGES.get(age).get());
 //		}
 
-        basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK.get());
+        basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK);
 
-        // TODO: 2d cat staff
-//		basicInventoryItem(MineraculousItems.CAT_STAFF);
+        withEntityModel(MineraculousItems.CAT_MIRACULOUS);
+
+        ItemModelBuilder inHandCatStaff = withEntityModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_in_hand"))
+                .transforms()
+                .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(0, -180, 0).translation(0, -3.5f, 1.25f).scale(0.7f).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(0, -180, 0).translation(0, -3.5f, 1.25f).scale(0.7f).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).rotation(0, 165, 0).translation(0, 1.5f, 1.25f).scale(0.7f).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).rotation(0, 165, 0).translation(0, 1.5f, 1.25f).scale(0.7f).end()
+                .transform(ItemDisplayContext.HEAD).rotation(-54, 0, 0).translation(0, 1.75f, -2.75f).end()
+                .end();
+        ItemModelBuilder inventoryCatStaff = basicInventoryItem(MineraculousItems.CAT_STAFF);
+        withEntityModelInHand(MineraculousItems.CAT_STAFF, inHandCatStaff, inventoryCatStaff)
+                .override()
+                .predicate(CatStaffItem.EXTENDED_PROPERTY_ID, 1)
+                .model(withEntityModelInHand(MineraculousItems.CAT_STAFF.getId().withSuffix("_extended"), inHandCatStaff, basicItem(MineraculousItems.CAT_STAFF.getId().withSuffix("_extended"))))
+                .end();
     }
 }

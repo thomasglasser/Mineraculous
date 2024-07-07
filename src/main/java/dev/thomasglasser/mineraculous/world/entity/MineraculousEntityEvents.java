@@ -14,6 +14,7 @@ import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
+import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerTrades;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
@@ -72,6 +73,7 @@ import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.village.VillagerTradesEvent;
 import org.jetbrains.annotations.Nullable;
 
 public class MineraculousEntityEvents {
@@ -446,5 +448,12 @@ public class MineraculousEntityEvents {
     public static void onLivingHeal(LivingHealEvent event) {
         if (MineraculousEntityEvents.isCataclysmed(event.getEntity()))
             event.setCanceled(true);
+    }
+
+    public static void onRegisterVillagerTrades(VillagerTradesEvent event) {
+        MineraculousVillagerTrades.TRADES.forEach((profession, trades) -> {
+            if (event.getType() == profession.get())
+                event.getTrades().putAll(trades);
+        });
     }
 }

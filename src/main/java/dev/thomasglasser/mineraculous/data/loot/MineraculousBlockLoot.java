@@ -16,6 +16,8 @@ public class MineraculousBlockLoot extends ExtendedBlockLootSubProvider {
 
     @Override
     protected void generate() {
+        dropSelf(MineraculousBlocks.CHEESE_POT.get());
+
         dropOther(MineraculousBlocks.CATACLYSM_BLOCK.get(), MineraculousItems.CATACLYSM_DUST.get());
 
         MineraculousBlocks.CHEESE_BLOCKS.values().stream().map(DeferredHolder::get).forEach(block -> dropWithProperties(block, CheeseBlock.BITES));

@@ -11,6 +11,7 @@ import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
+import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerProfessions;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
@@ -49,6 +50,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider {
         });
 
         add(MineraculousBlocks.CATACLYSM_BLOCK.get(), "Block of Cataclysm");
+        add(MineraculousBlocks.CHEESE_POT.get(), "Cheese Pot");
 
         cheese("Cheese", MineraculousItems.CHEESE_WEDGES, MineraculousBlocks.CHEESE_BLOCKS, MineraculousBlocks.WAXED_CHEESE_BLOCKS);
         cheese("Camembert", MineraculousItems.CAMEMBERT_WEDGES, MineraculousBlocks.CAMEMBERT_BLOCKS, MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS);
@@ -99,6 +101,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider {
         add(MineraculousItemTags.CHEESES_FOODS, "Cheeses");
         add(MineraculousItemTags.CHEESE, "Cheese");
         add(MineraculousItemTags.CAMEMBERT, "Camembert");
+
+        addProfession(MineraculousVillagerProfessions.FROMAGER, "Fromager");
 
         add(MineraculousBlockTags.CATACLYSM_IMMUNE, "Cataclysm Immune");
 

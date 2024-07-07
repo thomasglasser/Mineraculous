@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.world.item;
 
+import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.renderer.item.CatStaffRenderer;
@@ -11,6 +12,7 @@ import dev.thomasglasser.tommylib.api.world.item.BaseModeledSwordItem;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
@@ -33,6 +35,7 @@ import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class CatStaffItem extends BaseModeledSwordItem implements GeoItem {
+    public static final ResourceLocation EXTENDED_PROPERTY_ID = Mineraculous.modLoc("extended");
     public static final RawAnimation EXTEND = RawAnimation.begin().thenPlay("attack.extend");
     public static final RawAnimation RETRACT = RawAnimation.begin().thenPlay("attack.retract");
     public static final RawAnimation IDLE_RETRACTED = RawAnimation.begin().thenPlay("misc.idle.retracted");

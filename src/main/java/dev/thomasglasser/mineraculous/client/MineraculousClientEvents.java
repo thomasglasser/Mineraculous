@@ -6,6 +6,7 @@ import dev.thomasglasser.mineraculous.client.particle.CataclysmParticle;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KamikoRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownCatStaffRenderer;
+import dev.thomasglasser.mineraculous.client.renderer.item.MineraculousItemProperties;
 import dev.thomasglasser.mineraculous.client.renderer.item.curio.CatMiraculousItemCurioRenderer;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestMiraculousDataSetSyncPayload;
@@ -37,6 +38,12 @@ import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 public class MineraculousClientEvents {
+    public static void onFMLClientSetup(FMLClientSetupEvent event) {
+        CuriosRendererRegistry.register(MineraculousItems.CAT_MIRACULOUS.get(), CatMiraculousItemCurioRenderer::new);
+
+        MineraculousItemProperties.init();
+    }
+
     public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
         if (event.getLevel().isClientSide) {
             TommyLibServices.NETWORK.sendToServer(new ServerboundRequestMiraculousDataSetSyncPayload(event.getEntity().getId()));
@@ -57,6 +64,8 @@ public class MineraculousClientEvents {
             ResourceLocation stripped = ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), rl.getPath().substring("models/".length(), rl.getPath().indexOf(".json")));
             event.register(ModelResourceLocation.standalone(stripped));
         }
+
+        event.register(ModelResourceLocation.standalone(Mineraculous.modLoc("item/cat_staff_extended")));
     }
 
     public static void onRegisterRenderer(EntityRenderersEvent.RegisterRenderers event) {
@@ -64,10 +73,6 @@ public class MineraculousClientEvents {
         event.registerEntityRenderer(MineraculousEntityTypes.PLAGG.get(), context -> new KwamiRenderer<>(context, MineraculousEntityTypes.PLAGG.getId()));
         event.registerEntityRenderer(MineraculousEntityTypes.KAMIKO.get(), KamikoRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), ThrownCatStaffRenderer::new);
-    }
-
-    public static void onFMLClientSetup(FMLClientSetupEvent event) {
-        CuriosRendererRegistry.register(MineraculousItems.CAT_MIRACULOUS.get(), CatMiraculousItemCurioRenderer::new);
     }
 
     public static void onRegisterParticleProviders(RegisterParticleProvidersEvent event) {

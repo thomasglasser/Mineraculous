@@ -22,7 +22,7 @@ public class MineraculousBlockEntityWithoutLevelRenderer extends BlockEntityWith
     public void renderByItem(ItemStack stack, ItemDisplayContext displayContext, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay) {
         poseStack.pushPose();
         poseStack.translate(0.5D, 0.5D, 0.5D);
-        if (stack.getItem() instanceof MiraculousItem miraculousItem) {
+        if (stack.getItem() instanceof MiraculousItem) {
             ResourceLocation loc = BuiltInRegistries.ITEM.getKey(stack.getItem());
             String basePath = "miraculous/" + loc.getPath();
             if (!stack.has(MineraculousDataComponents.POWERED.get()) && stack.has(DataComponents.PROFILE) && MineraculousClientConfig.INSTANCE.enablePerPlayerCustomization.get()) {

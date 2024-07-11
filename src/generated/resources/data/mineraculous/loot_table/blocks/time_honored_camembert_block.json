@@ -1,14 +1,5 @@
 {
   "type": "minecraft:block",
-  "functions": [
-    {
-      "block": "mineraculous:time_honored_camembert_block",
-      "function": "minecraft:copy_state",
-      "properties": [
-        "bites"
-      ]
-    }
-  ],
   "pools": [
     {
       "bonus_rolls": 0.0,
@@ -19,8 +10,35 @@
       ],
       "entries": [
         {
-          "type": "minecraft:item",
-          "name": "mineraculous:time_honored_camembert_block"
+          "type": "minecraft:alternatives",
+          "children": [
+            {
+              "type": "minecraft:item",
+              "conditions": [
+                {
+                  "block": "mineraculous:time_honored_camembert_block",
+                  "condition": "minecraft:block_state_property",
+                  "properties": {
+                    "bites": "3"
+                  }
+                }
+              ],
+              "name": "mineraculous:time_honored_wedge_of_camembert"
+            },
+            {
+              "type": "minecraft:item",
+              "functions": [
+                {
+                  "block": "mineraculous:time_honored_camembert_block",
+                  "function": "minecraft:copy_state",
+                  "properties": [
+                    "bites"
+                  ]
+                }
+              ],
+              "name": "mineraculous:time_honored_camembert_block"
+            }
+          ]
         }
       ],
       "rolls": 1.0

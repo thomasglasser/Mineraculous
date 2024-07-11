@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_fresh_camembert_block": {
+    "has_fresh_wedge_of_camembert": {
       "conditions": {
         "items": [
           {
-            "items": "mineraculous:fresh_camembert_block"
+            "items": "mineraculous:fresh_wedge_of_camembert"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_fresh_camembert_block"
+      "has_fresh_wedge_of_camembert"
     ]
   ],
   "rewards": {

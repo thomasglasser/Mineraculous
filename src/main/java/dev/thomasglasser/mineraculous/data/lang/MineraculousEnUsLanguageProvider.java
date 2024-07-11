@@ -18,16 +18,16 @@ import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
-import dev.thomasglasser.tommylib.api.data.lang.ExtendedLanguageProvider;
+import dev.thomasglasser.tommylib.api.data.lang.ExtendedEnUsLanguageProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import java.util.Map;
 import net.minecraft.data.PackOutput;
 import org.apache.commons.lang3.text.WordUtils;
 
-public class MineraculousEnUsLanguageProvider extends ExtendedLanguageProvider {
+public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvider {
     public MineraculousEnUsLanguageProvider(PackOutput output) {
-        super(output, Mineraculous.MOD_ID, "en_us");
+        super(output, Mineraculous.MOD_ID);
     }
 
     @Override

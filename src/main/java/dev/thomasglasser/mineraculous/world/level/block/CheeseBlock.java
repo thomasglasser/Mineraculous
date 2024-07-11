@@ -6,6 +6,7 @@ import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.RandomSource;
@@ -17,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -28,9 +30,11 @@ import net.minecraft.world.level.block.ChangeOverTimeBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.ItemAbilities;
@@ -174,6 +178,25 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
 
     public DeferredBlock<CheeseBlock> getWaxedBlock() {
         return waxedBlock;
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+        if (state.getValue(BITES) == MAX_BITES) {
+            return getWedge().toStack();
+        } else {
+            ItemStack cloneItemStack = super.getCloneItemStack(state, target, level, pos, player);
+            cloneItemStack.update(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY, p_330174_ -> {
+                for (Property<?> property : state.getProperties()) {
+                    if (state.hasProperty(property)) {
+                        p_330174_ = p_330174_.with(property, state);
+                    }
+                }
+
+                return p_330174_;
+            });
+            return cloneItemStack;
+        }
     }
 
     public enum Age implements StringRepresentable {

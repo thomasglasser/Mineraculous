@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_fresh_cheese_block": {
+    "has_fresh_wedge_of_cheese": {
       "conditions": {
         "items": [
           {
-            "items": "mineraculous:fresh_cheese_block"
+            "items": "mineraculous:fresh_wedge_of_cheese"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_fresh_cheese_block"
+      "has_fresh_wedge_of_cheese"
     ]
   ],
   "rewards": {

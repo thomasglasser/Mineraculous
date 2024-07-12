@@ -25,6 +25,9 @@ public class MineraculousItemTags {
     public static final TagKey<Item> CAMEMBERT = create("camembert");
     public static final TagKey<Item> CAMEMBERT_BLOCKS = create("camembert_blocks");
 
+    // Item Breaking System
+    public static final TagKey<Item> TOUGH = create("tough");
+
     private static TagKey<Item> create(String name) {
         return TagKey.create(Registries.ITEM, Mineraculous.modLoc(name));
     }

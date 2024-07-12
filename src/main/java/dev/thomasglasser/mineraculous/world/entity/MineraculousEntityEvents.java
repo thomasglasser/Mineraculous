@@ -112,7 +112,7 @@ public class MineraculousEntityEvents {
         Player player = event.getEntity();
         CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
 
-        if (player.level().isClientSide) {
+        if (player.level().isClientSide && entityData.getInt(TAG_WAITTICKS) == 0) {
             int takeTicks = entityData.getInt(MineraculousEntityEvents.TAG_TAKETICKS);
             if (MineraculousKeyMappings.TAKE_BREAK_ITEM.isDown()) {
                 ItemStack mainHandItem = player.getMainHandItem();
@@ -131,6 +131,8 @@ public class MineraculousEntityEvents {
                     }
                 } else {
                     TommyLibServices.NETWORK.sendToServer(ServerboundTryBreakItemPayload.INSTANCE);
+                    entityData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                    TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
                 }
             } else if (takeTicks > 0) {
                 entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, 0);

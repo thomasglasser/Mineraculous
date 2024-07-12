@@ -15,6 +15,7 @@ import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -65,6 +66,23 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
                 .addOptionalTag(ConventionalItemTags.UNBREAKABLE_BLOCKS);
 
         MineraculousArmors.MIRACULOUS_SETS.forEach(this::armorSet);
+
+        tag(MineraculousItemTags.TOUGH)
+                .add(Items.MINECART)
+                .add(Items.CHEST_MINECART)
+                .add(Items.FURNACE_MINECART)
+                .add(Items.TNT_MINECART)
+                .add(Items.HOPPER_MINECART)
+                .addTag(ItemTags.BOATS)
+                .addTag(ItemTags.COALS)
+                .addTag(ConventionalItemTags.BRICKS)
+                .addTag(ConventionalItemTags.GEMS)
+                .addTag(ConventionalItemTags.INGOTS)
+                .addTag(ConventionalItemTags.RAW_MATERIALS)
+                .addTag(ConventionalItemTags.ORES)
+                .addTag(ConventionalItemTags.BUCKETS)
+                .add(Items.NETHER_STAR)
+                .add(Items.TOTEM_OF_UNDYING);
 
         curios("ring", MineraculousItems.CAT_MIRACULOUS.get());
     }

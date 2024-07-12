@@ -1,0 +1,19 @@
+{
+  "values": [
+    "minecraft:minecart",
+    "minecraft:chest_minecart",
+    "minecraft:furnace_minecart",
+    "minecraft:tnt_minecart",
+    "minecraft:hopper_minecart",
+    "#minecraft:boats",
+    "#minecraft:coals",
+    "#c:bricks",
+    "#c:gems",
+    "#c:ingots",
+    "#c:raw_materials",
+    "#c:ores",
+    "#c:buckets",
+    "minecraft:nether_star",
+    "minecraft:totem_of_undying"
+  ]
+}

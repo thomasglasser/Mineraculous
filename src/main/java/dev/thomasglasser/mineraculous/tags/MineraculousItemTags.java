@@ -28,6 +28,9 @@ public class MineraculousItemTags {
     // Item Breaking System
     public static final TagKey<Item> TOUGH = create("tough");
 
+    // Miraculous
+    public static final TagKey<Item> MIRACULOUS = create("miraculous");
+
     private static TagKey<Item> create(String name) {
         return TagKey.create(Registries.ITEM, Mineraculous.modLoc(name));
     }

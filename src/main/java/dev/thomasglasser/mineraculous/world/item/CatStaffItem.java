@@ -96,6 +96,8 @@ public class CatStaffItem extends BaseModeledSwordItem implements GeoItem {
                         }
                         TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, pStack, hand));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                    } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.isDown()) {
+                        // TODO: Open tool wheel
                     }
                 }
                 TommyLibServices.ENTITY.setPersistentData(pEntity, playerData, false);

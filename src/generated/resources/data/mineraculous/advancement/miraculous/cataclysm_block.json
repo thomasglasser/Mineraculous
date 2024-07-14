@@ -1,0 +1,32 @@
+{
+  "parent": "mineraculous:miraculous/transform_cat",
+  "criteria": {
+    "cataclysm_block": {
+      "conditions": {
+        "type": "cat",
+        "contexts": [
+          "block"
+        ]
+      },
+      "trigger": "mineraculous:used_miraculous_power"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.mineraculous.miraculous.cataclysm_block.desc"
+    },
+    "icon": {
+      "count": 1,
+      "id": "mineraculous:cataclysm_block"
+    },
+    "title": {
+      "translate": "advancement.mineraculous.miraculous.cataclysm_block.title"
+    }
+  },
+  "requirements": [
+    [
+      "cataclysm_block"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

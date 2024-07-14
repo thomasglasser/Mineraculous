@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.models.ExtendedItemModelProvider;
 import java.util.List;
+import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
@@ -64,7 +65,7 @@ public class MineraculousItemModels extends ExtendedItemModelProvider {
 
         basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK);
 
-        withEntityModel(MineraculousItems.CAT_MIRACULOUS);
+        withEntityModel(MineraculousItems.CAT_MIRACULOUS).guiLight(BlockModel.GuiLight.FRONT);
 
         ItemModelBuilder inHandCatStaff = withEntityModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_in_hand"))
                 .transforms()

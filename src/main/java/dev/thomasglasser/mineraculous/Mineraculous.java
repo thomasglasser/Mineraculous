@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous;
 
+import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
@@ -13,6 +14,7 @@ import dev.thomasglasser.mineraculous.data.MineraculousDataGenerators;
 import dev.thomasglasser.mineraculous.network.MineraculousPayloads;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
@@ -61,6 +63,8 @@ public class Mineraculous {
         MineraculousEntityDataSerializers.init();
         MineraculousPoiTypes.init();
         MineraculousVillagerProfessions.init();
+        MineraculousCriteriaTriggers.init();
+        MineraculousMobEffects.init();
 
         registerConfigs(modContainer);
 

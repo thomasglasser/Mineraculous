@@ -4,7 +4,7 @@ import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.network.ServerboundActivateMainPowerPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundActivatePowerPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
@@ -145,8 +145,8 @@ public class MiraculousItem extends BaseModeledItem implements ICurioItem {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculousType, data, true));
                         }
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
-                    } else if (MineraculousKeyMappings.ACTIVATE_MAIN_POWER.isDown() && data.transformed() && !data.mainPowerActive() && !data.mainPowerActivated()) {
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundActivateMainPowerPayload(miraculousType));
+                    } else if (MineraculousKeyMappings.ACTIVATE_POWER.isDown() && data.transformed() && !data.mainPowerActive() && !data.mainPowerActivated()) {
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundActivatePowerPayload(miraculousType));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
                     }
                 }

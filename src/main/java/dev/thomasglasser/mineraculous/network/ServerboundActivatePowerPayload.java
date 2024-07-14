@@ -15,11 +15,11 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
-public record ServerboundActivateMainPowerPayload(MiraculousType miraculousType) implements ExtendedPacketPayload {
-    public static final Type<ServerboundActivateMainPowerPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_activate_main_power"));
-    public static final StreamCodec<FriendlyByteBuf, ServerboundActivateMainPowerPayload> CODEC = StreamCodec.composite(
-            NetworkUtils.enumCodec(MiraculousType.class), ServerboundActivateMainPowerPayload::miraculousType,
-            ServerboundActivateMainPowerPayload::new);
+public record ServerboundActivatePowerPayload(MiraculousType miraculousType) implements ExtendedPacketPayload {
+    public static final Type<ServerboundActivatePowerPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_activate_main_power"));
+    public static final StreamCodec<FriendlyByteBuf, ServerboundActivatePowerPayload> CODEC = StreamCodec.composite(
+            NetworkUtils.enumCodec(MiraculousType.class), ServerboundActivatePowerPayload::miraculousType,
+            ServerboundActivatePowerPayload::new);
 
     // ON SERVER
     @Override

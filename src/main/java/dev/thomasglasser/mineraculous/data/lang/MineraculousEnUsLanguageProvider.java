@@ -8,6 +8,8 @@ import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.server.commands.MiraculousCommand;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
+import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
+import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
@@ -21,9 +23,10 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.tommylib.api.data.lang.ExtendedEnUsLanguageProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
-import java.util.Map;
 import net.minecraft.data.PackOutput;
 import org.apache.commons.lang3.text.WordUtils;
+
+import java.util.Map;
 
 public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvider {
     public MineraculousEnUsLanguageProvider(PackOutput output) {
@@ -63,9 +66,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         add(MineraculousKeyMappings.MIRACULOUS_CATEGORY, "Miraculous");
         add(MineraculousKeyMappings.TRANSFORM, "Transform");
-        add(MineraculousKeyMappings.ACTIVATE_MAIN_POWER, "Activate Main Power");
+        add(MineraculousKeyMappings.ACTIVATE_POWER, "Activate Power");
         add(MineraculousKeyMappings.OPEN_ABILITY_WHEEL, "Open Ability Wheel");
         add(MineraculousKeyMappings.ACTIVATE_TOOL, "Activate Tool");
+        add(MineraculousKeyMappings.OPEN_TOOL_WHEEL, "Open Tool Wheel");
         add(MineraculousKeyMappings.TAKE_BREAK_ITEM, "Take/Break Item");
 
         add(MiraculousData.NAME_NOT_SET, "You haven't set your %s hero name yet! Use /miraculous %s name <name> to set.");
@@ -110,6 +114,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(ExternalInventoryScreen.ITEM_BOUND_KEY, "This item is bound to the player.");
         add(ServerboundTryBreakItemPayload.ITEM_UNBREAKABLE_KEY, "This item is unbreakable by normal means.");
         add(MineraculousEntityEvents.ITEM_BROKEN_KEY, "Broken");
+
+        addAttackWithPlayer(MineraculousDamageTypes.CATACLYSM, "%1$s crumbled to dust", "while fighting %2$s");
+
+        add(MineraculousMobEffects.CATACLYSMED.get(), "Cataclysmed");
     }
 
     private void addConfigs() {

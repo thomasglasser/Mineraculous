@@ -1,6 +1,8 @@
 package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
+import dev.thomasglasser.mineraculous.advancements.critereon.MiraculousUsePowerTrigger;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
@@ -13,6 +15,7 @@ import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerTrades;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
@@ -27,9 +30,6 @@ import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.BiFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -37,6 +37,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -62,7 +63,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.MangroveRootsBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -76,9 +76,12 @@ import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.village.VillagerTradesEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.BiFunction;
+
 public class MineraculousEntityEvents {
     public static final String TAG_WAITTICKS = "WaitTicks";
-    public static final String TAG_CATACLYSMED = "Cataclysmed";
     public static final String TAG_HASCATVISION = "HasCatVision";
     public static final String TAG_TAKETICKS = "TakeTicks";
 
@@ -281,64 +284,51 @@ public class MineraculousEntityEvents {
         return null;
     }
 
-    public static InteractionResult testAndApplyCataclysmEffects(LivingEntity entity, Entity target, InteractionHand hand) {
+    public static InteractionResult testAndApplyCataclysmEffects(ServerPlayer entity, Entity target, InteractionHand hand) {
         MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS);
         MiraculousData catMiraculousData = miraculousDataSet.get(MiraculousType.CAT);
-        if (!entity.level().isClientSide && hand == InteractionHand.MAIN_HAND && catMiraculousData.transformed() && catMiraculousData.mainPowerActive()) {
-
-            CompoundTag persistentData = TommyLibServices.ENTITY.getPersistentData(target);
-            persistentData.putBoolean(TAG_CATACLYSMED, true);
-            TommyLibServices.ENTITY.setPersistentData(target, persistentData, true);
+        if (hand == InteractionHand.MAIN_HAND && catMiraculousData.transformed() && catMiraculousData.mainPowerActive()) {
             miraculousDataSet.put(entity, MiraculousType.CAT, new MiraculousData(true, catMiraculousData.miraculousItem(), catMiraculousData.curiosData(), catMiraculousData.tool(), catMiraculousData.powerLevel(), true, false, catMiraculousData.name()), true);
             int level = catMiraculousData.powerLevel();
             if (target instanceof LivingEntity livingEntity) {
-                List<Holder<MobEffect>> CATACLYSM_EFFECTS = List.of(
-                        MobEffects.POISON,
-                        MobEffects.WITHER,
-                        MobEffects.BLINDNESS,
-                        MobEffects.WEAKNESS,
-                        MobEffects.MOVEMENT_SLOWDOWN,
-                        MobEffects.HUNGER,
-                        MobEffects.CONFUSION,
-                        MobEffects.DIG_SLOWDOWN);
-                CATACLYSM_EFFECTS.forEach(effect -> {
-                    MobEffectInstance instance = INFINITE_HIDDEN_EFFECT.apply(effect, level);
-                    if (CommonHooks.canMobEffectBeApplied(livingEntity, instance))
-                        livingEntity.addEffect(instance);
-                    else
-                        livingEntity.hurt(entity.damageSources().indirectMagic(entity, entity), 100);
-                });
+                MobEffectInstance effect = new MobEffectInstance(MineraculousMobEffects.CATACLYSMED.asReferenceFrom(entity.level().registryAccess()), -1, level);
+                livingEntity.addEffect(effect);
+                MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(entity, MiraculousType.CAT, MiraculousUsePowerTrigger.Context.LIVING_ENTITY);
+                livingEntity.setLastHurtByPlayer(entity);
+                entity.connection.send(new ClientboundUpdateMobEffectPacket(livingEntity.getId(), effect, true));
             } else if (target instanceof VehicleEntity vehicle) {
                 target.discard();
                 Block.popResource(target.level(), vehicle.blockPosition(), MineraculousItems.CATACLYSM_DUST.get().getDefaultInstance());
             } else {
                 target.hurt(entity.damageSources().indirectMagic(entity, entity), 1024);
             }
+            MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(entity, MiraculousType.CAT, MiraculousUsePowerTrigger.Context.ENTITY);
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;
     }
 
     public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
-        event.setCancellationResult(testAndApplyCataclysmEffects(event.getEntity(), event.getTarget(), event.getHand()));
+        if (event.getEntity() instanceof ServerPlayer serverPlayer)
+            event.setCancellationResult(testAndApplyCataclysmEffects(serverPlayer, event.getTarget(), event.getHand()));
     }
 
     public static void onAttackEntity(AttackEntityEvent event) {
-        if (!(event.getTarget() instanceof LivingEntity))
-            testAndApplyCataclysmEffects(event.getEntity(), event.getTarget(), InteractionHand.MAIN_HAND);
+        if (event.getEntity() instanceof ServerPlayer serverPlayer && !(event.getTarget() instanceof LivingEntity))
+            testAndApplyCataclysmEffects(serverPlayer, event.getTarget(), InteractionHand.MAIN_HAND);
     }
 
     public static void onLivingAttack(LivingDamageEvent.Post event) {
-        if (event.getSource().getDirectEntity() instanceof LivingEntity livingEntity) {
-            testAndApplyCataclysmEffects(livingEntity, event.getEntity(), InteractionHand.MAIN_HAND);
+        if (event.getSource().getDirectEntity() instanceof ServerPlayer serverPlayer) {
+            testAndApplyCataclysmEffects(serverPlayer, event.getEntity(), InteractionHand.MAIN_HAND);
         }
     }
 
-    public static InteractionResult testAndApplyCataclysmToBlocks(LivingEntity entity, BlockPos pos, InteractionHand hand, @Nullable Direction nextPosDirection, int blocksAffected) {
+    public static InteractionResult testAndApplyCataclysmToBlocks(ServerPlayer entity, BlockPos pos, InteractionHand hand, @Nullable Direction nextPosDirection, int blocksAffected) {
         Level level = entity.level();
         MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS);
         MiraculousData catMiraculousData = miraculousDataSet.get(MiraculousType.CAT);
-        if (!level.isClientSide && hand == InteractionHand.MAIN_HAND && catMiraculousData.transformed() && catMiraculousData.mainPowerActive()) {
+        if (hand == InteractionHand.MAIN_HAND && catMiraculousData.transformed() && catMiraculousData.mainPowerActive()) {
             BlockState state = level.getBlockState(pos);
             if (state.is(MineraculousBlockTags.CATACLYSM_IMMUNE) || blocksAffected >= Math.max(entity.getData(MineraculousAttachmentTypes.MIRACULOUS).get(MiraculousType.CAT).powerLevel(), 1) * 100)
                 return InteractionResult.PASS;
@@ -372,6 +362,7 @@ public class MineraculousEntityEvents {
             RandomSource randomSource = level.random;
             destroyBlocksWithin(randomSource.nextInt(4, 8), level, pos);
 
+            MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(entity, MiraculousType.CAT, MiraculousUsePowerTrigger.Context.BLOCK);
             miraculousDataSet.put(entity, MiraculousType.CAT, new MiraculousData(true, catMiraculousData.miraculousItem(), catMiraculousData.curiosData(), catMiraculousData.tool(), catMiraculousData.powerLevel(), true, false, catMiraculousData.name()), true);
             return InteractionResult.SUCCESS;
         }
@@ -396,13 +387,15 @@ public class MineraculousEntityEvents {
     }
 
     public static void onBlockInteract(PlayerInteractEvent.RightClickBlock event) {
-        event.setCancellationResult(testAndApplyCataclysmToBlocks(event.getEntity(), event.getHitVec().getBlockPos(), event.getHand(), null, 0));
+        if (event.getEntity() instanceof ServerPlayer serverPlayer)
+            event.setCancellationResult(testAndApplyCataclysmToBlocks(serverPlayer, event.getHitVec().getBlockPos(), event.getHand(), null, 0));
     }
 
     public static void onBlockLeftClick(PlayerInteractEvent.LeftClickBlock event) {
-        InteractionResult result = testAndApplyCataclysmToBlocks(event.getEntity(), event.getPos(), event.getHand(), null, 0);
-        if (result.consumesAction())
-            event.setUseBlock(TriState.TRUE);
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            if (testAndApplyCataclysmToBlocks(serverPlayer, event.getPos(), event.getHand(), null, 0).consumesAction())
+                event.setUseBlock(TriState.TRUE);
+        }
     }
 
     public static ItemStack convertToCataclysmDust(ItemStack stack) {
@@ -412,8 +405,8 @@ public class MineraculousEntityEvents {
         return stack;
     }
 
-    public static boolean isCataclysmed(Entity entity) {
-        return TommyLibServices.ENTITY.getPersistentData(entity).getBoolean(TAG_CATACLYSMED);
+    public static boolean isCataclysmed(LivingEntity entity) {
+        return entity.hasEffect(MineraculousMobEffects.CATACLYSMED);
     }
 
     public static Component formatDisplayName(Entity entity, Component original) {

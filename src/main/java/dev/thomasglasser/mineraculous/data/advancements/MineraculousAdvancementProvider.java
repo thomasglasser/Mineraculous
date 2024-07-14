@@ -1,0 +1,17 @@
+package dev.thomasglasser.mineraculous.data.advancements;
+
+import dev.thomasglasser.mineraculous.data.advancements.packs.MineraculousMiraculousAdvancements;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.PackOutput;
+import net.neoforged.neoforge.common.data.AdvancementProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.data.LanguageProvider;
+
+public class MineraculousAdvancementProvider extends AdvancementProvider {
+    public MineraculousAdvancementProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, ExistingFileHelper existingFileHelper, LanguageProvider enUs) {
+        super(output, registries, existingFileHelper, List.of(
+                new MineraculousMiraculousAdvancements(enUs)));
+    }
+}

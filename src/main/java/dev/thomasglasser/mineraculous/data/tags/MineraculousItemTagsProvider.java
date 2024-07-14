@@ -85,6 +85,9 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
                 .add(Items.TOTEM_OF_UNDYING);
 
         curios("ring", MineraculousItems.CAT_MIRACULOUS.get());
+
+        tag(MineraculousItemTags.MIRACULOUS)
+                .add(MineraculousItems.CAT_MIRACULOUS.get());
     }
 
     protected void curios(String neoSlot, Item... items) {

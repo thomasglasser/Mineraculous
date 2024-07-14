@@ -1,0 +1,32 @@
+{
+  "parent": "mineraculous:miraculous/root",
+  "criteria": {
+    "transform_cat": {
+      "conditions": {
+        "type": "cat"
+      },
+      "trigger": "mineraculous:transformed_miraculous"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.mineraculous.miraculous.transform_cat.desc"
+    },
+    "icon": {
+      "count": 1,
+      "id": "mineraculous:cat_miraculous"
+    },
+    "title": {
+      "translate": "advancement.mineraculous.miraculous.transform_cat.title"
+    }
+  },
+  "requirements": [
+    [
+      "transform_cat"
+    ]
+  ],
+  "rewards": {
+    "experience": 10
+  },
+  "sends_telemetry_event": true
+}

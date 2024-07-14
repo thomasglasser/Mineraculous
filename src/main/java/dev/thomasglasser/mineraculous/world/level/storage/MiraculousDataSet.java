@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncMiraculousDataSetPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
@@ -16,6 +17,7 @@ import java.util.function.Function;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.LivingEntity;
 
@@ -47,6 +49,8 @@ public class MiraculousDataSet {
 
     public MiraculousData put(LivingEntity entity, MiraculousType key, MiraculousData value, boolean syncToClient) {
         MiraculousData data = map.put(key, value);
+        if (value.transformed() && entity instanceof ServerPlayer player)
+            MineraculousCriteriaTriggers.TRANSFORMED_MIRACULOUS.get().trigger(player, key);
         save(entity, syncToClient);
         return data;
     }

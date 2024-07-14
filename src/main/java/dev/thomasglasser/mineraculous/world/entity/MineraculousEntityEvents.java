@@ -83,6 +83,7 @@ public class MineraculousEntityEvents {
     public static final String TAG_WAITTICKS = "WaitTicks";
     public static final String TAG_HASCATVISION = "HasCatVision";
     public static final String TAG_TAKETICKS = "TakeTicks";
+    public static final String TAG_CATACLYSMED = "Cataclysmed";
 
     public static final String ITEM_BROKEN_KEY = "mineraculous.item_broken";
 
@@ -156,6 +157,9 @@ public class MineraculousEntityEvents {
                     renounceMiraculous(data.miraculousItem(), kwami);
                 }
             });
+        }
+        if (entity.hasEffect(MineraculousMobEffects.CATACLYSMED) && TommyLibServices.ENTITY.getPersistentData(entity).hasUUID(TAG_CATACLYSMED)) {
+            entity.setLastHurtByPlayer(entity.level().getPlayerByUUID(TommyLibServices.ENTITY.getPersistentData(entity).getUUID(TAG_CATACLYSMED)));
         }
     }
 

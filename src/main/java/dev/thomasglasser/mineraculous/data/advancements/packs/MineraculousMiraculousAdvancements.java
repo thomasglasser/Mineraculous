@@ -10,6 +10,8 @@ import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.advancements.ExtendedAdvancementGenerator;
+import java.util.Map;
+import java.util.Optional;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
@@ -22,9 +24,6 @@ import net.minecraft.advancements.critereon.TagPredicate;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.data.LanguageProvider;
-
-import java.util.Map;
-import java.util.Optional;
 
 public class MineraculousMiraculousAdvancements extends ExtendedAdvancementGenerator {
     public MineraculousMiraculousAdvancements(LanguageProvider enUs) {

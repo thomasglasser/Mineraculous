@@ -1,9 +1,8 @@
 package dev.thomasglasser.mineraculous.world.entity;
 
 import com.mojang.serialization.Codec;
-import net.minecraft.util.StringRepresentable;
-
 import java.util.List;
+import net.minecraft.util.StringRepresentable;
 
 public enum MiraculousType implements StringRepresentable {
     CAT;
@@ -12,13 +11,11 @@ public enum MiraculousType implements StringRepresentable {
 
     private final List<String> includedLooks;
 
-    MiraculousType()
-    {
+    MiraculousType() {
         this.includedLooks = List.of();
     }
 
-    MiraculousType(List<String> includedLooks)
-    {
+    MiraculousType(List<String> includedLooks) {
         this.includedLooks = includedLooks;
     }
 
@@ -36,8 +33,7 @@ public enum MiraculousType implements StringRepresentable {
         return getSerializedName();
     }
 
-    public List<String> getIncludedLooks()
-    {
+    public List<String> getIncludedLooks() {
         return includedLooks;
     }
 }

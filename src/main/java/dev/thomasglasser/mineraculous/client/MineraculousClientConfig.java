@@ -8,15 +8,14 @@ public class MineraculousClientConfig {
     private final ModConfigSpec configSpec;
 
     // Miraculous
+    public static final String MIRACULOUS = "miraculous";
     public final ModConfigSpec.BooleanValue enablePerPlayerCustomization;
 
     public MineraculousClientConfig() {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
-        builder.comment("Settings for the Miraculous");
-        builder.push("miraculous");
+        builder.push(MIRACULOUS);
         enablePerPlayerCustomization = builder
-                .comment("Enable resource pack support for per-player customization of miraculous items")
                 .define("enable_per_player_customization", false);
         builder.pop();
 

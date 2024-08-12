@@ -33,6 +33,8 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,6 +109,7 @@ public class Mineraculous {
     private static void registerConfigs(ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.SERVER, MineraculousServerConfig.INSTANCE.getConfigSpec());
         modContainer.registerConfig(ModConfig.Type.CLIENT, MineraculousClientConfig.INSTANCE.getConfigSpec());
+        modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
     }
 
     public static ResourceLocation modLoc(String s) {

@@ -1,10 +1,12 @@
 package dev.thomasglasser.mineraculous.data.lang;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalInventoryScreen;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
+import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.server.commands.MiraculousCommand;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
@@ -120,7 +122,18 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     private void addConfigs() {
-        // TODO: Add config translations
+        addConfigTitle(Mineraculous.MOD_NAME);
+
+        // Server
+        addConfigSection(MineraculousServerConfig.STEALING, "Stealing", "Settings for item stealing");
+        addConfig(MineraculousServerConfig.INSTANCE.stealingDuration, "Stealing Duration", "Duration in seconds that the key must be held to steal an item");
+        addConfig(MineraculousServerConfig.INSTANCE.enableUniversalStealing, "Enable Universal Stealing", "Enable item stealing from all players all the time");
+        addConfig(MineraculousServerConfig.INSTANCE.enableSleepStealing, "Enable Sleep Stealing", "Enable item stealing from players while they sleep");
+        addConfig(MineraculousServerConfig.INSTANCE.wakeUpChance, "Wake Up Chance", "Percent chance that a player will wake up while being stolen from");
+
+        // Client
+        addConfigSection(MineraculousClientConfig.MIRACULOUS, "Miraculous", "Settings for the Miraculous");
+        addConfig(MineraculousClientConfig.INSTANCE.enablePerPlayerCustomization, "Enable Per-Player Customization", "Enable resource pack support for per-player customization of miraculous items");
     }
 
     protected void add(MiraculousType type, String name) {

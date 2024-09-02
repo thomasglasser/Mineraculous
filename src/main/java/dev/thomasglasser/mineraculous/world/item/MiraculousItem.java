@@ -1,37 +1,39 @@
 package dev.thomasglasser.mineraculous.world.item;
 
-import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundActivatePowerPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
-import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
-import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.BaseModeledItem;
-import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
-import java.util.function.Supplier;
+import java.util.List;
+import java.util.function.Consumer;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextColor;
-import net.minecraft.sounds.SoundEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
@@ -41,25 +43,17 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 public class MiraculousItem extends BaseModeledItem implements ICurioItem {
     public static final int FIVE_MINUTES = 6000;
 
-    private final ArmorSet armor;
-    private final Supplier<? extends Item> tool;
-    private final SoundEvent transformSound;
-    private final Supplier<EntityType<? extends Kwami>> kwamiType;
-    private final String acceptableSlot;
-    private final TextColor powerColor;
-    private final MiraculousType type;
-
-    public MiraculousItem(Properties properties, MiraculousType type, ArmorSet armor, Supplier<? extends Item> tool, SoundEvent transformSound, Supplier<EntityType<? extends Kwami>> kwamiType, String acceptableSlot, TextColor powerColor) {
+    public MiraculousItem(Properties properties) {
         super(properties.stacksTo(1).fireResistant().rarity(Rarity.EPIC)
                 .component(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE)
                 .component(DataComponents.UNBREAKABLE, new Unbreakable(true)));
-        this.armor = armor;
-        this.tool = tool;
-        this.transformSound = transformSound;
-        this.kwamiType = kwamiType;
-        this.acceptableSlot = acceptableSlot;
-        this.powerColor = powerColor;
-        this.type = type;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        if (stack.has(MineraculousDataComponents.MIRACULOUS))
+            tooltipComponents.add(Component.translatable(stack.get(MineraculousDataComponents.MIRACULOUS).location().toLanguageKey(stack.get(MineraculousDataComponents.MIRACULOUS).registry().getPath())).withStyle(ChatFormatting.GRAY));
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }
 
     @Override
@@ -85,24 +79,13 @@ public class MiraculousItem extends BaseModeledItem implements ICurioItem {
     }
 
     @Override
-    public BlockEntityWithoutLevelRenderer getBEWLR() {
-        return MineraculousClientUtils.getBewlr();
-    }
-
-    public Item getTool() {
-        return tool == null ? null : tool.get();
-    }
-
-    public ArmorSet getArmorSet() {
-        return armor;
-    }
-
-    public EntityType<? extends Kwami> getKwamiType() {
-        return kwamiType.get();
-    }
-
-    public String getAcceptableSlot() {
-        return acceptableSlot;
+    public void createBewlrProvider(Consumer<BewlrProvider> provider) {
+        provider.accept(new BewlrProvider() {
+            @Override
+            public BlockEntityWithoutLevelRenderer getBewlr() {
+                return MineraculousClientUtils.getBewlr();
+            }
+        });
     }
 
     @Override
@@ -115,30 +98,32 @@ public class MiraculousItem extends BaseModeledItem implements ICurioItem {
         return false;
     }
 
-    public TextColor getPowerColor() {
-        return powerColor;
-    }
-
-    public MiraculousType getType() {
-        return type;
-    }
-
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         LivingEntity entity = slotContext.entity();
-        if (entity instanceof Player player && stack.getItem() instanceof MiraculousItem miraculousItem && miraculousItem.getAcceptableSlot().equals(slotContext.identifier())) {
-            MiraculousType miraculousType = miraculousItem.getType();
+        if (entity instanceof Player player && stack.has(MineraculousDataComponents.MIRACULOUS) && player.level().holderOrThrow(stack.get(MineraculousDataComponents.MIRACULOUS)).value().acceptableSlot().equals(slotContext.identifier())) {
+            ResourceKey<Miraculous> miraculousType = stack.get(MineraculousDataComponents.MIRACULOUS);
             MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(miraculousType);
-            if (data.mainPowerActivated())
-                stack.set(MineraculousDataComponents.REMAINING_TICKS.get(), stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) - 1);
+            if (data.transformed()) {
+                if (data.mainPowerActivated())
+                    stack.set(MineraculousDataComponents.REMAINING_TICKS.get(), stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) - 1);
+                entity.level().holderOrThrow(miraculousType).value().passiveAbilities().forEach(ability -> ability.value().perform(miraculousType, data, player.level(), player.blockPosition(), player, Ability.Context.PASSIVE));
+                if (data.mainPowerActive())
+                    entity.level().holderOrThrow(miraculousType).value().activeAbility().value().perform(miraculousType, data, player.level(), player.blockPosition(), player, Ability.Context.PASSIVE);
+                if (!entity.getMainHandItem().isEmpty()) {
+                    entity.level().holderOrThrow(miraculousType).value().passiveAbilities().forEach(ability -> ability.value().perform(miraculousType, data, player.level(), player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem())));
+                    if (data.mainPowerActive()) {
+                        boolean usedPower = entity.level().holderOrThrow(miraculousType).value().activeAbility().value().perform(miraculousType, data, player.level(), player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem()));
+                        if (usedPower)
+                            entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculousType, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), true, false, data.name(), data.look()), true);
+                    }
+                }
+            }
             if (entity.level().isClientSide) {
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
                 int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
                 if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen()) {
-                    if (MineraculousKeyMappings.OPEN_ABILITY_WHEEL.isDown() && data.transformed()) {
-                        MineraculousClientEvents.openPowerWheel(player);
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
-                    } else if (MineraculousKeyMappings.TRANSFORM.isDown()) {
+                    if (MineraculousKeyMappings.TRANSFORM.isDown()) {
                         if (data.transformed()) {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculousType, data, false));
                         } else {
@@ -153,7 +138,7 @@ public class MiraculousItem extends BaseModeledItem implements ICurioItem {
                 TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
             } else {
                 if (data.mainPowerActivated() && stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) <= 0) {
-                    MineraculousEntityEvents.handleTransformation(player, miraculousType, data, false);
+                    MineraculousEntityEvents.handleTransformation((ServerPlayer) player, miraculousType, data, false);
                 }
             }
         }
@@ -164,13 +149,13 @@ public class MiraculousItem extends BaseModeledItem implements ICurioItem {
     @Override
     public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
         LivingEntity entity = slotContext.entity();
-        if (!entity.level().isClientSide && entity instanceof Player player && stack.getItem() instanceof MiraculousItem miraculousItem) {
+        if (!entity.level().isClientSide && entity instanceof Player player) {
             MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS.get());
-            MiraculousData data = miraculousDataSet.get(miraculousItem.getType());
+            MiraculousData data = miraculousDataSet.get(stack.get(MineraculousDataComponents.MIRACULOUS));
             if (stack.has(MineraculousDataComponents.POWERED.get()) && !data.transformed()) {
                 stack.remove(MineraculousDataComponents.POWERED.get());
-                data = new MiraculousData(false, stack, new CuriosData(slotContext.index(), slotContext.identifier()), data.tool(), data.powerLevel(), data.mainPowerActivated(), data.mainPowerActive(), data.name());
-                MineraculousEntityEvents.summonKwami(entity.level(), miraculousItem.getType(), data, player);
+                data = new MiraculousData(false, stack, new CuriosData(slotContext.index(), slotContext.identifier()), data.tool(), data.powerLevel(), data.mainPowerActivated(), data.mainPowerActive(), data.name(), data.look());
+                MineraculousEntityEvents.summonKwami(entity.level(), stack.get(MineraculousDataComponents.MIRACULOUS), data, player);
             }
         }
     }

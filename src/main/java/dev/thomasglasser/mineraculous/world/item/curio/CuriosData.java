@@ -11,7 +11,6 @@ public record CuriosData(int slot, String identifier) {
     public static final Codec<CuriosData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("slot").forGetter(CuriosData::slot),
             Codec.STRING.fieldOf("identifier").forGetter(CuriosData::identifier)).apply(instance, CuriosData::new));
-
     public static final StreamCodec<ByteBuf, CuriosData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, CuriosData::slot,
             ByteBufCodecs.STRING_UTF8, CuriosData::identifier,

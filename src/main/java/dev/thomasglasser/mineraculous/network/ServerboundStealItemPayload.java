@@ -4,9 +4,8 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalInventoryScreen;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
-import dev.thomasglasser.mineraculous.world.entity.kwami.Kwami;
-import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.UUID;
@@ -36,8 +35,8 @@ public record ServerboundStealItemPayload(UUID target, int slot) implements Exte
         Player target = player.level().getPlayerByUUID(this.target);
         if (target != null) {
             ItemStack stack = target.inventoryMenu.slots.get(this.slot).getItem();
-            if (stack.getItem() instanceof MiraculousItem miraculousItem) {
-                MiraculousData miraculousData = target.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculousItem.getType());
+            if (stack.has(MineraculousDataComponents.MIRACULOUS)) {
+                MiraculousData miraculousData = target.getData(MineraculousAttachmentTypes.MIRACULOUS).get(stack.get(MineraculousDataComponents.MIRACULOUS));
                 if (miraculousData.miraculousItem() == stack) {
                     Entity entity = ((ServerLevel) player.level()).getEntity(stack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid());
                     if (entity instanceof Kwami kwami)

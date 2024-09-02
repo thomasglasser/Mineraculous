@@ -8,6 +8,15 @@
         "class": "dev/thomasglasser/mineraculous/client/gui/MineraculousHeartTypes",
         "field": "CATACLYSMED"
       }
+    },
+    {
+      "enum": "net/minecraft/world/item/ItemDisplayContext",
+        "name": "MINERACULOUS_CURIOS_RING",
+        "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
+        "parameters": {
+          "class": "dev/thomasglasser/mineraculous/world/item/MineraculousItemDisplayContexts",
+          "field": "CURIOS_RING"
+        }
     }
   ]
 }

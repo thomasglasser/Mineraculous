@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.network;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
@@ -11,7 +11,10 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -33,7 +36,7 @@ public record ServerboundTryBreakItemPayload() implements ExtendedPacketPayload 
         if (player.getMainHandItem().isDamageableItem()) {
             int i = 100;
             MiraculousDataSet data = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-            for (MiraculousType type : data.getTransformed()) {
+            for (ResourceKey<Miraculous> type : data.getTransformed()) {
                 int powerLevel = data.get(type).powerLevel();
                 if (powerLevel > 0)
                     i *= powerLevel;
@@ -41,6 +44,7 @@ public record ServerboundTryBreakItemPayload() implements ExtendedPacketPayload 
             player.getMainHandItem().hurtAndBreak(i, player, EquipmentSlot.MAINHAND);
         } else if (player.getMainHandItem().has(DataComponents.UNBREAKABLE)) {
             player.displayClientMessage(Component.translatable(ITEM_UNBREAKABLE_KEY), true);
+            return;
         } else if (player.getMainHandItem().getItem() instanceof BlockItem blockItem) {
             float max = blockItem.getBlock().defaultDestroyTime();
             if (max > -1) {
@@ -50,6 +54,7 @@ public record ServerboundTryBreakItemPayload() implements ExtendedPacketPayload 
                 player.getMainHandItem().hurtAndBreak(100, player, EquipmentSlot.MAINHAND);
             } else {
                 player.getMainHandItem().set(DataComponents.UNBREAKABLE, new Unbreakable(false));
+                return;
             }
         } else if (player.getMainHandItem().is(MineraculousItemTags.TOUGH)) {
             player.getMainHandItem().set(DataComponents.MAX_DAMAGE, 2);
@@ -58,9 +63,9 @@ public record ServerboundTryBreakItemPayload() implements ExtendedPacketPayload 
             player.getMainHandItem().hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
         } else {
             player.getMainHandItem().shrink(1);
-            player.playSound(SoundEvents.ITEM_BREAK);
+            player.level().playSound(null, player.blockPosition(), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1f, 1f);
         }
-        player.addItem(addRest);
+        player.setItemInHand(InteractionHand.MAIN_HAND, addRest);
         // TODO: Release akuma if inside
     }
 

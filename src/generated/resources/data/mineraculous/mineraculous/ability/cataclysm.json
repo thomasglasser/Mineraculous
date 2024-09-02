@@ -1,0 +1,32 @@
+{
+  "type": "mineraculous:context_aware",
+  "block": {
+    "type": "mineraculous:random_directional_spread",
+    "immune_blocks": "#mineraculous:cataclysm_immune",
+    "state": {
+      "Name": "mineraculous:cataclysm_block"
+    }
+  },
+  "entity": {
+    "type": "mineraculous:apply_infinite_effects_or_destroy",
+    "damage_type": "mineraculous:cataclysm",
+    "drop_item": "mineraculous:cataclysm_dust",
+    "effects": "mineraculous:cataclysmed"
+  },
+  "item": {
+    "type": "mineraculous:replace_items_in_hand",
+    "invalid_items": "#mineraculous:cataclysm_immune",
+    "replacement": {
+      "count": 1,
+      "id": "mineraculous:cataclysm_dust"
+    }
+  },
+  "passive": [
+    {
+      "type": "mineraculous:right_hand_particles",
+      "particle": {
+        "type": "mineraculous:cataclysm"
+      }
+    }
+  ]
+}

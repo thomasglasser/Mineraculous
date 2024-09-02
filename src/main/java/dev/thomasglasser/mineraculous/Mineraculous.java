@@ -1,15 +1,15 @@
 package dev.thomasglasser.mineraculous;
 
 import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
-import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.commands.MineraculousCommandEvents;
-import dev.thomasglasser.mineraculous.commands.arguments.MineraculousCommandArgumentTypes;
 import dev.thomasglasser.mineraculous.core.MineraculousCoreEvents;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
+import dev.thomasglasser.mineraculous.core.registries.MineraculousBuiltInRegistries;
+import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.data.MineraculousDataGenerators;
 import dev.thomasglasser.mineraculous.network.MineraculousPayloads;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
@@ -19,6 +19,7 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityDataSeriali
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.ai.village.poi.MineraculousPoiTypes;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.MineraculousAbilitySerializers;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerProfessions;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
@@ -48,6 +49,8 @@ public class Mineraculous {
     public Mineraculous(IEventBus bus, ModContainer modContainer) {
         LOGGER.info("Initializing {} for {} in a {} environment...", MOD_NAME, TommyLibServices.PLATFORM.getPlatformName(), TommyLibServices.PLATFORM.getEnvironmentName());
 
+        MineraculousRegistries.init();
+        MineraculousBuiltInRegistries.init();
         MineraculousItems.init();
         MineraculousArmors.init();
         MineraculousCreativeModeTabs.init();
@@ -55,7 +58,6 @@ public class Mineraculous {
         MineraculousKeyMappings.init();
         MineraculousPayloads.init();
         MineraculousParticleTypes.init();
-        MineraculousCommandArgumentTypes.init();
         MineraculousBlocks.init();
         MineraculousArmorMaterials.init();
         MineraculousDataComponents.init();
@@ -67,6 +69,7 @@ public class Mineraculous {
         MineraculousVillagerProfessions.init();
         MineraculousCriteriaTriggers.init();
         MineraculousMobEffects.init();
+        MineraculousAbilitySerializers.init();
 
         registerConfigs(modContainer);
 
@@ -82,12 +85,14 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onAttackEntity);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingAttack);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onBlockLeftClick);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEmptyLeftClick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEffectRemoved);
         NeoForge.EVENT_BUS.addListener(MineraculousCommandEvents::onCommandsRegister);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingHeal);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingTick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onRegisterVillagerTrades);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityJoinLevel);
 
         if (TommyLibServices.PLATFORM.isClientSide()) {
             bus.addListener(MineraculousClientEvents::onRegisterAdditionalModels);
@@ -96,7 +101,6 @@ public class Mineraculous {
             bus.addListener(MineraculousClientEvents::onRegisterParticleProviders);
             bus.addListener(MineraculousClientEvents::onRegisterGuiLayers);
 
-            NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onEntityJoinLevel);
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onGetPlayerHeartType);
         }
     }
@@ -104,11 +108,12 @@ public class Mineraculous {
     private void addModListeners(IEventBus bus) {
         bus.addListener(MineraculousEntityEvents::onEntityAttributeCreation);
         bus.addListener(MineraculousCoreEvents::onRegisterPackets);
+        bus.addListener(MineraculousCoreEvents::onNewDataPackRegistry);
+        bus.addListener(MineraculousCoreEvents::onNewRegistry);
     }
 
     private static void registerConfigs(ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.SERVER, MineraculousServerConfig.INSTANCE.getConfigSpec());
-        modContainer.registerConfig(ModConfig.Type.CLIENT, MineraculousClientConfig.INSTANCE.getConfigSpec());
         modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
     }
 

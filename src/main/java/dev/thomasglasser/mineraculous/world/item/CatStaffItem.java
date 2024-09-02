@@ -1,14 +1,18 @@
 package dev.thomasglasser.mineraculous.world.item;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundActivateToolPayload;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculousTypes;
+import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.BaseModeledSwordItem;
+import java.util.function.Consumer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -21,6 +25,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
 import software.bernie.geckolib.animatable.GeoAnimatable;
@@ -40,13 +45,12 @@ public class CatStaffItem extends BaseModeledSwordItem implements GeoItem {
     public static final RawAnimation RETRACT = RawAnimation.begin().thenPlay("attack.retract");
     public static final RawAnimation IDLE_RETRACTED = RawAnimation.begin().thenPlay("misc.idle.retracted");
 
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private static final ItemAttributeModifiers EXTENDED = SwordItem.createAttributes(MineraculousTiers.MIRACULOUS, 3, -2.4F);
 
-    private BlockEntityWithoutLevelRenderer bewlr;
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     protected CatStaffItem(Properties pProperties) {
         super(MineraculousTiers.MIRACULOUS, pProperties
-                .attributes(SwordItem.createAttributes(MineraculousTiers.MIRACULOUS, 3, -2.4F))
                 .component(DataComponents.UNBREAKABLE, new Unbreakable(false)));
         SingletonGeoAnimatable.registerSyncedAnimatable(this);
     }
@@ -63,9 +67,16 @@ public class CatStaffItem extends BaseModeledSwordItem implements GeoItem {
     }
 
     @Override
-    public BlockEntityWithoutLevelRenderer getBEWLR() {
-        if (bewlr == null) bewlr = new CatStaffRenderer();
-        return bewlr;
+    public void createBewlrProvider(Consumer<BewlrProvider> provider) {
+        provider.accept(new BewlrProvider() {
+            private BlockEntityWithoutLevelRenderer bewlr;
+
+            @Override
+            public BlockEntityWithoutLevelRenderer getBewlr() {
+                if (bewlr == null) bewlr = new CatStaffRenderer();
+                return bewlr;
+            }
+        });
     }
 
     @Override
@@ -97,7 +108,7 @@ public class CatStaffItem extends BaseModeledSwordItem implements GeoItem {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, pStack, hand));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
                     } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.isDown()) {
-                        // TODO: Open tool wheel
+                        MineraculousClientEvents.openToolWheel(MineraculousMiraculousTypes.CAT, 4);
                     }
                 }
                 TommyLibServices.ENTITY.setPersistentData(pEntity, playerData, false);
@@ -113,5 +124,12 @@ public class CatStaffItem extends BaseModeledSwordItem implements GeoItem {
         if (!stack.has(MineraculousDataComponents.POWERED.get()))
             return InteractionResultHolder.fail(stack);
         return super.use(pLevel, pPlayer, pHand);
+    }
+
+    @Override
+    public ItemAttributeModifiers getDefaultAttributeModifiers(ItemStack stack) {
+        if (stack.has(MineraculousDataComponents.POWERED.get()))
+            return EXTENDED;
+        return super.getDefaultAttributeModifiers(stack);
     }
 }

@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.data;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.data.advancements.MineraculousAdvancementProvider;
 import dev.thomasglasser.mineraculous.data.blockstates.MineraculousBlockStates;
 import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
@@ -15,6 +16,8 @@ import dev.thomasglasser.mineraculous.data.tags.MineraculousDamageTypeTagsProvid
 import dev.thomasglasser.mineraculous.data.tags.MineraculousItemTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousPoiTypeTagsProvider;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculousTypes;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.MineraculousAbilities;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
@@ -28,7 +31,9 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 public class MineraculousDataGenerators {
     public static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
-            .add(Registries.DAMAGE_TYPE, MineraculousDamageTypes::bootstrap);
+            .add(Registries.DAMAGE_TYPE, MineraculousDamageTypes::bootstrap)
+            .add(MineraculousRegistries.ABILITY, MineraculousAbilities::bootstrap)
+            .add(MineraculousRegistries.MIRACULOUS, MineraculousMiraculousTypes::bootstrap);
 
     public static void onGatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();

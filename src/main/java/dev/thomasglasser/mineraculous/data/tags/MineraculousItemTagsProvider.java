@@ -30,18 +30,19 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider pProvider) {
-        tag(MineraculousItemTags.TIKKI_FOODS)
-                .add(Items.BREAD);
+        // TODO: Ladybug miraculous
+//        tag(MineraculousItemTags.LADYBUG_KWAMI_FOODS)
+//                .add(Items.BREAD);
+//
+//        // TODO: Macaroons
+//        tag(MineraculousItemTags.LADYBUG_KWAMI_TREATS)
+//                .add(Items.COOKIE)
+//                .add(Items.CAKE);
 
-        // TODO: Macaroons
-        tag(MineraculousItemTags.TIKKI_TREATS)
-                .add(Items.COOKIE)
-                .add(Items.CAKE);
-
-        tag(MineraculousItemTags.PLAGG_FOODS)
+        tag(MineraculousItemTags.CAT_KWAMI_FOODS)
                 .addTag(MineraculousItemTags.CHEESES_FOODS);
 
-        tag(MineraculousItemTags.PLAGG_TREATS)
+        tag(MineraculousItemTags.CAT_KWAMI_TREATS)
                 .addTag(MineraculousItemTags.CAMEMBERT);
 
         tag(MineraculousItemTags.CHEESES_FOODS)
@@ -65,7 +66,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
                 .add(MineraculousItems.CATACLYSM_DUST.get())
                 .addOptionalTag(ConventionalItemTags.UNBREAKABLE_BLOCKS);
 
-        MineraculousArmors.MIRACULOUS_SETS.forEach(this::armorSet);
+        armorSet(MineraculousArmors.MIRACULOUS);
 
         tag(MineraculousItemTags.TOUGH)
                 .add(Items.MINECART)
@@ -84,14 +85,11 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
                 .add(Items.NETHER_STAR)
                 .add(Items.TOTEM_OF_UNDYING);
 
-        curios("ring", MineraculousItems.CAT_MIRACULOUS.get());
-
-        tag(MineraculousItemTags.MIRACULOUS)
-                .add(MineraculousItems.CAT_MIRACULOUS.get());
+        curios("ring", MineraculousItems.MIRACULOUS.get());
     }
 
-    protected void curios(String neoSlot, Item... items) {
-        IntrinsicTagAppender<Item> curios = tag(TagKey.create(Registries.ITEM, Mineraculous.Dependencies.CURIOS.modLoc(neoSlot)));
+    protected void curios(String slot, Item... items) {
+        IntrinsicTagAppender<Item> curios = tag(TagKey.create(Registries.ITEM, Mineraculous.Dependencies.CURIOS.modLoc(slot)));
 
         for (Item item : items) {
             curios.add(item);

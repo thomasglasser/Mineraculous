@@ -2,16 +2,17 @@ package dev.thomasglasser.mineraculous.client;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.gui.MineraculousHeartTypes;
+import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.client.particle.CataclysmParticle;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KamikoRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownCatStaffRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.item.MineraculousItemProperties;
-import dev.thomasglasser.mineraculous.client.renderer.item.curio.CatMiraculousItemCurioRenderer;
+import dev.thomasglasser.mineraculous.client.renderer.item.curio.MiraculousRenderer;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
-import dev.thomasglasser.mineraculous.network.ServerboundRequestMiraculousDataSetSyncPayload;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -24,36 +25,28 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.world.entity.player.Player;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 public class MineraculousClientEvents {
     public static void onFMLClientSetup(FMLClientSetupEvent event) {
-        CuriosRendererRegistry.register(MineraculousItems.CAT_MIRACULOUS.get(), CatMiraculousItemCurioRenderer::new);
+        CuriosRendererRegistry.register(MineraculousItems.MIRACULOUS.get(), MiraculousRenderer::new);
 
         MineraculousItemProperties.init();
     }
 
-    public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
-        if (event.getLevel().isClientSide) {
-            TommyLibServices.NETWORK.sendToServer(new ServerboundRequestMiraculousDataSetSyncPayload(event.getEntity().getId()));
-        }
-    }
-
-    public static void openPowerWheel(Player player) {
+    public static void openToolWheel(ResourceKey<Miraculous> miraculousType, int choices) {
         if (ClientUtils.getMinecraft().screen == null) {
-            // TODO: Radial menu with all available powers from all active miraculous
-            player.sendSystemMessage(Component.literal("Power Wheel Coming Soon"));
+            ClientUtils.setScreen(new RadialMenuScreen(Component.empty(), MineraculousKeyMappings.OPEN_TOOL_WHEEL.getKey().getValue(), choices, ClientUtils.getLevel().holderOrThrow(miraculousType).value().color().getValue()));
         }
     }
 
@@ -69,8 +62,7 @@ public class MineraculousClientEvents {
     }
 
     public static void onRegisterRenderer(EntityRenderersEvent.RegisterRenderers event) {
-        event.registerEntityRenderer(MineraculousEntityTypes.TIKKI.get(), context -> new KwamiRenderer<>(context, MineraculousEntityTypes.TIKKI.getId()));
-        event.registerEntityRenderer(MineraculousEntityTypes.PLAGG.get(), context -> new KwamiRenderer<>(context, MineraculousEntityTypes.PLAGG.getId()));
+        event.registerEntityRenderer(MineraculousEntityTypes.KWAMI.get(), KwamiRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.KAMIKO.get(), KamikoRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), ThrownCatStaffRenderer::new);
     }

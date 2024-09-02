@@ -3,7 +3,7 @@
   "criteria": {
     "cataclysm_block": {
       "conditions": {
-        "type": "cat",
+        "type": "mineraculous:cat",
         "contexts": [
           "block"
         ]

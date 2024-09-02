@@ -2,52 +2,53 @@ package dev.thomasglasser.mineraculous.world.level.storage;
 
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.mojang.serialization.codecs.UnboundedMapCodec;
 import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
+import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncMiraculousDataSetPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
-import dev.thomasglasser.tommylib.api.network.NetworkUtils;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.LivingEntity;
 
 public class MiraculousDataSet {
-    public static final MapCodec<Map<MiraculousType, MiraculousData>> MAP_CODEC = Codec.simpleMap(MiraculousType.CODEC, MiraculousData.CODEC, StringRepresentable.keys(MiraculousType.values())).xmap(map -> map.isEmpty() ? new EnumMap<>(MiraculousType.class) : new EnumMap<>(map), Function.identity());
+    public static final UnboundedMapCodec<ResourceKey<Miraculous>, MiraculousData> MAP_CODEC = Codec.unboundedMap(ResourceKey.codec(MineraculousRegistries.MIRACULOUS), MiraculousData.CODEC);
     public static final Codec<MiraculousDataSet> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             MAP_CODEC.fieldOf("map").forGetter(set -> set.map)).apply(instance, MiraculousDataSet::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousDataSet> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.map(
                     Maps::newHashMapWithExpectedSize,
-                    NetworkUtils.enumCodec(MiraculousType.class),
+                    ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS),
                     MiraculousData.STREAM_CODEC),
             set -> set.map,
             MiraculousDataSet::new);
 
-    private final Map<MiraculousType, MiraculousData> map;
+    private final Map<ResourceKey<Miraculous>, MiraculousData> map;
 
     public MiraculousDataSet() {
-        this.map = new EnumMap<>(MiraculousType.class);
+        this.map = new HashMap<>();
     }
 
-    public MiraculousDataSet(Map<MiraculousType, MiraculousData> map) {
-        this.map = map;
+    public MiraculousDataSet(Map<ResourceKey<Miraculous>, MiraculousData> map) {
+        this.map = new HashMap<>(map);
     }
 
-    public MiraculousData get(MiraculousType key) {
+    public MiraculousData get(ResourceKey<Miraculous> key) {
         return map.getOrDefault(key, new MiraculousData());
     }
 
-    public MiraculousData put(LivingEntity entity, MiraculousType key, MiraculousData value, boolean syncToClient) {
+    public MiraculousData put(LivingEntity entity, ResourceKey<Miraculous> key, MiraculousData value, boolean syncToClient) {
         MiraculousData data = map.put(key, value);
         if (value.transformed() && entity instanceof ServerPlayer player)
             MineraculousCriteriaTriggers.TRANSFORMED_MIRACULOUS.get().trigger(player, key);
@@ -55,7 +56,7 @@ public class MiraculousDataSet {
         return data;
     }
 
-    public List<MiraculousType> keySet() {
+    public List<ResourceKey<Miraculous>> keySet() {
         return List.copyOf(map.keySet());
     }
 
@@ -63,8 +64,16 @@ public class MiraculousDataSet {
         return List.copyOf(map.values());
     }
 
-    public List<MiraculousType> getTransformed() {
+    public List<ResourceKey<Miraculous>> getTransformed() {
         return map.entrySet().stream().filter(entry -> entry.getValue().transformed()).map(Map.Entry::getKey).toList();
+    }
+
+    public List<Holder<Miraculous>> getTransformedHolders(HolderLookup.Provider lookup) {
+        return getTransformed().stream().map(lookup::holderOrThrow).toList();
+    }
+
+    public List<Miraculous> getTransformed(HolderLookup.Provider lookup) {
+        return getTransformedHolders(lookup).stream().map(Holder::value).toList();
     }
 
     public boolean isTransformed() {

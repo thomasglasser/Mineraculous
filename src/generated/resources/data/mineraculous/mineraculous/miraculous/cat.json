@@ -1,0 +1,12 @@
+{
+  "acceptable_slot": "ring",
+  "active_ability": "mineraculous:cataclysm",
+  "color": "#C6F800",
+  "passive_abilities": [
+    "mineraculous:cat_vision"
+  ],
+  "tool": {
+    "count": 1,
+    "id": "mineraculous:cat_staff"
+  }
+}

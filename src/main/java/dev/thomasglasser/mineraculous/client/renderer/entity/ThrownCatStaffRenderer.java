@@ -25,7 +25,7 @@ public class ThrownCatStaffRenderer extends GeoEntityRenderer<ThrownCatStaff> {
             static RenderType RENDER_TYPE;
 
             @Override
-            protected RenderType getRenderType(ThrownCatStaff animatable) {
+            protected RenderType getRenderType(ThrownCatStaff animatable, @Nullable MultiBufferSource bufferSource) {
                 if (RENDER_TYPE == null) {
                     RENDER_TYPE = RenderType.eyes(AutoGlowingTexture.getEmissiveResource(CatStaffRenderer.TEXTURE));
                 }

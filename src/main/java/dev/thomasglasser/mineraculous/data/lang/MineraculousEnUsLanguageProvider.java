@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.data.lang;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalInventoryScreen;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
@@ -14,7 +13,8 @@ import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes
 import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.world.entity.MiraculousType;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculousTypes;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerProfessions;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
@@ -27,6 +27,7 @@ import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import java.util.Map;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceKey;
 import org.apache.commons.lang3.text.WordUtils;
 
 public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvider {
@@ -37,21 +38,18 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     @Override
     protected void addTranslations() {
         add(MineraculousItems.CAT_STAFF.get(), "Cat Staff");
-        add(MineraculousItems.CAT_MIRACULOUS.get(), "Cat Miraculous");
-        add(MineraculousItems.TIKKI_SPAWN_EGG.get(), "Tikki Spawn Egg");
-        add(MineraculousItems.PLAGG_SPAWN_EGG.get(), "Plagg Spawn Egg");
+        add(MineraculousItems.MIRACULOUS.get(), "Miraculous");
         add(MineraculousItems.KAMIKO_SPAWN_EGG.get(), "Kamiko Spawn Egg");
         add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
 
         addCreativeTab(MineraculousCreativeModeTabs.MINERACULOUS, "Mineraculous");
+        addCreativeTab(MineraculousCreativeModeTabs.MIRACULOUS, "Miraculous");
         addCreativeTab(MineraculousCreativeModeTabs.SUITS, "Suits");
 
-        MineraculousArmors.MIRACULOUS_SETS.forEach(set -> {
-            add(set.HEAD.get(), set.getDisplayName() + " Mask");
-            add(set.CHEST.get(), set.getDisplayName() + " Chestplate");
-            add(set.LEGS.get(), set.getDisplayName() + " Leggings");
-            add(set.FEET.get(), set.getDisplayName() + " Boots");
-        });
+        add(MineraculousArmors.MIRACULOUS.HEAD.get(), "Miraculous Mask");
+        add(MineraculousArmors.MIRACULOUS.CHEST.get(), "Miraculous Chestplate");
+        add(MineraculousArmors.MIRACULOUS.LEGS.get(), "Miraculous Leggings");
+        add(MineraculousArmors.MIRACULOUS.FEET.get(), "Miraculous Boots");
 
         add(MineraculousBlocks.CATACLYSM_BLOCK.get(), "Block of Cataclysm");
         add(MineraculousBlocks.CHEESE_POT.get(), "Cheese Pot");
@@ -61,14 +59,12 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         addConfigs();
 
-        add(MineraculousEntityTypes.TIKKI.get(), "Tikki");
-        add(MineraculousEntityTypes.PLAGG.get(), "Plagg");
         add(MineraculousEntityTypes.KAMIKO.get(), "Kamiko");
+        add(MineraculousEntityTypes.KWAMI.get(), "Kwami");
 
         add(MineraculousKeyMappings.MIRACULOUS_CATEGORY, "Miraculous");
         add(MineraculousKeyMappings.TRANSFORM, "Transform");
         add(MineraculousKeyMappings.ACTIVATE_POWER, "Activate Power");
-        add(MineraculousKeyMappings.OPEN_ABILITY_WHEEL, "Open Ability Wheel");
         add(MineraculousKeyMappings.ACTIVATE_TOOL, "Activate Tool");
         add(MineraculousKeyMappings.OPEN_TOOL_WHEEL, "Open Tool Wheel");
         add(MineraculousKeyMappings.TAKE_BREAK_ITEM, "Take/Break Item");
@@ -95,13 +91,14 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.NOT_LIVING_ENTITY, "Target must be a living entity.");
         add(MiraculousCommand.TRANSFORMED, "This command cannot be executed while %s is transformed.");
         add(MiraculousCommand.KWAMI_NOT_FOUND, "%s's %s kwami not found in the world");
+        add(MiraculousCommand.MIRACULOUS_INVALID, "Invalid miraculous type %s");
 
-        add(MiraculousType.CAT, "Cat");
+        addMiraculous(MineraculousMiraculousTypes.CAT, "Cat");
 
-        add(MineraculousItemTags.TIKKI_FOODS, "Tikki Foods");
-        add(MineraculousItemTags.TIKKI_TREATS, "Tikki Treats");
-        add(MineraculousItemTags.PLAGG_FOODS, "Plagg Foods");
-        add(MineraculousItemTags.PLAGG_TREATS, "Plagg Treats");
+//        add(MineraculousItemTags.LADYBUG_KWAMI_FOODS, "Tikki Foods");
+//        add(MineraculousItemTags.LADYBUG_KWAMI_TREATS, "Tikki Treats");
+        add(MineraculousItemTags.CAT_KWAMI_FOODS, "Cat Kwami Foods");
+        add(MineraculousItemTags.CAT_KWAMI_TREATS, "Cat Kwami Treats");
         add(MineraculousItemTags.CATACLYSM_IMMUNE, "Cataclysm Immune");
         add(MineraculousItemTags.CHEESES_FOODS, "Cheeses");
         add(MineraculousItemTags.CHEESE, "Cheese");
@@ -132,12 +129,6 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfig(MineraculousServerConfig.INSTANCE.wakeUpChance, "Wake Up Chance", "Percent chance that a player will wake up while being stolen from");
 
         // Client
-        addConfigSection(MineraculousClientConfig.MIRACULOUS, "Miraculous", "Settings for the Miraculous");
-        addConfig(MineraculousClientConfig.INSTANCE.enablePerPlayerCustomization, "Enable Per-Player Customization", "Enable resource pack support for per-player customization of miraculous items");
-    }
-
-    protected void add(MiraculousType type, String name) {
-        add(type.getTranslationKey(), name);
     }
 
     protected void cheese(String name, Map<CheeseBlock.Age, DeferredItem<?>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxedBlocks) {
@@ -146,5 +137,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
             add(blocks.get(age).get(), WordUtils.capitalize(age.getSerializedName()).replace('_', '-') + " Block of " + name);
             add(waxedBlocks.get(age).get(), "Waxed " + WordUtils.capitalize(age.getSerializedName()).replace('_', '-') + " Block of " + name);
         }
+    }
+
+    protected void addMiraculous(ResourceKey<Miraculous> type, String name) {
+        add(type.location().toLanguageKey(type.registry().getPath()), name);
+        add(MineraculousEntityTypes.KWAMI.getId().toLanguageKey("entity", type.location().getPath()), name + " Kwami");
     }
 }

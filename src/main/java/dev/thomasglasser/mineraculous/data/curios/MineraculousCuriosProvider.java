@@ -12,7 +12,6 @@ public class MineraculousCuriosProvider extends CuriosDataProvider {
         super(Mineraculous.MOD_ID, output, fileHelper, registries);
     }
 
-    // Must add slots in trinkets file in Fabric project by hand
     @Override
     public void generate(HolderLookup.Provider registries, ExistingFileHelper fileHelper) {
         createEntities("miraculous_holders")

@@ -3,7 +3,7 @@
   "criteria": {
     "transform_cat": {
       "conditions": {
-        "type": "cat"
+        "type": "mineraculous:cat"
       },
       "trigger": "mineraculous:transformed_miraculous"
     }
@@ -13,8 +13,11 @@
       "translate": "advancement.mineraculous.miraculous.transform_cat.desc"
     },
     "icon": {
+      "components": {
+        "mineraculous:miraculous": "mineraculous:cat"
+      },
       "count": 1,
-      "id": "mineraculous:cat_miraculous"
+      "id": "mineraculous:miraculous"
     },
     "title": {
       "translate": "advancement.mineraculous.miraculous.transform_cat.title"

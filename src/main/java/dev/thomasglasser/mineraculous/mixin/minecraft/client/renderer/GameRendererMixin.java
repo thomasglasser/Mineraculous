@@ -22,7 +22,7 @@ public abstract class GameRendererMixin {
 
     @Inject(method = "togglePostEffect", at = @At("HEAD"), cancellable = true)
     private void togglePostEffect(CallbackInfo ci) {
-        if (TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer()).getBoolean(MineraculousEntityEvents.TAG_HASCATVISION)) {
+        if (TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer()).getBoolean(MineraculousEntityEvents.TAG_HASNIGHTVISION)) {
             ci.cancel();
         }
     }

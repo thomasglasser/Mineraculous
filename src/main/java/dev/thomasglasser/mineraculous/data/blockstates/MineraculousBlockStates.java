@@ -27,12 +27,12 @@ public class MineraculousBlockStates extends ExtendedBlockStateProvider {
             String ageName = age.getSerializedName();
             return ConfiguredModel.builder()
                     .modelFile(models()
-                            .withExistingParent(MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.FRESH).getId().getPath() + suffix, modBlockModel("cheese" + suffix + "_base"))
-                            .texture("inner", modBlockModel("cheese/" + ageName + "_" + name + "_inner"))
-                            .texture("side", modBlockModel("cheese/" + ageName + "_" + name + "_side"))
-                            .texture("top", modBlockModel("cheese/" + ageName + "_" + name + "_top"))
-                            .texture("bottom", modBlockModel("cheese/" + ageName + "_" + name + "_bottom"))
-                            .texture("particle", modBlockModel("cheese/" + ageName + "_" + name + "_side")))
+                            .withExistingParent(MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.FRESH).getId().getPath() + suffix, modBlockLoc("cheese" + suffix + "_base"))
+                            .texture("inner", modBlockLoc("cheese/" + ageName + "_" + name + "_inner"))
+                            .texture("side", modBlockLoc("cheese/" + ageName + "_" + name + "_side"))
+                            .texture("top", modBlockLoc("cheese/" + ageName + "_" + name + "_top"))
+                            .texture("bottom", modBlockLoc("cheese/" + ageName + "_" + name + "_bottom"))
+                            .texture("particle", modBlockLoc("cheese/" + ageName + "_" + name + "_side")))
                     .build();
         });
 
@@ -50,12 +50,12 @@ public class MineraculousBlockStates extends ExtendedBlockStateProvider {
             String ageName = age.getSerializedName();
             return ConfiguredModel.builder()
                     .modelFile(models()
-                            .withExistingParent(block.getId().getPath() + suffix, modBlockModel("cheese" + suffix + "_base"))
-                            .texture("inner", modBlockModel("cheese/" + ageName + "_" + name + "_inner"))
-                            .texture("side", modBlockModel("cheese/" + ageName + "_" + name + "_side"))
-                            .texture("top", modBlockModel("cheese/" + ageName + "_" + name + "_top"))
-                            .texture("bottom", modBlockModel("cheese/" + ageName + "_" + name + "_bottom"))
-                            .texture("particle", modBlockModel("cheese/" + ageName + "_" + name + "_side")))
+                            .withExistingParent(block.getId().getPath() + suffix, modBlockLoc("cheese" + suffix + "_base"))
+                            .texture("inner", modBlockLoc("cheese/" + ageName + "_" + name + "_inner"))
+                            .texture("side", modBlockLoc("cheese/" + ageName + "_" + name + "_side"))
+                            .texture("top", modBlockLoc("cheese/" + ageName + "_" + name + "_top"))
+                            .texture("bottom", modBlockLoc("cheese/" + ageName + "_" + name + "_bottom"))
+                            .texture("particle", modBlockLoc("cheese/" + ageName + "_" + name + "_side")))
                     .build();
         })));
     }

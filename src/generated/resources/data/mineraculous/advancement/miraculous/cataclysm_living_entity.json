@@ -3,7 +3,7 @@
   "criteria": {
     "cataclysm_entity": {
       "conditions": {
-        "type": "cat",
+        "type": "mineraculous:cat",
         "contexts": [
           "living_entity"
         ]

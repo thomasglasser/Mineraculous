@@ -38,7 +38,7 @@ public class MineraculousItems {
     public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", properties -> new CatStaffItem(properties.fireResistant().stacksTo(1).rarity(Rarity.EPIC)), List.of(CreativeModeTabs.TOOLS_AND_UTILITIES, CreativeModeTabs.COMBAT));
 
     // Miraculous
-    public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", properties -> new MiraculousItem(properties.rarity(Rarity.EPIC)), List.of(), false);
+    public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", MiraculousItem::new, List.of(), false);
 
     public static final DeferredItem<Item> CATACLYSM_DUST = register("cataclysm_dust", properties -> new Item(properties.rarity(Rarity.EPIC)), List.of());
 

@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.world.item;
 
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.tags.MineraculousDamageTypeTags;
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
@@ -22,6 +23,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.DamageResistant;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
@@ -31,9 +33,10 @@ public class MiraculousItem extends Item implements /*ICurioItem,*/ ModeledItem 
     public static final int FIVE_MINUTES = 6000;
 
     public MiraculousItem(Properties properties) {
-        super(properties.stacksTo(1).fireResistant().rarity(Rarity.EPIC)
+        super(properties.stacksTo(1).rarity(Rarity.EPIC)
                 .component(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE)
-                .component(DataComponents.UNBREAKABLE, new Unbreakable(true)));
+                .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
+                .component(DataComponents.DAMAGE_RESISTANT, new DamageResistant(MineraculousDamageTypeTags.RESISTED_BY_MIRACULOUS)));
     }
 
     @Override

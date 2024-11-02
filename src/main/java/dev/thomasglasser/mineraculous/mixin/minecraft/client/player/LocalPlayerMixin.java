@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.mixin.minecraft.client.player;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,7 +16,7 @@ public class LocalPlayerMixin {
 
     @ModifyExpressionValue(method = "handleConfusionTransitionEffect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;hasEffect(Lnet/minecraft/core/Holder;)Z"))
     private boolean hasCataclysmed(boolean original) {
-        if (mineraculous$INSTANCE.hasEffect(MineraculousMobEffects.CATACLYSMED)) {
+        if (MineraculousEntityEvents.isCataclysmed(mineraculous$INSTANCE)) {
             return true;
         }
         return original;

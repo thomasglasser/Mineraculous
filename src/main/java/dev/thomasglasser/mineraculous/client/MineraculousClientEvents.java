@@ -24,7 +24,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -46,7 +45,7 @@ public class MineraculousClientEvents {
 
     public static void openToolWheel(ResourceKey<Miraculous> miraculousType, int choices) {
         if (ClientUtils.getMinecraft().screen == null) {
-            ClientUtils.setScreen(new RadialMenuScreen(Component.empty(), MineraculousKeyMappings.OPEN_TOOL_WHEEL.getKey().getValue(), choices, ClientUtils.getLevel().holderOrThrow(miraculousType).value().color().getValue()));
+            ClientUtils.setScreen(new RadialMenuScreen(MineraculousKeyMappings.OPEN_TOOL_WHEEL.getKey().getValue(), choices, ClientUtils.getLevel().holderOrThrow(miraculousType).value().color().getValue()));
         }
     }
 

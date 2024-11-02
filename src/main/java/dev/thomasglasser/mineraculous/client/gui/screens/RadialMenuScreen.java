@@ -31,8 +31,8 @@ public class RadialMenuScreen extends Screen {
 
     protected int animationTick = 0;
 
-    public RadialMenuScreen(Component title, int heldKey, int options, int selectedColor) {
-        super(title);
+    public RadialMenuScreen(int heldKey, int options, int selectedColor) {
+        super(Component.empty());
         this.heldKey = heldKey;
         this.options = options;
         this.selectedColor = selectedColor;
@@ -127,8 +127,9 @@ public class RadialMenuScreen extends Screen {
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         var builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        drawPieArc(builder, width / 2f, height / 2f, 1, (circleSize / 2f) * 0.5f / 3f, circleSize * 91 / 90, 2 * Math.PI - selectedOption * sliceAngle, 2 * Math.PI - (selectedOption - 1) * sliceAngle, selectedColor);
-        drawPieArc(builder, width / 2f, height / 2f, 1, (circleSize / 2f) * 0.5f / 3f, circleSize * 91 / 90, (selectedOption - 1) * -sliceAngle, 2 * Math.PI - selectedOption * sliceAngle, 0xAFAFAF);
+        drawPieArc(builder, width / 2f, height / 2f, 1, (circleSize * 2f) / 3f, circleSize * 91 / 90, selectedOption * -sliceAngle, 2 * Math.PI - selectedOption * sliceAngle, 0xAFAFAF);
+        if (selectedOption != 0)
+            drawPieArc(builder, width / 2f, height / 2f, 0, (circleSize * 2f) / 3f, circleSize * 91 / 90, 2 * Math.PI - selectedOption * sliceAngle, 2 * Math.PI - (selectedOption - 1) * sliceAngle, selectedColor);
         BufferUploader.drawWithShader(builder.buildOrThrow());
         RenderSystem.disableBlend();
         // TODO: Render player model performing animation for abilities

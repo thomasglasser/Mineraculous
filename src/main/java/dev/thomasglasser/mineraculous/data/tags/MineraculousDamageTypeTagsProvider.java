@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.data.tags;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.tags.MineraculousDamageTypeTags;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
+import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
@@ -12,8 +13,6 @@ import net.minecraft.world.damagesource.DamageType;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.concurrent.CompletableFuture;
 
 public class MineraculousDamageTypeTagsProvider extends TagsProvider<DamageType> {
     public MineraculousDamageTypeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {

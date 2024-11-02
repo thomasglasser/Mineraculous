@@ -5,12 +5,11 @@ import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
+import java.util.List;
+import java.util.function.UnaryOperator;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.equipment.ArmorType;
-
-import java.util.List;
-import java.util.function.UnaryOperator;
 
 public class MineraculousArmors {
     public static final DeferredRegister.Items ARMORS = DeferredRegister.createItems(Mineraculous.MOD_ID);

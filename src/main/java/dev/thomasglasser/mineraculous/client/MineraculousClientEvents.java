@@ -8,12 +8,10 @@ import dev.thomasglasser.mineraculous.client.renderer.entity.KamikoRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownCatStaffRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.item.MineraculousItemProperties;
-import dev.thomasglasser.mineraculous.client.renderer.item.curio.MiraculousRenderer;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Map;
@@ -34,11 +32,11 @@ import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
-import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 public class MineraculousClientEvents {
     public static void onFMLClientSetup(FMLClientSetupEvent event) {
-        CuriosRendererRegistry.register(MineraculousItems.MIRACULOUS.get(), MiraculousRenderer::new);
+        // TODO: Update Curios
+//        CuriosRendererRegistry.register(MineraculousItems.MIRACULOUS.get(), MiraculousRenderer::new);
 
         MineraculousItemProperties.init();
     }

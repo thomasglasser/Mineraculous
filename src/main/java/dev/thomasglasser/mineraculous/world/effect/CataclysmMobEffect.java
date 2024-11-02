@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.world.effect;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
@@ -33,7 +34,7 @@ public class CataclysmMobEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
+    public boolean applyEffectTick(ServerLevel level, LivingEntity entity, int amplifier) {
         entity.hurt(entity.damageSources().source(MineraculousDamageTypes.CATACLYSM), 1.0F);
         if (entity instanceof Player player) {
             player.causeFoodExhaustion(0.005F * (amplifier + 1.0F));

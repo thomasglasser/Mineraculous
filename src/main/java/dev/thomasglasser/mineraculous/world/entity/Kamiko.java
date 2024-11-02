@@ -8,6 +8,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
@@ -113,7 +114,8 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
     }
 
     @Override
-    protected void customServerAiStep() {
+    protected void customServerAiStep(ServerLevel p_376725_) {
+        super.customServerAiStep(p_376725_);
         if (this.followingPosition == null)
             this.followingPosition = this.blockPosition();
         tickBrain(this);
@@ -129,14 +131,13 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
     }
 
     @Override
-    public boolean isInvulnerableTo(DamageSource source) {
-        // Kamikos can squeeze through impossibly tight spaces. Including between atomic particles.
-        return source.is(DamageTypes.IN_WALL) || super.isInvulnerableTo(source);
+    public boolean isInvulnerableTo(ServerLevel level, DamageSource source) {
+        return source.is(DamageTypes.IN_WALL) || super.isInvulnerableTo(level, source);
     }
 
     @Override
-    public boolean hurt(DamageSource source, float amount) {
-        boolean hurt = super.hurt(source, amount);
+    public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
+        boolean hurt = super.hurtServer(level, source, amount);
         if (hurt && !this.level().isClientSide && this.isResting()) {
             this.setResting(false);
         }

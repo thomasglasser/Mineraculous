@@ -11,7 +11,7 @@ import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -87,7 +87,6 @@ public class RadialMenuScreen extends Screen {
         if (button == 0) {
             int selectedOption = this.getSelectedOption((int) mouseX - this.width / 2, (int) mouseY - this.height / 2);
             if (selectedOption != -1) {
-                ClientUtils.getMainClientPlayer().sendSystemMessage(Component.literal("Selected Option: " + selectedOption));
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer());
                 playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 20);
                 TommyLibServices.ENTITY.setPersistentData(ClientUtils.getMainClientPlayer(), playerData, false);
@@ -124,7 +123,7 @@ public class RadialMenuScreen extends Screen {
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         var builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         drawPieArc(builder, width / 2f, height / 2f, 1, (circleSize * 2f) / 3f, circleSize * 91 / 90, selectedOption * -sliceAngle, 2 * Math.PI - selectedOption * sliceAngle, 0xAFAFAF);

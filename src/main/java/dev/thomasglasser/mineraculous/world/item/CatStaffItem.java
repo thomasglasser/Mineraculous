@@ -11,7 +11,7 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculousTypes;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import dev.thomasglasser.tommylib.api.world.item.BaseModeledSwordItem;
+import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import java.util.function.Consumer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.component.DataComponents;
@@ -20,9 +20,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -39,19 +43,24 @@ import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class CatStaffItem extends BaseModeledSwordItem implements GeoItem {
+public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem {
+    public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final ResourceLocation EXTENDED_PROPERTY_ID = Mineraculous.modLoc("extended");
     public static final RawAnimation EXTEND = RawAnimation.begin().thenPlay("attack.extend");
     public static final RawAnimation RETRACT = RawAnimation.begin().thenPlay("attack.retract");
     public static final RawAnimation IDLE_RETRACTED = RawAnimation.begin().thenPlay("misc.idle.retracted");
 
-    private static final ItemAttributeModifiers EXTENDED = SwordItem.createAttributes(MineraculousTiers.MIRACULOUS, 3, -2.4F);
+    private static final ItemAttributeModifiers EXTENDED = ItemAttributeModifiers.builder()
+            .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 15, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+            .add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -1.5, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+            .add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(BASE_ENTITY_INTERACTION_RANGE_ID, 2, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+            .build();
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     protected CatStaffItem(Properties pProperties) {
-        super(MineraculousTiers.MIRACULOUS, pProperties
-                .component(DataComponents.UNBREAKABLE, new Unbreakable(false)));
+        super(pProperties
+                .component(DataComponents.UNBREAKABLE, new Unbreakable(true)));
         SingletonGeoAnimatable.registerSyncedAnimatable(this);
     }
 
@@ -119,10 +128,10 @@ public class CatStaffItem extends BaseModeledSwordItem implements GeoItem {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand) {
+    public InteractionResult use(Level pLevel, Player pPlayer, InteractionHand pHand) {
         ItemStack stack = pPlayer.getItemInHand(pHand);
         if (!stack.has(MineraculousDataComponents.POWERED.get()))
-            return InteractionResultHolder.fail(stack);
+            return InteractionResult.FAIL;
         return super.use(pLevel, pPlayer, pHand);
     }
 

@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "waxed_exquisite_camembert_block",
   "ingredients": [
-    {
-      "item": "mineraculous:exquisite_camembert_block"
-    },
-    {
-      "item": "minecraft:honeycomb"
-    }
+    "mineraculous:exquisite_camembert_block",
+    "minecraft:honeycomb"
   ],
   "result": {
     "count": 1,

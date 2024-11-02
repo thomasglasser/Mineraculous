@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "waxed_fresh_cheese_block",
   "ingredients": [
-    {
-      "item": "mineraculous:fresh_cheese_block"
-    },
-    {
-      "item": "minecraft:honeycomb"
-    }
+    "mineraculous:fresh_cheese_block",
+    "minecraft:honeycomb"
   ],
   "result": {
     "count": 1,

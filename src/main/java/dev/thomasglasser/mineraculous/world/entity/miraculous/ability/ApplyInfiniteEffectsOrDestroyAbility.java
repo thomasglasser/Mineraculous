@@ -13,6 +13,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
@@ -44,7 +45,8 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
                 if (performer instanceof Player player)
                     livingEntity.setLastHurtByPlayer(player);
             } else if (target instanceof VehicleEntity vehicle && dropItem.isPresent()) {
-                vehicle.destroy(dropItem.get());
+                if (level instanceof ServerLevel serverLevel)
+                    vehicle.destroy(serverLevel, dropItem.get());
             } else {
                 target.hurt(damageType.map(damageTypeResourceKey -> performer.damageSources().source(damageTypeResourceKey, performer)).orElse(performer.damageSources().indirectMagic(performer, performer)), 1024);
             }

@@ -7,6 +7,7 @@ import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,7 +30,11 @@ public class MineraculousEntityTypes {
                     .sized(0.5F, 0.5F));
 
     private static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> register(String name, EntityType.Builder<T> builder) {
-        return ENTITY_TYPES.register(name, () -> builder.build(name));
+        return ENTITY_TYPES.register(name, () -> builder.build(key(name)));
+    }
+
+    private static ResourceKey<EntityType<?>> key(String name) {
+        return ResourceKey.create(Registries.ENTITY_TYPE, Mineraculous.modLoc(name));
     }
 
     public static Map<EntityType<? extends LivingEntity>, AttributeSupplier> getAllAttributes() {

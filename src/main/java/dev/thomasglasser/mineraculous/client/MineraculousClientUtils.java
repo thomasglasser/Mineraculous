@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.client;
 
 import dev.thomasglasser.mineraculous.client.renderer.MineraculousBlockEntityWithoutLevelRenderer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.PostChain;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -19,11 +18,11 @@ public class MineraculousClientUtils {
     }
 
     public static void setShader(@Nullable ResourceLocation location) {
-        PostChain postChain = Minecraft.getInstance().gameRenderer.currentEffect();
+        ResourceLocation current = Minecraft.getInstance().gameRenderer.currentPostEffect();
         if (location != null)
-            Minecraft.getInstance().gameRenderer.loadEffect(location);
-        else if (postChain != null)
-            postChain.close();
+            Minecraft.getInstance().gameRenderer.setPostEffect(location);
+        else if (current != null)
+            Minecraft.getInstance().gameRenderer.close();
     }
 
     public static boolean isFirstPerson() {

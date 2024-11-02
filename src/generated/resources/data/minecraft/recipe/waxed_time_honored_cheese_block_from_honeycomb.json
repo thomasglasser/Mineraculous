@@ -3,12 +3,8 @@
   "category": "misc",
   "group": "waxed_time_honored_cheese_block",
   "ingredients": [
-    {
-      "item": "mineraculous:time_honored_cheese_block"
-    },
-    {
-      "item": "minecraft:honeycomb"
-    }
+    "mineraculous:time_honored_cheese_block",
+    "minecraft:honeycomb"
   ],
   "result": {
     "count": 1,

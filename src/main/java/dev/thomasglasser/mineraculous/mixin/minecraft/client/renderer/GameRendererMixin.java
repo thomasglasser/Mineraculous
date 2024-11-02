@@ -34,12 +34,4 @@ public abstract class GameRendererMixin {
         }
         return original;
     }
-
-    @ModifyExpressionValue(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;hasEffect(Lnet/minecraft/core/Holder;)Z"))
-    private boolean render(boolean original) {
-        if (minecraft.player.hasEffect(MineraculousMobEffects.CATACLYSMED)) {
-            return true;
-        }
-        return original;
-    }
 }

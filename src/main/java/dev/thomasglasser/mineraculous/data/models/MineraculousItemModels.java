@@ -45,7 +45,7 @@ public class MineraculousItemModels extends ExtendedItemModelProvider {
             singleTexture(MineraculousArmors.MIRACULOUS.FEET.getId().getPath(), mcLoc("item/handheld"), "layer0", modItemLoc("miraculous/" + key + "/armor/boots"));
         }
 
-        spawnEgg(MineraculousItems.KAMIKO_SPAWN_EGG);
+        spawnEggItem(MineraculousItems.KAMIKO_SPAWN_EGG);
 
         basicItem(MineraculousItems.CATACLYSM_DUST.get());
 

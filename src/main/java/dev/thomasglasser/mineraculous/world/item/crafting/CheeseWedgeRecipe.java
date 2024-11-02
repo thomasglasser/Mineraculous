@@ -19,22 +19,18 @@ public class CheeseWedgeRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean matches(CraftingInput craftingInput, Level level) {
-        if (!this.canCraftInDimensions(craftingInput.width(), craftingInput.height())) {
+    public boolean matches(CraftingInput input, Level level) {
+        List<ItemStack> items = input.items().stream().filter(stack -> !stack.isEmpty()).toList();
+        if (items.size() != 1) {
             return false;
         } else {
-            List<ItemStack> items = craftingInput.items().stream().filter(stack -> !stack.isEmpty()).toList();
-            if (items.size() != 1) {
-                return false;
-            } else {
-                return items.getFirst().getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof CheeseBlock cheeseBlock && !cheeseBlock.isWaxed();
-            }
+            return items.getFirst().getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof CheeseBlock cheeseBlock && !cheeseBlock.isWaxed();
         }
     }
 
     @Override
-    public ItemStack assemble(CraftingInput craftingInput, HolderLookup.Provider provider) {
-        ItemStack itemStack = craftingInput.items().stream().filter(stack -> !stack.isEmpty()).toList().getFirst();
+    public ItemStack assemble(CraftingInput input, HolderLookup.Provider registries) {
+        ItemStack itemStack = input.items().stream().filter(stack -> !stack.isEmpty()).toList().getFirst();
         BlockItemStateProperties properties = itemStack.get(DataComponents.BLOCK_STATE);
         if (itemStack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof CheeseBlock cheeseBlock && !cheeseBlock.isWaxed()) {
             Integer bites = null;
@@ -47,12 +43,7 @@ public class CheeseWedgeRecipe extends CustomRecipe {
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return width * height >= 1;
-    }
-
-    @Override
-    public RecipeSerializer<?> getSerializer() {
+    public RecipeSerializer<? extends CustomRecipe> getSerializer() {
         return MineraculousRecipeSerializers.CHEESE_WEDGE.get();
     }
 }

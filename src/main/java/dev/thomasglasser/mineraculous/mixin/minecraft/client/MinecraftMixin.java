@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MinecraftMixin {
     @Inject(method = "handleKeybinds", at = @At("TAIL"))
     private void handleKeybinds(CallbackInfo ci) {
-        if (Minecraft.getInstance().gameRenderer.currentEffect() == null) {
+        if (Minecraft.getInstance().gameRenderer.currentPostEffect() == null) {
             if (TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer()).getBoolean(MineraculousEntityEvents.TAG_HASNIGHTVISION)) {
                 ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed(ClientUtils.getLevel().registryAccess()).forEach(type -> {
                     if (type.activeAbility().value() instanceof NightVisionAbility nightVisionAbility && nightVisionAbility.shader().isPresent()) {

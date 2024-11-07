@@ -19,7 +19,7 @@ public class MinecraftMixin {
         if (Minecraft.getInstance().gameRenderer.currentPostEffect() == null) {
             if (TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer()).getBoolean(MineraculousEntityEvents.TAG_HASNIGHTVISION)) {
                 ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed(ClientUtils.getLevel().registryAccess()).forEach(type -> {
-                    if (type.activeAbility().value() instanceof NightVisionAbility nightVisionAbility && nightVisionAbility.shader().isPresent()) {
+                    if (type.activeAbility().isPresent() && type.activeAbility().get().value() instanceof NightVisionAbility nightVisionAbility && nightVisionAbility.shader().isPresent()) {
                         MineraculousClientUtils.setShader(nightVisionAbility.shader().get());
                     } else {
                         type.passiveAbilities().stream().filter(abilityHolder -> abilityHolder.value() instanceof NightVisionAbility nightVisionAbility && nightVisionAbility.shader().isPresent())

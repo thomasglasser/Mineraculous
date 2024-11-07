@@ -16,6 +16,9 @@ public class MineraculousCuriosProvider extends CuriosDataProvider {
     public void generate(HolderLookup.Provider registries, ExistingFileHelper fileHelper) {
         createEntities("miraculous_holders")
                 .addPlayer()
-                .addSlots("ring");
+                .addSlots(
+                        "brooch",
+                        "ring",
+                        "earring");
     }
 }

@@ -97,12 +97,16 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.KWAMI_NOT_FOUND, "%s's %s kwami not found in the world");
         add(MiraculousCommand.MIRACULOUS_INVALID, "Invalid miraculous type %s");
 
+        addMiraculous(MineraculousMiraculousTypes.BUTTERFLY, "Butterfly");
         addMiraculous(MineraculousMiraculousTypes.CAT, "Cat");
+        addMiraculous(MineraculousMiraculousTypes.LADYBUG, "Ladybug");
 
-//        add(MineraculousItemTags.LADYBUG_KWAMI_FOODS, "Tikki Foods");
-//        add(MineraculousItemTags.LADYBUG_KWAMI_TREATS, "Tikki Treats");
+        add(MineraculousItemTags.BUTTERFLY_KWAMI_FOODS, "Butterfly Kwami Foods");
+        add(MineraculousItemTags.BUTTERFLY_KWAMI_TREATS, "Butterfly Kwami Treats");
         add(MineraculousItemTags.CAT_KWAMI_FOODS, "Cat Kwami Foods");
         add(MineraculousItemTags.CAT_KWAMI_TREATS, "Cat Kwami Treats");
+        add(MineraculousItemTags.LADYBUG_KWAMI_FOODS, "Ladybug Kwami Foods");
+        add(MineraculousItemTags.LADYBUG_KWAMI_TREATS, "Ladybug Kwami Treats");
         add(MineraculousItemTags.CATACLYSM_IMMUNE, "Cataclysm Immune");
         add(MineraculousItemTags.CHEESES_FOODS, "Cheeses");
         add(MineraculousItemTags.CHEESE, "Cheese");

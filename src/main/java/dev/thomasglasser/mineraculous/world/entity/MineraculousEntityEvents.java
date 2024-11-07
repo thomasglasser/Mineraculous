@@ -276,7 +276,7 @@ public class MineraculousEntityEvents {
             MiraculousData data = event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(key);
             miraculous.passiveAbilities().forEach(ability -> ability.value().perform(key, data, event.getEntity().level(), event.getPos(), event.getEntity(), Ability.Context.from(event.getTarget())));
             if (data.mainPowerActive()) {
-                boolean usedPower = miraculous.activeAbility().value().perform(key, data, event.getEntity().level(), event.getPos(), event.getEntity(), Ability.Context.from(event.getTarget()));
+                boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(key, data, event.getEntity().level(), event.getPos(), event.getEntity(), Ability.Context.from(event.getTarget()));
                 if (usedPower)
                     event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), true, false, data.name(), data.look()), !event.getLevel().isClientSide);
             }
@@ -289,7 +289,7 @@ public class MineraculousEntityEvents {
             MiraculousData data = event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(key);
             miraculous.passiveAbilities().forEach(ability -> ability.value().perform(key, data, event.getEntity().level(), event.getEntity().blockPosition(), event.getEntity(), Ability.Context.from(event.getTarget())));
             if (data.mainPowerActive()) {
-                boolean usedPower = miraculous.activeAbility().value().perform(key, data, event.getEntity().level(), event.getEntity().blockPosition(), event.getEntity(), Ability.Context.from(event.getTarget()));
+                boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(key, data, event.getEntity().level(), event.getEntity().blockPosition(), event.getEntity(), Ability.Context.from(event.getTarget()));
                 if (usedPower)
                     event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), true, false, data.name(), data.look()), !event.getEntity().level().isClientSide);
             }
@@ -305,7 +305,7 @@ public class MineraculousEntityEvents {
                 MiraculousData data = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(key);
                 miraculous.passiveAbilities().forEach(ability -> ability.value().perform(key, data, livingEntity.level(), livingEntity.blockPosition(), livingEntity, Ability.Context.from(victim)));
                 if (data.mainPowerActive()) {
-                    boolean usedPower = miraculous.activeAbility().value().perform(key, data, livingEntity.level(), livingEntity.blockPosition(), livingEntity, Ability.Context.from(victim));
+                    boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(key, data, livingEntity.level(), livingEntity.blockPosition(), livingEntity, Ability.Context.from(victim));
                     if (usedPower)
                         event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), true, false, data.name(), data.look()), !event.getEntity().level().isClientSide);
                 }
@@ -319,7 +319,7 @@ public class MineraculousEntityEvents {
             MiraculousData data = event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(key);
             miraculous.passiveAbilities().forEach(ability -> ability.value().perform(key, data, event.getEntity().level(), event.getPos(), event.getEntity(), Ability.Context.from(event.getLevel().getBlockState(event.getPos()), event.getPos())));
             if (data.mainPowerActive()) {
-                boolean usedPower = miraculous.activeAbility().value().perform(key, data, event.getEntity().level(), event.getPos(), event.getEntity(), Ability.Context.from(event.getLevel().getBlockState(event.getPos()), event.getPos()));
+                boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(key, data, event.getEntity().level(), event.getPos(), event.getEntity(), Ability.Context.from(event.getLevel().getBlockState(event.getPos()), event.getPos()));
                 if (usedPower)
                     event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), true, false, data.name(), data.look()), !event.getLevel().isClientSide);
             }
@@ -332,7 +332,7 @@ public class MineraculousEntityEvents {
             MiraculousData data = event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(key);
             miraculous.passiveAbilities().forEach(ability -> ability.value().perform(key, data, event.getEntity().level(), event.getPos(), event.getEntity(), Ability.Context.from(event.getLevel().getBlockState(event.getPos()), event.getPos())));
             if (data.mainPowerActive()) {
-                boolean usedPower = miraculous.activeAbility().value().perform(key, data, event.getEntity().level(), event.getPos(), event.getEntity(), Ability.Context.from(event.getLevel().getBlockState(event.getPos()), event.getPos()));
+                boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(key, data, event.getEntity().level(), event.getPos(), event.getEntity(), Ability.Context.from(event.getLevel().getBlockState(event.getPos()), event.getPos()));
                 if (usedPower)
                     event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), true, false, data.name(), data.look()), !event.getLevel().isClientSide);
             }
@@ -345,7 +345,7 @@ public class MineraculousEntityEvents {
             MiraculousData data = event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(key);
             miraculous.passiveAbilities().forEach(ability -> ability.value().perform(key, data, event.getEntity().level(), event.getEntity().blockPosition(), event.getEntity(), Ability.Context.from()));
             if (data.mainPowerActive()) {
-                boolean usedPower = miraculous.activeAbility().value().perform(key, data, event.getEntity().level(), event.getEntity().blockPosition(), event.getEntity(), Ability.Context.from());
+                boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(key, data, event.getEntity().level(), event.getEntity().blockPosition(), event.getEntity(), Ability.Context.from());
                 if (usedPower)
                     event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), true, false, data.name(), data.look()), !event.getLevel().isClientSide);
             }
@@ -412,7 +412,7 @@ public class MineraculousEntityEvents {
         } else {
             if (event.getEntity() instanceof ServerPlayer player) {
                 event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed(event.getLevel().registryAccess()).forEach(miraculous -> {
-                    if (miraculous.activeAbility().value() instanceof NightVisionAbility nightVisionAbility) {
+                    if (miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value() instanceof NightVisionAbility nightVisionAbility) {
                         nightVisionAbility.resetNightVision(player);
                     }
                     miraculous.passiveAbilities().stream().filter(ability -> ability.value() instanceof NightVisionAbility).map(ability -> (NightVisionAbility) ability.value()).forEach(nightVisionAbility -> nightVisionAbility.resetNightVision(player));

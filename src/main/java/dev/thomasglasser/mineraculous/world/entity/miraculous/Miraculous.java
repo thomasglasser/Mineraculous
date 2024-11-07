@@ -15,15 +15,15 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-public record Miraculous(TextColor color, List<String> includedLooks, String acceptableSlot, ItemStack tool, Optional<Holder<SoundEvent>> kwamiHungrySound, Holder<Ability> activeAbility, List<Holder<Ability>> passiveAbilities) {
+public record Miraculous(TextColor color, List<String> includedLooks, String acceptableSlot, ItemStack tool, Optional<Holder<SoundEvent>> kwamiHungrySound, Optional<Holder<Ability>> activeAbility, List<Holder<Ability>> passiveAbilities) {
 
     public static final Codec<Miraculous> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             TextColor.CODEC.fieldOf("color").forGetter(Miraculous::color),
             Codec.STRING.listOf().optionalFieldOf("included_looks", List.of()).forGetter(Miraculous::includedLooks),
             Codec.STRING.fieldOf("acceptable_slot").forGetter(Miraculous::acceptableSlot),
-            ItemStack.CODEC.fieldOf("tool").forGetter(Miraculous::tool),
+            ItemStack.OPTIONAL_CODEC.fieldOf("tool").forGetter(Miraculous::tool),
             SoundEvent.CODEC.optionalFieldOf("kwami_hungry_sound").forGetter(Miraculous::kwamiHungrySound),
-            Ability.CODEC.fieldOf("active_ability").forGetter(Miraculous::activeAbility),
+            Ability.CODEC.optionalFieldOf("active_ability").forGetter(Miraculous::activeAbility),
             Ability.CODEC.listOf().fieldOf("passive_abilities").forGetter(Miraculous::passiveAbilities)).apply(instance, Miraculous::new));
     @Override
     public ItemStack tool() {

@@ -30,20 +30,25 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider pProvider) {
-        // TODO: Ladybug miraculous
-//        tag(MineraculousItemTags.LADYBUG_KWAMI_FOODS)
-//                .add(Items.BREAD);
-//
-//        // TODO: Macaroons
-//        tag(MineraculousItemTags.LADYBUG_KWAMI_TREATS)
-//                .add(Items.COOKIE)
-//                .add(Items.CAKE);
+        tag(MineraculousItemTags.BUTTERFLY_KWAMI_FOODS)
+                .addTag(ItemTags.FLOWERS);
+
+        // TODO: Hibiscus
+        tag(MineraculousItemTags.BUTTERFLY_KWAMI_TREATS);
 
         tag(MineraculousItemTags.CAT_KWAMI_FOODS)
                 .addTag(MineraculousItemTags.CHEESES_FOODS);
 
         tag(MineraculousItemTags.CAT_KWAMI_TREATS)
                 .addTag(MineraculousItemTags.CAMEMBERT);
+
+        tag(MineraculousItemTags.LADYBUG_KWAMI_FOODS)
+                .add(Items.BREAD);
+
+        // TODO: Macaroons
+        tag(MineraculousItemTags.LADYBUG_KWAMI_TREATS)
+                .add(Items.COOKIE)
+                .add(Items.CAKE);
 
         tag(MineraculousItemTags.CHEESES_FOODS)
                 .addTag(MineraculousItemTags.CHEESE)
@@ -85,13 +90,23 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
                 .add(Items.NETHER_STAR)
                 .add(Items.TOTEM_OF_UNDYING);
 
-        curios("ring", MineraculousItems.MIRACULOUS.get());
+        curios(MineraculousItems.MIRACULOUS.get(),
+                "brooch",
+                "ring",
+                "earring");
     }
 
     protected void curios(String slot, Item... items) {
         IntrinsicTagAppender<Item> curios = tag(TagKey.create(Registries.ITEM, Mineraculous.Dependencies.CURIOS.modLoc(slot)));
 
         for (Item item : items) {
+            curios.add(item);
+        }
+    }
+
+    protected void curios(Item item, String... slots) {
+        for (String slot : slots) {
+            IntrinsicTagAppender<Item> curios = tag(TagKey.create(Registries.ITEM, Mineraculous.Dependencies.CURIOS.modLoc(slot)));
             curios.add(item);
         }
     }

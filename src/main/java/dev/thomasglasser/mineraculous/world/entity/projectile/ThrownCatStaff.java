@@ -19,6 +19,10 @@ public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
         super(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), owner, level, pickupItemStack, firedBy);
     }
 
+    public ThrownCatStaff(double x, double y, double z, Level level, ItemStack pickupItemStack, ItemStack firedBy) {
+        super(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), x, y, z, level, pickupItemStack, firedBy);
+    }
+
     public ThrownCatStaff(EntityType<? extends ThrownCatStaff> entityType, Level level) {
         super(entityType, level);
         this.pickup = AbstractArrow.Pickup.ALLOWED;

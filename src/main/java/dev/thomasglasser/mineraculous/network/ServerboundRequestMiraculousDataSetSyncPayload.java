@@ -17,10 +17,6 @@ public record ServerboundRequestMiraculousDataSetSyncPayload(int entity) impleme
             ByteBufCodecs.INT, ServerboundRequestMiraculousDataSetSyncPayload::entity,
             ServerboundRequestMiraculousDataSetSyncPayload::new);
 
-    public ServerboundRequestMiraculousDataSetSyncPayload(ByteBuf buf) {
-        this(buf.readInt());
-    }
-
     // ON SERVER
     @Override
     public void handle(Player player) {

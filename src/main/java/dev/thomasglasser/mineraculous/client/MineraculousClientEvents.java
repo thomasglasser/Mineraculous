@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.client;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.gui.MineraculousHeartTypes;
+import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.client.particle.CataclysmParticle;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KamikoRenderer;
@@ -14,7 +15,9 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.function.Consumer;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -26,6 +29,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
@@ -41,9 +45,9 @@ public class MineraculousClientEvents {
         MineraculousItemProperties.init();
     }
 
-    public static void openToolWheel(ResourceKey<Miraculous> miraculousType, int choices) {
+    public static void openToolWheel(ResourceKey<Miraculous> miraculousType, ItemStack stack, Consumer<RadialMenuOption> onSelected, RadialMenuOption... options) {
         if (ClientUtils.getMinecraft().screen == null) {
-            ClientUtils.setScreen(new RadialMenuScreen(MineraculousKeyMappings.OPEN_TOOL_WHEEL.getKey().getValue(), choices, ClientUtils.getLevel().holderOrThrow(miraculousType).value().color().getValue()));
+            ClientUtils.setScreen(new RadialMenuScreen(Arrays.asList(options), stack, onSelected, MineraculousKeyMappings.OPEN_TOOL_WHEEL.getKey().getValue(), ClientUtils.getLevel().holderOrThrow(miraculousType).value().color().getValue()));
         }
     }
 

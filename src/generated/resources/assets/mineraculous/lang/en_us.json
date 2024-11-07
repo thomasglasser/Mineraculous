@@ -1,4 +1,8 @@
 {
+  "ability.mineraculous.cat_staff.block": "Block",
+  "ability.mineraculous.cat_staff.perch": "Perch",
+  "ability.mineraculous.cat_staff.throw": "Throw",
+  "ability.mineraculous.cat_staff.travel": "Travel",
   "advancement.mineraculous.miraculous.cataclysm_block.desc": "Cataclysm a block and watch it spread",
   "advancement.mineraculous.miraculous.cataclysm_block.title": "My Castle Crumbled Overnight",
   "advancement.mineraculous.miraculous.cataclysm_kill_living_entity.desc": "Cataclysm an entity that dies before it is healed",

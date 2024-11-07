@@ -9,20 +9,25 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.List;
+import java.util.function.Consumer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
 
 public class RadialMenuScreen extends Screen {
     private static final float MAX_CIRCLE_SIZE = 180f;
     private static final float PRECISION = 2.5f / 360.0f;
     private static final int MAX_ANIMATION_TICKS = 10;
 
+    protected final List<RadialMenuOption> options;
+    protected final ItemStack stack;
+    protected final Consumer<RadialMenuOption> onSelected;
     protected final int heldKey;
-    protected final int options;
     protected final int selectedColor;
 
     private final double sliceAngle;
@@ -31,12 +36,14 @@ public class RadialMenuScreen extends Screen {
 
     protected int animationTick = 0;
 
-    public RadialMenuScreen(int heldKey, int options, int selectedColor) {
+    public RadialMenuScreen(List<RadialMenuOption> options, ItemStack stack, Consumer<RadialMenuOption> onSelected, int heldKey, int selectedColor) {
         super(Component.empty());
-        this.heldKey = heldKey;
         this.options = options;
+        this.stack = stack;
+        this.onSelected = onSelected;
+        this.heldKey = heldKey;
         this.selectedColor = selectedColor;
-        this.sliceAngle = 2 * Math.PI / options;
+        this.sliceAngle = 2 * Math.PI / options.size();
     }
 
     private double alpha(int x, int y) {
@@ -85,8 +92,9 @@ public class RadialMenuScreen extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) {
-            int selectedOption = this.getSelectedOption((int) mouseX - this.width / 2, (int) mouseY - this.height / 2);
+            int selectedOption = this.getSelectedOption((int) (mouseX - (double) width / 2), (int) (-1 * (mouseY - (double) height / 2)));
             if (selectedOption != -1) {
+                onSelected.accept(options.get(selectedOption));
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer());
                 playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 20);
                 TommyLibServices.ENTITY.setPersistentData(ClientUtils.getMainClientPlayer(), playerData, false);
@@ -111,8 +119,9 @@ public class RadialMenuScreen extends Screen {
         int width = pGuiGraphics.guiWidth();
         int mouseX = pMouseX - width / 2;
         int mouseY = -1 * (pMouseY - height / 2);
-        int selectedOption = this.getSelectedOption(mouseX, mouseY) + 1;
 
+        int selectedOption = getSelectedOption(mouseX, mouseY);
+        RadialMenuOption selected = selectedOption != -1 ? options.get(selectedOption) : null;
         float circleSize;
 
         if (this.animationTick < MAX_ANIMATION_TICKS) {
@@ -126,12 +135,15 @@ public class RadialMenuScreen extends Screen {
         RenderSystem.setShader(CoreShaders.POSITION_COLOR);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         var builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        drawPieArc(builder, width / 2f, height / 2f, 1, (circleSize * 2f) / 3f, circleSize * 91 / 90, selectedOption * -sliceAngle, 2 * Math.PI - selectedOption * sliceAngle, 0xAFAFAF);
-        if (selectedOption != 0)
-            drawPieArc(builder, width / 2f, height / 2f, 0, (circleSize * 2f) / 3f, circleSize * 91 / 90, 2 * Math.PI - selectedOption * sliceAngle, 2 * Math.PI - (selectedOption - 1) * sliceAngle, selectedColor);
+        drawPieArc(builder, width / 2f, height / 2f, 1, (circleSize) / 3f, circleSize * 91 / 90, (selectedOption + 1) * -sliceAngle, 2 * Math.PI - (selectedOption + 1) * sliceAngle, 0xAFAFAF);
+        if (selectedOption != -1) {
+            drawPieArc(builder, width / 2f, height / 2f, 0, (circleSize) / 3f, circleSize * 91 / 90, 2 * Math.PI - (selectedOption + 1) * sliceAngle, 2 * Math.PI - selectedOption * sliceAngle, selectedColor);
+            int centerWidth = width / 2;
+            int centerHeight = height / 2;
+            pGuiGraphics.drawCenteredString(font, Component.translatable(selected.translationKey()), centerWidth, centerHeight - font.lineHeight / 2, 0xFFFFFF);
+        }
         BufferUploader.drawWithShader(builder.buildOrThrow());
         RenderSystem.disableBlend();
-        // TODO: Render player model performing animation for abilities
     }
 
     protected void drawPieArc(BufferBuilder buffer, float x, float y, float z, float radiusIn, float radiusOut, double startAngle, double endAngle, int color) {

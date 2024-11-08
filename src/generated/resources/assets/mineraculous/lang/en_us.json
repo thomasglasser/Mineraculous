@@ -13,8 +13,12 @@
   "advancement.mineraculous.miraculous.obtain_camembert.title": "Smelly Cheese, Smelly Cheese",
   "advancement.mineraculous.miraculous.root.desc": "A hero's journey begins...",
   "advancement.mineraculous.miraculous.root.title": "Miraculous",
+  "advancement.mineraculous.miraculous.transform_butterfly.desc": "Transform using the Butterfly miraculous",
+  "advancement.mineraculous.miraculous.transform_butterfly.title": "Wings Rise!",
   "advancement.mineraculous.miraculous.transform_cat.desc": "Transform using the Cat miraculous",
   "advancement.mineraculous.miraculous.transform_cat.title": "Claws Out!",
+  "advancement.mineraculous.miraculous.transform_ladybug.desc": "Transform using the Ladybug miraculous",
+  "advancement.mineraculous.miraculous.transform_ladybug.title": "Spots On!",
   "block.mineraculous.aged_camembert_block": "Aged Block of Camembert",
   "block.mineraculous.aged_cheese_block": "Aged Block of Cheese",
   "block.mineraculous.cataclysm_block": "Block of Cataclysm",
@@ -119,6 +123,10 @@
   "tag.item.mineraculous.camembert": "Camembert",
   "tag.item.mineraculous.cataclysm_immune": "Cataclysm Immune",
   "tag.item.mineraculous.cheese": "Cheese",
+  "tag.item.mineraculous.kwami_foods.butterfly": "Butterfly Kwami Foods",
   "tag.item.mineraculous.kwami_foods.cat": "Cat Kwami Foods",
-  "tag.item.mineraculous.kwami_treats.cat": "Cat Kwami Treats"
+  "tag.item.mineraculous.kwami_foods.ladybug": "Ladybug Kwami Foods",
+  "tag.item.mineraculous.kwami_treats.butterfly": "Butterfly Kwami Treats",
+  "tag.item.mineraculous.kwami_treats.cat": "Cat Kwami Treats",
+  "tag.item.mineraculous.kwami_treats.ladybug": "Ladybug Kwami Treats"
 }

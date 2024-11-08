@@ -1,51 +1,11 @@
 {
   "parent": "mineraculous:miraculous/transform_cat",
   "criteria": {
-    "obtain_aged_camembert": {
+    "obtain_camembert": {
       "conditions": {
         "items": [
           {
-            "items": "mineraculous:aged_wedge_of_camembert"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "obtain_exquisite_camembert": {
-      "conditions": {
-        "items": [
-          {
-            "items": "mineraculous:exquisite_wedge_of_camembert"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "obtain_fresh_camembert": {
-      "conditions": {
-        "items": [
-          {
-            "items": "mineraculous:fresh_wedge_of_camembert"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "obtain_ripened_camembert": {
-      "conditions": {
-        "items": [
-          {
-            "items": "mineraculous:ripened_wedge_of_camembert"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "obtain_time_honored_camembert": {
-      "conditions": {
-        "items": [
-          {
-            "items": "mineraculous:time_honored_wedge_of_camembert"
+            "items": "#mineraculous:camembert"
           }
         ]
       },
@@ -66,11 +26,7 @@
   },
   "requirements": [
     [
-      "obtain_aged_camembert",
-      "obtain_exquisite_camembert",
-      "obtain_fresh_camembert",
-      "obtain_ripened_camembert",
-      "obtain_time_honored_camembert"
+      "obtain_camembert"
     ]
   ],
   "sends_telemetry_event": true

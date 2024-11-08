@@ -35,7 +35,9 @@ public class MineraculousItems {
     private static final List<DeferredItem<?>> IN_MOD_TAB = new ArrayList<>();
 
     // Tools
+    public static final DeferredItem<Item> BUTTERFLY_CANE = register("butterfly_cane", Item::new, List.of(CreativeModeTabs.TOOLS_AND_UTILITIES, CreativeModeTabs.COMBAT));
     public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", properties -> new CatStaffItem(properties.fireResistant().stacksTo(1).rarity(Rarity.EPIC)), List.of(CreativeModeTabs.TOOLS_AND_UTILITIES, CreativeModeTabs.COMBAT));
+    public static final DeferredItem<Item> LADYBUG_YOYO = register("ladybug_yoyo", Item::new, List.of(CreativeModeTabs.TOOLS_AND_UTILITIES, CreativeModeTabs.COMBAT));
 
     // Miraculous
     public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", MiraculousItem::new, List.of(), false);

@@ -1,6 +1,4 @@
 {
-  "parent": "minecraft:item/handheld",
-  "textures": {
-    "layer0": "mineraculous:item/miraculous/cat/armor/boots"
-  }
+  "parent": "minecraft:builtin/entity",
+  "gui_light": "front"
 }

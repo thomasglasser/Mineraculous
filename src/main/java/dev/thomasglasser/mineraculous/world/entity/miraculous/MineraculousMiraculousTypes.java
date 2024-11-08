@@ -27,24 +27,20 @@ public class MineraculousMiraculousTypes {
 
     public static void bootstrap(BootstrapContext<Miraculous> context) {
         context.register(BUTTERFLY, new Miraculous(
-                // TODO: Custom color
-                TextColor.fromLegacyFormat(ChatFormatting.DARK_PURPLE),
+                TextColor.fromRgb(0x641d9a),
                 List.of(),
                 "brooch",
-                // TODO: Butterfly tool
-                /*MineraculousItems.BUTTERFLY_CANE.get().getDefaultInstance()*/ItemStack.EMPTY,
+                MineraculousItems.BUTTERFLY_CANE.get().getDefaultInstance(),
                 // TODO: Add kwami hungry sound
                 Optional.empty(),
-                // TODO: Active ability
-                /*context.lookup(MineraculousRegistries.ABILITY).getOrThrow(MineraculousAbilities.KAMIKOIZATION)*/Optional.empty(),
-                // TODO: Passive abilities
-                List.of()));
+                Optional.empty(/*context.lookup(MineraculousRegistries.ABILITY).getOrThrow(MineraculousAbilities.KAMIKOTIZATION)*/),
+                List.of(/*context.lookup(MineraculousRegistries.ABILITY).getOrThrow(MineraculousAbilities.KAMIKO_CONTROL)*/)));
         context.register(CAT, new Miraculous(
                 TextColor.fromRgb(0xc6f800),
                 List.of(),
                 "ring",
                 MineraculousItems.CAT_STAFF.get().getDefaultInstance(),
-                // TODO: Add plagg hungry sound
+                // TODO: Add kwami hungry sound
                 Optional.empty(),
                 Optional.of(context.lookup(MineraculousRegistries.ABILITY).getOrThrow(MineraculousAbilities.CATACLYSM)),
                 List.of(context.lookup(MineraculousRegistries.ABILITY).getOrThrow(MineraculousAbilities.CAT_VISION))));
@@ -53,13 +49,10 @@ public class MineraculousMiraculousTypes {
                 TextColor.fromLegacyFormat(ChatFormatting.RED),
                 List.of(),
                 "earring",
-                // TODO: Ladybug tool
-                /*MineraculousItems.LADYBUG_YOYO.get().getDefaultInstance()*/ItemStack.EMPTY,
+                MineraculousItems.LADYBUG_YOYO.get().getDefaultInstance(),
                 // TODO: Add kwami hungry sound
                 Optional.empty(),
-                // TODO: Active ability
-                /*Optional.of(context.lookup(MineraculousRegistries.ABILITY).getOrThrow(MineraculousAbilities.MIRACULOUS_LADYBUG))*/Optional.empty(),
-                // TODO: Passive abilities
+                Optional.empty(/*context.lookup(MineraculousRegistries.ABILITY).getOrThrow(MineraculousAbilities.MIRACULOUS_LADYBUG)*/),
                 List.of()));
     }
 

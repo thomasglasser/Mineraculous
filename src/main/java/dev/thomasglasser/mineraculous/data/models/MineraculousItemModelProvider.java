@@ -18,16 +18,16 @@ import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
-public class MineraculousItemModels extends ExtendedItemModelProvider {
-    public MineraculousItemModels(PackOutput output, ExistingFileHelper existingFileHelper) {
+public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
+    public MineraculousItemModelProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
         super(output, Mineraculous.MOD_ID, existingFileHelper);
     }
 
     @Override
     protected void registerModels() {
-        List<String> miraculous = Stream.of(
+        List<String> symboledMiraculous = Stream.of(
                 MineraculousMiraculousTypes.CAT).map(key -> key.location().getPath()).toList();
-        for (String key : miraculous) {
+        for (String key : symboledMiraculous) {
             if (existingFileHelper.exists(Mineraculous.modLoc("models/item/miraculous/" + key + "/base.json"), PackType.CLIENT_RESOURCES)) {
                 ResourceLocation base = Mineraculous.modLoc("item/miraculous/" + key + "/base");
                 existingFileHelper.trackGenerated(base, ModelProvider.MODEL);
@@ -38,12 +38,35 @@ public class MineraculousItemModels extends ExtendedItemModelProvider {
                 withExistingParent("item/miraculous/" + key + "/powered_2", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "/symbol_2"));
                 withExistingParent("item/miraculous/" + key + "/powered_3", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "/symbol_3"));
                 withExistingParent("item/miraculous/" + key + "/powered_4", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "/symbol_4"));
+
+                withExistingParent("item/miraculous/" + key + "/armor/mask", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + key + "/armor/mask"));
+                withExistingParent("item/miraculous/" + key + "/armor/chestplate", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + key + "/armor/chestplate"));
+                withExistingParent("item/miraculous/" + key + "/armor/leggings", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + key + "/armor/leggings"));
+                withExistingParent("item/miraculous/" + key + "/armor/boots", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + key + "/armor/boots"));
             }
-            singleTexture(MineraculousArmors.MIRACULOUS.HEAD.getId().getPath(), mcLoc("item/handheld"), "layer0", modItemLoc("miraculous/" + key + "/armor/mask"));
-            singleTexture(MineraculousArmors.MIRACULOUS.CHEST.getId().getPath(), mcLoc("item/handheld"), "layer0", modItemLoc("miraculous/" + key + "/armor/chestplate"));
-            singleTexture(MineraculousArmors.MIRACULOUS.LEGS.getId().getPath(), mcLoc("item/handheld"), "layer0", modItemLoc("miraculous/" + key + "/armor/leggings"));
-            singleTexture(MineraculousArmors.MIRACULOUS.FEET.getId().getPath(), mcLoc("item/handheld"), "layer0", modItemLoc("miraculous/" + key + "/armor/boots"));
         }
+
+        // TODO: Remove when ladybug miraculous is added
+        String ladybugKey = "ladybug";
+        withExistingParent("item/miraculous/" + ladybugKey + "/armor/mask", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/armor/mask"));
+        withExistingParent("item/miraculous/" + ladybugKey + "/armor/chestplate", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/armor/chestplate"));
+        withExistingParent("item/miraculous/" + ladybugKey + "/armor/leggings", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/armor/leggings"));
+        withExistingParent("item/miraculous/" + ladybugKey + "/armor/boots", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/armor/boots"));
+
+        String butterflyKey = "butterfly";
+        ResourceLocation butterflyBase = Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/base");
+        existingFileHelper.trackGenerated(butterflyBase, ModelProvider.MODEL);
+        withExistingParent("item/miraculous/" + butterflyKey + "/hidden", butterflyBase).texture("texture", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/hidden"));
+        withExistingParent("item/miraculous/" + butterflyKey + "/powered", butterflyBase).texture("texture", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/powered"));
+        withExistingParent("item/miraculous/" + butterflyKey + "/powered_0", butterflyBase).texture("texture", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/powered_0"));
+        withExistingParent("item/miraculous/" + butterflyKey + "/powered_1", butterflyBase).texture("texture", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/powered_1"));
+        withExistingParent("item/miraculous/" + butterflyKey + "/powered_2", butterflyBase).texture("texture", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/powered_2"));
+        withExistingParent("item/miraculous/" + butterflyKey + "/powered_3", butterflyBase).texture("texture", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/powered_3"));
+        withExistingParent("item/miraculous/" + butterflyKey + "/powered_4", butterflyBase).texture("texture", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/powered_4"));
+        withExistingParent("item/miraculous/" + butterflyKey + "/armor/mask", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/armor/mask"));
+        withExistingParent("item/miraculous/" + butterflyKey + "/armor/chestplate", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/armor/chestplate"));
+        withExistingParent("item/miraculous/" + butterflyKey + "/armor/leggings", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/armor/leggings"));
+        withExistingParent("item/miraculous/" + butterflyKey + "/armor/boots", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/armor/boots"));
 
         spawnEggItem(MineraculousItems.KAMIKO_SPAWN_EGG);
 
@@ -58,6 +81,7 @@ public class MineraculousItemModels extends ExtendedItemModelProvider {
         basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK);
 
         withEntityModel(MineraculousItems.MIRACULOUS).guiLight(BlockModel.GuiLight.FRONT);
+        MineraculousArmors.MIRACULOUS.getAll().forEach(item -> withEntityModel(item).guiLight(BlockModel.GuiLight.FRONT));
 
         ItemModelBuilder inHandCatStaff = withEntityModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_in_hand"))
                 .transforms()

@@ -3,18 +3,19 @@ package dev.thomasglasser.mineraculous.world.item.armor;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.renderer.armor.MiraculousArmorItemRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import dev.thomasglasser.tommylib.api.world.item.armor.ExtendedArmorItem;
 import dev.thomasglasser.tommylib.api.world.item.armor.GeoArmorItem;
 import java.util.List;
 import java.util.function.Consumer;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -38,8 +39,11 @@ public class MiraculousArmorItem extends ExtendedArmorItem implements GeoArmorIt
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        if (stack.has(MineraculousDataComponents.MIRACULOUS))
-            tooltipComponents.add(Component.translatable(stack.get(MineraculousDataComponents.MIRACULOUS).location().toLanguageKey(stack.get(MineraculousDataComponents.MIRACULOUS).registry().getPath())).withStyle(ChatFormatting.GRAY));
+        ResourceKey<Miraculous> miraculousKey = stack.get(MineraculousDataComponents.MIRACULOUS);
+        if (miraculousKey != null && context.registries() != null) {
+            Miraculous miraculous = context.registries().holderOrThrow(miraculousKey).value();
+            tooltipComponents.add(Component.translatable(miraculousKey.location().toLanguageKey(miraculousKey.registry().getPath())).withStyle(style -> style.withColor(miraculous.color())));
+        }
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }
 

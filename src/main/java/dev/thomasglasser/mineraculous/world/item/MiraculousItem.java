@@ -5,14 +5,15 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.tags.MineraculousDamageTypeTags;
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import java.util.List;
 import java.util.function.Consumer;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -41,8 +42,11 @@ public class MiraculousItem extends Item implements /*ICurioItem,*/ ModeledItem 
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        if (stack.has(MineraculousDataComponents.MIRACULOUS))
-            tooltipComponents.add(Component.translatable(stack.get(MineraculousDataComponents.MIRACULOUS).location().toLanguageKey(stack.get(MineraculousDataComponents.MIRACULOUS).registry().getPath())).withStyle(ChatFormatting.GRAY));
+        ResourceKey<Miraculous> miraculousKey = stack.get(MineraculousDataComponents.MIRACULOUS);
+        if (miraculousKey != null && context.registries() != null) {
+            Miraculous miraculous = context.registries().holderOrThrow(miraculousKey).value();
+            tooltipComponents.add(Component.translatable(miraculousKey.location().toLanguageKey(miraculousKey.registry().getPath())).withStyle(style -> style.withColor(miraculous.color())));
+        }
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
     }
 

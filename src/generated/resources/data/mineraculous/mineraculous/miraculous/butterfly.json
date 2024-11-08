@@ -1,6 +1,9 @@
 {
   "acceptable_slot": "brooch",
-  "color": "dark_purple",
+  "color": "#641D9A",
   "passive_abilities": [],
-  "tool": {}
+  "tool": {
+    "count": 1,
+    "id": "mineraculous:butterfly_cane"
+  }
 }

@@ -2,5 +2,8 @@
   "acceptable_slot": "earring",
   "color": "red",
   "passive_abilities": [],
-  "tool": {}
+  "tool": {
+    "count": 1,
+    "id": "mineraculous:ladybug_yoyo"
+  }
 }

@@ -5,29 +5,31 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.armor.MiraculousArmorItem;
 import java.util.HashMap;
 import java.util.Map;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.cache.texture.AutoGlowingTexture;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmorItem> {
     private final Map<ResourceKey<Miraculous>, GeoModel<MiraculousArmorItem>> models = new HashMap<>();
 
     public MiraculousArmorItemRenderer() {
         super(null);
-        addRenderLayer(new AutoGlowingGeoLayer<>(this) {
-            @Override
-            protected RenderType getRenderType(MiraculousArmorItem animatable, @Nullable MultiBufferSource bufferSource) {
-                return RenderType.eyes(AutoGlowingTexture.getEmissiveResource(getTextureResource(animatable)));
-            }
-        });
+        // TODO: Glowmask fix
+//        addRenderLayer(new AutoGlowingGeoLayer<>(this) {
+//            @Override
+//            protected @Nullable RenderType getRenderType(MiraculousArmorItem animatable, MultiBufferSource bufferSource) {
+//                if (getCurrentStack() != null) {
+//                    ResourceLocation glowMask = GeoAbstractTexture.appendToPath(getTextureResource(animatable), "_glowmask");
+//                    if (Minecraft.getInstance().getTextureManager().getTexture(glowMask, MissingTextureAtlasSprite.getTexture()) != MissingTextureAtlasSprite.getTexture()) {
+//                        return super.getRenderType(animatable, bufferSource);
+//                    }
+//                }
+//                return null;
+//            }
+//        });
     }
 
     @Override

@@ -18,14 +18,19 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
 public class MineraculousAbilities {
+    public static final ResourceKey<Ability> KAMIKOTIZATION = register("kamikotization");
+    public static final ResourceKey<Ability> KAMIKO_CONTROL = register("kamiko_control");
     public static final ResourceKey<Ability> CATACLYSM = register("cataclysm");
     public static final ResourceKey<Ability> CAT_VISION = register("cat_vision");
+    public static final ResourceKey<Ability> MIRACULOUS_LADYBUG = register("miraculous_ladybug");
 
     private static ResourceKey<Ability> register(String id) {
         return ResourceKey.create(MineraculousRegistries.ABILITY, Mineraculous.modLoc(id));
     }
 
     public static void bootstrap(BootstrapContext<Ability> context) {
+        // TODO: Implement Kamikotization and Kamiko Control abilities
+
         context.register(CATACLYSM, new ContextAwareAbility(
                 Optional.of(new RandomDirectionalSpreadAbility(
                         MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(),
@@ -42,7 +47,8 @@ public class MineraculousAbilities {
                 Optional.empty(),
                 Optional.of(List.of(
                         new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get())))));
-
         context.register(CAT_VISION, new NightVisionAbility(Optional.of(ResourceLocation.withDefaultNamespace("shaders/post/creeper.json"))));
+
+        // TODO: Implement Miraculous Ladybug ability
     }
 }

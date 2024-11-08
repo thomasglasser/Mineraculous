@@ -17,19 +17,23 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 
 public class MineraculousBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Mineraculous.MOD_ID);
 
     public static final DeferredBlock<CataclysmBlock> CATACLYSM_BLOCK = registerWithItem("cataclysm_block", CataclysmBlock::new, () -> Block.Properties.of().noCollission(), List.of(CreativeModeTabs.NATURAL_BLOCKS));
 
-    public static final DeferredBlock<?> CHEESE_POT = registerWithItem("cheese_pot", Block::new, () -> BlockBehaviour.Properties.of().strength(0.5f).noOcclusion().sound(SoundType.METAL).mapColor(MapColor.GOLD), List.of(CreativeModeTabs.FUNCTIONAL_BLOCKS));
+    public static final DeferredBlock<Block> CHEESE_POT = registerWithItem("cheese_pot", Block::new, () -> BlockBehaviour.Properties.of().strength(0.5f).noOcclusion().sound(SoundType.METAL).mapColor(MapColor.GOLD), List.of(CreativeModeTabs.FUNCTIONAL_BLOCKS));
+
+    public static final DeferredBlock<HibiscusBushBlock> HIBISCUS_BUSH = registerWithSeparatelyNamedItem("hibiscus_bush", "hibiscus", HibiscusBushBlock::new, () -> BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).randomTicks().noCollission().sound(SoundType.SWEET_BERRY_BUSH).pushReaction(PushReaction.DESTROY), List.of(CreativeModeTabs.NATURAL_BLOCKS));
 
     // Cheese
     public static final SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> CHEESE_BLOCKS = cheese("cheese", MineraculousFoods.CHEESE, MineraculousItems.CHEESE_WEDGES);
@@ -60,8 +64,18 @@ public class MineraculousBlocks {
         return cheese;
     }
 
+    private static <T extends Block> DeferredBlock<T> register(String name, Function<BlockBehaviour.Properties, T> block, Supplier<BlockBehaviour.Properties> properties) {
+        return BlockUtils.register(BLOCKS, name, block, properties);
+    }
+
     private static <T extends Block> DeferredBlock<T> registerWithItem(String name, Function<BlockBehaviour.Properties, T> block, Supplier<BlockBehaviour.Properties> properties, List<ResourceKey<CreativeModeTab>> tabs) {
         return BlockUtils.registerBlockAndItemAndWrap(BLOCKS, name, block, properties, MineraculousItems::registerBlock, tabs);
+    }
+
+    private static <T extends Block> DeferredBlock<T> registerWithSeparatelyNamedItem(String blockName, String itemName, Function<BlockBehaviour.Properties, T> block, Supplier<BlockBehaviour.Properties> properties, List<ResourceKey<CreativeModeTab>> tabs) {
+        DeferredBlock<T> deferredBlock = register(blockName, block, properties);
+        MineraculousItems.register(itemName, idProps -> new BlockItem(deferredBlock.get(), idProps.useItemDescriptionPrefix()), tabs);
+        return deferredBlock;
     }
 
     public static void init() {}

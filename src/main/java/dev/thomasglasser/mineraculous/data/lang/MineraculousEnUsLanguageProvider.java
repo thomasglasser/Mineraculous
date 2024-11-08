@@ -44,6 +44,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousItems.MIRACULOUS.get(), "Miraculous");
         add(MineraculousItems.KAMIKO_SPAWN_EGG.get(), "Kamiko Spawn Egg");
         add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
+        add(MineraculousBlocks.HIBISCUS_BUSH.asItem(), "Hibiscus");
 
         addCreativeTab(MineraculousCreativeModeTabs.MINERACULOUS, "Mineraculous");
         addCreativeTab(MineraculousCreativeModeTabs.MIRACULOUS, "Miraculous");
@@ -56,6 +57,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         add(MineraculousBlocks.CATACLYSM_BLOCK.get(), "Block of Cataclysm");
         add(MineraculousBlocks.CHEESE_POT.get(), "Cheese Pot");
+        add(MineraculousBlocks.HIBISCUS_BUSH.get(), "Hibiscus Bush");
 
         cheese("Cheese", MineraculousItems.CHEESE_WEDGES, MineraculousBlocks.CHEESE_BLOCKS, MineraculousBlocks.WAXED_CHEESE_BLOCKS);
         cheese("Camembert", MineraculousItems.CAMEMBERT_WEDGES, MineraculousBlocks.CAMEMBERT_BLOCKS, MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS);

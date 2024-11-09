@@ -13,7 +13,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.texture.AutoGlowingTexture;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
@@ -21,17 +20,7 @@ import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 public class ThrownCatStaffRenderer extends GeoEntityRenderer<ThrownCatStaff> {
     public ThrownCatStaffRenderer(EntityRendererProvider.Context context) {
         super(context, new DefaultedItemGeoModel<>(Mineraculous.modLoc("cat_staff")));
-        addRenderLayer(new AutoGlowingGeoLayer<>(this) {
-            static RenderType RENDER_TYPE;
-
-            @Override
-            protected RenderType getRenderType(ThrownCatStaff animatable, @Nullable MultiBufferSource bufferSource) {
-                if (RENDER_TYPE == null) {
-                    RENDER_TYPE = RenderType.eyes(AutoGlowingTexture.getEmissiveResource(CatStaffRenderer.TEXTURE));
-                }
-                return RENDER_TYPE;
-            }
-        });
+        addRenderLayer(new AutoGlowingGeoLayer<>(this));
     }
 
     @Override

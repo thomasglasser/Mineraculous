@@ -89,7 +89,6 @@ public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem, Pro
         controllers.add(new AnimationController<GeoAnimatable>(this, "use_controller", state -> PlayState.CONTINUE)
                 .triggerableAnim("extend", EXTEND)
                 .triggerableAnim("shield", DefaultAnimations.ATTACK_BLOCK)
-                .triggerableAnim("throw", DefaultAnimations.ATTACK_THROW)
                 .triggerableAnim("idle", DefaultAnimations.IDLE)
                 .triggerableAnim("retract", RETRACT)
                 .triggerableAnim("retracted", IDLE_RETRACTED));
@@ -150,8 +149,12 @@ public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem, Pro
             }
         }
 
-        if (pStack.has(MineraculousDataComponents.POWERED) && pStack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.PERCH && pEntity.isCrouching())
-            pEntity.setDeltaMovement(Vec3.ZERO);
+        if (pStack.has(MineraculousDataComponents.POWERED)) {
+            if (pStack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.PERCH && pEntity.isCrouching())
+                pEntity.setDeltaMovement(Vec3.ZERO);
+            else if (pStack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.TRAVEL && pEntity instanceof Player player && player.getCooldowns().isOnCooldown(pStack))
+                pEntity.resetFallDistance();
+        }
 
         super.inventoryTick(pStack, pLevel, pEntity, pSlotId, pIsSelected);
     }
@@ -166,8 +169,8 @@ public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem, Pro
             if (ability == Ability.BLOCK || ability == Ability.THROW)
                 pPlayer.startUsingItem(pHand);
             else if (ability == Ability.TRAVEL) {
-                pPlayer.setDeltaMovement(pPlayer.getLookAngle().scale(2));
-                pPlayer.resetFallDistance();
+                pPlayer.setDeltaMovement(pPlayer.getLookAngle().scale(4));
+                pPlayer.getCooldowns().addCooldown(stack, 20);
             } else if (ability == Ability.PERCH) {
                 if (pPlayer.getNearestViewDirection() == Direction.UP)
                     pPlayer.setDeltaMovement(new Vec3(0, 0.5, 0));
@@ -180,7 +183,6 @@ public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem, Pro
                 long animId = GeoItem.getOrAssignId(stack, serverLevel);
                 switch (ability) {
                     case BLOCK -> triggerAnim(pPlayer, animId, "use_controller", "shield");
-                    case THROW -> triggerAnim(pPlayer, animId, "use_controller", "throw");
                     case null, default -> {}
                 }
             }
@@ -191,9 +193,13 @@ public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem, Pro
 
     @Override
     public void onStopUsing(ItemStack stack, LivingEntity entity, int count) {
-        if (entity.level() instanceof ServerLevel serverLevel) {
+        if (entity.level() instanceof ServerLevel serverLevel && stack.has(MineraculousDataComponents.CAT_STAFF_ABILITY.get())) {
             long animId = GeoItem.getOrAssignId(stack, serverLevel);
-            triggerAnim(entity, animId, "use_controller", "idle");
+            // TODO: Change when gecko fixed
+//            if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.BLOCK) {
+//                stopTriggeredAnim(entity, animId, "use_controller", "shield");
+//            }
+            stopTriggeredAnim(entity, animId, "use_controller", "extend");
         }
     }
 

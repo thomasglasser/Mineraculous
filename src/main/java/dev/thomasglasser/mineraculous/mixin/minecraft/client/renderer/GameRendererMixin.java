@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.mixin.minecraft.client.renderer;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -22,7 +23,7 @@ public abstract class GameRendererMixin {
 
     @Inject(method = "togglePostEffect", at = @At("HEAD"), cancellable = true)
     private void togglePostEffect(CallbackInfo ci) {
-        if (TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer()).getBoolean(MineraculousEntityEvents.TAG_HASNIGHTVISION)) {
+        if (TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer()).getBoolean(MineraculousEntityEvents.TAG_HASNIGHTVISION) || MineraculousClientUtils.getCameraEntity() != null) {
             ci.cancel();
         }
     }

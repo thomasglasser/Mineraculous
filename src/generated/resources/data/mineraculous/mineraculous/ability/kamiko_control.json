@@ -1,0 +1,6 @@
+{
+  "type": "mineraculous:set_camera_entity",
+  "entity": {
+    "type": "mineraculous:kamiko"
+  }
+}

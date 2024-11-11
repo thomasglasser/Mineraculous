@@ -6,12 +6,11 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import java.util.Optional;
+import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.RegistryCodecs;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,12 +21,12 @@ import net.minecraft.world.level.block.MangroveRootsBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public record RandomDirectionalSpreadAbility(BlockState blockState, Optional<HolderSet<Block>> validBlocks, Optional<HolderSet<Block>> invalidBlocks) implements Ability {
+public record RandomDirectionalSpreadAbility(BlockState blockState, Optional<BlockPredicate> validBlocks, Optional<BlockPredicate> invalidBlocks) implements Ability {
 
     public static final MapCodec<RandomDirectionalSpreadAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             BlockState.CODEC.optionalFieldOf("state", Blocks.AIR.defaultBlockState()).forGetter(RandomDirectionalSpreadAbility::blockState),
-            RegistryCodecs.homogeneousList(Registries.BLOCK).optionalFieldOf("valid_blocks").forGetter(RandomDirectionalSpreadAbility::validBlocks),
-            RegistryCodecs.homogeneousList(Registries.BLOCK).optionalFieldOf("immune_blocks").forGetter(RandomDirectionalSpreadAbility::invalidBlocks)).apply(instance, RandomDirectionalSpreadAbility::new));
+            BlockPredicate.CODEC.optionalFieldOf("valid_blocks").forGetter(RandomDirectionalSpreadAbility::validBlocks),
+            BlockPredicate.CODEC.optionalFieldOf("immune_blocks").forGetter(RandomDirectionalSpreadAbility::invalidBlocks)).apply(instance, RandomDirectionalSpreadAbility::new));
     @Override
     public boolean perform(ResourceKey<Miraculous> type, MiraculousData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
         if (context == Context.INTERACT_BLOCK) {
@@ -38,41 +37,42 @@ public record RandomDirectionalSpreadAbility(BlockState blockState, Optional<Hol
     }
 
     private void applyToBlock(Level level, BlockPos pos, int powerLevel, int blocksAffected, @Nullable Direction nextPosDirection) {
-        BlockState state = level.getBlockState(pos);
-        if ((validBlocks.isPresent() && !state.is(validBlocks.get())) || (invalidBlocks.isPresent() && state.is(invalidBlocks.get())) || blocksAffected >= Math.max(powerLevel, 1) * 100)
-            return;
-        blocksAffected++;
+        if (level instanceof ServerLevel serverLevel) {
+            if ((validBlocks.isPresent() && !validBlocks.get().matches(serverLevel, pos)) || (invalidBlocks.isPresent() && invalidBlocks.get().matches(serverLevel, pos)) || blocksAffected >= Math.max(powerLevel, 1) * 100)
+                return;
+            blocksAffected++;
 
-        int range = 3;
-        for (int i = -range; i <= range; i++) {
-            for (int j = -range; j <= range; j++) {
-                BlockPos newPos = pos.offset(i, 0, j);
-                BlockState newState = level.getBlockState(newPos);
-                if (newState.is(BlockTags.LOGS) || newState.is(BlockTags.LEAVES) || newState.getBlock() instanceof MangroveRootsBlock) {
-                    level.setBlock(newPos, MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL);
+            int range = 3;
+            for (int i = -range; i <= range; i++) {
+                for (int j = -range; j <= range; j++) {
+                    BlockPos newPos = pos.offset(i, 0, j);
+                    BlockState newState = level.getBlockState(newPos);
+                    if (newState.is(BlockTags.LOGS) || newState.is(BlockTags.LEAVES) || newState.getBlock() instanceof MangroveRootsBlock) {
+                        level.setBlock(newPos, MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL);
+                    }
                 }
             }
-        }
 
-        if (nextPosDirection == null) {
-            nextPosDirection = switch (level.random.nextInt(5)) {
-                case 0 -> Direction.NORTH;
-                case 1 -> Direction.EAST;
-                case 2 -> Direction.SOUTH;
-                case 3 -> Direction.WEST;
-                default -> Direction.UP;
-            };
-        }
+            if (nextPosDirection == null) {
+                nextPosDirection = switch (level.random.nextInt(5)) {
+                    case 0 -> Direction.NORTH;
+                    case 1 -> Direction.EAST;
+                    case 2 -> Direction.SOUTH;
+                    case 3 -> Direction.WEST;
+                    default -> Direction.UP;
+                };
+            }
 
-        if (!level.getBlockState(pos.relative(nextPosDirection)).canBeReplaced()) {
-            applyToBlock(level, pos.relative(nextPosDirection), powerLevel, blocksAffected, nextPosDirection);
-        }
+            if (!level.getBlockState(pos.relative(nextPosDirection)).canBeReplaced()) {
+                applyToBlock(level, pos.relative(nextPosDirection), powerLevel, blocksAffected, nextPosDirection);
+            }
 
-        RandomSource randomSource = level.random;
-        replaceBlocksWithin(randomSource.nextInt(4, 8), level, pos);
+            RandomSource randomSource = level.random;
+            replaceBlocksWithin(randomSource.nextInt(4, 8), serverLevel, pos);
+        }
     }
 
-    private void replaceBlocksWithin(int radius, Level level, BlockPos pos) {
+    private void replaceBlocksWithin(int radius, ServerLevel level, BlockPos pos) {
         int iRange = level.random.nextInt(radius);
         for (int i = -iRange; i <= iRange; i++) {
             int jRange = level.random.nextInt(radius);
@@ -80,8 +80,7 @@ public record RandomDirectionalSpreadAbility(BlockState blockState, Optional<Hol
                 int kRange = level.random.nextInt(radius);
                 for (int k = -kRange; k <= kRange; k++) {
                     BlockPos newPos = pos.offset(i, j, k);
-                    BlockState newState = level.getBlockState(newPos);
-                    if ((validBlocks.isEmpty() || newState.is(validBlocks.get())) && (invalidBlocks.isEmpty() || !newState.is(invalidBlocks.get())) && level.random.nextBoolean()) {
+                    if ((validBlocks.isEmpty() || validBlocks.get().matches(level, newPos)) && (invalidBlocks.isEmpty() || !invalidBlocks.get().matches(level, newPos)) && level.random.nextBoolean()) {
                         level.setBlock(newPos, blockState, Block.UPDATE_ALL);
                     }
                 }

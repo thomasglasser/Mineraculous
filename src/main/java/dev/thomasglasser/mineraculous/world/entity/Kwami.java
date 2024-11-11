@@ -1,7 +1,8 @@
 package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculousTypes;
+import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
@@ -13,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -96,8 +99,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_CHARGED, true);
-        // TODO: Replace with Ladybug Miraculous
-        builder.define(DATA_MIRACULOUS, MineraculousMiraculousTypes.CAT);
+        builder.define(DATA_MIRACULOUS, MineraculousMiraculous.LADYBUG);
     }
 
     @Override
@@ -251,5 +253,17 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         if (name == null)
             name = Component.translatable(MineraculousEntityTypes.KWAMI.getId().toLanguageKey("entity", getMiraculous().location().getPath()));
         return name;
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+        compound.put("Miraculous", ResourceKey.codec(MineraculousRegistries.MIRACULOUS).encodeStart(NbtOps.INSTANCE, getMiraculous()).getOrThrow());
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+        setMiraculous(ResourceKey.codec(MineraculousRegistries.MIRACULOUS).parse(NbtOps.INSTANCE, compound.get("Miraculous")).getOrThrow());
     }
 }

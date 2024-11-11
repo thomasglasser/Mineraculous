@@ -1,6 +1,8 @@
 package dev.thomasglasser.mineraculous.mixin.minecraft.client.gui;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -24,6 +26,13 @@ public class GuiMixin {
         if (Minecraft.getInstance().screen instanceof RadialMenuScreen) {
             return false;
         }
+        return original;
+    }
+
+    @ModifyReturnValue(method = "isExperienceBarVisible", at = @At("RETURN"))
+    private boolean isExperienceBarVisible(boolean original) {
+        if (MineraculousClientUtils.getCameraEntity() != ClientUtils.getMainClientPlayer())
+            return false;
         return original;
     }
 }

@@ -20,5 +20,9 @@ public class MineraculousCuriosProvider extends CuriosDataProvider {
                         "brooch",
                         "ring",
                         "earring");
+
+        // TODO: Icons
+        createSlot("brooch");
+        createSlot("earring");
     }
 }

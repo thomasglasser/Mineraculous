@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.data.lang;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
+import dev.thomasglasser.mineraculous.client.gui.kamiko.categories.TargetPlayerMenuCategory;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalInventoryScreen;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
@@ -14,7 +15,7 @@ import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes
 import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculousTypes;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerProfessions;
 import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
@@ -99,9 +100,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.KWAMI_NOT_FOUND, "%s's %s kwami not found in the world");
         add(MiraculousCommand.MIRACULOUS_INVALID, "Invalid miraculous type %s");
 
-        addMiraculous(MineraculousMiraculousTypes.BUTTERFLY, "Butterfly");
-        addMiraculous(MineraculousMiraculousTypes.CAT, "Cat");
-        addMiraculous(MineraculousMiraculousTypes.LADYBUG, "Ladybug");
+        addMiraculous(MineraculousMiraculous.BUTTERFLY, "Butterfly");
+        addMiraculous(MineraculousMiraculous.CAT, "Cat");
+        addMiraculous(MineraculousMiraculous.LADYBUG, "Ladybug");
 
         add(MineraculousItemTags.BUTTERFLY_KWAMI_FOODS, "Butterfly Kwami Foods");
         add(MineraculousItemTags.BUTTERFLY_KWAMI_TREATS, "Butterfly Kwami Treats");
@@ -123,11 +124,16 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(ServerboundTryBreakItemPayload.ITEM_UNBREAKABLE_KEY, "This item is unbreakable by normal means.");
         add(MineraculousEntityEvents.ITEM_BROKEN_KEY, "Broken");
 
+        add(TargetPlayerMenuCategory.TARGET_PROMPT, "Select a player to target");
+
         addAttackWithPlayer(MineraculousDamageTypes.CATACLYSM, "%1$s crumbled to dust", "while fighting %2$s");
 
         add(MineraculousMobEffects.CATACLYSMED.get(), "Cataclysmed");
 
         Arrays.stream(CatStaffItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), WordUtils.capitalize(ability.name().toLowerCase())));
+
+        addCuriosSlot("brooch");
+        addCuriosSlot("earring");
     }
 
     private void addConfigs() {
@@ -158,5 +164,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
     protected void add(RadialMenuOption option, String name) {
         add(option.translationKey(), name);
+    }
+
+    protected void addCuriosSlot(String name) {
+        add("curios.identifier." + name, WordUtils.capitalize(name));
     }
 }

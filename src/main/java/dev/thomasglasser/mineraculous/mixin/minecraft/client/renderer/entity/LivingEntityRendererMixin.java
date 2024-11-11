@@ -3,7 +3,9 @@ package dev.thomasglasser.mineraculous.mixin.minecraft.client.renderer.entity;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.platform.NativeImage;
 import dev.thomasglasser.mineraculous.client.renderer.entity.state.MineraculousLivingEntityRenderState;
+import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -70,5 +72,7 @@ public class LivingEntityRendererMixin {
         state.mineraculous$setCataclysmed(MineraculousEntityEvents.isCataclysmed(entity));
         state.mineraculous$setMaxHealth(entity.getMaxHealth());
         state.mineraculous$setHealth(entity.getHealth());
+        state.mineraculous$setTransformed(entity.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed());
+        state.mineraculous$setShowKamikoMask(TommyLibServices.ENTITY.getPersistentData(entity).getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK));
     }
 }

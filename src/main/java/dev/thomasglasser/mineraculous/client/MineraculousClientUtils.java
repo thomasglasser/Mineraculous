@@ -22,7 +22,7 @@ public class MineraculousClientUtils {
         if (location != null)
             Minecraft.getInstance().gameRenderer.setPostEffect(location);
         else if (current != null)
-            Minecraft.getInstance().gameRenderer.close();
+            Minecraft.getInstance().gameRenderer.clearPostEffect();
     }
 
     public static boolean isFirstPerson() {
@@ -61,6 +61,14 @@ public class MineraculousClientUtils {
     @Nullable
     public static Entity getLookEntity() {
         return Minecraft.getInstance().crosshairPickEntity;
+    }
+
+    public static void setCameraEntity(@Nullable Entity entity) {
+        Minecraft.getInstance().setCameraEntity(entity);
+    }
+
+    public static Entity getCameraEntity() {
+        return Minecraft.getInstance().cameraEntity;
     }
 
     public static void init() {}

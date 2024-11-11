@@ -4,6 +4,7 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.data.advancements.MineraculousAdvancementProvider;
 import dev.thomasglasser.mineraculous.data.blockstates.MineraculousBlockStates;
+import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.data.datamaps.MineraculousDataMapProvider;
 import dev.thomasglasser.mineraculous.data.lang.MineraculousEnUsLanguageProvider;
 import dev.thomasglasser.mineraculous.data.loot.MineraculousLootTables;
@@ -15,7 +16,7 @@ import dev.thomasglasser.mineraculous.data.tags.MineraculousDamageTypeTagsProvid
 import dev.thomasglasser.mineraculous.data.tags.MineraculousItemTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousPoiTypeTagsProvider;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculousTypes;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.MineraculousAbilities;
 import dev.thomasglasser.tommylib.api.data.recipes.RecipeProviderRunner;
 import java.util.Set;
@@ -33,7 +34,7 @@ public class MineraculousDataGenerators {
     public static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
             .add(Registries.DAMAGE_TYPE, MineraculousDamageTypes::bootstrap)
             .add(MineraculousRegistries.ABILITY, MineraculousAbilities::bootstrap)
-            .add(MineraculousRegistries.MIRACULOUS, MineraculousMiraculousTypes::bootstrap);
+            .add(MineraculousRegistries.MIRACULOUS, MineraculousMiraculous::bootstrap);
 
     public static void onGatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
@@ -53,7 +54,7 @@ public class MineraculousDataGenerators {
         MineraculousBlockTagsProvider blockTagsProvider = new MineraculousBlockTagsProvider(packOutput, registries, existingFileHelper);
         generator.addProvider(onServer, blockTagsProvider);
         generator.addProvider(onServer, new MineraculousItemTagsProvider(packOutput, registries, blockTagsProvider.contentsGetter(), existingFileHelper));
-//        generator.addProvider(onServer, new MineraculousCuriosProvider(packOutput, existingFileHelper, registries));
+        generator.addProvider(onServer, new MineraculousCuriosProvider(packOutput, existingFileHelper, registries));
         generator.addProvider(onServer, new MineraculousLootTables(packOutput, registries));
         generator.addProvider(onServer, new RecipeProviderRunner(packOutput, Mineraculous.MOD_ID, registries, MineraculousRecipes::new));
         generator.addProvider(onServer, new MineraculousPoiTypeTagsProvider(packOutput, registries, existingFileHelper));

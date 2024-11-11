@@ -18,6 +18,9 @@
       "translate": "advancement.mineraculous.miraculous.root.desc"
     },
     "icon": {
+      "components": {
+        "mineraculous:miraculous": "mineraculous:ladybug"
+      },
       "count": 1,
       "id": "mineraculous:miraculous"
     },

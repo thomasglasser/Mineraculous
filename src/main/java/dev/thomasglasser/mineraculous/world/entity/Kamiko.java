@@ -1,27 +1,36 @@
 package dev.thomasglasser.mineraculous.world.entity;
 
+import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.entity.ai.behaviour.kamiko.RestBehaviour;
 import dev.thomasglasser.mineraculous.world.entity.ai.behaviour.kamiko.move.SetRandomRestTarget;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -29,10 +38,11 @@ import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
 import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowEntity;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomFlyingTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -42,11 +52,10 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, GeoEntity {
-    private static final EntityDataAccessor<Boolean> RESTING = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<Boolean> POWERED = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.BOOLEAN);
+public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, GeoEntity {
+    public static final ResourceLocation SPECTATOR_SHADER = Mineraculous.modLoc("kamiko");
 
-    private BlockPos followingPosition = null;
+    private static final EntityDataAccessor<Boolean> RESTING = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.BOOLEAN);
 
     private final AnimatableInstanceCache animCache = GeckoLibUtil.createInstanceCache(this);
 
@@ -57,22 +66,18 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
     }
 
     @Override
+    public @Nullable AgeableMob getBreedOffspring(ServerLevel serverLevel, AgeableMob ageableMob) {
+        return null;
+    }
+
+    @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(RESTING, false);
-        builder.define(POWERED, false);
-    }
-
-    public BlockPos getFollowingPosition() {
-        return followingPosition;
     }
 
     public boolean isPowered() {
-        return entityData.get(POWERED);
-    }
-
-    public void setPowered(boolean powered) {
-        entityData.set(POWERED, powered);
+        return getOwnerUUID() != null;
     }
 
     public boolean isResting() {
@@ -116,8 +121,6 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
     @Override
     protected void customServerAiStep(ServerLevel p_376725_) {
         super.customServerAiStep(p_376725_);
-        if (this.followingPosition == null)
-            this.followingPosition = this.blockPosition();
         tickBrain(this);
     }
 
@@ -132,6 +135,8 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
 
     @Override
     public boolean isInvulnerableTo(ServerLevel level, DamageSource source) {
+        if (isPowered())
+            return !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY);
         return source.is(DamageTypes.IN_WALL) || super.isInvulnerableTo(level, source);
     }
 
@@ -148,14 +153,17 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
         this.entityData.set(RESTING, tag.getBoolean("Resting"));
-        this.entityData.set(POWERED, tag.getBoolean("Powered"));
+    }
+
+    @Override
+    public boolean isFood(ItemStack itemStack) {
+        return false;
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.putBoolean("Resting", this.entityData.get(RESTING));
-        tag.putBoolean("Powered", this.entityData.get(POWERED));
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -185,9 +193,10 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
     @Override
     public BrainActivityGroup<? extends Kamiko> getCoreTasks() {
         return BrainActivityGroup.coreTasks(
+                new SetWalkTargetToAttackTarget<Kamiko>()
+                        .whenStarting(mob -> mob.setResting(false)),
                 new MoveToWalkTarget<Kamiko>()
-                        .startCondition(kamiko -> !kamiko.isResting())
-                        .stopIf(kamiko -> kamiko.getTarget() != null),
+                        .startCondition(kamiko -> !kamiko.isResting()),
                 new RestBehaviour<>().runFor(kamiko -> kamiko.random.nextInt(60, 200)).cooldownFor(kamiko -> 600));
     }
 
@@ -199,18 +208,7 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
                         new SetRandomFlyingTarget<>(),
                         new SetRandomRestTarget<Kamiko>()
                                 .setRadius(10, 64)
-                                .startCondition(kamiko -> !kamiko.isResting())));
-    }
-
-    @Override
-    public BrainActivityGroup<? extends Kamiko> getFightTasks() {
-        return BrainActivityGroup.fightTasks(
-                new FollowEntity<Kamiko, LivingEntity>()
-                        .following(Mob::getTarget)
-                        .stopFollowingWithin(0)
-                        .speedMod(3)
-                        .startCondition(kamiko -> (kamiko.getTarget() != null) && (kamiko.isPowered()))
-                        .noTimeout().stopIf(kamiko -> (kamiko.getTarget() == null) || (kamiko.getTarget().isRemoved())));
+                                .startCondition(kamiko -> !kamiko.isResting() && kamiko.getTarget() == null)));
     }
 
     // ANIMATION
@@ -229,5 +227,27 @@ public class Kamiko extends PathfinderMob implements SmartBrainOwner<Kamiko>, Ge
             return animationState.setAndContinue(DefaultAnimations.IDLE);
         }
         return animationState.setAndContinue(DefaultAnimations.FLY);
+    }
+
+    @Override
+    public void setTarget(@Nullable LivingEntity target) {
+        super.setTarget(target);
+        getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, target);
+    }
+
+    @Override
+    public @Nullable LivingEntity getTarget() {
+        return getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(super.getTarget());
+    }
+
+    @Override
+    public void playerTouch(Player player) {
+        // TODO: Open kamikotization screen and let butterfly holder pick item and transformation
+        if (getTarget() == player && player instanceof ServerPlayer serverPlayer) {
+            CompoundTag data = TommyLibServices.ENTITY.getPersistentData(getOwner());
+            data.putBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false);
+            TommyLibServices.ENTITY.setPersistentData(getOwner(), data, true);
+            remove(RemovalReason.DISCARDED);
+        }
     }
 }

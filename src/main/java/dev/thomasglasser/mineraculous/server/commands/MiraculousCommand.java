@@ -207,7 +207,7 @@ public class MiraculousCommand {
                     boolean charged = BoolArgumentType.getBool(context, "charged");
                     if (entity instanceof Kwami kwami) {
                         kwami.setCharged(charged);
-                        context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), charged) : Component.translatable(CHARGED_SET_SUCCESS_OTHER, livingEntity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), charged), true);
+                        context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), charged ? Component.translatable(CHARGED_TRUE) : Component.translatable(CHARGED_FALSE)) : Component.translatable(CHARGED_SET_SUCCESS_OTHER, livingEntity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), charged ? Component.translatable(CHARGED_TRUE) : Component.translatable(CHARGED_FALSE)), true);
                         return 1;
                     } else {
                         context.getSource().sendFailure(Component.translatable(KWAMI_NOT_FOUND, livingEntity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))));

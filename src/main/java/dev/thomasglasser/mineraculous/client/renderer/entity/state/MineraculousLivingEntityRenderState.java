@@ -16,4 +16,8 @@ public interface MineraculousLivingEntityRenderState {
     boolean mineraculous$isTransformed();
 
     void mineraculous$setTransformed(boolean transformed);
+
+    boolean mineraculous$showKamikoMask();
+
+    void mineraculous$setShowKamikoMask(boolean showKamikoMask);
 }

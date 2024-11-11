@@ -15,6 +15,8 @@ public class LivingEntityRenderStateMixin implements MineraculousLivingEntityRen
     private float mineraculous$health = 0;
     @Unique
     private boolean mineraculous$transformed = false;
+    @Unique
+    private boolean mineraculous$showKamikoMask = false;
 
     @Override
     public boolean mineraculous$isCataclysmed() {
@@ -54,5 +56,15 @@ public class LivingEntityRenderStateMixin implements MineraculousLivingEntityRen
     @Override
     public void mineraculous$setTransformed(boolean transformed) {
         this.mineraculous$transformed = transformed;
+    }
+
+    @Override
+    public boolean mineraculous$showKamikoMask() {
+        return this.mineraculous$showKamikoMask;
+    }
+
+    @Override
+    public void mineraculous$setShowKamikoMask(boolean showKamikoMask) {
+        this.mineraculous$showKamikoMask = showKamikoMask;
     }
 }

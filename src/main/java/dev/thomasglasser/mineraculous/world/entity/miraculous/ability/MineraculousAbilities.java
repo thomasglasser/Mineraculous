@@ -7,15 +7,24 @@ import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.advancements.critereon.BlockPredicate;
+import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.advancements.critereon.EntityTypePredicate;
+import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 
 public class MineraculousAbilities {
     public static final ResourceKey<Ability> KAMIKOTIZATION = register("kamikotization");
@@ -29,13 +38,27 @@ public class MineraculousAbilities {
     }
 
     public static void bootstrap(BootstrapContext<Ability> context) {
-        // TODO: Implement Kamikotization and Kamiko Control abilities
+        HolderGetter<EntityType<?>> entityTypes = context.lookup(Registries.ENTITY_TYPE);
+        HolderGetter<Block> blocks = context.lookup(Registries.BLOCK);
+        HolderGetter<Item> items = context.lookup(Registries.ITEM);
+
+        context.register(KAMIKOTIZATION, new ContextAwareAbility(
+                Optional.empty(),
+                Optional.of(new SetOwnerAbility(
+                        Optional.of(1),
+                        Optional.of(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(entityTypes, MineraculousEntityTypes.KAMIKO.get())).build()),
+                        Optional.empty())),
+                Optional.empty(),
+                Optional.empty(),
+                // TODO: Replace with kamikotization particles
+                List.of(new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get()))));
+        context.register(KAMIKO_CONTROL, new SetCameraEntityAbility(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(entityTypes, MineraculousEntityTypes.KAMIKO.get())).build(), true));
 
         context.register(CATACLYSM, new ContextAwareAbility(
                 Optional.of(new RandomDirectionalSpreadAbility(
                         MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(),
                         Optional.empty(),
-                        Optional.of(context.lookup(Registries.BLOCK).getOrThrow(MineraculousBlockTags.CATACLYSM_IMMUNE)))),
+                        Optional.of(BlockPredicate.Builder.block().of(blocks, MineraculousBlockTags.CATACLYSM_IMMUNE).build()))),
                 Optional.of(new ApplyInfiniteEffectsOrDestroyAbility(
                         HolderSet.direct(MineraculousMobEffects.CATACLYSMED),
                         Optional.of(MineraculousItems.CATACLYSM_DUST.get()),
@@ -43,11 +66,10 @@ public class MineraculousAbilities {
                 Optional.of(new ReplaceItemsInHandAbility(
                         MineraculousItems.CATACLYSM_DUST.toStack(),
                         Optional.empty(),
-                        Optional.of(context.lookup(Registries.ITEM).getOrThrow(MineraculousItemTags.CATACLYSM_IMMUNE)))),
+                        Optional.of(ItemPredicate.Builder.item().of(items, MineraculousItemTags.CATACLYSM_IMMUNE).build()))),
                 Optional.empty(),
-                Optional.of(List.of(
-                        new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get())))));
-        context.register(CAT_VISION, new NightVisionAbility(Optional.of(ResourceLocation.withDefaultNamespace("shaders/post/creeper.json"))));
+                List.of(new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get()))));
+        context.register(CAT_VISION, new NightVisionAbility(Optional.of(ResourceLocation.withDefaultNamespace("creeper"))));
 
         // TODO: Implement Miraculous Ladybug ability
     }

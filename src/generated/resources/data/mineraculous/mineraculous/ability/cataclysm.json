@@ -2,7 +2,9 @@
   "type": "mineraculous:context_aware",
   "block": {
     "type": "mineraculous:random_directional_spread",
-    "immune_blocks": "#mineraculous:cataclysm_immune",
+    "immune_blocks": {
+      "blocks": "#mineraculous:cataclysm_immune"
+    },
     "state": {
       "Name": "mineraculous:cataclysm_block"
     }
@@ -15,7 +17,9 @@
   },
   "item": {
     "type": "mineraculous:replace_items_in_hand",
-    "invalid_items": "#mineraculous:cataclysm_immune",
+    "invalid_items": {
+      "items": "#mineraculous:cataclysm_immune"
+    },
     "replacement": {
       "count": 1,
       "id": "mineraculous:cataclysm_dust"

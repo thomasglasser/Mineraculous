@@ -11,14 +11,14 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
-public record ContextAwareAbility(Optional<Ability> blockAbility, Optional<Ability> entityAbility, Optional<Ability> itemAbility, Optional<Ability> airAbility, Optional<List<Ability>> passiveAbilities) implements Ability {
+public record ContextAwareAbility(Optional<Ability> blockAbility, Optional<Ability> entityAbility, Optional<Ability> itemAbility, Optional<Ability> airAbility, List<Ability> passiveAbilities) implements Ability {
 
     public static final MapCodec<ContextAwareAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Ability.DIRECT_CODEC.optionalFieldOf("block").forGetter(ContextAwareAbility::blockAbility),
             Ability.DIRECT_CODEC.optionalFieldOf("entity").forGetter(ContextAwareAbility::entityAbility),
             Ability.DIRECT_CODEC.optionalFieldOf("item").forGetter(ContextAwareAbility::itemAbility),
             Ability.DIRECT_CODEC.optionalFieldOf("air").forGetter(ContextAwareAbility::airAbility),
-            Ability.DIRECT_CODEC.listOf().optionalFieldOf("passive").forGetter(ContextAwareAbility::passiveAbilities)).apply(instance, ContextAwareAbility::new));
+            Ability.DIRECT_CODEC.listOf().optionalFieldOf("passive", List.of()).forGetter(ContextAwareAbility::passiveAbilities)).apply(instance, ContextAwareAbility::new));
     @Override
     public boolean perform(ResourceKey<Miraculous> type, MiraculousData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
         return switch (context) {
@@ -27,7 +27,7 @@ public record ContextAwareAbility(Optional<Ability> blockAbility, Optional<Abili
             case INTERACT_ITEM -> itemAbility.map(ability -> ability.perform(type, data, level, pos, performer, context)).orElse(false);
             case INTERACT_AIR -> airAbility.map(ability -> ability.perform(type, data, level, pos, performer, context)).orElse(false);
             case PASSIVE -> {
-                passiveAbilities.ifPresent(abilities -> abilities.forEach(ability -> ability.perform(type, data, level, pos, performer, context)));
+                passiveAbilities.forEach(ability -> ability.perform(type, data, level, pos, performer, context));
                 yield false;
             }
         };

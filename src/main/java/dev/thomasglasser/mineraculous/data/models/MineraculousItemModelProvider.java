@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.data.models;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculousTypes;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
@@ -26,7 +26,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
     @Override
     protected void registerModels() {
         List<String> symboledMiraculous = Stream.of(
-                MineraculousMiraculousTypes.CAT).map(key -> key.location().getPath()).toList();
+                MineraculousMiraculous.CAT).map(key -> key.location().getPath()).toList();
         for (String key : symboledMiraculous) {
             if (existingFileHelper.exists(Mineraculous.modLoc("models/item/miraculous/" + key + "/base.json"), PackType.CLIENT_RESOURCES)) {
                 ResourceLocation base = Mineraculous.modLoc("item/miraculous/" + key + "/base");

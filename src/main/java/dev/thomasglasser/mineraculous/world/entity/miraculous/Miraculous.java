@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.world.entity.miraculous;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
 import java.util.List;
 import java.util.Optional;
@@ -40,5 +41,11 @@ public record Miraculous(TextColor color, List<String> includedLooks, String acc
 
     public static TagKey<Item> createTreatsTag(ResourceKey<Miraculous> key) {
         return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(key.location().getNamespace(), "kwami_treats/" + key.location().getPath()));
+    }
+
+    public static ItemStack createItemStack(Item item, ResourceKey<Miraculous> key) {
+        ItemStack stack = new ItemStack(item);
+        stack.set(MineraculousDataComponents.MIRACULOUS, key);
+        return stack;
     }
 }

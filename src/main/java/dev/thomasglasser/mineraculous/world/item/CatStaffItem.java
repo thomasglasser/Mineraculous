@@ -11,7 +11,7 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundActivateToolPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetCatStaffAbilityPayload;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculousTypes;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -137,7 +137,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem, Pro
                         TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, pStack, hand));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
                     } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.isDown()) {
-                        MineraculousClientEvents.openToolWheel(MineraculousMiraculousTypes.CAT, pStack, option -> {
+                        MineraculousClientEvents.openToolWheel(MineraculousMiraculous.CAT, pStack, option -> {
                             if (option instanceof Ability ability) {
                                 pStack.set(MineraculousDataComponents.CAT_STAFF_ABILITY.get(), ability);
                                 TommyLibServices.NETWORK.sendToServer(new ServerboundSetCatStaffAbilityPayload(player.getInventory().findSlotMatchingItem(pStack), ability.name()));

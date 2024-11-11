@@ -47,8 +47,8 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
             } else if (target instanceof VehicleEntity vehicle && dropItem.isPresent()) {
                 if (level instanceof ServerLevel serverLevel)
                     vehicle.destroy(serverLevel, dropItem.get());
-            } else {
-                target.hurt(damageType.map(damageTypeResourceKey -> performer.damageSources().source(damageTypeResourceKey, performer)).orElse(performer.damageSources().indirectMagic(performer, performer)), 1024);
+            } else if (level instanceof ServerLevel serverLevel) {
+                target.hurtServer(serverLevel, damageType.map(damageTypeResourceKey -> performer.damageSources().source(damageTypeResourceKey, performer)).orElse(performer.damageSources().indirectMagic(performer, performer)), 1024);
             }
             return true;
         }

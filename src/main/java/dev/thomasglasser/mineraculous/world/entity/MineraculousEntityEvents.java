@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.world.entity;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
+import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ClientboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
@@ -25,6 +26,7 @@ import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Arrays;
 import java.util.List;
@@ -68,6 +70,7 @@ public class MineraculousEntityEvents {
     public static final String TAG_HASNIGHTVISION = "HasNightVision";
     public static final String TAG_TAKETICKS = "TakeTicks";
     public static final String TAG_CATACLYSMED = "Cataclysmed";
+    public static final String TAG_SHOW_KAMIKO_MASK = "ShowKamikoMask";
 
     public static final String ITEM_BROKEN_KEY = "mineraculous.item_broken";
 
@@ -109,8 +112,7 @@ public class MineraculousEntityEvents {
                         }
                         if (takeTicks > (20 * MineraculousServerConfig.INSTANCE.stealingDuration.get())) {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
-                            // TODO: Update Curios
-//                            ClientUtils.setScreen(new ExternalCuriosInventoryScreen(target));
+                            ClientUtils.setScreen(new ExternalCuriosInventoryScreen(target));
                             entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, 0);
                         }
                         TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
@@ -183,7 +185,6 @@ public class MineraculousEntityEvents {
                         MIRACULOUS_EFFECTS.forEach(effect -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, powerLevel)));
                         player.addItem(tool);
                         kwami.discard();
-                        // TODO: Advancement trigger with miraculous item context
                         MiraculousData finalData = data;
                         serverLevel.holderOrThrow(miraculous).value().passiveAbilities().forEach(ability -> ability.value().transform(miraculous, finalData, serverLevel, player.blockPosition(), player));
                     } else {

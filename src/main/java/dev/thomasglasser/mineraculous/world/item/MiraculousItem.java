@@ -146,7 +146,7 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculousType, data, true));
                         }
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
-                    } else if (MineraculousKeyMappings.ACTIVATE_POWER.isDown() && data.transformed() && !data.mainPowerActive() && !data.mainPowerActivated() && slotContext.entity().level().holderOrThrow(miraculousType).value().activeAbility().isPresent()) {
+                    } else if (MineraculousClientUtils.getCameraEntity() == player && MineraculousKeyMappings.ACTIVATE_POWER.isDown() && data.transformed() && !data.mainPowerActive() && !data.mainPowerActivated() && slotContext.entity().level().holderOrThrow(miraculousType).value().activeAbility().isPresent()) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundActivatePowerPayload(miraculousType));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
                     }

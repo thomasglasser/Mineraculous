@@ -2,11 +2,6 @@ package dev.thomasglasser.mineraculous.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
-import dev.thomasglasser.mineraculous.network.ServerboundStealCuriosPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundStealItemPayload;
-import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -30,15 +25,21 @@ public class ExternalCuriosInventoryScreen extends CuriosScreen {
     private static int scrollCooldown = 0;
 
     protected final Player target;
+    protected final boolean requireLooking;
+    protected final ExternalInventoryScreen.ItemPickupHandler pickupHandler;
+    protected final ExternalInventoryScreen.CloseHandler closeHandler;
 
-    public ExternalCuriosInventoryScreen(Player target) {
+    public ExternalCuriosInventoryScreen(Player target, boolean requireLooking, ExternalInventoryScreen.ItemPickupHandler pickupHandler, ExternalInventoryScreen.CloseHandler closeHandler) {
         super(new CuriosContainer(-1, target.getInventory()), target.getInventory(), Component.translatable("container.crafting"));
         this.target = target;
+        this.requireLooking = requireLooking;
+        this.pickupHandler = pickupHandler;
+        this.closeHandler = closeHandler;
     }
 
     @Override
     public void containerTick() {
-        if (MineraculousClientUtils.getLookEntity() != target) {
+        if (requireLooking && MineraculousClientUtils.getLookEntity() != target) {
             Minecraft.getInstance().setScreen(null);
         }
     }
@@ -139,12 +140,19 @@ public class ExternalCuriosInventoryScreen extends CuriosScreen {
             ClickType type) {
         if (slot != null && slot.hasItem() && mouseButton == 0) {
             if (type == ClickType.PICKUP) {
-                if (slot instanceof CurioSlot curioSlot)
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundStealCuriosPayload(target.getUUID(), new CuriosData(curioSlot.getSlotIndex(), curioSlot.getIdentifier())));
-                else
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundStealItemPayload(target.getUUID(), menu.slots.indexOf(slot)));
-                ClientUtils.setScreen(null);
+                pickupHandler.handle(slot, target, menu);
+                onClose(false);
             }
         }
+    }
+
+    public void onClose(boolean cancel) {
+        super.onClose();
+        closeHandler.onClose(cancel);
+    }
+
+    @Override
+    public void onClose() {
+        onClose(true);
     }
 }

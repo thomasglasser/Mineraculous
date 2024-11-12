@@ -25,7 +25,10 @@ public record ClientboundSetCameraEntityPayload(int entityId) implements Extende
     public void handle(Player player) {
         CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
         Entity entity = player.level().getEntity(entityId);
-        if (entity != null) {
+        if (entity == null || entityData.getBoolean(MineraculousEntityEvents.TAG_KAMIKO_CONTROL_INTERRUPTED)) {
+            MineraculousClientUtils.setCameraEntity(null);
+            TommyLibServices.NETWORK.sendToServer(new ServerboundSetShowKamikoMaskPayload(false));
+        } else {
             if (entityData.getInt(MineraculousEntityEvents.TAG_WAITTICKS) <= 0 && MineraculousKeyMappings.ACTIVATE_POWER.isDown()) {
                 if (MineraculousClientUtils.getCameraEntity() == entity) {
                     MineraculousClientUtils.setCameraEntity(null);
@@ -33,7 +36,6 @@ public record ClientboundSetCameraEntityPayload(int entityId) implements Extende
                     MineraculousClientUtils.setCameraEntity(entity);
                 }
                 TommyLibServices.NETWORK.sendToServer(new ServerboundSetShowKamikoMaskPayload(MineraculousClientUtils.getCameraEntity() != null));
-                entityData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
             }
         }
     }

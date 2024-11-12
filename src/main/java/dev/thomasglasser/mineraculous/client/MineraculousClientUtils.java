@@ -1,11 +1,15 @@
 package dev.thomasglasser.mineraculous.client;
 
+import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationSelectionScreen;
 import dev.thomasglasser.mineraculous.client.renderer.MineraculousBlockEntityWithoutLevelRenderer;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -69,6 +73,10 @@ public class MineraculousClientUtils {
 
     public static Entity getCameraEntity() {
         return Minecraft.getInstance().cameraEntity;
+    }
+
+    public static void openKamikotizationSelectionScreen(Player target) {
+        ClientUtils.setScreen(new KamikotizationSelectionScreen(Component.translatable(KamikotizationSelectionScreen.TITLE), target));
     }
 
     public static void init() {}

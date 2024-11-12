@@ -22,6 +22,7 @@ public record ServerboundSetShowKamikoMaskPayload(boolean show) implements Exten
     public void handle(Player player) {
         CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(player);
         tag.putBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, show);
+        tag.putBoolean(MineraculousEntityEvents.TAG_KAMIKO_CONTROL_INTERRUPTED, false);
         tag.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
         TommyLibServices.ENTITY.setPersistentData(player, tag, true);
     }

@@ -5,15 +5,17 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 
 public record SetOwnerAbility(Optional<Integer> maxOfTypes, Optional<EntityPredicate> validEntities, Optional<EntityPredicate> invalidEntities) implements Ability {
 
@@ -28,13 +30,14 @@ public record SetOwnerAbility(Optional<Integer> maxOfTypes, Optional<EntityPredi
                 return false;
             if (invalidEntities.isPresent() && invalidEntities.get().matches(serverLevel, animal.position(), animal))
                 return false;
-            if (maxOfTypes.isPresent() && level.getEntitiesOfClass(animal.getClass(), AABB.INFINITE, entity -> {
-                if (validEntities.isPresent() && !validEntities.get().matches(serverLevel, entity.position(), entity))
-                    return false;
-                if (invalidEntities.isPresent() && invalidEntities.get().matches(serverLevel, entity.position(), entity))
-                    return false;
-                return entity.getType() == animal.getType() && entity.isOwnedBy(performer);
-            }).size() >= maxOfTypes.get())
+            List<Entity> like = new ArrayList<>();
+            for (Entity e : serverLevel.getEntities().getAll()) {
+                if ((validEntities.isEmpty() || validEntities.get().matches(serverLevel, e.position(), e))
+                        && (invalidEntities.isEmpty() || !invalidEntities.get().matches(serverLevel, e.position(), e))
+                        && (e instanceof TamableAnimal ta && ta.isOwnedBy(performer)))
+                    like.add(e);
+            }
+            if (maxOfTypes.isPresent() && like.size() >= maxOfTypes.get())
                 return false;
             animal.setOwnerUUID(performer.getUUID());
             return true;

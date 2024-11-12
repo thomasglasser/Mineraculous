@@ -24,12 +24,26 @@ public record SetCameraEntityAbility(EntityPredicate entity, boolean mustBeTamed
     @Override
     public boolean perform(ResourceKey<Miraculous> type, MiraculousData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
         if (context == Context.PASSIVE && performer instanceof ServerPlayer serverPlayer) {
-            Entity target = level.getEntities(performer, performer.getBoundingBox().inflate(128), e -> (!mustBeTamed || (e instanceof TamableAnimal tamable && tamable.isOwnedBy(performer))) && entity.matches(serverPlayer.serverLevel(), e.position(), e)).stream().findFirst().orElse(null);
+            Entity target = null;
+            for (Entity e : serverPlayer.serverLevel().getEntities().getAll()) {
+                if ((!mustBeTamed || (e instanceof TamableAnimal tamable && tamable.isOwnedBy(performer))) && entity.matches(serverPlayer.serverLevel(), e.position(), e)) {
+                    target = e;
+                    break;
+                }
+            }
             if (target != null) {
                 TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target.getId()), serverPlayer);
+                return true;
             }
         }
         return false;
+    }
+
+    @Override
+    public void detransform(ResourceKey<Miraculous> type, MiraculousData data, Level level, BlockPos pos, LivingEntity entity) {
+        if (entity instanceof ServerPlayer serverPlayer) {
+            TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(-1), serverPlayer);
+        }
     }
 
     @Override

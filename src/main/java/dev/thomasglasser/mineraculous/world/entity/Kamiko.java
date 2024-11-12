@@ -1,6 +1,8 @@
 package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.network.ClientboundOpenKamikotizationSelectionScreenPayload;
+import dev.thomasglasser.mineraculous.network.ClientboundSyncInventoryPayload;
 import dev.thomasglasser.mineraculous.world.entity.ai.behaviour.kamiko.RestBehaviour;
 import dev.thomasglasser.mineraculous.world.entity.ai.behaviour.kamiko.move.SetRandomRestTarget;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -171,7 +173,8 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                 .add(Attributes.MAX_HEALTH, 1) // Butterflies are weak, okay.
                 .add(Attributes.MOVEMENT_SPEED, 0.3)
                 .add(Attributes.FLYING_SPEED, 1)
-                .add(Attributes.GRAVITY, 0);
+                .add(Attributes.GRAVITY, 0)
+                .add(Attributes.FOLLOW_RANGE, 2048);
     }
 
     // AI
@@ -242,12 +245,13 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
 
     @Override
     public void playerTouch(Player player) {
-        // TODO: Open kamikotization screen and let butterfly holder pick item and transformation
-        if (getTarget() == player && player instanceof ServerPlayer serverPlayer) {
-            CompoundTag data = TommyLibServices.ENTITY.getPersistentData(getOwner());
-            data.putBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false);
-            TommyLibServices.ENTITY.setPersistentData(getOwner(), data, true);
+        if (getTarget() == player && getOwner() instanceof ServerPlayer owner) {
+            CompoundTag ownerData = TommyLibServices.ENTITY.getPersistentData(owner);
+            ownerData.putBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, true);
+            TommyLibServices.ENTITY.setPersistentData(getOwner(), ownerData, true);
             remove(RemovalReason.DISCARDED);
+            TommyLibServices.NETWORK.sendToClient(new ClientboundSyncInventoryPayload(player), (ServerPlayer) player);
+            TommyLibServices.NETWORK.sendToClient(new ClientboundOpenKamikotizationSelectionScreenPayload(player.getUUID()), owner);
         }
     }
 }

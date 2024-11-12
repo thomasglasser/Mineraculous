@@ -1,14 +1,12 @@
 package dev.thomasglasser.mineraculous.client.gui.screens.inventory;
 
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
-import dev.thomasglasser.mineraculous.network.ServerboundStealItemPayload;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 
@@ -16,15 +14,21 @@ public class ExternalInventoryScreen extends InventoryScreen {
     public static final String ITEM_BOUND_KEY = "mineraculous.item_bound";
 
     protected final Player target;
+    protected final boolean requireLooking;
+    protected final ItemPickupHandler pickupHandler;
+    protected final CloseHandler closeHandler;
 
-    public ExternalInventoryScreen(Player target) {
+    public ExternalInventoryScreen(Player target, boolean requireLooking, ItemPickupHandler pickupHandler, CloseHandler closeHandler) {
         super(target);
         this.target = target;
+        this.requireLooking = requireLooking;
+        this.pickupHandler = pickupHandler;
+        this.closeHandler = closeHandler;
     }
 
     @Override
     public void containerTick() {
-        if (MineraculousClientUtils.getLookEntity() != target) {
+        if (requireLooking && MineraculousClientUtils.getLookEntity() != target) {
             Minecraft.getInstance().setScreen(null);
         }
     }
@@ -47,9 +51,29 @@ public class ExternalInventoryScreen extends InventoryScreen {
     protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
         if (slot.hasItem() && mouseButton == 0) {
             if (type == ClickType.PICKUP) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundStealItemPayload(target.getUUID(), menu.slots.indexOf(slot)));
-                ClientUtils.setScreen(null);
+                pickupHandler.handle(slot, target, menu);
+                onClose(false);
             }
         }
+    }
+
+    public void onClose(boolean cancel) {
+        super.onClose();
+        closeHandler.onClose(cancel);
+    }
+
+    @Override
+    public void onClose() {
+        onClose(true);
+    }
+
+    @FunctionalInterface
+    public interface ItemPickupHandler {
+        void handle(Slot slot, Player target, AbstractContainerMenu menu);
+    }
+
+    @FunctionalInterface
+    public interface CloseHandler {
+        void onClose(boolean exit);
     }
 }

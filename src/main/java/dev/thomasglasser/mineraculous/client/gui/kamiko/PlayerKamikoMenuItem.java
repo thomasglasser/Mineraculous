@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.client.gui.kamiko;
 
 import com.mojang.authlib.GameProfile;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
-import dev.thomasglasser.mineraculous.network.ServerboundSetAttackTargetPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundSetPlayerAttackTargetPayload;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.function.Supplier;
@@ -30,7 +30,7 @@ public class PlayerKamikoMenuItem implements KamikoMenuItem {
         if (MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko) {
             Player player = kamiko.level().getPlayerByUUID(this.profile.getId());
             if (player != null)
-                TommyLibServices.NETWORK.sendToServer(new ServerboundSetAttackTargetPayload(kamiko.getId(), player.getId()));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSetPlayerAttackTargetPayload(kamiko.getId(), player.getUUID()));
         }
     }
 

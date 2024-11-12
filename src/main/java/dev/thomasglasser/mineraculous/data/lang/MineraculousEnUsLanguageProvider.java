@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.data.lang;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.categories.TargetPlayerMenuCategory;
+import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationSelectionScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalInventoryScreen;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
@@ -17,6 +18,7 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.MineraculousAbilities;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerProfessions;
 import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
@@ -49,12 +51,17 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         addCreativeTab(MineraculousCreativeModeTabs.MINERACULOUS, "Mineraculous");
         addCreativeTab(MineraculousCreativeModeTabs.MIRACULOUS, "Miraculous");
-        addCreativeTab(MineraculousCreativeModeTabs.SUITS, "Suits");
+        addCreativeTab(MineraculousCreativeModeTabs.MIRACULOUS_SUITS, "Miraculous Suits");
+        addCreativeTab(MineraculousCreativeModeTabs.KAMIKOTIZATION_SUITS, "Kamikotization Suits");
 
         add(MineraculousArmors.MIRACULOUS.HEAD.get(), "Miraculous Mask");
         add(MineraculousArmors.MIRACULOUS.CHEST.get(), "Miraculous Chestplate");
         add(MineraculousArmors.MIRACULOUS.LEGS.get(), "Miraculous Leggings");
         add(MineraculousArmors.MIRACULOUS.FEET.get(), "Miraculous Boots");
+        add(MineraculousArmors.KAMIKOTIZATION.HEAD.get(), "Kamikotization Mask");
+        add(MineraculousArmors.KAMIKOTIZATION.CHEST.get(), "Kamikotization Chestplate");
+        add(MineraculousArmors.KAMIKOTIZATION.LEGS.get(), "Kamikotization Leggings");
+        add(MineraculousArmors.KAMIKOTIZATION.FEET.get(), "Kamikotization Boots");
 
         add(MineraculousBlocks.CATACLYSM_BLOCK.get(), "Block of Cataclysm");
         add(MineraculousBlocks.CHEESE_POT.get(), "Cheese Pot");
@@ -104,6 +111,12 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addMiraculous(MineraculousMiraculous.CAT, "Cat");
         addMiraculous(MineraculousMiraculous.LADYBUG, "Ladybug");
 
+        add(MineraculousAbilities.KAMIKOTIZATION, "Kamikotization");
+        add(MineraculousAbilities.KAMIKO_CONTROL, "Kamiko Control");
+        add(MineraculousAbilities.CATACLYSM, "Cataclysm");
+        add(MineraculousAbilities.CAT_VISION, "Cat Vision");
+        add(MineraculousAbilities.MIRACULOUS_LADYBUG, "Miraculous Ladybug");
+
         add(MineraculousItemTags.BUTTERFLY_KWAMI_FOODS, "Butterfly Kwami Foods");
         add(MineraculousItemTags.BUTTERFLY_KWAMI_TREATS, "Butterfly Kwami Treats");
         add(MineraculousItemTags.CAT_KWAMI_FOODS, "Cat Kwami Foods");
@@ -125,6 +138,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousEntityEvents.ITEM_BROKEN_KEY, "Broken");
 
         add(TargetPlayerMenuCategory.TARGET_PROMPT, "Select a player to target");
+
+        add(KamikotizationSelectionScreen.TITLE, "Kamikotization");
+        add(KamikotizationSelectionScreen.NO_KAMIKOTIZATIONS, "No valid kamikotizations found for %s");
+        add(KamikotizationSelectionScreen.CHOOSE, "Choose");
 
         addAttackWithPlayer(MineraculousDamageTypes.CATACLYSM, "%1$s crumbled to dust", "while fighting %2$s");
 
@@ -158,7 +175,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     protected void addMiraculous(ResourceKey<Miraculous> type, String name) {
-        add(type.location().toLanguageKey(type.registry().getPath()), name);
+        add(type, name);
         add(MineraculousEntityTypes.KWAMI.getId().toLanguageKey("entity", type.location().getPath()), name + " Kwami");
     }
 

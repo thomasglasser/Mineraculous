@@ -8,6 +8,8 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ClientboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestMiraculousDataSetSyncPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundStealCuriosPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundStealItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
@@ -22,6 +24,7 @@ import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
+import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
@@ -64,6 +67,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.village.VillagerTradesEvent;
+import top.theillusivec4.curios.common.inventory.CurioSlot;
 
 public class MineraculousEntityEvents {
     public static final String TAG_WAITTICKS = "WaitTicks";
@@ -71,6 +75,7 @@ public class MineraculousEntityEvents {
     public static final String TAG_TAKETICKS = "TakeTicks";
     public static final String TAG_CATACLYSMED = "Cataclysmed";
     public static final String TAG_SHOW_KAMIKO_MASK = "ShowKamikoMask";
+    public static final String TAG_KAMIKO_CONTROL_INTERRUPTED = "KamikoControlInterrupted";
 
     public static final String ITEM_BROKEN_KEY = "mineraculous.item_broken";
 
@@ -112,7 +117,12 @@ public class MineraculousEntityEvents {
                         }
                         if (takeTicks > (20 * MineraculousServerConfig.INSTANCE.stealingDuration.get())) {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
-                            ClientUtils.setScreen(new ExternalCuriosInventoryScreen(target));
+                            ClientUtils.setScreen(new ExternalCuriosInventoryScreen(target, true, ((slot, target1, menu) -> {
+                                if (slot instanceof CurioSlot curioSlot)
+                                    TommyLibServices.NETWORK.sendToServer(new ServerboundStealCuriosPayload(target1.getUUID(), new CuriosData(curioSlot.getSlotIndex(), curioSlot.getIdentifier())));
+                                else
+                                    TommyLibServices.NETWORK.sendToServer(new ServerboundStealItemPayload(target1.getUUID(), menu.slots.indexOf(slot)));
+                            }), exit -> {}));
                             entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, 0);
                         }
                         TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
@@ -311,6 +321,11 @@ public class MineraculousEntityEvents {
                         event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), true, false, data.name(), data.look()), !event.getEntity().level().isClientSide);
                 }
             });
+        }
+        CompoundTag data = TommyLibServices.ENTITY.getPersistentData(victim);
+        if (data.getBoolean(TAG_SHOW_KAMIKO_MASK)) {
+            data.putBoolean(TAG_KAMIKO_CONTROL_INTERRUPTED, true);
+            TommyLibServices.ENTITY.setPersistentData(victim, data, true);
         }
     }
 

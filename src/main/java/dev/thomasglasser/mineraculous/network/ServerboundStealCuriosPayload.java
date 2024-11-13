@@ -42,7 +42,7 @@ public record ServerboundStealCuriosPayload(UUID target, CuriosData data) implem
                 MiraculousData miraculousData = target.getData(MineraculousAttachmentTypes.MIRACULOUS).get(stack.get(MineraculousDataComponents.MIRACULOUS));
                 if (miraculousData.miraculousItem() == stack) {
                     if (miraculousData.transformed())
-                        MineraculousEntityEvents.handleTransformation((ServerPlayer) target, stack.get(MineraculousDataComponents.MIRACULOUS), miraculousData, false);
+                        MineraculousEntityEvents.handleMiraculousTransformation((ServerPlayer) target, stack.get(MineraculousDataComponents.MIRACULOUS), miraculousData, false);
                     Entity entity = ((ServerLevel) player.level()).getEntity(stack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid());
                     if (entity instanceof Kwami kwami)
                         MineraculousEntityEvents.renounceMiraculous(stack, kwami);

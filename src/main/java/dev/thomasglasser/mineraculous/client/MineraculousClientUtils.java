@@ -1,7 +1,10 @@
 package dev.thomasglasser.mineraculous.client;
 
+import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationSelectionScreen;
 import dev.thomasglasser.mineraculous.client.renderer.MineraculousBlockEntityWithoutLevelRenderer;
+import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
+import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleOptions;
@@ -75,8 +78,20 @@ public class MineraculousClientUtils {
         return Minecraft.getInstance().cameraEntity;
     }
 
-    public static void openKamikotizationSelectionScreen(Player target) {
-        ClientUtils.setScreen(new KamikotizationSelectionScreen(Component.translatable(KamikotizationSelectionScreen.TITLE), target));
+    public static void openKamikotizationSelectionScreen(Player target, KamikoData kamikoData) {
+        ClientUtils.setScreen(new KamikotizationSelectionScreen(Component.translatable(KamikotizationSelectionScreen.TITLE), target, kamikoData));
+    }
+
+    public static void openKamikotizationChatScreen(Player other, KamikotizationData kamikotizationData, KamikoData kamikoData) {
+        ClientUtils.setScreen(new KamikotizationChatScreen(other, kamikotizationData, kamikoData));
+    }
+
+    public static void openKamikotizationChatScreen(String targetName, String performerName, Player target) {
+        ClientUtils.setScreen(new KamikotizationChatScreen(targetName, performerName, target));
+    }
+
+    public static void closeKamikotizationChatScreen() {
+        ((KamikotizationChatScreen) Minecraft.getInstance().screen).onClose(false);
     }
 
     public static void init() {}

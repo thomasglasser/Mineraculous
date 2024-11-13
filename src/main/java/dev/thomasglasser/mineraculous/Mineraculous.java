@@ -110,6 +110,7 @@ public class Mineraculous {
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onMouseScrollingInput);
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onMouseButtonClick);
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientTick);
+            NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientChatReceived);
         }
     }
 

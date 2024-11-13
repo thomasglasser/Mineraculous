@@ -4,13 +4,11 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.network.ClientboundToggleNightVisionPayload;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
@@ -36,7 +34,7 @@ public class NightVisionAbility implements Ability {
     }
 
     @Override
-    public boolean perform(ResourceKey<Miraculous> type, MiraculousData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
+    public boolean perform(AbilityData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
         if (context == Context.PASSIVE && performer instanceof ServerPlayer serverPlayer) {
             checkNightVision(serverPlayer, level, pos);
             return true;
@@ -77,7 +75,7 @@ public class NightVisionAbility implements Ability {
     }
 
     @Override
-    public void detransform(ResourceKey<Miraculous> type, MiraculousData data, Level level, BlockPos pos, LivingEntity entity) {
+    public void detransform(AbilityData data, Level level, BlockPos pos, LivingEntity entity) {
         if (entity instanceof ServerPlayer serverPlayer) {
             disableNightVision(serverPlayer);
         }

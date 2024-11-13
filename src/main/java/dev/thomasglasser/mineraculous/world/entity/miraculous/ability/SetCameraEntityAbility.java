@@ -4,12 +4,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.network.ClientboundSetCameraEntityPayload;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -22,7 +20,7 @@ public record SetCameraEntityAbility(EntityPredicate entity, boolean mustBeTamed
             Codec.BOOL.optionalFieldOf("must_be_tamed", true).forGetter(SetCameraEntityAbility::mustBeTamed)).apply(instance, SetCameraEntityAbility::new));
 
     @Override
-    public boolean perform(ResourceKey<Miraculous> type, MiraculousData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
+    public boolean perform(AbilityData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
         if (context == Context.PASSIVE && performer instanceof ServerPlayer serverPlayer) {
             Entity target = null;
             for (Entity e : serverPlayer.serverLevel().getEntities().getAll()) {
@@ -40,7 +38,7 @@ public record SetCameraEntityAbility(EntityPredicate entity, boolean mustBeTamed
     }
 
     @Override
-    public void detransform(ResourceKey<Miraculous> type, MiraculousData data, Level level, BlockPos pos, LivingEntity entity) {
+    public void detransform(AbilityData data, Level level, BlockPos pos, LivingEntity entity) {
         if (entity instanceof ServerPlayer serverPlayer) {
             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(-1), serverPlayer);
         }

@@ -14,7 +14,7 @@ public class MineraculousAttachmentTypes {
 
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<ArmorData>> STORED_ARMOR = ATTACHMENT_TYPES.register("stored_armor", () -> AttachmentType.builder(ArmorData::new).serialize(ArmorData.CODEC).build());
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<MiraculousDataSet>> MIRACULOUS = ATTACHMENT_TYPES.register("miraculous", () -> AttachmentType.builder(() -> new MiraculousDataSet()).serialize(MiraculousDataSet.CODEC).build());
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<?>> KAMIKOTIZATION = ATTACHMENT_TYPES.register("kamikotization", () -> AttachmentType.builder(KamikotizationData::new).serialize(KamikotizationData.CODEC).build());
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<KamikotizationData>> KAMIKOTIZATION = ATTACHMENT_TYPES.register("kamikotization", () -> AttachmentType.builder(KamikotizationData::new).serialize(KamikotizationData.CODEC).build());
 
     public static void init() {}
 }

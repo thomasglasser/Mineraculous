@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.client;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.client.gui.components.kamiko.KamikoGui;
+import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.client.model.KamikoMaskModel;
@@ -40,6 +41,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
@@ -167,5 +169,21 @@ public class MineraculousClientEvents {
     public static void onClientTick(ClientTickEvent.Post event) {
         if (MineraculousClientUtils.getCameraEntity() != null && MineraculousClientUtils.getCameraEntity().isRemoved())
             MineraculousClientUtils.setCameraEntity(null);
+    }
+
+    public static void onClientChatReceived(ClientChatReceivedEvent event) {
+        if (Minecraft.getInstance().level != null && Minecraft.getInstance().player != null) {
+            boolean playerInChatWindow = TommyLibServices.ENTITY.getPersistentData(Minecraft.getInstance().player).getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK) && Minecraft.getInstance().screen instanceof KamikotizationChatScreen;
+            if (event.isSystem()) {
+                if (playerInChatWindow) {
+                    event.setCanceled(true);
+                }
+            } else {
+                boolean senderHasKamikoMask = TommyLibServices.ENTITY.getPersistentData(Minecraft.getInstance().level.getPlayerByUUID(event.getSender())).getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK);
+                if ((playerInChatWindow && !senderHasKamikoMask) || (senderHasKamikoMask && !playerInChatWindow)) {
+                    event.setCanceled(true);
+                }
+            }
+        }
     }
 }

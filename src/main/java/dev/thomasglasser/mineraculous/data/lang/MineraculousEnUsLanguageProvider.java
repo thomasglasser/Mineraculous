@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.data.lang;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.categories.TargetPlayerMenuCategory;
+import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationSelectionScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalInventoryScreen;
@@ -142,6 +143,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(KamikotizationSelectionScreen.TITLE, "Kamikotization");
         add(KamikotizationSelectionScreen.NO_KAMIKOTIZATIONS, "No valid kamikotizations found for %s");
         add(KamikotizationSelectionScreen.CHOOSE, "Choose");
+
+        add(KamikotizationChatScreen.INTRO_NAME, "%s, I am %s.");
+        add(KamikotizationChatScreen.INTRO_NAMELESS, "%s.");
+        add(KamikotizationChatScreen.ACCEPT, "Accept Kamikotization");
 
         addAttackWithPlayer(MineraculousDamageTypes.CATACLYSM, "%1$s crumbled to dust", "while fighting %2$s");
 

@@ -12,6 +12,7 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
@@ -123,13 +124,13 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
             if (data.transformed()) {
                 if (data.mainPowerActivated())
                     stack.set(MineraculousDataComponents.REMAINING_TICKS.get(), stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) - 1);
-                entity.level().holderOrThrow(miraculousType).value().passiveAbilities().forEach(ability -> ability.value().perform(miraculousType, data, player.level(), player.blockPosition(), player, Ability.Context.PASSIVE));
+                entity.level().holderOrThrow(miraculousType).value().passiveAbilities().forEach(ability -> ability.value().perform(new AbilityData(data.powerLevel()), player.level(), player.blockPosition(), player, Ability.Context.PASSIVE));
                 if (data.mainPowerActive())
-                    entity.level().holderOrThrow(miraculousType).value().activeAbility().get().value().perform(miraculousType, data, player.level(), player.blockPosition(), player, Ability.Context.PASSIVE);
+                    entity.level().holderOrThrow(miraculousType).value().activeAbility().get().value().perform(new AbilityData(data.powerLevel()), player.level(), player.blockPosition(), player, Ability.Context.PASSIVE);
                 if (!entity.getMainHandItem().isEmpty()) {
-                    entity.level().holderOrThrow(miraculousType).value().passiveAbilities().forEach(ability -> ability.value().perform(miraculousType, data, player.level(), player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem())));
+                    entity.level().holderOrThrow(miraculousType).value().passiveAbilities().forEach(ability -> ability.value().perform(new AbilityData(data.powerLevel()), player.level(), player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem())));
                     if (data.mainPowerActive()) {
-                        boolean usedPower = entity.level().holderOrThrow(miraculousType).value().activeAbility().get().value().perform(miraculousType, data, player.level(), player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem()));
+                        boolean usedPower = entity.level().holderOrThrow(miraculousType).value().activeAbility().get().value().perform(new AbilityData(data.powerLevel()), player.level(), player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem()));
                         if (usedPower)
                             entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculousType, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), true, false, data.name(), data.look()), true);
                     }
@@ -154,7 +155,7 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
                 TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
             } else {
                 if (data.mainPowerActivated() && stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) <= 0) {
-                    MineraculousEntityEvents.handleTransformation((ServerPlayer) player, miraculousType, data, false);
+                    MineraculousEntityEvents.handleMiraculousTransformation((ServerPlayer) player, miraculousType, data, false);
                 }
             }
         }

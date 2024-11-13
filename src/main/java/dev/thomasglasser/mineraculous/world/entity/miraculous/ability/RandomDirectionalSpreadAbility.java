@@ -2,14 +2,12 @@ package dev.thomasglasser.mineraculous.world.entity.miraculous.ability;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
@@ -28,7 +26,7 @@ public record RandomDirectionalSpreadAbility(BlockState blockState, Optional<Blo
             BlockPredicate.CODEC.optionalFieldOf("valid_blocks").forGetter(RandomDirectionalSpreadAbility::validBlocks),
             BlockPredicate.CODEC.optionalFieldOf("immune_blocks").forGetter(RandomDirectionalSpreadAbility::invalidBlocks)).apply(instance, RandomDirectionalSpreadAbility::new));
     @Override
-    public boolean perform(ResourceKey<Miraculous> type, MiraculousData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
+    public boolean perform(AbilityData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
         if (context == Context.INTERACT_BLOCK) {
             applyToBlock(level, pos, data.powerLevel(), 0, null);
             return true;

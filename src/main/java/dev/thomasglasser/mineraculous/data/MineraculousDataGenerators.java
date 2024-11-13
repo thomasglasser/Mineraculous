@@ -16,16 +16,20 @@ import dev.thomasglasser.mineraculous.data.tags.MineraculousDamageTypeTagsProvid
 import dev.thomasglasser.mineraculous.data.tags.MineraculousItemTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousPoiTypeTagsProvider;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
+import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.MineraculousAbilities;
 import dev.thomasglasser.tommylib.api.data.recipes.RecipeProviderRunner;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceKey;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -34,7 +38,22 @@ public class MineraculousDataGenerators {
     public static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
             .add(Registries.DAMAGE_TYPE, MineraculousDamageTypes::bootstrap)
             .add(MineraculousRegistries.ABILITY, MineraculousAbilities::bootstrap)
-            .add(MineraculousRegistries.MIRACULOUS, MineraculousMiraculous::bootstrap);
+            .add(MineraculousRegistries.MIRACULOUS, MineraculousMiraculous::bootstrap)
+            .add(MineraculousRegistries.KAMIKOTIZATION, context -> {
+                // TODO: Remove when testing is done (don't forget to remove the assets)
+                context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, Mineraculous.modLoc("cat")),
+                        new Kamikotization(
+                                "Test",
+                                List.of(),
+                                ItemPredicate.Builder.item().build(),
+                                List.of()));
+                context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, Mineraculous.modLoc("ladybug")),
+                        new Kamikotization(
+                                "Test2",
+                                List.of(),
+                                ItemPredicate.Builder.item().build(),
+                                List.of()));
+            });
 
     public static void onGatherData(GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();

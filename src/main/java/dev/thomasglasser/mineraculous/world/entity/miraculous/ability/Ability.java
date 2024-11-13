@@ -4,13 +4,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousBuiltInRegistries;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.RegistryFixedCodec;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -23,11 +21,11 @@ public interface Ability {
             .dispatch(Ability::codec, Function.identity());
     Codec<Holder<Ability>> CODEC = RegistryFixedCodec.create(MineraculousRegistries.ABILITY);
 
-    boolean perform(ResourceKey<Miraculous> type, MiraculousData data, Level level, BlockPos pos, LivingEntity performer, Context context);
+    boolean perform(AbilityData data, Level level, BlockPos pos, LivingEntity performer, Context context);
 
-    default void transform(ResourceKey<Miraculous> type, MiraculousData data, Level level, BlockPos pos, LivingEntity entity) {}
+    default void transform(AbilityData data, Level level, BlockPos pos, LivingEntity entity) {}
 
-    default void detransform(ResourceKey<Miraculous> type, MiraculousData data, Level level, BlockPos pos, LivingEntity entity) {}
+    default void detransform(AbilityData data, Level level, BlockPos pos, LivingEntity entity) {}
 
     MapCodec<? extends Ability> codec();
 

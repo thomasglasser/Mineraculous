@@ -1,12 +1,15 @@
 package dev.thomasglasser.mineraculous.world.entity.miraculous.ability;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.advancements.critereon.KamikotizationPredicate;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
+import dev.thomasglasser.mineraculous.world.entity.Kamiko;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
@@ -29,6 +32,7 @@ import net.minecraft.world.level.block.Block;
 public class MineraculousAbilities {
     public static final ResourceKey<Ability> KAMIKOTIZATION = register("kamikotization");
     public static final ResourceKey<Ability> KAMIKO_CONTROL = register("kamiko_control");
+    public static final ResourceKey<Ability> KAMIKOTIZED_COMMUNICATION = register("kamikotized_communication");
     public static final ResourceKey<Ability> CATACLYSM = register("cataclysm");
     public static final ResourceKey<Ability> CAT_VISION = register("cat_vision");
     public static final ResourceKey<Ability> MIRACULOUS_LADYBUG = register("miraculous_ladybug");
@@ -52,7 +56,18 @@ public class MineraculousAbilities {
                 Optional.empty(),
                 // TODO: Replace with kamikotization particles
                 List.of(new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get()))));
-        context.register(KAMIKO_CONTROL, new SetCameraEntityAbility(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(entityTypes, MineraculousEntityTypes.KAMIKO.get())).build(), true));
+        context.register(KAMIKO_CONTROL, new SetCameraEntityAbility(
+                EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(entityTypes, MineraculousEntityTypes.KAMIKO.get())).build(),
+                Optional.empty(),
+                Optional.of(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK),
+                true,
+                true));
+        context.register(KAMIKOTIZED_COMMUNICATION, new SetCameraEntityAbility(
+                EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(entityTypes, EntityType.PLAYER)).subPredicate(KamikotizationPredicate.ANY).build(),
+                Optional.of(Kamiko.SPECTATOR_SHADER),
+                Optional.of(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK),
+                false,
+                true));
 
         context.register(CATACLYSM, new ContextAwareAbility(
                 Optional.of(new RandomDirectionalSpreadAbility(

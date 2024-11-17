@@ -2,5 +2,7 @@
   "type": "mineraculous:set_camera_entity",
   "entity": {
     "type": "mineraculous:kamiko"
-  }
+  },
+  "override_active": true,
+  "toggle_tag": "ShowKamikoMask"
 }

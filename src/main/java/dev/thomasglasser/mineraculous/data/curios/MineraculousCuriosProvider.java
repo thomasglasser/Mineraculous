@@ -8,6 +8,10 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import top.theillusivec4.curios.api.CuriosDataProvider;
 
 public class MineraculousCuriosProvider extends CuriosDataProvider {
+    public static final String SLOT_BROOCH = "brooch";
+    public static final String SLOT_RING = "ring";
+    public static final String SLOT_EARRINGS = "earrings";
+
     public MineraculousCuriosProvider(PackOutput output, ExistingFileHelper fileHelper, CompletableFuture<HolderLookup.Provider> registries) {
         super(Mineraculous.MOD_ID, output, fileHelper, registries);
     }
@@ -17,12 +21,13 @@ public class MineraculousCuriosProvider extends CuriosDataProvider {
         createEntities("miraculous_holders")
                 .addPlayer()
                 .addSlots(
-                        "brooch",
-                        "ring",
-                        "earring");
+                        SLOT_BROOCH,
+                        SLOT_RING,
+                        SLOT_EARRINGS);
 
-        // TODO: Icons
-        createSlot("brooch");
-        createSlot("earring");
+        createSlot(SLOT_BROOCH)
+                .icon(Mineraculous.modLoc("slot/empty_brooch_slot"));
+        createSlot(SLOT_EARRINGS)
+                .icon(Mineraculous.modLoc("slot/empty_earrings_slot"));
     }
 }

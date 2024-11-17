@@ -3,7 +3,8 @@
   "active_ability": "mineraculous:kamikotization",
   "color": "#641D9A",
   "passive_abilities": [
-    "mineraculous:kamiko_control"
+    "mineraculous:kamiko_control",
+    "mineraculous:kamikotized_communication"
   ],
   "tool": {
     "count": 1,

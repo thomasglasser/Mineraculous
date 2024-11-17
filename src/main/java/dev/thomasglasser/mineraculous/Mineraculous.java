@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous;
 
 import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
+import dev.thomasglasser.mineraculous.advancements.critereon.MineraculousEntitySubPredicates;
 import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
@@ -70,6 +71,7 @@ public class Mineraculous {
         MineraculousCriteriaTriggers.init();
         MineraculousMobEffects.init();
         MineraculousAbilitySerializers.init();
+        MineraculousEntitySubPredicates.init();
 
         registerConfigs(modContainer);
 

@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.world.entity.miraculous;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.MineraculousAbilities;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
@@ -10,7 +11,6 @@ import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -33,26 +33,27 @@ public class MineraculousMiraculous {
         context.register(BUTTERFLY, new Miraculous(
                 TextColor.fromRgb(0x641d9a),
                 List.of(),
-                "brooch",
+                MineraculousCuriosProvider.SLOT_BROOCH,
                 MineraculousItems.BUTTERFLY_CANE.get().getDefaultInstance(),
                 // TODO: Add kwami hungry sound
                 Optional.empty(),
                 Optional.of(abilities.getOrThrow(MineraculousAbilities.KAMIKOTIZATION)),
-                List.of(abilities.getOrThrow(MineraculousAbilities.KAMIKO_CONTROL))));
+                List.of(
+                        abilities.getOrThrow(MineraculousAbilities.KAMIKO_CONTROL),
+                        abilities.getOrThrow(MineraculousAbilities.KAMIKOTIZED_COMMUNICATION))));
         context.register(CAT, new Miraculous(
                 TextColor.fromRgb(0xc6f800),
                 List.of(),
-                "ring",
+                MineraculousCuriosProvider.SLOT_RING,
                 MineraculousItems.CAT_STAFF.get().getDefaultInstance(),
                 // TODO: Add kwami hungry sound
                 Optional.empty(),
                 Optional.of(abilities.getOrThrow(MineraculousAbilities.CATACLYSM)),
                 List.of(abilities.getOrThrow(MineraculousAbilities.CAT_VISION))));
         context.register(LADYBUG, new Miraculous(
-                // TODO: Custom color
-                TextColor.fromLegacyFormat(ChatFormatting.RED),
+                TextColor.fromRgb(0xdd1731),
                 List.of(),
-                "earring",
+                MineraculousCuriosProvider.SLOT_EARRINGS,
                 MineraculousItems.LADYBUG_YOYO.get().getDefaultInstance(),
                 // TODO: Add kwami hungry sound
                 Optional.empty(),

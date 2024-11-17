@@ -1,10 +1,12 @@
 package dev.thomasglasser.mineraculous.client.gui.screens;
 
+import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
+import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.network.ServerboundCloseKamikotizationChatScreenPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundKamikotizationTransformPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundSetShowKamikoMaskPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundSetToggleTagPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSpawnTamedKamikoPayload;
-import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -35,16 +37,14 @@ public class KamikotizationChatScreen extends ChatScreen {
     private final boolean isButterfly;
     private final Player other;
     private final KamikotizationData kamikotizationData;
-    private final KamikoData kamikoData;
 
     protected Button acceptButton;
 
-    public KamikotizationChatScreen(Player other, KamikotizationData kamikotizationData, KamikoData kamikoData) {
+    public KamikotizationChatScreen(Player other, KamikotizationData kamikotizationData) {
         super("");
         this.isButterfly = false;
         this.other = other;
         this.kamikotizationData = kamikotizationData;
-        this.kamikoData = kamikoData;
     }
 
     public KamikotizationChatScreen(String targetName, String butterflyName, Player other) {
@@ -52,7 +52,6 @@ public class KamikotizationChatScreen extends ChatScreen {
         this.isButterfly = true;
         this.other = other;
         this.kamikotizationData = null;
-        this.kamikoData = null;
     }
 
     @Override
@@ -104,6 +103,10 @@ public class KamikotizationChatScreen extends ChatScreen {
             return true;
         } else if (keyCode == GLFW.GLFW_KEY_PAGE_DOWN) {
             this.minecraft.gui.getChat().scrollChat(-this.minecraft.gui.getChat().getLinesPerPage() + 1);
+            return true;
+        } else if (keyCode == MineraculousKeyMappings.ACTIVATE_POWER.getKey().getValue()) {
+            onClose(true);
+            MineraculousClientUtils.setCameraEntity(null);
             return true;
         } else {
             FocusNavigationEvent focusnavigationevent = switch (keyCode) {
@@ -236,13 +239,13 @@ public class KamikotizationChatScreen extends ChatScreen {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(ClientUtils.getMainClientPlayer().getUUID(), other.blockPosition().above()));
                 TommyLibServices.NETWORK.sendToServer(new ServerboundCloseKamikotizationChatScreenPayload(other.getUUID()));
             }
-            TommyLibServices.NETWORK.sendToServer(new ServerboundSetShowKamikoMaskPayload(false));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
         } else {
             if (!this.isButterfly) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(kamikotizationData, kamikoData, true));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(kamikotizationData, true));
             }
             TommyLibServices.NETWORK.sendToServer(new ServerboundCloseKamikotizationChatScreenPayload(other.getUUID()));
-            TommyLibServices.NETWORK.sendToServer(new ServerboundSetShowKamikoMaskPayload(false));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
         }
     }
 }

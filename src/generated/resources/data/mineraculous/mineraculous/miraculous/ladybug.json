@@ -1,6 +1,6 @@
 {
-  "acceptable_slot": "earring",
-  "color": "red",
+  "acceptable_slot": "earrings",
+  "color": "#DD1731",
   "passive_abilities": [],
   "tool": {
     "count": 1,

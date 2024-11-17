@@ -26,7 +26,8 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
     @Override
     protected void registerModels() {
         List<String> symboledMiraculous = Stream.of(
-                MineraculousMiraculous.CAT).map(key -> key.location().getPath()).toList();
+                MineraculousMiraculous.CAT,
+                MineraculousMiraculous.LADYBUG).map(key -> key.location().getPath()).toList();
         for (String key : symboledMiraculous) {
             if (existingFileHelper.exists(Mineraculous.modLoc("models/item/miraculous/" + key + "/base.json"), PackType.CLIENT_RESOURCES)) {
                 ResourceLocation base = Mineraculous.modLoc("item/miraculous/" + key + "/base");
@@ -45,13 +46,6 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 withExistingParent("item/miraculous/" + key + "/armor/boots", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + key + "/armor/boots"));
             }
         }
-
-        // TODO: Remove when ladybug miraculous is added
-        String ladybugKey = "ladybug";
-        withExistingParent("item/miraculous/" + ladybugKey + "/armor/mask", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/armor/mask"));
-        withExistingParent("item/miraculous/" + ladybugKey + "/armor/chestplate", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/armor/chestplate"));
-        withExistingParent("item/miraculous/" + ladybugKey + "/armor/leggings", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/armor/leggings"));
-        withExistingParent("item/miraculous/" + ladybugKey + "/armor/boots", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/armor/boots"));
 
         String butterflyKey = "butterfly";
         ResourceLocation butterflyBase = Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/base");

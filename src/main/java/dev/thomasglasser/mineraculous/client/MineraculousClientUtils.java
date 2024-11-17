@@ -78,12 +78,16 @@ public class MineraculousClientUtils {
         return Minecraft.getInstance().cameraEntity;
     }
 
+    public static boolean isCameraEntityOther() {
+        return Minecraft.getInstance().cameraEntity != Minecraft.getInstance().player;
+    }
+
     public static void openKamikotizationSelectionScreen(Player target, KamikoData kamikoData) {
         ClientUtils.setScreen(new KamikotizationSelectionScreen(Component.translatable(KamikotizationSelectionScreen.TITLE), target, kamikoData));
     }
 
-    public static void openKamikotizationChatScreen(Player other, KamikotizationData kamikotizationData, KamikoData kamikoData) {
-        ClientUtils.setScreen(new KamikotizationChatScreen(other, kamikotizationData, kamikoData));
+    public static void openKamikotizationChatScreen(Player other, KamikotizationData kamikotizationData) {
+        ClientUtils.setScreen(new KamikotizationChatScreen(other, kamikotizationData));
     }
 
     public static void openKamikotizationChatScreen(String targetName, String performerName, Player target) {
@@ -91,7 +95,8 @@ public class MineraculousClientUtils {
     }
 
     public static void closeKamikotizationChatScreen() {
-        ((KamikotizationChatScreen) Minecraft.getInstance().screen).onClose(false);
+        if (Minecraft.getInstance().screen instanceof KamikotizationChatScreen screen)
+            screen.onClose(false);
     }
 
     public static void init() {}

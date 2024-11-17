@@ -1,12 +1,14 @@
 package dev.thomasglasser.mineraculous.data.lang;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.categories.TargetPlayerMenuCategory;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationSelectionScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalInventoryScreen;
+import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
@@ -148,14 +150,16 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(KamikotizationChatScreen.INTRO_NAMELESS, "%s.");
         add(KamikotizationChatScreen.ACCEPT, "Accept Kamikotization");
 
+        add(MineraculousClientEvents.REVOKE, "Revoke Kamikotization");
+
         addAttackWithPlayer(MineraculousDamageTypes.CATACLYSM, "%1$s crumbled to dust", "while fighting %2$s");
 
         add(MineraculousMobEffects.CATACLYSMED.get(), "Cataclysmed");
 
         Arrays.stream(CatStaffItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), WordUtils.capitalize(ability.name().toLowerCase())));
 
-        addCuriosSlot("brooch");
-        addCuriosSlot("earring");
+        addCuriosSlot(MineraculousCuriosProvider.SLOT_BROOCH);
+        addCuriosSlot(MineraculousCuriosProvider.SLOT_EARRINGS);
     }
 
     private void addConfigs() {

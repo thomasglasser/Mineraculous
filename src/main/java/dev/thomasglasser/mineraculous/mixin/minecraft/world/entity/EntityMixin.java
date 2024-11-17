@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.mixin.minecraft.world.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
@@ -17,7 +16,7 @@ public abstract class EntityMixin {
 
     @ModifyReturnValue(method = "getName", at = @At("RETURN"))
     private Component getName(Component original) {
-        if (mineraculous$INSTANCE instanceof LivingEntity livingEntity && livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).isTransformed()) {
+        if (mineraculous$INSTANCE instanceof LivingEntity livingEntity) {
             return MineraculousEntityEvents.formatDisplayName(livingEntity, Entity.removeAction(original.copy().withStyle(style -> style.withHoverEvent(null))));
         }
 

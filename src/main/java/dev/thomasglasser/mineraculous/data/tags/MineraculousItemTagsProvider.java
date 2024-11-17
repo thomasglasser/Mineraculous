@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.data.tags;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
@@ -91,9 +92,9 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
                 .add(Items.TOTEM_OF_UNDYING);
 
         curios(MineraculousItems.MIRACULOUS.get(),
-                "brooch",
-                "ring",
-                "earring");
+                MineraculousCuriosProvider.SLOT_BROOCH,
+                MineraculousCuriosProvider.SLOT_RING,
+                MineraculousCuriosProvider.SLOT_EARRINGS);
     }
 
     protected void curios(String slot, Item... items) {

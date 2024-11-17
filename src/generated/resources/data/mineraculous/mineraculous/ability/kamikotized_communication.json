@@ -1,0 +1,13 @@
+{
+  "type": "mineraculous:set_camera_entity",
+  "entity": {
+    "type": "minecraft:player",
+    "type_specific": {
+      "type": "mineraculous:kamikotization"
+    }
+  },
+  "must_be_tamed": false,
+  "override_active": true,
+  "shader": "mineraculous:kamiko",
+  "toggle_tag": "ShowKamikoMask"
+}

@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.mixin.minecraft.world.entity.player;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -18,15 +17,11 @@ public class PlayerMixin {
 
     @ModifyReturnValue(method = "getName", at = @At("RETURN"))
     private Component getName(Component original) {
-        if (mineraculous$INSTANCE.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed())
-            return MineraculousEntityEvents.formatDisplayName(mineraculous$INSTANCE, Entity.removeAction(original.copy().withStyle(style -> style.withHoverEvent(null))));
-        return original;
+        return MineraculousEntityEvents.formatDisplayName(mineraculous$INSTANCE, Entity.removeAction(original.copy().withStyle(style -> style.withHoverEvent(null))));
     }
 
     @ModifyReturnValue(method = "decorateDisplayNameComponent", at = @At(value = "RETURN"))
     private MutableComponent decorateDisplayNameComponent(MutableComponent original) {
-        if (mineraculous$INSTANCE.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed())
-            return MineraculousEntityEvents.formatDisplayName(mineraculous$INSTANCE, Entity.removeAction(original.withStyle(style -> style.withHoverEvent(null)))).copy();
-        return original;
+        return MineraculousEntityEvents.formatDisplayName(mineraculous$INSTANCE, Entity.removeAction(original.withStyle(style -> style.withHoverEvent(null)))).copy();
     }
 }

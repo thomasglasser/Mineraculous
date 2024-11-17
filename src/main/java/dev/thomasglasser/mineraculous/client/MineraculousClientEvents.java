@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.client;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.client.gui.components.kamiko.KamikoGui;
-import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.client.model.KamikoMaskModel;
@@ -15,6 +14,9 @@ import dev.thomasglasser.mineraculous.client.renderer.entity.layers.KamikoMaskLa
 import dev.thomasglasser.mineraculous.client.renderer.item.MineraculousItemProperties;
 import dev.thomasglasser.mineraculous.client.renderer.item.curio.MiraculousRenderer;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
+import dev.thomasglasser.mineraculous.network.ServerboundKamikotizationTransformPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundSetToggleTagPayload;
+import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
@@ -24,10 +26,12 @@ import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
@@ -35,10 +39,12 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
@@ -54,6 +60,8 @@ import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 public class MineraculousClientEvents {
+    public static final String REVOKE = "gui.mineraculous.revoke";
+
     private static KamikoGui kamikoGui;
 
     public static void onFMLClientSetup(FMLClientSetupEvent event) {
@@ -94,6 +102,7 @@ public class MineraculousClientEvents {
         kamikoGui = new KamikoGui(Minecraft.getInstance());
         event.registerAboveAll(Mineraculous.modLoc("kamiko_hotbar"), ((guiGraphics, deltaTracker) -> kamikoGui.renderHotbar(guiGraphics)));
         event.registerAboveAll(Mineraculous.modLoc("kamiko_tooltip"), ((guiGraphics, deltaTracker) -> kamikoGui.renderTooltip(guiGraphics)));
+        event.registerAboveAll(Mineraculous.modLoc("revoke_button"), MineraculousClientEvents::renderRevokeButton);
     }
 
     private static void renderStealingProgressBar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
@@ -105,6 +114,33 @@ public class MineraculousClientEvents {
             int y = (guiGraphics.guiHeight() + 12) / 2;
             guiGraphics.fill(RenderType.guiOverlay(), x, y, x + 20, y + 5, -16777216);
             guiGraphics.fill(RenderType.guiOverlay(), x, y, (int) (x + (width / 5.0)), y + 5, 0xFFFFFFF | -16777216);
+        }
+    }
+
+    private static Button revokeButton;
+
+    private static void renderRevokeButton(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+        if (revokeButton == null) {
+            revokeButton = Button.builder(Component.translatable(REVOKE), button -> {
+                Player target = (Player) MineraculousClientUtils.getCameraEntity();
+                if (target != null) {
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(Optional.of(target.getUUID()), target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION), false));
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
+                }
+                MineraculousClientUtils.setCameraEntity(ClientUtils.getMainClientPlayer());
+            })
+                    .bounds(Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 - 100, Minecraft.getInstance().getWindow().getGuiScaledHeight() - 40, 200, 20)
+                    .build();
+        }
+
+        if (MineraculousClientUtils.getCameraEntity() instanceof Player player && player != ClientUtils.getMainClientPlayer() && !ClientUtils.getMainClientPlayer().isSpectator()) {
+            int mouseX = (int) (Minecraft.getInstance().mouseHandler.xpos()
+                    * (double) Minecraft.getInstance().getWindow().getGuiScaledWidth()
+                    / (double) Minecraft.getInstance().getWindow().getScreenWidth());
+            int mouseY = (int) (Minecraft.getInstance().mouseHandler.ypos()
+                    * (double) Minecraft.getInstance().getWindow().getGuiScaledHeight()
+                    / (double) Minecraft.getInstance().getWindow().getScreenHeight());
+            revokeButton.render(guiGraphics, mouseX, mouseY, 0);
         }
     }
 
@@ -160,6 +196,15 @@ public class MineraculousClientEvents {
         if (canControlKamiko() && event.getButton() == 2) {
             kamikoGui.onMouseMiddleClick();
         }
+        if (revokeButton != null && revokeButton.visible) {
+            int mouseX = (int) (Minecraft.getInstance().mouseHandler.xpos()
+                    * (double) Minecraft.getInstance().getWindow().getGuiScaledWidth()
+                    / (double) Minecraft.getInstance().getWindow().getScreenWidth());
+            int mouseY = (int) (Minecraft.getInstance().mouseHandler.ypos()
+                    * (double) Minecraft.getInstance().getWindow().getGuiScaledHeight()
+                    / (double) Minecraft.getInstance().getWindow().getScreenHeight());
+            revokeButton.mouseClicked(mouseX, mouseY, event.getButton());
+        }
     }
 
     private static boolean canControlKamiko() {
@@ -173,14 +218,14 @@ public class MineraculousClientEvents {
 
     public static void onClientChatReceived(ClientChatReceivedEvent event) {
         if (Minecraft.getInstance().level != null && Minecraft.getInstance().player != null) {
-            boolean playerInChatWindow = TommyLibServices.ENTITY.getPersistentData(Minecraft.getInstance().player).getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK) && Minecraft.getInstance().screen instanceof KamikotizationChatScreen;
+            boolean onlyButterflyChat = TommyLibServices.ENTITY.getPersistentData(Minecraft.getInstance().player).getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK);
             if (event.isSystem()) {
-                if (playerInChatWindow) {
+                if (onlyButterflyChat) {
                     event.setCanceled(true);
                 }
             } else {
                 boolean senderHasKamikoMask = TommyLibServices.ENTITY.getPersistentData(Minecraft.getInstance().level.getPlayerByUUID(event.getSender())).getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK);
-                if ((playerInChatWindow && !senderHasKamikoMask) || (senderHasKamikoMask && !playerInChatWindow)) {
+                if ((onlyButterflyChat && !senderHasKamikoMask) || (senderHasKamikoMask && !onlyButterflyChat)) {
                     event.setCanceled(true);
                 }
             }

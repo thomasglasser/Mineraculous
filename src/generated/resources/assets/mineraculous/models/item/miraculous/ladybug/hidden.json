@@ -1,0 +1,7 @@
+{
+  "parent": "mineraculous:item/miraculous/ladybug/base",
+  "textures": {
+    "base": "mineraculous:item/miraculous/ladybug/hidden",
+    "symbol": "mineraculous:item/empty"
+  }
+}

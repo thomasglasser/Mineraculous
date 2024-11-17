@@ -28,7 +28,6 @@ import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmorMaterial
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.crafting.MineraculousRecipeSerializers;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.world.level.storage.loot.modifier.MineraculousLootModifiers;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
@@ -64,7 +63,6 @@ public class Mineraculous {
         MineraculousDataComponents.init();
         MineraculousRecipeSerializers.init();
         MineraculousAttachmentTypes.init();
-        MineraculousLootModifiers.init();
         MineraculousEntityDataSerializers.init();
         MineraculousPoiTypes.init();
         MineraculousVillagerProfessions.init();
@@ -79,7 +77,10 @@ public class Mineraculous {
 
         bus.addListener(MineraculousDataGenerators::onGatherData);
 
-        addModListeners(bus);
+        bus.addListener(MineraculousEntityEvents::onEntityAttributeCreation);
+        bus.addListener(MineraculousCoreEvents::onRegisterPackets);
+        bus.addListener(MineraculousCoreEvents::onNewDataPackRegistry);
+        bus.addListener(MineraculousCoreEvents::onNewRegistry);
 
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingDeath);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityInteract);
@@ -95,6 +96,7 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onRegisterVillagerTrades);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityJoinLevel);
+        NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onLoadLootTable);
 
         if (TommyLibServices.PLATFORM.isClientSide()) {
             bus.addListener(MineraculousClientEvents::onRegisterAdditionalModels);
@@ -114,13 +116,6 @@ public class Mineraculous {
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientTick);
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientChatReceived);
         }
-    }
-
-    private void addModListeners(IEventBus bus) {
-        bus.addListener(MineraculousEntityEvents::onEntityAttributeCreation);
-        bus.addListener(MineraculousCoreEvents::onRegisterPackets);
-        bus.addListener(MineraculousCoreEvents::onNewDataPackRegistry);
-        bus.addListener(MineraculousCoreEvents::onNewRegistry);
     }
 
     private static void registerConfigs(ModContainer modContainer) {

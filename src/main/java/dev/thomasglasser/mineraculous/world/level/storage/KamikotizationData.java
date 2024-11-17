@@ -10,6 +10,7 @@ import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.Optional;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -17,23 +18,23 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
-public record KamikotizationData(ResourceKey<Kamikotization> kamikotization, ItemStack kamikotizedStack, Either<Integer, CuriosData> slotInfo, KamikoData kamikoData, String name) {
+public record KamikotizationData(Optional<ResourceKey<Kamikotization>> kamikotization, ItemStack kamikotizedStack, Either<Integer, CuriosData> slotInfo, KamikoData kamikoData, String name) {
 
     public static final Codec<KamikotizationData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ResourceKey.codec(MineraculousRegistries.KAMIKOTIZATION).fieldOf("kamikotization").forGetter(KamikotizationData::kamikotization),
+            ResourceKey.codec(MineraculousRegistries.KAMIKOTIZATION).optionalFieldOf("kamikotization").forGetter(KamikotizationData::kamikotization),
             ItemStack.OPTIONAL_CODEC.fieldOf("kamikotized_stack").forGetter(KamikotizationData::kamikotizedStack),
             Codec.either(Codec.INT, CuriosData.CODEC).fieldOf("slot_info").forGetter(KamikotizationData::slotInfo),
             KamikoData.CODEC.fieldOf("kamiko_data").forGetter(KamikotizationData::kamikoData),
             Codec.STRING.optionalFieldOf("name", "").forGetter(KamikotizationData::name)).apply(instance, KamikotizationData::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, KamikotizationData> STREAM_CODEC = StreamCodec.composite(
-            ResourceKey.streamCodec(MineraculousRegistries.KAMIKOTIZATION), KamikotizationData::kamikotization,
+            ByteBufCodecs.optional(ResourceKey.streamCodec(MineraculousRegistries.KAMIKOTIZATION)), KamikotizationData::kamikotization,
             ItemStack.OPTIONAL_STREAM_CODEC, KamikotizationData::kamikotizedStack,
             ByteBufCodecs.either(ByteBufCodecs.INT, CuriosData.STREAM_CODEC), KamikotizationData::slotInfo,
             KamikoData.STREAM_CODEC, KamikotizationData::kamikoData,
             ByteBufCodecs.STRING_UTF8, KamikotizationData::name,
             KamikotizationData::new);
     public KamikotizationData() {
-        this(null, ItemStack.EMPTY, Either.left(-1), new KamikoData(), "");
+        this(Optional.empty(), ItemStack.EMPTY, Either.left(-1), new KamikoData(), "");
     }
 
     public void save(LivingEntity entity, boolean syncToClient) {

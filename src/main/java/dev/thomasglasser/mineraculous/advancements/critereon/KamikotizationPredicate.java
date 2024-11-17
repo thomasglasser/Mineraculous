@@ -33,7 +33,7 @@ public record KamikotizationPredicate(HolderSet<Kamikotization> kamikotizations)
                 return true;
             } else {
                 KamikotizationData data = livingEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
-                return kamikotizations.contains(serverLevel.registryAccess().holderOrThrow(data.kamikotization()));
+                return data.kamikotization().isPresent() && kamikotizations.contains(serverLevel.registryAccess().holderOrThrow(data.kamikotization().get()));
             }
         }
         return false;

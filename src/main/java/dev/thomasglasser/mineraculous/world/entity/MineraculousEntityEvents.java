@@ -469,13 +469,13 @@ public class MineraculousEntityEvents {
                     ItemStack stack = MineraculousArmors.KAMIKOTIZATION.getForSlot(slot).get().getDefaultInstance();
                     stack.enchant(serverLevel.holderOrThrow(Enchantments.BINDING_CURSE), 1);
                     stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
-                    stack.set(MineraculousDataComponents.KAMIKOTIZATION, data.kamikotization());
+                    stack.set(MineraculousDataComponents.KAMIKOTIZATION, data.kamikotization().orElseThrow());
                     player.setItemSlot(slot, stack);
                 }
 
                 kamikotizationStack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
                 kamikotizationStack.set(MineraculousDataComponents.KAMIKO_DATA.get(), data.kamikoData());
-                kamikotizationStack.set(MineraculousDataComponents.KAMIKOTIZATION, data.kamikotization());
+                kamikotizationStack.set(MineraculousDataComponents.KAMIKOTIZATION, data.kamikotization().orElseThrow());
 
                 data = new KamikotizationData(data.kamikotization(), kamikotizationStack, data.slotInfo(), data.kamikoData(), data.name());
                 data.save(player, true);
@@ -486,7 +486,7 @@ public class MineraculousEntityEvents {
                 }
                 MIRACULOUS_EFFECTS.forEach(effect -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, 0)));
                 KamikotizationData finalData = data;
-                serverLevel.holderOrThrow(data.kamikotization()).value().abilities().forEach(ability -> ability.value().transform(new AbilityData(0, Either.right(finalData.kamikotization())), serverLevel, player.blockPosition(), player));
+                serverLevel.holderOrThrow(data.kamikotization().orElseThrow()).value().abilities().forEach(ability -> ability.value().transform(new AbilityData(0, Either.right(finalData.kamikotization().orElseThrow())), serverLevel, player.blockPosition(), player));
             } else {
                 // De-transform
                 Kamiko kamiko = summonKamiko(player.level(), data, player);
@@ -506,7 +506,7 @@ public class MineraculousEntityEvents {
                 player.removeData(MineraculousAttachmentTypes.KAMIKOTIZATION.get());
                 MIRACULOUS_EFFECTS.forEach(player::removeEffect);
                 KamikotizationData finalData1 = data;
-                serverLevel.holderOrThrow(data.kamikotization()).value().abilities().forEach(ability -> ability.value().detransform(new AbilityData(0, Either.right(finalData1.kamikotization())), serverLevel, player.blockPosition(), player));
+                serverLevel.holderOrThrow(data.kamikotization().orElseThrow()).value().abilities().forEach(ability -> ability.value().detransform(new AbilityData(0, Either.right(finalData1.kamikotization().orElseThrow())), serverLevel, player.blockPosition(), player));
                 ArmorData armor = player.getData(MineraculousAttachmentTypes.STORED_ARMOR);
                 for (EquipmentSlot slot : Arrays.stream(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR).toArray(EquipmentSlot[]::new)) {
                     player.setItemSlot(slot, armor.forSlot(slot));
@@ -515,6 +515,9 @@ public class MineraculousEntityEvents {
                     KamikotizedMiraculousData kamikotizedMiraculousData = player.getData(MineraculousAttachmentTypes.KAMIKOTIZED_MIRACULOUS);
                     handleMiraculousTransformation(player, kamikotizedMiraculousData.miraculous(), kamikotizedMiraculousData.data(), true);
                 }
+                CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
+                entityData.putBoolean(TAG_SHOW_KAMIKO_MASK, false);
+                TommyLibServices.ENTITY.setPersistentData(player, entityData, true);
             }
         }
     }

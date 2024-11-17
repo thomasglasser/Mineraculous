@@ -220,7 +220,7 @@ public class MineraculousClientEvents {
         if (Minecraft.getInstance().level != null && Minecraft.getInstance().player != null) {
             boolean onlyButterflyChat = TommyLibServices.ENTITY.getPersistentData(Minecraft.getInstance().player).getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK);
             if (event.isSystem()) {
-                if (onlyButterflyChat) {
+                if (onlyButterflyChat && !(event instanceof ClientChatReceivedEvent.System system && system.isOverlay())) {
                     event.setCanceled(true);
                 }
             } else {

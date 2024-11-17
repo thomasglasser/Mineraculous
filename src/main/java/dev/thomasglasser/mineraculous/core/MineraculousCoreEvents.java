@@ -7,7 +7,14 @@ import dev.thomasglasser.mineraculous.network.MineraculousPayloads;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
+import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.network.NeoForgeNetworkUtils;
+import java.util.ArrayList;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
@@ -27,5 +34,16 @@ public class MineraculousCoreEvents {
 
     public static void onNewRegistry(NewRegistryEvent event) {
         event.register(MineraculousBuiltInRegistries.ABILITY_SERIALIZER);
+    }
+
+    public static void onLoadLootTable(LootTableLoadEvent event) {
+        if (event.getName().equals(BuiltInLootTables.SNIFFER_DIGGING.location())) {
+            LootPool main = event.getTable().getPool("main");
+            if (main != null) {
+                ArrayList<LootPoolEntryContainer> entries = new ArrayList<>(main.entries);
+                entries.add(LootItem.lootTableItem(MineraculousBlocks.HIBISCUS_BUSH.asItem()).build());
+                main.entries = entries;
+            }
+        }
     }
 }

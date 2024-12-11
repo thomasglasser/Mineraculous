@@ -3,8 +3,12 @@
   "category": "misc",
   "group": "waxed_aged_cheese_block",
   "ingredients": [
-    "mineraculous:aged_cheese_block",
-    "minecraft:honeycomb"
+    {
+      "item": "mineraculous:aged_cheese_block"
+    },
+    {
+      "item": "minecraft:honeycomb"
+    }
   ],
   "result": {
     "count": 1,

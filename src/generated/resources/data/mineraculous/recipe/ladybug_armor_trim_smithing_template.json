@@ -2,9 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": "minecraft:diamond",
-    "C": "minecraft:red_concrete",
-    "S": "mineraculous:ladybug_armor_trim_smithing_template"
+    "#": {
+      "item": "minecraft:diamond"
+    },
+    "C": {
+      "item": "minecraft:red_concrete"
+    },
+    "S": {
+      "item": "mineraculous:ladybug_armor_trim_smithing_template"
+    }
   },
   "pattern": [
     "#S#",

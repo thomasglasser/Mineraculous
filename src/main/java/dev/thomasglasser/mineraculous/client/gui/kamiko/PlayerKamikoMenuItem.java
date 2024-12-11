@@ -11,7 +11,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.player.Player;
 
 public class PlayerKamikoMenuItem implements KamikoMenuItem {
@@ -41,7 +40,7 @@ public class PlayerKamikoMenuItem implements KamikoMenuItem {
 
     @Override
     public void renderIcon(GuiGraphics p_282282_, float p_282686_, float p_361678_) {
-        PlayerFaceRenderer.draw(p_282282_, this.skin.get(), 2, 2, 12, ARGB.white(p_361678_));
+        PlayerFaceRenderer.draw(p_282282_, this.skin.get(), 2, 2, 12);
     }
 
     @Override

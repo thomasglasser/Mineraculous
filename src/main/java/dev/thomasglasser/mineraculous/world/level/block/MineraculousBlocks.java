@@ -13,13 +13,13 @@ import dev.thomasglasser.tommylib.api.world.level.block.BlockUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import java.util.List;
 import java.util.SortedMap;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemNameBlockItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -29,11 +29,11 @@ import net.minecraft.world.level.material.PushReaction;
 public class MineraculousBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Mineraculous.MOD_ID);
 
-    public static final DeferredBlock<CataclysmBlock> CATACLYSM_BLOCK = registerWithItem("cataclysm_block", CataclysmBlock::new, () -> Block.Properties.of().noCollission(), List.of(CreativeModeTabs.NATURAL_BLOCKS));
+    public static final DeferredBlock<CataclysmBlock> CATACLYSM_BLOCK = registerWithItem("cataclysm_block", () -> new CataclysmBlock(Block.Properties.of().noCollission()), List.of(CreativeModeTabs.NATURAL_BLOCKS));
 
-    public static final DeferredBlock<Block> CHEESE_POT = registerWithItem("cheese_pot", Block::new, () -> BlockBehaviour.Properties.of().strength(0.5f).noOcclusion().sound(SoundType.METAL).mapColor(MapColor.GOLD), List.of(CreativeModeTabs.FUNCTIONAL_BLOCKS));
+    public static final DeferredBlock<Block> CHEESE_POT = registerWithItem("cheese_pot", () -> new Block(BlockBehaviour.Properties.of().strength(0.5f).noOcclusion().sound(SoundType.METAL).mapColor(MapColor.GOLD)), List.of(CreativeModeTabs.FUNCTIONAL_BLOCKS));
 
-    public static final DeferredBlock<HibiscusBushBlock> HIBISCUS_BUSH = registerWithSeparatelyNamedItem("hibiscus_bush", "hibiscus", HibiscusBushBlock::new, () -> BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).randomTicks().noCollission().sound(SoundType.SWEET_BERRY_BUSH).pushReaction(PushReaction.DESTROY), List.of(CreativeModeTabs.NATURAL_BLOCKS));
+    public static final DeferredBlock<HibiscusBushBlock> HIBISCUS_BUSH = registerWithSeparatelyNamedItem("hibiscus_bush", "hibiscus", () -> new HibiscusBushBlock(BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).randomTicks().noCollission().sound(SoundType.SWEET_BERRY_BUSH).pushReaction(PushReaction.DESTROY)), List.of(CreativeModeTabs.NATURAL_BLOCKS));
 
     // Cheese
     public static final SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> CHEESE_BLOCKS = cheese("cheese", MineraculousFoods.CHEESE, MineraculousItems.CHEESE_WEDGES);
@@ -53,28 +53,28 @@ public class MineraculousBlocks {
     private static SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> cheese(String name, FoodProperties foodProperties, SortedMap<CheeseBlock.Age, DeferredItem<?>> wedgeMap) {
         SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> cheese = new Object2ObjectLinkedOpenHashMap<>(CheeseBlock.Age.values().length);
         for (CheeseBlock.Age age : CheeseBlock.Age.values())
-            cheese.put(age, registerWithItem(age.getSerializedName() + "_" + name + "_block", properties -> new CheeseBlock(age, false, cheese.get(age.getNext()), WAXABLES.get().get(cheese.get(age)), null, wedgeMap.get(age), foodProperties, properties), () -> BlockBehaviour.Properties.of().strength(0.5f).forceSolidOn().sound(SoundType.SPONGE).mapColor(MapColor.GOLD).randomTicks(), List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
+            cheese.put(age, registerWithItem(age.getSerializedName() + "_" + name + "_block", () -> new CheeseBlock(age, false, cheese.get(age.getNext()), WAXABLES.get().get(cheese.get(age)), null, wedgeMap.get(age), foodProperties, BlockBehaviour.Properties.of().strength(0.5f).forceSolidOn().sound(SoundType.SPONGE).mapColor(MapColor.GOLD).randomTicks()), List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
         return cheese;
     }
 
     private static SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxed(String name) {
         SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> cheese = new Object2ObjectLinkedOpenHashMap<>(CheeseBlock.Age.values().length);
         for (CheeseBlock.Age age : CheeseBlock.Age.values())
-            cheese.put(age, registerWithItem("waxed_" + age.getSerializedName() + "_" + name + "_block", properties -> new CheeseBlock(age, true, cheese.get(age.getNext()), null, UNWAXABLES.get().get(cheese.get(age)), null, null, properties), () -> BlockBehaviour.Properties.of().strength(1f).forceSolidOn().sound(SoundType.SPONGE).mapColor(MapColor.GOLD).randomTicks(), List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
+            cheese.put(age, registerWithItem("waxed_" + age.getSerializedName() + "_" + name + "_block", () -> new CheeseBlock(age, true, cheese.get(age.getNext()), null, UNWAXABLES.get().get(cheese.get(age)), null, null, BlockBehaviour.Properties.of().strength(1f).forceSolidOn().sound(SoundType.SPONGE).mapColor(MapColor.GOLD).randomTicks()), List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
         return cheese;
     }
 
-    private static <T extends Block> DeferredBlock<T> register(String name, Function<BlockBehaviour.Properties, T> block, Supplier<BlockBehaviour.Properties> properties) {
-        return BlockUtils.register(BLOCKS, name, block, properties);
+    private static <T extends Block> DeferredBlock<T> register(String name, Supplier<T> block) {
+        return BlockUtils.register(BLOCKS, name, block);
     }
 
-    private static <T extends Block> DeferredBlock<T> registerWithItem(String name, Function<BlockBehaviour.Properties, T> block, Supplier<BlockBehaviour.Properties> properties, List<ResourceKey<CreativeModeTab>> tabs) {
-        return BlockUtils.registerBlockAndItemAndWrap(BLOCKS, name, block, properties, MineraculousItems::registerBlock, tabs);
+    private static <T extends Block> DeferredBlock<T> registerWithItem(String name, Supplier<T> block, List<ResourceKey<CreativeModeTab>> tabs) {
+        return BlockUtils.registerBlockAndItemAndWrap(BLOCKS, name, block, MineraculousItems::register, tabs);
     }
 
-    private static <T extends Block> DeferredBlock<T> registerWithSeparatelyNamedItem(String blockName, String itemName, Function<BlockBehaviour.Properties, T> block, Supplier<BlockBehaviour.Properties> properties, List<ResourceKey<CreativeModeTab>> tabs) {
-        DeferredBlock<T> deferredBlock = register(blockName, block, properties);
-        MineraculousItems.register(itemName, idProps -> new BlockItem(deferredBlock.get(), idProps.useItemDescriptionPrefix()), tabs);
+    private static <T extends Block> DeferredBlock<T> registerWithSeparatelyNamedItem(String blockName, String itemName, Supplier<T> block, List<ResourceKey<CreativeModeTab>> tabs) {
+        DeferredBlock<T> deferredBlock = register(blockName, block);
+        MineraculousItems.register(itemName, () -> new ItemNameBlockItem(deferredBlock.get(), new Item.Properties()), tabs);
         return deferredBlock;
     }
 

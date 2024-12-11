@@ -88,8 +88,8 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     }
 
     @Override
-    protected void customServerAiStep(ServerLevel p_376725_) {
-        super.customServerAiStep(p_376725_);
+    protected void customServerAiStep() {
+        super.customServerAiStep();
         tickBrain(this);
     }
 
@@ -102,10 +102,10 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     }
 
     @Override
-    public boolean isInvulnerableTo(ServerLevel level, DamageSource source) {
+    public boolean isInvulnerableTo(DamageSource source) {
         if (isPowered())
             return !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY);
-        return source.is(DamageTypes.IN_WALL) || super.isInvulnerableTo(level, source);
+        return source.is(DamageTypes.IN_WALL) || super.isInvulnerableTo(source);
     }
 
     @Override

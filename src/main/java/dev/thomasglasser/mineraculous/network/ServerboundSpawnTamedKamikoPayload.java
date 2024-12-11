@@ -11,7 +11,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 
 public record ServerboundSpawnTamedKamikoPayload(UUID ownerId, BlockPos spawnPos) implements ExtendedPacketPayload {
@@ -24,7 +24,7 @@ public record ServerboundSpawnTamedKamikoPayload(UUID ownerId, BlockPos spawnPos
     // ON SERVER
     @Override
     public void handle(Player player) {
-        Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().spawn((ServerLevel) player.level(), spawnPos, EntitySpawnReason.CONVERSION);
+        Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().spawn((ServerLevel) player.level(), spawnPos, MobSpawnType.CONVERSION);
         if (kamiko != null)
             kamiko.setOwnerUUID(ownerId);
     }

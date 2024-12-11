@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.client;
 
-import com.google.common.reflect.TypeToken;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.client.gui.components.kamiko.KamikoGui;
@@ -13,6 +12,7 @@ import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownCatStaffRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.KamikoMaskLayer;
 import dev.thomasglasser.mineraculous.client.renderer.item.MineraculousItemProperties;
+import dev.thomasglasser.mineraculous.client.renderer.item.curio.MiraculousRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.network.ServerboundKamikotizationTransformPayload;
@@ -22,8 +22,8 @@ import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Arrays;
@@ -37,9 +37,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.nbt.CompoundTag;
@@ -48,8 +46,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.ARGB;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -62,10 +59,11 @@ import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterEntitySpectatorShadersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
-import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
+import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 public class MineraculousClientEvents {
     public static final String REVOKE = "gui.mineraculous.revoke";
@@ -73,8 +71,7 @@ public class MineraculousClientEvents {
     private static KamikoGui kamikoGui;
 
     public static void onFMLClientSetup(FMLClientSetupEvent event) {
-        // TODO: Update curios
-//        CuriosRendererRegistry.register(MineraculousItems.MIRACULOUS.get(), MiraculousRenderer::new);
+        CuriosRendererRegistry.register(MineraculousItems.MIRACULOUS.get(), MiraculousRenderer::new);
 
         MineraculousItemProperties.init();
     }
@@ -245,19 +242,13 @@ public class MineraculousClientEvents {
         event.register((stack, index) -> {
             ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
             if (miraculous != null) {
-                return ARGB.opaque(Minecraft.getInstance().level.registryAccess().holderOrThrow(miraculous).value().color().getValue());
+                return FastColor.ARGB32.opaque(Minecraft.getInstance().level.registryAccess().holderOrThrow(miraculous).value().color().getValue());
             }
             return -1;
         }, MineraculousArmors.MIRACULOUS.getAllAsItems().toArray(new Item[0]));
     }
 
-    public static void onRegisterRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
-        event.registerEntityModifier(new TypeToken<LivingEntityRenderer<? extends LivingEntity, LivingEntityRenderState, ?>>() {}, (livingEntity, renderState) -> {
-            renderState.setRenderData(MineraculousEntityEvents.CATACLYSMED, MineraculousEntityEvents.isCataclysmed(livingEntity));
-            renderState.setRenderData(MineraculousEntityEvents.MAX_HEALTH, livingEntity.getMaxHealth());
-            renderState.setRenderData(MineraculousEntityEvents.HEALTH, livingEntity.getHealth());
-            renderState.setRenderData(MiraculousDataSet.TRANSFORMED, livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed());
-            renderState.setRenderData(MineraculousEntityEvents.SHOW_KAMIKO_MASK, TommyLibServices.ENTITY.getPersistentData(livingEntity).getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK));
-        });
+    public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
+        MineraculousKeyMappings.getKeyMappings().forEach(m -> event.register(m.get()));
     }
 }

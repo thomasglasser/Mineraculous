@@ -43,6 +43,11 @@ public class CheeseWedgeRecipe extends CustomRecipe {
     }
 
     @Override
+    public boolean canCraftInDimensions(int w, int h) {
+        return w + h >= 1;
+    }
+
+    @Override
     public RecipeSerializer<? extends CustomRecipe> getSerializer() {
         return MineraculousRecipeSerializers.CHEESE_WEDGE.get();
     }

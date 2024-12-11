@@ -15,7 +15,7 @@ public class MineraculousDataMapProvider extends DataMapProvider {
     }
 
     @Override
-    protected void gather(HolderLookup.Provider provider) {
+    protected void gather() {
         builder(NeoForgeDataMaps.RAID_HERO_GIFTS)
                 .add(MineraculousVillagerProfessions.FROMAGER, new RaidHeroGift(MineraculousGiftLootKeys.FROMAGER_GIFT), false)
                 .build();

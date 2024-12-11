@@ -6,7 +6,6 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -67,7 +66,7 @@ public class ExternalCuriosInventoryScreen extends CuriosScreen {
             this.panelWidth = this.menu.panelWidth;
             int i = this.leftPos;
             int j = this.topPos;
-            guiGraphics.blit(RenderType::guiTextured, INVENTORY_LOCATION, i, j, 0, 0, 176, this.imageHeight, BACKGROUND_TEXTURE_WIDTH, BACKGROUND_TEXTURE_HEIGHT);
+            guiGraphics.blit(INVENTORY_LOCATION, i, j, 0, 0, 176, this.imageHeight);
             InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, i + 26, j + 8, i + 75,
                     j + 78, 30, 0.0625F, mouseX, mouseY, target);
             CuriosApi.getCuriosInventory(target).ifPresent(handler -> {
@@ -76,7 +75,7 @@ public class ExternalCuriosInventoryScreen extends CuriosScreen {
                 boolean pageOffset = this.menu.totalPages > 1;
 
                 if (this.menu.hasCosmetics) {
-                    guiGraphics.blit(RenderType::guiTextured, CURIO_INVENTORY, i + xOffset + 2, yOffset - 23, 32, 0, 28, 24, BACKGROUND_TEXTURE_WIDTH, BACKGROUND_TEXTURE_HEIGHT);
+                    guiGraphics.blit(CURIO_INVENTORY, i + xOffset + 2, yOffset - 23, 32, 0, 28, 24);
                 }
                 List<Integer> grid = this.menu.grid;
                 xOffset -= (grid.size() - 1) * 18;
@@ -94,13 +93,13 @@ public class ExternalCuriosInventoryScreen extends CuriosScreen {
                     if (r != 0) {
                         xTexOffset += 7;
                     }
-                    guiGraphics.blit(RenderType::guiTextured, CURIO_INVENTORY, i + xOffset, yOffset, xTexOffset, 0, 25, upperHeight, BACKGROUND_TEXTURE_WIDTH, BACKGROUND_TEXTURE_HEIGHT);
-                    guiGraphics.blit(RenderType::guiTextured, CURIO_INVENTORY, i + xOffset, yOffset + upperHeight, xTexOffset, 159, 25, 7, BACKGROUND_TEXTURE_WIDTH, BACKGROUND_TEXTURE_HEIGHT);
+                    guiGraphics.blit(CURIO_INVENTORY, i + xOffset, yOffset, xTexOffset, 0, 25, upperHeight);
+                    guiGraphics.blit(CURIO_INVENTORY, i + xOffset, yOffset + upperHeight, xTexOffset, 159, 25, 7);
 
                     if (grid.size() == 1) {
                         xTexOffset += 7;
-                        guiGraphics.blit(RenderType::guiTextured, CURIO_INVENTORY, i + xOffset + 7, yOffset, xTexOffset, 0, 25, upperHeight, 25, upperHeight);
-                        guiGraphics.blit(RenderType::guiTextured, CURIO_INVENTORY, i + xOffset + 7, yOffset + upperHeight, xTexOffset, 159, 25, 7, BACKGROUND_TEXTURE_WIDTH, BACKGROUND_TEXTURE_HEIGHT);
+                        guiGraphics.blit(CURIO_INVENTORY, i + xOffset + 7, yOffset, xTexOffset, 0, 25, upperHeight, 25, upperHeight);
+                        guiGraphics.blit(CURIO_INVENTORY, i + xOffset + 7, yOffset + upperHeight, xTexOffset, 159, 25, 7);
                     }
 
                     if (r == 0) {
@@ -119,7 +118,7 @@ public class ExternalCuriosInventoryScreen extends CuriosScreen {
                 for (int rows : grid) {
                     int upperHeight = rows * 18;
 
-                    guiGraphics.blit(RenderType::guiTextured, CURIO_INVENTORY, i + xOffset, yOffset + 7, 7, 7, 18, upperHeight, BACKGROUND_TEXTURE_WIDTH, BACKGROUND_TEXTURE_HEIGHT);
+                    guiGraphics.blit(CURIO_INVENTORY, i + xOffset, yOffset + 7, 7, 7, 18, upperHeight);
                     xOffset += 18;
                 }
                 RenderSystem.enableBlend();
@@ -127,7 +126,7 @@ public class ExternalCuriosInventoryScreen extends CuriosScreen {
                 for (Slot slot : this.menu.slots) {
 
                     if (slot instanceof CurioSlot curioSlot && curioSlot.isCosmetic()) {
-                        guiGraphics.blit(RenderType::guiTextured, CURIO_INVENTORY, slot.x + this.getGuiLeft() - 1, slot.y + this.getGuiTop() - 1, 32, 50, 18, 18, BACKGROUND_TEXTURE_WIDTH, BACKGROUND_TEXTURE_HEIGHT);
+                        guiGraphics.blit(CURIO_INVENTORY, slot.x + this.getGuiLeft() - 1, slot.y + this.getGuiTop() - 1, 32, 50, 18, 18);
                     }
                 }
                 RenderSystem.disableBlend();

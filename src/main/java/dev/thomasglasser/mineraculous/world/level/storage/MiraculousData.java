@@ -9,7 +9,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 
-public record MiraculousData(boolean transformed, ItemStack miraculousItem, CuriosData curiosData, ItemStack tool, int powerLevel, boolean mainPowerActivated, boolean mainPowerActive, String name, String look) {
+public record MiraculousData(boolean transformed, ItemStack miraculousItem, CuriosData curiosData, ItemStack tool, int powerLevel, boolean mainPowerActivated, boolean mainPowerActive, String name) {
 
     public static final Codec<MiraculousData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.fieldOf("transformed").forGetter(MiraculousData::transformed),
@@ -19,8 +19,7 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
             Codec.INT.fieldOf("power_level").forGetter(MiraculousData::powerLevel),
             Codec.BOOL.fieldOf("main_power_activated").forGetter(MiraculousData::mainPowerActivated),
             Codec.BOOL.fieldOf("main_power_active").forGetter(MiraculousData::mainPowerActive),
-            Codec.STRING.optionalFieldOf("name", "").forGetter(MiraculousData::name),
-            Codec.STRING.optionalFieldOf("look", "").forGetter(MiraculousData::look)).apply(instance, MiraculousData::new));
+            Codec.STRING.optionalFieldOf("name", "").forGetter(MiraculousData::name)).apply(instance, MiraculousData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousData> STREAM_CODEC = NetworkUtils.composite(
             ByteBufCodecs.BOOL, MiraculousData::transformed,
@@ -31,11 +30,10 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
             ByteBufCodecs.BOOL, MiraculousData::mainPowerActivated,
             ByteBufCodecs.BOOL, MiraculousData::mainPowerActive,
             ByteBufCodecs.STRING_UTF8, MiraculousData::name,
-            ByteBufCodecs.STRING_UTF8, MiraculousData::look,
             MiraculousData::new);
 
     public static final String NAME_NOT_SET = "miraculous_data.name.not_set";
     public MiraculousData() {
-        this(false, ItemStack.EMPTY, new CuriosData(), ItemStack.EMPTY, 0, false, false, "", "");
+        this(false, ItemStack.EMPTY, new CuriosData(), ItemStack.EMPTY, 0, false, false, "");
     }
 }

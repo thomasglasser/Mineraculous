@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.PostChain;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -25,11 +26,11 @@ public class MineraculousClientUtils {
     }
 
     public static void setShader(@Nullable ResourceLocation location) {
-        ResourceLocation current = Minecraft.getInstance().gameRenderer.currentPostEffect();
+        PostChain current = Minecraft.getInstance().gameRenderer.postEffect;
         if (location != null)
-            Minecraft.getInstance().gameRenderer.setPostEffect(location);
+            Minecraft.getInstance().gameRenderer.loadEffect(location);
         else if (current != null)
-            Minecraft.getInstance().gameRenderer.clearPostEffect();
+            Minecraft.getInstance().gameRenderer.postEffect = null;
     }
 
     public static boolean isFirstPerson() {

@@ -9,7 +9,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.specialty.DynamicGeoEntityRenderer;
 
 public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> {
@@ -37,14 +36,14 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
             private ResourceLocation hungryTexture;
 
             @Override
-            public ResourceLocation getTextureResource(T animatable, GeoRenderer<T> renderer) {
+            public ResourceLocation getTextureResource(T animatable) {
                 if (hungryTexture == null) {
-                    ResourceLocation original = super.getTextureResource(animatable, renderer);
+                    ResourceLocation original = super.getTextureResource(animatable);
                     hungryTexture = ResourceLocation.fromNamespaceAndPath(original.getNamespace(), original.getPath().replace(".png", "_hungry.png"));
                 }
                 if (!animatable.isCharged())
                     return hungryTexture;
-                return super.getTextureResource(animatable, renderer);
+                return super.getTextureResource(animatable);
             }
         };
     }

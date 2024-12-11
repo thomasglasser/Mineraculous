@@ -71,14 +71,14 @@ public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
         }
 
         this.dealtDamage = true;
-        if (entity.hurtOrSimulate(damagesource, f)) {
+        if (entity.hurt(damagesource, f)) {
             if (entity.getType() == EntityType.ENDERMAN) {
                 return;
             }
 
             if (this.level() instanceof ServerLevel serverlevel1) {
-                EnchantmentHelper.doPostAttackEffectsWithItemSourceOnBreak(
-                        serverlevel1, entity, damagesource, this.getWeaponItem(), p_375964_ -> this.kill(serverlevel1));
+                EnchantmentHelper.doPostAttackEffectsWithItemSource(
+                        serverlevel1, entity, damagesource, this.getWeaponItem());
             }
 
             if (entity instanceof LivingEntity livingentity) {
@@ -103,7 +103,7 @@ public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
                 null,
                 vec3,
                 level.getBlockState(hitResult.getBlockPos()),
-                p_375966_ -> this.kill(level));
+                p_375966_ -> this.kill());
     }
 
     @Override

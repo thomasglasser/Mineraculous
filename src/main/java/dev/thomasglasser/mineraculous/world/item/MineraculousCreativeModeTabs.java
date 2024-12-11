@@ -29,7 +29,7 @@ public class MineraculousCreativeModeTabs {
                 itemsToAdd.add(rl);
         }));
 
-        output.acceptAll(itemsToAdd.stream().map(rl -> BuiltInRegistries.ITEM.getValue(rl).getDefaultInstance()).toList());
+        output.acceptAll(itemsToAdd.stream().map(rl -> BuiltInRegistries.ITEM.get(rl).getDefaultInstance()).toList());
     }));
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MIRACULOUS = TABS.register("miraculous", () -> TommyLibServices.ITEM.newTab(Component.translatable(Mineraculous.modLoc("miraculous").toLanguageKey("item_group")), () -> {

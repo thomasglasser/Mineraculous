@@ -1,10 +1,21 @@
 package dev.thomasglasser.mineraculous.client.gui.screens;
 
+import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
+import dev.thomasglasser.mineraculous.network.ServerboundKamikotizationTransformPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundOpenPerformerKamikotizationChatScreenPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundOpenVictimKamikotizationChatScreenPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundSetToggleTagPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSpawnTamedKamikoPayload;
+import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
+import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
+import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
@@ -19,7 +30,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.RemotePlayer;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -29,6 +39,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
+import top.theillusivec4.curios.common.inventory.CurioSlot;
 
 public class KamikotizationSelectionScreen extends Screen {
     public static final String TITLE = "gui.kamikotization.name";
@@ -107,7 +118,7 @@ public class KamikotizationSelectionScreen extends Screen {
     public void renderBase(GuiGraphics guiGraphics) {
         int i = (this.width - BACKGROUND_WIDTH) / 2;
         int j = (this.height - BACKGROUND_HEIGHT) / 2;
-        guiGraphics.blit(RenderType::guiTextured, BACKGROUND, i, j, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, 256, 256);
+        guiGraphics.blit(BACKGROUND, i, j, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
     }
 
     @Override
@@ -152,7 +163,7 @@ public class KamikotizationSelectionScreen extends Screen {
         int k = i + 228;
         int l = j + 7;
         ResourceLocation resourceLocation = this.canScroll ? SCROLLER_SPRITE : SCROLLER_DISABLED_SPRITE;
-        guiGraphics.blitSprite(RenderType::guiTextured, resourceLocation, k, l + this.descStart, 12, 15);
+        guiGraphics.blitSprite(resourceLocation, k, l + this.descStart, 12, 15);
     }
 
     protected void renderArrows(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -160,9 +171,9 @@ public class KamikotizationSelectionScreen extends Screen {
         int j = ((this.height - BACKGROUND_HEIGHT) / 2);
         int k = i + 10;
         int l = j + 135;
-        if (showLeftArrow) guiGraphics.blit(RenderType::guiTextured, BACKGROUND, k, l, !insideLeftArrow(mouseX, mouseY) ? 26 : 0, 166, 13, 20, 256, 256);
+        if (showLeftArrow) guiGraphics.blit(BACKGROUND, k, l, !insideLeftArrow(mouseX, mouseY) ? 26 : 0, 166, 13, 20);
         k = i + 102;
-        if (showRightArrow) guiGraphics.blit(RenderType::guiTextured, BACKGROUND, k, l, 13 + (!insideRightArrow(mouseX, mouseY) ? 26 : 0), 166, 13, 20, 256, 256);
+        if (showRightArrow) guiGraphics.blit(BACKGROUND, k, l, 13 + (!insideRightArrow(mouseX, mouseY) ? 26 : 0), 166, 13, 20);
     }
 
     @Override
@@ -314,25 +325,25 @@ public class KamikotizationSelectionScreen extends Screen {
         if (cancel) {
             TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(ClientUtils.getMainClientPlayer().getUUID(), target.blockPosition().above()));
         } else {
-//            ClientUtils.setScreen(new ExternalCuriosInventoryScreen(target, false, (slot, target, menu) -> {
-//                Either<Integer, CuriosData> slotInfo;
-//                if (slot instanceof CurioSlot curiosSlot)
-//                    slotInfo = Either.right(new CuriosData(curiosSlot.getSlotIndex(), curiosSlot.getIdentifier()));
-//                else
-//                    slotInfo = Either.left(target.getInventory().findSlotMatchingItem(slot.getItem()));
-//                KamikotizationData kamikotizationData = new KamikotizationData(Optional.ofNullable(selectedKamikotization.getKey()), slot.getItem(), slotInfo, kamikoData, name.getValue());
-//                if (target == ClientUtils.getMainClientPlayer()) {
-//                    TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(kamikotizationData, true));
-//                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
-//                } else {
-//                    TommyLibServices.NETWORK.sendToServer(new ServerboundOpenVictimKamikotizationChatScreenPayload(target.getUUID(), kamikotizationData, kamikoData));
-//                    MiraculousDataSet playerMiraculousSet = ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.MIRACULOUS);
-//                    TommyLibServices.NETWORK.sendToServer(new ServerboundOpenPerformerKamikotizationChatScreenPayload(name.getValue(), playerMiraculousSet.get(playerMiraculousSet.getTransformed().getFirst()).name(), target.getUUID()));
-//                }
-//            }, exit -> {
-//                if (exit)
-//                    TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(ClientUtils.getMainClientPlayer().getUUID(), target.blockPosition().above()));
-//            }));
+            ClientUtils.setScreen(new ExternalCuriosInventoryScreen(target, false, (slot, target, menu) -> {
+                Either<Integer, CuriosData> slotInfo;
+                if (slot instanceof CurioSlot curiosSlot)
+                    slotInfo = Either.right(new CuriosData(curiosSlot.getSlotIndex(), curiosSlot.getIdentifier()));
+                else
+                    slotInfo = Either.left(target.getInventory().findSlotMatchingItem(slot.getItem()));
+                KamikotizationData kamikotizationData = new KamikotizationData(Optional.ofNullable(selectedKamikotization.getKey()), slot.getItem(), slotInfo, kamikoData, name.getValue());
+                if (target == ClientUtils.getMainClientPlayer()) {
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(kamikotizationData, true));
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
+                } else {
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundOpenVictimKamikotizationChatScreenPayload(target.getUUID(), kamikotizationData, kamikoData));
+                    MiraculousDataSet playerMiraculousSet = ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.MIRACULOUS);
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundOpenPerformerKamikotizationChatScreenPayload(name.getValue(), playerMiraculousSet.get(playerMiraculousSet.getTransformed().getFirst()).name(), target.getUUID()));
+                }
+            }, exit -> {
+                if (exit)
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(ClientUtils.getMainClientPlayer().getUUID(), target.blockPosition().above()));
+            }));
         }
     }
 

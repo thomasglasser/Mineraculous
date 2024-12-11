@@ -3,8 +3,12 @@
   "category": "misc",
   "group": "waxed_aged_camembert_block",
   "ingredients": [
-    "mineraculous:aged_camembert_block",
-    "minecraft:honeycomb"
+    {
+      "item": "mineraculous:aged_camembert_block"
+    },
+    {
+      "item": "minecraft:honeycomb"
+    }
   ],
   "result": {
     "count": 1,

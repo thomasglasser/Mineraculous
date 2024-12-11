@@ -20,15 +20,12 @@ import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.EntityTypePredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
 
 public class MineraculousAbilities {
     public static final ResourceKey<Ability> KAMIKOTIZATION = register("kamikotization");
@@ -43,15 +40,11 @@ public class MineraculousAbilities {
     }
 
     public static void bootstrap(BootstrapContext<Ability> context) {
-        HolderGetter<EntityType<?>> entityTypes = context.lookup(Registries.ENTITY_TYPE);
-        HolderGetter<Block> blocks = context.lookup(Registries.BLOCK);
-        HolderGetter<Item> items = context.lookup(Registries.ITEM);
-
         context.register(KAMIKOTIZATION, new ContextAwareAbility(
                 Optional.empty(),
                 Optional.of(new SetOwnerAbility(
                         Optional.of(1),
-                        Optional.of(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(entityTypes, MineraculousEntityTypes.KAMIKO.get())).build()),
+                        Optional.of(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(MineraculousEntityTypes.KAMIKO.get())).build()),
                         Optional.empty(),
                         Optional.of(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE))),
                 Optional.empty(),
@@ -60,14 +53,14 @@ public class MineraculousAbilities {
                 List.of(new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get(), Optional.empty())),
                 Optional.empty()));
         context.register(KAMIKO_CONTROL, new SetCameraEntityAbility(
-                EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(entityTypes, MineraculousEntityTypes.KAMIKO.get())).build(),
+                EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(MineraculousEntityTypes.KAMIKO.get())).build(),
                 Optional.empty(),
                 Optional.of(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK),
                 true,
                 true,
                 Optional.empty()));
         context.register(KAMIKOTIZED_COMMUNICATION, new SetCameraEntityAbility(
-                EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(entityTypes, EntityType.PLAYER)).subPredicate(KamikotizationPredicate.ANY).build(),
+                EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(EntityType.PLAYER)).subPredicate(KamikotizationPredicate.ANY).build(),
                 Optional.of(Kamiko.SPECTATOR_SHADER),
                 Optional.of(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK),
                 false,
@@ -78,7 +71,7 @@ public class MineraculousAbilities {
                 Optional.of(new RandomDirectionalSpreadAbility(
                         MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(),
                         Optional.empty(),
-                        Optional.of(BlockPredicate.Builder.block().of(blocks, MineraculousBlockTags.CATACLYSM_IMMUNE).build()),
+                        Optional.of(BlockPredicate.Builder.block().of(MineraculousBlockTags.CATACLYSM_IMMUNE).build()),
                         Optional.of(MineraculousSoundEvents.CATACLYSM_USE))),
                 Optional.of(new ApplyInfiniteEffectsOrDestroyAbility(
                         HolderSet.direct(MineraculousMobEffects.CATACLYSMED),
@@ -88,7 +81,7 @@ public class MineraculousAbilities {
                 Optional.of(new ReplaceItemsInHandAbility(
                         MineraculousItems.CATACLYSM_DUST.toStack(),
                         Optional.empty(),
-                        Optional.of(ItemPredicate.Builder.item().of(items, MineraculousItemTags.CATACLYSM_IMMUNE).build()),
+                        Optional.of(ItemPredicate.Builder.item().of(MineraculousItemTags.CATACLYSM_IMMUNE).build()),
                         Optional.of(MineraculousSoundEvents.CATACLYSM_USE))),
                 Optional.empty(),
                 List.of(new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get(), Optional.empty())),

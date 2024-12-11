@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.client.gui.components.kamiko;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.KamikoMenu;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.KamikoMenuItem;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.KamikoMenuListener;
@@ -7,10 +8,9 @@ import dev.thomasglasser.mineraculous.client.gui.kamiko.categories.KamikoPage;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ARGB;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,16 +60,20 @@ public class KamikoGui implements KamikoMenuListener {
     }
 
     protected void renderPage(GuiGraphics guiGraphics, float alpha, int x, int y, KamikoPage kamikoPage) {
-        int i = ARGB.white(alpha);
-        guiGraphics.blitSprite(RenderType::guiTextured, HOTBAR_SPRITE, x - 91, y, 182, 22, i);
+        RenderSystem.enableBlend();
+        guiGraphics.setColor(1.0F, 1.0F, 1.0F, alpha);
+        guiGraphics.blitSprite(HOTBAR_SPRITE, x - 91, y, 182, 22);
         if (kamikoPage.getSelectedSlot() >= 0) {
-            guiGraphics.blitSprite(
-                    RenderType::guiTextured, HOTBAR_SELECTION_SPRITE, x - 91 - 1 + kamikoPage.getSelectedSlot() * 20, y - 1, 24, 23, i);
+            guiGraphics.blitSprite(HOTBAR_SELECTION_SPRITE, x - 91 - 1 + kamikoPage.getSelectedSlot() * 20, y - 1, 24, 23);
         }
 
-        for (int j = 0; j < 9; j++) {
-            this.renderSlot(guiGraphics, j, guiGraphics.guiWidth() / 2 - 90 + j * 20 + 2, (float) (y + 3), alpha, kamikoPage.getItem(j));
+        guiGraphics.setColor(1.0F, 1.0F, 1.0F, 1.0F);
+
+        for (int i = 0; i < 9; i++) {
+            this.renderSlot(guiGraphics, i, guiGraphics.guiWidth() / 2 - 90 + i * 20 + 2, (float) (y + 3), alpha, kamikoPage.getItem(i));
         }
+
+        RenderSystem.disableBlend();
     }
 
     private void renderSlot(GuiGraphics guiGraphics, int slot, int x, float y, float alpha, KamikoMenuItem kamikoMenuItem) {
@@ -97,7 +101,7 @@ public class KamikoGui implements KamikoMenuListener {
                 int j = this.minecraft.font.width(component);
                 int k = (guiGraphics.guiWidth() - j) / 2;
                 int l = guiGraphics.guiHeight() - 35;
-                guiGraphics.drawStringWithBackdrop(this.minecraft.font, component, k, l, j, ARGB.color(i, -1));
+                guiGraphics.drawStringWithBackdrop(this.minecraft.font, component, k, l, j, FastColor.ARGB32.color(i, -1));
             }
         }
     }

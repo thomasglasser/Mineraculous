@@ -178,13 +178,6 @@ public class KamikotizationChatScreen extends ChatScreen {
             renderable.render(guiGraphics, mouseX, mouseY, partialTick);
         }
         this.minecraft.gui.getChat().render(guiGraphics, this.minecraft.gui.getGuiTicks(), mouseX, mouseY, true);
-        // TODO: Chat offset
-//        guiGraphics.pose().pushPose();
-//        guiGraphics.pose().translate(event.getPosX(), (event.getPosY() - guiGraphics.guiHeight() + chatBottomMargin) / this.chat.getScale(), 0.0F);
-//        int i = Mth.floor(this.minecraft.mouseHandler.xpos() * (double)window.getGuiScaledWidth() / (double)window.getScreenWidth());
-//        int j = Mth.floor(this.minecraft.mouseHandler.ypos() * (double)window.getGuiScaledHeight() / (double)window.getScreenHeight());
-//        this.chat.render(guiGraphics, this.tickCount, i, j, false);
-//        guiGraphics.pose().popPose();
         guiGraphics.fill(2, this.height - 14, this.width - 2, this.height - 2, this.minecraft.options.getBackgroundColor(Integer.MIN_VALUE));
         this.input.render(guiGraphics, mouseX, mouseY, partialTick);
         GuiMessageTag guimessagetag = this.minecraft.gui.getChat().getMessageTagAt((double) mouseX, (double) mouseY);
@@ -203,7 +196,7 @@ public class KamikotizationChatScreen extends ChatScreen {
         if (this.minecraft.level == null) {
             this.renderPanorama(guiGraphics, partialTick);
         }
-        this.renderBlurredBackground();
+        this.renderBlurredBackground(partialTick);
         this.renderMenuBackground(guiGraphics);
     }
 

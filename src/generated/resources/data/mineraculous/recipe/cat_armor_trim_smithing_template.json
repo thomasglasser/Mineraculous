@@ -2,9 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": "minecraft:diamond",
-    "C": "minecraft:lime_concrete",
-    "S": "mineraculous:cat_armor_trim_smithing_template"
+    "#": {
+      "item": "minecraft:diamond"
+    },
+    "C": {
+      "item": "minecraft:lime_concrete"
+    },
+    "S": {
+      "item": "mineraculous:cat_armor_trim_smithing_template"
+    }
   },
   "pattern": [
     "#S#",

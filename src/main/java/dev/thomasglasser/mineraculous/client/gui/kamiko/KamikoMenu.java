@@ -6,11 +6,9 @@ import dev.thomasglasser.mineraculous.client.gui.kamiko.categories.KamikoPage;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.categories.TargetPlayerMenuCategory;
 import java.util.List;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ARGB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -126,8 +124,7 @@ public class KamikoMenu {
 
         @Override
         public void renderIcon(GuiGraphics p_283113_, float p_282295_, float p_362741_) {
-            p_283113_.blitSprite(
-                    RenderType::guiTextured, KamikoMenu.CLOSE_SPRITE, 0, 0, 16, 16, ARGB.colorFromFloat(p_362741_, p_282295_, p_282295_, p_282295_));
+            p_283113_.blitSprite(KamikoMenu.CLOSE_SPRITE, 0, 0, 16, 16);
         }
 
         @Override
@@ -158,11 +155,10 @@ public class KamikoMenu {
 
         @Override
         public void renderIcon(GuiGraphics p_281376_, float p_282065_, float p_363582_) {
-            int i = ARGB.colorFromFloat(p_363582_, p_282065_, p_282065_, p_282065_);
             if (this.direction < 0) {
-                p_281376_.blitSprite(RenderType::guiTextured, KamikoMenu.SCROLL_LEFT_SPRITE, 0, 0, 16, 16, i);
+                p_281376_.blitSprite(KamikoMenu.SCROLL_LEFT_SPRITE, 0, 0, 16, 16);
             } else {
-                p_281376_.blitSprite(RenderType::guiTextured, KamikoMenu.SCROLL_RIGHT_SPRITE, 0, 0, 16, 16, i);
+                p_281376_.blitSprite(KamikoMenu.SCROLL_RIGHT_SPRITE, 0, 0, 16, 16);
             }
         }
 

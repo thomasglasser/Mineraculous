@@ -2,9 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": "minecraft:diamond",
-    "C": "minecraft:purple_concrete",
-    "S": "mineraculous:butterfly_armor_trim_smithing_template"
+    "#": {
+      "item": "minecraft:diamond"
+    },
+    "C": {
+      "item": "minecraft:purple_concrete"
+    },
+    "S": {
+      "item": "mineraculous:butterfly_armor_trim_smithing_template"
+    }
   },
   "pattern": [
     "#S#",

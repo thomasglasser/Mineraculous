@@ -16,7 +16,7 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiracu
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
+import dev.thomasglasser.tommylib.api.world.item.BaseModeledSwordItem;
 import io.netty.buffer.ByteBuf;
 import java.util.function.Consumer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -33,7 +33,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.LivingEntity;
@@ -44,9 +44,8 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.ProjectileItem;
-import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
@@ -64,7 +63,7 @@ import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem, ProjectileItem {
+public class CatStaffItem extends BaseModeledSwordItem implements GeoItem, ProjectileItem {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final ResourceLocation EXTENDED_PROPERTY_ID = Mineraculous.modLoc("extended");
     public static final RawAnimation EXTEND = RawAnimation.begin().thenPlay("attack.extend");
@@ -80,7 +79,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem, Pro
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     protected CatStaffItem(Properties pProperties) {
-        super(pProperties
+        super(MineraculousTiers.MIRACULOUS, pProperties
                 .component(DataComponents.UNBREAKABLE, new Unbreakable(true)));
         SingletonGeoAnimatable.registerSyncedAnimatable(this);
     }
@@ -153,7 +152,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem, Pro
         if (pStack.has(MineraculousDataComponents.POWERED)) {
             if (pStack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.PERCH && pEntity.isCrouching())
                 pEntity.setDeltaMovement(Vec3.ZERO);
-            else if (pStack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.TRAVEL && pEntity instanceof Player player && player.getCooldowns().isOnCooldown(pStack))
+            else if (pStack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.TRAVEL && pEntity instanceof Player player && player.getCooldowns().isOnCooldown(pStack.getItem()))
                 pEntity.resetFallDistance();
         }
 
@@ -161,17 +160,17 @@ public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem, Pro
     }
 
     @Override
-    public InteractionResult use(Level pLevel, Player pPlayer, InteractionHand pHand) {
+    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand) {
         ItemStack stack = pPlayer.getItemInHand(pHand);
         if (!stack.has(MineraculousDataComponents.POWERED.get()))
-            return InteractionResult.FAIL;
+            return InteractionResultHolder.fail(stack);
         if (stack.has(MineraculousDataComponents.CAT_STAFF_ABILITY)) {
             Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
             if (ability == Ability.BLOCK || ability == Ability.THROW)
                 pPlayer.startUsingItem(pHand);
             else if (ability == Ability.TRAVEL) {
                 pPlayer.setDeltaMovement(pPlayer.getLookAngle().scale(4));
-                pPlayer.getCooldowns().addCooldown(stack, 20);
+                pPlayer.getCooldowns().addCooldown(stack.getItem(), 20);
             } else if (ability == Ability.PERCH) {
                 if (pPlayer.getNearestViewDirection() == Direction.UP)
                     pPlayer.setDeltaMovement(new Vec3(0, 0.5, 0));
@@ -187,7 +186,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem, Pro
                     case null, default -> {}
                 }
             }
-            return InteractionResult.CONSUME;
+            return InteractionResultHolder.consume(stack);
         }
         return super.use(pLevel, pPlayer, pHand);
     }
@@ -211,7 +210,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem, Pro
         }
     }
 
-    public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entityLiving, int timeLeft) {
+    public void releaseUsing(ItemStack stack, Level level, LivingEntity entityLiving, int timeLeft) {
         Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
         if (entityLiving instanceof Player player && ability == Ability.THROW) {
             int i = this.getUseDuration(stack, entityLiving) - timeLeft;
@@ -233,19 +232,17 @@ public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem, Pro
                 }
 
                 player.awardStat(Stats.ITEM_USED.get(this));
-                return true;
             }
         }
-        return false;
     }
 
     @Override
-    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+    public UseAnim getUseAnimation(ItemStack stack) {
         Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
         return switch (ability) {
-            case BLOCK -> ItemUseAnimation.BLOCK;
-            case THROW -> ItemUseAnimation.SPEAR;
-            case null, default -> ItemUseAnimation.NONE;
+            case BLOCK -> UseAnim.BLOCK;
+            case THROW -> UseAnim.SPEAR;
+            case null, default -> UseAnim.NONE;
         };
     }
 

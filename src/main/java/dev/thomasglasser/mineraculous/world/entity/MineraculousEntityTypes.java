@@ -31,7 +31,7 @@ public class MineraculousEntityTypes {
                     .sized(0.5F, 0.5F));
 
     private static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> register(String name, EntityType.Builder<T> builder) {
-        return ENTITY_TYPES.register(name, () -> builder.build(key(name)));
+        return ENTITY_TYPES.register(name, () -> builder.build(name));
     }
 
     private static ResourceKey<EntityType<?>> key(String name) {

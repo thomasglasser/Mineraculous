@@ -5,10 +5,13 @@ import com.mojang.serialization.MapCodec;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousBuiltInRegistries;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
+import java.util.Optional;
 import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.RegistryFixedCodec;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -26,6 +29,13 @@ public interface Ability {
     default void transform(AbilityData data, Level level, BlockPos pos, LivingEntity entity) {}
 
     default void detransform(AbilityData data, Level level, BlockPos pos, LivingEntity entity) {}
+
+    Optional<Holder<SoundEvent>> startSound();
+
+    default void playStartSound(Level level, BlockPos pos) {
+        if (startSound().isPresent())
+            level.playSound(null, pos, startSound().get().value(), SoundSource.PLAYERS, 1, 1);
+    }
 
     MapCodec<? extends Ability> codec();
 

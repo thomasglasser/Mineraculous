@@ -8,9 +8,11 @@ import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
@@ -18,19 +20,29 @@ public class NightVisionAbility implements Ability {
     public static final MapCodec<NightVisionAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ResourceLocation.CODEC.optionalFieldOf("shader").forGetter(NightVisionAbility::shader)).apply(instance, NightVisionAbility::new));
 
-    Optional<ResourceLocation> shader;
+    private final Optional<ResourceLocation> shader;
+    private final Optional<Holder<SoundEvent>> startSound;
     private boolean nightVision = false;
 
-    public NightVisionAbility(Optional<ResourceLocation> shader) {
+    public NightVisionAbility(Optional<ResourceLocation> shader, Optional<Holder<SoundEvent>> startSound) {
         this.shader = shader;
+        this.startSound = startSound;
     }
 
     public NightVisionAbility() {
-        this(Optional.empty());
+        this(Optional.empty(), Optional.empty());
+    }
+
+    public NightVisionAbility(Optional<ResourceLocation> shader) {
+        this(shader, Optional.empty());
     }
 
     public Optional<ResourceLocation> shader() {
         return shader;
+    }
+
+    public Optional<Holder<SoundEvent>> startSound() {
+        return startSound;
     }
 
     @Override
@@ -54,6 +66,7 @@ public class NightVisionAbility implements Ability {
 
     protected void enableNightVision(ServerPlayer serverPlayer) {
         nightVision = true;
+        playStartSound(serverPlayer.level(), serverPlayer.blockPosition());
         TommyLibServices.NETWORK.sendToClient(new ClientboundToggleNightVisionPayload(true, shader), serverPlayer);
         CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(serverPlayer);
         tag.putBoolean(MineraculousEntityEvents.TAG_HASNIGHTVISION, nightVision);

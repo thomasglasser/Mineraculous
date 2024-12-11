@@ -4,6 +4,7 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.advancements.critereon.KamikotizationPredicate;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
@@ -51,41 +52,47 @@ public class MineraculousAbilities {
                 Optional.of(new SetOwnerAbility(
                         Optional.of(1),
                         Optional.of(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(entityTypes, MineraculousEntityTypes.KAMIKO.get())).build()),
-                        Optional.empty())),
+                        Optional.empty(),
+                        Optional.of(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE))),
                 Optional.empty(),
                 Optional.empty(),
                 // TODO: Replace with kamikotization particles
-                List.of(new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get()))));
+                List.of(new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get(), Optional.empty())),
+                Optional.empty()));
         context.register(KAMIKO_CONTROL, new SetCameraEntityAbility(
                 EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(entityTypes, MineraculousEntityTypes.KAMIKO.get())).build(),
                 Optional.empty(),
                 Optional.of(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK),
                 true,
-                true));
+                true,
+                Optional.empty()));
         context.register(KAMIKOTIZED_COMMUNICATION, new SetCameraEntityAbility(
                 EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(entityTypes, EntityType.PLAYER)).subPredicate(KamikotizationPredicate.ANY).build(),
                 Optional.of(Kamiko.SPECTATOR_SHADER),
                 Optional.of(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK),
                 false,
-                true));
+                true,
+                Optional.empty()));
 
         context.register(CATACLYSM, new ContextAwareAbility(
                 Optional.of(new RandomDirectionalSpreadAbility(
                         MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(),
                         Optional.empty(),
-                        Optional.of(BlockPredicate.Builder.block().of(blocks, MineraculousBlockTags.CATACLYSM_IMMUNE).build()))),
+                        Optional.of(BlockPredicate.Builder.block().of(blocks, MineraculousBlockTags.CATACLYSM_IMMUNE).build()),
+                        Optional.of(MineraculousSoundEvents.CATACLYSM_USE))),
                 Optional.of(new ApplyInfiniteEffectsOrDestroyAbility(
                         HolderSet.direct(MineraculousMobEffects.CATACLYSMED),
                         Optional.of(MineraculousItems.CATACLYSM_DUST.get()),
-                        Optional.of(context.lookup(Registries.DAMAGE_TYPE).getOrThrow(MineraculousDamageTypes.CATACLYSM).key()))),
+                        Optional.of(context.lookup(Registries.DAMAGE_TYPE).getOrThrow(MineraculousDamageTypes.CATACLYSM).key()),
+                        Optional.of(MineraculousSoundEvents.CATACLYSM_USE))),
                 Optional.of(new ReplaceItemsInHandAbility(
                         MineraculousItems.CATACLYSM_DUST.toStack(),
                         Optional.empty(),
-                        Optional.of(ItemPredicate.Builder.item().of(items, MineraculousItemTags.CATACLYSM_IMMUNE).build()))),
+                        Optional.of(ItemPredicate.Builder.item().of(items, MineraculousItemTags.CATACLYSM_IMMUNE).build()),
+                        Optional.of(MineraculousSoundEvents.CATACLYSM_USE))),
                 Optional.empty(),
-                List.of(new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get()))));
+                List.of(new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get(), Optional.empty())),
+                Optional.of(MineraculousSoundEvents.CATACLYSM_ACTIVATE)));
         context.register(CAT_VISION, new NightVisionAbility(Optional.of(ResourceLocation.withDefaultNamespace("creeper"))));
-
-        // TODO: Implement Miraculous Ladybug ability
     }
 }

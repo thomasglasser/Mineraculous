@@ -8,7 +8,9 @@ import java.util.Optional;
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,16 +21,18 @@ import net.minecraft.world.level.block.MangroveRootsBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public record RandomDirectionalSpreadAbility(BlockState blockState, Optional<BlockPredicate> validBlocks, Optional<BlockPredicate> invalidBlocks) implements Ability {
+public record RandomDirectionalSpreadAbility(BlockState blockState, Optional<BlockPredicate> validBlocks, Optional<BlockPredicate> invalidBlocks, Optional<Holder<SoundEvent>> startSound) implements Ability {
 
     public static final MapCodec<RandomDirectionalSpreadAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             BlockState.CODEC.optionalFieldOf("state", Blocks.AIR.defaultBlockState()).forGetter(RandomDirectionalSpreadAbility::blockState),
             BlockPredicate.CODEC.optionalFieldOf("valid_blocks").forGetter(RandomDirectionalSpreadAbility::validBlocks),
-            BlockPredicate.CODEC.optionalFieldOf("immune_blocks").forGetter(RandomDirectionalSpreadAbility::invalidBlocks)).apply(instance, RandomDirectionalSpreadAbility::new));
+            BlockPredicate.CODEC.optionalFieldOf("immune_blocks").forGetter(RandomDirectionalSpreadAbility::invalidBlocks),
+            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(RandomDirectionalSpreadAbility::startSound)).apply(instance, RandomDirectionalSpreadAbility::new));
     @Override
     public boolean perform(AbilityData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
         if (context == Context.INTERACT_BLOCK) {
             applyToBlock(level, pos, data.powerLevel(), 0, null);
+            playStartSound(level, pos);
             return true;
         }
         return false;

@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.world.item;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.food.MineraculousFoods;
+import dev.thomasglasser.mineraculous.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
@@ -26,23 +27,30 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.component.Consumable;
+import net.minecraft.world.item.equipment.trim.TrimPattern;
 
 public class MineraculousItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Mineraculous.MOD_ID);
 
-    private static final List<DeferredItem<?>> IN_MOD_TAB = new ArrayList<>();
+    private static final List<DeferredItem<?>> NOT_IN_MOD_TAB = new ArrayList<>();
 
     // Tools
-    public static final DeferredItem<Item> BUTTERFLY_CANE = register("butterfly_cane", Item::new, List.of(CreativeModeTabs.TOOLS_AND_UTILITIES, CreativeModeTabs.COMBAT));
-    public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", properties -> new CatStaffItem(properties.fireResistant().stacksTo(1).rarity(Rarity.EPIC)), List.of(CreativeModeTabs.TOOLS_AND_UTILITIES, CreativeModeTabs.COMBAT));
     public static final DeferredItem<Item> LADYBUG_YOYO = register("ladybug_yoyo", Item::new, List.of(CreativeModeTabs.TOOLS_AND_UTILITIES, CreativeModeTabs.COMBAT));
+    public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", properties -> new CatStaffItem(properties.fireResistant().stacksTo(1).rarity(Rarity.EPIC)), List.of(CreativeModeTabs.TOOLS_AND_UTILITIES, CreativeModeTabs.COMBAT));
+    public static final DeferredItem<Item> BUTTERFLY_CANE = register("butterfly_cane", Item::new, List.of(CreativeModeTabs.TOOLS_AND_UTILITIES, CreativeModeTabs.COMBAT));
 
     // Miraculous
-    public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", MiraculousItem::new, List.of(), false);
+    public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", MiraculousItem::new, List.of());
 
     public static final DeferredItem<Item> CATACLYSM_DUST = register("cataclysm_dust", properties -> new Item(properties.rarity(Rarity.EPIC)), List.of());
+
+    // Smithing Templates
+    public static final DeferredItem<SmithingTemplateItem> LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE = registerSmithingTemplate(MineraculousTrimPatterns.LADYBUG);
+    public static final DeferredItem<SmithingTemplateItem> CAT_ARMOR_TRIM_SMITHING_TEMPLATE = registerSmithingTemplate(MineraculousTrimPatterns.CAT);
+    public static final DeferredItem<SmithingTemplateItem> BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE = registerSmithingTemplate(MineraculousTrimPatterns.BUTTERFLY);
 
     // Spawn Eggs
     public static final DeferredItem<SpawnEggItem> KAMIKO_SPAWN_EGG = registerSpawnEgg("kamiko", MineraculousEntityTypes.KAMIKO::get, 0x130122, 0xffffff);
@@ -58,15 +66,8 @@ public class MineraculousItems {
         return cheese;
     }
 
-    public static <T extends Item> DeferredItem<T> register(String name, Function<Item.Properties, T> item, List<ResourceKey<CreativeModeTab>> tabs, boolean inModTab) {
-        DeferredItem<T> obj = ItemUtils.register(ITEMS, name, item, tabs);
-        if (inModTab)
-            IN_MOD_TAB.add(obj);
-        return obj;
-    }
-
     public static <T extends Item> DeferredItem<T> register(String name, Function<Item.Properties, T> item, List<ResourceKey<CreativeModeTab>> tabs) {
-        return register(name, item, tabs, true);
+        return ItemUtils.register(ITEMS, name, item, tabs);
     }
 
     public static <T extends BlockItem> DeferredItem<T> registerBlock(DeferredBlock<?> block, Function<Item.Properties, T> itemFunction, List<ResourceKey<CreativeModeTab>> tabs) {
@@ -77,8 +78,16 @@ public class MineraculousItems {
         return ItemUtils.registerSpawnEgg(ITEMS, name, entityType, primaryColor, secondaryColor);
     }
 
-    public static List<DeferredItem<? extends Item>> getItemsInModTab() {
-        return IN_MOD_TAB;
+    private static DeferredItem<SmithingTemplateItem> registerSmithingTemplate(ResourceKey<TrimPattern> pattern, Rarity rarity) {
+        return ItemUtils.registerSmithingTemplate(ITEMS, pattern, properties -> properties.rarity(rarity));
+    }
+
+    private static DeferredItem<SmithingTemplateItem> registerSmithingTemplate(ResourceKey<TrimPattern> pattern) {
+        return registerSmithingTemplate(pattern, Rarity.UNCOMMON);
+    }
+
+    public static List<DeferredItem<? extends Item>> getItemsNotInModTab() {
+        return NOT_IN_MOD_TAB;
     }
 
     public static void init() {}

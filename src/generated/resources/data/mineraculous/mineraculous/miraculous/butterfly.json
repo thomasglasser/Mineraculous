@@ -9,5 +9,6 @@
   "tool": {
     "count": 1,
     "id": "mineraculous:butterfly_cane"
-  }
+  },
+  "transform_sound": "mineraculous:butterfly_transform"
 }

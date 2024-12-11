@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
@@ -8,6 +9,7 @@ import java.util.UUID;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 
 public record ServerboundOpenPerformerKamikotizationChatScreenPayload(String targetName, String performerName, UUID targetId) implements ExtendedPacketPayload {
@@ -23,6 +25,7 @@ public record ServerboundOpenPerformerKamikotizationChatScreenPayload(String tar
     @Override
     public void handle(Player player) {
         TommyLibServices.NETWORK.sendToClient(new ClientboundOpenPerformerKamikotizationChatScreenPayload(targetName, performerName, targetId), (ServerPlayer) player);
+        player.level().playSound(null, player.blockPosition(), MineraculousSoundEvents.KAMIKOTIZATION_USE.get(), SoundSource.PLAYERS, 1f, 1f);
     }
 
     @Override

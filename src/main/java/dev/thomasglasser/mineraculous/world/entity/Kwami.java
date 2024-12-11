@@ -66,9 +66,15 @@ import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoEntity {
+    public static final RawAnimation EAT = RawAnimation.begin().thenPlay("misc.eat");
+
     private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<ResourceKey<Miraculous>> DATA_MIRACULOUS = SynchedEntityData.defineId(Kwami.class, MineraculousEntityDataSerializers.MIRACULOUS.get());
 
@@ -181,6 +187,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                 }
                 if (isTreat(stack) || isFood(stack)) {
                     ItemStack remainder = ItemUtils.safeShrink(1, stack, player);
+                    triggerAnim("eat_controller", "eat");
                     if (!remainder.isEmpty()) player.addItem(remainder);
                     return InteractionResult.SUCCESS;
                 }
@@ -192,7 +199,15 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     }
 
     @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {}
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, "move_controller", state -> {
+            if (state.isMoving())
+                return state.setAndContinue(DefaultAnimations.FLY);
+            return state.setAndContinue(DefaultAnimations.IDLE);
+        }));
+        controllers.add(new AnimationController<>(this, "eat_controller", state -> PlayState.STOP)
+                .triggerableAnim("eat", EAT));
+    }
 
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {

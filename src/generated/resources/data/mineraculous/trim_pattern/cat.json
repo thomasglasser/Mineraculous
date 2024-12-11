@@ -1,0 +1,8 @@
+{
+  "asset_id": "mineraculous:cat",
+  "decal": false,
+  "description": {
+    "translate": "trim_pattern.mineraculous.cat"
+  },
+  "template_item": "mineraculous:cat_armor_trim_smithing_template"
+}

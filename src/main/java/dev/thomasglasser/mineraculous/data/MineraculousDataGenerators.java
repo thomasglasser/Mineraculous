@@ -3,18 +3,19 @@ package dev.thomasglasser.mineraculous.data;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.data.advancements.MineraculousAdvancementProvider;
-import dev.thomasglasser.mineraculous.data.blockstates.MineraculousBlockStates;
-import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
+import dev.thomasglasser.mineraculous.data.blockstates.MineraculousBlockStateProvider;
 import dev.thomasglasser.mineraculous.data.datamaps.MineraculousDataMapProvider;
 import dev.thomasglasser.mineraculous.data.lang.MineraculousEnUsLanguageProvider;
 import dev.thomasglasser.mineraculous.data.loot.MineraculousLootTables;
 import dev.thomasglasser.mineraculous.data.models.MineraculousItemModelProvider;
 import dev.thomasglasser.mineraculous.data.particles.MineraculousParticleDescriptionProvider;
 import dev.thomasglasser.mineraculous.data.recipes.MineraculousRecipes;
+import dev.thomasglasser.mineraculous.data.sounds.MineraculousSoundDefinitionsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousBlockTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousDamageTypeTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousItemTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousPoiTypeTagsProvider;
+import dev.thomasglasser.mineraculous.data.trimmed.MineraculousTrimDatagenSuite;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
@@ -66,6 +67,9 @@ public class MineraculousDataGenerators {
 
         MineraculousEnUsLanguageProvider enUs = new MineraculousEnUsLanguageProvider(packOutput);
 
+        // Trims
+        new MineraculousTrimDatagenSuite(event, enUs);
+
         // Server
         DatapackBuiltinEntriesProvider builtinEntriesProvider = new DatapackBuiltinEntriesProvider(packOutput, registries, BUILDER, Set.of(Mineraculous.MOD_ID));
         generator.addProvider(onServer, builtinEntriesProvider);
@@ -73,7 +77,7 @@ public class MineraculousDataGenerators {
         MineraculousBlockTagsProvider blockTagsProvider = new MineraculousBlockTagsProvider(packOutput, registries, existingFileHelper);
         generator.addProvider(onServer, blockTagsProvider);
         generator.addProvider(onServer, new MineraculousItemTagsProvider(packOutput, registries, blockTagsProvider.contentsGetter(), existingFileHelper));
-        generator.addProvider(onServer, new MineraculousCuriosProvider(packOutput, existingFileHelper, registries));
+//        generator.addProvider(onServer, new MineraculousCuriosProvider(packOutput, existingFileHelper, registries));
         generator.addProvider(onServer, new MineraculousLootTables(packOutput, registries));
         generator.addProvider(onServer, new RecipeProviderRunner(packOutput, Mineraculous.MOD_ID, registries, MineraculousRecipes::new));
         generator.addProvider(onServer, new MineraculousPoiTypeTagsProvider(packOutput, registries, existingFileHelper));
@@ -82,9 +86,10 @@ public class MineraculousDataGenerators {
         generator.addProvider(onServer, new MineraculousDamageTypeTagsProvider(packOutput, registries, existingFileHelper));
 
         // Client
-        generator.addProvider(onClient, new MineraculousBlockStates(packOutput, existingFileHelper));
+        generator.addProvider(onClient, new MineraculousBlockStateProvider(packOutput, existingFileHelper));
         generator.addProvider(onClient, new MineraculousItemModelProvider(packOutput, existingFileHelper));
         generator.addProvider(onClient, new MineraculousParticleDescriptionProvider(packOutput, existingFileHelper));
+        generator.addProvider(onClient, new MineraculousSoundDefinitionsProvider(packOutput, existingFileHelper));
         generator.addProvider(onClient, enUs);
     }
 }

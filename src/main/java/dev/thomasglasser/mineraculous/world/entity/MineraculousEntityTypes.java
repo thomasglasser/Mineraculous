@@ -23,7 +23,7 @@ public class MineraculousEntityTypes {
     public static final DeferredHolder<EntityType<?>, EntityType<Kamiko>> KAMIKO = register("kamiko",
             EntityType.Builder.of(Kamiko::new, MobCategory.MISC)
                     .clientTrackingRange(Integer.MAX_VALUE / 16)
-                    .sized(0.2F, 0.2F));
+                    .sized(0.3F, 0.3F));
 
     // Projectiles
     public static final DeferredHolder<EntityType<?>, EntityType<ThrownCatStaff>> THROWN_CAT_STAFF = register("thrown_cat_staff",

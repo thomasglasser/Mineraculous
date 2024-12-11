@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
@@ -60,14 +61,8 @@ public class MineraculousBlockEntityWithoutLevelRenderer extends BlockEntityWith
                 } else {
                     ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, type.location().getNamespace(), defaultHidden);
                 }
-            } else if (stack.is(MineraculousArmors.MIRACULOUS.HEAD)) {
-                ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, type.location().getNamespace(), basePath + "armor/mask");
-            } else if (stack.is(MineraculousArmors.MIRACULOUS.CHEST)) {
-                ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, type.location().getNamespace(), basePath + "armor/chestplate");
-            } else if (stack.is(MineraculousArmors.MIRACULOUS.LEGS)) {
-                ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, type.location().getNamespace(), basePath + "armor/leggings");
-            } else if (stack.is(MineraculousArmors.MIRACULOUS.FEET)) {
-                ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, type.location().getNamespace(), basePath + "armor/boots");
+            } else if (MineraculousArmors.MIRACULOUS.getAllAsItems().contains(stack.getItem())) {
+                ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, Mineraculous.MOD_ID, prefix + "armor");
             }
         }
         poseStack.popPose();

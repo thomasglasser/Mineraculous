@@ -13,7 +13,6 @@ public class KamikoRenderer<T extends Kamiko> extends DynamicGeoEntityRenderer<T
 
     public KamikoRenderer(EntityRendererProvider.Context context) {
         super(context, new DefaultedEntityGeoModel<>(Mineraculous.modLoc("kamiko")));
-        withScale(0.2F);
     }
 
     @Override

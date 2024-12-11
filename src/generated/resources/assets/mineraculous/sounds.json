@@ -1,0 +1,75 @@
+{
+  "ability.cataclysm.activate": {
+    "sounds": [
+      "mineraculous:ability/cataclysm/activate1",
+      "mineraculous:ability/cataclysm/activate2"
+    ],
+    "subtitle": "subtitles.ability.cataclysm.activate"
+  },
+  "ability.cataclysm.use": {
+    "sounds": [
+      "mineraculous:ability/cataclysm/use"
+    ],
+    "subtitle": "subtitles.ability.cataclysm.use"
+  },
+  "ability.kamikotization.activate": {
+    "sounds": [
+      "mineraculous:ability/kamikotization/activate"
+    ],
+    "subtitle": "subtitles.ability.kamikotization.activate"
+  },
+  "ability.kamikotization.use": {
+    "sounds": [
+      "mineraculous:ability/kamikotization/use"
+    ],
+    "subtitle": "subtitles.ability.kamikotization.use"
+  },
+  "item.cat_staff.shield": {
+    "sounds": [
+      "mineraculous:item/cat_staff/shield"
+    ],
+    "subtitle": "subtitles.item.cat_staff.shield"
+  },
+  "kamikotization.detransform": {
+    "sounds": [
+      "mineraculous:kamikotization/detransform"
+    ],
+    "subtitle": "subtitles.kamikotization.detransform"
+  },
+  "kamikotization.transform": {
+    "sounds": [
+      "mineraculous:kamikotization/transform"
+    ],
+    "subtitle": "subtitles.kamikotization.transform"
+  },
+  "miraculous.butterfly.transform": {
+    "sounds": [
+      "mineraculous:miraculous/butterfly/transform"
+    ],
+    "subtitle": "subtitles.miraculous.butterfly.transform"
+  },
+  "miraculous.cat.transform": {
+    "sounds": [
+      "mineraculous:miraculous/cat/transform"
+    ],
+    "subtitle": "subtitles.miraculous.cat.transform"
+  },
+  "miraculous.generic.detransform": {
+    "sounds": [
+      "mineraculous:miraculous/generic/detransform"
+    ],
+    "subtitle": "subtitles.miraculous.generic.detransform"
+  },
+  "miraculous.generic.transform": {
+    "sounds": [
+      "mineraculous:miraculous/generic/transform"
+    ],
+    "subtitle": "subtitles.miraculous.generic.transform"
+  },
+  "miraculous.ladybug.transform": {
+    "sounds": [
+      "mineraculous:miraculous/ladybug/transform"
+    ],
+    "subtitle": "subtitles.miraculous.ladybug.transform"
+  }
+}

@@ -10,6 +10,7 @@ import dev.thomasglasser.mineraculous.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundActivateToolPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetCatStaffAbilityPayload;
+import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
@@ -127,7 +128,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem, Pro
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(pEntity);
                 int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
                 if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen()) {
-                    if (MineraculousKeyMappings.ACTIVATE_TOOL.isDown()) {
+                    if (MineraculousKeyMappings.ACTIVATE_TOOL.get().isDown()) {
                         boolean activate = !pStack.has(MineraculousDataComponents.POWERED.get());
                         if (activate) {
                             pStack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
@@ -136,7 +137,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem, Pro
                         }
                         TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, pStack, hand));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
-                    } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.isDown()) {
+                    } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown()) {
                         MineraculousClientEvents.openToolWheel(MineraculousMiraculous.CAT, pStack, option -> {
                             if (option instanceof Ability ability) {
                                 pStack.set(MineraculousDataComponents.CAT_STAFF_ABILITY.get(), ability);
@@ -192,10 +193,17 @@ public class CatStaffItem extends SwordItem implements GeoItem, ModeledItem, Pro
     }
 
     @Override
+    public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
+        super.onUseTick(level, livingEntity, stack, remainingUseDuration);
+        if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.BLOCK && remainingUseDuration % 10 == 0) {
+            livingEntity.playSound(MineraculousSoundEvents.CAT_STAFF_SHIELD.get());
+        }
+    }
+
+    @Override
     public void onStopUsing(ItemStack stack, LivingEntity entity, int count) {
         if (entity.level() instanceof ServerLevel serverLevel && stack.has(MineraculousDataComponents.CAT_STAFF_ABILITY.get())) {
             long animId = GeoItem.getOrAssignId(stack, serverLevel);
-            // TODO: Change when gecko fixed
 //            if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.BLOCK) {
 //                stopTriggeredAnim(entity, animId, "use_controller", "shield");
 //            }

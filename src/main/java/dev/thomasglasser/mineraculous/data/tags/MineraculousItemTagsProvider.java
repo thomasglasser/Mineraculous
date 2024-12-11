@@ -34,8 +34,8 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         tag(MineraculousItemTags.BUTTERFLY_KWAMI_FOODS)
                 .addTag(ItemTags.FLOWERS);
 
-        // TODO: Hibiscus
-        tag(MineraculousItemTags.BUTTERFLY_KWAMI_TREATS);
+        tag(MineraculousItemTags.BUTTERFLY_KWAMI_TREATS)
+                .add(MineraculousBlocks.HIBISCUS_BUSH.asItem());
 
         tag(MineraculousItemTags.CAT_KWAMI_FOODS)
                 .addTag(MineraculousItemTags.CHEESES_FOODS);

@@ -104,7 +104,7 @@ public class KamikotizationChatScreen extends ChatScreen {
         } else if (keyCode == GLFW.GLFW_KEY_PAGE_DOWN) {
             this.minecraft.gui.getChat().scrollChat(-this.minecraft.gui.getChat().getLinesPerPage() + 1);
             return true;
-        } else if (keyCode == MineraculousKeyMappings.ACTIVATE_POWER.getKey().getValue()) {
+        } else if (keyCode == MineraculousKeyMappings.ACTIVATE_POWER.get().getKey().getValue()) {
             onClose(true);
             MineraculousClientUtils.setCameraEntity(null);
             return true;

@@ -9,18 +9,21 @@ import java.util.List;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.level.Level;
 
-public record SetOwnerAbility(Optional<Integer> maxOfTypes, Optional<EntityPredicate> validEntities, Optional<EntityPredicate> invalidEntities) implements Ability {
+public record SetOwnerAbility(Optional<Integer> maxOfTypes, Optional<EntityPredicate> validEntities, Optional<EntityPredicate> invalidEntities, Optional<Holder<SoundEvent>> startSound) implements Ability {
 
     public static final MapCodec<SetOwnerAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Codec.INT.optionalFieldOf("max_of_types").forGetter(SetOwnerAbility::maxOfTypes),
             EntityPredicate.CODEC.optionalFieldOf("valid_entities").forGetter(SetOwnerAbility::validEntities),
-            EntityPredicate.CODEC.optionalFieldOf("invalid_entities").forGetter(SetOwnerAbility::invalidEntities)).apply(instance, SetOwnerAbility::new));
+            EntityPredicate.CODEC.optionalFieldOf("invalid_entities").forGetter(SetOwnerAbility::invalidEntities),
+            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(SetOwnerAbility::startSound)).apply(instance, SetOwnerAbility::new));
     @Override
     public boolean perform(AbilityData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
         if (context == Context.INTERACT_ENTITY && context.entity() instanceof TamableAnimal animal && animal.level() instanceof ServerLevel serverLevel) {
@@ -38,6 +41,7 @@ public record SetOwnerAbility(Optional<Integer> maxOfTypes, Optional<EntityPredi
             if (maxOfTypes.isPresent() && like.size() >= maxOfTypes.get())
                 return false;
             animal.setOwnerUUID(performer.getUUID());
+            playStartSound(level, pos);
             return true;
         }
         return false;

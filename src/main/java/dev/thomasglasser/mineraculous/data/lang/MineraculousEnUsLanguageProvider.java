@@ -13,6 +13,7 @@ import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.server.commands.MiraculousCommand;
+import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
@@ -52,6 +53,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
         add(MineraculousBlocks.HIBISCUS_BUSH.asItem(), "Hibiscus");
 
+        addArmorTrim(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE.get(), "Ladybug");
+        addArmorTrim(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE.get(), "Cat");
+        addArmorTrim(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE.get(), "Butterfly");
+
         addCreativeTab(MineraculousCreativeModeTabs.MINERACULOUS, "Mineraculous");
         addCreativeTab(MineraculousCreativeModeTabs.MIRACULOUS, "Miraculous");
         addCreativeTab(MineraculousCreativeModeTabs.MIRACULOUS_SUITS, "Miraculous Suits");
@@ -80,11 +85,11 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), "Cat Staff");
 
         add(MineraculousKeyMappings.MIRACULOUS_CATEGORY, "Miraculous");
-        add(MineraculousKeyMappings.TRANSFORM, "Transform");
-        add(MineraculousKeyMappings.ACTIVATE_POWER, "Activate Power");
-        add(MineraculousKeyMappings.ACTIVATE_TOOL, "Activate Tool");
-        add(MineraculousKeyMappings.OPEN_TOOL_WHEEL, "Open Tool Wheel");
-        add(MineraculousKeyMappings.TAKE_BREAK_ITEM, "Take/Break Item");
+        add(MineraculousKeyMappings.TRANSFORM.get(), "Transform");
+        add(MineraculousKeyMappings.ACTIVATE_POWER.get(), "Activate Power");
+        add(MineraculousKeyMappings.ACTIVATE_TOOL.get(), "Activate Tool");
+        add(MineraculousKeyMappings.OPEN_TOOL_WHEEL.get(), "Open Tool Wheel");
+        add(MineraculousKeyMappings.TAKE_BREAK_ITEM.get(), "Take/Break Item");
 
         add(MiraculousData.NAME_NOT_SET, "You haven't set your %s hero name yet! Use /miraculous %s name <name> to set.");
 
@@ -160,6 +165,19 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         addCuriosSlot(MineraculousCuriosProvider.SLOT_BROOCH);
         addCuriosSlot(MineraculousCuriosProvider.SLOT_EARRINGS);
+
+        add(MineraculousSoundEvents.CATACLYSM_ACTIVATE.get(), "Cataclysm activates");
+        add(MineraculousSoundEvents.CATACLYSM_USE.get(), "Cataclysm triggers");
+        add(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE.get(), "Kamiko powers up");
+        add(MineraculousSoundEvents.KAMIKOTIZATION_USE.get(), "Kamikotization begins");
+        add(MineraculousSoundEvents.CAT_STAFF_SHIELD.get(), "Staff whirs");
+        add(MineraculousSoundEvents.GENERIC_TRANSFORM.get(), "Miraculous holder transforms");
+        add(MineraculousSoundEvents.GENERIC_DETRANSFORM.get(), "Miraculous holder detransforms");
+        add(MineraculousSoundEvents.LADYBUG_TRANSFORM.get(), "Ladybug Miraculous holder puts spots on");
+        add(MineraculousSoundEvents.CAT_TRANSFORM.get(), "Cat Miraculous holder takes claws out");
+        add(MineraculousSoundEvents.BUTTERFLY_TRANSFORM.get(), "Butterfly Miraculous holder raises wings");
+        add(MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM.get(), "Kamikotized player transforms");
+        add(MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM.get(), "Kamikotized player detransforms");
     }
 
     private void addConfigs() {

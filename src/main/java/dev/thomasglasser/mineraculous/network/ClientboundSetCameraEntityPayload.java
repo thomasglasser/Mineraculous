@@ -36,7 +36,7 @@ public record ClientboundSetCameraEntityPayload(int entityId, Optional<ResourceL
     public void handle(Player player) {
         CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
         Entity entity = player.level().getEntity(entityId);
-        if (MineraculousKeyMappings.ACTIVATE_POWER.isDown()) {
+        if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown()) {
             if (overrideActive && miraculous.isPresent()) {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundSetPowerActivatedPayload(miraculous.get(), false, false));
             }
@@ -49,7 +49,7 @@ public record ClientboundSetCameraEntityPayload(int entityId, Optional<ResourceL
                 });
             } else {
                 if (entityData.getInt(MineraculousEntityEvents.TAG_WAITTICKS) <= 6) {
-                    MineraculousKeyMappings.ACTIVATE_POWER.setDown(false);
+                    MineraculousKeyMappings.ACTIVATE_POWER.get().setDown(false);
                     if (MineraculousClientUtils.getCameraEntity() == entity) {
                         MineraculousClientUtils.setCameraEntity(null);
                     } else {

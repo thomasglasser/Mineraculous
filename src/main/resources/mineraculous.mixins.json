@@ -16,8 +16,7 @@
     "minecraft.client.player.LocalPlayerMixin",
     "minecraft.client.renderer.GameRendererMixin",
     "minecraft.client.renderer.entity.LivingEntityRendererMixin",
-    "minecraft.client.renderer.entity.layers.CapeLayerMixin",
-    "minecraft.client.renderer.entity.state.LivingEntityRenderStateMixin"
+    "minecraft.client.renderer.entity.layers.CapeLayerMixin"
   ],
   "server": [
   ],

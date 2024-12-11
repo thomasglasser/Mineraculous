@@ -39,11 +39,6 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 withExistingParent("item/miraculous/" + key + "/powered_2", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "/symbol_2"));
                 withExistingParent("item/miraculous/" + key + "/powered_3", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "/symbol_3"));
                 withExistingParent("item/miraculous/" + key + "/powered_4", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "/symbol_4"));
-
-                withExistingParent("item/miraculous/" + key + "/armor/mask", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + key + "/armor/mask"));
-                withExistingParent("item/miraculous/" + key + "/armor/chestplate", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + key + "/armor/chestplate"));
-                withExistingParent("item/miraculous/" + key + "/armor/leggings", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + key + "/armor/leggings"));
-                withExistingParent("item/miraculous/" + key + "/armor/boots", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + key + "/armor/boots"));
             }
         }
 
@@ -57,14 +52,16 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         withExistingParent("item/miraculous/" + butterflyKey + "/powered_2", butterflyBase).texture("texture", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/powered_2"));
         withExistingParent("item/miraculous/" + butterflyKey + "/powered_3", butterflyBase).texture("texture", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/powered_3"));
         withExistingParent("item/miraculous/" + butterflyKey + "/powered_4", butterflyBase).texture("texture", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/powered_4"));
-        withExistingParent("item/miraculous/" + butterflyKey + "/armor/mask", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/armor/mask"));
-        withExistingParent("item/miraculous/" + butterflyKey + "/armor/chestplate", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/armor/chestplate"));
-        withExistingParent("item/miraculous/" + butterflyKey + "/armor/leggings", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/armor/leggings"));
-        withExistingParent("item/miraculous/" + butterflyKey + "/armor/boots", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/armor/boots"));
+
+        withExistingParent("item/miraculous/armor", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/armor"));
 
         spawnEggItem(MineraculousItems.KAMIKO_SPAWN_EGG);
 
         basicItem(MineraculousItems.CATACLYSM_DUST.get());
+        basicItem(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE);
+        basicItem(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE);
+        basicItem(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE);
+        basicItem(MineraculousBlocks.HIBISCUS_BUSH.asItem());
 
         // TODO: Cheese wedges
 //		for (CheeseBlock.Age age: CheeseBlock.Age.values()) {

@@ -1,0 +1,8 @@
+{
+  "asset_id": "mineraculous:ladybug",
+  "decal": false,
+  "description": {
+    "translate": "trim_pattern.mineraculous.ladybug"
+  },
+  "template_item": "mineraculous:ladybug_armor_trim_smithing_template"
+}

@@ -14,6 +14,7 @@ import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.data.MineraculousDataGenerators;
 import dev.thomasglasser.mineraculous.network.MineraculousPayloads;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
+import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityDataSerializers;
@@ -30,6 +31,7 @@ import dev.thomasglasser.mineraculous.world.item.crafting.MineraculousRecipeSeri
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.context.ContextKey;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -70,6 +72,7 @@ public class Mineraculous {
         MineraculousMobEffects.init();
         MineraculousAbilitySerializers.init();
         MineraculousEntitySubPredicates.init();
+        MineraculousSoundEvents.init();
 
         registerConfigs(modContainer);
 
@@ -107,6 +110,8 @@ public class Mineraculous {
             bus.addListener(MineraculousClientEvents::onRegisterEntitySpectatorShaders);
             bus.addListener(MineraculousClientEvents::onRegisterLayerDefinitions);
             bus.addListener(MineraculousClientEvents::onAddLayers);
+            bus.addListener(MineraculousClientEvents::onRegisterItemColorHandlers);
+            bus.addListener(MineraculousClientEvents::onRegisterRenderStateModifiers);
 
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onGetPlayerHeartType);
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderHand);
@@ -125,6 +130,10 @@ public class Mineraculous {
 
     public static ResourceLocation modLoc(String s) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, s);
+    }
+
+    public static <T> ContextKey<T> contextKey(String path) {
+        return new ContextKey<T>(Mineraculous.modLoc(path));
     }
 
     public enum Dependencies {

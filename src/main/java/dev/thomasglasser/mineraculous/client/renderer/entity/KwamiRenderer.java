@@ -17,7 +17,6 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
 
     public KwamiRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, null);
-        withScale(0.4F);
     }
 
     @Override

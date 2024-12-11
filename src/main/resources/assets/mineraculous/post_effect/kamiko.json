@@ -1,17 +1,12 @@
 {
-  "targets": {
-    "swap": {}
-  },
+  "targets": [
+    "swap"
+  ],
   "passes": [
     {
-      "program": "minecraft:post/color_convolve",
-      "inputs": [
-        {
-          "sampler_name": "In",
-          "target": "minecraft:main"
-        }
-      ],
-      "output": "swap",
+      "name": "color_convolve",
+      "intarget": "minecraft:main",
+      "outtarget": "swap",
       "uniforms": [
         {
           "name": "RedMatrix",
@@ -28,14 +23,9 @@
       ]
     },
     {
-      "program": "minecraft:post/blit",
-      "inputs": [
-        {
-          "sampler_name": "In",
-          "target": "swap"
-        }
-      ],
-      "output": "minecraft:main"
+      "name": "blit",
+      "intarget": "swap",
+      "outtarget": "minecraft:main"
     }
   ]
 }

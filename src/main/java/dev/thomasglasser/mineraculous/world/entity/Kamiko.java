@@ -47,7 +47,7 @@ import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, GeoEntity {
-    public static final ResourceLocation SPECTATOR_SHADER = Mineraculous.modLoc("kamiko");
+    public static final ResourceLocation SPECTATOR_SHADER = Mineraculous.modLoc("post_effect/kamiko.json");
 
     private final AnimatableInstanceCache animCache = GeckoLibUtil.createInstanceCache(this);
 

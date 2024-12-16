@@ -69,7 +69,7 @@ public class MineraculousBlocks {
     }
 
     private static <T extends Block> DeferredBlock<T> registerWithItem(String name, Supplier<T> block, List<ResourceKey<CreativeModeTab>> tabs) {
-        return BlockUtils.registerBlockAndItemAndWrap(BLOCKS, name, block, (name1, item, tabs1) -> MineraculousItems.register(name1, item), tabs);
+        return BlockUtils.registerBlockAndItemAndWrap(BLOCKS, name, block, MineraculousItems::register);
     }
 
     private static <T extends Block> DeferredBlock<T> registerWithSeparatelyNamedItem(String blockName, String itemName, Supplier<T> block) {

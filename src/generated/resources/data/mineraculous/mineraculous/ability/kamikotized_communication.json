@@ -8,6 +8,6 @@
   },
   "must_be_tamed": false,
   "override_active": true,
-  "shader": "mineraculous:kamiko",
+  "shader": "mineraculous:post_effect/kamiko.json",
   "toggle_tag": "ShowKamikoMask"
 }

@@ -38,7 +38,6 @@ import java.util.Arrays;
 import java.util.Map;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.Item;
 import org.apache.commons.lang3.text.WordUtils;
 
 public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvider {
@@ -213,15 +212,5 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
     protected void addCuriosSlot(String name) {
         add("curios.identifier." + name, WordUtils.capitalize(name));
-    }
-
-    @Deprecated(forRemoval = true)
-    private void add(ResourceKey<?> key, String name) {
-        add(key.location().toLanguageKey(key.registry().getPath()), name);
-    }
-
-    @Deprecated(forRemoval = true)
-    protected void addArmorTrim(Item item, String name) {
-        add(item, name + " Armor Trim");
     }
 }

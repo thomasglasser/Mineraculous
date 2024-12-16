@@ -16,7 +16,7 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiracu
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import dev.thomasglasser.tommylib.api.world.item.BaseModeledSwordItem;
+import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
 import java.util.function.Consumer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -45,6 +45,7 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileItem;
+import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Unbreakable;
@@ -63,7 +64,7 @@ import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class CatStaffItem extends BaseModeledSwordItem implements GeoItem, ProjectileItem {
+public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, ProjectileItem {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final ResourceLocation EXTENDED_PROPERTY_ID = Mineraculous.modLoc("extended");
     public static final RawAnimation EXTEND = RawAnimation.begin().thenPlay("attack.extend");

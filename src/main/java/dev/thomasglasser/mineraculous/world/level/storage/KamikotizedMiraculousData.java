@@ -12,7 +12,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.LivingEntity;
 
 public record KamikotizedMiraculousData(ResourceKey<Miraculous> miraculous, MiraculousData data) {
-
     public static final Codec<KamikotizedMiraculousData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceKey.codec(MineraculousRegistries.MIRACULOUS).fieldOf("miraculous").forGetter(KamikotizedMiraculousData::miraculous),
             MiraculousData.CODEC.fieldOf("miraculous_data").forGetter(KamikotizedMiraculousData::data)).apply(instance, KamikotizedMiraculousData::new));
@@ -20,6 +19,7 @@ public record KamikotizedMiraculousData(ResourceKey<Miraculous> miraculous, Mira
             ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS), KamikotizedMiraculousData::miraculous,
             MiraculousData.STREAM_CODEC, KamikotizedMiraculousData::data,
             KamikotizedMiraculousData::new);
+
     public KamikotizedMiraculousData() {
         this(ResourceKey.create(MineraculousRegistries.MIRACULOUS, Mineraculous.modLoc("")), new MiraculousData());
     }

@@ -6,7 +6,7 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
-import dev.thomasglasser.tommylib.api.world.item.armor.BaseGeoArmorItem;
+import dev.thomasglasser.tommylib.api.world.item.armor.GeoArmorItem;
 import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.client.model.HumanoidModel;
@@ -16,6 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -25,7 +26,7 @@ import software.bernie.geckolib.animatable.client.GeoRenderProvider;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class MiraculousArmorItem extends BaseGeoArmorItem implements ModeledItem {
+public class MiraculousArmorItem extends ArmorItem implements ModeledItem, GeoArmorItem {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public MiraculousArmorItem(Type type, Item.Properties pProperties) {

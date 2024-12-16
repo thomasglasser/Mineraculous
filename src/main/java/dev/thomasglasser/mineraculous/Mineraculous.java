@@ -110,7 +110,7 @@ public class Mineraculous {
             bus.addListener(MineraculousClientEvents::onRegisterLayerDefinitions);
             bus.addListener(MineraculousClientEvents::onAddLayers);
             bus.addListener(MineraculousClientEvents::onRegisterItemColorHandlers);
-            bus.addListener(MineraculousClientEvents::onRegisterKeyMappings);
+            bus.addListener(MineraculousClientEvents::onBuildCreativeModeTabContents);
 
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onGetPlayerHeartType);
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderHand);

@@ -33,8 +33,7 @@ public class MineraculousMiraculousAdvancements extends ExtendedAdvancementGener
 
     @Override
     public void generate(HolderLookup.Provider provider) {
-        // TODO: Replace with ladybug miraculous
-        AdvancementHolder root = root(/*Miraculous.createItemStack(MineraculousItems.MIRACULOUS.get(), MineraculousMiraculous.LADYBUG)*/MineraculousItems.MIRACULOUS, "root", ResourceLocation.withDefaultNamespace("textures/gui/advancements/backgrounds/stone.png") /* TODO: Custom mod-related background */, AdvancementType.TASK, false, false, false, null, AdvancementRequirements.Strategy.AND, Map.of(
+        AdvancementHolder root = root(Miraculous.createItemStack(MineraculousItems.MIRACULOUS.get(), MineraculousMiraculous.LADYBUG), "root", ResourceLocation.withDefaultNamespace("textures/gui/advancements/backgrounds/stone.png") /* TODO: Custom mod-related background */, AdvancementType.TASK, false, false, false, null, AdvancementRequirements.Strategy.AND, Map.of(
                 "get_miraculous", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(MineraculousItems.MIRACULOUS))), "Miraculous", "A hero's journey begins...");
 
         AdvancementHolder transformButterfly = create(root, Miraculous.createItemStack(MineraculousItems.MIRACULOUS.get(), MineraculousMiraculous.BUTTERFLY), "transform_butterfly", AdvancementType.TASK, true, true, false, AdvancementRewards.Builder.experience(10).build(), AdvancementRequirements.Strategy.AND, Map.of(

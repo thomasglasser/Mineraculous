@@ -17,7 +17,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import dev.thomasglasser.tommylib.api.world.item.BaseModeledItem;
+import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -34,6 +34,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
@@ -43,7 +44,7 @@ import net.minecraft.world.level.Level;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class MiraculousItem extends BaseModeledItem implements ICurioItem {
+public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
     public static final int FIVE_MINUTES = 6000;
 
     public MiraculousItem(Properties properties) {

@@ -24,6 +24,8 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
+import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Arrays;
@@ -48,8 +50,11 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -59,9 +64,9 @@ import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterEntitySpectatorShadersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
-import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
@@ -248,7 +253,67 @@ public class MineraculousClientEvents {
         }, MineraculousArmors.MIRACULOUS.getAllAsItems().toArray(new Item[0]));
     }
 
-    public static void onRegisterKeyMappings(RegisterKeyMappingsEvent event) {
-        MineraculousKeyMappings.getKeyMappings().forEach(m -> event.register(m.get()));
+    public static void onBuildCreativeModeTabContents(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
+
+        } else if (event.getTabKey() == CreativeModeTabs.COLORED_BLOCKS) {
+
+        } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
+            event.insertAfter(Items.PINK_PETALS.getDefaultInstance(), MineraculousBlocks.HIBISCUS_BUSH.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(Items.COBWEB.getDefaultInstance(), MineraculousBlocks.CATACLYSM_BLOCK.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        } else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
+            event.insertAfter(Items.LOOM.getDefaultInstance(), MineraculousBlocks.CHEESE_POT.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        } else if (event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS) {
+
+        } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+
+        } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
+            event.insertAfter(Items.SHIELD.getDefaultInstance(), MineraculousItems.LADYBUG_YOYO.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.LADYBUG_YOYO.toStack(), MineraculousItems.CAT_STAFF.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.CAT_STAFF.toStack(), MineraculousItems.BUTTERFLY_CANE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        } else if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
+            event.insertAfter(Items.PUMPKIN_PIE.getDefaultInstance(), MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.FRESH).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.FRESH).toStack(), MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.FRESH).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.FRESH).toStack(), MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.FRESH).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.FRESH).toStack(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.FRESH).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.FRESH).toStack(), MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.AGED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.AGED).toStack(), MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.AGED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.AGED).toStack(), MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.AGED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.AGED).toStack(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.AGED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.AGED).toStack(), MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.RIPENED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.RIPENED).toStack(), MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.RIPENED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.RIPENED).toStack(), MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.RIPENED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.RIPENED).toStack(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.RIPENED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.RIPENED).toStack(), MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.EXQUISITE).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.EXQUISITE).toStack(), MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.EXQUISITE).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.EXQUISITE).toStack(), MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.EXQUISITE).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.EXQUISITE).toStack(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.EXQUISITE).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.EXQUISITE).toStack(), MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.TIME_HONORED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.TIME_HONORED).toStack(), MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.TIME_HONORED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.TIME_HONORED).toStack(), MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.TIME_HONORED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.TIME_HONORED).toStack(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.TIME_HONORED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.TIME_HONORED).toStack(), MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.FRESH).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.FRESH).toStack(), MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.FRESH).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.FRESH).toStack(), MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.AGED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.AGED).toStack(), MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.AGED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.AGED).toStack(), MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.RIPENED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.RIPENED).toStack(), MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.RIPENED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.RIPENED).toStack(), MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.EXQUISITE).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.EXQUISITE).toStack(), MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.EXQUISITE).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.EXQUISITE).toStack(), MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.TIME_HONORED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.TIME_HONORED).toStack(), MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.TIME_HONORED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        } else if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+            event.insertAfter(Items.BLAZE_POWDER.getDefaultInstance(), MineraculousItems.CATACLYSM_DUST.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+
+            // Armor Trims
+            event.insertAfter(Items.BOLT_ARMOR_TRIM_SMITHING_TEMPLATE.getDefaultInstance(), MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        } else if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
+            // Must be in alphabetical order
+            event.insertAfter(Items.IRON_GOLEM_SPAWN_EGG.getDefaultInstance(), MineraculousItems.KAMIKO_SPAWN_EGG.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        } else if (event.getTabKey() == CreativeModeTabs.OP_BLOCKS) {
+
+        }
     }
 }

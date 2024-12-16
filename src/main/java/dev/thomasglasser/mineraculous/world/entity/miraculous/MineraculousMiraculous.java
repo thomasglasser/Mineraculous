@@ -1,23 +1,18 @@
 package dev.thomasglasser.mineraculous.world.entity.miraculous;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.MineraculousAbilities;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.ItemStack;
 
 public class MineraculousMiraculous {
     public static final ResourceKey<Miraculous> BUTTERFLY = register("butterfly");
@@ -60,27 +55,5 @@ public class MineraculousMiraculous {
                 Optional.empty(/*abilities.getOrThrow(MineraculousAbilities.MIRACULOUS_LADYBUG)*/),
                 List.of(),
                 MineraculousSoundEvents.LADYBUG_TRANSFORM));
-    }
-
-    public static List<ItemStack> getMiraculousForAll(HolderLookup.Provider access) {
-        List<ItemStack> list = new ArrayList<>();
-        access.lookupOrThrow(MineraculousRegistries.MIRACULOUS).listElements().forEach(ref -> {
-            ItemStack stack = MineraculousItems.MIRACULOUS.get().getDefaultInstance();
-            stack.set(MineraculousDataComponents.MIRACULOUS, ref.key());
-            list.add(stack);
-        });
-        return list;
-    }
-
-    public static List<ItemStack> getArmorForAll(HolderLookup.Provider access) {
-        List<ItemStack> list = new ArrayList<>();
-        access.lookupOrThrow(MineraculousRegistries.MIRACULOUS).listElements().forEach(ref -> {
-            MineraculousArmors.MIRACULOUS.getAll().forEach(item -> {
-                ItemStack stack = item.get().getDefaultInstance();
-                stack.set(MineraculousDataComponents.MIRACULOUS, ref.key());
-                list.add(stack);
-            });
-        });
-        return list;
     }
 }

@@ -33,7 +33,7 @@ public class MineraculousBlocks {
 
     public static final DeferredBlock<Block> CHEESE_POT = registerWithItem("cheese_pot", () -> new Block(BlockBehaviour.Properties.of().strength(0.5f).noOcclusion().sound(SoundType.METAL).mapColor(MapColor.GOLD)), List.of(CreativeModeTabs.FUNCTIONAL_BLOCKS));
 
-    public static final DeferredBlock<HibiscusBushBlock> HIBISCUS_BUSH = registerWithSeparatelyNamedItem("hibiscus_bush", "hibiscus", () -> new HibiscusBushBlock(BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).randomTicks().noCollission().sound(SoundType.SWEET_BERRY_BUSH).pushReaction(PushReaction.DESTROY)), List.of(CreativeModeTabs.NATURAL_BLOCKS));
+    public static final DeferredBlock<HibiscusBushBlock> HIBISCUS_BUSH = registerWithSeparatelyNamedItem("hibiscus_bush", "hibiscus", () -> new HibiscusBushBlock(BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).randomTicks().noCollission().sound(SoundType.SWEET_BERRY_BUSH).pushReaction(PushReaction.DESTROY)));
 
     // Cheese
     public static final SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> CHEESE_BLOCKS = cheese("cheese", MineraculousFoods.CHEESE, MineraculousItems.CHEESE_WEDGES);
@@ -69,12 +69,12 @@ public class MineraculousBlocks {
     }
 
     private static <T extends Block> DeferredBlock<T> registerWithItem(String name, Supplier<T> block, List<ResourceKey<CreativeModeTab>> tabs) {
-        return BlockUtils.registerBlockAndItemAndWrap(BLOCKS, name, block, MineraculousItems::register, tabs);
+        return BlockUtils.registerBlockAndItemAndWrap(BLOCKS, name, block, (name1, item, tabs1) -> MineraculousItems.register(name1, item), tabs);
     }
 
-    private static <T extends Block> DeferredBlock<T> registerWithSeparatelyNamedItem(String blockName, String itemName, Supplier<T> block, List<ResourceKey<CreativeModeTab>> tabs) {
+    private static <T extends Block> DeferredBlock<T> registerWithSeparatelyNamedItem(String blockName, String itemName, Supplier<T> block) {
         DeferredBlock<T> deferredBlock = register(blockName, block);
-        MineraculousItems.register(itemName, () -> new ItemNameBlockItem(deferredBlock.get(), new Item.Properties()), tabs);
+        MineraculousItems.register(itemName, () -> new ItemNameBlockItem(deferredBlock.get(), new Item.Properties()));
         return deferredBlock;
     }
 

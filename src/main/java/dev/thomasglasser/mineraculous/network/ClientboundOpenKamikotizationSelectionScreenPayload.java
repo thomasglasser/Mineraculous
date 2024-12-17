@@ -4,7 +4,6 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -22,7 +21,6 @@ public record ClientboundOpenKamikotizationSelectionScreenPayload(UUID target, K
     // ON CLIENT
     @Override
     public void handle(Player player) {
-        TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target));
         MineraculousClientUtils.openKamikotizationSelectionScreen(player.level().getPlayerByUUID(target), kamikoData);
     }
 

@@ -20,11 +20,13 @@ import dev.thomasglasser.mineraculous.data.trimmed.MineraculousTrimDatagenSuite;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.MineraculousAbilities;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
@@ -42,16 +44,21 @@ public class MineraculousDataGenerators {
             .add(MineraculousRegistries.MIRACULOUS, MineraculousMiraculous::bootstrap)
             .add(MineraculousRegistries.KAMIKOTIZATION, context -> {
                 // TODO: Remove when testing is done (don't forget to remove the assets)
+                HolderGetter<Ability> abilities = context.lookup(MineraculousRegistries.ABILITY);
+
                 context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, Mineraculous.modLoc("cat")),
                         new Kamikotization(
-                                "Test",
-                                List.of(),
+                                "Kitty",
                                 ItemPredicate.Builder.item().build(),
-                                List.of()));
+                                List.of(abilities.getOrThrow(MineraculousAbilities.CATACLYSM))));
                 context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, Mineraculous.modLoc("ladybug")),
                         new Kamikotization(
-                                "Test2",
-                                List.of(),
+                                "Bugaboo",
+                                ItemPredicate.Builder.item().build(),
+                                List.of()));
+                context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, Mineraculous.modLoc("butterfly")),
+                        new Kamikotization(
+                                "Betterfly",
                                 ItemPredicate.Builder.item().build(),
                                 List.of()));
             });

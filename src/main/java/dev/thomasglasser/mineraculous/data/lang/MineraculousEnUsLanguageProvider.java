@@ -59,8 +59,6 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         addCreativeTab(MineraculousCreativeModeTabs.MINERACULOUS, "Mineraculous");
         addCreativeTab(MineraculousCreativeModeTabs.MIRACULOUS, "Miraculous");
-        addCreativeTab(MineraculousCreativeModeTabs.MIRACULOUS_SUITS, "Miraculous Suits");
-        addCreativeTab(MineraculousCreativeModeTabs.KAMIKOTIZATION_SUITS, "Kamikotization Suits");
 
         add(MineraculousArmors.MIRACULOUS.HEAD.get(), "Miraculous Mask");
         add(MineraculousArmors.MIRACULOUS.CHEST.get(), "Miraculous Chestplate");

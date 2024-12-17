@@ -17,11 +17,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-public record Kamikotization(String name, List<String> includedLooks, ItemPredicate itemPredicate, List<Holder<Ability>> abilities) {
+public record Kamikotization(String defaultName, ItemPredicate itemPredicate, List<Holder<Ability>> abilities) {
 
     public static final Codec<Kamikotization> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.fieldOf("name").forGetter(Kamikotization::name),
-            Codec.STRING.listOf().fieldOf("included_looks").forGetter(Kamikotization::includedLooks),
+            Codec.STRING.fieldOf("default_name").forGetter(Kamikotization::defaultName),
             ItemPredicate.CODEC.fieldOf("item_predicate").forGetter(Kamikotization::itemPredicate),
             Ability.CODEC.listOf().fieldOf("abilities").forGetter(Kamikotization::abilities)).apply(instance, Kamikotization::new));
     public static Set<Holder<Kamikotization>> getFor(Player player) {

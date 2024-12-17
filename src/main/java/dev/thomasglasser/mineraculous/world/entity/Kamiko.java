@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.network.ClientboundOpenKamikotizationSelectionScreenPayload;
+import dev.thomasglasser.mineraculous.network.ClientboundSyncInventoryPayload;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
@@ -176,6 +177,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     @Override
     public void playerTouch(Player player) {
         if (getTarget() == player && getOwner() instanceof ServerPlayer owner) {
+            TommyLibServices.NETWORK.sendToClient(new ClientboundSyncInventoryPayload(player), owner);
             CompoundTag ownerData = TommyLibServices.ENTITY.getPersistentData(owner);
             ownerData.putBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, true);
             TommyLibServices.ENTITY.setPersistentData(getOwner(), ownerData, true);

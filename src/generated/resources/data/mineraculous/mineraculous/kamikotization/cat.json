@@ -1,6 +1,7 @@
 {
-  "abilities": [],
-  "included_looks": [],
-  "item_predicate": {},
-  "name": "Test"
+  "abilities": [
+    "mineraculous:cataclysm"
+  ],
+  "default_name": "Kitty",
+  "item_predicate": {}
 }

@@ -4,9 +4,12 @@ import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
+import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestMiraculousDataSetSyncPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundStealCuriosPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundStealItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
@@ -24,6 +27,7 @@ import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
+import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
@@ -31,6 +35,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizedMiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Arrays;
 import java.util.List;
@@ -68,6 +73,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.village.VillagerTradesEvent;
+import top.theillusivec4.curios.common.inventory.CurioSlot;
 
 public class MineraculousEntityEvents {
     public static final String TAG_WAITTICKS = "WaitTicks";
@@ -117,12 +123,12 @@ public class MineraculousEntityEvents {
                         }
                         if (takeTicks > (20 * MineraculousServerConfig.INSTANCE.stealingDuration.get())) {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
-//                            ClientUtils.setScreen(new ExternalCuriosInventoryScreen(target, true, ((slot, target1, menu) -> {
-//                                if (slot instanceof CurioSlot curioSlot)
-//                                    TommyLibServices.NETWORK.sendToServer(new ServerboundStealCuriosPayload(target1.getUUID(), new CuriosData(curioSlot.getSlotIndex(), curioSlot.getIdentifier())));
-//                                else
-//                                    TommyLibServices.NETWORK.sendToServer(new ServerboundStealItemPayload(target1.getUUID(), menu.slots.indexOf(slot)));
-//                            }), exit -> {}));
+                            ClientUtils.setScreen(new ExternalCuriosInventoryScreen(target, true, ((slot, target1, menu) -> {
+                                if (slot instanceof CurioSlot curioSlot)
+                                    TommyLibServices.NETWORK.sendToServer(new ServerboundStealCuriosPayload(target1.getUUID(), new CuriosData(curioSlot.getSlotIndex(), curioSlot.getIdentifier())));
+                                else
+                                    TommyLibServices.NETWORK.sendToServer(new ServerboundStealItemPayload(target1.getUUID(), menu.slots.indexOf(slot)));
+                            }), exit -> {}));
                             entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, 0);
                         }
                         TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
@@ -181,8 +187,11 @@ public class MineraculousEntityEvents {
                         miraculousStack.enchant(serverLevel.holderOrThrow(Enchantments.BINDING_CURSE), 1);
                         miraculousStack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
 
-                        ItemStack tool = serverLevel.holderOrThrow(miraculousStack.get(MineraculousDataComponents.MIRACULOUS)).value().tool();
+                        ItemStack tool = serverLevel.holderOrThrow(miraculous).value().tool().copy();
                         tool.set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
+                        player.addItem(tool);
+                        tool.setCount(1);
+
                         miraculousStack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
                         data = new MiraculousData(true, miraculousStack, data.curiosData(), tool, data.powerLevel(), false, false, data.name());
                         player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);
@@ -192,7 +201,6 @@ public class MineraculousEntityEvents {
                             player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(Miraculous.toLanguageKey(miraculous)), miraculous.location().getPath()), true);
                         int powerLevel = data.powerLevel();
                         MIRACULOUS_EFFECTS.forEach(effect -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, powerLevel)));
-                        player.addItem(tool);
                         kwami.discard();
                         MiraculousData finalData = data;
                         serverLevel.holderOrThrow(miraculous).value().passiveAbilities().forEach(ability -> ability.value().transform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
@@ -223,7 +231,6 @@ public class MineraculousEntityEvents {
                 miraculousStack.remove(MineraculousDataComponents.POWERED.get());
                 CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack, true);
                 // TODO: If item not in inventory, make it disappear when found, in item entity or chest or something
-                data.tool().setCount(1);
                 data.tool().set(MineraculousDataComponents.RECALLED.get(), true);
                 if (data.tool().has(MineraculousDataComponents.KWAMI_DATA.get())) {
                     MiraculousData finalData = data;
@@ -393,7 +400,7 @@ public class MineraculousEntityEvents {
                         return Component.literal(data.name()).setStyle(newStyle);
                     return original.copy().setStyle(newStyle.withObfuscated(true));
                 }
-            } else if (entity.hasData(MineraculousAttachmentTypes.KAMIKOTIZATION)) {
+            } else if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).kamikotization().isPresent()) {
                 KamikotizationData data = entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
                 Style newStyle = style.withColor(entity.level().holderOrThrow(MineraculousMiraculous.BUTTERFLY).value().color());
                 return Component.literal(data.name()).setStyle(newStyle);
@@ -495,7 +502,8 @@ public class MineraculousEntityEvents {
                 } else {
                     CuriosUtils.setStackInSlot(player, data.slotInfo().right().get(), kamikotizationStack, true);
                 }
-                player.removeData(MineraculousAttachmentTypes.KAMIKOTIZATION.get());
+                data = new KamikotizationData();
+                data.save(player, true);
                 serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM, SoundSource.PLAYERS, 1, 1);
                 MIRACULOUS_EFFECTS.forEach(player::removeEffect);
                 KamikotizationData finalData1 = data;

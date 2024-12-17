@@ -10,10 +10,11 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
-public record ServerboundCloseKamikotizationChatScreenPayload(UUID playerId) implements ExtendedPacketPayload {
+public record ServerboundCloseKamikotizationChatScreenPayload(UUID playerId, boolean cancel) implements ExtendedPacketPayload {
     public static final Type<ServerboundCloseKamikotizationChatScreenPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_close_kamikotization_chat_screen"));
     public static final StreamCodec<ByteBuf, ServerboundCloseKamikotizationChatScreenPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), ServerboundCloseKamikotizationChatScreenPayload::playerId,
+            ByteBufCodecs.BOOL, ServerboundCloseKamikotizationChatScreenPayload::cancel,
             ServerboundCloseKamikotizationChatScreenPayload::new);
 
     // ON SERVER
@@ -21,7 +22,7 @@ public record ServerboundCloseKamikotizationChatScreenPayload(UUID playerId) imp
     public void handle(Player player) {
         Player player1 = player.level().getPlayerByUUID(playerId);
         if (player1 instanceof ServerPlayer serverPlayer) {
-            TommyLibServices.NETWORK.sendToClient(ClientboundCloseKamikotizationChatScreenPayload.INSTANCE, serverPlayer);
+            TommyLibServices.NETWORK.sendToClient(new ClientboundCloseKamikotizationChatScreenPayload(cancel), serverPlayer);
         }
     }
 

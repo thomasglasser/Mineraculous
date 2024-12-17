@@ -121,7 +121,8 @@ public class RadialMenuScreen extends Screen {
         int mouseY = -1 * (pMouseY - height / 2);
 
         int selectedOption = getSelectedOption(mouseX, mouseY);
-        RadialMenuOption selected = selectedOption != -1 ? options.get(selectedOption) : null;
+        boolean hasSelectedOption = selectedOption != -1;
+        RadialMenuOption selected = hasSelectedOption ? options.get(selectedOption) : null;
         float circleSize;
 
         if (this.animationTick < MAX_ANIMATION_TICKS) {
@@ -136,14 +137,16 @@ public class RadialMenuScreen extends Screen {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         var builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         drawPieArc(builder, width / 2f, height / 2f, 1, (circleSize) / 3f, circleSize * 91 / 90, (selectedOption + 1) * -sliceAngle, 2 * Math.PI - (selectedOption + 1) * sliceAngle, 0xAFAFAF);
-        if (selectedOption != -1) {
+        if (hasSelectedOption) {
             drawPieArc(builder, width / 2f, height / 2f, 0, (circleSize) / 3f, circleSize * 91 / 90, 2 * Math.PI - (selectedOption + 1) * sliceAngle, 2 * Math.PI - selectedOption * sliceAngle, selectedColor);
+        }
+        BufferUploader.drawWithShader(builder.buildOrThrow());
+        RenderSystem.disableBlend();
+        if (hasSelectedOption) {
             int centerWidth = width / 2;
             int centerHeight = height / 2;
             pGuiGraphics.drawCenteredString(font, Component.translatable(selected.translationKey()), centerWidth, centerHeight - font.lineHeight / 2, 0xFFFFFF);
         }
-        BufferUploader.drawWithShader(builder.buildOrThrow());
-        RenderSystem.disableBlend();
     }
 
     protected void drawPieArc(BufferBuilder buffer, float x, float y, float z, float radiusIn, float radiusOut, double startAngle, double endAngle, int color) {

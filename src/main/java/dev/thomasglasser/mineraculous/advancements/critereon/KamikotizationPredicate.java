@@ -28,12 +28,14 @@ public record KamikotizationPredicate(HolderSet<Kamikotization> kamikotizations)
 
     @Override
     public boolean matches(Entity entity, ServerLevel serverLevel, @Nullable Vec3 vec3) {
-        if (entity instanceof LivingEntity livingEntity && livingEntity.hasData(MineraculousAttachmentTypes.KAMIKOTIZATION)) {
-            if (kamikotizations instanceof HolderSet.Direct<Kamikotization> && kamikotizations.size() == 0) {
-                return true;
-            } else {
-                KamikotizationData data = livingEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
-                return data.kamikotization().isPresent() && kamikotizations.contains(serverLevel.registryAccess().holderOrThrow(data.kamikotization().get()));
+        if (entity instanceof LivingEntity livingEntity) {
+            KamikotizationData kamikotizationData = livingEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
+            if (kamikotizationData.kamikotization().isPresent()) {
+                if (kamikotizations instanceof HolderSet.Direct<Kamikotization> && kamikotizations.size() == 0) {
+                    return true;
+                } else {
+                    return kamikotizations.contains(serverLevel.registryAccess().holderOrThrow(kamikotizationData.kamikotization().get()));
+                }
             }
         }
         return false;

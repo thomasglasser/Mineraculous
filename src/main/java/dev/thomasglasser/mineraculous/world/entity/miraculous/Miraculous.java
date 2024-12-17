@@ -38,7 +38,7 @@ public record Miraculous(TextColor color, String acceptableSlot, ItemStack tool,
 
     @Override
     public ItemStack tool() {
-        return tool.copy();
+        return tool;
     }
 
     public static String toLanguageKey(ResourceKey<Miraculous> key) {

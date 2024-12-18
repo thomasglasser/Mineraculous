@@ -40,6 +40,7 @@ public class MineraculousMiraculous {
         context.register(CAT, new Miraculous(
                 TextColor.fromRgb(0xc6f800),
                 MineraculousCuriosProvider.SLOT_RING,
+                9,
                 MineraculousItems.CAT_STAFF.get().getDefaultInstance(),
                 // TODO: Add kwami hungry sound
                 Optional.empty(),

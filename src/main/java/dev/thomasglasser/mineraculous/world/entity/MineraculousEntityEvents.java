@@ -174,6 +174,8 @@ public class MineraculousEntityEvents {
                 Entity entity = serverLevel.getEntity(kwamiData.uuid());
                 if (entity instanceof Kwami kwami) {
                     if (kwami.isCharged() && miraculousStack.getItem() instanceof MiraculousItem miraculousItem) {
+                        int transformationFrames = player.serverLevel().holderOrThrow(miraculous).value().transformationFrames();
+
                         ArmorData armor = new ArmorData(player.getItemBySlot(EquipmentSlot.HEAD), player.getItemBySlot(EquipmentSlot.CHEST), player.getItemBySlot(EquipmentSlot.LEGS), player.getItemBySlot(EquipmentSlot.FEET));
                         player.setData(MineraculousAttachmentTypes.STORED_ARMOR, armor);
                         for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
@@ -181,18 +183,24 @@ public class MineraculousEntityEvents {
                             stack.enchant(serverLevel.holderOrThrow(Enchantments.BINDING_CURSE), 1);
                             stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
                             stack.set(MineraculousDataComponents.MIRACULOUS, miraculous);
+                            if (transformationFrames > 0)
+                                stack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, transformationFrames);
                             player.setItemSlot(slot, stack);
                         }
 
-                        miraculousStack.enchant(serverLevel.holderOrThrow(Enchantments.BINDING_CURSE), 1);
-                        miraculousStack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
-
                         ItemStack tool = serverLevel.holderOrThrow(miraculous).value().tool().copy();
                         tool.set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
-                        player.addItem(tool);
-                        tool.setCount(1);
 
+                        miraculousStack.enchant(serverLevel.holderOrThrow(Enchantments.BINDING_CURSE), 1);
+                        miraculousStack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
                         miraculousStack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
+                        if (transformationFrames > 0)
+                            miraculousStack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, transformationFrames);
+                        else {
+                            player.addItem(tool);
+                            tool.setCount(1);
+                        }
+
                         data = new MiraculousData(true, miraculousStack, data.curiosData(), tool, data.powerLevel(), false, false, data.name());
                         player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);
                         serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), serverLevel.holderOrThrow(miraculous).value().transformSound(), SoundSource.PLAYERS, 1, 1);
@@ -222,11 +230,17 @@ public class MineraculousEntityEvents {
                     Mineraculous.LOGGER.error("Kwami could not be created for player " + player.getName().plainCopy().getString());
                     return;
                 }
-                ArmorData armor = player.getData(MineraculousAttachmentTypes.STORED_ARMOR);
-                for (EquipmentSlot slot : Arrays.stream(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR).toArray(EquipmentSlot[]::new)) {
-                    player.setItemSlot(slot, armor.forSlot(slot));
+
+                int detransformationFrames = player.serverLevel().holderOrThrow(miraculous).value().transformationFrames();
+                if (detransformationFrames > 0)
+                    miraculousStack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, detransformationFrames);
+                else {
+                    miraculousStack.remove(DataComponents.ENCHANTMENTS);
+                    ArmorData armor = player.getData(MineraculousAttachmentTypes.STORED_ARMOR);
+                    for (EquipmentSlot slot : Arrays.stream(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR).toArray(EquipmentSlot[]::new)) {
+                        player.setItemSlot(slot, armor.forSlot(slot));
+                    }
                 }
-                miraculousStack.remove(DataComponents.ENCHANTMENTS);
                 miraculousStack.remove(MineraculousDataComponents.REMAINING_TICKS.get());
                 miraculousStack.remove(MineraculousDataComponents.POWERED.get());
                 CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack, true);

@@ -151,9 +151,10 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         }
 
         if (pStack.has(MineraculousDataComponents.POWERED)) {
-            if (pStack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.PERCH && pEntity.isCrouching())
+            if (pStack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.PERCH && pEntity.isCrouching()) {
                 pEntity.setDeltaMovement(Vec3.ZERO);
-            else if (pStack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.TRAVEL && pEntity instanceof Player player && player.getCooldowns().isOnCooldown(pStack.getItem()))
+                pEntity.resetFallDistance();
+            } else if (pStack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.TRAVEL && pEntity instanceof Player player && player.getCooldowns().isOnCooldown(pStack.getItem()))
                 pEntity.resetFallDistance();
         }
 

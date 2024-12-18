@@ -13,12 +13,14 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
+import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
@@ -32,6 +34,7 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -121,6 +124,22 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
             ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
             MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(miraculous);
             if (data.transformed()) {
+                if (!player.level().isClientSide()) {
+                    Integer transformationFrames = stack.get(MineraculousDataComponents.TRANSFORMATION_FRAMES);
+                    if (transformationFrames != null && transformationFrames >= 1 && player.tickCount % 2 == 0) {
+                        if (transformationFrames <= 1) {
+                            stack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, null);
+                            entity.getArmorSlots().forEach(armorStack -> armorStack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, null));
+                            ItemStack tool = data.tool();
+                            player.addItem(tool);
+                            tool.setCount(1);
+                        } else {
+                            int newTransformationTicks = transformationFrames - 1;
+                            stack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, newTransformationTicks);
+                            entity.getArmorSlots().forEach(armorStack -> armorStack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, newTransformationTicks));
+                        }
+                    }
+                }
                 if (data.mainPowerActivated())
                     stack.set(MineraculousDataComponents.REMAINING_TICKS.get(), stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) - 1);
                 entity.level().holderOrThrow(miraculous).value().passiveAbilities().forEach(ability -> ability.value().perform(new AbilityData(data.powerLevel(), Either.left(miraculous)), player.level(), player.blockPosition(), player, Ability.Context.PASSIVE));
@@ -132,6 +151,25 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
                         boolean usedPower = entity.level().holderOrThrow(miraculous).value().activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(miraculous)), player.level(), player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem()));
                         if (usedPower)
                             entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculous, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), true, false, data.name()), true);
+                    }
+                }
+            } else {
+                if (!player.level().isClientSide()) {
+                    Integer detransformationFrames = stack.get(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
+                    if (detransformationFrames != null && detransformationFrames >= 1 && player.tickCount % 2 == 0) {
+                        if (detransformationFrames <= 1) {
+                            stack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, null);
+                            entity.getArmorSlots().forEach(armorStack -> armorStack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, null));
+                            stack.remove(DataComponents.ENCHANTMENTS);
+                            ArmorData armor = player.getData(MineraculousAttachmentTypes.STORED_ARMOR);
+                            for (EquipmentSlot slot : Arrays.stream(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR).toArray(EquipmentSlot[]::new)) {
+                                player.setItemSlot(slot, armor.forSlot(slot));
+                            }
+                        } else {
+                            int newDetransformationTicks = detransformationFrames - 1;
+                            stack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, newDetransformationTicks);
+                            entity.getArmorSlots().forEach(armorStack -> armorStack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, newDetransformationTicks));
+                        }
                     }
                 }
             }

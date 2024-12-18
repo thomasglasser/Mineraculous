@@ -9,5 +9,6 @@
     "count": 1,
     "id": "mineraculous:cat_staff"
   },
-  "transform_sound": "mineraculous:cat_transform"
+  "transform_sound": "mineraculous:cat_transform",
+  "transformation_frames": 9
 }

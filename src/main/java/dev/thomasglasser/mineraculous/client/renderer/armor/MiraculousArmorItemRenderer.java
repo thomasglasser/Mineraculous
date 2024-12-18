@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.texture.GeoAbstractTexture;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
@@ -34,6 +35,26 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
                 return null;
             }
         });
+    }
+
+    @Override
+    public ResourceLocation getTextureLocation(MiraculousArmorItem animatable) {
+        ItemStack stack = getCurrentStack();
+        if (stack != null) {
+            ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+            if (miraculous != null) {
+                Integer transformationTicks = stack.get(MineraculousDataComponents.TRANSFORMATION_FRAMES);
+                if (transformationTicks != null && transformationTicks > 0) {
+                    return super.getTextureLocation(animatable).withPath(path -> path.replace(miraculous.location().getPath(), miraculous.location().getPath() + "_" + (10 - transformationTicks)));
+                } else {
+                    Integer detransformationTicks = stack.get(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
+                    if (detransformationTicks != null && detransformationTicks > 0) {
+                        return super.getTextureLocation(animatable).withPath(path -> path.replace(miraculous.location().getPath(), miraculous.location().getPath() + "_" + detransformationTicks));
+                    }
+                }
+            }
+        }
+        return super.getTextureLocation(animatable);
     }
 
     @Override

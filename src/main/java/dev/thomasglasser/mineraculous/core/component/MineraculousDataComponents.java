@@ -32,8 +32,8 @@ public class MineraculousDataComponents {
 
     // Miraculous Item
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> RECALLED = register("recalled", Codec.BOOL, null, false);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TRANSFORMING_ANIM_TICKS = register("transforming_anim_ticks", Codec.INT, null, false);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> DETRANSFORMING_ANIM_TICKS = register("detransforming_anim_ticks", Codec.INT, null, false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TRANSFORMATION_FRAMES = register("transformation_frames", Codec.INT, null, false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> DETRANSFORMATION_FRAMES = register("detransformation_frames", Codec.INT, null, false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> REMAINING_TICKS = register("remaining_ticks", Codec.INT, ByteBufCodecs.INT, false);
 
     // Cat Staff

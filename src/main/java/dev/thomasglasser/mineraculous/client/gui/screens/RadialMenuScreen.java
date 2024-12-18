@@ -32,9 +32,11 @@ public class RadialMenuScreen extends Screen {
 
     private final double sliceAngle;
 
-    private float animationTime = 0;
-
+    protected double currentMouseX;
+    protected double currentMouseY;
     protected int animationTick = 0;
+
+    private float animationTime = 0;
 
     public RadialMenuScreen(List<RadialMenuOption> options, ItemStack stack, Consumer<RadialMenuOption> onSelected, int heldKey, int selectedColor) {
         super(Component.empty());
@@ -90,19 +92,22 @@ public class RadialMenuScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0) {
-            int selectedOption = this.getSelectedOption((int) (mouseX - (double) width / 2), (int) (-1 * (mouseY - (double) height / 2)));
-            if (selectedOption != -1) {
-                onSelected.accept(options.get(selectedOption));
-                CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer());
-                playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 20);
-                TommyLibServices.ENTITY.setPersistentData(ClientUtils.getMainClientPlayer(), playerData, false);
-                onClose();
-                return true;
-            }
+    public void onClose() {
+        int selectedOption = this.getSelectedOption((int) (currentMouseX - (double) width / 2), (int) (-1 * (currentMouseY - (double) height / 2)));
+        if (selectedOption != -1) {
+            onSelected.accept(options.get(selectedOption));
+            CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer());
+            playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 20);
+            TommyLibServices.ENTITY.setPersistentData(ClientUtils.getMainClientPlayer(), playerData, false);
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        super.onClose();
+    }
+
+    @Override
+    public void mouseMoved(double mouseX, double mouseY) {
+        super.mouseMoved(mouseX, mouseY);
+        this.currentMouseX = mouseX;
+        this.currentMouseY = mouseY;
     }
 
     @Override

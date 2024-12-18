@@ -377,7 +377,7 @@ public class KamikotizationSelectionScreen extends Screen {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(kamikotizationData, true));
                     TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
                 } else {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundOpenVictimKamikotizationChatScreenPayload(target.getUUID(), kamikotizationData, kamikoData));
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundOpenVictimKamikotizationChatScreenPayload(target.getUUID(), kamikotizationData));
                     MiraculousDataSet playerMiraculousSet = ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.MIRACULOUS);
                     TommyLibServices.NETWORK.sendToServer(new ServerboundOpenPerformerKamikotizationChatScreenPayload(name.getValue(), playerMiraculousSet.get(playerMiraculousSet.getTransformed().getFirst()).name(), target.getUUID()));
                 }

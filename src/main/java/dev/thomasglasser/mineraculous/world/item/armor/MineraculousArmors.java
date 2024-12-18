@@ -15,7 +15,7 @@ public class MineraculousArmors {
     public static final UnaryOperator<Item.Properties> DEFAULT_PROPERTIES = properties -> properties.stacksTo(1);
 
     public static final ArmorSet MIRACULOUS = createMiraculousSet();
-    public static final ArmorSet KAMIKOTIZATION = createKamikotizedSet();
+    public static final ArmorSet KAMIKOTIZATION = createKamikotizationSet();
 
     private static ArmorSet createMiraculousSet() {
         DeferredItem<ArmorItem> mask = ItemUtils.register(ARMORS, "miraculous_mask", () -> new MiraculousArmorItem(ArmorItem.Type.HELMET, DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
@@ -26,13 +26,13 @@ public class MineraculousArmors {
         return new ArmorSet("miraculous", "Miraculous", mask, chestplate, leggings, boots);
     }
 
-    private static ArmorSet createKamikotizedSet() {
-        DeferredItem<ArmorItem> mask = ItemUtils.register(ARMORS, "kamikotized_mask", () -> new KamikotizationArmorItem(ArmorItem.Type.HELMET, DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
-        DeferredItem<ArmorItem> chestplate = ItemUtils.register(ARMORS, "kamikotized_chestplate", () -> new KamikotizationArmorItem(ArmorItem.Type.CHESTPLATE, DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
-        DeferredItem<ArmorItem> leggings = ItemUtils.register(ARMORS, "kamikotized_leggings", () -> new KamikotizationArmorItem(ArmorItem.Type.LEGGINGS, DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
-        DeferredItem<ArmorItem> boots = ItemUtils.register(ARMORS, "kamikotized_boots", () -> new KamikotizationArmorItem(ArmorItem.Type.BOOTS, DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
+    private static ArmorSet createKamikotizationSet() {
+        DeferredItem<ArmorItem> mask = ItemUtils.register(ARMORS, "kamikotization_mask", () -> new KamikotizationArmorItem(ArmorItem.Type.HELMET, DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
+        DeferredItem<ArmorItem> chestplate = ItemUtils.register(ARMORS, "kamikotization_chestplate", () -> new KamikotizationArmorItem(ArmorItem.Type.CHESTPLATE, DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
+        DeferredItem<ArmorItem> leggings = ItemUtils.register(ARMORS, "kamikotization_leggings", () -> new KamikotizationArmorItem(ArmorItem.Type.LEGGINGS, DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
+        DeferredItem<ArmorItem> boots = ItemUtils.register(ARMORS, "kamikotization_boots", () -> new KamikotizationArmorItem(ArmorItem.Type.BOOTS, DEFAULT_PROPERTIES.apply(new Item.Properties().rarity(Rarity.EPIC))));
 
-        return new ArmorSet("kamikotized", "Kamikotized", mask, chestplate, leggings, boots);
+        return new ArmorSet("kamikotization", "Kamikotization", mask, chestplate, leggings, boots);
     }
 
     public static void init() {}

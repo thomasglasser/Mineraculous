@@ -54,6 +54,8 @@ public class MineraculousBlockEntityWithoutLevelRenderer extends BlockEntityWith
             } else if (MineraculousArmors.MIRACULOUS.getAllAsItems().contains(stack.getItem())) {
                 ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, Mineraculous.MOD_ID, prefix + "armor");
             }
+        } else if (MineraculousArmors.KAMIKOTIZATION.getAllAsItems().contains(stack.getItem())) {
+            ClientUtils.renderItem(stack, displayContext, false, poseStack, buffer, packedLight, packedOverlay, Mineraculous.MOD_ID, "kamikotization/armor");
         }
         poseStack.popPose();
     }

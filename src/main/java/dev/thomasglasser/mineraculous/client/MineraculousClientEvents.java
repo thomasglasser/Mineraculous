@@ -95,6 +95,8 @@ public class MineraculousClientEvents {
             event.register(ModelResourceLocation.standalone(stripped));
         }
 
+        event.register(ModelResourceLocation.standalone(Mineraculous.modLoc("item/kamikotization/armor")));
+
         event.register(ModelResourceLocation.standalone(Mineraculous.modLoc("item/cat_staff_extended")));
     }
 

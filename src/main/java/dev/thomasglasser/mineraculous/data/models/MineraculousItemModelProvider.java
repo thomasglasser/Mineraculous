@@ -54,6 +54,12 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         withExistingParent("item/miraculous/" + butterflyKey + "/powered_4", butterflyBase).texture("texture", Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/powered_4"));
 
         withExistingParent("item/miraculous/armor", "item/generated").texture("layer0", Mineraculous.modLoc("item/miraculous/armor"));
+        withExistingParent("item/kamikotization/armor", "item/generated").texture("layer0", Mineraculous.modLoc("item/kamikotization/armor"));
+
+        withEntityModel(MineraculousItems.MIRACULOUS).guiLight(BlockModel.GuiLight.FRONT);
+        MineraculousArmors.MIRACULOUS.getAll().forEach(item -> withEntityModel(item).guiLight(BlockModel.GuiLight.FRONT));
+
+        MineraculousArmors.KAMIKOTIZATION.getAll().forEach(item -> withEntityModel(item).guiLight(BlockModel.GuiLight.FRONT));
 
         spawnEggItem(MineraculousItems.KAMIKO_SPAWN_EGG);
 
@@ -70,9 +76,6 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
 //		}
 
         basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK);
-
-        withEntityModel(MineraculousItems.MIRACULOUS).guiLight(BlockModel.GuiLight.FRONT);
-        MineraculousArmors.MIRACULOUS.getAll().forEach(item -> withEntityModel(item).guiLight(BlockModel.GuiLight.FRONT));
 
         ItemModelBuilder inHandCatStaff = withEntityModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_in_hand"))
                 .transforms()

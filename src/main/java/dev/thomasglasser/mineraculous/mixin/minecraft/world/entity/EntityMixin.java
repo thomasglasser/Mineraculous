@@ -17,7 +17,7 @@ public abstract class EntityMixin {
     @ModifyReturnValue(method = "getName", at = @At("RETURN"))
     private Component getName(Component original) {
         if (mineraculous$INSTANCE instanceof LivingEntity livingEntity) {
-            return MineraculousEntityEvents.formatDisplayName(livingEntity, Entity.removeAction(original.copy().withStyle(style -> style.withHoverEvent(null))));
+            return MineraculousEntityEvents.formatDisplayName(livingEntity, original);
         }
 
         return original;

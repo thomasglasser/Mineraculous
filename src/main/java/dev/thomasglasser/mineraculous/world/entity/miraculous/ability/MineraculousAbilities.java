@@ -86,6 +86,6 @@ public class MineraculousAbilities {
                 Optional.empty(),
                 List.of(new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get(), Optional.empty())),
                 Optional.of(MineraculousSoundEvents.CATACLYSM_ACTIVATE)));
-        context.register(CAT_VISION, new NightVisionAbility(Optional.of(ResourceLocation.withDefaultNamespace("creeper"))));
+        context.register(CAT_VISION, new NightVisionAbility(Optional.of(ResourceLocation.withDefaultNamespace("shaders/post/creeper.json"))));
     }
 }

@@ -412,7 +412,7 @@ public class MineraculousEntityEvents {
                     Style newStyle = style.withColor(entity.level().holderOrThrow(data.miraculousItem().get(MineraculousDataComponents.MIRACULOUS)).value().color());
                     if (!data.name().isEmpty())
                         return Component.literal(data.name()).setStyle(newStyle);
-                    return original.copy().setStyle(newStyle.withObfuscated(true));
+                    return Entity.removeAction(original.copy().setStyle(newStyle.withObfuscated(true).withHoverEvent(null)));
                 }
             } else if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).kamikotization().isPresent()) {
                 KamikotizationData data = entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);

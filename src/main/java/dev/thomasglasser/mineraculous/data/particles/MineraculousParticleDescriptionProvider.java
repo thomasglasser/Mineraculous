@@ -20,5 +20,6 @@ public class MineraculousParticleDescriptionProvider extends ParticleDescription
     @Override
     protected void addDescriptions() {
         sprite(MineraculousParticleTypes.CATACLYSM.get(), Mineraculous.modLoc("cataclysm"));
+        sprite(MineraculousParticleTypes.KAMIKOTIZATION.get(), Mineraculous.modLoc("kamikotization"));
     }
 }

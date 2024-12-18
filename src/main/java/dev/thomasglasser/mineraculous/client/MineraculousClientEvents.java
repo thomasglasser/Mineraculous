@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.client.model.KamikoMaskModel;
 import dev.thomasglasser.mineraculous.client.particle.CataclysmParticle;
+import dev.thomasglasser.mineraculous.client.particle.KamikotizationParticle;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KamikoRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownCatStaffRenderer;
@@ -108,6 +109,7 @@ public class MineraculousClientEvents {
 
     public static void onRegisterParticleProviders(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(MineraculousParticleTypes.CATACLYSM.get(), CataclysmParticle.Provider::new);
+        event.registerSpriteSet(MineraculousParticleTypes.KAMIKOTIZATION.get(), KamikotizationParticle.Provider::new);
     }
 
     public static void onRegisterGuiLayers(RegisterGuiLayersEvent event) {
@@ -135,12 +137,11 @@ public class MineraculousClientEvents {
     private static void renderRevokeButton(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         if (revokeButton == null) {
             revokeButton = Button.builder(Component.translatable(REVOKE), button -> {
-                Player target = (Player) MineraculousClientUtils.getCameraEntity();
-                if (target != null) {
+                if (MineraculousClientUtils.getCameraEntity() instanceof Player target) {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(Optional.of(target.getUUID()), target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION), false));
                     TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
+                    MineraculousClientUtils.setCameraEntity(ClientUtils.getMainClientPlayer());
                 }
-                MineraculousClientUtils.setCameraEntity(ClientUtils.getMainClientPlayer());
             })
                     .bounds(Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 - 100, Minecraft.getInstance().getWindow().getGuiScaledHeight() - 40, 200, 20)
                     .build();

@@ -8,7 +8,6 @@ import java.util.UUID;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
 public record ServerboundRequestInventorySyncPayload(UUID uuid) implements ExtendedPacketPayload {
@@ -22,7 +21,7 @@ public record ServerboundRequestInventorySyncPayload(UUID uuid) implements Exten
     public void handle(Player player) {
         Player target = player.level().getPlayerByUUID(uuid);
         if (target != null) {
-            TommyLibServices.NETWORK.sendToClient(new ClientboundSyncInventoryPayload(target), (ServerPlayer) player);
+            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncInventoryPayload(target), player.getServer());
         }
     }
 

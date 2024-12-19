@@ -142,6 +142,8 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
                 }
                 if (data.mainPowerActivated())
                     stack.set(MineraculousDataComponents.REMAINING_TICKS.get(), stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) - 1);
+                else if (stack.has(MineraculousDataComponents.REMAINING_TICKS))
+                    stack.remove(MineraculousDataComponents.REMAINING_TICKS);
                 entity.level().holderOrThrow(miraculous).value().passiveAbilities().forEach(ability -> ability.value().perform(new AbilityData(data.powerLevel(), Either.left(miraculous)), player.level(), player.blockPosition(), player, Ability.Context.PASSIVE));
                 if (data.mainPowerActive())
                     entity.level().holderOrThrow(miraculous).value().activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(miraculous)), player.level(), player.blockPosition(), player, Ability.Context.PASSIVE);
@@ -166,9 +168,9 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
                                 player.setItemSlot(slot, armor.forSlot(slot));
                             }
                         } else {
-                            int newDetransformationTicks = detransformationFrames - 1;
-                            stack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, newDetransformationTicks);
-                            entity.getArmorSlots().forEach(armorStack -> armorStack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, newDetransformationTicks));
+                            int newDetransformationFrames = detransformationFrames - 1;
+                            stack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, newDetransformationFrames);
+                            entity.getArmorSlots().forEach(armorStack -> armorStack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, newDetransformationFrames));
                         }
                     }
                 }
@@ -176,7 +178,7 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
             if (entity.level().isClientSide) {
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
                 int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
-                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen()) {
+                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && !MineraculousClientUtils.isCameraEntityOther()) {
                     if (MineraculousKeyMappings.TRANSFORM.get().isDown()) {
                         if (data.transformed()) {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, data, false));

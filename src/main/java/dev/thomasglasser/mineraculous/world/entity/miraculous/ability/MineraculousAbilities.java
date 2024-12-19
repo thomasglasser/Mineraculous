@@ -80,6 +80,7 @@ public class MineraculousAbilities {
                         Optional.of(MineraculousSoundEvents.CATACLYSM_USE))),
                 Optional.of(new ReplaceItemsInHandAbility(
                         MineraculousItems.CATACLYSM_DUST.toStack(),
+                        true,
                         Optional.empty(),
                         Optional.of(ItemPredicate.Builder.item().of(MineraculousItemTags.CATACLYSM_IMMUNE).build()),
                         Optional.of(MineraculousSoundEvents.CATACLYSM_USE))),

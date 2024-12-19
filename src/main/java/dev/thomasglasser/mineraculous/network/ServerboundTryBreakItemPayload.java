@@ -1,8 +1,10 @@
 package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
@@ -12,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -31,9 +34,10 @@ public record ServerboundTryBreakItemPayload() implements ExtendedPacketPayload 
     // ON SERVER
     @Override
     public void handle(Player player) {
-        ItemStack addRest = player.getMainHandItem().copyWithCount(player.getMainHandItem().getCount() - 1);
-        player.getMainHandItem().setCount(1);
-        if (player.getMainHandItem().isDamageableItem()) {
+        ItemStack mainHandItem = player.getMainHandItem();
+        ItemStack addRest = mainHandItem.copyWithCount(mainHandItem.getCount() - 1);
+        mainHandItem.setCount(1);
+        if (mainHandItem.isDamageableItem()) {
             int i = 100;
             MiraculousDataSet data = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
             for (ResourceKey<Miraculous> type : data.getTransformed()) {
@@ -41,32 +45,41 @@ public record ServerboundTryBreakItemPayload() implements ExtendedPacketPayload 
                 if (powerLevel > 0)
                     i *= powerLevel;
             }
-            player.getMainHandItem().hurtAndBreak(i, player, EquipmentSlot.MAINHAND);
-        } else if (player.getMainHandItem().has(DataComponents.UNBREAKABLE)) {
+            mainHandItem.hurtAndBreak(i, player, EquipmentSlot.MAINHAND);
+        } else if (mainHandItem.has(DataComponents.UNBREAKABLE)) {
             player.displayClientMessage(Component.translatable(ITEM_UNBREAKABLE_KEY), true);
             return;
-        } else if (player.getMainHandItem().getItem() instanceof BlockItem blockItem) {
+        } else if (mainHandItem.getItem() instanceof BlockItem blockItem) {
             float max = blockItem.getBlock().defaultDestroyTime();
             if (max > -1) {
-                player.getMainHandItem().set(DataComponents.MAX_DAMAGE, (int) (max * 100.0));
-                player.getMainHandItem().set(DataComponents.DAMAGE, 0);
-                player.getMainHandItem().set(DataComponents.MAX_STACK_SIZE, 1);
-                player.getMainHandItem().hurtAndBreak(100, player, EquipmentSlot.MAINHAND);
+                mainHandItem.set(DataComponents.MAX_DAMAGE, (int) (max * 100.0));
+                mainHandItem.set(DataComponents.DAMAGE, 0);
+                mainHandItem.set(DataComponents.MAX_STACK_SIZE, 1);
+                mainHandItem.hurtAndBreak(100, player, EquipmentSlot.MAINHAND);
             } else {
-                player.getMainHandItem().set(DataComponents.UNBREAKABLE, new Unbreakable(false));
+                mainHandItem.set(DataComponents.UNBREAKABLE, new Unbreakable(false));
                 return;
             }
-        } else if (player.getMainHandItem().is(MineraculousItemTags.TOUGH)) {
-            player.getMainHandItem().set(DataComponents.MAX_DAMAGE, 2);
-            player.getMainHandItem().set(DataComponents.DAMAGE, 0);
-            player.getMainHandItem().set(DataComponents.MAX_STACK_SIZE, 1);
-            player.getMainHandItem().hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
+        } else if (mainHandItem.is(MineraculousItemTags.TOUGH)) {
+            mainHandItem.set(DataComponents.MAX_DAMAGE, 2);
+            mainHandItem.set(DataComponents.DAMAGE, 0);
+            mainHandItem.set(DataComponents.MAX_STACK_SIZE, 1);
+            mainHandItem.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
         } else {
-            player.getMainHandItem().shrink(1);
+            if (mainHandItem.has(MineraculousDataComponents.KAMIKOTIZATION) && mainHandItem.has(DataComponents.PROFILE)) {
+                ServerPlayer target = (ServerPlayer) player.level().getPlayerByUUID(mainHandItem.get(DataComponents.PROFILE).gameProfile().getId());
+                if (target != null)
+                    MineraculousEntityEvents.handleKamikotizationTransformation(target, target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION), false, true, player.position().add(0, 1, 0));
+            }
+            mainHandItem.shrink(1);
             player.level().playSound(null, player.blockPosition(), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1f, 1f);
         }
-        player.setItemInHand(InteractionHand.MAIN_HAND, addRest);
-        // TODO: Release akuma if inside
+        if (!mainHandItem.isEmpty()) {
+            player.setItemInHand(InteractionHand.MAIN_HAND, mainHandItem);
+            player.addItem(addRest);
+        } else {
+            player.setItemInHand(InteractionHand.MAIN_HAND, addRest);
+        }
     }
 
     @Override

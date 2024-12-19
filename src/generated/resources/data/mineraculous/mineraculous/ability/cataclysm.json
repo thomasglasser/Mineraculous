@@ -19,6 +19,7 @@
   },
   "item": {
     "type": "mineraculous:replace_items_in_hand",
+    "hurt_and_break": true,
     "invalid_items": {
       "items": "#mineraculous:cataclysm_immune"
     },

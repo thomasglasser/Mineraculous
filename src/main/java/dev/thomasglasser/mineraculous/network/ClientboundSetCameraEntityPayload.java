@@ -4,7 +4,6 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
-import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
@@ -38,7 +37,7 @@ public record ClientboundSetCameraEntityPayload(int entityId, Optional<ResourceL
         CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
         Entity entity = player.level().getEntity(entityId);
         if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown()) {
-            if (overrideActive && miraculous.isPresent() && !player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous.get()).mainPowerActivated()) {
+            if (overrideActive && miraculous.isPresent()) {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundSetPowerActivatedPayload(miraculous.get(), false, false));
             }
             if (entity == null || entityData.getBoolean(MineraculousEntityEvents.TAG_CAMERA_CONTROL_INTERRUPTED)) {

@@ -8,7 +8,8 @@
     "minecraft.world.entity.LivingEntityMixin",
     "minecraft.world.entity.player.PlayerMixin",
     "minecraft.world.item.HoneycombItemMixin",
-    "minecraft.world.item.ItemStackMixin"
+    "minecraft.world.item.ItemStackMixin",
+    "neoforge.common.extensions.IItemExtensionMixin"
   ],
   "client": [
     "minecraft.client.MinecraftMixin",

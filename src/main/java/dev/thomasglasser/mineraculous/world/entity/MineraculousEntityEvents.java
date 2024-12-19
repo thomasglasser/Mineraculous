@@ -115,7 +115,7 @@ public class MineraculousEntityEvents {
         Player player = event.getEntity();
         CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
 
-        if (player.level().isClientSide && entityData.getInt(TAG_WAITTICKS) == 0) {
+        if (player.level().isClientSide && entityData.getInt(TAG_WAITTICKS) == 0 && ClientUtils.getMainClientPlayer() == player) {
             int takeTicks = entityData.getInt(MineraculousEntityEvents.TAG_TAKETICKS);
             if (MineraculousKeyMappings.TAKE_BREAK_ITEM.get().isDown()) {
                 ItemStack mainHandItem = player.getMainHandItem();

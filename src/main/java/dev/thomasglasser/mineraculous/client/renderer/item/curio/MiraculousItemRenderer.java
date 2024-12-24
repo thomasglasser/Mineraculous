@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.client.ICurioRenderer;
 
-public class MiraculousRenderer implements ICurioRenderer {
+public class MiraculousItemRenderer implements ICurioRenderer {
     ItemInHandRenderer renderer;
 
     @Override

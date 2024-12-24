@@ -15,19 +15,20 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-public record ServerboundMiraculousTransformPayload(ResourceKey<Miraculous> miraculousType, MiraculousData data, boolean transform) implements ExtendedPacketPayload {
+public record ServerboundMiraculousTransformPayload(ResourceKey<Miraculous> miraculousType, MiraculousData data, boolean transform, boolean instant) implements ExtendedPacketPayload {
 
     public static final Type<ServerboundMiraculousTransformPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_miraculous_transform"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundMiraculousTransformPayload> CODEC = StreamCodec.composite(
             ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS), ServerboundMiraculousTransformPayload::miraculousType,
             MiraculousData.STREAM_CODEC, ServerboundMiraculousTransformPayload::data,
             ByteBufCodecs.BOOL, ServerboundMiraculousTransformPayload::transform,
+            ByteBufCodecs.BOOL, ServerboundMiraculousTransformPayload::instant,
             ServerboundMiraculousTransformPayload::new);
 
     // ON SERVER
     @Override
     public void handle(@Nullable Player player) {
-        MineraculousEntityEvents.handleMiraculousTransformation((ServerPlayer) player, miraculousType, data, transform);
+        MineraculousEntityEvents.handleMiraculousTransformation((ServerPlayer) player, miraculousType, data, transform, instant);
     }
 
     @Override

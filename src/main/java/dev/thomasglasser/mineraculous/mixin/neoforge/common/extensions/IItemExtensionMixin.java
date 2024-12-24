@@ -26,7 +26,7 @@ public interface IItemExtensionMixin {
                 if (target != null) {
                     KamikotizationData data = target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
                     data.kamikotizedStack().setCount(1);
-                    MineraculousEntityEvents.handleKamikotizationTransformation(target, data, false, true, itemEntity.position().add(0, 1, 0));
+                    MineraculousEntityEvents.handleKamikotizationTransformation(target, data, false, false, true, itemEntity.position().add(0, 1, 0));
                     data.kamikotizedStack().setCount(0);
                 }
             }

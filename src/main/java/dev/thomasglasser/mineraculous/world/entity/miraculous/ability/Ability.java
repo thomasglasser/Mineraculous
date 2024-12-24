@@ -32,6 +32,8 @@ public interface Ability {
 
     Optional<Holder<SoundEvent>> startSound();
 
+    boolean overrideActive();
+
     default void playStartSound(Level level, BlockPos pos) {
         if (startSound().isPresent())
             level.playSound(null, pos, startSound().get().value(), SoundSource.PLAYERS, 1, 1);

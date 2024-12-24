@@ -46,47 +46,53 @@ public class MineraculousAbilities {
                         Optional.of(1),
                         Optional.of(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(MineraculousEntityTypes.KAMIKO.get())).build()),
                         Optional.empty(),
-                        Optional.of(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE))),
+                        Optional.of(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE),
+                        false)),
                 Optional.empty(),
                 Optional.empty(),
                 // TODO: Replace with kamikotization particles
-                List.of(new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get(), Optional.empty())),
-                Optional.empty()));
+                List.of(new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get(), Optional.empty(), false)),
+                Optional.empty(),
+                false));
         context.register(KAMIKO_CONTROL, new SetCameraEntityAbility(
                 EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(MineraculousEntityTypes.KAMIKO.get())).build(),
                 Optional.empty(),
                 Optional.of(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK),
                 true,
-                true,
-                Optional.empty()));
+                Optional.empty(),
+                true));
         context.register(KAMIKOTIZED_COMMUNICATION, new SetCameraEntityAbility(
                 EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(EntityType.PLAYER)).subPredicate(KamikotizationPredicate.ANY).build(),
                 Optional.of(Kamiko.SPECTATOR_SHADER),
                 Optional.of(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK),
                 false,
-                true,
-                Optional.empty()));
+                Optional.empty(),
+                true));
 
         context.register(CATACLYSM, new ContextAwareAbility(
                 Optional.of(new RandomDirectionalSpreadAbility(
                         MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(),
                         Optional.empty(),
                         Optional.of(BlockPredicate.Builder.block().of(MineraculousBlockTags.CATACLYSM_IMMUNE).build()),
-                        Optional.of(MineraculousSoundEvents.CATACLYSM_USE))),
+                        Optional.of(MineraculousSoundEvents.CATACLYSM_USE),
+                        false)),
                 Optional.of(new ApplyInfiniteEffectsOrDestroyAbility(
                         HolderSet.direct(MineraculousMobEffects.CATACLYSMED),
                         Optional.of(MineraculousItems.CATACLYSM_DUST.get()),
                         Optional.of(context.lookup(Registries.DAMAGE_TYPE).getOrThrow(MineraculousDamageTypes.CATACLYSM).key()),
-                        Optional.of(MineraculousSoundEvents.CATACLYSM_USE))),
+                        Optional.of(MineraculousSoundEvents.CATACLYSM_USE),
+                        false)),
                 Optional.of(new ReplaceItemsInHandAbility(
                         MineraculousItems.CATACLYSM_DUST.toStack(),
                         true,
                         Optional.empty(),
                         Optional.of(ItemPredicate.Builder.item().of(MineraculousItemTags.CATACLYSM_IMMUNE).build()),
-                        Optional.of(MineraculousSoundEvents.CATACLYSM_USE))),
+                        Optional.of(MineraculousSoundEvents.CATACLYSM_USE),
+                        false)),
                 Optional.empty(),
-                List.of(new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get(), Optional.empty())),
-                Optional.of(MineraculousSoundEvents.CATACLYSM_ACTIVATE)));
+                List.of(new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get(), Optional.empty(), false)),
+                Optional.of(MineraculousSoundEvents.CATACLYSM_ACTIVATE),
+                false));
         context.register(CAT_VISION, new NightVisionAbility(Optional.of(ResourceLocation.withDefaultNamespace("shaders/post/creeper.json"))));
     }
 }

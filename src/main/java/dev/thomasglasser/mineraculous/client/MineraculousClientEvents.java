@@ -138,7 +138,7 @@ public class MineraculousClientEvents {
         if (revokeButton == null) {
             revokeButton = Button.builder(Component.translatable(REVOKE), button -> {
                 if (MineraculousClientUtils.getCameraEntity() instanceof Player target) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(Optional.of(target.getUUID()), target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION), false, false, target.position().add(0, 1, 0)));
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(Optional.of(target.getUUID()), target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION), false, false, false, target.position().add(0, 1, 0)));
                     TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
                     MineraculousClientUtils.setCameraEntity(ClientUtils.getMainClientPlayer());
                 }

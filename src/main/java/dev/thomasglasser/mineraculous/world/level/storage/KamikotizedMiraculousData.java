@@ -3,8 +3,10 @@ package dev.thomasglasser.mineraculous.world.level.storage;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.network.ClientboundSyncKamikotizedMiraculousDataPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -28,7 +30,7 @@ public record KamikotizedMiraculousData(Optional<ResourceKey<Miraculous>> miracu
     public void save(LivingEntity livingEntity, boolean syncToClient) {
         livingEntity.setData(MineraculousAttachmentTypes.KAMIKOTIZED_MIRACULOUS, this);
         if (syncToClient) {
-
+            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncKamikotizedMiraculousDataPayload(this, livingEntity.getId()), livingEntity.level().getServer());
         }
     }
 }

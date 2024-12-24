@@ -17,13 +17,14 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.level.Level;
 
-public record SetOwnerAbility(Optional<Integer> maxOfTypes, Optional<EntityPredicate> validEntities, Optional<EntityPredicate> invalidEntities, Optional<Holder<SoundEvent>> startSound) implements Ability {
+public record SetOwnerAbility(Optional<Integer> maxOfTypes, Optional<EntityPredicate> validEntities, Optional<EntityPredicate> invalidEntities, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
 
     public static final MapCodec<SetOwnerAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Codec.INT.optionalFieldOf("max_of_types").forGetter(SetOwnerAbility::maxOfTypes),
             EntityPredicate.CODEC.optionalFieldOf("valid_entities").forGetter(SetOwnerAbility::validEntities),
             EntityPredicate.CODEC.optionalFieldOf("invalid_entities").forGetter(SetOwnerAbility::invalidEntities),
-            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(SetOwnerAbility::startSound)).apply(instance, SetOwnerAbility::new));
+            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(SetOwnerAbility::startSound),
+            Codec.BOOL.optionalFieldOf("override_active", false).forGetter(SetOwnerAbility::overrideActive)).apply(instance, SetOwnerAbility::new));
     @Override
     public boolean perform(AbilityData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
         if (context == Context.INTERACT_ENTITY && context.entity() instanceof TamableAnimal animal && animal.level() instanceof ServerLevel serverLevel) {

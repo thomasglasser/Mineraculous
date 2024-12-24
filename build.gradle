@@ -152,10 +152,10 @@ dependencies {
 	implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 	implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${smartbrainlib_version}"
 	implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+	implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 
 	// Runtime
 	localRuntime "maven.modrinth:jade:${jade_version}+neoforge"
-	localRuntime "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 }
 
 processResources {

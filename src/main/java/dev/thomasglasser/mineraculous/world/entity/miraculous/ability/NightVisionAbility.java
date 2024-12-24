@@ -46,6 +46,11 @@ public class NightVisionAbility implements Ability {
     }
 
     @Override
+    public boolean overrideActive() {
+        return false;
+    }
+
+    @Override
     public boolean perform(AbilityData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
         if (context == Context.PASSIVE && performer instanceof ServerPlayer serverPlayer) {
             checkNightVision(serverPlayer, level, pos);

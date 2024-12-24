@@ -15,18 +15,19 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-public record ServerboundKamikotizationTransformPayload(Optional<UUID> target, KamikotizationData data, boolean transform, boolean itemBroken, Vec3 kamikoSpawnPos) implements ExtendedPacketPayload {
+public record ServerboundKamikotizationTransformPayload(Optional<UUID> target, KamikotizationData data, boolean transform, boolean instant, boolean itemBroken, Vec3 kamikoSpawnPos) implements ExtendedPacketPayload {
 
     public static final Type<ServerboundKamikotizationTransformPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_kamikotization_transform"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundKamikotizationTransformPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString)), ServerboundKamikotizationTransformPayload::target,
             KamikotizationData.STREAM_CODEC, ServerboundKamikotizationTransformPayload::data,
             ByteBufCodecs.BOOL, ServerboundKamikotizationTransformPayload::transform,
+            ByteBufCodecs.BOOL, ServerboundKamikotizationTransformPayload::instant,
             ByteBufCodecs.BOOL, ServerboundKamikotizationTransformPayload::itemBroken,
             ByteBufCodecs.VECTOR3F.map(Vec3::new, Vec3::toVector3f), ServerboundKamikotizationTransformPayload::kamikoSpawnPos,
             ServerboundKamikotizationTransformPayload::new);
-    public ServerboundKamikotizationTransformPayload(KamikotizationData data, boolean transform, boolean itemBroken, Vec3 kamikoSpawnPos) {
-        this(Optional.empty(), data, transform, itemBroken, kamikoSpawnPos);
+    public ServerboundKamikotizationTransformPayload(KamikotizationData data, boolean transform, boolean instant, boolean itemBroken, Vec3 kamikoSpawnPos) {
+        this(Optional.empty(), data, transform, instant, itemBroken, kamikoSpawnPos);
     }
 
     // ON SERVER
@@ -34,7 +35,7 @@ public record ServerboundKamikotizationTransformPayload(Optional<UUID> target, K
     public void handle(@Nullable Player player) {
         if (target.isPresent())
             player = player.level().getPlayerByUUID(target.get());
-        MineraculousEntityEvents.handleKamikotizationTransformation((ServerPlayer) player, data, transform, itemBroken, kamikoSpawnPos);
+        MineraculousEntityEvents.handleKamikotizationTransformation((ServerPlayer) player, data, transform, instant, itemBroken, kamikoSpawnPos);
     }
 
     @Override

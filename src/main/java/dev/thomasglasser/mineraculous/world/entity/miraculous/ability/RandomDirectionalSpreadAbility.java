@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.world.entity.miraculous.ability;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
@@ -21,13 +22,14 @@ import net.minecraft.world.level.block.MangroveRootsBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public record RandomDirectionalSpreadAbility(BlockState blockState, Optional<BlockPredicate> validBlocks, Optional<BlockPredicate> invalidBlocks, Optional<Holder<SoundEvent>> startSound) implements Ability {
+public record RandomDirectionalSpreadAbility(BlockState blockState, Optional<BlockPredicate> validBlocks, Optional<BlockPredicate> invalidBlocks, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
 
     public static final MapCodec<RandomDirectionalSpreadAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             BlockState.CODEC.optionalFieldOf("state", Blocks.AIR.defaultBlockState()).forGetter(RandomDirectionalSpreadAbility::blockState),
             BlockPredicate.CODEC.optionalFieldOf("valid_blocks").forGetter(RandomDirectionalSpreadAbility::validBlocks),
             BlockPredicate.CODEC.optionalFieldOf("immune_blocks").forGetter(RandomDirectionalSpreadAbility::invalidBlocks),
-            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(RandomDirectionalSpreadAbility::startSound)).apply(instance, RandomDirectionalSpreadAbility::new));
+            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(RandomDirectionalSpreadAbility::startSound),
+            Codec.BOOL.optionalFieldOf("override_active", false).forGetter(RandomDirectionalSpreadAbility::overrideActive)).apply(instance, RandomDirectionalSpreadAbility::new));
     @Override
     public boolean perform(AbilityData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
         if (context == Context.INTERACT_BLOCK) {

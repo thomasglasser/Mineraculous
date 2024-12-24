@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.world.entity.miraculous.ability;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
@@ -13,11 +14,12 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
-public record RightHandParticlesAbility(ParticleOptions particle, Optional<Holder<SoundEvent>> startSound) implements Ability {
+public record RightHandParticlesAbility(ParticleOptions particle, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
+
     public static final MapCodec<RightHandParticlesAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ParticleTypes.CODEC.fieldOf("particle").forGetter(RightHandParticlesAbility::particle),
-            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(RightHandParticlesAbility::startSound)).apply(instance, RightHandParticlesAbility::new));
-
+            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(RightHandParticlesAbility::startSound),
+            Codec.BOOL.optionalFieldOf("override_active", false).forGetter(RightHandParticlesAbility::overrideActive)).apply(instance, RightHandParticlesAbility::new));
     @Override
     public boolean perform(AbilityData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
         if (context == Context.PASSIVE && level.isClientSide) {

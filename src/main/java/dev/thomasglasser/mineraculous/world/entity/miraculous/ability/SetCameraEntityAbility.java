@@ -18,15 +18,15 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.level.Level;
 
-public record SetCameraEntityAbility(EntityPredicate entity, Optional<ResourceLocation> shader, Optional<String> toggleTag, boolean mustBeTamed, boolean overrideActive, Optional<Holder<SoundEvent>> startSound) implements Ability {
+public record SetCameraEntityAbility(EntityPredicate entity, Optional<ResourceLocation> shader, Optional<String> toggleTag, boolean mustBeTamed, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
 
     public static final MapCodec<SetCameraEntityAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             EntityPredicate.CODEC.fieldOf("entity").forGetter(SetCameraEntityAbility::entity),
             ResourceLocation.CODEC.optionalFieldOf("shader").forGetter(SetCameraEntityAbility::shader),
             Codec.STRING.optionalFieldOf("toggle_tag").forGetter(SetCameraEntityAbility::toggleTag),
             Codec.BOOL.optionalFieldOf("must_be_tamed", true).forGetter(SetCameraEntityAbility::mustBeTamed),
-            Codec.BOOL.optionalFieldOf("override_active", false).forGetter(SetCameraEntityAbility::overrideActive),
-            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(SetCameraEntityAbility::startSound)).apply(instance, SetCameraEntityAbility::new));
+            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(SetCameraEntityAbility::startSound),
+            Codec.BOOL.optionalFieldOf("override_active", false).forGetter(SetCameraEntityAbility::overrideActive)).apply(instance, SetCameraEntityAbility::new));
     @Override
     public boolean perform(AbilityData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
         if (context == Context.PASSIVE && performer instanceof ServerPlayer serverPlayer) {
@@ -38,7 +38,7 @@ public record SetCameraEntityAbility(EntityPredicate entity, Optional<ResourceLo
                 }
             }
             if (target != null) {
-                TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target.getId(), shader, toggleTag, true, true, data.power().left()), serverPlayer);
+                TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target.getId(), shader, toggleTag, true), serverPlayer);
                 playStartSound(level, pos);
                 return true;
             }
@@ -56,7 +56,7 @@ public record SetCameraEntityAbility(EntityPredicate entity, Optional<ResourceLo
                     break;
                 }
             }
-            TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target != null ? target.getId() : -1, Optional.empty(), toggleTag, true, true, data.power().left()), serverPlayer);
+            TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target != null ? target.getId() : -1, Optional.empty(), toggleTag, true), serverPlayer);
         }
     }
 

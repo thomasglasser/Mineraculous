@@ -20,14 +20,15 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-public record ReplaceItemsInHandAbility(ItemStack replacement, boolean hurtAndBreak, Optional<ItemPredicate> validItems, Optional<ItemPredicate> invalidItems, Optional<Holder<SoundEvent>> startSound) implements Ability {
+public record ReplaceItemsInHandAbility(ItemStack replacement, boolean hurtAndBreak, Optional<ItemPredicate> validItems, Optional<ItemPredicate> invalidItems, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
 
     public static final MapCodec<ReplaceItemsInHandAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ItemStack.CODEC.optionalFieldOf("replacement", ItemStack.EMPTY).forGetter(ReplaceItemsInHandAbility::replacement),
             Codec.BOOL.optionalFieldOf("hurt_and_break", false).forGetter(ReplaceItemsInHandAbility::hurtAndBreak),
             ItemPredicate.CODEC.optionalFieldOf("valid_items").forGetter(ReplaceItemsInHandAbility::validItems),
             ItemPredicate.CODEC.optionalFieldOf("invalid_items").forGetter(ReplaceItemsInHandAbility::invalidItems),
-            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(ReplaceItemsInHandAbility::startSound)).apply(instance, ReplaceItemsInHandAbility::new));
+            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(ReplaceItemsInHandAbility::startSound),
+            Codec.BOOL.optionalFieldOf("override_active", false).forGetter(ReplaceItemsInHandAbility::overrideActive)).apply(instance, ReplaceItemsInHandAbility::new));
     @Override
     public boolean perform(AbilityData data, Level level, BlockPos pos, LivingEntity performer, Context context) {
         if (context == Context.INTERACT_ITEM && !level.isClientSide()) {
@@ -45,7 +46,7 @@ public record ReplaceItemsInHandAbility(ItemStack replacement, boolean hurtAndBr
                     if (stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.has(DataComponents.PROFILE)) {
                         ServerPlayer target = (ServerPlayer) performer.level().getPlayerByUUID(stack.get(DataComponents.PROFILE).gameProfile().getId());
                         if (target != null)
-                            MineraculousEntityEvents.handleKamikotizationTransformation(target, target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION), false, true, performer.position().add(0, 1, 0));
+                            MineraculousEntityEvents.handleKamikotizationTransformation(target, target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION), false, false, true, performer.position().add(0, 1, 0));
                     }
                 }
             }

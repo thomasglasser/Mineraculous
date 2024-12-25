@@ -265,7 +265,7 @@ public class MineraculousEntityEvents {
                             player.setItemSlot(slot, stack);
                         }
 
-                        ItemStack tool = serverLevel.holderOrThrow(miraculous).value().tool().copy();
+                        ItemStack tool = serverLevel.holderOrThrow(miraculous).value().tool().isPresent() ? serverLevel.holderOrThrow(miraculous).value().tool().get().getDefaultInstance() : ItemStack.EMPTY;
                         tool.set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
 
                         miraculousStack.enchant(serverLevel.holderOrThrow(Enchantments.BINDING_CURSE), 1);
@@ -274,8 +274,24 @@ public class MineraculousEntityEvents {
                         if (transformationFrames > 0)
                             miraculousStack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, transformationFrames);
                         else {
-                            player.addItem(tool);
-                            tool.setCount(1);
+                            if (!tool.isEmpty()) {
+                                if (serverLevel.holderOrThrow(miraculous).value().toolSlot().isPresent()) {
+                                    boolean added = CuriosUtils.setStackInFirstValidSlot(player, serverLevel.holderOrThrow(miraculous).value().toolSlot().get(), tool, true);
+                                    if (!added) {
+                                        int slot = player.getInventory().getFreeSlot();
+                                        if (slot != -1) {
+                                            player.getInventory().items.set(slot, tool);
+                                            player.getInventory().items.get(slot).setPopTime(5);
+                                        }
+                                    }
+                                } else {
+                                    int slot = player.getInventory().getFreeSlot();
+                                    if (slot != -1) {
+                                        player.getInventory().items.set(slot, tool);
+                                        player.getInventory().items.get(slot).setPopTime(5);
+                                    }
+                                }
+                            }
                         }
 
                         data = new MiraculousData(true, miraculousStack, data.curiosData(), tool, data.powerLevel(), false, false, data.name());
@@ -320,15 +336,20 @@ public class MineraculousEntityEvents {
                 miraculousStack.remove(MineraculousDataComponents.REMAINING_TICKS.get());
                 miraculousStack.remove(MineraculousDataComponents.POWERED.get());
                 CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack, true);
-                // TODO: If item not in inventory, make it disappear when found, in item entity or chest or something
-                data.tool().set(MineraculousDataComponents.RECALLED.get(), true);
                 if (data.tool().has(MineraculousDataComponents.KWAMI_DATA.get())) {
                     MiraculousData finalData = data;
                     player.getInventory().clearOrCountMatchingItems(stack -> {
                         if (stack.has(MineraculousDataComponents.KWAMI_DATA.get()))
-                            return stack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(finalData.tool().get(MineraculousDataComponents.KWAMI_DATA.get()).uuid());
+                            return stack.is(finalData.tool().getItem()) && stack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(finalData.tool().get(MineraculousDataComponents.KWAMI_DATA.get()).uuid());
                         return false;
                     }, 1, new SimpleContainer(data.tool()));
+                    finalData.tool().setCount(1);
+                    CuriosUtils.getAllItems(player).forEach(((curiosData, itemStack) -> {
+                        if (itemStack.is(finalData.tool().getItem()) && itemStack.has(MineraculousDataComponents.KWAMI_DATA.get()) && itemStack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(finalData.tool().get(MineraculousDataComponents.KWAMI_DATA.get()).uuid())) {
+                            CuriosUtils.setStackInSlot(player, curiosData, ItemStack.EMPTY, true);
+                        }
+                    }));
+                    finalData.tool().setCount(0);
                 }
                 data = new MiraculousData(false, miraculousStack, data.curiosData(), ItemStack.EMPTY, data.powerLevel(), false, false, data.name());
                 player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);

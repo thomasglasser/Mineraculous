@@ -29,7 +29,8 @@ public class MineraculousMiraculous {
         context.register(BUTTERFLY, new Miraculous(
                 TextColor.fromRgb(0x641d9a),
                 MineraculousCuriosProvider.SLOT_BROOCH,
-                MineraculousItems.BUTTERFLY_CANE.get().getDefaultInstance(),
+                Optional.of(MineraculousItems.BUTTERFLY_CANE.get()),
+                Optional.empty(),
                 // TODO: Add kwami hungry sound
                 Optional.empty(),
                 Optional.of(abilities.getOrThrow(MineraculousAbilities.KAMIKOTIZATION)),
@@ -41,7 +42,8 @@ public class MineraculousMiraculous {
                 TextColor.fromRgb(0xc6f800),
                 MineraculousCuriosProvider.SLOT_RING,
                 9,
-                MineraculousItems.CAT_STAFF.get().getDefaultInstance(),
+                Optional.of(MineraculousItems.CAT_STAFF.get()),
+                Optional.of("belt"),
                 // TODO: Add kwami hungry sound
                 Optional.empty(),
                 Optional.of(abilities.getOrThrow(MineraculousAbilities.CATACLYSM)),
@@ -50,7 +52,8 @@ public class MineraculousMiraculous {
         context.register(LADYBUG, new Miraculous(
                 TextColor.fromRgb(0xdd1731),
                 MineraculousCuriosProvider.SLOT_EARRINGS,
-                MineraculousItems.LADYBUG_YOYO.get().getDefaultInstance(),
+                Optional.of(MineraculousItems.LADYBUG_YOYO.get()),
+                Optional.of("belt"),
                 // TODO: Add kwami hungry sound
                 Optional.empty(),
                 Optional.empty(/*abilities.getOrThrow(MineraculousAbilities.MIRACULOUS_LADYBUG)*/),

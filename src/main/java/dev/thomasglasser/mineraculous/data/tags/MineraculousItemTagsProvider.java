@@ -95,6 +95,10 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
                 MineraculousCuriosProvider.SLOT_BROOCH,
                 MineraculousCuriosProvider.SLOT_RING,
                 MineraculousCuriosProvider.SLOT_EARRINGS);
+
+        curios(MineraculousCuriosProvider.SLOT_BELT,
+                MineraculousItems.CAT_STAFF.get(),
+                MineraculousItems.LADYBUG_YOYO.get());
     }
 
     protected void curios(String slot, Item... items) {

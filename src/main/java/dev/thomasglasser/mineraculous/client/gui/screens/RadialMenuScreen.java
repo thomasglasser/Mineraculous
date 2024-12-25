@@ -63,7 +63,11 @@ public class RadialMenuScreen extends Screen {
         }
     }
 
-    protected int getSelectedOption(int pMouseX, int pMouseY) {
+    protected int getSelectedOption(int pMouseX, int pMouseY, float circleSize) {
+        double hypotenuse = Math.sqrt(pMouseX * pMouseX + pMouseY * pMouseY);
+        if (hypotenuse < (circleSize) / 3f || hypotenuse > circleSize * 91 / 90) {
+            return -1;
+        }
         double alpha = alpha(pMouseX, pMouseY);
         if (alpha != -1) {
             return (int) (alpha / sliceAngle);
@@ -93,7 +97,14 @@ public class RadialMenuScreen extends Screen {
 
     @Override
     public void onClose() {
-        int selectedOption = this.getSelectedOption((int) (currentMouseX - (double) width / 2), (int) (-1 * (currentMouseY - (double) height / 2)));
+        float circleSize;
+
+        if (this.animationTick < MAX_ANIMATION_TICKS) {
+            animationTime = this.animationTick;
+        }
+        circleSize = animationTime * MAX_CIRCLE_SIZE / (float) MAX_ANIMATION_TICKS;
+        circleSize /= 2f;
+        int selectedOption = this.getSelectedOption((int) (currentMouseX - (double) width / 2), (int) (-1 * (currentMouseY - (double) height / 2)), circleSize);
         if (selectedOption != -1) {
             onSelected.accept(options.get(selectedOption));
             CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer());
@@ -125,9 +136,6 @@ public class RadialMenuScreen extends Screen {
         int mouseX = pMouseX - width / 2;
         int mouseY = -1 * (pMouseY - height / 2);
 
-        int selectedOption = getSelectedOption(mouseX, mouseY);
-        boolean hasSelectedOption = selectedOption != -1;
-        RadialMenuOption selected = hasSelectedOption ? options.get(selectedOption) : null;
         float circleSize;
 
         if (this.animationTick < MAX_ANIMATION_TICKS) {
@@ -135,6 +143,10 @@ public class RadialMenuScreen extends Screen {
         }
         circleSize = animationTime * MAX_CIRCLE_SIZE / (float) MAX_ANIMATION_TICKS;
         circleSize /= 2f;
+
+        int selectedOption = getSelectedOption(mouseX, mouseY, circleSize);
+        boolean hasSelectedOption = selectedOption != -1;
+        RadialMenuOption selected = hasSelectedOption ? options.get(selectedOption) : null;
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();

@@ -5,6 +5,7 @@ import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundMiraculousTransformPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundPutToolInHandPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetPowerActivatedPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
@@ -12,6 +13,7 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
+import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
@@ -133,8 +135,24 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
                             stack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, null);
                             entity.getArmorSlots().forEach(armorStack -> armorStack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, null));
                             ItemStack tool = data.tool();
-                            player.addItem(tool);
-                            tool.setCount(1);
+                            if (!tool.isEmpty()) {
+                                if (player.level().holderOrThrow(miraculous).value().toolSlot().isPresent()) {
+                                    boolean added = CuriosUtils.setStackInFirstValidSlot(player, player.level().holderOrThrow(miraculous).value().toolSlot().get(), tool, true);
+                                    if (!added) {
+                                        int slot = player.getInventory().getFreeSlot();
+                                        if (slot != -1) {
+                                            player.getInventory().items.set(slot, tool);
+                                            player.getInventory().items.get(slot).setPopTime(5);
+                                        }
+                                    }
+                                } else {
+                                    int slot = player.getInventory().getFreeSlot();
+                                    if (slot != -1) {
+                                        player.getInventory().items.set(slot, tool);
+                                        player.getInventory().items.get(slot).setPopTime(5);
+                                    }
+                                }
+                            }
                         } else {
                             int newTransformationTicks = transformationFrames - 1;
                             stack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, newTransformationTicks);
@@ -204,8 +222,11 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, data, true, false));
                         }
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
-                    } else if (MineraculousClientUtils.getCameraEntity() == player && MineraculousKeyMappings.ACTIVATE_POWER.get().isDown() && data.transformed() && !data.mainPowerActive() && !data.mainPowerActivated() && slotContext.entity().level().holderOrThrow(miraculous).value().activeAbility().isPresent()) {
+                    } else if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown() && data.transformed() && !data.mainPowerActive() && !data.mainPowerActivated() && slotContext.entity().level().holderOrThrow(miraculous).value().activeAbility().isPresent()) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundSetPowerActivatedPayload(miraculous, true, true));
+                        playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                    } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown() && player.getMainHandItem().isEmpty()) {
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundPutToolInHandPayload(miraculous));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
                     }
                 }

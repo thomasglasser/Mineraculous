@@ -11,6 +11,7 @@ public class MineraculousCuriosProvider extends CuriosDataProvider {
     public static final String SLOT_BROOCH = "brooch";
     public static final String SLOT_RING = "ring";
     public static final String SLOT_EARRINGS = "earrings";
+    public static final String SLOT_BELT = "belt";
 
     public MineraculousCuriosProvider(PackOutput output, ExistingFileHelper fileHelper, CompletableFuture<HolderLookup.Provider> registries) {
         super(Mineraculous.MOD_ID, output, fileHelper, registries);
@@ -24,6 +25,11 @@ public class MineraculousCuriosProvider extends CuriosDataProvider {
                         SLOT_BROOCH,
                         SLOT_RING,
                         SLOT_EARRINGS);
+
+        createEntities("tool_holders")
+                .addPlayer()
+                .addSlots(
+                        SLOT_BELT);
 
         createSlot(SLOT_BROOCH)
                 .icon(Mineraculous.modLoc("slot/empty_brooch_slot"));

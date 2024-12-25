@@ -2,9 +2,7 @@
   "acceptable_slot": "earrings",
   "color": "#DD1731",
   "passive_abilities": [],
-  "tool": {
-    "count": 1,
-    "id": "mineraculous:ladybug_yoyo"
-  },
+  "tool": "mineraculous:ladybug_yoyo",
+  "tool_slot": "belt",
   "transform_sound": "mineraculous:ladybug_transform"
 }

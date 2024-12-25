@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundActivateToolPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetCatStaffAbilityPayload;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
@@ -18,12 +19,14 @@ import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
+import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
@@ -63,8 +66,10 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
+import top.theillusivec4.curios.api.SlotContext;
+import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, ProjectileItem {
+public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, ProjectileItem, ICurioItem {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final ResourceLocation EXTENDED_PROPERTY_ID = Mineraculous.modLoc("extended");
     public static final RawAnimation EXTEND = RawAnimation.begin().thenPlay("attack.extend");
@@ -138,12 +143,17 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, pStack, hand));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
                     } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown()) {
-                        MineraculousClientEvents.openToolWheel(MineraculousMiraculous.CAT, pStack, option -> {
-                            if (option instanceof Ability ability) {
-                                pStack.set(MineraculousDataComponents.CAT_STAFF_ABILITY.get(), ability);
-                                TommyLibServices.NETWORK.sendToServer(new ServerboundSetCatStaffAbilityPayload(player.getInventory().findSlotMatchingItem(pStack), ability.name()));
-                            }
-                        }, Ability.values());
+                        if (pStack.has(MineraculousDataComponents.POWERED.get())) {
+                            MineraculousClientEvents.openToolWheel(MineraculousMiraculous.CAT, pStack, option -> {
+                                if (option instanceof Ability ability) {
+                                    pStack.set(MineraculousDataComponents.CAT_STAFF_ABILITY.get(), ability);
+                                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetCatStaffAbilityPayload(player.getInventory().findSlotMatchingItem(pStack), ability.name()));
+                                }
+                            }, Ability.values());
+                        } else {
+                            TommyLibServices.NETWORK.sendToServer(new ServerboundEquipToolPayload(hand));
+                        }
+                        playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
                     }
                 }
                 TommyLibServices.ENTITY.setPersistentData(pEntity, playerData, false);
@@ -272,6 +282,28 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     @Override
     public Projectile asProjectile(Level level, Position pos, ItemStack stack, Direction direction) {
         return new ThrownCatStaff(pos.x(), pos.y(), pos.z(), level, stack, stack);
+    }
+
+    @Override
+    public boolean canEquipFromUse(SlotContext slotContext, ItemStack stack) {
+        return canEquip(slotContext, stack);
+    }
+
+    @Override
+    public boolean canEquip(SlotContext slotContext, ItemStack stack) {
+        return canEquip(stack);
+    }
+
+    public boolean canEquip(ItemStack stack) {
+        return !stack.has(MineraculousDataComponents.POWERED);
+    }
+
+    @Override
+    public List<Component> getSlotsTooltip(List<Component> tooltips, TooltipContext context, ItemStack stack) {
+        if (canEquip(stack)) {
+            return ICurioItem.super.getSlotsTooltip(tooltips, context, stack);
+        }
+        return List.of();
     }
 
     public enum Ability implements RadialMenuOption {

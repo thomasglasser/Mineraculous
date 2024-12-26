@@ -4,6 +4,7 @@
   "package": "dev.thomasglasser.mineraculous.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "minecraft.server.level.ServerLevelMixin",
     "minecraft.world.entity.EntityMixin",
     "minecraft.world.entity.LivingEntityMixin",
     "minecraft.world.entity.player.PlayerMixin",

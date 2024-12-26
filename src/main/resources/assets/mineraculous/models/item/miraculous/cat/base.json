@@ -71,7 +71,8 @@
 	],
 	"display": {
 		"mineraculous:curios_ring": {
-			"translation": [2.5, 0.25, 2.25],
+			"rotation": [90, 0, 270],
+			"translation": [0.85, 7.8, -2.35],
 			"scale": [0.3, 0.3, 0.3]
 		},
 		"thirdperson_righthand": {

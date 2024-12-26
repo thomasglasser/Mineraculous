@@ -3,11 +3,13 @@ package dev.thomasglasser.mineraculous.world.entity;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.network.ClientboundOpenKamikotizationSelectionScreenPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncInventoryPayload;
+import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -49,6 +51,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, GeoEntity {
     public static final ResourceLocation SPECTATOR_SHADER = Mineraculous.modLoc("post_effect/kamiko.json");
+    public static final String CANT_KAMIKOTIZE_TRANSFORMED = "entity.mineraculous.kamiko.cant_kamikotize_transformed";
 
     private final AnimatableInstanceCache animCache = GeckoLibUtil.createInstanceCache(this);
 
@@ -177,6 +180,11 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     @Override
     public void playerTouch(Player player) {
         if (getTarget() == player && getOwner() instanceof ServerPlayer owner) {
+            if (player.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed()) {
+                owner.displayClientMessage(Component.translatable(CANT_KAMIKOTIZE_TRANSFORMED), true);
+                setTarget(null);
+                return;
+            }
             TommyLibServices.NETWORK.sendToClient(new ClientboundSyncInventoryPayload(player), owner);
             CompoundTag ownerData = TommyLibServices.ENTITY.getPersistentData(owner);
             ownerData.putBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, true);

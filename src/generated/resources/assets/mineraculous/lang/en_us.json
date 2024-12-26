@@ -75,6 +75,7 @@
   "effect.mineraculous.cataclysmed": "Cataclysmed",
   "entity.minecraft.villager.mineraculous.fromager": "Fromager",
   "entity.mineraculous.kamiko": "Kamiko",
+  "entity.mineraculous.kamiko.cant_kamikotize_transformed": "Kamikotizing transformed players is not currently supported.",
   "entity.mineraculous.kwami": "Kwami",
   "entity.mineraculous.kwami.butterfly": "Butterfly Kwami",
   "entity.mineraculous.kwami.cat": "Cat Kwami",

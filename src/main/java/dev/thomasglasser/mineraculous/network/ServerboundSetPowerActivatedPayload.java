@@ -39,7 +39,7 @@ public record ServerboundSetPowerActivatedPayload(ResourceKey<Miraculous> miracu
             Ability power = level.registryAccess().holderOrThrow(miraculousType).value().activeAbility().get().value();
             power.playStartSound(level, player.blockPosition());
         }
-        miraculousDataSet.put(player, miraculousType, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.tool(), data.powerLevel(), setUsed, active, data.name()), true);
+        miraculousDataSet.put(player, miraculousType, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), data.powerLevel(), setUsed, active, data.name()), true);
         CuriosUtils.setStackInSlot(player, data.curiosData(), data.miraculousItem(), true);
     }
 

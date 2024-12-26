@@ -11,12 +11,48 @@
     },
     {
       "enum": "net/minecraft/world/item/ItemDisplayContext",
+      "name": "MINERACULOUS_CURIOS_OTHER",
+      "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
+      "parameters": {
+        "class": "dev/thomasglasser/mineraculous/world/item/MineraculousItemDisplayContexts",
+        "field": "CURIOS_OTHER"
+      }
+    },
+    {
+      "enum": "net/minecraft/world/item/ItemDisplayContext",
         "name": "MINERACULOUS_CURIOS_RING",
         "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
         "parameters": {
           "class": "dev/thomasglasser/mineraculous/world/item/MineraculousItemDisplayContexts",
           "field": "CURIOS_RING"
         }
+    },
+    {
+      "enum": "net/minecraft/world/item/ItemDisplayContext",
+      "name": "MINERACULOUS_CURIOS_BROOCH",
+      "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
+      "parameters": {
+        "class": "dev/thomasglasser/mineraculous/world/item/MineraculousItemDisplayContexts",
+        "field": "CURIOS_BROOCH"
+      }
+    },
+    {
+      "enum": "net/minecraft/world/item/ItemDisplayContext",
+      "name": "MINERACULOUS_CURIOS_EARRINGS",
+      "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
+      "parameters": {
+        "class": "dev/thomasglasser/mineraculous/world/item/MineraculousItemDisplayContexts",
+        "field": "CURIOS_EARRINGS"
+      }
+    },
+    {
+      "enum": "net/minecraft/world/item/ItemDisplayContext",
+      "name": "MINERACULOUS_CURIOS_BELT",
+      "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
+      "parameters": {
+        "class": "dev/thomasglasser/mineraculous/world/item/MineraculousItemDisplayContexts",
+        "field": "CURIOS_BELT"
+      }
     }
   ]
 }

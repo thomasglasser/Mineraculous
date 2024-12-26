@@ -27,17 +27,17 @@ public record ServerboundPutToolInHandPayload(ResourceKey<Miraculous> miraculous
     public void handle(Player player) {
         MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous);
         if (data.transformed()) {
-            UUID uuid = data.tool().get(MineraculousDataComponents.KWAMI_DATA.get()).uuid();
+            UUID uuid = data.miraculousItem().get(MineraculousDataComponents.KWAMI_DATA.get()).uuid();
             if (uuid != null) {
                 for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
                     ItemStack itemstack = player.getInventory().getItem(i);
-                    if (itemstack.is(data.tool().getItem()) && itemstack.has(MineraculousDataComponents.KWAMI_DATA.get()) && itemstack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(uuid)) {
+                    if (itemstack.is(player.level().holderOrThrow(miraculous).value().tool().orElse(null)) && itemstack.has(MineraculousDataComponents.KWAMI_DATA.get()) && itemstack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(uuid)) {
                         player.getInventory().setPickedItem(itemstack);
                         return;
                     }
                 }
                 CuriosUtils.getAllItems(player).forEach(((curiosData, itemStack) -> {
-                    if (itemStack.is(data.tool().getItem()) && itemStack.has(MineraculousDataComponents.KWAMI_DATA.get()) && itemStack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(uuid)) {
+                    if (itemStack.is(player.level().holderOrThrow(miraculous).value().tool().orElse(null)) && itemStack.has(MineraculousDataComponents.KWAMI_DATA.get()) && itemStack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(uuid)) {
                         player.getInventory().setPickedItem(itemStack);
                         CuriosUtils.setStackInSlot(player, curiosData, ItemStack.EMPTY, true);
                     }

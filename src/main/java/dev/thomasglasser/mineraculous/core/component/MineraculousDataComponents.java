@@ -26,6 +26,7 @@ public class MineraculousDataComponents {
     // Shared
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> POWERED = register("powered", Codec.unit(Unit.INSTANCE), StreamCodec.unit(Unit.INSTANCE), false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<KwamiData>> KWAMI_DATA = register("kwami_data", KwamiData.CODEC, null, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TOOL_ID = register("tool_id", Codec.INT, ByteBufCodecs.INT, false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> HIDE_ENCHANTMENTS = register("hide_enchantments", Codec.unit(Unit.INSTANCE), StreamCodec.unit(Unit.INSTANCE), false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceKey<Miraculous>>> MIRACULOUS = register("miraculous", ResourceKey.codec(MineraculousRegistries.MIRACULOUS), ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS), false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceKey<Kamikotization>>> KAMIKOTIZATION = register("kamikotization", ResourceKey.codec(MineraculousRegistries.KAMIKOTIZATION), ResourceKey.streamCodec(MineraculousRegistries.KAMIKOTIZATION), false);

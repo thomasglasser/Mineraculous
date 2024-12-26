@@ -13,8 +13,7 @@ import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownCatStaffRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.KamikoMaskLayer;
 import dev.thomasglasser.mineraculous.client.renderer.item.MineraculousItemProperties;
-import dev.thomasglasser.mineraculous.client.renderer.item.curio.CatStaffCurioRenderer;
-import dev.thomasglasser.mineraculous.client.renderer.item.curio.MiraculousCurioRenderer;
+import dev.thomasglasser.mineraculous.client.renderer.item.curio.ContextDependentCurioRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.network.ServerboundKamikotizationTransformPayload;
@@ -78,8 +77,8 @@ public class MineraculousClientEvents {
     private static KamikoGui kamikoGui;
 
     public static void onFMLClientSetup(FMLClientSetupEvent event) {
-        CuriosRendererRegistry.register(MineraculousItems.MIRACULOUS.get(), MiraculousCurioRenderer::new);
-        CuriosRendererRegistry.register(MineraculousItems.CAT_STAFF.get(), CatStaffCurioRenderer::new);
+        CuriosRendererRegistry.register(MineraculousItems.MIRACULOUS.get(), ContextDependentCurioRenderer::new);
+        CuriosRendererRegistry.register(MineraculousItems.CAT_STAFF.get(), ContextDependentCurioRenderer::new);
 
         MineraculousItemProperties.init();
     }

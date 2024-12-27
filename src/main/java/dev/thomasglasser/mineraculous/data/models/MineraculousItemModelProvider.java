@@ -3,16 +3,15 @@ package dev.thomasglasser.mineraculous.data.models;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
+import dev.thomasglasser.mineraculous.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.models.ExtendedItemModelProvider;
-import java.util.List;
 import java.util.stream.Stream;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackType;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelProvider;
@@ -25,22 +24,78 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
 
     @Override
     protected void registerModels() {
-        List<String> symboledMiraculous = Stream.of(
-                MineraculousMiraculous.CAT,
-                MineraculousMiraculous.LADYBUG).map(key -> key.location().getPath()).toList();
-        for (String key : symboledMiraculous) {
-            if (existingFileHelper.exists(Mineraculous.modLoc("models/item/miraculous/" + key + "/base.json"), PackType.CLIENT_RESOURCES)) {
-                ResourceLocation base = Mineraculous.modLoc("item/miraculous/" + key + "/base");
-                existingFileHelper.trackGenerated(base, ModelProvider.MODEL);
-                withExistingParent("item/miraculous/" + key + "/hidden", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/hidden")).texture("symbol", Mineraculous.modLoc("item/empty"));
-                withExistingParent("item/miraculous/" + key + "/powered", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "/symbol"));
-                withExistingParent("item/miraculous/" + key + "/powered_0", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/empty"));
-                withExistingParent("item/miraculous/" + key + "/powered_1", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "/symbol_1"));
-                withExistingParent("item/miraculous/" + key + "/powered_2", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "/symbol_2"));
-                withExistingParent("item/miraculous/" + key + "/powered_3", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "/symbol_3"));
-                withExistingParent("item/miraculous/" + key + "/powered_4", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "/symbol_4"));
-            }
+        for (String key : Stream.of(
+                MineraculousMiraculous.CAT).map(key -> key.location().getPath()).toList()) {
+            ResourceLocation base = Mineraculous.modLoc("item/miraculous/" + key + "/base");
+            existingFileHelper.trackGenerated(base, ModelProvider.MODEL);
+            withExistingParent("item/miraculous/" + key + "/hidden", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/hidden")).texture("symbol", Mineraculous.modLoc("item/empty"));
+            withExistingParent("item/miraculous/" + key + "/powered", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "/symbol"));
+            withExistingParent("item/miraculous/" + key + "/powered_0", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/empty"));
+            withExistingParent("item/miraculous/" + key + "/powered_1", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "/symbol_1"));
+            withExistingParent("item/miraculous/" + key + "/powered_2", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "/symbol_2"));
+            withExistingParent("item/miraculous/" + key + "/powered_3", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "/symbol_3"));
+            withExistingParent("item/miraculous/" + key + "/powered_4", base).texture("base", Mineraculous.modLoc("item/miraculous/" + key + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + key + "/symbol_4"));
         }
+
+        String ladybugKey = "ladybug";
+        ResourceLocation ladybugBase = Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/base");
+        existingFileHelper.trackGenerated(ladybugBase, ModelProvider.MODEL);
+        ItemModelBuilder hiddenDoubleBase = withExistingParent("item/miraculous/" + ladybugKey + "/hidden_double", ladybugBase).texture("base", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/hidden")).texture("symbol", Mineraculous.modLoc("item/empty")).texture("base_right", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/hidden")).texture("symbol_right", Mineraculous.modLoc("item/empty"));
+        ItemModelBuilder hiddenSingleBase = withExistingParent("item/miraculous/" + ladybugKey + "/hidden_single", ladybugBase).texture("base", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/hidden")).texture("symbol", Mineraculous.modLoc("item/empty")).texture("base_right", Mineraculous.modLoc("item/empty")).texture("symbol_right", Mineraculous.modLoc("item/empty"));
+        ItemModelBuilder poweredDoubleBase = withExistingParent("item/miraculous/" + ladybugKey + "/powered_double", ladybugBase).texture("base", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/symbol")).texture("base_right", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol_right", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/symbol"));
+        ItemModelBuilder poweredSingleBase = withExistingParent("item/miraculous/" + ladybugKey + "/powered_single", ladybugBase).texture("base", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/symbol")).texture("base_right", Mineraculous.modLoc("item/empty")).texture("symbol_right", Mineraculous.modLoc("item/empty"));
+        ItemModelBuilder powered0DoubleBase = withExistingParent("item/miraculous/" + ladybugKey + "/powered_0_double", ladybugBase).texture("base", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol", Mineraculous.modLoc("item/empty")).texture("base_right", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol_right", Mineraculous.modLoc("item/empty"));
+        ItemModelBuilder powered0SingleBase = withExistingParent("item/miraculous/" + ladybugKey + "/powered_0_single", ladybugBase).texture("base", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol", Mineraculous.modLoc("item/empty")).texture("base_right", Mineraculous.modLoc("item/empty")).texture("symbol_right", Mineraculous.modLoc("item/empty"));
+        ItemModelBuilder powered1DoubleBase = withExistingParent("item/miraculous/" + ladybugKey + "/powered_1_double", ladybugBase).texture("base", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/symbol_1")).texture("base_right", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol_right", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/symbol_1"));
+        ItemModelBuilder powered1SingleBase = withExistingParent("item/miraculous/" + ladybugKey + "/powered_1_single", ladybugBase).texture("base", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/symbol_1")).texture("base_right", Mineraculous.modLoc("item/empty")).texture("symbol_right", Mineraculous.modLoc("item/empty"));
+        ItemModelBuilder powered2DoubleBase = withExistingParent("item/miraculous/" + ladybugKey + "/powered_2_double", ladybugBase).texture("base", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/symbol_2")).texture("base_right", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol_right", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/symbol_2"));
+        ItemModelBuilder powered2SingleBase = withExistingParent("item/miraculous/" + ladybugKey + "/powered_2_single", ladybugBase).texture("base", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/symbol_2")).texture("base_right", Mineraculous.modLoc("item/empty")).texture("symbol_right", Mineraculous.modLoc("item/empty"));
+        ItemModelBuilder powered3DoubleBase = withExistingParent("item/miraculous/" + ladybugKey + "/powered_3_double", ladybugBase).texture("base", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/symbol_3")).texture("base_right", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol_right", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/symbol_3"));
+        ItemModelBuilder powered3SingleBase = withExistingParent("item/miraculous/" + ladybugKey + "/powered_3_single", ladybugBase).texture("base", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/symbol_3")).texture("base_right", Mineraculous.modLoc("item/empty")).texture("symbol_right", Mineraculous.modLoc("item/empty"));
+        ItemModelBuilder powered4DoubleBase = withExistingParent("item/miraculous/" + ladybugKey + "/powered_4_double", ladybugBase).texture("base", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/symbol_4")).texture("base_right", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol_right", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/symbol_4"));
+        ItemModelBuilder powered4SingleBase = withExistingParent("item/miraculous/" + ladybugKey + "/powered_4_single", ladybugBase).texture("base", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered")).texture("symbol", Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/symbol_4")).texture("base_right", Mineraculous.modLoc("item/empty")).texture("symbol_right", Mineraculous.modLoc("item/empty"));
+        generatedModels.remove(hiddenDoubleBase.getLocation());
+        generatedModels.remove(hiddenSingleBase.getLocation());
+        generatedModels.remove(poweredDoubleBase.getLocation());
+        generatedModels.remove(poweredSingleBase.getLocation());
+        generatedModels.remove(powered0DoubleBase.getLocation());
+        generatedModels.remove(powered0SingleBase.getLocation());
+        generatedModels.remove(powered1DoubleBase.getLocation());
+        generatedModels.remove(powered1SingleBase.getLocation());
+        generatedModels.remove(powered2DoubleBase.getLocation());
+        generatedModels.remove(powered2SingleBase.getLocation());
+        generatedModels.remove(powered3DoubleBase.getLocation());
+        generatedModels.remove(powered3SingleBase.getLocation());
+        generatedModels.remove(powered4DoubleBase.getLocation());
+        generatedModels.remove(powered4SingleBase.getLocation());
+        withSeparateTransforms(Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/hidden"))
+                .base(hiddenDoubleBase)
+                .perspective(MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue(), hiddenSingleBase)
+                .end();
+        withSeparateTransforms(Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered"))
+                .base(poweredDoubleBase)
+                .perspective(MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue(), poweredSingleBase)
+                .end();
+        withSeparateTransforms(Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered_0"))
+                .base(powered0DoubleBase)
+                .perspective(MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue(), powered0SingleBase)
+                .end();
+        withSeparateTransforms(Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered_1"))
+                .base(powered1DoubleBase)
+                .perspective(MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue(), powered1SingleBase)
+                .end();
+        withSeparateTransforms(Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered_2"))
+                .base(powered2DoubleBase)
+                .perspective(MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue(), powered2SingleBase)
+                .end();
+        withSeparateTransforms(Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered_3"))
+                .base(powered3DoubleBase)
+                .perspective(MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue(), powered3SingleBase)
+                .end();
+        withSeparateTransforms(Mineraculous.modLoc("item/miraculous/" + ladybugKey + "/powered_4"))
+                .base(powered4DoubleBase)
+                .perspective(MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue(), powered4SingleBase)
+                .end();
 
         String butterflyKey = "butterfly";
         ResourceLocation butterflyBase = Mineraculous.modLoc("item/miraculous/" + butterflyKey + "/base");

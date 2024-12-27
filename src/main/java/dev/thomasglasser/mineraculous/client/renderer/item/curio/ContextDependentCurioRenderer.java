@@ -1,14 +1,15 @@
 package dev.thomasglasser.mineraculous.client.renderer.item.curio;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItemDisplayContexts;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +25,7 @@ public class ContextDependentCurioRenderer implements ICurioRenderer {
             poseStack.pushPose();
             ItemDisplayContext displayContext = switch (slotContext.identifier()) {
                 case "ring" -> {
-                    humanoidModel.translateToHand(ClientUtils.getMinecraft().options.mainHand().get(), poseStack);
+                    humanoidModel.translateToHand(HumanoidArm.RIGHT, poseStack);
                     yield MineraculousItemDisplayContexts.CURIOS_RING.getValue();
                 }
                 case "brooch" -> {
@@ -47,6 +48,11 @@ public class ContextDependentCurioRenderer implements ICurioRenderer {
             if (renderer == null)
                 renderer = new ItemInHandRenderer(Minecraft.getInstance(), Minecraft.getInstance().getEntityRenderDispatcher(), Minecraft.getInstance().getItemRenderer());
             renderer.renderItem(slotContext.entity(), stack, displayContext, false, poseStack, renderTypeBuffer, light);
+            if (slotContext.identifier().equals("earrings")) {
+                poseStack.mulPose(Axis.YP.rotationDegrees(180));
+                poseStack.translate(0, 0, 1 / 16f);
+                renderer.renderItem(slotContext.entity(), stack, displayContext, false, poseStack, renderTypeBuffer, light);
+            }
             poseStack.popPose();
         }
     }

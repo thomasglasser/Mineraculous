@@ -56,7 +56,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
-import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -64,6 +63,7 @@ import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
@@ -72,9 +72,8 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, ProjectileItem, ICurioItem {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final ResourceLocation EXTENDED_PROPERTY_ID = Mineraculous.modLoc("extended");
-    public static final RawAnimation EXTEND = RawAnimation.begin().thenPlay("attack.extend");
-    public static final RawAnimation RETRACT = RawAnimation.begin().thenPlay("attack.retract");
-    public static final RawAnimation IDLE_RETRACTED = RawAnimation.begin().thenPlay("misc.idle.retracted");
+    public static final RawAnimation EXTEND = RawAnimation.begin().thenPlay("misc.extend");
+    public static final RawAnimation RETRACT = RawAnimation.begin().thenPlay("misc.retract");
 
     private static final ItemAttributeModifiers EXTENDED = ItemAttributeModifiers.builder()
             .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 15, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
@@ -92,12 +91,15 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<GeoAnimatable>(this, "use_controller", state -> PlayState.CONTINUE)
+        controllers.add(new AnimationController<>(this, "use_controller", state -> {
+            ItemStack stack = state.getData(DataTickets.ITEMSTACK);
+            if (!stack.has(MineraculousDataComponents.POWERED.get()))
+                return state.setAndContinue(DefaultAnimations.IDLE);
+            return PlayState.STOP;
+        })
+                .triggerableAnim("block", DefaultAnimations.ATTACK_BLOCK)
                 .triggerableAnim("extend", EXTEND)
-                .triggerableAnim("shield", DefaultAnimations.ATTACK_BLOCK)
-                .triggerableAnim("idle", DefaultAnimations.IDLE)
-                .triggerableAnim("retract", RETRACT)
-                .triggerableAnim("retracted", IDLE_RETRACTED));
+                .triggerableAnim("retract", RETRACT));
     }
 
     @Override
@@ -121,13 +123,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     @Override
     public void inventoryTick(ItemStack pStack, Level pLevel, Entity pEntity, int pSlotId, boolean pIsSelected) {
         if (pEntity instanceof Player player && !player.isUsingItem()) {
-            if (pLevel instanceof ServerLevel) {
-                long animId = GeoItem.getOrAssignId(pStack, (ServerLevel) pLevel);
-                if (!pStack.has(MineraculousDataComponents.POWERED.get())) {
-                    if (cache.getManagerForId(animId).getAnimationControllers().get("use_controller").getCurrentRawAnimation() != RETRACT)
-                        triggerAnim(pEntity, animId, "use_controller", "retracted");
-                }
-            } else if (player.getMainHandItem() == pStack || player.getOffhandItem() == pStack) {
+            if (pLevel.isClientSide() && player.getMainHandItem() == pStack || player.getOffhandItem() == pStack) {
                 InteractionHand hand = player.getMainHandItem() == pStack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
 
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(pEntity);
@@ -194,7 +190,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
             if (pLevel instanceof ServerLevel serverLevel) {
                 long animId = GeoItem.getOrAssignId(stack, serverLevel);
                 switch (ability) {
-                    case BLOCK -> triggerAnim(pPlayer, animId, "use_controller", "shield");
+                    case BLOCK -> triggerAnim(pPlayer, animId, "use_controller", "block");
                     case null, default -> {}
                 }
             }
@@ -213,12 +209,11 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
     @Override
     public void onStopUsing(ItemStack stack, LivingEntity entity, int count) {
-        if (entity.level() instanceof ServerLevel serverLevel && stack.has(MineraculousDataComponents.CAT_STAFF_ABILITY.get())) {
+        if (entity.level() instanceof ServerLevel serverLevel) {
             long animId = GeoItem.getOrAssignId(stack, serverLevel);
-//            if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.BLOCK) {
-//                stopTriggeredAnim(entity, animId, "use_controller", "shield");
-//            }
-            stopTriggeredAnim(entity, animId, "use_controller", "extend");
+            if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.BLOCK) {
+                stopTriggeredAnim(entity, animId, "use_controller", "block");
+            }
         }
     }
 

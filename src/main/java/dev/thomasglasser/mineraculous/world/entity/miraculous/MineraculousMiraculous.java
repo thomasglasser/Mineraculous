@@ -52,6 +52,7 @@ public class MineraculousMiraculous {
         context.register(LADYBUG, new Miraculous(
                 TextColor.fromRgb(0xdd1731),
                 MineraculousCuriosProvider.SLOT_EARRINGS,
+                9,
                 Optional.of(MineraculousItems.LADYBUG_YOYO.get()),
                 Optional.of("belt"),
                 // TODO: Add kwami hungry sound

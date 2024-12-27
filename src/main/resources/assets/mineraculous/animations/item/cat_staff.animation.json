@@ -16,7 +16,7 @@
 				}
 			}
 		},
-		"attack.extend": {
+		"misc.extend": {
 			"loop": "hold_on_last_frame",
 			"animation_length": 0.375,
 			"bones": {
@@ -42,7 +42,7 @@
 				}
 			}
 		},
-		"attack.retract": {
+		"misc.retract": {
 			"loop": "hold_on_last_frame",
 			"animation_length": 0.375,
 			"bones": {

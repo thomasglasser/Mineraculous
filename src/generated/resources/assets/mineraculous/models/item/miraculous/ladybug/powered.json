@@ -1,7 +1,24 @@
 {
-  "parent": "mineraculous:item/miraculous/ladybug/base",
-  "textures": {
-    "base": "mineraculous:item/miraculous/ladybug/powered",
-    "symbol": "mineraculous:item/miraculous/ladybug/symbol"
+  "base": {
+    "parent": "mineraculous:item/miraculous/ladybug/base",
+    "textures": {
+      "base": "mineraculous:item/miraculous/ladybug/powered",
+      "base_right": "mineraculous:item/miraculous/ladybug/powered",
+      "symbol": "mineraculous:item/miraculous/ladybug/symbol",
+      "symbol_right": "mineraculous:item/miraculous/ladybug/symbol"
+    }
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "mineraculous:curios_earrings": {
+      "parent": "mineraculous:item/miraculous/ladybug/base",
+      "textures": {
+        "base": "mineraculous:item/miraculous/ladybug/powered",
+        "base_right": "mineraculous:item/empty",
+        "symbol": "mineraculous:item/miraculous/ladybug/symbol",
+        "symbol_right": "mineraculous:item/empty"
+      }
+    }
   }
 }

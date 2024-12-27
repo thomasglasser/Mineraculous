@@ -6,7 +6,7 @@ import dev.thomasglasser.mineraculous.client.gui.components.kamiko.KamikoGui;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.client.model.KamikoMaskModel;
-import dev.thomasglasser.mineraculous.client.particle.CataclysmParticle;
+import dev.thomasglasser.mineraculous.client.particle.HoveringOrbParticle;
 import dev.thomasglasser.mineraculous.client.particle.KamikotizationParticle;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KamikoRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
@@ -109,7 +109,7 @@ public class MineraculousClientEvents {
     }
 
     public static void onRegisterParticleProviders(RegisterParticleProvidersEvent event) {
-        event.registerSpriteSet(MineraculousParticleTypes.CATACLYSM.get(), CataclysmParticle.Provider::new);
+        event.registerSpriteSet(MineraculousParticleTypes.BLACK_ORB.get(), HoveringOrbParticle.Provider::new);
         event.registerSpriteSet(MineraculousParticleTypes.KAMIKOTIZATION.get(), KamikotizationParticle.Provider::new);
     }
 

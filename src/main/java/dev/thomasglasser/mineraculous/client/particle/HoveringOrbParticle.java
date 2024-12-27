@@ -9,8 +9,8 @@ import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.core.particles.SimpleParticleType;
 
-public class CataclysmParticle extends TextureSheetParticle {
-    public CataclysmParticle(ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
+public class HoveringOrbParticle extends TextureSheetParticle {
+    public HoveringOrbParticle(ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
         super(pLevel, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed);
         if (MineraculousClientUtils.isFirstPerson())
             scale(0.1f);
@@ -38,7 +38,7 @@ public class CataclysmParticle extends TextureSheetParticle {
 
         @Override
         public Particle createParticle(SimpleParticleType type, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            CataclysmParticle particle = new CataclysmParticle(level, x, y, z, xSpeed, ySpeed, zSpeed);
+            HoveringOrbParticle particle = new HoveringOrbParticle(level, x, y, z, xSpeed, ySpeed, zSpeed);
             particle.pickSprite(sprites);
             return particle;
         }

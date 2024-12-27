@@ -50,8 +50,7 @@ public class MineraculousAbilities {
                         false)),
                 Optional.empty(),
                 Optional.empty(),
-                // TODO: Replace with kamikotization particles
-                List.of(new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get(), Optional.empty(), false)),
+                List.of(new RightHandParticlesAbility(MineraculousParticleTypes.BLACK_ORB.get(), Optional.empty(), false)),
                 Optional.empty(),
                 false));
         context.register(KAMIKO_CONTROL, new SetCameraEntityAbility(
@@ -90,7 +89,7 @@ public class MineraculousAbilities {
                         Optional.of(MineraculousSoundEvents.CATACLYSM_USE),
                         false)),
                 Optional.empty(),
-                List.of(new RightHandParticlesAbility(MineraculousParticleTypes.CATACLYSM.get(), Optional.empty(), false)),
+                List.of(new RightHandParticlesAbility(MineraculousParticleTypes.BLACK_ORB.get(), Optional.empty(), false)),
                 Optional.of(MineraculousSoundEvents.CATACLYSM_ACTIVATE),
                 false));
         context.register(CAT_VISION, new NightVisionAbility(Optional.of(ResourceLocation.withDefaultNamespace("shaders/post/creeper.json"))));

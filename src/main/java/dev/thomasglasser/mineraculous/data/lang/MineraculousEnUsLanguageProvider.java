@@ -26,6 +26,7 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.MineraculousAbilities;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerProfessions;
 import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
+import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
@@ -48,6 +49,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
     @Override
     protected void addTranslations() {
+        add(MineraculousItems.LADYBUG_YOYO.get(), "Ladybug Yoyo");
         add(MineraculousItems.CAT_STAFF.get(), "Cat Staff");
         add(MineraculousItems.MIRACULOUS.get(), "Miraculous");
         add(MineraculousItems.KAMIKO_SPAWN_EGG.get(), "Kamiko Spawn Egg");
@@ -162,7 +164,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         add(MineraculousMobEffects.CATACLYSMED.get(), "Cataclysmed");
 
-        Arrays.stream(CatStaffItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), WordUtils.capitalize(ability.name().toLowerCase())));
+        Arrays.stream(LadybugYoyoItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), WordUtils.capitalize(ability.name().toLowerCase().replace('_', ' '))));
+        Arrays.stream(CatStaffItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), WordUtils.capitalize(ability.name().toLowerCase().replace('_', ' '))));
 
         addCuriosSlot(MineraculousCuriosProvider.SLOT_BROOCH);
         addCuriosSlot(MineraculousCuriosProvider.SLOT_EARRINGS);

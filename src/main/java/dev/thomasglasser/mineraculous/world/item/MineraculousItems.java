@@ -30,7 +30,7 @@ public class MineraculousItems {
     private static final Supplier<Item> BASIC_ITEM = () -> new Item(new Item.Properties());
 
     // Tools
-    public static final DeferredItem<Item> LADYBUG_YOYO = register("ladybug_yoyo", BASIC_ITEM);
+    public static final DeferredItem<Item> LADYBUG_YOYO = register("ladybug_yoyo", () -> new LadybugYoyoItem(new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC)));
     public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC)));
     public static final DeferredItem<Item> BUTTERFLY_CANE = register("butterfly_cane", BASIC_ITEM);
 

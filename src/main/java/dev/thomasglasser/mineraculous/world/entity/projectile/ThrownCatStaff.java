@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.world.entity.projectile;
 
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
@@ -25,6 +24,7 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
@@ -156,7 +156,7 @@ public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
             if (inGroundTime <= 0) {
                 return state.setAndContinue(DefaultAnimations.ATTACK_THROW);
             }
-            return state.setAndContinue(CatStaffItem.EXTEND);
+            return PlayState.STOP;
         }));
     }
 

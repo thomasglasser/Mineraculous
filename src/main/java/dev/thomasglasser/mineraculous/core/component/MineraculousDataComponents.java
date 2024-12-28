@@ -6,6 +6,7 @@ import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
+import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
@@ -36,7 +37,8 @@ public class MineraculousDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> DETRANSFORMATION_FRAMES = register("detransformation_frames", Codec.INT, null, false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> REMAINING_TICKS = register("remaining_ticks", Codec.INT, ByteBufCodecs.INT, false);
 
-    // Cat Staff
+    // Miraculous Tools
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<LadybugYoyoItem.Ability>> LADYBUG_YOYO_ABILITY = register("ladybug_yoyo_ability", LadybugYoyoItem.Ability.CODEC, LadybugYoyoItem.Ability.STREAM_CODEC, true);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<CatStaffItem.Ability>> CAT_STAFF_ABILITY = register("cat_staff_ability", CatStaffItem.Ability.CODEC, CatStaffItem.Ability.STREAM_CODEC, true);
 
     // Kamikotization

@@ -1,0 +1,92 @@
+{
+  "base": {
+    "parent": "minecraft:builtin/entity",
+    "display": {
+      "firstperson_lefthand": {
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ],
+        "translation": [
+          2,
+          0,
+          1
+        ]
+      },
+      "firstperson_righthand": {
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ],
+        "translation": [
+          2,
+          0,
+          1
+        ]
+      },
+      "head": {
+        "translation": [
+          0,
+          6.25,
+          0
+        ]
+      },
+      "thirdperson_lefthand": {
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ],
+        "translation": [
+          0,
+          0,
+          2
+        ]
+      },
+      "thirdperson_righthand": {
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ],
+        "translation": [
+          0,
+          0,
+          2
+        ]
+      }
+    }
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "overrides": [
+    {
+      "model": "mineraculous:item/ladybug_yoyo_extended",
+      "predicate": {
+        "mineraculous:extended": 1.0
+      }
+    }
+  ],
+  "perspectives": {
+    "fixed": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/ladybug_yoyo"
+      }
+    },
+    "ground": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/ladybug_yoyo"
+      }
+    },
+    "gui": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/ladybug_yoyo"
+      }
+    }
+  }
+}

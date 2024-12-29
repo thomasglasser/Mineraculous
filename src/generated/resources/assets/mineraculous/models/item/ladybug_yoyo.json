@@ -2,6 +2,11 @@
   "base": {
     "parent": "minecraft:builtin/entity",
     "display": {
+      "mineraculous:curios_belt": {
+        "rotation": [-90, 0, 0],
+        "translation": [-2, 10, 3.7],
+        "scale": [0.8, 0.8, 0.8]
+      },
       "firstperson_lefthand": {
         "scale": [
           0.6,

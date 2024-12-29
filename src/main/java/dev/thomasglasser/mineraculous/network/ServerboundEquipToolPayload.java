@@ -10,6 +10,8 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import top.theillusivec4.curios.api.CuriosApi;
+import top.theillusivec4.curios.api.SlotContext;
 
 public record ServerboundEquipToolPayload(InteractionHand hand) implements ExtendedPacketPayload {
     public static final Type<ServerboundEquipToolPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_equip_tool"));
@@ -20,8 +22,17 @@ public record ServerboundEquipToolPayload(InteractionHand hand) implements Exten
     // ON SERVER
     @Override
     public void handle(Player player) {
-        CuriosUtils.setStackInFirstValidSlot(player, player.getItemInHand(hand), true);
-        player.setItemInHand(hand, ItemStack.EMPTY);
+        if (CuriosUtils.setStackInFirstValidSlot(player, player.getItemInHand(hand), true))
+            player.setItemInHand(hand, ItemStack.EMPTY);
+        else {
+            CuriosUtils.getAllItems(player).forEach((curiosData, stack) -> {
+                if (CuriosApi.isStackValid(new SlotContext(curiosData.identifier(), player, curiosData.slot(), false, true), player.getItemInHand(hand))) {
+                    ItemStack inHand = player.getItemInHand(hand);
+                    CuriosUtils.setStackInSlot(player, curiosData, inHand, true);
+                    player.setItemInHand(hand, stack);
+                }
+            });
+        }
     }
 
     @Override

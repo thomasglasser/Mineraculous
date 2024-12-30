@@ -135,6 +135,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
 
         ItemModelBuilder inHandLadybugYoyo = withEntityModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_in_hand"))
                 .transforms()
+                .transform(MineraculousItemDisplayContexts.CURIOS_BELT.getValue()).rotation(-90, 0, 0).translation(-2, 10, 3.7f).scale(0.8f).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0, 0, 2).scale(0.6f).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).translation(0, 0, 2).scale(0.6f).end()
                 .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(2, 0, 1).scale(0.6f).end()
@@ -142,14 +143,29 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.HEAD).translation(0, 6.25f, 0).end()
                 .end();
         ItemModelBuilder inventoryLadybugYoyo = basicInventoryItem(MineraculousItems.LADYBUG_YOYO);
+        ItemModelBuilder inHandThrownLadybugYoyo = basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_thrown_in_hand"), "empty");
+        ItemModelBuilder inventoryThrownLadybugYoyo = basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_thrown_inventory"), MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_thrown").getPath());
+        generatedModels.remove(inHandThrownLadybugYoyo.getLocation());
+        generatedModels.remove(inventoryThrownLadybugYoyo.getLocation());
+        ItemModelBuilder thrownLadybugYoyo = withSeparateTransforms(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_thrown"))
+                .base(inHandThrownLadybugYoyo)
+                .perspective(ItemDisplayContext.GUI, inventoryThrownLadybugYoyo)
+                .perspective(ItemDisplayContext.FIXED, inventoryThrownLadybugYoyo)
+                .perspective(ItemDisplayContext.GROUND, inventoryThrownLadybugYoyo)
+                .end();
         withEntityModelInHand(MineraculousItems.LADYBUG_YOYO, inHandLadybugYoyo, inventoryLadybugYoyo)
                 .override()
                 .predicate(LadybugYoyoItem.EXTENDED_PROPERTY_ID, 1)
                 .model(withEntityModelInHand(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_extended"), inHandLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_extended"))))
+                .end()
+                .override()
+                .predicate(LadybugYoyoItem.THROWN_PROPERTY_ID, 1)
+                .model(thrownLadybugYoyo)
                 .end();
 
         ItemModelBuilder inHandCatStaff = withEntityModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_in_hand"))
                 .transforms()
+                .transform(MineraculousItemDisplayContexts.CURIOS_BELT.getValue()).rotation(0, 180, 90).translation(-4.2f, 8, 2.7f).scale(0.7f).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(0, -180, 0).translation(0, -3.5f, 1.25f).scale(0.7f).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(0, -180, 0).translation(0, -3.5f, 1.25f).scale(0.7f).end()
                 .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).rotation(0, 165, 0).translation(0, 1.5f, 1.25f).scale(0.7f).end()

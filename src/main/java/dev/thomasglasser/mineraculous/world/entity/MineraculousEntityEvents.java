@@ -72,6 +72,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
@@ -701,5 +702,12 @@ public class MineraculousEntityEvents {
             }
         }
         return null;
+    }
+
+    public static void onPlayerBreakSpeed(PlayerEvent.BreakSpeed event) {
+        ItemStack mainHandItem = event.getEntity().getMainHandItem();
+        if (mainHandItem.is(MineraculousItems.LADYBUG_YOYO.get()) && mainHandItem.has(MineraculousDataComponents.POWERED)) {
+            event.setCanceled(true);
+        }
     }
 }

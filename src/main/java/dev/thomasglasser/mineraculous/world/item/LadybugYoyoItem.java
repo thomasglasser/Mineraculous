@@ -14,16 +14,19 @@ import dev.thomasglasser.mineraculous.network.ServerboundSetLadybugYoyoAbilityPa
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
+import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
-import dev.thomasglasser.mineraculous.world.item.curio.ContextDependentCurio;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -31,6 +34,9 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -42,6 +48,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -57,8 +65,9 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICurioItem, ContextDependentCurio {
+public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICurioItem {
     public static final ResourceLocation EXTENDED_PROPERTY_ID = Mineraculous.modLoc("extended");
+    public static final ResourceLocation THROWN_PROPERTY_ID = Mineraculous.modLoc("thrown");
     public static final String CONTROLLER_USE = "use_controller";
     public static final String ANIMATION_BLOCK = "block";
     public static final String ANIMATION_EXTEND = "extend";
@@ -212,28 +221,51 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     public void releaseUsing(ItemStack stack, Level level, LivingEntity entityLiving, int timeLeft) {
         Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get());
         // TODO: Implement ability
-//        if (entityLiving instanceof Player player && ability == Ability.THROW) {
-//            int i = this.getUseDuration(stack, entityLiving) - timeLeft;
-//            if (i >= 10) {
-//                if (!level.isClientSide) {
-//                    stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(entityLiving.getUsedItemHand()));
-//                    ThrownCatStaff thrown = new ThrownCatStaff(entityLiving, level, stack, stack);
-//                    thrown.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F, 1.0F);
-//                    if (player.hasInfiniteMaterials()) {
-//                        thrown.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
-//                    }
-//
-//                    level.addFreshEntity(thrown);
-//                    // TODO: Custom sound
-//                    level.playSound(null, thrown, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
-//                    if (!player.hasInfiniteMaterials()) {
-//                        player.getInventory().removeItem(stack);
-//                    }
-//                }
-//
-//                player.awardStat(Stats.ITEM_USED.get(this));
-//            }
-//        }
+    }
+
+    @Override
+    public boolean onEntitySwing(ItemStack stack, LivingEntity entity, InteractionHand hand) {
+        if (stack.has(MineraculousDataComponents.POWERED) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
+            Optional<UUID> uuid = entity.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
+            if (uuid.isPresent()) {
+                recallYoyo(stack, player);
+            } else {
+                throwYoyo(stack, player, null);
+            }
+            player.getCooldowns().addCooldown(this, 5);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
+        return false;
+    }
+
+    public void recallYoyo(ItemStack stack, Player player) {
+        Optional<UUID> uuid = player.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
+        if (uuid.isPresent()) {
+            Level level = player.level();
+            if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(uuid.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
+                thrownLadybugYoyo.discard();
+            }
+            level.playSound(null, player, SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.PLAYERS, 1.0F, 1.0F);
+            player.gameEvent(GameEvent.ITEM_INTERACT_FINISH);
+        }
+    }
+
+    public void throwYoyo(ItemStack stack, Player player, Ability ability) {
+        Level level = player.level();
+        if (!level.isClientSide) {
+            ThrownLadybugYoyo thrown = new ThrownLadybugYoyo(player, level, stack, ability);
+            thrown.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F, 1.0F);
+            level.addFreshEntity(thrown);
+            // TODO: Custom sound
+            level.playSound(null, thrown, SoundEvents.FISHING_BOBBER_THROW, SoundSource.PLAYERS, 1.0F, 1.0F);
+        }
+        player.awardStat(Stats.ITEM_USED.get(this));
+        player.gameEvent(GameEvent.ITEM_INTERACT_START);
     }
 
     @Override

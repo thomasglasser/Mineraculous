@@ -1,7 +1,12 @@
 package dev.thomasglasser.mineraculous.world.entity.projectile;
 
+import dev.thomasglasser.mineraculous.network.ClientboundSyncLadybugYoyoPayload;
+import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.Optional;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -12,7 +17,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -24,26 +28,35 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
-import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
+public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
+    @Nullable
+    private LadybugYoyoItem.Ability ability;
     private boolean dealtDamage;
 
-    public ThrownCatStaff(LivingEntity owner, Level level, ItemStack pickupItemStack) {
-        super(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), owner, level, pickupItemStack, null);
+    public ThrownLadybugYoyo(LivingEntity owner, Level level, ItemStack pickupItemStack, @Nullable LadybugYoyoItem.Ability ability) {
+        super(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), owner, level, pickupItemStack, null);
+        setPos(owner.getX(), owner.getEyeY() - 0.2, owner.getZ());
+        this.ability = ability;
+        owner.setData(MineraculousAttachmentTypes.LADYBUG_YOYO, Optional.of(this.getUUID()));
+        if (level instanceof ServerLevel serverLevel) {
+            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncLadybugYoyoPayload(Optional.of(this.getUUID())), serverLevel.getServer());
+        }
     }
 
-    public ThrownCatStaff(double x, double y, double z, Level level, ItemStack pickupItemStack) {
-        super(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), x, y, z, level, pickupItemStack, null);
+    public ThrownLadybugYoyo(double x, double y, double z, Level level, ItemStack pickupItemStack, @Nullable LadybugYoyoItem.Ability ability) {
+        super(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), x, y, z, level, pickupItemStack, null);
+        this.ability = ability;
     }
 
-    public ThrownCatStaff(EntityType<? extends ThrownCatStaff> entityType, Level level) {
+    public ThrownLadybugYoyo(EntityType<? extends ThrownLadybugYoyo> entityType, Level level) {
         super(entityType, level);
-        this.pickup = AbstractArrow.Pickup.ALLOWED;
+        this.ability = null;
+        this.noCulling = true;
     }
 
     @Override
@@ -52,6 +65,22 @@ public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
             this.dealtDamage = true;
         }
         super.tick();
+        Entity entity = getOwner();
+        if (entity == null)
+            return;
+        if (entity instanceof Player player)
+            checkRecall(player);
+    }
+
+    @Override
+    protected void tickDespawn() {}
+
+    private void checkRecall(Player player) {
+        ItemStack itemstack = player.getMainHandItem();
+        boolean flag = itemstack.is(MineraculousItems.LADYBUG_YOYO);
+        if (!(!player.isRemoved() && player.isAlive() && flag)) {
+            this.discard();
+        }
     }
 
     @Nullable
@@ -71,25 +100,26 @@ public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
         }
 
         this.dealtDamage = true;
-        if (entity.hurt(damagesource, f)) {
-            if (entity.getType() == EntityType.ENDERMAN) {
-                return;
+        if (this.ability == null) {
+            if (entity.hurt(damagesource, f)) {
+                if (entity.getType() == EntityType.ENDERMAN) {
+                    return;
+                }
+
+                if (this.level() instanceof ServerLevel serverlevel1) {
+                    EnchantmentHelper.doPostAttackEffectsWithItemSource(
+                            serverlevel1, entity, damagesource, this.getWeaponItem());
+                }
+
+                if (entity instanceof LivingEntity livingentity) {
+                    this.doKnockback(livingentity, damagesource);
+                    this.doPostHurtEffects(livingentity);
+                }
             }
 
-            if (this.level() instanceof ServerLevel serverlevel1) {
-                EnchantmentHelper.doPostAttackEffectsWithItemSource(
-                        serverlevel1, entity, damagesource, this.getWeaponItem());
-            }
-
-            if (entity instanceof LivingEntity livingentity) {
-                this.doKnockback(livingentity, damagesource);
-                this.doPostHurtEffects(livingentity);
-            }
+            this.discard();
+            this.playSound(SoundEvents.ARROW_HIT, 1.0F, 1.0F);
         }
-
-        this.deflect(ProjectileDeflection.REVERSE, entity, this.getOwner(), false);
-        this.setDeltaMovement(this.getDeltaMovement().multiply(0.02, 0.2, 0.02));
-        this.playSound(SoundEvents.TRIDENT_HIT, 1.0F, 1.0F);
     }
 
     @Override
@@ -107,18 +137,26 @@ public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
     }
 
     @Override
+    protected void onHitBlock(BlockHitResult result) {
+        super.onHitBlock(result);
+        if (ability == null) {
+            discard();
+        }
+    }
+
+    @Override
     public ItemStack getWeaponItem() {
         return this.getPickupItemStackOrigin();
     }
 
     @Override
     protected boolean tryPickup(Player player) {
-        return super.tryPickup(player) || this.isNoPhysics() && this.ownedBy(player) && player.getInventory().add(this.getPickupItem());
+        return false;
     }
 
     @Override
     protected ItemStack getDefaultPickupItem() {
-        return MineraculousItems.CAT_STAFF.toStack();
+        return MineraculousItems.LADYBUG_YOYO.toStack();
     }
 
     @Override
@@ -136,12 +174,16 @@ public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        if (compound.contains("Ability"))
+            this.ability = LadybugYoyoItem.Ability.valueOf(compound.getString("Ability"));
         this.dealtDamage = compound.getBoolean("DealtDamage");
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        if (this.ability != null)
+            compound.putString("Ability", this.ability.name());
         compound.putBoolean("DealtDamage", this.dealtDamage);
     }
 
@@ -152,16 +194,27 @@ public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "spin_controller", 0, state -> {
-            if (inGroundTime <= 0) {
-                return state.setAndContinue(DefaultAnimations.ATTACK_THROW);
-            }
-            return PlayState.STOP;
-        }));
+        controllers.add(new AnimationController<>(this, "controller", 0, state -> state.setAndContinue(DefaultAnimations.IDLE)));
     }
 
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;
+    }
+
+    @Override
+    public boolean shouldRenderAtSqrDistance(double distance) {
+        return true;
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        if (getOwner() != null) {
+            getOwner().setData(MineraculousAttachmentTypes.LADYBUG_YOYO, Optional.empty());
+            if (level() instanceof ServerLevel serverLevel) {
+                TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncLadybugYoyoPayload(Optional.empty()), serverLevel.getServer());
+            }
+        }
+        super.remove(reason);
     }
 }

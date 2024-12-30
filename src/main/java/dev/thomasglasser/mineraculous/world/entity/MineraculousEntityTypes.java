@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
+import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import java.util.HashMap;
@@ -26,8 +27,13 @@ public class MineraculousEntityTypes {
                     .sized(0.3F, 0.3F));
 
     // Projectiles
+    public static final DeferredHolder<EntityType<?>, EntityType<ThrownLadybugYoyo>> THROWN_LADYBUG_YOYO = register("thrown_ladybug_yoyo",
+            EntityType.Builder.<ThrownLadybugYoyo>of(ThrownLadybugYoyo::new, MobCategory.MISC)
+                    .clientTrackingRange(Integer.MAX_VALUE / 16)
+                    .sized(0.5F, 0.5F));
     public static final DeferredHolder<EntityType<?>, EntityType<ThrownCatStaff>> THROWN_CAT_STAFF = register("thrown_cat_staff",
             EntityType.Builder.<ThrownCatStaff>of(ThrownCatStaff::new, MobCategory.MISC)
+                    .clientTrackingRange(Integer.MAX_VALUE / 16)
                     .sized(0.5F, 0.5F));
 
     private static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> register(String name, EntityType.Builder<T> builder) {

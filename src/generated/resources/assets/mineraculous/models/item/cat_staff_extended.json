@@ -48,6 +48,23 @@
           -2.75
         ]
       },
+      "mineraculous:curios_belt": {
+        "rotation": [
+          0,
+          180,
+          90
+        ],
+        "scale": [
+          0.7,
+          0.7,
+          0.7
+        ],
+        "translation": [
+          -4.2,
+          8,
+          2.7
+        ]
+      },
       "thirdperson_lefthand": {
         "rotation": [
           0,

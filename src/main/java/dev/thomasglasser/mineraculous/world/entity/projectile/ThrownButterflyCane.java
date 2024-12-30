@@ -16,7 +16,6 @@ import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -25,39 +24,37 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.constant.DefaultAnimations;
+import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
+public class ThrownButterflyCane extends AbstractArrow implements GeoEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     private boolean dealtDamage;
+    public Boolean isCovered = true;
 
-    public ThrownCatStaff(LivingEntity owner, Level level, ItemStack pickupItemStack) {
-        super(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), owner, level, pickupItemStack, null);
-    }
-
-    public ThrownCatStaff(double x, double y, double z, Level level, ItemStack pickupItemStack) {
-        super(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), x, y, z, level, pickupItemStack, null);
-    }
-
-    public ThrownCatStaff(EntityType<? extends ThrownCatStaff> entityType, Level level) {
+    public ThrownButterflyCane(EntityType<? extends AbstractArrow> entityType, Level level) {
         super(entityType, level);
-        this.pickup = AbstractArrow.Pickup.ALLOWED;
     }
 
-    @Override
-    public void tick() {
-        if (this.inGroundTime > 4) {
-            this.dealtDamage = true;
+    public ThrownButterflyCane(LivingEntity owner, Level level, ItemStack pickupItemStack, ItemStack firedBy, Boolean isCovered) {
+        super(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), owner, level, pickupItemStack, firedBy);
+        if (isCovered != null) {
+            this.isCovered = isCovered;
         }
-        super.tick();
     }
 
-    @Nullable
+    public ThrownButterflyCane(double x, double y, double z, Level level, ItemStack pickupItemStack, ItemStack firedBy) {
+        super(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), x, y, z, level, pickupItemStack, firedBy);
+    }
+
+    public void setId(int id) {
+        super.setId(id);
+    }
+
     @Override
-    protected EntityHitResult findHitEntity(Vec3 startVec, Vec3 endVec) {
-        return this.dealtDamage ? null : super.findHitEntity(startVec, endVec);
+    protected ItemStack getDefaultPickupItem() {
+        return MineraculousItems.BUTTERFLY_CANE.toStack();
     }
 
     @Override
@@ -93,37 +90,8 @@ public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
     }
 
     @Override
-    protected void hitBlockEnchantmentEffects(ServerLevel level, BlockHitResult hitResult, ItemStack stack) {
-        Vec3 vec3 = hitResult.getBlockPos().clampLocationWithin(hitResult.getLocation());
-        EnchantmentHelper.onHitBlock(
-                level,
-                stack,
-                this.getOwner() instanceof LivingEntity livingentity ? livingentity : null,
-                this,
-                null,
-                vec3,
-                level.getBlockState(hitResult.getBlockPos()),
-                p_375966_ -> this.kill());
-    }
-
-    @Override
     public ItemStack getWeaponItem() {
         return this.getPickupItemStackOrigin();
-    }
-
-    @Override
-    protected boolean tryPickup(Player player) {
-        return super.tryPickup(player) || this.isNoPhysics() && this.ownedBy(player) && player.getInventory().add(this.getPickupItem());
-    }
-
-    @Override
-    protected ItemStack getDefaultPickupItem() {
-        return MineraculousItems.CAT_STAFF.toStack();
-    }
-
-    @Override
-    protected SoundEvent getDefaultHitGroundSoundEvent() {
-        return SoundEvents.TRIDENT_HIT_GROUND;
     }
 
     @Override
@@ -134,7 +102,31 @@ public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
     }
 
     @Override
-    protected void tickDespawn() {}
+    public void tick() {
+        if (this.inGroundTime > 4) {
+            this.dealtDamage = true;
+        }
+        if (!this.isCovered) {
+            triggerAnim("cover_controller", "uncover");
+        }
+        super.tick();
+    }
+
+    @Override
+    protected float getWaterInertia() {
+        return 0.5F;
+    }
+
+    @Override
+    public boolean shouldRender(double x, double y, double z) {
+        return true;
+    }
+
+    @Nullable
+    @Override
+    protected EntityHitResult findHitEntity(Vec3 startVec, Vec3 endVec) {
+        return this.dealtDamage ? null : super.findHitEntity(startVec, endVec);
+    }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
@@ -149,18 +141,30 @@ public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
     }
 
     @Override
-    public boolean shouldRender(double x, double y, double z) {
-        return true;
+    protected boolean tryPickup(Player player) {
+        return super.tryPickup(player) || this.isNoPhysics() && this.ownedBy(player) && player.getInventory().add(this.getPickupItem());
     }
 
     @Override
+    protected SoundEvent getDefaultHitGroundSoundEvent() {
+        return SoundEvents.TRIDENT_HIT_GROUND;
+    }
+
+    @Nullable
+    public Player getPlayerOwner() {
+        Entity entity = this.getOwner();
+        return entity instanceof Player ? (Player) entity : null;
+    }
+
+    @Override
+    protected void tickDespawn() {}
+
+    public static final RawAnimation UNCOVER = RawAnimation.begin().thenPlay("animation.cane.uncovered");
+
+    @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "spin_controller", 0, state -> {
-            if (inGroundTime <= 0) {
-                return state.setAndContinue(DefaultAnimations.ATTACK_THROW);
-            }
-            return PlayState.STOP;
-        }));
+        controllers.add(new AnimationController<>(this, "cover_controller", 0, state -> PlayState.CONTINUE)
+                .triggerableAnim("uncover", UNCOVER));
     }
 
     @Override

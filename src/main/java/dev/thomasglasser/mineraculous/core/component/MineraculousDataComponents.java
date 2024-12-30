@@ -5,6 +5,7 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
@@ -40,6 +41,14 @@ public class MineraculousDataComponents {
     // Miraculous Tools
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<LadybugYoyoItem.Ability>> LADYBUG_YOYO_ABILITY = register("ladybug_yoyo_ability", LadybugYoyoItem.Ability.CODEC, LadybugYoyoItem.Ability.STREAM_CODEC, true);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<CatStaffItem.Ability>> CAT_STAFF_ABILITY = register("cat_staff_ability", CatStaffItem.Ability.CODEC, CatStaffItem.Ability.STREAM_CODEC, true);
+    // Butterfly Cane
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ButterflyCaneItem.Ability>> BUTTERFLY_CANE_ABILITY = register("butterfly_cane_ability", ButterflyCaneItem.Ability.CODEC, ButterflyCaneItem.Ability.STREAM_CODEC, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> BUTTERFLY_CANE_IS_OPEN = register("butterfly_cane_is_open", Codec.BOOL, ByteBufCodecs.BOOL, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> BUTTERFLY_CANE_IS_COVERED = register("butterfly_cane_is_covered", Codec.BOOL, ByteBufCodecs.BOOL, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> BUTTERFLY_CANE_OPEN_IMPULSE = register("butterfly_cane_open_impulse", Codec.BOOL, ByteBufCodecs.BOOL, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> BUTTERFLY_CANE_CLOSE_IMPULSE = register("butterfly_cane_close_impulse", Codec.BOOL, ByteBufCodecs.BOOL, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> BUTTERFLY_CANE_COVER_IMPULSE = register("butterfly_cane_cover_impulse", Codec.BOOL, ByteBufCodecs.BOOL, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> BUTTERFLY_CANE_UNCOVER_IMPULSE = register("butterfly_cane_uncover_impulse", Codec.BOOL, ByteBufCodecs.BOOL, true);
 
     // Kamikotization
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<KamikoData>> KAMIKO_DATA = register("kamiko_data", KamikoData.CODEC, null, true);

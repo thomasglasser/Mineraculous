@@ -1,0 +1,64 @@
+{
+  "base": {
+    "parent": "builtin/entity",
+    "display": {
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          -20,
+          1.25
+        ]
+      },
+      "thirdperson_lefthand": {
+        "translation": [
+          0,
+          -20,
+          1.25
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          0,
+          -20,
+          0
+        ]
+      },
+      "firstperson_lefthand": {
+        "translation": [
+          0,
+          -20,
+          0
+        ]
+      },
+      "head": {
+        "translation": [
+          0,
+          -20.75,
+          0
+        ]
+      }
+    }
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "fixed": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/butterfly_cane"
+      }
+    },
+    "ground": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/butterfly_cane"
+      }
+    },
+    "gui": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/butterfly_cane"
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownButterflyCane;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
@@ -33,6 +34,10 @@ public class MineraculousEntityTypes {
                     .sized(0.5F, 0.5F));
     public static final DeferredHolder<EntityType<?>, EntityType<ThrownCatStaff>> THROWN_CAT_STAFF = register("thrown_cat_staff",
             EntityType.Builder.<ThrownCatStaff>of(ThrownCatStaff::new, MobCategory.MISC)
+                    .clientTrackingRange(Integer.MAX_VALUE / 16)
+                    .sized(0.5F, 0.5F));
+    public static final DeferredHolder<EntityType<?>, EntityType<ThrownButterflyCane>> THROWN_BUTTERFLY_CANE = register("thrown_butterfly_cane",
+            EntityType.Builder.<ThrownButterflyCane>of(ThrownButterflyCane::new, MobCategory.MISC)
                     .clientTrackingRange(Integer.MAX_VALUE / 16)
                     .sized(0.5F, 0.5F));
 

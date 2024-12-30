@@ -59,6 +59,12 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         this.noCulling = true;
     }
 
+    @Nullable
+    public Player getPlayerOwner() {
+        Entity entity = this.getOwner();
+        return entity instanceof Player ? (Player) entity : null;
+    }
+
     @Override
     public void tick() {
         if (this.inGroundTime > 4) {

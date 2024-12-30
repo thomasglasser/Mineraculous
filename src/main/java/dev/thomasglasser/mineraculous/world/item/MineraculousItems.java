@@ -12,6 +12,8 @@ import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import dev.thomasglasser.tommylib.api.world.item.ItemNameBlockStateItem;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.function.Supplier;
 import net.minecraft.resources.ResourceKey;
@@ -28,11 +30,12 @@ public class MineraculousItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Mineraculous.MOD_ID);
 
     private static final Supplier<Item> BASIC_ITEM = () -> new Item(new Item.Properties());
+    private static final List<DeferredItem<?>> NOT_IN_MOD_TAB = new ArrayList<>();
 
     // Tools
     public static final DeferredItem<Item> LADYBUG_YOYO = register("ladybug_yoyo", () -> new LadybugYoyoItem(new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC)));
     public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC)));
-    public static final DeferredItem<Item> BUTTERFLY_CANE = register("butterfly_cane", BASIC_ITEM);
+    public static final DeferredItem<Item> BUTTERFLY_CANE = register("butterfly_cane", () -> new ButterflyCaneItem(new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC)));
 
     // Miraculous
     public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", () -> new MiraculousItem(new Item.Properties()));

@@ -1,8 +1,13 @@
 package dev.thomasglasser.mineraculous.world.entity.projectile;
 
+import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -24,32 +29,41 @@ import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
-import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class ThrownButterflyCane extends AbstractArrow implements GeoEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
+    private static final EntityDataAccessor<Boolean> DATA_SHOW_BLADE = SynchedEntityData.defineId(ThrownButterflyCane.class, EntityDataSerializers.BOOLEAN);
+
     private boolean dealtDamage;
-    public Boolean isCovered = true;
 
     public ThrownButterflyCane(EntityType<? extends AbstractArrow> entityType, Level level) {
         super(entityType, level);
     }
 
-    public ThrownButterflyCane(LivingEntity owner, Level level, ItemStack pickupItemStack, ItemStack firedBy, Boolean isCovered) {
-        super(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), owner, level, pickupItemStack, firedBy);
-        if (isCovered != null) {
-            this.isCovered = isCovered;
-        }
+    public ThrownButterflyCane(LivingEntity owner, Level level, ItemStack pickupItemStack) {
+        super(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), owner, level, pickupItemStack, null);
+        setShowBlade(pickupItemStack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == ButterflyCaneItem.Ability.BLADE);
     }
 
-    public ThrownButterflyCane(double x, double y, double z, Level level, ItemStack pickupItemStack, ItemStack firedBy) {
-        super(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), x, y, z, level, pickupItemStack, firedBy);
+    public ThrownButterflyCane(double x, double y, double z, Level level, ItemStack pickupItemStack) {
+        super(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), x, y, z, level, pickupItemStack, null);
+        setShowBlade(pickupItemStack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == ButterflyCaneItem.Ability.BLADE);
     }
 
-    public void setId(int id) {
-        super.setId(id);
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_SHOW_BLADE, false);
+    }
+
+    public void setShowBlade(boolean showBlade) {
+        this.entityData.set(DATA_SHOW_BLADE, showBlade);
+    }
+
+    public boolean showBlade() {
+        return this.entityData.get(DATA_SHOW_BLADE);
     }
 
     @Override
@@ -106,9 +120,6 @@ public class ThrownButterflyCane extends AbstractArrow implements GeoEntity {
         if (this.inGroundTime > 4) {
             this.dealtDamage = true;
         }
-        if (!this.isCovered) {
-            triggerAnim("cover_controller", "uncover");
-        }
         super.tick();
     }
 
@@ -132,12 +143,14 @@ public class ThrownButterflyCane extends AbstractArrow implements GeoEntity {
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.dealtDamage = compound.getBoolean("DealtDamage");
+        setShowBlade(compound.getBoolean("ShowBlade"));
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
         compound.putBoolean("DealtDamage", this.dealtDamage);
+        compound.putBoolean("ShowBlade", showBlade());
     }
 
     @Override
@@ -150,21 +163,16 @@ public class ThrownButterflyCane extends AbstractArrow implements GeoEntity {
         return SoundEvents.TRIDENT_HIT_GROUND;
     }
 
-    @Nullable
-    public Player getPlayerOwner() {
-        Entity entity = this.getOwner();
-        return entity instanceof Player ? (Player) entity : null;
-    }
-
     @Override
     protected void tickDespawn() {}
 
-    public static final RawAnimation UNCOVER = RawAnimation.begin().thenPlay("animation.cane.uncovered");
-
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "cover_controller", 0, state -> PlayState.CONTINUE)
-                .triggerableAnim("uncover", UNCOVER));
+        controllers.add(new AnimationController<>(this, "controller", state -> {
+            if (showBlade())
+                return state.setAndContinue(ButterflyCaneItem.BLADE_IDLE);
+            return PlayState.STOP;
+        }));
     }
 
     @Override

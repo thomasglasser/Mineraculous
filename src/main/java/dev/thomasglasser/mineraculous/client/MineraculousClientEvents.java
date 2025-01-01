@@ -58,9 +58,6 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -72,12 +69,10 @@ import net.neoforged.neoforge.client.event.RegisterEntitySpectatorShadersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
-@OnlyIn(Dist.CLIENT)
 public class MineraculousClientEvents {
     public static final String REVOKE = "gui.mineraculous.revoke";
 
@@ -95,11 +90,6 @@ public class MineraculousClientEvents {
         if (ClientUtils.getMinecraft().screen == null) {
             ClientUtils.setScreen(new RadialMenuScreen(Arrays.asList(options), stack, onSelected, MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().getKey().getValue(), ClientUtils.getLevel().holderOrThrow(miraculousType).value().color().getValue()));
         }
-    }
-
-    @SubscribeEvent
-    public static void onRenderLevelStageEvent(RenderLevelStageEvent event) {
-        //Blank Space (Taylor's Version)
     }
 
     public static void onRegisterAdditionalModels(ModelEvent.RegisterAdditional event) {

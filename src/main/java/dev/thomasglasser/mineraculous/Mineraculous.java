@@ -102,7 +102,6 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerBreakSpeed);
 
         if (TommyLibServices.PLATFORM.isClientSide()) {
-            //NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientTick);
             bus.addListener(MineraculousClientEvents::onRegisterAdditionalModels);
             bus.addListener(MineraculousClientEvents::onRegisterRenderer);
             bus.addListener(MineraculousClientEvents::onFMLClientSetup);
@@ -121,7 +120,6 @@ public class Mineraculous {
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onMouseButtonClick);
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientTick);
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientChatReceived);
-            NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderLevelStageEvent);
         }
     }
 

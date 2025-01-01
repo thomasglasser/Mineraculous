@@ -98,7 +98,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, CONTROLLER_USE, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
-            if (!stack.has(MineraculousDataComponents.POWERED.get()) && !state.isCurrentAnimation(RETRACT))
+            if (!stack.has(MineraculousDataComponents.ACTIVE) && !state.isCurrentAnimation(RETRACT))
                 return state.setAndContinue(DefaultAnimations.IDLE);
             return PlayState.STOP;
         })
@@ -126,29 +126,29 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     }
 
     @Override
-    public void inventoryTick(ItemStack pStack, Level pLevel, Entity pEntity, int pSlotId, boolean pIsSelected) {
-        if (pEntity instanceof Player player && !player.isUsingItem()) {
-            if (pLevel.isClientSide() && player.getMainHandItem() == pStack || player.getOffhandItem() == pStack) {
-                InteractionHand hand = player.getMainHandItem() == pStack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        if (entity instanceof Player player && !player.isUsingItem()) {
+            if (level.isClientSide() && player.getMainHandItem() == stack || player.getOffhandItem() == stack) {
+                InteractionHand hand = player.getMainHandItem() == stack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
 
-                CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(pEntity);
+                CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
                 int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
                 if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen()) {
                     if (MineraculousKeyMappings.ACTIVATE_TOOL.get().isDown()) {
-                        boolean activate = !pStack.has(MineraculousDataComponents.POWERED.get());
+                        boolean activate = !stack.has(MineraculousDataComponents.ACTIVE);
                         if (activate) {
-                            pStack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
+                            stack.set(MineraculousDataComponents.ACTIVE, Unit.INSTANCE);
                         } else {
-                            pStack.remove(MineraculousDataComponents.POWERED.get());
+                            stack.remove(MineraculousDataComponents.ACTIVE);
                         }
                         TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, hand, CONTROLLER_USE, activate ? ANIMATION_EXTEND : ANIMATION_RETRACT));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
                     } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown()) {
-                        if (pStack.has(MineraculousDataComponents.POWERED.get())) {
-                            MineraculousClientEvents.openToolWheel(MineraculousMiraculous.CAT, pStack, option -> {
+                        if (stack.has(MineraculousDataComponents.ACTIVE)) {
+                            MineraculousClientEvents.openToolWheel(MineraculousMiraculous.CAT, stack, option -> {
                                 if (option instanceof Ability ability) {
-                                    pStack.set(MineraculousDataComponents.CAT_STAFF_ABILITY.get(), ability);
-                                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetCatStaffAbilityPayload(player.getInventory().findSlotMatchingItem(pStack), ability.name()));
+                                    stack.set(MineraculousDataComponents.CAT_STAFF_ABILITY.get(), ability);
+                                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetCatStaffAbilityPayload(player.getInventory().findSlotMatchingItem(stack), ability.name()));
                                 }
                             }, Ability.values());
                         } else {
@@ -157,25 +157,25 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
                     }
                 }
-                TommyLibServices.ENTITY.setPersistentData(pEntity, playerData, false);
+                TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
             }
         }
 
-        if (pStack.has(MineraculousDataComponents.POWERED)) {
-            if (pStack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.PERCH && pEntity.isCrouching()) {
-                pEntity.setDeltaMovement(Vec3.ZERO);
-                pEntity.resetFallDistance();
-            } else if (pStack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.TRAVEL && pEntity instanceof Player player && player.getCooldowns().isOnCooldown(pStack.getItem()))
-                pEntity.resetFallDistance();
+        if (stack.has(MineraculousDataComponents.ACTIVE)) {
+            if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.PERCH && entity.isCrouching()) {
+                entity.setDeltaMovement(Vec3.ZERO);
+                entity.resetFallDistance();
+            } else if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.TRAVEL && entity instanceof Player player && player.getCooldowns().isOnCooldown(stack.getItem()))
+                entity.resetFallDistance();
         }
 
-        super.inventoryTick(pStack, pLevel, pEntity, pSlotId, pIsSelected);
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand) {
+    public InteractionResultHolder<ItemStack> use(Level level, Player pPlayer, InteractionHand pHand) {
         ItemStack stack = pPlayer.getItemInHand(pHand);
-        if (!stack.has(MineraculousDataComponents.POWERED.get()))
+        if (!stack.has(MineraculousDataComponents.ACTIVE))
             return InteractionResultHolder.fail(stack);
         if (stack.has(MineraculousDataComponents.CAT_STAFF_ABILITY)) {
             Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
@@ -192,7 +192,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                     pPlayer.resetFallDistance();
                 }
             }
-            if (pLevel instanceof ServerLevel serverLevel) {
+            if (level instanceof ServerLevel serverLevel) {
                 long animId = GeoItem.getOrAssignId(stack, serverLevel);
                 switch (ability) {
                     case BLOCK -> triggerAnim(pPlayer, animId, CONTROLLER_USE, ANIMATION_BLOCK);
@@ -201,7 +201,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
             }
             return InteractionResultHolder.consume(stack);
         }
-        return super.use(pLevel, pPlayer, pHand);
+        return super.use(level, pPlayer, pHand);
     }
 
     @Override
@@ -274,7 +274,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
     @Override
     public ItemAttributeModifiers getDefaultAttributeModifiers(ItemStack stack) {
-        if (stack.has(MineraculousDataComponents.POWERED.get()))
+        if (stack.has(MineraculousDataComponents.ACTIVE))
             return EXTENDED;
         return super.getDefaultAttributeModifiers(stack);
     }
@@ -295,7 +295,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     }
 
     public boolean canEquip(ItemStack stack) {
-        return !stack.has(MineraculousDataComponents.POWERED);
+        return !stack.has(MineraculousDataComponents.ACTIVE);
     }
 
     @Override
@@ -308,9 +308,9 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
     public enum Ability implements RadialMenuOption {
         BLOCK,
-        TRAVEL,
+        PERCH,
         THROW,
-        PERCH;
+        TRAVEL;
 
         public static final Codec<Ability> CODEC = Codec.STRING.xmap(Ability::valueOf, Ability::name);
         public static final StreamCodec<ByteBuf, Ability> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(Ability::valueOf, Ability::name);

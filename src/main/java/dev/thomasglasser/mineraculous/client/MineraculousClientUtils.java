@@ -6,8 +6,6 @@ import dev.thomasglasser.mineraculous.client.renderer.MineraculousBlockEntityWit
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import java.util.HashMap;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.core.particles.ParticleOptions;
@@ -100,18 +98,6 @@ public class MineraculousClientUtils {
     public static void closeKamikotizationChatScreen(boolean cancel) {
         if (Minecraft.getInstance().screen instanceof KamikotizationChatScreen screen)
             screen.onClose(cancel);
-    }
-
-    public static HashMap<KeyMapping, Boolean> wasHoldingKey = new HashMap<>();
-
-    public static boolean isHoldingKey(KeyMapping keyMapping) {
-        return keyMapping.isDown();
-    }
-
-    public static boolean isKeyReleased(KeyMapping keyMapping) {
-        boolean toReturn = wasHoldingKey.getOrDefault(keyMapping, false) && !keyMapping.isDown();
-        wasHoldingKey.put(keyMapping, isHoldingKey(keyMapping));
-        return toReturn;
     }
 
     public static void init() {}

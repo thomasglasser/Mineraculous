@@ -41,31 +41,23 @@
   },
   "gui_light": "front",
   "loader": "neoforge:separate_transforms",
-  "overrides": [
-    {
-      "model": "mineraculous:item/butterfly_cane_blade",
-      "predicate": {
-        "mineraculous:blade": 1.0
-      }
-    }
-  ],
   "perspectives": {
     "fixed": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/butterfly_cane"
+        "layer0": "mineraculous:item/butterfly_cane_blade"
       }
     },
     "ground": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/butterfly_cane"
+        "layer0": "mineraculous:item/butterfly_cane_blade"
       }
     },
     "gui": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/butterfly_cane"
+        "layer0": "mineraculous:item/butterfly_cane_blade"
       }
     }
   }

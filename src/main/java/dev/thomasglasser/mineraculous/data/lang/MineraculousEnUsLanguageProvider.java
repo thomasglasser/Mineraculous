@@ -25,6 +25,7 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiracu
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.MineraculousAbilities;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerProfessions;
+import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
@@ -51,6 +52,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     protected void addTranslations() {
         add(MineraculousItems.LADYBUG_YOYO.get(), "Ladybug Yoyo");
         add(MineraculousItems.CAT_STAFF.get(), "Cat Staff");
+        add(MineraculousItems.BUTTERFLY_CANE.get(), "Butterfly Cane");
         add(MineraculousItems.MIRACULOUS.get(), "Miraculous");
         add(MineraculousItems.KAMIKO_SPAWN_EGG.get(), "Kamiko Spawn Egg");
         add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
@@ -83,7 +85,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         add(MineraculousEntityTypes.KAMIKO.get(), "Kamiko");
         add(MineraculousEntityTypes.KWAMI.get(), "Kwami");
+        add(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), "Ladybug Yoyo");
         add(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), "Cat Staff");
+        add(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), "Butterfly Cane");
 
         add(MineraculousKeyMappings.MIRACULOUS_CATEGORY, "Miraculous");
         add(MineraculousKeyMappings.TRANSFORM.get(), "Transform");
@@ -166,6 +170,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         Arrays.stream(LadybugYoyoItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), WordUtils.capitalize(ability.name().toLowerCase().replace('_', ' '))));
         Arrays.stream(CatStaffItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), WordUtils.capitalize(ability.name().toLowerCase().replace('_', ' '))));
+        Arrays.stream(ButterflyCaneItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), WordUtils.capitalize(ability.name().toLowerCase().replace('_', ' '))));
 
         addCuriosSlot(MineraculousCuriosProvider.SLOT_BROOCH);
         addCuriosSlot(MineraculousCuriosProvider.SLOT_EARRINGS);

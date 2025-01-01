@@ -1,7 +1,25 @@
 {
 	"format_version": "1.8.0",
 	"animations": {
-		"animation.cane.openingLid": {
+		"misc.blade_idle": {
+			"loop": "hold_on_last_frame",
+			"bones": {
+				"cane": {
+					"rotation": {
+						"vector": [180, 0, 0]
+					},
+					"position": {
+						"vector": [0, 16, 0]
+					}
+				},
+				"cover": {
+					"scale": {
+						"vector": [0, 0, 0]
+					}
+				}
+			}
+		},
+		"misc.open": {
 			"loop": "hold_on_last_frame",
 			"animation_length": 0.3333,
 			"bones": {
@@ -17,8 +35,7 @@
 				}
 			}
 		},
-		"animation.cane.closingLid": {
-			"loop": "hold_on_last_frame",
+		"misc.close": {
 			"animation_length": 0.3333,
 			"bones": {
 				"lid": {
@@ -33,49 +50,23 @@
 				}
 			}
 		},
-		"animation.cane.uncovering": {
+		"attack.unsheathe": {
 			"loop": "hold_on_last_frame",
 			"animation_length": 0.75,
 			"bones": {
 				"cover": {
-					"rotation": {
-						"vector": [0, 0, 0]
-					},
-					"position": {
-						"0.0": {
-							"vector": [0, 0, 0]
-						},
-						"0.4167": {
-							"vector": [0, -6, 0]
-						},
-						"0.5417": {
-							"vector": [0, -6, 0]
-						},
-						"0.625": {
-							"vector": [0, -6, 0]
-						},
-						"0.7083": {
-							"vector": [0, 0, 0]
-						},
-						"0.75": {
-							"vector": [0, 27, 0]
-						}
-					},
 					"scale": {
 						"0.0": {
 							"vector": [1, 1, 1]
 						},
-						"0.4167": {
+						"0.375": {
 							"vector": [1, 0.6, 1]
-						},
-						"0.625": {
-							"vector": [1, 0.1, 1]
-						},
-						"0.6667": {
-							"vector": [0, 0, 0]
 						},
 						"0.7083": {
 							"vector": [1, 0, 1]
+						},
+						"0.75": {
+							"vector": [0, 0, 0]
 						}
 					}
 				},
@@ -84,7 +75,7 @@
 						"0.0": {
 							"vector": [0, 0, 0]
 						},
-						"0.25": {
+						"0.5": {
 							"vector": [180, 0, 0]
 						}
 					},
@@ -92,49 +83,22 @@
 						"0.0": {
 							"vector": [0, 0, 0]
 						},
-						"0.25": {
-							"vector": [0, 13, 0]
+						"0.5": {
+							"vector": [0, 16, 0]
 						}
 					}
 				}
 			}
 		},
-		"animation.cane.covering": {
-			"loop": "hold_on_last_frame",
+		"attack.sheathe": {
 			"animation_length": 0.75,
 			"bones": {
 				"cover": {
-					"rotation": {
-						"vector": [0, 0, 0]
-					},
-					"position": {
-						"0.0": {
-							"vector": [0, 27, 0]
-						},
-						"0.0417": {
-							"vector": [0, 0, 0]
-						},
-						"0.125": {
-							"vector": [0, -6, 0]
-						},
-						"0.2083": {
-							"vector": [0, -6, 0]
-						},
-						"0.375": {
-							"vector": [0, -6, 0]
-						},
-						"0.75": {
-							"vector": [0, 0, 0]
-						}
-					},
 					"scale": {
 						"0.0": {
 							"vector": [0, 0, 0]
 						},
 						"0.0417": {
-							"vector": [1, 0, 1]
-						},
-						"0.0833": {
 							"vector": [1, 0, 1]
 						},
 						"0.375": {
@@ -150,22 +114,22 @@
 						"0.0": {
 							"vector": [180, 0, 0]
 						},
-						"0.25": {
+						"0.5": {
 							"vector": [0, 0, 0]
 						}
 					},
 					"position": {
 						"0.0": {
-							"vector": [0, 13, 0]
+							"vector": [0, 16, 0]
 						},
-						"0.25": {
+						"0.75": {
 							"vector": [0, 0, 0]
 						}
 					}
 				}
 			}
 		},
-		"animation.cane.spin": {
+		"attack.block": {
 			"loop": true,
 			"animation_length": 0.1667,
 			"bones": {
@@ -186,37 +150,6 @@
 						"0.1667": {
 							"vector": [0, 0, 360]
 						}
-					},
-					"position": {
-						"vector": [0, 3, -2]
-					},
-					"scale": {
-						"vector": [1, 1, 1]
-					}
-				}
-			}
-		},
-		"animation.cane.uncovered": {
-			"loop": "hold_on_last_frame",
-			"animation_length": 0.04167,
-			"bones": {
-				"cane": {
-					"rotation": {
-						"vector": [180, 0, 0]
-					},
-					"position": {
-						"vector": [0, 0, 0]
-					}
-				},
-				"cover": {
-					"rotation": {
-						"vector": [0, 0, 0]
-					},
-					"position": {
-						"vector": [-1, 28, 1]
-					},
-					"scale": {
-						"vector": [0.2, 0, 0.2]
 					}
 				}
 			}

@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.data.models;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
+import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItemDisplayContexts;
@@ -177,6 +178,22 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .override()
                 .predicate(CatStaffItem.EXTENDED_PROPERTY_ID, 1)
                 .model(withEntityModelInHand(MineraculousItems.CAT_STAFF.getId().withSuffix("_extended"), inHandCatStaff, basicItem(MineraculousItems.CAT_STAFF.getId().withSuffix("_extended"))))
+                .end();
+        ItemModelBuilder inHandButterflyCane = withEntityModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_in_hand"))
+                .transforms()
+                .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0, -18, 2).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).translation(0, -18, 2).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(0, -24, 0).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).translation(0, -24, 0).end()
+                .transform(ItemDisplayContext.HEAD).translation(0, -21, 0).end()
+                .end();
+        ItemModelBuilder inventoryButterflyCane = basicInventoryItem(MineraculousItems.BUTTERFLY_CANE);
+        ItemModelBuilder inventoryButterflyCaneBlade = basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade"));
+        generatedModels.remove(inventoryButterflyCaneBlade.getLocation());
+        withEntityModelInHand(MineraculousItems.BUTTERFLY_CANE, inHandButterflyCane, inventoryButterflyCane)
+                .override()
+                .predicate(ButterflyCaneItem.BLADE_PROPERTY_ID, 1)
+                .model(withEntityModelInHand(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade"), inHandButterflyCane, inventoryButterflyCaneBlade))
                 .end();
     }
 }

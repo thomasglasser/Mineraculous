@@ -27,12 +27,10 @@ import net.minecraft.world.item.armortrim.TrimPattern;
 public class MineraculousItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Mineraculous.MOD_ID);
 
-    private static final Supplier<Item> BASIC_ITEM = () -> new Item(new Item.Properties());
-
     // Tools
     public static final DeferredItem<Item> LADYBUG_YOYO = register("ladybug_yoyo", () -> new LadybugYoyoItem(new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC)));
     public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC)));
-    public static final DeferredItem<Item> BUTTERFLY_CANE = register("butterfly_cane", BASIC_ITEM);
+    public static final DeferredItem<Item> BUTTERFLY_CANE = register("butterfly_cane", () -> new ButterflyCaneItem(new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC)));
 
     // Miraculous
     public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", () -> new MiraculousItem(new Item.Properties()));

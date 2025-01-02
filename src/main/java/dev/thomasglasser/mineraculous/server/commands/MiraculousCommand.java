@@ -136,7 +136,7 @@ public class MiraculousCommand {
             String newName = StringArgumentType.getString(context, "name");
             MiraculousDataSet miraculousDataSet = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS.get());
             MiraculousData data = miraculousDataSet.get(miraculousType.key());
-            miraculousDataSet.put(livingEntity, miraculousType.key(), new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), data.powerLevel(), data.mainPowerActivated(), data.mainPowerActive(), newName), true);
+            miraculousDataSet.put(livingEntity, miraculousType.key(), data.withName(newName), true);
             context.getSource().sendSuccess(() -> self ? Component.translatable(NAME_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newName) : Component.translatable(NAME_SET_SUCCESS_OTHER, oldName, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newName), true);
             return 1;
         } else {
@@ -150,7 +150,7 @@ public class MiraculousCommand {
             Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
             MiraculousDataSet miraculousDataSet = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS.get());
             MiraculousData data = miraculousDataSet.get(miraculousType.key());
-            miraculousDataSet.put(livingEntity, miraculousType.key(), new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), data.powerLevel(), data.mainPowerActivated(), data.mainPowerActive(), ""), true);
+            miraculousDataSet.put(livingEntity, miraculousType.key(), data.withName(""), true);
             context.getSource().sendSuccess(() -> self ? Component.translatable(NAME_CLEAR_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))) : Component.translatable(NAME_CLEAR_SUCCESS_OTHER, livingEntity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))), true);
             return 1;
         } else {
@@ -243,7 +243,7 @@ public class MiraculousCommand {
             Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
             MiraculousDataSet miraculousDataSet = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS.get());
             MiraculousData data = miraculousDataSet.get(miraculousType.key());
-            miraculousDataSet.put(livingEntity, miraculousType.key(), new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), newLevel, data.mainPowerActivated(), data.mainPowerActive(), data.name()), true);
+            miraculousDataSet.put(livingEntity, miraculousType.key(), data.withLevel(newLevel), true);
             context.getSource().sendSuccess(() -> self ? Component.translatable(POWER_LEVEL_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLevel) : Component.translatable(POWER_LEVEL_SET_SUCCESS_OTHER, livingEntity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLevel), true);
             return 1;
         } else {

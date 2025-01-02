@@ -12,11 +12,9 @@ import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
-import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -42,7 +40,6 @@ public class MineraculousDataComponents {
 
     // Miraculous Tools
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> ACTIVE = register("active", Codec.unit(Unit.INSTANCE), StreamCodec.unit(Unit.INSTANCE), false);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<List<CompoundTag>>> STORED_ENTITIES = register("stored_entity", Codec.list(CompoundTag.CODEC), ByteBufCodecs.COMPOUND_TAG.apply(ByteBufCodecs.list()), false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<LadybugYoyoItem.Ability>> LADYBUG_YOYO_ABILITY = register("ladybug_yoyo_ability", LadybugYoyoItem.Ability.CODEC, LadybugYoyoItem.Ability.STREAM_CODEC, true);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<CatStaffItem.Ability>> CAT_STAFF_ABILITY = register("cat_staff_ability", CatStaffItem.Ability.CODEC, CatStaffItem.Ability.STREAM_CODEC, true);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ButterflyCaneItem.Ability>> BUTTERFLY_CANE_ABILITY = register("butterfly_cane_ability", ButterflyCaneItem.Ability.CODEC, ButterflyCaneItem.Ability.STREAM_CODEC, true);

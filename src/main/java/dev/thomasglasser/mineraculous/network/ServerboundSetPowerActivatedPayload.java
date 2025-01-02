@@ -19,13 +19,13 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
-public record ServerboundSetPowerActivatedPayload(ResourceKey<Miraculous> miraculousType, boolean active, boolean setUsed) implements ExtendedPacketPayload {
+public record ServerboundSetPowerActivatedPayload(ResourceKey<Miraculous> miraculousType, boolean activated, boolean active) implements ExtendedPacketPayload {
 
     public static final Type<ServerboundSetPowerActivatedPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_activate_main_power"));
     public static final StreamCodec<FriendlyByteBuf, ServerboundSetPowerActivatedPayload> CODEC = StreamCodec.composite(
             ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS), ServerboundSetPowerActivatedPayload::miraculousType,
+            ByteBufCodecs.BOOL, ServerboundSetPowerActivatedPayload::activated,
             ByteBufCodecs.BOOL, ServerboundSetPowerActivatedPayload::active,
-            ByteBufCodecs.BOOL, ServerboundSetPowerActivatedPayload::setUsed,
             ServerboundSetPowerActivatedPayload::new);
 
     // ON SERVER
@@ -33,13 +33,13 @@ public record ServerboundSetPowerActivatedPayload(ResourceKey<Miraculous> miracu
     public void handle(Player player) {
         MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
         MiraculousData data = miraculousDataSet.get(miraculousType);
-        if (setUsed) {
+        if (activated) {
             data.miraculousItem().set(MineraculousDataComponents.REMAINING_TICKS.get(), MiraculousItem.FIVE_MINUTES);
             Level level = player.level();
             Ability power = level.registryAccess().holderOrThrow(miraculousType).value().activeAbility().get().value();
             power.playStartSound(level, player.blockPosition());
         }
-        miraculousDataSet.put(player, miraculousType, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), data.powerLevel(), setUsed, active, data.name()), true);
+        miraculousDataSet.put(player, miraculousType, data.withPowerStatus(activated, active), true);
         CuriosUtils.setStackInSlot(player, data.curiosData(), data.miraculousItem(), true);
     }
 

@@ -290,7 +290,7 @@ public class MineraculousEntityEvents {
                             }
                         }
 
-                        data = new MiraculousData(true, miraculousStack, data.curiosData(), ((ToolIdDataHolder) serverLevel.getServer().overworld()).mineraculous$getToolIdData().getToolId(kwamiData), data.powerLevel(), false, false, data.name());
+                        data = data.transform(true, miraculousStack, ((ToolIdDataHolder) serverLevel.getServer().overworld()).mineraculous$getToolIdData().getToolId(kwamiData));
                         player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);
                         serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), serverLevel.holderOrThrow(miraculous).value().transformSound(), SoundSource.PLAYERS, 1, 1);
                         CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack, true);
@@ -308,7 +308,6 @@ public class MineraculousEntityEvents {
                 } else {
                     miraculousStack.remove(MineraculousDataComponents.KWAMI_DATA.get());
                     CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack, true);
-                    player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, new MiraculousData(true, miraculousStack, data.curiosData(), data.toolId(), data.powerLevel(), false, false, data.name()), true);
                 }
             } else {
                 // De-transform
@@ -333,7 +332,7 @@ public class MineraculousEntityEvents {
                 miraculousStack.remove(MineraculousDataComponents.POWERED.get());
                 CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack, true);
                 int newToolId = ((ToolIdDataHolder) serverLevel.getServer().overworld()).mineraculous$getToolIdData().incrementToolId(new KwamiData(kwami.getUUID(), kwami.isCharged()));
-                data = new MiraculousData(false, miraculousStack, data.curiosData(), newToolId, data.powerLevel(), false, false, data.name());
+                data = data.transform(false, miraculousStack, newToolId);
                 player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);
                 serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), serverLevel.holderOrThrow(miraculous).value().detransformSound(), SoundSource.PLAYERS, 1, 1);
                 MIRACULOUS_EFFECTS.forEach(player::removeEffect);
@@ -373,7 +372,7 @@ public class MineraculousEntityEvents {
 
                 miraculousData.miraculousItem().set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
                 CuriosUtils.setStackInSlot(player, miraculousData.curiosData(), miraculousData.miraculousItem(), true);
-                player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, new MiraculousData(false, miraculousData.miraculousItem(), miraculousData.curiosData(), miraculousData.toolId(), miraculousData.powerLevel(), false, false, miraculousData.name()), true);
+                player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, miraculousData.withItem(miraculousData.miraculousItem()), true);
                 return kwami;
             }
         }
@@ -391,11 +390,11 @@ public class MineraculousEntityEvents {
             });
             if (data.mainPowerActive()) {
                 if (overrideActive.get()) {
-                    event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), data.powerLevel(), false, false, data.name()), !event.getLevel().isClientSide);
+                    event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(false, false), !event.getLevel().isClientSide);
                 } else {
                     boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(key)), event.getEntity().level(), event.getPos(), event.getEntity(), Ability.Context.from(event.getTarget()));
                     if (usedPower)
-                        event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), data.powerLevel(), true, false, data.name()), !event.getLevel().isClientSide);
+                        event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(true, false), !event.getLevel().isClientSide);
                 }
             }
         });
@@ -412,11 +411,11 @@ public class MineraculousEntityEvents {
             });
             if (data.mainPowerActive()) {
                 if (overrideActive.get()) {
-                    event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), data.powerLevel(), false, false, data.name()), !event.getEntity().level().isClientSide);
+                    event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(false, false), !event.getEntity().level().isClientSide);
                 } else {
                     boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(key)), event.getEntity().level(), event.getEntity().blockPosition(), event.getEntity(), Ability.Context.from(event.getTarget()));
                     if (usedPower)
-                        event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), data.powerLevel(), true, false, data.name()), !event.getEntity().level().isClientSide);
+                        event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(true, false), !event.getEntity().level().isClientSide);
                 }
             }
         });
@@ -436,11 +435,11 @@ public class MineraculousEntityEvents {
                 });
                 if (data.mainPowerActive()) {
                     if (overrideActive.get()) {
-                        event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), data.powerLevel(), false, false, data.name()), !event.getEntity().level().isClientSide);
+                        event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(false, false), !event.getEntity().level().isClientSide);
                     } else {
                         boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(key)), livingEntity.level(), livingEntity.blockPosition(), livingEntity, Ability.Context.from(victim));
                         if (usedPower)
-                            event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), data.powerLevel(), true, false, data.name()), !event.getEntity().level().isClientSide);
+                            event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(true, false), !event.getEntity().level().isClientSide);
                     }
                 }
             });
@@ -463,11 +462,11 @@ public class MineraculousEntityEvents {
             });
             if (data.mainPowerActive()) {
                 if (overrideActive.get()) {
-                    event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), data.powerLevel(), false, false, data.name()), !event.getLevel().isClientSide);
+                    event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(false, false), !event.getLevel().isClientSide);
                 } else {
                     boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(key)), event.getEntity().level(), event.getPos(), event.getEntity(), Ability.Context.from(event.getLevel().getBlockState(event.getPos()), event.getPos()));
                     if (usedPower)
-                        event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), data.powerLevel(), true, false, data.name()), !event.getLevel().isClientSide);
+                        event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(true, false), !event.getLevel().isClientSide);
                 }
             }
         });
@@ -484,11 +483,11 @@ public class MineraculousEntityEvents {
             });
             if (data.mainPowerActive()) {
                 if (overrideActive.get()) {
-                    event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), data.powerLevel(), false, false, data.name()), !event.getLevel().isClientSide);
+                    event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(false, false), !event.getLevel().isClientSide);
                 } else {
                     boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(key)), event.getEntity().level(), event.getPos(), event.getEntity(), Ability.Context.from(event.getLevel().getBlockState(event.getPos()), event.getPos()));
                     if (usedPower)
-                        event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), data.powerLevel(), true, false, data.name()), !event.getLevel().isClientSide);
+                        event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(true, false), !event.getLevel().isClientSide);
                 }
             }
         });
@@ -505,11 +504,11 @@ public class MineraculousEntityEvents {
             });
             if (data.mainPowerActive()) {
                 if (overrideActive.get()) {
-                    event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), data.powerLevel(), false, false, data.name()), !event.getLevel().isClientSide);
+                    event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(false, false), !event.getLevel().isClientSide);
                 } else {
                     boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(key)), event.getEntity().level(), event.getEntity().blockPosition(), event.getEntity(), Ability.Context.from());
                     if (usedPower)
-                        event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, new MiraculousData(data.transformed(), data.miraculousItem(), data.curiosData(), data.toolId(), data.powerLevel(), true, false, data.name()), !event.getLevel().isClientSide);
+                        event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(true, false), !event.getLevel().isClientSide);
                 }
             }
         });

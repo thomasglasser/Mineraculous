@@ -31,9 +31,9 @@ public record ServerboundActivateToolPayload(boolean activate, InteractionHand h
     public void handle(Player player) {
         ItemStack itemInHand = player.getItemInHand(hand);
         if (activate) {
-            itemInHand.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
+            itemInHand.set(MineraculousDataComponents.ACTIVE.get(), Unit.INSTANCE);
         } else {
-            itemInHand.remove(MineraculousDataComponents.POWERED.get());
+            itemInHand.remove(MineraculousDataComponents.ACTIVE.get());
         }
         ((SingletonGeoAnimatable) itemInHand.getItem()).triggerAnim(player, GeoItem.getOrAssignId(itemInHand, (ServerLevel) player.level()), controller, animation);
         player.setItemInHand(hand, itemInHand);

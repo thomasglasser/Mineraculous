@@ -150,7 +150,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         return ObjectArrayList.of(
                 new PlayerTemptingSensor<Kamiko>().temptedWith((entity, player, stack) -> {
                     MiraculousData butterflyData = player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(MineraculousMiraculous.BUTTERFLY);
-                    return butterflyData.mainPowerActive() || (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == ButterflyCaneItem.Ability.KAMIKO_STORE && ButterflyCaneItem.Ability.KAMIKO_STORE.canBePerformedBy(player, stack));
+                    return butterflyData.mainPowerActive() || (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == ButterflyCaneItem.Ability.KAMIKO_STORE && ButterflyCaneItem.Ability.KAMIKO_STORE.canBePerformedBy(player, stack) && !butterflyData.extraData().contains(ButterflyCaneItem.TAG_STORED_KAMIKO));
                 }));
     }
 

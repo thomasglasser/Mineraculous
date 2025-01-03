@@ -1,0 +1,29 @@
+{
+  "parent": "mineraculous:miraculous/root",
+  "criteria": {
+    "transform_kamikotization": {
+      "trigger": "mineraculous:transformed_kamikotization"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.mineraculous.miraculous.transform_kamikotization.desc"
+    },
+    "icon": {
+      "count": 1,
+      "id": "mineraculous:kamikotization_mask"
+    },
+    "title": {
+      "translate": "advancement.mineraculous.miraculous.transform_kamikotization.title"
+    }
+  },
+  "requirements": [
+    [
+      "transform_kamikotization"
+    ]
+  ],
+  "rewards": {
+    "experience": 5
+  },
+  "sends_telemetry_event": true
+}

@@ -1,6 +1,8 @@
 package dev.thomasglasser.mineraculous.world.item;
 
 import com.mojang.datafixers.util.Either;
+import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
+import dev.thomasglasser.mineraculous.advancements.critereon.MiraculousUsePowerTrigger;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
@@ -172,8 +174,12 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
                             entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculous, data.withPowerStatus(false, false), true);
                         } else {
                             boolean usedPower = entity.level().holderOrThrow(miraculous).value().activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(miraculous)), player.level(), player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem()));
-                            if (usedPower)
+                            if (usedPower) {
                                 entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculous, data.withPowerStatus(true, false), true);
+                                if (entity instanceof ServerPlayer serverPlayer) {
+                                    MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, miraculous, MiraculousUsePowerTrigger.Context.ITEM);
+                                }
+                            }
                         }
                     }
                 }

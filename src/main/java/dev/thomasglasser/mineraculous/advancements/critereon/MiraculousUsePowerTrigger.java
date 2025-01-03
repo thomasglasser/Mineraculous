@@ -52,9 +52,11 @@ public class MiraculousUsePowerTrigger extends SimpleCriterionTrigger<Miraculous
     }
 
     public enum Context implements StringRepresentable {
+        EMPTY,
         BLOCK,
         ENTITY,
-        LIVING_ENTITY;
+        LIVING_ENTITY,
+        ITEM;
 
         public static List<Context> any() {
             return List.of(values());

@@ -1,0 +1,26 @@
+{
+  "parent": "mineraculous:miraculous/power_kamiko",
+  "criteria": {
+    "kamikotize_player": {
+      "trigger": "mineraculous:kamikotized_player"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.mineraculous.miraculous.kamikotize_player.desc"
+    },
+    "icon": {
+      "count": 1,
+      "id": "mineraculous:kamikotization_mask"
+    },
+    "title": {
+      "translate": "advancement.mineraculous.miraculous.kamikotize_player.title"
+    }
+  },
+  "requirements": [
+    [
+      "kamikotize_player"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -1,0 +1,35 @@
+{
+  "parent": "mineraculous:miraculous/kamikotize_player",
+  "criteria": {
+    "kamikotize_self": {
+      "conditions": {
+        "requires_self": true
+      },
+      "trigger": "mineraculous:transformed_kamikotization"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.mineraculous.miraculous.kamikotize_self.desc"
+    },
+    "icon": {
+      "components": {
+        "mineraculous:miraculous": "mineraculous:butterfly"
+      },
+      "count": 1,
+      "id": "mineraculous:miraculous"
+    },
+    "title": {
+      "translate": "advancement.mineraculous.miraculous.kamikotize_self.title"
+    }
+  },
+  "requirements": [
+    [
+      "kamikotize_self"
+    ]
+  ],
+  "rewards": {
+    "experience": 5
+  },
+  "sends_telemetry_event": true
+}

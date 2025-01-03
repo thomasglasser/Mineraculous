@@ -2,6 +2,8 @@ package dev.thomasglasser.mineraculous.world.entity;
 
 import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
+import dev.thomasglasser.mineraculous.advancements.critereon.MiraculousUsePowerTrigger;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
@@ -393,8 +395,12 @@ public class MineraculousEntityEvents {
                     event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(false, false), !event.getLevel().isClientSide);
                 } else {
                     boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(key)), event.getEntity().level(), event.getPos(), event.getEntity(), Ability.Context.from(event.getTarget()));
-                    if (usedPower)
+                    if (usedPower) {
                         event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(true, false), !event.getLevel().isClientSide);
+                        if (event.getEntity() instanceof ServerPlayer player) {
+                            MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(player, key, event.getTarget() instanceof LivingEntity ? MiraculousUsePowerTrigger.Context.LIVING_ENTITY : MiraculousUsePowerTrigger.Context.ENTITY);
+                        }
+                    }
                 }
             }
         });
@@ -414,8 +420,12 @@ public class MineraculousEntityEvents {
                     event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(false, false), !event.getEntity().level().isClientSide);
                 } else {
                     boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(key)), event.getEntity().level(), event.getEntity().blockPosition(), event.getEntity(), Ability.Context.from(event.getTarget()));
-                    if (usedPower)
+                    if (usedPower) {
                         event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(true, false), !event.getEntity().level().isClientSide);
+                        if (event.getEntity() instanceof ServerPlayer player) {
+                            MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(player, key, event.getTarget() instanceof LivingEntity ? MiraculousUsePowerTrigger.Context.LIVING_ENTITY : MiraculousUsePowerTrigger.Context.ENTITY);
+                        }
+                    }
                 }
             }
         });
@@ -438,8 +448,12 @@ public class MineraculousEntityEvents {
                         event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(false, false), !event.getEntity().level().isClientSide);
                     } else {
                         boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(key)), livingEntity.level(), livingEntity.blockPosition(), livingEntity, Ability.Context.from(victim));
-                        if (usedPower)
+                        if (usedPower) {
                             event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(true, false), !event.getEntity().level().isClientSide);
+                            if (event.getEntity() instanceof ServerPlayer player) {
+                                MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(player, key, MiraculousUsePowerTrigger.Context.LIVING_ENTITY);
+                            }
+                        }
                     }
                 }
             });
@@ -465,8 +479,12 @@ public class MineraculousEntityEvents {
                     event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(false, false), !event.getLevel().isClientSide);
                 } else {
                     boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(key)), event.getEntity().level(), event.getPos(), event.getEntity(), Ability.Context.from(event.getLevel().getBlockState(event.getPos()), event.getPos()));
-                    if (usedPower)
+                    if (usedPower) {
                         event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(true, false), !event.getLevel().isClientSide);
+                        if (event.getEntity() instanceof ServerPlayer player) {
+                            MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(player, key, MiraculousUsePowerTrigger.Context.BLOCK);
+                        }
+                    }
                 }
             }
         });
@@ -486,8 +504,12 @@ public class MineraculousEntityEvents {
                     event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(false, false), !event.getLevel().isClientSide);
                 } else {
                     boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(key)), event.getEntity().level(), event.getPos(), event.getEntity(), Ability.Context.from(event.getLevel().getBlockState(event.getPos()), event.getPos()));
-                    if (usedPower)
+                    if (usedPower) {
                         event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(true, false), !event.getLevel().isClientSide);
+                        if (event.getEntity() instanceof ServerPlayer player) {
+                            MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(player, key, MiraculousUsePowerTrigger.Context.BLOCK);
+                        }
+                    }
                 }
             }
         });
@@ -507,8 +529,12 @@ public class MineraculousEntityEvents {
                     event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(false, false), !event.getLevel().isClientSide);
                 } else {
                     boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(key)), event.getEntity().level(), event.getEntity().blockPosition(), event.getEntity(), Ability.Context.from());
-                    if (usedPower)
+                    if (usedPower) {
                         event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(true, false), !event.getLevel().isClientSide);
+                        if (event.getEntity() instanceof ServerPlayer player) {
+                            MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(player, key, MiraculousUsePowerTrigger.Context.EMPTY);
+                        }
+                    }
                 }
             }
         });

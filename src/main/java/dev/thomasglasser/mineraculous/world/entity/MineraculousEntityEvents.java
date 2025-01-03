@@ -731,7 +731,7 @@ public class MineraculousEntityEvents {
 
     public static void onPlayerBreakSpeed(PlayerEvent.BreakSpeed event) {
         ItemStack mainHandItem = event.getEntity().getMainHandItem();
-        if (mainHandItem.is(MineraculousItems.LADYBUG_YOYO.get()) && mainHandItem.has(MineraculousDataComponents.POWERED)) {
+        if (mainHandItem.is(MineraculousItems.LADYBUG_YOYO.get()) && mainHandItem.has(MineraculousDataComponents.ACTIVE)) {
             event.setCanceled(true);
         }
     }

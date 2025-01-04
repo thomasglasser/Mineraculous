@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 public class MineraculousVillagerProfessions {
     public static final DeferredRegister<VillagerProfession> VILLAGER_PROFESSIONS = DeferredRegister.create(Registries.VILLAGER_PROFESSION, Mineraculous.MOD_ID);
 
-    public static final DeferredHolder<VillagerProfession, VillagerProfession> FROMAGER = register("fromager", MineraculousPoiTypes.FROMAGER.getKey(), null/*TODO: Fromager work sound*/);
+    public static final DeferredHolder<VillagerProfession, VillagerProfession> FROMAGER = register("fromager", MineraculousPoiTypes.FROMAGER.getKey(), null);
 
     private static DeferredHolder<VillagerProfession, VillagerProfession> register(String name, ResourceKey<PoiType> jobSite, @Nullable SoundEvent workSound) {
         return register(name, p_219668_ -> p_219668_.is(jobSite), p_219640_ -> p_219640_.is(jobSite), workSound);

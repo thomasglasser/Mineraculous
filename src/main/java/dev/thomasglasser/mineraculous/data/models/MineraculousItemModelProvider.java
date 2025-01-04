@@ -126,12 +126,6 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         basicItem(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE);
         basicItem(MineraculousBlocks.HIBISCUS_BUSH.asItem());
 
-        // TODO: Cheese wedges
-//		for (CheeseBlock.Age age: CheeseBlock.Age.values()) {
-//			basicBlockItem(MineraculousItems.CHEESE_WEDGES.get(age).get());
-//			basicBlockItem(MineraculousItems.CAMEMBERT_WEDGES.get(age).get());
-//		}
-
         basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK);
 
         ItemModelBuilder inHandLadybugYoyo = withEntityModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_in_hand"))

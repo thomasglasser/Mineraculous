@@ -31,7 +31,6 @@ public class MineraculousMiraculous {
                 MineraculousCuriosProvider.SLOT_BROOCH,
                 Optional.of(MineraculousItems.BUTTERFLY_CANE.get()),
                 Optional.empty(),
-                // TODO: Add kwami hungry sound
                 Optional.empty(),
                 Optional.of(abilities.getOrThrow(MineraculousAbilities.KAMIKOTIZATION)),
                 List.of(
@@ -44,7 +43,6 @@ public class MineraculousMiraculous {
                 9,
                 Optional.of(MineraculousItems.CAT_STAFF.get()),
                 Optional.of("belt"),
-                // TODO: Add kwami hungry sound
                 Optional.empty(),
                 Optional.of(abilities.getOrThrow(MineraculousAbilities.CATACLYSM)),
                 List.of(abilities.getOrThrow(MineraculousAbilities.CAT_VISION)),
@@ -55,7 +53,6 @@ public class MineraculousMiraculous {
                 9,
                 Optional.of(MineraculousItems.LADYBUG_YOYO.get()),
                 Optional.of("belt"),
-                // TODO: Add kwami hungry sound
                 Optional.empty(),
                 Optional.empty(/*abilities.getOrThrow(MineraculousAbilities.MIRACULOUS_LADYBUG)*/),
                 List.of(),

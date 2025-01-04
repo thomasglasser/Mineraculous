@@ -46,7 +46,6 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         tag(MineraculousItemTags.LADYBUG_KWAMI_FOODS)
                 .add(Items.BREAD);
 
-        // TODO: Macaroons
         tag(MineraculousItemTags.LADYBUG_KWAMI_TREATS)
                 .add(Items.COOKIE)
                 .add(Items.CAKE);

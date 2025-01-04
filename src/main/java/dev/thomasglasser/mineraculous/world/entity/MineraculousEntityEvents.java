@@ -122,7 +122,7 @@ public class MineraculousEntityEvents {
             if (MineraculousKeyMappings.TAKE_BREAK_ITEM.get().isDown()) {
                 ItemStack mainHandItem = player.getMainHandItem();
                 if (mainHandItem.isEmpty()) {
-                    if (MineraculousClientUtils.getLookEntity() instanceof Player target && (MineraculousServerConfig.INSTANCE.enableUniversalStealing.get() || /*TODO: Is akumatized*/ player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).isTransformed()) && (MineraculousServerConfig.INSTANCE.enableSleepStealing.get() || !target.isSleeping())) {
+                    if (MineraculousClientUtils.getLookEntity() instanceof Player target && (MineraculousServerConfig.INSTANCE.enableUniversalStealing.get() || player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).kamikotization().isPresent() || player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).isTransformed()) && (MineraculousServerConfig.INSTANCE.enableSleepStealing.get() || !target.isSleeping())) {
                         entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, ++takeTicks);
                         if (target.isSleeping() && MineraculousServerConfig.INSTANCE.wakeUpChance.get() > 0 && (MineraculousServerConfig.INSTANCE.wakeUpChance.get() >= 100 || player.getRandom().nextFloat() < MineraculousServerConfig.INSTANCE.wakeUpChance.get() / (20f * 5 * 100))) {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundWakeUpPayload(target.getUUID(), true));
@@ -304,8 +304,7 @@ public class MineraculousEntityEvents {
                         MiraculousData finalData = data;
                         serverLevel.holderOrThrow(miraculous).value().passiveAbilities().forEach(ability -> ability.value().transform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
                     } else {
-                        if (kwami.getHungrySound() != null)
-                            kwami.playSound(kwami.getHungrySound().value());
+                        kwami.playHurtSound(serverLevel.damageSources().starve());
                     }
                 } else {
                     miraculousStack.remove(MineraculousDataComponents.KWAMI_DATA.get());
@@ -350,7 +349,6 @@ public class MineraculousEntityEvents {
             miraculous.set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
             miraculous.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
             kwami.discard();
-            // TODO: Play kwami hiding sound
             return true;
         }
         return false;
@@ -556,9 +554,7 @@ public class MineraculousEntityEvents {
             Style style = original.getStyle();
             MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS);
             List<ResourceKey<Miraculous>> transformed = miraculousDataSet.getTransformed();
-            if (transformed.size() > 1) {
-                // TODO: Support for name and color based on combinations of miraculous, like Monarch being purple
-            } else if (!transformed.isEmpty()) {
+            if (!transformed.isEmpty()) {
                 MiraculousData data = miraculousDataSet.get(transformed.getFirst());
                 if (data.miraculousItem().has(MineraculousDataComponents.MIRACULOUS)) {
                     Style newStyle = style.withColor(entity.level().holderOrThrow(data.miraculousItem().get(MineraculousDataComponents.MIRACULOUS)).value().color());

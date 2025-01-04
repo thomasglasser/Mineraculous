@@ -193,6 +193,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfigTitle(Mineraculous.MOD_NAME);
 
         // Server
+        addConfigSection(MineraculousServerConfig.MIRACULOUS, "Miraculous", "Settings for miraculous");
+        addConfig(MineraculousServerConfig.INSTANCE.enableKamikotizationRejection, "Enable Kamikotization Rejection", "Enable rejection of kamikotization by the victim");
+
         addConfigSection(MineraculousServerConfig.STEALING, "Stealing", "Settings for item stealing");
         addConfig(MineraculousServerConfig.INSTANCE.stealingDuration, "Stealing Duration", "Duration in seconds that the key must be held to steal an item");
         addConfig(MineraculousServerConfig.INSTANCE.enableUniversalStealing, "Enable Universal Stealing", "Enable item stealing from all players all the time");

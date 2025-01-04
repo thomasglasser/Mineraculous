@@ -241,7 +241,6 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
                         }
 
                         level.addFreshEntity(thrown);
-                        // TODO: Custom sound
                         level.playSound(null, thrown, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
                         if (!player.hasInfiniteMaterials()) {
                             player.getInventory().removeItem(stack);

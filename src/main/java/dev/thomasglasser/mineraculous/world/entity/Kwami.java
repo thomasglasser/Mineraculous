@@ -29,6 +29,7 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -148,7 +149,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     public BrainActivityGroup<? extends Kwami> getCoreTasks() {
         return BrainActivityGroup.coreTasks(
                 new AvoidEntity<>().noCloserThan(5).stopCaringAfter(10).speedModifier(2f).avoiding(livingEntity -> livingEntity instanceof Player && livingEntity != getOwner()),
-                new FollowOwner<>().speedMod(10f).stopFollowingWithin(4).teleportToTargetAfter(10),
+                new FollowOwner<>().speedMod(10f).stopFollowingWithin(4).teleportToTargetAfter(10).startCondition(kwami -> kwami.getOwner().onGround()),
                 new MoveToWalkTarget<>(),
                 new FleeTarget<>().speedModifier(1.5f),
                 new LookAtTarget<>(),
@@ -181,8 +182,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
             ItemStack stack = player.getItemInHand(hand);
             if (!isCharged()) {
                 if (isTreat(stack) || (isFood(stack) && random.nextInt(3) == 0)) {
-                    if (getHungrySound() != null)
-                        playSound(getHungrySound().value());
+                    playHurtSound(level().damageSources().starve());
                     setCharged(true);
                 }
                 if (isTreat(stack) || isFood(stack)) {
@@ -232,13 +232,19 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         return false;
     }
 
-    public @Nullable Holder<SoundEvent> getHungrySound() {
-        if (getMiraculous() != null) {
+    @Override
+    public void playHurtSound(DamageSource source) {
+        super.playHurtSound(source);
+    }
+
+    @Override
+    protected @Nullable SoundEvent getHurtSound(DamageSource damageSource) {
+        if (damageSource.is(DamageTypes.STARVE) && getMiraculous() != null) {
             if (hungrySound == null)
                 hungrySound = level().holderOrThrow(getMiraculous()).value().kwamiHungrySound().orElse(null);
-            return hungrySound;
+            return hungrySound != null ? hungrySound.value() : null;
         }
-        return null;
+        return super.getHurtSound(damageSource);
     }
 
     @Override

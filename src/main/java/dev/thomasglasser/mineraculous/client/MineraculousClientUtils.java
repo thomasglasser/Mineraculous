@@ -97,7 +97,7 @@ public class MineraculousClientUtils {
 
     public static void closeKamikotizationChatScreen(boolean cancel) {
         if (Minecraft.getInstance().screen instanceof KamikotizationChatScreen screen)
-            screen.onClose(cancel);
+            screen.onClose(cancel, false);
     }
 
     public static void init() {}

@@ -11,6 +11,7 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundActivateToolPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetLadybugYoyoAbilityPayload;
+import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
@@ -204,8 +205,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         super.onUseTick(level, livingEntity, stack, remainingUseDuration);
         if (stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()) == Ability.BLOCK && remainingUseDuration % 10 == 0) {
-            // TODO: Play ladybug yoyo sound
-//            livingEntity.playSound(MineraculousSoundEvents.CAT_STAFF_SHIELD.get());
+            livingEntity.playSound(MineraculousSoundEvents.CAT_STAFF_SHIELD.get());
         }
     }
 
@@ -262,7 +262,6 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
             ThrownLadybugYoyo thrown = new ThrownLadybugYoyo(player, level, stack, ability);
             thrown.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F, 1.0F);
             level.addFreshEntity(thrown);
-            // TODO: Custom sound
             level.playSound(null, thrown, SoundEvents.FISHING_BOBBER_THROW, SoundSource.PLAYERS, 1.0F, 1.0F);
         }
         player.awardStat(Stats.ITEM_USED.get(this));

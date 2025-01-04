@@ -34,7 +34,8 @@ public record ServerboundSetPowerActivatedPayload(ResourceKey<Miraculous> miracu
         MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
         MiraculousData data = miraculousDataSet.get(miraculousType);
         if (activated) {
-            data.miraculousItem().set(MineraculousDataComponents.REMAINING_TICKS.get(), MiraculousItem.FIVE_MINUTES);
+            if (data.hasLimitedPower())
+                data.miraculousItem().set(MineraculousDataComponents.REMAINING_TICKS.get(), MiraculousItem.FIVE_MINUTES);
             Level level = player.level();
             Ability power = level.registryAccess().holderOrThrow(miraculousType).value().activeAbility().get().value();
             power.playStartSound(level, player.blockPosition());

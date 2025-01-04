@@ -39,8 +39,28 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
             MiraculousData::new);
 
     public static final String NAME_NOT_SET = "miraculous_data.name.not_set";
+    public MiraculousData(boolean transformed, ItemStack miraculousItem, CuriosData curiosData, int toolId, int powerLevel, boolean mainPowerActivated, boolean mainPowerActive, String name, CompoundTag extraData) {
+        this.transformed = transformed;
+        this.miraculousItem = miraculousItem;
+        this.curiosData = curiosData;
+        this.toolId = toolId;
+        this.powerLevel = Math.clamp(powerLevel, 0, 100);
+        this.mainPowerActivated = mainPowerActivated;
+        this.mainPowerActive = mainPowerActive;
+        this.name = name;
+        this.extraData = extraData;
+    }
+
     public MiraculousData() {
         this(false, ItemStack.EMPTY, new CuriosData(), 0, 0, false, false, "", new CompoundTag());
+    }
+
+    public boolean hasLimitedPower() {
+        return powerLevel < 100;
+    }
+
+    public boolean shouldCountDown() {
+        return hasLimitedPower() && mainPowerActivated();
     }
 
     public ItemStack createTool(ServerLevel level) {
@@ -69,7 +89,11 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
     }
 
     public MiraculousData withPowerStatus(boolean activated, boolean active) {
-        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel + (activated ? 1 : -1), activated, active, name, extraData);
+        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, activated, active, name, extraData);
+    }
+
+    public MiraculousData withUsedPower() {
+        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel + 1, true, false, name, extraData);
     }
 
     public MiraculousData withName(String name) {

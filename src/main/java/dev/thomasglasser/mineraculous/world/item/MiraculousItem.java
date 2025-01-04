@@ -155,7 +155,7 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
                         }
                     }
                 }
-                if (data.mainPowerActivated())
+                if (data.shouldCountDown())
                     stack.set(MineraculousDataComponents.REMAINING_TICKS.get(), stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) - 1);
                 else if (stack.has(MineraculousDataComponents.REMAINING_TICKS))
                     stack.remove(MineraculousDataComponents.REMAINING_TICKS);
@@ -175,7 +175,7 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
                         } else {
                             boolean usedPower = entity.level().holderOrThrow(miraculous).value().activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(miraculous)), player.level(), player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem()));
                             if (usedPower) {
-                                entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculous, data.withPowerStatus(true, false), true);
+                                entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculous, data.withUsedPower(), true);
                                 if (entity instanceof ServerPlayer serverPlayer) {
                                     MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, miraculous, MiraculousUsePowerTrigger.Context.ITEM);
                                 }
@@ -221,7 +221,7 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, data, true, false));
                         }
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
-                    } else if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown() && data.transformed() && !data.mainPowerActive() && !data.mainPowerActivated() && slotContext.entity().level().holderOrThrow(miraculous).value().activeAbility().isPresent()) {
+                    } else if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown() && data.transformed() && !data.mainPowerActive() && !data.shouldCountDown() && slotContext.entity().level().holderOrThrow(miraculous).value().activeAbility().isPresent()) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundSetPowerActivatedPayload(miraculous, true, true));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
                     } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown() && player.getMainHandItem().isEmpty()) {
@@ -231,7 +231,7 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
                 }
                 TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
             } else if (player instanceof ServerPlayer serverPlayer) {
-                if (data.mainPowerActivated() && stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) <= 0) {
+                if (data.shouldCountDown() && stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) <= 0) {
                     MineraculousEntityEvents.handleMiraculousTransformation(serverPlayer, miraculous, data, false, false);
                 }
             }

@@ -26,7 +26,6 @@ import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.KilledTrigger;
 import net.minecraft.advancements.critereon.TagPredicate;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
 public class MineraculousMiraculousAdvancements extends ExtendedAdvancementGenerator {
@@ -36,7 +35,7 @@ public class MineraculousMiraculousAdvancements extends ExtendedAdvancementGener
 
     @Override
     public void generate(HolderLookup.Provider provider) {
-        AdvancementHolder root = root(Miraculous.createItemStack(MineraculousItems.MIRACULOUS.get(), MineraculousMiraculous.LADYBUG), "root", ResourceLocation.withDefaultNamespace("textures/gui/advancements/backgrounds/stone.png"), AdvancementType.TASK, false, false, false, null, AdvancementRequirements.Strategy.AND, Map.of(
+        AdvancementHolder root = root(Miraculous.createItemStack(MineraculousItems.MIRACULOUS.get(), MineraculousMiraculous.LADYBUG), "root", Mineraculous.modLoc("textures/gui/advancements/backgrounds/miraculous.png"), AdvancementType.TASK, false, false, false, null, AdvancementRequirements.Strategy.AND, Map.of(
                 "get_miraculous", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(MineraculousItems.MIRACULOUS))), "Miraculous", "A hero's journey begins...");
 
         AdvancementHolder transformLadybug = create(root, Miraculous.createItemStack(MineraculousItems.MIRACULOUS.get(), MineraculousMiraculous.LADYBUG), "transform_ladybug", AdvancementType.TASK, true, true, false, AdvancementRewards.Builder.experience(10).build(), AdvancementRequirements.Strategy.AND, Map.of(

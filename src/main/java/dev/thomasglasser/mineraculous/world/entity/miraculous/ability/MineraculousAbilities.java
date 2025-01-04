@@ -69,7 +69,7 @@ public class MineraculousAbilities {
                 true));
 
         context.register(CATACLYSM, new ContextAwareAbility(
-                Optional.of(new RandomDirectionalSpreadAbility(
+                Optional.of(new RandomSpreadAbility(
                         MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(),
                         Optional.empty(),
                         Optional.of(BlockPredicate.Builder.block().of(MineraculousBlockTags.CATACLYSM_IMMUNE).build()),

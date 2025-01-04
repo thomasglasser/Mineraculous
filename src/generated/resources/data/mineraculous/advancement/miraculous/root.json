@@ -13,7 +13,7 @@
   },
   "display": {
     "announce_to_chat": false,
-    "background": "minecraft:textures/gui/advancements/backgrounds/stone.png",
+    "background": "mineraculous:textures/gui/advancements/backgrounds/miraculous.png",
     "description": {
       "translate": "advancement.mineraculous.miraculous.root.desc"
     },

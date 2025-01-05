@@ -20,6 +20,7 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.Direction;
@@ -141,7 +142,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         } else {
                             stack.remove(MineraculousDataComponents.ACTIVE);
                         }
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, hand, CONTROLLER_USE, activate ? ANIMATION_EXTEND : ANIMATION_RETRACT));
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, hand, CONTROLLER_USE, activate ? ANIMATION_EXTEND : ANIMATION_RETRACT, activate ? Optional.of(MineraculousSoundEvents.CAT_STAFF_EXTEND) : Optional.of(MineraculousSoundEvents.CAT_STAFF_RETRACT)));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
                     } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown()) {
                         if (stack.has(MineraculousDataComponents.ACTIVE)) {

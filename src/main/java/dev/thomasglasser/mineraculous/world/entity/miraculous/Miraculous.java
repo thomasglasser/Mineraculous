@@ -32,8 +32,8 @@ public record Miraculous(TextColor color, String acceptableSlot, int transformat
             Ability.CODEC.listOf().fieldOf("passive_abilities").forGetter(Miraculous::passiveAbilities),
             SoundEvent.CODEC.optionalFieldOf("transform_sound", MineraculousSoundEvents.GENERIC_TRANSFORM).forGetter(Miraculous::transformSound),
             SoundEvent.CODEC.optionalFieldOf("detransform_sound", MineraculousSoundEvents.GENERIC_DETRANSFORM).forGetter(Miraculous::detransformSound)).apply(instance, Miraculous::new));
-    public Miraculous(TextColor color, String acceptableSlot, int transformationFrames, Optional<Item> tool, Optional<String> toolSlot, Optional<Holder<SoundEvent>> kwamiHungrySound, Optional<Holder<Ability>> activeAbility, List<Holder<Ability>> passiveAbilities, Holder<SoundEvent> transformSound) {
-        this(color, acceptableSlot, transformationFrames, tool, toolSlot, kwamiHungrySound, activeAbility, passiveAbilities, transformSound, MineraculousSoundEvents.GENERIC_DETRANSFORM);
+    public Miraculous(TextColor color, String acceptableSlot, Optional<Item> tool, Optional<String> toolSlot, Optional<Holder<SoundEvent>> kwamiHungrySound, Optional<Holder<Ability>> activeAbility, List<Holder<Ability>> passiveAbilities, Holder<SoundEvent> transformSound, Holder<SoundEvent> detransformSound) {
+        this(color, acceptableSlot, 0, tool, toolSlot, kwamiHungrySound, activeAbility, passiveAbilities, transformSound, detransformSound);
     }
 
     public Miraculous(TextColor color, String acceptableSlot, int transformationFrames, Optional<Item> tool, Optional<String> toolSlot, Optional<Holder<SoundEvent>> kwamiHungrySound, Optional<Holder<Ability>> activeAbility, List<Holder<Ability>> passiveAbilities) {
@@ -42,10 +42,6 @@ public record Miraculous(TextColor color, String acceptableSlot, int transformat
 
     public Miraculous(TextColor color, String acceptableSlot, Optional<Item> tool, Optional<String> toolSlot, Optional<Holder<SoundEvent>> kwamiHungrySound, Optional<Holder<Ability>> activeAbility, List<Holder<Ability>> passiveAbilities) {
         this(color, acceptableSlot, 0, tool, toolSlot, kwamiHungrySound, activeAbility, passiveAbilities);
-    }
-
-    public Miraculous(TextColor color, String acceptableSlot, Optional<Item> tool, Optional<String> toolSlot, Optional<Holder<SoundEvent>> kwamiHungrySound, Optional<Holder<Ability>> activeAbility, List<Holder<Ability>> passiveAbilities, Holder<SoundEvent> transformSound) {
-        this(color, acceptableSlot, 0, tool, toolSlot, kwamiHungrySound, activeAbility, passiveAbilities, transformSound, MineraculousSoundEvents.GENERIC_DETRANSFORM);
     }
 
     public static String toLanguageKey(ResourceKey<Miraculous> key) {

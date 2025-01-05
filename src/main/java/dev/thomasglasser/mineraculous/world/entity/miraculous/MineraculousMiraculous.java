@@ -36,7 +36,8 @@ public class MineraculousMiraculous {
                 List.of(
                         abilities.getOrThrow(MineraculousAbilities.KAMIKO_CONTROL),
                         abilities.getOrThrow(MineraculousAbilities.KAMIKOTIZED_COMMUNICATION)),
-                MineraculousSoundEvents.BUTTERFLY_TRANSFORM));
+                MineraculousSoundEvents.BUTTERFLY_TRANSFORM,
+                MineraculousSoundEvents.GENERIC_DETRANSFORM));
         context.register(CAT, new Miraculous(
                 TextColor.fromRgb(0xc6f800),
                 MineraculousCuriosProvider.SLOT_RING,
@@ -46,7 +47,8 @@ public class MineraculousMiraculous {
                 Optional.empty(),
                 Optional.of(abilities.getOrThrow(MineraculousAbilities.CATACLYSM)),
                 List.of(abilities.getOrThrow(MineraculousAbilities.CAT_VISION)),
-                MineraculousSoundEvents.CAT_TRANSFORM));
+                MineraculousSoundEvents.CAT_TRANSFORM,
+                MineraculousSoundEvents.GENERIC_DETRANSFORM));
         context.register(LADYBUG, new Miraculous(
                 TextColor.fromRgb(0xdd1731),
                 MineraculousCuriosProvider.SLOT_EARRINGS,
@@ -56,6 +58,7 @@ public class MineraculousMiraculous {
                 Optional.empty(),
                 Optional.empty(/*abilities.getOrThrow(MineraculousAbilities.MIRACULOUS_LADYBUG)*/),
                 List.of(),
-                MineraculousSoundEvents.LADYBUG_TRANSFORM));
+                MineraculousSoundEvents.LADYBUG_TRANSFORM,
+                MineraculousSoundEvents.GENERIC_DETRANSFORM));
     }
 }

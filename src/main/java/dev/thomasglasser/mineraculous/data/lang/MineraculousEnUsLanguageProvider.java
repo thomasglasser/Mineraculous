@@ -179,6 +179,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousSoundEvents.CATACLYSM_USE.get(), "Cataclysm triggers");
         add(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE.get(), "Kamiko powers up");
         add(MineraculousSoundEvents.KAMIKOTIZATION_USE.get(), "Kamikotization begins");
+        add(MineraculousSoundEvents.CAT_STAFF_EXTEND.get(), "Staff extends");
+        add(MineraculousSoundEvents.CAT_STAFF_RETRACT.get(), "Staff retracts");
         add(MineraculousSoundEvents.CAT_STAFF_SHIELD.get(), "Staff whirs");
         add(MineraculousSoundEvents.GENERIC_TRANSFORM.get(), "Miraculous holder transforms");
         add(MineraculousSoundEvents.GENERIC_DETRANSFORM.get(), "Miraculous holder detransforms");

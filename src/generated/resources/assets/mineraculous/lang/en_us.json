@@ -172,6 +172,8 @@
   "subtitles.ability.cataclysm.use": "Cataclysm triggers",
   "subtitles.ability.kamikotization.activate": "Kamiko powers up",
   "subtitles.ability.kamikotization.use": "Kamikotization begins",
+  "subtitles.item.cat_staff.extend": "Staff extends",
+  "subtitles.item.cat_staff.retract": "Staff retracts",
   "subtitles.item.cat_staff.shield": "Staff whirs",
   "subtitles.kamikotization.detransform": "Kamikotized player detransforms",
   "subtitles.kamikotization.transform": "Kamikotized player transforms",

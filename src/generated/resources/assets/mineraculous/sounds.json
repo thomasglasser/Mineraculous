@@ -24,6 +24,18 @@
     ],
     "subtitle": "subtitles.ability.kamikotization.use"
   },
+  "item.cat_staff.extend": {
+    "sounds": [
+      "mineraculous:item/cat_staff/extend"
+    ],
+    "subtitle": "subtitles.item.cat_staff.extend"
+  },
+  "item.cat_staff.retract": {
+    "sounds": [
+      "mineraculous:item/cat_staff/retract"
+    ],
+    "subtitle": "subtitles.item.cat_staff.retract"
+  },
   "item.cat_staff.shield": {
     "sounds": [
       "mineraculous:item/cat_staff/shield"

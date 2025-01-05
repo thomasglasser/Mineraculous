@@ -146,7 +146,6 @@ public class RadialMenuScreen extends Screen {
 
         int selectedOption = getSelectedOption(mouseX, mouseY, circleSize);
         boolean hasSelectedOption = selectedOption != -1;
-        RadialMenuOption selected = hasSelectedOption ? options.get(selectedOption) : null;
 
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
@@ -159,10 +158,17 @@ public class RadialMenuScreen extends Screen {
         }
         BufferUploader.drawWithShader(builder.buildOrThrow());
         RenderSystem.disableBlend();
-        if (hasSelectedOption) {
-            int centerWidth = width / 2;
-            int centerHeight = height / 2;
-            pGuiGraphics.drawCenteredString(font, Component.translatable(selected.translationKey()), centerWidth, centerHeight - font.lineHeight / 2, 0xFFFFFF);
+
+        for (int i = 0; i < options.size(); i++) {
+            RadialMenuOption option = options.get(i);
+
+            double angle = (i + 0.5) * sliceAngle;
+            float radius = (circleSize) / 1.5f;
+
+            float textX = width / 2f + (float) (radius * Math.cos(angle));
+            float textY = height / 2f - (float) (radius * Math.sin(angle));
+
+            pGuiGraphics.drawCenteredString(font, Component.translatable(option.translationKey()), (int) textX, (int) textY, 0xFFFFFF);
         }
     }
 
@@ -197,5 +203,6 @@ public class RadialMenuScreen extends Screen {
             buffer.addVertex(pos2InX, pos2InY, z).setColor(r, g, b, a);
             buffer.addVertex(pos2OutX, pos2OutY, z).setColor(r, g, b, a);
         }
+        ;
     }
 }

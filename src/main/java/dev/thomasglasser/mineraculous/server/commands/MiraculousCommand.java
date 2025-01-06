@@ -10,6 +10,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncLookPayload;
+import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
@@ -62,6 +63,7 @@ public class MiraculousCommand {
     public static final String NOT_LIVING_ENTITY = "commands.miraculous.failure.not_living_entity";
     public static final String TRANSFORMED = "commands.miraculous.failure.transformed";
     public static final String KWAMI_NOT_FOUND = "commands.miraculous.failure.kwami_not_found";
+    public static final String CUSTOM_LOOKS_DISABLED = "commands.miraculous.failure.custom_looks_disabled";
     public static final String MIRACULOUS_INVALID = "commands.miraculous.miraculous.invalid";
     public static final DynamicCommandExceptionType ERROR_INVALID_MIRACULOUS = new DynamicCommandExceptionType(
             p_304101_ -> Component.translatableEscape(MIRACULOUS_INVALID, p_304101_));
@@ -206,11 +208,16 @@ public class MiraculousCommand {
     }
 
     private static int trySetLook(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
-        String newLook = StringArgumentType.getString(context, "look");
-        context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_TRY_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_TRY_SET_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);
-        TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncLookPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), miraculousType.key(), newLook), player);
-        return 1;
+        if (MineraculousServerConfig.INSTANCE.enableCustomization.get()) {
+            Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
+            String newLook = StringArgumentType.getString(context, "look");
+            context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_TRY_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_TRY_SET_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);
+            TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncLookPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), miraculousType.key(), newLook), player);
+            return 1;
+        } else {
+            context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_DISABLED));
+        }
+        return 0;
     }
 
     private static int clearLook(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {

@@ -4,11 +4,14 @@ import com.mojang.blaze3d.platform.NativeImage;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.level.storage.LookData;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookData;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.io.File;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
@@ -45,7 +48,14 @@ public record ClientboundRequestSyncLookPayload(Optional<UUID> senderId, Resourc
             try {
                 String convertedModel = Files.readString(model.toPath());
                 byte[] convertedImage = NativeImage.read(texture.toPath().toUri().toURL().openStream()).asByteArray();
-                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncLookPayload(senderId, new LookData(miraculous, look, convertedModel, convertedImage)));
+                List<byte[]> convertedFrames = new ArrayList<>();
+                for (int i = 1; i <= ClientUtils.getLevel().holderOrThrow(miraculous).value().transformationFrames(); i++) {
+                    File frame = new File(folder, look + "_" + i + ".png");
+                    if (frame.exists()) {
+                        convertedFrames.add(NativeImage.read(frame.toPath().toUri().toURL().openStream()).asByteArray());
+                    }
+                }
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncLookPayload(senderId, new FlattenedLookData(miraculous, look, convertedModel, convertedImage, convertedFrames)));
             } catch (Exception exception) {
                 sendFail();
                 Mineraculous.LOGGER.error("Failed to handle clientbound request sync look payload", exception);

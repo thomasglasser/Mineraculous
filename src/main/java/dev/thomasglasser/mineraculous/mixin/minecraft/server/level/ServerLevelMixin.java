@@ -2,8 +2,8 @@ package dev.thomasglasser.mineraculous.mixin.minecraft.server.level;
 
 import dev.thomasglasser.mineraculous.world.ToolIdData;
 import dev.thomasglasser.mineraculous.world.ToolIdDataHolder;
-import dev.thomasglasser.mineraculous.world.level.storage.LookData;
-import dev.thomasglasser.mineraculous.world.level.storage.LookDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookData;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,14 +29,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerLevel.class)
-public abstract class ServerLevelMixin implements ToolIdDataHolder, LookDataHolder {
+public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedLookDataHolder {
     @Unique
     private final ServerLevel mineraculous$INSTANCE = ((ServerLevel) (Object) (this));
 
     @Unique
     protected ToolIdData mineraculous$toolIdData;
     @Unique
-    protected Map<UUID, Set<LookData>> mineraculous$lookData;
+    protected Map<UUID, Set<FlattenedLookData>> mineraculous$lookData;
 
     @Shadow
     public abstract DimensionDataStorage getDataStorage();
@@ -55,12 +55,12 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, LookDataHold
     }
 
     @Override
-    public Set<LookData> mineraculous$getLookData(UUID player) {
+    public Set<FlattenedLookData> mineraculous$getLookData(UUID player) {
         return mineraculous$lookData.getOrDefault(player, new HashSet<>());
     }
 
     @Override
-    public void mineraculous$addLookData(UUID player, LookData data) {
+    public void mineraculous$addLookData(UUID player, FlattenedLookData data) {
         mineraculous$lookData.computeIfAbsent(player, p -> new HashSet<>()).add(data);
     }
 }

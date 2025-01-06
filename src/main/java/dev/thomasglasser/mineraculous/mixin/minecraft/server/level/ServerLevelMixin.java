@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.mixin.minecraft.server.level;
 
-import dev.thomasglasser.mineraculous.world.ToolIdData;
-import dev.thomasglasser.mineraculous.world.ToolIdDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.ToolIdData;
+import dev.thomasglasser.mineraculous.world.level.storage.ToolIdDataHolder;
 import java.util.List;
 import java.util.concurrent.Executor;
 import net.minecraft.resources.ResourceKey;

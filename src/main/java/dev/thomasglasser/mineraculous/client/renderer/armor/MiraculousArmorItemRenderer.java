@@ -43,9 +43,10 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
         if (stack != null) {
             ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
             if (miraculous != null) {
+                int maxTransformationTicks = Minecraft.getInstance().level.holderOrThrow(miraculous).value().transformationFrames();
                 Integer transformationTicks = stack.get(MineraculousDataComponents.TRANSFORMATION_FRAMES);
                 if (transformationTicks != null && transformationTicks > 0) {
-                    return super.getTextureLocation(animatable).withPath(path -> path.replace(miraculous.location().getPath(), miraculous.location().getPath() + "_" + (10 - transformationTicks)));
+                    return super.getTextureLocation(animatable).withPath(path -> path.replace(miraculous.location().getPath(), miraculous.location().getPath() + "_" + ((maxTransformationTicks + 1) - transformationTicks)));
                 } else {
                     Integer detransformationTicks = stack.get(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
                     if (detransformationTicks != null && detransformationTicks > 0) {

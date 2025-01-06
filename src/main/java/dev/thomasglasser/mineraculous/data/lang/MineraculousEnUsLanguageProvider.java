@@ -21,6 +21,7 @@ import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.MineraculousAbilities;
@@ -189,6 +190,13 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousSoundEvents.BUTTERFLY_TRANSFORM.get(), "Butterfly Miraculous holder raises wings");
         add(MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM.get(), "Kamikotized player transforms");
         add(MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM.get(), "Kamikotized player detransforms");
+
+        addPaintingVariant(MineraculousPaintingVariants.LADYBUG, "Ladybug", "NastyaGalaxy");
+        addPaintingVariant(MineraculousPaintingVariants.MINI_LADYBUG, "Mini Ladybug", "NastyaGalaxy");
+        addPaintingVariant(MineraculousPaintingVariants.CAT, "Cat", "NastyaGalaxy");
+        addPaintingVariant(MineraculousPaintingVariants.MINI_CAT, "Mini Cat", "NastyaGalaxy");
+        addPaintingVariant(MineraculousPaintingVariants.BUTTERFLY, "Butterfly", "NastyaGalaxy");
+        addPaintingVariant(MineraculousPaintingVariants.MINI_BUTTERFLY, "Mini Butterfly", "NastyaGalaxy");
     }
 
     private void addConfigs() {

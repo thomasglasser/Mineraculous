@@ -15,9 +15,11 @@ import dev.thomasglasser.mineraculous.data.sounds.MineraculousSoundDefinitionsPr
 import dev.thomasglasser.mineraculous.data.tags.MineraculousBlockTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousDamageTypeTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousItemTagsProvider;
+import dev.thomasglasser.mineraculous.data.tags.MineraculousPaintingVariantTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousPoiTypeTagsProvider;
 import dev.thomasglasser.mineraculous.data.trimmed.MineraculousTrimDatagenSuite;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
+import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
@@ -40,6 +42,7 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 public class MineraculousDataGenerators {
     public static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
             .add(Registries.DAMAGE_TYPE, MineraculousDamageTypes::bootstrap)
+            .add(Registries.PAINTING_VARIANT, MineraculousPaintingVariants::bootstrap)
             .add(MineraculousRegistries.ABILITY, MineraculousAbilities::bootstrap)
             .add(MineraculousRegistries.MIRACULOUS, MineraculousMiraculous::bootstrap)
             .add(MineraculousRegistries.KAMIKOTIZATION, context -> {
@@ -91,6 +94,7 @@ public class MineraculousDataGenerators {
         generator.addProvider(onServer, new MineraculousDataMapProvider(packOutput, registries));
         generator.addProvider(onServer, new MineraculousAdvancementProvider(packOutput, registries, existingFileHelper, enUs));
         generator.addProvider(onServer, new MineraculousDamageTypeTagsProvider(packOutput, registries, existingFileHelper));
+        generator.addProvider(onServer, new MineraculousPaintingVariantTagsProvider(packOutput, registries, existingFileHelper));
 
         // Client
         generator.addProvider(onClient, new MineraculousBlockStateProvider(packOutput, existingFileHelper));

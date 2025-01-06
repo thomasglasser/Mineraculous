@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.renderer.item.ButterflyCaneRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundSetButterflyCaneAbilityPayload;
+import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
@@ -214,6 +215,14 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
             return InteractionResultHolder.consume(stack);
         }
         return super.use(level, player, hand);
+    }
+
+    @Override
+    public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
+        super.onUseTick(level, livingEntity, stack, remainingUseDuration);
+        if (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()) == Ability.BLOCK && remainingUseDuration % 10 == 0) {
+            livingEntity.playSound(MineraculousSoundEvents.CAT_STAFF_SHIELD.get());
+        }
     }
 
     @Override

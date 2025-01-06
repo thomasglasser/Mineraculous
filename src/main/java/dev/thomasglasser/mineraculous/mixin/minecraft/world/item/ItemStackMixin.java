@@ -37,7 +37,7 @@ public abstract class ItemStackMixin implements DataComponentHolder {
         if (mineraculous$INSTANCE.has(MineraculousDataComponents.KAMIKOTIZATION.get()) && mineraculous$INSTANCE.has(DataComponents.PROFILE)) {
             ServerPlayer target = (ServerPlayer) level.getPlayerByUUID(mineraculous$INSTANCE.get(DataComponents.PROFILE).gameProfile().getId());
             if (target != null) {
-                MineraculousEntityEvents.handleKamikotizationTransformation(target, target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION), false, false, true, breaker.position().add(0, 1, 0));
+                MineraculousEntityEvents.handleKamikotizationTransformation(target, target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow(), false, false, true, breaker.position().add(0, 1, 0));
             }
         }
     }

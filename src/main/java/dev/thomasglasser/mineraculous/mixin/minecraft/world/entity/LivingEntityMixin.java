@@ -47,7 +47,7 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "swing(Lnet/minecraft/world/InteractionHand;Z)V", at = @At("HEAD"), cancellable = true)
     private void swing(InteractionHand hand, boolean swingHand, CallbackInfo ci) {
-        if (mineraculous$INSTANCE.level().isClientSide() && mineraculous$INSTANCE instanceof LocalPlayer player && player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(MineraculousMiraculous.BUTTERFLY).transformed() && MineraculousClientUtils.getCameraEntity() instanceof Player target && player != target && target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).kamikotization().isPresent() && target.getHealth() > 4) {
+        if (mineraculous$INSTANCE.level().isClientSide() && mineraculous$INSTANCE instanceof LocalPlayer player && player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(MineraculousMiraculous.BUTTERFLY).transformed() && MineraculousClientUtils.getCameraEntity() instanceof Player target && player != target && target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() && target.getHealth() > 4) {
             TommyLibServices.NETWORK.sendToServer(new ServerboundHurtEntityPayload(target.getId(), DamageTypes.PLAYER_ATTACK, 15));
             ci.cancel();
         }

@@ -28,7 +28,7 @@ public class TargetPlayerMenuCategory implements KamikoMenuCategory {
                     if (p_253336_.getGameMode() == GameType.SPECTATOR)
                         return false;
                     Player player = Minecraft.getInstance().level.getPlayerByUUID(p_253336_.getProfile().getId());
-                    return player != null && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).kamikotization().isEmpty();
+                    return player != null && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isEmpty();
                 })
                 .sorted(PROFILE_ORDER)
                 .map(p_253334_ -> (KamikoMenuItem) new PlayerKamikoMenuItem(p_253334_.getProfile()))

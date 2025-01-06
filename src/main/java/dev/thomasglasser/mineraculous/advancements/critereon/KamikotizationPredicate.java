@@ -6,6 +6,7 @@ import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
+import java.util.Optional;
 import net.minecraft.advancements.critereon.EntitySubPredicate;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
@@ -29,12 +30,12 @@ public record KamikotizationPredicate(HolderSet<Kamikotization> kamikotizations)
     @Override
     public boolean matches(Entity entity, ServerLevel serverLevel, @Nullable Vec3 vec3) {
         if (entity instanceof LivingEntity livingEntity) {
-            KamikotizationData kamikotizationData = livingEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
-            if (kamikotizationData.kamikotization().isPresent()) {
+            Optional<KamikotizationData> kamikotizationData = livingEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
+            if (kamikotizationData.isPresent()) {
                 if (kamikotizations instanceof HolderSet.Direct<Kamikotization> && kamikotizations.size() == 0) {
                     return true;
                 } else {
-                    return kamikotizations.contains(serverLevel.registryAccess().holderOrThrow(kamikotizationData.kamikotization().get()));
+                    return kamikotizations.contains(serverLevel.registryAccess().holderOrThrow(kamikotizationData.get().kamikotization()));
                 }
             }
         }

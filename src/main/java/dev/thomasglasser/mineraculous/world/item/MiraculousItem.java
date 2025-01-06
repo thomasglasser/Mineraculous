@@ -17,7 +17,6 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
-import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -198,10 +197,11 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
                             stack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, null);
                             entity.getArmorSlots().forEach(armorStack -> armorStack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, null));
                             stack.remove(DataComponents.ENCHANTMENTS);
-                            ArmorData armor = player.getData(MineraculousAttachmentTypes.STORED_ARMOR);
-                            for (EquipmentSlot slot : Arrays.stream(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR).toArray(EquipmentSlot[]::new)) {
-                                player.setItemSlot(slot, armor.forSlot(slot));
-                            }
+                            player.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(armorData -> {
+                                for (EquipmentSlot slot : Arrays.stream(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR).toArray(EquipmentSlot[]::new)) {
+                                    player.setItemSlot(slot, armorData.forSlot(slot));
+                                }
+                            });
                         } else {
                             int newDetransformationFrames = detransformationFrames - 1;
                             stack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, newDetransformationFrames);
@@ -244,7 +244,7 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
     public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
         LivingEntity entity = slotContext.entity();
         if (!entity.level().isClientSide && entity instanceof Player player) {
-            MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS.get());
+            MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS);
             MiraculousData data = miraculousDataSet.get(stack.get(MineraculousDataComponents.MIRACULOUS));
             if (stack.has(MineraculousDataComponents.POWERED.get()) && !data.transformed()) {
                 stack.remove(MineraculousDataComponents.POWERED.get());

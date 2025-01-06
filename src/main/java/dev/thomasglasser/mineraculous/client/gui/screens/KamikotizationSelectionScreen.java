@@ -373,10 +373,10 @@ public class KamikotizationSelectionScreen extends Screen {
                     slotInfo = Either.right(new CuriosData(curiosSlot.getSlotIndex(), curiosSlot.getIdentifier()));
                 else
                     slotInfo = Either.left(target.getInventory().findSlotMatchingItem(slot.getItem()));
-                KamikotizationData kamikotizationData = new KamikotizationData(Optional.ofNullable(selectedKamikotization.getKey()), slot.getItem(), slotInfo, kamikoData, name.getValue());
+                KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization.getKey(), slot.getItem(), slotInfo, kamikoData, name.getValue());
                 if (target == ClientUtils.getMainClientPlayer()) {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(kamikotizationData, true, false, false, ClientUtils.getMainClientPlayer().position().add(0, 1, 0)));
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(target.getUUID(), target.getUUID(), kamikotizationData.kamikotization().orElseThrow()));
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(target.getUUID(), target.getUUID(), kamikotizationData.kamikotization()));
                     TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
                 } else {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundOpenVictimKamikotizationChatScreenPayload(target.getUUID(), kamikotizationData));

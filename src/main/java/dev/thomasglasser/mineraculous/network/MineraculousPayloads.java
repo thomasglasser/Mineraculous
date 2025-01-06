@@ -33,6 +33,8 @@ public class MineraculousPayloads {
         PAYLOADS.add(new PayloadInfo<>(ServerboundEquipToolPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundEquipToolPayload.CODEC));
         PAYLOADS.add(new PayloadInfo<>(ServerboundHurtEntityPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundHurtEntityPayload.CODEC));
         PAYLOADS.add(new PayloadInfo<>(ServerboundTriggerKamikotizationAdvancementsPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundTriggerKamikotizationAdvancementsPayload.CODEC));
+        PAYLOADS.add(new PayloadInfo<>(ServerboundReportLookAbsentPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundReportLookAbsentPayload.CODEC));
+        PAYLOADS.add(new PayloadInfo<>(ServerboundSyncLookPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSyncLookPayload.CODEC));
 
         // Clientbound
         PAYLOADS.add(new PayloadInfo<>(ClientboundSyncCurioPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncCurioPayload.CODEC));
@@ -46,5 +48,7 @@ public class MineraculousPayloads {
         PAYLOADS.add(new PayloadInfo<>(ClientboundCloseKamikotizationChatScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundCloseKamikotizationChatScreenPayload.CODEC));
         PAYLOADS.add(new PayloadInfo<>(ClientboundSyncKamikotizationDataPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncKamikotizationDataPayload.CODEC));
         PAYLOADS.add(new PayloadInfo<>(ClientboundSyncLadybugYoyoPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncLadybugYoyoPayload.CODEC));
+        PAYLOADS.add(new PayloadInfo<>(ClientboundRequestSyncLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestSyncLookPayload.CODEC));
+        PAYLOADS.add(new PayloadInfo<>(ClientboundSyncLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncLookPayload.CODEC));
     }
 }

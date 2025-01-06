@@ -149,7 +149,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     public BrainActivityGroup<? extends Kwami> getCoreTasks() {
         return BrainActivityGroup.coreTasks(
                 new AvoidEntity<>().noCloserThan(5).stopCaringAfter(10).speedModifier(2f).avoiding(livingEntity -> livingEntity instanceof Player && livingEntity != getOwner()),
-                new FollowOwner<>().speedMod(10f).stopFollowingWithin(4).teleportToTargetAfter(10).startCondition(kwami -> kwami.getOwner().onGround()),
+                new FollowOwner<>().speedMod(10f).stopFollowingWithin(4).teleportToTargetAfter(10).startCondition(kwami -> kwami.getOwner() != null && kwami.getOwner().onGround()),
                 new MoveToWalkTarget<>(),
                 new FleeTarget<>().speedModifier(1.5f),
                 new LookAtTarget<>(),
@@ -279,12 +279,14 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        compound.putBoolean("Charged", isCharged());
         compound.put("Miraculous", ResourceKey.codec(MineraculousRegistries.MIRACULOUS).encodeStart(NbtOps.INSTANCE, getMiraculous()).getOrThrow());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        setCharged(compound.getBoolean("Charged"));
         setMiraculous(ResourceKey.codec(MineraculousRegistries.MIRACULOUS).parse(NbtOps.INSTANCE, compound.get("Miraculous")).getOrThrow());
     }
 }

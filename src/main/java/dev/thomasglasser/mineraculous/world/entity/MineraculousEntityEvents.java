@@ -42,8 +42,10 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -314,7 +316,7 @@ public class MineraculousEntityEvents {
                 }
             } else {
                 // De-transform
-                Kwami kwami = summonKwami(player.level(), miraculous, data, player);
+                Kwami kwami = summonKwami(serverLevel, miraculous, data, player);
                 if (kwami != null) {
                     kwami.setCharged(false);
                 } else {
@@ -357,7 +359,7 @@ public class MineraculousEntityEvents {
         return false;
     }
 
-    public static Kwami summonKwami(Level level, ResourceKey<Miraculous> miraculous, MiraculousData miraculousData, Player player) {
+    public static Kwami summonKwami(ServerLevel level, ResourceKey<Miraculous> miraculous, MiraculousData miraculousData, Player player) {
         if (miraculousData.miraculousItem().has(MineraculousDataComponents.MIRACULOUS)) {
             Kwami kwami = MineraculousEntityTypes.KWAMI.get().create(level);
             if (kwami != null) {
@@ -369,7 +371,18 @@ public class MineraculousEntityEvents {
                 } else {
                     kwami.setCharged(true);
                 }
-                kwami.setPos(player.getX() + level.random.nextInt(3), player.getY() + 2, player.getZ() + +level.random.nextInt(3));
+                Direction direction = player.getDirection().getOpposite();
+                int xOffset = switch (direction) {
+                    case WEST -> 1;
+                    case EAST -> -1;
+                    default -> 0;
+                };
+                int zOffset = switch (direction) {
+                    case NORTH -> 1;
+                    case SOUTH -> -1;
+                    default -> 0;
+                };
+                kwami.teleportTo(level, player.getX() + xOffset, player.getY() + 1, player.getZ() + zOffset, Set.of(), direction.toYRot(), 0.0F);
                 kwami.tame(player);
                 level.addFreshEntity(kwami);
 

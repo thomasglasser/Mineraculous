@@ -243,13 +243,13 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
     @Override
     public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
         LivingEntity entity = slotContext.entity();
-        if (!entity.level().isClientSide && entity instanceof Player player) {
+        if (entity.level() instanceof ServerLevel serverLevel && entity instanceof Player player) {
             MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS);
             MiraculousData data = miraculousDataSet.get(stack.get(MineraculousDataComponents.MIRACULOUS));
             if (stack.has(MineraculousDataComponents.POWERED.get()) && !data.transformed()) {
                 stack.remove(MineraculousDataComponents.POWERED.get());
                 data = data.equip(stack, new CuriosData(slotContext.index(), slotContext.identifier()));
-                MineraculousEntityEvents.summonKwami(entity.level(), stack.get(MineraculousDataComponents.MIRACULOUS), data, player);
+                MineraculousEntityEvents.summonKwami(serverLevel, stack.get(MineraculousDataComponents.MIRACULOUS), data, player);
             }
         }
     }

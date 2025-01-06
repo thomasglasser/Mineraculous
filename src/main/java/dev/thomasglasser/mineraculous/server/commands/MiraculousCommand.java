@@ -212,7 +212,7 @@ public class MiraculousCommand {
             Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
             String newLook = StringArgumentType.getString(context, "look");
             context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_TRY_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_TRY_SET_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);
-            TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncLookPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), miraculousType.key(), newLook), player);
+            TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncLookPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), true, miraculousType.key(), newLook), player);
             return 1;
         } else {
             context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_DISABLED));

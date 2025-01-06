@@ -55,6 +55,11 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedLoo
     }
 
     @Override
+    public Map<UUID, Set<FlattenedLookData>> mineraculous$getLookData() {
+        return mineraculous$lookData;
+    }
+
+    @Override
     public Set<FlattenedLookData> mineraculous$getLookData(UUID player) {
         return mineraculous$lookData.getOrDefault(player, new HashSet<>());
     }

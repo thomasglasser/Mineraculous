@@ -23,11 +23,12 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 
-public record ClientboundRequestSyncLookPayload(Optional<UUID> senderId, ResourceKey<Miraculous> miraculous, String look) implements ExtendedPacketPayload {
+public record ClientboundRequestSyncLookPayload(Optional<UUID> senderId, boolean announce, ResourceKey<Miraculous> miraculous, String look) implements ExtendedPacketPayload {
 
     public static final Type<ClientboundRequestSyncLookPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_request_sync_look"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundRequestSyncLookPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), ClientboundRequestSyncLookPayload::senderId,
+            ByteBufCodecs.BOOL, ClientboundRequestSyncLookPayload::announce,
             ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS), ClientboundRequestSyncLookPayload::miraculous,
             ByteBufCodecs.STRING_UTF8, ClientboundRequestSyncLookPayload::look,
             ClientboundRequestSyncLookPayload::new);
@@ -55,7 +56,7 @@ public record ClientboundRequestSyncLookPayload(Optional<UUID> senderId, Resourc
                         convertedFrames.add(NativeImage.read(frame.toPath().toUri().toURL().openStream()).asByteArray());
                     }
                 }
-                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncLookPayload(senderId, new FlattenedLookData(miraculous, look, convertedModel, convertedImage, convertedFrames)));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncLookPayload(senderId, announce, new FlattenedLookData(miraculous, look, convertedModel, convertedImage, convertedFrames)));
             } catch (Exception exception) {
                 sendFail();
                 Mineraculous.LOGGER.error("Failed to handle clientbound request sync look payload", exception);

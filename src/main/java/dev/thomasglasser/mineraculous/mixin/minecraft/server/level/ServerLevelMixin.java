@@ -2,8 +2,8 @@ package dev.thomasglasser.mineraculous.mixin.minecraft.server.level;
 
 import dev.thomasglasser.mineraculous.world.ToolIdData;
 import dev.thomasglasser.mineraculous.world.ToolIdDataHolder;
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookData;
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookDataHolder;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,14 +29,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerLevel.class)
-public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedLookDataHolder {
+public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedSuitLookDataHolder {
     @Unique
     private final ServerLevel mineraculous$INSTANCE = ((ServerLevel) (Object) (this));
 
     @Unique
     protected ToolIdData mineraculous$toolIdData;
     @Unique
-    protected Map<UUID, Set<FlattenedLookData>> mineraculous$lookData;
+    protected Map<UUID, Set<FlattenedSuitLookData>> mineraculous$lookData;
 
     @Shadow
     public abstract DimensionDataStorage getDataStorage();
@@ -55,17 +55,12 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedLoo
     }
 
     @Override
-    public Map<UUID, Set<FlattenedLookData>> mineraculous$getLookData() {
+    public Map<UUID, Set<FlattenedSuitLookData>> mineraculous$getSuitLookData() {
         return mineraculous$lookData;
     }
 
     @Override
-    public Set<FlattenedLookData> mineraculous$getLookData(UUID player) {
-        return mineraculous$lookData.getOrDefault(player, new HashSet<>());
-    }
-
-    @Override
-    public void mineraculous$addLookData(UUID player, FlattenedLookData data) {
+    public void mineraculous$addSuitLookData(UUID player, FlattenedSuitLookData data) {
         mineraculous$lookData.computeIfAbsent(player, p -> new HashSet<>()).add(data);
     }
 }

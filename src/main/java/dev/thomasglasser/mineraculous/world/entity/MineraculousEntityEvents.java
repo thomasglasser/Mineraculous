@@ -9,8 +9,8 @@ import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
-import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncLookPayload;
-import dev.thomasglasser.mineraculous.network.ClientboundSyncLookPayload;
+import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncSuitLookPayload;
+import dev.thomasglasser.mineraculous.network.ClientboundSyncSuitLookPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestMiraculousDataSetSyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundStealCuriosPayload;
@@ -36,7 +36,7 @@ import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
@@ -234,9 +234,9 @@ public class MineraculousEntityEvents {
             }
 
             if (serverPlayer.tickCount == 15) {
-                FlattenedLookDataHolder flattenedLookDataHolder = (FlattenedLookDataHolder) player.level();
-                flattenedLookDataHolder.mineraculous$getLookData().forEach((uuid, dataSet) -> {
-                    dataSet.forEach(data -> TommyLibServices.NETWORK.sendToClient(new ClientboundSyncLookPayload(uuid, data, false), serverPlayer));
+                FlattenedSuitLookDataHolder flattenedSuitLookDataHolder = (FlattenedSuitLookDataHolder) player.getServer().overworld();
+                flattenedSuitLookDataHolder.mineraculous$getSuitLookData().forEach((uuid, dataSet) -> {
+                    dataSet.forEach(data -> TommyLibServices.NETWORK.sendToClient(new ClientboundSyncSuitLookPayload(uuid, data, false), serverPlayer));
                 });
             }
         }
@@ -637,7 +637,7 @@ public class MineraculousEntityEvents {
                 for (ResourceKey<Miraculous> miraculous : miraculousDataSet.keySet()) {
                     String look = miraculousDataSet.get(miraculous).look();
                     if (!look.isEmpty())
-                        TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncLookPayload(Optional.empty(), false, miraculous, look), player);
+                        TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncSuitLookPayload(Optional.empty(), false, miraculous, look), player);
                 }
             }
         }
@@ -645,8 +645,8 @@ public class MineraculousEntityEvents {
 
     public static void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            FlattenedLookDataHolder flattenedLookDataHolder = (FlattenedLookDataHolder) serverPlayer.level();
-            flattenedLookDataHolder.mineraculous$getLookData().remove(serverPlayer.getUUID());
+            FlattenedSuitLookDataHolder flattenedSuitLookDataHolder = (FlattenedSuitLookDataHolder) serverPlayer.getServer().overworld();
+            flattenedSuitLookDataHolder.mineraculous$getSuitLookData().remove(serverPlayer.getUUID());
         }
     }
 

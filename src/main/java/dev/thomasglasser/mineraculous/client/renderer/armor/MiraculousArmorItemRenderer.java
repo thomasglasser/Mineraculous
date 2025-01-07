@@ -4,7 +4,7 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.armor.MiraculousArmorItem;
-import dev.thomasglasser.mineraculous.world.level.storage.LookData;
+import dev.thomasglasser.mineraculous.world.level.storage.SuitLookData;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
@@ -25,7 +25,7 @@ import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmorItem> {
     private final Map<ResourceKey<Miraculous>, GeoModel<MiraculousArmorItem>> defaultModels = new HashMap<>();
-    private final Map<LookData, GeoModel<MiraculousArmorItem>> lookModels = new HashMap<>();
+    private final Map<SuitLookData, GeoModel<MiraculousArmorItem>> lookModels = new HashMap<>();
 
     public MiraculousArmorItemRenderer() {
         super(null);
@@ -77,7 +77,7 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
                 if (getCurrentEntity() instanceof Player player) {
                     String look = player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).look();
                     if (!look.isEmpty()) {
-                        LookData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS_LOOKS).get(miraculous, look);
+                        SuitLookData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).get(miraculous, look);
                         if (data != null) {
                             if (!lookModels.containsKey(data))
                                 lookModels.put(data, createLookGeoModel(data));
@@ -104,7 +104,7 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
         };
     }
 
-    private GeoModel<MiraculousArmorItem> createLookGeoModel(LookData data) {
+    private GeoModel<MiraculousArmorItem> createLookGeoModel(SuitLookData data) {
         return new GeoModel<>() {
             private BakedGeoModel currentModel = null;
 

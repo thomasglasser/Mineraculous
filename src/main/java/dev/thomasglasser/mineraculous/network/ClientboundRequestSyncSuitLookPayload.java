@@ -4,7 +4,7 @@ import com.mojang.blaze3d.platform.NativeImage;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookData;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -23,22 +23,22 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 
-public record ClientboundRequestSyncLookPayload(Optional<UUID> senderId, boolean announce, ResourceKey<Miraculous> miraculous, String look) implements ExtendedPacketPayload {
+public record ClientboundRequestSyncSuitLookPayload(Optional<UUID> senderId, boolean announce, ResourceKey<Miraculous> miraculous, String look) implements ExtendedPacketPayload {
 
-    public static final Type<ClientboundRequestSyncLookPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_request_sync_look"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundRequestSyncLookPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), ClientboundRequestSyncLookPayload::senderId,
-            ByteBufCodecs.BOOL, ClientboundRequestSyncLookPayload::announce,
-            ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS), ClientboundRequestSyncLookPayload::miraculous,
-            ByteBufCodecs.STRING_UTF8, ClientboundRequestSyncLookPayload::look,
-            ClientboundRequestSyncLookPayload::new);
+    public static final Type<ClientboundRequestSyncSuitLookPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_request_sync_suit_look"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundRequestSyncSuitLookPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), ClientboundRequestSyncSuitLookPayload::senderId,
+            ByteBufCodecs.BOOL, ClientboundRequestSyncSuitLookPayload::announce,
+            ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS), ClientboundRequestSyncSuitLookPayload::miraculous,
+            ByteBufCodecs.STRING_UTF8, ClientboundRequestSyncSuitLookPayload::look,
+            ClientboundRequestSyncSuitLookPayload::new);
 
     // ON CLIENT
     @Override
     public void handle(Player player) {
         String namespace = miraculous.location().getNamespace();
         String type = miraculous.location().getPath();
-        File folder = new File(Minecraft.getInstance().gameDirectory, "miraculouslooks" + File.separator + namespace + File.separator + type);
+        File folder = new File(Minecraft.getInstance().gameDirectory, "miraculouslooks" + File.separator + "suits" + File.separator + namespace + File.separator + type);
         if (!folder.exists()) {
             sendFail();
             return;
@@ -56,10 +56,10 @@ public record ClientboundRequestSyncLookPayload(Optional<UUID> senderId, boolean
                         convertedFrames.add(NativeImage.read(frame.toPath().toUri().toURL().openStream()).asByteArray());
                     }
                 }
-                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncLookPayload(senderId, announce, new FlattenedLookData(miraculous, look, convertedModel, convertedImage, convertedFrames)));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncSuitLookPayload(senderId, announce, new FlattenedSuitLookData(miraculous, look, convertedModel, convertedImage, convertedFrames)));
             } catch (Exception exception) {
                 sendFail();
-                Mineraculous.LOGGER.error("Failed to handle clientbound request sync look payload", exception);
+                Mineraculous.LOGGER.error("Failed to handle clientbound request sync suit look payload", exception);
             }
         } else {
             sendFail();
@@ -67,7 +67,7 @@ public record ClientboundRequestSyncLookPayload(Optional<UUID> senderId, boolean
     }
 
     private void sendFail() {
-        TommyLibServices.NETWORK.sendToServer(new ServerboundReportLookAbsentPayload(senderId, miraculous, look));
+        TommyLibServices.NETWORK.sendToServer(new ServerboundReportSuitLookAbsentPayload(senderId, miraculous, look));
     }
 
     @Override

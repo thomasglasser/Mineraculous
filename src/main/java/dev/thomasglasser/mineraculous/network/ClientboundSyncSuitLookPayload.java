@@ -4,9 +4,9 @@ import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.NativeImage;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookData;
-import dev.thomasglasser.mineraculous.world.level.storage.LookData;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.SuitLookData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +27,14 @@ import software.bernie.geckolib.loading.json.typeadapter.KeyFramesAdapter;
 import software.bernie.geckolib.loading.object.BakedModelFactory;
 import software.bernie.geckolib.loading.object.GeometryTree;
 
-public record ClientboundSyncLookPayload(UUID targetId, FlattenedLookData data, boolean override) implements ExtendedPacketPayload {
+public record ClientboundSyncSuitLookPayload(UUID targetId, FlattenedSuitLookData data, boolean override) implements ExtendedPacketPayload {
 
-    public static final Type<ClientboundSyncLookPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_sync_look"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundSyncLookPayload> CODEC = StreamCodec.composite(
-            UUIDUtil.STREAM_CODEC, ClientboundSyncLookPayload::targetId,
-            FlattenedLookData.CODEC, ClientboundSyncLookPayload::data,
-            ByteBufCodecs.BOOL, ClientboundSyncLookPayload::override,
-            ClientboundSyncLookPayload::new);
+    public static final Type<ClientboundSyncSuitLookPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_sync_suit_look"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundSyncSuitLookPayload> CODEC = StreamCodec.composite(
+            UUIDUtil.STREAM_CODEC, ClientboundSyncSuitLookPayload::targetId,
+            FlattenedSuitLookData.CODEC, ClientboundSyncSuitLookPayload::data,
+            ByteBufCodecs.BOOL, ClientboundSyncSuitLookPayload::override,
+            ClientboundSyncSuitLookPayload::new);
 
     // ON CLIENT
     @Override
@@ -42,21 +42,21 @@ public record ClientboundSyncLookPayload(UUID targetId, FlattenedLookData data, 
         Player target = player.level().getPlayerByUUID(targetId);
         try {
             BakedGeoModel model = BakedModelFactory.getForNamespace(Mineraculous.MOD_ID).constructGeoModel(GeometryTree.fromModel(KeyFramesAdapter.GEO_GSON.fromJson(GsonHelper.fromJson(KeyFramesAdapter.GEO_GSON, data.model(), JsonObject.class), Model.class)));
-            ResourceLocation texture = Mineraculous.modLoc("textures/miraculouslooks/" + target.getStringUUID() + "/" + data.miraculous().location().getNamespace() + "/" + data.miraculous().location().getPath() + "/" + data.look() + ".png");
+            ResourceLocation texture = Mineraculous.modLoc("textures/miraculouslooks/suits" + target.getStringUUID() + "/" + data.miraculous().location().getNamespace() + "/" + data.miraculous().location().getPath() + "/" + data.look() + ".png");
             Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(NativeImage.read(data.pixels())));
             List<ResourceLocation> frames = new ArrayList<>();
             for (int i = 0; i < data.frames().size(); i++) {
-                ResourceLocation frame = Mineraculous.modLoc("textures/miraculouslooks/" + target.getStringUUID() + "/" + data.miraculous().location().getNamespace() + "/" + data.miraculous().location().getPath() + "/" + data.look() + "_" + (i + 1) + ".png");
+                ResourceLocation frame = Mineraculous.modLoc("textures/miraculouslooks/suits" + target.getStringUUID() + "/" + data.miraculous().location().getNamespace() + "/" + data.miraculous().location().getPath() + "/" + data.look() + "_" + (i + 1) + ".png");
                 frames.add(frame);
                 Minecraft.getInstance().getTextureManager().register(frame, new DynamicTexture(NativeImage.read(data.frames().get(i))));
             }
-            target.getData(MineraculousAttachmentTypes.MIRACULOUS_LOOKS).put(data.miraculous(), data.look(), new LookData(model, texture, frames));
+            target.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).put(data.miraculous(), data.look(), new SuitLookData(model, texture, frames));
             if (override) {
                 MiraculousDataSet miraculousDataSet = target.getData(MineraculousAttachmentTypes.MIRACULOUS);
                 miraculousDataSet.put(target, data.miraculous(), miraculousDataSet.get(data.miraculous()).withLook(data.look()), false);
             }
         } catch (Exception e) {
-            Mineraculous.LOGGER.error("Failed to handle clientbound sync look payload", e);
+            Mineraculous.LOGGER.error("Failed to handle clientbound sync suit look payload", e);
         }
     }
 

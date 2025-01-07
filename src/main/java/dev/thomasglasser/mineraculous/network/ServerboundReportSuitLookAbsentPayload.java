@@ -17,21 +17,21 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 
-public record ServerboundReportLookAbsentPayload(Optional<UUID> senderId, ResourceKey<Miraculous> miraculous, String look) implements ExtendedPacketPayload {
+public record ServerboundReportSuitLookAbsentPayload(Optional<UUID> senderId, ResourceKey<Miraculous> miraculous, String look) implements ExtendedPacketPayload {
 
-    public static final Type<ServerboundReportLookAbsentPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_report_look_absent"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundReportLookAbsentPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), ServerboundReportLookAbsentPayload::senderId,
-            ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS), ServerboundReportLookAbsentPayload::miraculous,
-            ByteBufCodecs.STRING_UTF8, ServerboundReportLookAbsentPayload::look,
-            ServerboundReportLookAbsentPayload::new);
+    public static final Type<ServerboundReportSuitLookAbsentPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_report_suit_look_absent"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundReportSuitLookAbsentPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), ServerboundReportSuitLookAbsentPayload::senderId,
+            ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS), ServerboundReportSuitLookAbsentPayload::miraculous,
+            ByteBufCodecs.STRING_UTF8, ServerboundReportSuitLookAbsentPayload::look,
+            ServerboundReportSuitLookAbsentPayload::new);
 
     // ON SERVER
     @Override
     public void handle(Player player) {
         Player sender = senderId.map(uuid -> player.level().getPlayerByUUID(uuid)).orElse(null);
         CommandSourceStack commandSourceStack = sender == null ? player.getServer().createCommandSourceStack() : sender.createCommandSourceStack();
-        commandSourceStack.sendSuccess(() -> sender == player ? Component.translatable(MiraculousCommand.LOOK_SET_FAILURE_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous)), look) : Component.translatable(MiraculousCommand.LOOK_SET_FAILURE_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculous)), look), true);
+        commandSourceStack.sendFailure(Component.translatable(MiraculousCommand.LOOK_SUIT_SET_FAILURE, Component.translatable(Miraculous.toLanguageKey(miraculous)), look));
     }
 
     @Override

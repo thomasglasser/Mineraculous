@@ -25,6 +25,7 @@ import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmorItem> {
     private final Map<ResourceKey<Miraculous>, GeoModel<MiraculousArmorItem>> defaultModels = new HashMap<>();
+    private final Map<LookData, GeoModel<MiraculousArmorItem>> lookModels = new HashMap<>();
 
     public MiraculousArmorItemRenderer() {
         super(null);
@@ -78,46 +79,58 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
                     if (!look.isEmpty()) {
                         LookData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS_LOOKS).get(miraculous, look);
                         if (data != null) {
-                            return new GeoModel<>() {
-                                @Override
-                                public ResourceLocation getModelResource(MiraculousArmorItem animatable) {
-                                    return null;
-                                }
-
-                                @Override
-                                public ResourceLocation getTextureResource(MiraculousArmorItem animatable) {
-                                    return data.texture();
-                                }
-
-                                @Override
-                                public ResourceLocation getAnimationResource(MiraculousArmorItem animatable) {
-                                    return null;
-                                }
-
-                                @Override
-                                public BakedGeoModel getBakedModel(ResourceLocation location) {
-                                    getAnimationProcessor().setActiveModel(data.model());
-                                    return data.model();
-                                }
-                            };
+                            if (!lookModels.containsKey(data))
+                                lookModels.put(data, createLookGeoModel(data));
+                            return lookModels.get(data);
                         }
                     }
                 }
                 if (!defaultModels.containsKey(miraculous))
-                    defaultModels.put(miraculous, createGeoModel(miraculous));
+                    defaultModels.put(miraculous, createDefaultGeoModel(miraculous));
                 return defaultModels.get(miraculous);
             }
         }
         return super.getGeoModel();
     }
 
-    private GeoModel<MiraculousArmorItem> createGeoModel(ResourceKey<Miraculous> miraculous) {
+    private GeoModel<MiraculousArmorItem> createDefaultGeoModel(ResourceKey<Miraculous> miraculous) {
         return new DefaultedItemGeoModel<>(ResourceLocation.fromNamespaceAndPath(miraculous.location().getNamespace(), "armor/miraculous/" + miraculous.location().getPath())) {
             private final ResourceLocation textureLoc = ResourceLocation.fromNamespaceAndPath(miraculous.location().getNamespace(), "textures/entity/equipment/humanoid/miraculous/" + miraculous.location().getPath() + ".png");
 
             @Override
             public ResourceLocation getTextureResource(MiraculousArmorItem animatable) {
                 return textureLoc;
+            }
+        };
+    }
+
+    private GeoModel<MiraculousArmorItem> createLookGeoModel(LookData data) {
+        return new GeoModel<>() {
+            private BakedGeoModel currentModel = null;
+
+            @Override
+            public ResourceLocation getModelResource(MiraculousArmorItem animatable) {
+                return null;
+            }
+
+            @Override
+            public ResourceLocation getTextureResource(MiraculousArmorItem animatable) {
+                return data.texture();
+            }
+
+            @Override
+            public ResourceLocation getAnimationResource(MiraculousArmorItem animatable) {
+                return null;
+            }
+
+            @Override
+            public BakedGeoModel getBakedModel(ResourceLocation location) {
+                BakedGeoModel baked = data.model();
+                if (currentModel != baked) {
+                    currentModel = baked;
+                    getAnimationProcessor().setActiveModel(baked);
+                }
+                return currentModel;
             }
         };
     }

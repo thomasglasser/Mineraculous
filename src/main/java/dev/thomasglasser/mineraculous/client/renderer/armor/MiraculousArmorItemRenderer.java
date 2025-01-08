@@ -35,14 +35,14 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
                 Integer transformationTicks = stack.get(MineraculousDataComponents.TRANSFORMATION_FRAMES);
                 if (transformationTicks != null && transformationTicks > 0) {
                     ResourceLocation loc = super.getTextureLocation(animatable).withPath(path -> path.replace(".png", "_" + (10 - transformationTicks) + ".png"));
-                    if (Minecraft.getInstance().getTextureManager().getTexture(loc, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture())
+                    if (Minecraft.getInstance().getResourceManager().getResource(loc).isEmpty() && Minecraft.getInstance().getTextureManager().getTexture(loc, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture())
                         return super.getTextureLocation(animatable);
                     return loc;
                 } else {
                     Integer detransformationTicks = stack.get(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
                     if (detransformationTicks != null && detransformationTicks > 0) {
                         ResourceLocation loc = super.getTextureLocation(animatable).withPath(path -> path.replace(".png", "_" + detransformationTicks + ".png"));
-                        if (Minecraft.getInstance().getTextureManager().getTexture(loc, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture())
+                        if (Minecraft.getInstance().getResourceManager().getResource(loc).isEmpty() && Minecraft.getInstance().getTextureManager().getTexture(loc, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture())
                             return super.getTextureLocation(animatable);
                         return loc;
                     }

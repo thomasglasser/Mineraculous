@@ -29,18 +29,6 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
 
     public MiraculousArmorItemRenderer() {
         super(null);
-        addRenderLayer(new AutoGlowingGeoLayer<>(this) {
-            @Override
-            protected @Nullable RenderType getRenderType(MiraculousArmorItem animatable, MultiBufferSource bufferSource) {
-                if (getCurrentStack() != null) {
-                    ResourceLocation glowMask = GeoAbstractTexture.appendToPath(getTextureResource(animatable), "_glowmask");
-                    if (Minecraft.getInstance().getResourceManager().getResource(glowMask).isPresent()) {
-                        return super.getRenderType(animatable, bufferSource);
-                    }
-                }
-                return null;
-            }
-        });
     }
 
     @Override

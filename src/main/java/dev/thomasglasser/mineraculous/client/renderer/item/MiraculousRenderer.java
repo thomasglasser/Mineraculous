@@ -40,7 +40,7 @@ public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
         if (getCurrentItemStack() != null) {
             ResourceKey<Miraculous> miraculous = getCurrentItemStack().get(MineraculousDataComponents.MIRACULOUS);
             MiraculousLookData data = getMiraculousLookData(getCurrentItemStack());
-            if (data != null && data.transforms().isPresent() && !getCurrentItemStack().has(MineraculousDataComponents.POWERED)) {
+            if (data != null && data.transforms().isPresent() && data.transforms().get().hasTransform(renderPerspective) && !getCurrentItemStack().has(MineraculousDataComponents.POWERED)) {
                 data.transforms().get().getTransform(renderPerspective).apply(false, poseStack);
             } else {
                 BakedModel miraculousModel = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(miraculous.location().getNamespace(), "item/miraculous/" + miraculous.location().getPath())));

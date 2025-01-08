@@ -5,6 +5,7 @@ import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.advancements.critereon.MiraculousUsePowerTrigger;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
+import dev.thomasglasser.mineraculous.client.renderer.item.MiraculousRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundPutToolInHandPayload;
@@ -20,9 +21,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,17 +49,24 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.animatable.client.GeoRenderProvider;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
+public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     public static final int FIVE_MINUTES = 6000;
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public MiraculousItem(Properties properties) {
         super(properties.stacksTo(1).rarity(Rarity.EPIC)
                 .component(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE)
                 .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
                 .fireResistant());
+        GeckoLibUtil.registerSyncedAnimatable(this);
     }
 
     @Override
@@ -93,16 +99,6 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
                 return InteractionResult.SUCCESS;
         }
         return InteractionResult.SUCCESS;
-    }
-
-    @Override
-    public void createBewlrProvider(Consumer<BewlrProvider> provider) {
-        provider.accept(new BewlrProvider() {
-            @Override
-            public BlockEntityWithoutLevelRenderer getBewlr() {
-                return MineraculousClientUtils.getBewlr();
-            }
-        });
     }
 
     @Override
@@ -263,5 +259,28 @@ public class MiraculousItem extends Item implements ICurioItem, ModeledItem {
     public boolean canEquip(SlotContext slotContext, ItemStack stack) {
         ResourceKey<Miraculous> key = stack.get(MineraculousDataComponents.MIRACULOUS);
         return key != null && slotContext.identifier().equals(slotContext.entity().level().holderOrThrow(key).value().acceptableSlot());
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {}
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
+    }
+
+    @Override
+    public void createGeoRenderer(Consumer<GeoRenderProvider> consumer) {
+        consumer.accept(new GeoRenderProvider() {
+            private MiraculousRenderer renderer;
+
+            @Override
+            public BlockEntityWithoutLevelRenderer getGeoItemRenderer() {
+                if (this.renderer == null)
+                    this.renderer = new MiraculousRenderer();
+
+                return this.renderer;
+            }
+        });
     }
 }

@@ -1,16 +1,12 @@
 package dev.thomasglasser.mineraculous.world.item.armor;
 
-import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.renderer.armor.MiraculousArmorItemRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
-import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import dev.thomasglasser.tommylib.api.world.item.armor.GeoArmorItem;
 import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -26,7 +22,7 @@ import software.bernie.geckolib.animatable.client.GeoRenderProvider;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class MiraculousArmorItem extends ArmorItem implements ModeledItem, GeoArmorItem {
+public class MiraculousArmorItem extends ArmorItem implements GeoArmorItem {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public MiraculousArmorItem(Type type, Item.Properties pProperties) {
@@ -66,16 +62,6 @@ public class MiraculousArmorItem extends ArmorItem implements ModeledItem, GeoAr
                     this.renderer = new MiraculousArmorItemRenderer();
 
                 return this.renderer;
-            }
-        });
-    }
-
-    @Override
-    public void createBewlrProvider(Consumer<BewlrProvider> provider) {
-        provider.accept(new BewlrProvider() {
-            @Override
-            public BlockEntityWithoutLevelRenderer getBewlr() {
-                return MineraculousClientUtils.getBewlr();
             }
         });
     }

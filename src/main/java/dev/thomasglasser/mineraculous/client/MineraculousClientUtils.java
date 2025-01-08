@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.client;
 
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationSelectionScreen;
-import dev.thomasglasser.mineraculous.client.renderer.MineraculousBlockEntityWithoutLevelRenderer;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -19,12 +18,6 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public class MineraculousClientUtils {
-    private static final MineraculousBlockEntityWithoutLevelRenderer bewlr = new MineraculousBlockEntityWithoutLevelRenderer();
-
-    public static MineraculousBlockEntityWithoutLevelRenderer getBewlr() {
-        return bewlr;
-    }
-
     public static void setShader(@Nullable ResourceLocation location) {
         PostChain current = Minecraft.getInstance().gameRenderer.postEffect;
         if (location != null)

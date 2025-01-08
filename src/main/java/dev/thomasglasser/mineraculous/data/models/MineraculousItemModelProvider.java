@@ -38,7 +38,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.FIXED).rotation(-90, 0, 0).translation(1, 1, 0).end()
                 .end();
         miraculous(MineraculousMiraculous.CAT)
-                .transform(MineraculousItemDisplayContexts.CURIOS_RING.getValue()).rotation(90, 0, 270).translation(1.6F, 7.7F, -2.35F).scale(0.3F).end()
+                .transform(MineraculousItemDisplayContexts.CURIOS_RING.getValue()).rotation(90, 0, 270).translation(-1.6F, 7.7F, -2.35F).scale(0.3F).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(1.75F, -0.25F, 2F).scale(0.3F).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).translation(-1.75F, -0.25F, 2F).scale(0.3F).end()
                 .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(18F, -6F, 0).end()

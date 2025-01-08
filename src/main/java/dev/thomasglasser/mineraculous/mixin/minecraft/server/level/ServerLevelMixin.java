@@ -2,8 +2,9 @@ package dev.thomasglasser.mineraculous.mixin.minecraft.server.level;
 
 import dev.thomasglasser.mineraculous.world.ToolIdData;
 import dev.thomasglasser.mineraculous.world.ToolIdDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookDataHolder;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerLevel.class)
-public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedSuitLookDataHolder {
+public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedLookDataHolder {
     @Unique
     private final ServerLevel mineraculous$INSTANCE = ((ServerLevel) (Object) (this));
 
@@ -37,6 +38,8 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedSui
     protected ToolIdData mineraculous$toolIdData;
     @Unique
     protected Map<UUID, Set<FlattenedSuitLookData>> mineraculous$lookData;
+    @Unique
+    protected Map<UUID, Set<FlattenedMiraculousLookData>> mineraculous$miraculousLookData;
 
     @Shadow
     public abstract DimensionDataStorage getDataStorage();
@@ -46,6 +49,7 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedSui
         if (resourceKey == Level.OVERWORLD) {
             mineraculous$toolIdData = this.getDataStorage().computeIfAbsent(ToolIdData.factory(mineraculous$INSTANCE), ToolIdData.FILE_ID);
             mineraculous$lookData = new HashMap<>();
+            mineraculous$miraculousLookData = new HashMap<>();
         }
     }
 
@@ -62,5 +66,15 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedSui
     @Override
     public void mineraculous$addSuitLookData(UUID player, FlattenedSuitLookData data) {
         mineraculous$lookData.computeIfAbsent(player, p -> new HashSet<>()).add(data);
+    }
+
+    @Override
+    public Map<UUID, Set<FlattenedMiraculousLookData>> mineraculous$getMiraculousLookData() {
+        return mineraculous$miraculousLookData;
+    }
+
+    @Override
+    public void mineraculous$addMiraculousLookData(UUID player, FlattenedMiraculousLookData data) {
+        mineraculous$miraculousLookData.computeIfAbsent(player, p -> new HashSet<>()).add(data);
     }
 }

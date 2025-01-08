@@ -13,7 +13,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 
-public record MiraculousData(boolean transformed, ItemStack miraculousItem, CuriosData curiosData, int toolId, int powerLevel, boolean mainPowerActivated, boolean mainPowerActive, String name, String look, CompoundTag extraData) {
+public record MiraculousData(boolean transformed, ItemStack miraculousItem, CuriosData curiosData, int toolId, int powerLevel, boolean mainPowerActivated, boolean mainPowerActive, String name, String miraculousLook, String suitLook, CompoundTag extraData) {
 
     public static final Codec<MiraculousData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.fieldOf("transformed").forGetter(MiraculousData::transformed),
@@ -24,7 +24,8 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
             Codec.BOOL.fieldOf("main_power_activated").forGetter(MiraculousData::mainPowerActivated),
             Codec.BOOL.fieldOf("main_power_active").forGetter(MiraculousData::mainPowerActive),
             Codec.STRING.optionalFieldOf("name", "").forGetter(MiraculousData::name),
-            Codec.STRING.optionalFieldOf("look", "").forGetter(MiraculousData::look),
+            Codec.STRING.optionalFieldOf("miraculous_look", "").forGetter(MiraculousData::miraculousLook),
+            Codec.STRING.optionalFieldOf("suit_look", "").forGetter(MiraculousData::suitLook),
             CompoundTag.CODEC.optionalFieldOf("extra_data", new CompoundTag()).forGetter(MiraculousData::extraData)).apply(instance, MiraculousData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousData> STREAM_CODEC = NetworkUtils.composite(
@@ -36,12 +37,13 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
             ByteBufCodecs.BOOL, MiraculousData::mainPowerActivated,
             ByteBufCodecs.BOOL, MiraculousData::mainPowerActive,
             ByteBufCodecs.STRING_UTF8, MiraculousData::name,
-            ByteBufCodecs.STRING_UTF8, MiraculousData::look,
+            ByteBufCodecs.STRING_UTF8, MiraculousData::miraculousLook,
+            ByteBufCodecs.STRING_UTF8, MiraculousData::suitLook,
             ByteBufCodecs.COMPOUND_TAG, MiraculousData::extraData,
             MiraculousData::new);
 
     public static final String NAME_NOT_SET = "miraculous_data.name.not_set";
-    public MiraculousData(boolean transformed, ItemStack miraculousItem, CuriosData curiosData, int toolId, int powerLevel, boolean mainPowerActivated, boolean mainPowerActive, String name, String look, CompoundTag extraData) {
+    public MiraculousData(boolean transformed, ItemStack miraculousItem, CuriosData curiosData, int toolId, int powerLevel, boolean mainPowerActivated, boolean mainPowerActive, String name, String miraculousLook, String suitLook, CompoundTag extraData) {
         this.transformed = transformed;
         this.miraculousItem = miraculousItem;
         this.curiosData = curiosData;
@@ -50,12 +52,13 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
         this.mainPowerActivated = mainPowerActivated;
         this.mainPowerActive = mainPowerActive;
         this.name = name;
-        this.look = look;
+        this.miraculousLook = miraculousLook;
+        this.suitLook = suitLook;
         this.extraData = extraData;
     }
 
     public MiraculousData() {
-        this(false, ItemStack.EMPTY, new CuriosData(), 0, 0, false, false, "", "", new CompoundTag());
+        this(false, ItemStack.EMPTY, new CuriosData(), 0, 0, false, false, "", "", "", new CompoundTag());
     }
 
     public boolean hasLimitedPower() {
@@ -80,38 +83,42 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
     }
 
     public MiraculousData equip(ItemStack miraculousItem, CuriosData curiosData) {
-        return new MiraculousData(false, miraculousItem, curiosData, toolId, powerLevel, false, false, name, look, extraData);
+        return new MiraculousData(false, miraculousItem, curiosData, toolId, powerLevel, false, false, name, miraculousLook, suitLook, extraData);
     }
 
     public MiraculousData transform(boolean transformed, ItemStack miraculousItem, int toolId) {
-        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, false, false, name, look, extraData);
+        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, false, false, name, miraculousLook, suitLook, extraData);
     }
 
     public MiraculousData withItem(ItemStack miraculousItem) {
-        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, mainPowerActivated, mainPowerActive, name, look, extraData);
+        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, mainPowerActivated, mainPowerActive, name, miraculousLook, suitLook, extraData);
     }
 
     public MiraculousData withPowerStatus(boolean activated, boolean active) {
-        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, activated, active, name, look, extraData);
+        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, activated, active, name, miraculousLook, suitLook, extraData);
     }
 
     public MiraculousData withUsedPower() {
-        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel + 1, true, false, name, look, extraData);
+        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel + 1, true, false, name, miraculousLook, suitLook, extraData);
     }
 
     public MiraculousData withName(String name) {
-        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, mainPowerActivated, mainPowerActive, name, look, extraData);
+        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, mainPowerActivated, mainPowerActive, name, miraculousLook, suitLook, extraData);
     }
 
-    public MiraculousData withLook(String look) {
-        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, mainPowerActivated, mainPowerActive, name, look, extraData);
+    public MiraculousData withMiraculousLook(String miraculousLook) {
+        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, mainPowerActivated, mainPowerActive, name, miraculousLook, suitLook, extraData);
+    }
+
+    public MiraculousData withSuitLook(String suitLook) {
+        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, mainPowerActivated, mainPowerActive, name, miraculousLook, suitLook, extraData);
     }
 
     public MiraculousData withLevel(int level) {
-        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, level, mainPowerActivated, mainPowerActive, name, look, extraData);
+        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, level, mainPowerActivated, mainPowerActive, name, miraculousLook, suitLook, extraData);
     }
 
     public MiraculousData withExtraData(CompoundTag extraData, boolean replace) {
-        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, mainPowerActivated, mainPowerActive, name, look, replace ? extraData : this.extraData.merge(extraData));
+        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, mainPowerActivated, mainPowerActive, name, miraculousLook, suitLook, replace ? extraData : this.extraData.merge(extraData));
     }
 }

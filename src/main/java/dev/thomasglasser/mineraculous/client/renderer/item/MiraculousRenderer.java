@@ -3,9 +3,11 @@ package dev.thomasglasser.mineraculous.client.renderer.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousLookData;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
@@ -13,9 +15,12 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ResolvableProfile;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.texture.GeoAbstractTexture;
@@ -26,6 +31,7 @@ import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
     private final Map<ResourceKey<Miraculous>, GeoModel<MiraculousItem>> defaultModels = new HashMap<>();
+    private final Map<MiraculousLookData, GeoModel<MiraculousItem>> lookModels = new HashMap<>();
 
     public MiraculousRenderer() {
         super(null);
@@ -48,12 +54,17 @@ public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
         super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
         if (getCurrentItemStack() != null) {
             ResourceKey<Miraculous> miraculous = getCurrentItemStack().get(MineraculousDataComponents.MIRACULOUS);
-            BakedModel miraculousModel = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(miraculous.location().getNamespace(), "item/miraculous/" + miraculous.location().getPath())));
-            if (miraculousModel != Minecraft.getInstance().getModelManager().getMissingModel()) {
-                miraculousModel.applyTransform(renderPerspective, poseStack, false);
+            MiraculousLookData data = getMiraculousLookData(getCurrentItemStack());
+            if (data != null && data.transforms().isPresent()) {
+                data.transforms().get().getTransform(renderPerspective).apply(false, poseStack);
+            } else {
+                BakedModel miraculousModel = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(miraculous.location().getNamespace(), "item/miraculous/" + miraculous.location().getPath())));
+                if (miraculousModel != Minecraft.getInstance().getModelManager().getMissingModel()) {
+                    miraculousModel.applyTransform(renderPerspective, poseStack, false);
+                }
             }
-            if (renderPerspective == MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue())
-                model.getBone("right").orElseThrow().setHidden(renderPerspective == MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue());
+            // Special case for earrings
+            model.getBone("right").ifPresent(bone -> bone.setHidden(renderPerspective == MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue()));
         }
     }
 
@@ -77,8 +88,6 @@ public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
                         return super.getTextureLocation(animatable).withPath(path -> path.replace("hidden", "powered_" + minute));
                 } else
                     return powered;
-            } else {
-                // TODO: Look dependent
             }
         }
         return super.getTextureLocation(animatable);
@@ -89,19 +98,14 @@ public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
         if (getCurrentItemStack() != null) {
             ResourceKey<Miraculous> miraculous = getCurrentItemStack().get(MineraculousDataComponents.MIRACULOUS);
             if (miraculous != null) {
-//                if (getCurrentEntity() instanceof Player player) {
-//                    String look = player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).look();
-//                    if (!look.isEmpty()) {
-//                        SuitLookData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).get(miraculous, look);
-//                        if (data != null) {
-//                            if (!lookModels.containsKey(data))
-//                                lookModels.put(data, createLookGeoModel(data));
-//                            return lookModels.get(data);
-//                        }
-//                    }
-//                }
                 if (!defaultModels.containsKey(miraculous))
                     defaultModels.put(miraculous, createDefaultGeoModel(miraculous));
+                MiraculousLookData data = getMiraculousLookData(getCurrentItemStack());
+                if (data != null && !getCurrentItemStack().has(MineraculousDataComponents.POWERED)) {
+                    if (!lookModels.containsKey(data))
+                        lookModels.put(data, createLookGeoModel(miraculous, data));
+                    return lookModels.get(data);
+                }
                 return defaultModels.get(miraculous);
             }
         }
@@ -119,34 +123,48 @@ public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
         };
     }
 
-//    private GeoModel<MiraculousArmorItem> createLookGeoModel(SuitLookData data) {
-//        return new GeoModel<>() {
-//            private BakedGeoModel currentModel = null;
-//
-//            @Override
-//            public ResourceLocation getModelResource(MiraculousArmorItem animatable) {
-//                return null;
-//            }
-//
-//            @Override
-//            public ResourceLocation getTextureResource(MiraculousArmorItem animatable) {
-//                return data.texture();
-//            }
-//
-//            @Override
-//            public ResourceLocation getAnimationResource(MiraculousArmorItem animatable) {
-//                return null;
-//            }
-//
-//            @Override
-//            public BakedGeoModel getBakedModel(ResourceLocation location) {
-//                BakedGeoModel baked = data.model();
-//                if (currentModel != baked) {
-//                    currentModel = baked;
-//                    getAnimationProcessor().setActiveModel(baked);
-//                }
-//                return currentModel;
-//            }
-//        };
-//    }
+    private GeoModel<MiraculousItem> createLookGeoModel(ResourceKey<Miraculous> miraculous, MiraculousLookData data) {
+        return new GeoModel<>() {
+            private BakedGeoModel currentModel = null;
+
+            @Override
+            public ResourceLocation getModelResource(MiraculousItem animatable) {
+                return data.model().isPresent() ? null : defaultModels.get(miraculous).getModelResource(animatable);
+            }
+
+            @Override
+            public ResourceLocation getTextureResource(MiraculousItem animatable) {
+                return data.texture();
+            }
+
+            @Override
+            public ResourceLocation getAnimationResource(MiraculousItem animatable) {
+                return null;
+            }
+
+            @Override
+            public BakedGeoModel getBakedModel(ResourceLocation location) {
+                BakedGeoModel baked = data.model().orElseGet(() -> defaultModels.get(miraculous).getBakedModel(location));
+                if (currentModel != baked) {
+                    currentModel = baked;
+                    getAnimationProcessor().setActiveModel(baked);
+                }
+                return currentModel;
+            }
+        };
+    }
+
+    @Nullable
+    private MiraculousLookData getMiraculousLookData(ItemStack stack) {
+        ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+        ResolvableProfile profile = getCurrentItemStack().get(DataComponents.PROFILE);
+        if (profile != null && profile.id().isPresent() && Minecraft.getInstance().level != null && Minecraft.getInstance().level.getPlayerByUUID(profile.id().get()) != null) {
+            Player player = Minecraft.getInstance().level.getPlayerByUUID(profile.id().get());
+            String look = player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).miraculousLook();
+            if (!look.isEmpty()) {
+                return player.getData(MineraculousAttachmentTypes.MIRACULOUS_MIRACULOUS_LOOKS).get(miraculous, look);
+            }
+        }
+        return null;
+    }
 }

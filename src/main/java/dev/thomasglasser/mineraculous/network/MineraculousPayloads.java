@@ -35,6 +35,8 @@ public class MineraculousPayloads {
         PAYLOADS.add(new PayloadInfo<>(ServerboundTriggerKamikotizationAdvancementsPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundTriggerKamikotizationAdvancementsPayload.CODEC));
         PAYLOADS.add(new PayloadInfo<>(ServerboundReportSuitLookAbsentPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundReportSuitLookAbsentPayload.CODEC));
         PAYLOADS.add(new PayloadInfo<>(ServerboundSyncSuitLookPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSyncSuitLookPayload.CODEC));
+        PAYLOADS.add(new PayloadInfo<>(ServerboundSyncMiraculousLookPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSyncMiraculousLookPayload.CODEC));
+        PAYLOADS.add(new PayloadInfo<>(ServerboundReportMiraculousLookAbsentPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundReportMiraculousLookAbsentPayload.CODEC));
 
         // Clientbound
         PAYLOADS.add(new PayloadInfo<>(ClientboundSyncCurioPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncCurioPayload.CODEC));
@@ -50,5 +52,7 @@ public class MineraculousPayloads {
         PAYLOADS.add(new PayloadInfo<>(ClientboundSyncLadybugYoyoPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncLadybugYoyoPayload.CODEC));
         PAYLOADS.add(new PayloadInfo<>(ClientboundRequestSyncSuitLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestSyncSuitLookPayload.CODEC));
         PAYLOADS.add(new PayloadInfo<>(ClientboundSyncSuitLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncSuitLookPayload.CODEC));
+        PAYLOADS.add(new PayloadInfo<>(ClientboundSyncMiraculousLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncMiraculousLookPayload.CODEC));
+        PAYLOADS.add(new PayloadInfo<>(ClientboundRequestSyncMiraculousLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestSyncMiraculousLookPayload.CODEC));
     }
 }

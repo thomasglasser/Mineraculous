@@ -75,7 +75,7 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
             ResourceKey<Miraculous> miraculous = getCurrentStack().get(MineraculousDataComponents.MIRACULOUS);
             if (miraculous != null) {
                 if (getCurrentEntity() instanceof Player player) {
-                    String look = player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).look();
+                    String look = player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).suitLook();
                     if (!look.isEmpty()) {
                         SuitLookData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).get(miraculous, look);
                         if (data != null) {

@@ -115,6 +115,15 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.LOOK_SUIT_SET_FAILURE, "Missing or invalid assets requested for %s hero suit look %s.");
         add(MiraculousCommand.LOOK_SUIT_CLEAR_SUCCESS_SELF, "Your %s hero suit look has been cleared.");
         add(MiraculousCommand.LOOK_SUIT_CLEAR_SUCCESS_OTHER, "Cleared %s's %s hero suit look.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_QUERY_SUCCESS_SELF, "Your %s miraculous look is %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_QUERY_SUCCESS_OTHER, "%s's %s miraculous look is %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_TRY_SET_SUCCESS_SELF, "Attempting to set %s miraculous look to %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_TRY_SET_SUCCESS_OTHER, "Attempting to set %s's %s miraculous look to %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_SET_SUCCESS_SELF, "Your %s miraculous look has been set to %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_SET_SUCCESS_OTHER, "Set %s's %s miraculous look to %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_SET_FAILURE, "Missing or invalid assets requested for %s miraculous look %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_CLEAR_SUCCESS_SELF, "Your %s miraculous look has been cleared.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_CLEAR_SUCCESS_OTHER, "Cleared %s's %s miraculous look.");
         add(MiraculousCommand.CHARGED_TRUE, "charged");
         add(MiraculousCommand.CHARGED_FALSE, "not charged");
         add(MiraculousCommand.CHARGED_QUERY_SUCCESS_SELF, "Your %s kwami is %s.");

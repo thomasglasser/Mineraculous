@@ -53,7 +53,7 @@ public record ClientboundSyncSuitLookPayload(UUID targetId, FlattenedSuitLookDat
             target.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).put(data.miraculous(), data.look(), new SuitLookData(model, texture, frames));
             if (override) {
                 MiraculousDataSet miraculousDataSet = target.getData(MineraculousAttachmentTypes.MIRACULOUS);
-                miraculousDataSet.put(target, data.miraculous(), miraculousDataSet.get(data.miraculous()).withLook(data.look()), false);
+                miraculousDataSet.put(target, data.miraculous(), miraculousDataSet.get(data.miraculous()).withSuitLook(data.look()), false);
             }
         } catch (Exception e) {
             Mineraculous.LOGGER.error("Failed to handle clientbound sync suit look payload", e);

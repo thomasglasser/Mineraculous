@@ -204,8 +204,8 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     @Override
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         super.onUseTick(level, livingEntity, stack, remainingUseDuration);
-        if (stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()) == Ability.BLOCK && remainingUseDuration % 10 == 0) {
-            livingEntity.playSound(MineraculousSoundEvents.CAT_STAFF_SHIELD.get());
+        if (stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()) == Ability.BLOCK && remainingUseDuration % 7 == 0) {
+            livingEntity.playSound(MineraculousSoundEvents.LADYBUG_YOYO_SHIELD.get());
         }
     }
 

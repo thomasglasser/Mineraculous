@@ -18,9 +18,10 @@ public class MineraculousSoundDefinitionsProvider extends ExtendedSoundDefinitio
         add(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE);
         add(MineraculousSoundEvents.KAMIKOTIZATION_USE);
 
+        add(MineraculousSoundEvents.GENERIC_SHIELD);
+        add(MineraculousSoundEvents.LADYBUG_YOYO_SHIELD);
         add(MineraculousSoundEvents.CAT_STAFF_EXTEND);
         add(MineraculousSoundEvents.CAT_STAFF_RETRACT);
-        add(MineraculousSoundEvents.CAT_STAFF_SHIELD);
 
         add(MineraculousSoundEvents.GENERIC_TRANSFORM);
         add(MineraculousSoundEvents.GENERIC_DETRANSFORM);

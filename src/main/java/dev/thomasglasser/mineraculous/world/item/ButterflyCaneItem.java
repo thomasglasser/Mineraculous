@@ -221,7 +221,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         super.onUseTick(level, livingEntity, stack, remainingUseDuration);
         if (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()) == Ability.BLOCK && remainingUseDuration % 10 == 0) {
-            livingEntity.playSound(MineraculousSoundEvents.CAT_STAFF_SHIELD.get());
+            livingEntity.playSound(MineraculousSoundEvents.GENERIC_SHIELD.get());
         }
     }
 

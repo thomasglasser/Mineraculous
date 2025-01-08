@@ -17,9 +17,10 @@ public class MineraculousSoundEvents {
     public static final DeferredHolder<SoundEvent, SoundEvent> KAMIKOTIZATION_USE = register("kamikotization", "ability", "use");
 
     // Items
+    public static final DeferredHolder<SoundEvent, SoundEvent> GENERIC_SHIELD = register("generic", "item", "shield");
+    public static final DeferredHolder<SoundEvent, SoundEvent> LADYBUG_YOYO_SHIELD = register("ladybug_yoyo", "item", "shield");
     public static final DeferredHolder<SoundEvent, SoundEvent> CAT_STAFF_EXTEND = register("cat_staff", "item", "extend");
     public static final DeferredHolder<SoundEvent, SoundEvent> CAT_STAFF_RETRACT = register("cat_staff", "item", "retract");
-    public static final DeferredHolder<SoundEvent, SoundEvent> CAT_STAFF_SHIELD = register("cat_staff", "item", "shield");
 
     // Miraculous
     public static final DeferredHolder<SoundEvent, SoundEvent> GENERIC_TRANSFORM = register("generic", "miraculous", "transform");

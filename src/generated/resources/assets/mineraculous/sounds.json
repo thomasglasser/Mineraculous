@@ -36,11 +36,17 @@
     ],
     "subtitle": "subtitles.item.cat_staff.retract"
   },
-  "item.cat_staff.shield": {
+  "item.generic.shield": {
     "sounds": [
-      "mineraculous:item/cat_staff/shield"
+      "mineraculous:item/generic/shield"
     ],
-    "subtitle": "subtitles.item.cat_staff.shield"
+    "subtitle": "subtitles.item.generic.shield"
+  },
+  "item.ladybug_yoyo.shield": {
+    "sounds": [
+      "mineraculous:item/ladybug_yoyo/shield"
+    ],
+    "subtitle": "subtitles.item.ladybug_yoyo.shield"
   },
   "kamikotization.detransform": {
     "sounds": [

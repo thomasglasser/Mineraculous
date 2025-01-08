@@ -209,7 +209,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         super.onUseTick(level, livingEntity, stack, remainingUseDuration);
         if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.BLOCK && remainingUseDuration % 10 == 0) {
-            livingEntity.playSound(MineraculousSoundEvents.CAT_STAFF_SHIELD.get());
+            livingEntity.playSound(MineraculousSoundEvents.GENERIC_SHIELD.get());
         }
     }
 

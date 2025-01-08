@@ -1,7 +1,5 @@
 package dev.thomasglasser.mineraculous.mixin.minecraft.server.level;
 
-import dev.thomasglasser.mineraculous.world.ToolIdData;
-import dev.thomasglasser.mineraculous.world.ToolIdDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
@@ -13,6 +11,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
+
+import dev.thomasglasser.mineraculous.world.level.storage.ToolIdData;
+import dev.thomasglasser.mineraculous.world.level.storage.ToolIdDataHolder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;

@@ -9,8 +9,10 @@ import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
+import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncKamikotizationLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncMiraculousLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncSuitLookPayload;
+import dev.thomasglasser.mineraculous.network.ClientboundSyncKamikotizationLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncMiraculousLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncSuitLookPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
@@ -242,6 +244,9 @@ public class MineraculousEntityEvents {
                 });
                 flattenedLookDataHolder.mineraculous$getMiraculousLookData().forEach((uuid, dataSet) -> {
                     dataSet.forEach(data -> TommyLibServices.NETWORK.sendToClient(new ClientboundSyncMiraculousLookPayload(uuid, data, false), serverPlayer));
+                });
+                flattenedLookDataHolder.mineraculous$getKamikotizationLookData().forEach((uuid, data) -> {
+                    TommyLibServices.NETWORK.sendToClient(new ClientboundSyncKamikotizationLookPayload(uuid, data), serverPlayer);
                 });
             }
         }
@@ -647,6 +652,10 @@ public class MineraculousEntityEvents {
                     if (!look.isEmpty())
                         TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncMiraculousLookPayload(Optional.empty(), false, miraculous, look), player);
                 }
+
+                if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
+                    TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncKamikotizationLookPayload(player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get().kamikotization()), player);
+                }
             }
         }
     }
@@ -656,6 +665,7 @@ public class MineraculousEntityEvents {
             FlattenedLookDataHolder flattenedLookDataHolder = (FlattenedLookDataHolder) serverPlayer.getServer().overworld();
             flattenedLookDataHolder.mineraculous$getSuitLookData().remove(serverPlayer.getUUID());
             flattenedLookDataHolder.mineraculous$getMiraculousLookData().remove(serverPlayer.getUUID());
+            flattenedLookDataHolder.mineraculous$getKamikotizationLookData().remove(serverPlayer.getUUID());
         }
     }
 

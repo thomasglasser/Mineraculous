@@ -12,4 +12,8 @@ public interface FlattenedLookDataHolder {
     Map<UUID, Set<FlattenedMiraculousLookData>> mineraculous$getMiraculousLookData();
 
     void mineraculous$addMiraculousLookData(UUID player, FlattenedMiraculousLookData data);
+
+    Map<UUID, FlattenedKamikotizationLookData> mineraculous$getKamikotizationLookData();
+
+    void mineraculous$addKamikotizationLookData(UUID player, FlattenedKamikotizationLookData data);
 }

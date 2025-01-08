@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.mixin.minecraft.server.level;
 
 import dev.thomasglasser.mineraculous.world.ToolIdData;
 import dev.thomasglasser.mineraculous.world.ToolIdDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
@@ -40,6 +41,8 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedLoo
     protected Map<UUID, Set<FlattenedSuitLookData>> mineraculous$lookData;
     @Unique
     protected Map<UUID, Set<FlattenedMiraculousLookData>> mineraculous$miraculousLookData;
+    @Unique
+    protected Map<UUID, FlattenedKamikotizationLookData> mineraculous$kamikotizationLookData;
 
     @Shadow
     public abstract DimensionDataStorage getDataStorage();
@@ -50,6 +53,7 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedLoo
             mineraculous$toolIdData = this.getDataStorage().computeIfAbsent(ToolIdData.factory(mineraculous$INSTANCE), ToolIdData.FILE_ID);
             mineraculous$lookData = new HashMap<>();
             mineraculous$miraculousLookData = new HashMap<>();
+            mineraculous$kamikotizationLookData = new HashMap<>();
         }
     }
 
@@ -76,5 +80,15 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedLoo
     @Override
     public void mineraculous$addMiraculousLookData(UUID player, FlattenedMiraculousLookData data) {
         mineraculous$miraculousLookData.computeIfAbsent(player, p -> new HashSet<>()).add(data);
+    }
+
+    @Override
+    public Map<UUID, FlattenedKamikotizationLookData> mineraculous$getKamikotizationLookData() {
+        return mineraculous$kamikotizationLookData;
+    }
+
+    @Override
+    public void mineraculous$addKamikotizationLookData(UUID player, FlattenedKamikotizationLookData data) {
+        mineraculous$kamikotizationLookData.put(player, data);
     }
 }

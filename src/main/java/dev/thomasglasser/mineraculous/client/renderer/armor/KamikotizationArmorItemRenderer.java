@@ -1,18 +1,23 @@
 package dev.thomasglasser.mineraculous.client.renderer.armor;
 
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.item.armor.KamikotizationArmorItem;
+import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationLookData;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
 public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<KamikotizationArmorItem> {
-    private final Map<ResourceKey<Kamikotization>, GeoModel<KamikotizationArmorItem>> models = new HashMap<>();
+    private final Map<ResourceKey<Kamikotization>, GeoModel<KamikotizationArmorItem>> defaultModels = new HashMap<>();
+    private final Map<ResourceKey<Kamikotization>, GeoModel<KamikotizationArmorItem>> customModels = new HashMap<>();
 
     public KamikotizationArmorItemRenderer() {
         super(null);
@@ -23,21 +28,60 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
         if (getCurrentStack() != null) {
             ResourceKey<Kamikotization> kamikotization = getCurrentStack().get(MineraculousDataComponents.KAMIKOTIZATION);
             if (kamikotization != null) {
-                if (!models.containsKey(kamikotization))
-                    models.put(kamikotization, createGeoModel(kamikotization));
-                return models.get(kamikotization);
+                if (!defaultModels.containsKey(kamikotization))
+                    defaultModels.put(kamikotization, createDefaultGeoModel(kamikotization));
+                if (getCurrentEntity() instanceof Player player) {
+                    KamikotizationLookData data = player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS).get(kamikotization);
+                    if (data != null) {
+                        if (!customModels.containsKey(kamikotization))
+                            customModels.put(kamikotization, createCustomGeoModel(kamikotization, data));
+                        return customModels.get(kamikotization);
+                    }
+                }
+                return defaultModels.get(kamikotization);
             }
         }
         return super.getGeoModel();
     }
 
-    private GeoModel<KamikotizationArmorItem> createGeoModel(ResourceKey<Kamikotization> kamikotization) {
+    private GeoModel<KamikotizationArmorItem> createDefaultGeoModel(ResourceKey<Kamikotization> kamikotization) {
         return new DefaultedItemGeoModel<>(ResourceLocation.fromNamespaceAndPath(kamikotization.location().getNamespace(), "armor/kamikotization/" + kamikotization.location().getPath())) {
             private final ResourceLocation textureLoc = ResourceLocation.fromNamespaceAndPath(kamikotization.location().getNamespace(), "textures/entity/equipment/humanoid/kamikotization/" + kamikotization.location().getPath() + ".png");
 
             @Override
             public ResourceLocation getTextureResource(KamikotizationArmorItem animatable) {
                 return textureLoc;
+            }
+        };
+    }
+
+    private GeoModel<KamikotizationArmorItem> createCustomGeoModel(ResourceKey<Kamikotization> kamikotization, KamikotizationLookData data) {
+        return new GeoModel<>() {
+            private BakedGeoModel currentModel = null;
+
+            @Override
+            public ResourceLocation getModelResource(KamikotizationArmorItem animatable) {
+                return data.model().isPresent() ? null : defaultModels.get(kamikotization).getModelResource(animatable);
+            }
+
+            @Override
+            public ResourceLocation getTextureResource(KamikotizationArmorItem animatable) {
+                return data.texture();
+            }
+
+            @Override
+            public ResourceLocation getAnimationResource(KamikotizationArmorItem animatable) {
+                return null;
+            }
+
+            @Override
+            public BakedGeoModel getBakedModel(ResourceLocation location) {
+                BakedGeoModel baked = data.model().orElseGet(() -> defaultModels.get(kamikotization).getBakedModel(location));
+                if (currentModel != baked) {
+                    currentModel = baked;
+                    getAnimationProcessor().setActiveModel(baked);
+                }
+                return currentModel;
             }
         };
     }

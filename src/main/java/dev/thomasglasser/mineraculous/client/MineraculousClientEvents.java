@@ -1,5 +1,7 @@
 package dev.thomasglasser.mineraculous.client;
 
+import com.google.gson.JsonObject;
+import com.mojang.blaze3d.platform.NativeImage;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.client.gui.components.kamiko.KamikoGui;
@@ -24,13 +26,18 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
+import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationLookData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.io.File;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
@@ -43,6 +50,7 @@ import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.nbt.CompoundTag;
@@ -52,6 +60,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -71,6 +80,11 @@ import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
+import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.loading.json.raw.Model;
+import software.bernie.geckolib.loading.json.typeadapter.KeyFramesAdapter;
+import software.bernie.geckolib.loading.object.BakedModelFactory;
+import software.bernie.geckolib.loading.object.GeometryTree;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 public class MineraculousClientEvents {
@@ -325,6 +339,47 @@ public class MineraculousClientEvents {
             event.insertAfter(Items.IRON_GOLEM_SPAWN_EGG.getDefaultInstance(), MineraculousItems.KAMIKO_SPAWN_EGG.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         } else if (event.getTabKey() == CreativeModeTabs.OP_BLOCKS) {
 
+        }
+    }
+
+    public static FlattenedKamikotizationLookData flattenKamikotizationLook(ResourceKey<Kamikotization> kamikotization) {
+        File folder = new File(Minecraft.getInstance().gameDirectory, "miraculouslooks" + File.separator + "kamikotizations");
+        if (!folder.exists()) {
+            return null;
+        }
+        String namespace = kamikotization.location().getNamespace();
+        File nameFolder = new File(folder, namespace);
+        if (!nameFolder.exists()) {
+            return null;
+        }
+        String type = kamikotization.location().getPath();
+        File texture = new File(nameFolder, type + ".png");
+        if (texture.exists()) {
+            try {
+                File model = new File(nameFolder, type + ".geo.json");
+                String convertedModel = null;
+                if (model.exists()) {
+                    convertedModel = Files.readString(model.toPath());
+                }
+                byte[] convertedImage = NativeImage.read(texture.toPath().toUri().toURL().openStream()).asByteArray();
+                return new FlattenedKamikotizationLookData(kamikotization, Optional.ofNullable(convertedModel), convertedImage);
+            } catch (Exception exception) {
+                Mineraculous.LOGGER.error("Failed to handle clientbound request sync kamikotization look payload", exception);
+            }
+        }
+        return null;
+    }
+
+    public static void unpackKamikotizationLook(Player target, FlattenedKamikotizationLookData data) {
+        try {
+            BakedGeoModel model = null;
+            if (data.model().isPresent())
+                model = BakedModelFactory.getForNamespace(Mineraculous.MOD_ID).constructGeoModel(GeometryTree.fromModel(KeyFramesAdapter.GEO_GSON.fromJson(GsonHelper.fromJson(KeyFramesAdapter.GEO_GSON, data.model().get(), JsonObject.class), Model.class)));
+            ResourceLocation texture = Mineraculous.modLoc("textures/miraculouslooks/kamikotizations" + target.getStringUUID() + "/" + data.kamikotization().location().getNamespace() + "/" + data.kamikotization().location().getPath() + ".png");
+            Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(NativeImage.read(data.pixels())));
+            target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS).put(data.kamikotization(), new KamikotizationLookData(Optional.ofNullable(model), texture));
+        } catch (Exception e) {
+            Mineraculous.LOGGER.error("Failed to handle unpacking kamikotization look", e);
         }
     }
 }

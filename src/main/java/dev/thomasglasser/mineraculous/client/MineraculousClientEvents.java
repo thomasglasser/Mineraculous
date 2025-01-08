@@ -108,15 +108,13 @@ public class MineraculousClientEvents {
 
     public static void onRegisterAdditionalModels(ModelEvent.RegisterAdditional event) {
         ResourceManager manager = Minecraft.getInstance().getResourceManager();
-        Map<ResourceLocation, Resource> map = manager.listResources("models/item/miraculous", (location -> location.getPath().endsWith(".json")));
-        for (ResourceLocation rl : map.keySet()) {
+        Map<ResourceLocation, Resource> miraculous = manager.listResources("models/item/miraculous", (location -> location.getPath().endsWith(".json")));
+        for (ResourceLocation rl : miraculous.keySet()) {
             ResourceLocation stripped = ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), rl.getPath().substring("models/".length(), rl.getPath().indexOf(".json")));
             event.register(ModelResourceLocation.standalone(stripped));
         }
 
         event.register(ModelResourceLocation.standalone(Mineraculous.modLoc("item/kamikotization/armor")));
-
-        event.register(ModelResourceLocation.standalone(Mineraculous.modLoc("item/cat_staff_extended")));
     }
 
     public static void onRegisterRenderer(EntityRenderersEvent.RegisterRenderers event) {

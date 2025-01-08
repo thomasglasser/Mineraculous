@@ -29,6 +29,7 @@ public class MineraculousMiraculous {
         context.register(BUTTERFLY, new Miraculous(
                 TextColor.fromRgb(0x641d9a),
                 MineraculousCuriosProvider.SLOT_BROOCH,
+                7,
                 Optional.of(MineraculousItems.BUTTERFLY_CANE.get()),
                 Optional.empty(),
                 Optional.empty(),

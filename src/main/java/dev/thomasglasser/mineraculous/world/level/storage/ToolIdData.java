@@ -1,4 +1,4 @@
-package dev.thomasglasser.mineraculous.world;
+package dev.thomasglasser.mineraculous.world.level.storage;
 
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;

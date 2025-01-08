@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.component.DataComponents;
@@ -23,11 +22,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.texture.GeoAbstractTexture;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
-import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
     private final Map<ResourceKey<Miraculous>, GeoModel<MiraculousItem>> defaultModels = new HashMap<>();
@@ -43,7 +40,7 @@ public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
         if (getCurrentItemStack() != null) {
             ResourceKey<Miraculous> miraculous = getCurrentItemStack().get(MineraculousDataComponents.MIRACULOUS);
             MiraculousLookData data = getMiraculousLookData(getCurrentItemStack());
-            if (data != null && data.transforms().isPresent()) {
+            if (data != null && data.transforms().isPresent() && !getCurrentItemStack().has(MineraculousDataComponents.POWERED)) {
                 data.transforms().get().getTransform(renderPerspective).apply(false, poseStack);
             } else {
                 BakedModel miraculousModel = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(miraculous.location().getNamespace(), "item/miraculous/" + miraculous.location().getPath())));

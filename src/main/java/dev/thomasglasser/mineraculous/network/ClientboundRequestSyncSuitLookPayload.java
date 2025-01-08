@@ -43,11 +43,14 @@ public record ClientboundRequestSyncSuitLookPayload(Optional<UUID> senderId, boo
             sendFail();
             return;
         }
-        File model = new File(folder, look + ".geo.json");
         File texture = new File(folder, look + ".png");
-        if (model.exists() && texture.exists()) {
+        if (texture.exists()) {
             try {
-                String convertedModel = Files.readString(model.toPath());
+                File model = new File(folder, look + ".geo.json");
+                String convertedModel = null;
+                if (model.exists()) {
+                    convertedModel = Files.readString(model.toPath());
+                }
                 byte[] convertedImage = NativeImage.read(texture.toPath().toUri().toURL().openStream()).asByteArray();
                 List<byte[]> convertedFrames = new ArrayList<>();
                 for (int i = 1; i <= ClientUtils.getLevel().holderOrThrow(miraculous).value().transformationFrames(); i++) {
@@ -56,7 +59,7 @@ public record ClientboundRequestSyncSuitLookPayload(Optional<UUID> senderId, boo
                         convertedFrames.add(NativeImage.read(frame.toPath().toUri().toURL().openStream()).asByteArray());
                     }
                 }
-                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncSuitLookPayload(senderId, announce, new FlattenedSuitLookData(miraculous, look, convertedModel, convertedImage, convertedFrames)));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncSuitLookPayload(senderId, announce, new FlattenedSuitLookData(miraculous, look, Optional.ofNullable(convertedModel), convertedImage, convertedFrames)));
             } catch (Exception exception) {
                 sendFail();
                 Mineraculous.LOGGER.error("Failed to handle clientbound request sync suit look payload", exception);

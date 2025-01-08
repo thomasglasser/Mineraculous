@@ -5,17 +5,11 @@ import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization
 import dev.thomasglasser.mineraculous.world.item.armor.KamikotizationArmorItem;
 import java.util.HashMap;
 import java.util.Map;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.cache.texture.GeoAbstractTexture;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
-import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<KamikotizationArmorItem> {
     private final Map<ResourceKey<Kamikotization>, GeoModel<KamikotizationArmorItem>> models = new HashMap<>();

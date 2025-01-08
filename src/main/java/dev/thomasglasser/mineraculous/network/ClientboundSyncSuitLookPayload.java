@@ -10,6 +10,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.SuitLookData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -41,7 +42,9 @@ public record ClientboundSyncSuitLookPayload(UUID targetId, FlattenedSuitLookDat
     public void handle(Player player) {
         Player target = player.level().getPlayerByUUID(targetId);
         try {
-            BakedGeoModel model = BakedModelFactory.getForNamespace(Mineraculous.MOD_ID).constructGeoModel(GeometryTree.fromModel(KeyFramesAdapter.GEO_GSON.fromJson(GsonHelper.fromJson(KeyFramesAdapter.GEO_GSON, data.model(), JsonObject.class), Model.class)));
+            BakedGeoModel model = null;
+            if (data.model().isPresent())
+                model = BakedModelFactory.getForNamespace(Mineraculous.MOD_ID).constructGeoModel(GeometryTree.fromModel(KeyFramesAdapter.GEO_GSON.fromJson(GsonHelper.fromJson(KeyFramesAdapter.GEO_GSON, data.model().get(), JsonObject.class), Model.class)));
             ResourceLocation texture = Mineraculous.modLoc("textures/miraculouslooks/suits" + target.getStringUUID() + "/" + data.miraculous().location().getNamespace() + "/" + data.miraculous().location().getPath() + "/" + data.look() + ".png");
             Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(NativeImage.read(data.pixels())));
             List<ResourceLocation> frames = new ArrayList<>();
@@ -50,7 +53,7 @@ public record ClientboundSyncSuitLookPayload(UUID targetId, FlattenedSuitLookDat
                 frames.add(frame);
                 Minecraft.getInstance().getTextureManager().register(frame, new DynamicTexture(NativeImage.read(data.frames().get(i))));
             }
-            target.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).put(data.miraculous(), data.look(), new SuitLookData(model, texture, frames));
+            target.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).put(data.miraculous(), data.look(), new SuitLookData(Optional.ofNullable(model), texture, frames));
             if (override) {
                 MiraculousDataSet miraculousDataSet = target.getData(MineraculousAttachmentTypes.MIRACULOUS);
                 miraculousDataSet.put(target, data.miraculous(), miraculousDataSet.get(data.miraculous()).withSuitLook(data.look()), false);

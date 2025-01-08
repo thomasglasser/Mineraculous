@@ -8,20 +8,15 @@ import dev.thomasglasser.mineraculous.world.level.storage.SuitLookData;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.texture.GeoAbstractTexture;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
-import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmorItem> {
     private final Map<ResourceKey<Miraculous>, GeoModel<MiraculousArmorItem>> defaultModels = new HashMap<>();
@@ -62,19 +57,19 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
         if (getCurrentStack() != null) {
             ResourceKey<Miraculous> miraculous = getCurrentStack().get(MineraculousDataComponents.MIRACULOUS);
             if (miraculous != null) {
+                if (!defaultModels.containsKey(miraculous))
+                    defaultModels.put(miraculous, createDefaultGeoModel(miraculous));
                 if (getCurrentEntity() instanceof Player player) {
                     String look = player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).suitLook();
                     if (!look.isEmpty()) {
                         SuitLookData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).get(miraculous, look);
                         if (data != null) {
                             if (!lookModels.containsKey(data))
-                                lookModels.put(data, createLookGeoModel(data));
+                                lookModels.put(data, createLookGeoModel(miraculous, data));
                             return lookModels.get(data);
                         }
                     }
                 }
-                if (!defaultModels.containsKey(miraculous))
-                    defaultModels.put(miraculous, createDefaultGeoModel(miraculous));
                 return defaultModels.get(miraculous);
             }
         }
@@ -92,13 +87,13 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
         };
     }
 
-    private GeoModel<MiraculousArmorItem> createLookGeoModel(SuitLookData data) {
+    private GeoModel<MiraculousArmorItem> createLookGeoModel(ResourceKey<Miraculous> miraculous, SuitLookData data) {
         return new GeoModel<>() {
             private BakedGeoModel currentModel = null;
 
             @Override
             public ResourceLocation getModelResource(MiraculousArmorItem animatable) {
-                return null;
+                return data.model().isPresent() ? null : defaultModels.get(miraculous).getModelResource(animatable);
             }
 
             @Override
@@ -113,7 +108,7 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
 
             @Override
             public BakedGeoModel getBakedModel(ResourceLocation location) {
-                BakedGeoModel baked = data.model();
+                BakedGeoModel baked = data.model().orElseGet(() -> defaultModels.get(miraculous).getBakedModel(location));
                 if (currentModel != baked) {
                     currentModel = baked;
                     getAnimationProcessor().setActiveModel(baked);

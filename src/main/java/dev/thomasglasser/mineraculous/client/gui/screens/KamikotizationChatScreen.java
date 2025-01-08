@@ -1,9 +1,11 @@
 package dev.thomasglasser.mineraculous.client.gui.screens;
 
+import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.network.ServerboundCloseKamikotizationChatScreenPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundKamikotizationTransformPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetToggleTagPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSpawnTamedKamikoPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundSyncKamikotizationLookPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundTriggerKamikotizationAdvancementsPayload;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
@@ -230,6 +232,7 @@ public class KamikotizationChatScreen extends ChatScreen {
             TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
         } else {
             if (!this.isButterfly) {
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncKamikotizationLookPayload(MineraculousClientEvents.flattenKamikotizationLook(kamikotizationData.kamikotization())));
                 TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(kamikotizationData, true, false, false, ClientUtils.getMainClientPlayer().position().add(0, 1, 0)));
                 TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(other.getUUID(), ClientUtils.getMainClientPlayer().getUUID(), kamikotizationData.kamikotization()));
             }

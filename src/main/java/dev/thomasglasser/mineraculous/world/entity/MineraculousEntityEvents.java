@@ -9,6 +9,12 @@ import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
+import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncKamikotizationLookPayload;
+import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncMiraculousLookPayload;
+import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncSuitLookPayload;
+import dev.thomasglasser.mineraculous.network.ClientboundSyncKamikotizationLookPayload;
+import dev.thomasglasser.mineraculous.network.ClientboundSyncMiraculousLookPayload;
+import dev.thomasglasser.mineraculous.network.ClientboundSyncSuitLookPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestMiraculousDataSetSyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundStealCuriosPayload;
@@ -33,6 +39,7 @@ import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
@@ -72,6 +79,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
@@ -227,6 +235,19 @@ public class MineraculousEntityEvents {
                     }
                     serverPlayer.serverLevel().sendParticles(MineraculousParticleTypes.KAMIKOTIZATION.get(), player.getX(), player.getY() + 2 - (11 - detransformationFrames) / 5.0, player.getZ(), 100, Math.random() / 3.0, Math.random() / 3.0, Math.random() / 3.0, 0);
                 }
+            }
+
+            if (serverPlayer.tickCount == 15) {
+                FlattenedLookDataHolder flattenedLookDataHolder = (FlattenedLookDataHolder) player.getServer().overworld();
+                flattenedLookDataHolder.mineraculous$getSuitLookData().forEach((uuid, dataSet) -> {
+                    dataSet.forEach(data -> TommyLibServices.NETWORK.sendToClient(new ClientboundSyncSuitLookPayload(uuid, data, false), serverPlayer));
+                });
+                flattenedLookDataHolder.mineraculous$getMiraculousLookData().forEach((uuid, dataSet) -> {
+                    dataSet.forEach(data -> TommyLibServices.NETWORK.sendToClient(new ClientboundSyncMiraculousLookPayload(uuid, data, false), serverPlayer));
+                });
+                flattenedLookDataHolder.mineraculous$getKamikotizationLookData().forEach((uuid, data) -> {
+                    TommyLibServices.NETWORK.sendToClient(new ClientboundSyncKamikotizationLookPayload(uuid, data), serverPlayer);
+                });
             }
         }
     }
@@ -621,7 +642,30 @@ public class MineraculousEntityEvents {
                     }
                     miraculous.passiveAbilities().stream().filter(ability -> ability.value() instanceof NightVisionAbility).map(ability -> (NightVisionAbility) ability.value()).forEach(nightVisionAbility -> nightVisionAbility.resetNightVision(player));
                 });
+
+                MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
+                for (ResourceKey<Miraculous> miraculous : miraculousDataSet.keySet()) {
+                    String look = miraculousDataSet.get(miraculous).suitLook();
+                    if (!look.isEmpty())
+                        TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncSuitLookPayload(Optional.empty(), false, miraculous, look), player);
+                    look = miraculousDataSet.get(miraculous).miraculousLook();
+                    if (!look.isEmpty())
+                        TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncMiraculousLookPayload(Optional.empty(), false, miraculous, look), player);
+                }
+
+                if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
+                    TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncKamikotizationLookPayload(player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get().kamikotization()), player);
+                }
             }
+        }
+    }
+
+    public static void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            FlattenedLookDataHolder flattenedLookDataHolder = (FlattenedLookDataHolder) serverPlayer.getServer().overworld();
+            flattenedLookDataHolder.mineraculous$getSuitLookData().remove(serverPlayer.getUUID());
+            flattenedLookDataHolder.mineraculous$getMiraculousLookData().remove(serverPlayer.getUUID());
+            flattenedLookDataHolder.mineraculous$getKamikotizationLookData().remove(serverPlayer.getUUID());
         }
     }
 

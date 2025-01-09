@@ -19,11 +19,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class GameRendererMixin {
     @Shadow
     @Final
-    private Minecraft minecraft;
+    Minecraft minecraft;
 
     @Inject(method = "togglePostEffect", at = @At("HEAD"), cancellable = true)
     private void togglePostEffect(CallbackInfo ci) {
-        if (TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer()).getBoolean(MineraculousEntityEvents.TAG_HASNIGHTVISION) || MineraculousClientUtils.getCameraEntity() != null) {
+        if (TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer()).getBoolean(MineraculousEntityEvents.TAG_HASNIGHTVISION) || MineraculousClientUtils.getCameraEntity() != ClientUtils.getMainClientPlayer()) {
             ci.cancel();
         }
     }

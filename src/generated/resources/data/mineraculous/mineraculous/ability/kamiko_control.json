@@ -4,5 +4,6 @@
     "type": "mineraculous:kamiko"
   },
   "override_active": true,
+  "override_owner": true,
   "toggle_tag": "ShowKamikoMask"
 }

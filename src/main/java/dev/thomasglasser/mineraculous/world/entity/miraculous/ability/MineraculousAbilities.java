@@ -58,12 +58,14 @@ public class MineraculousAbilities {
                 Optional.empty(),
                 Optional.of(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK),
                 true,
+                true,
                 Optional.empty(),
                 true));
         context.register(KAMIKOTIZED_COMMUNICATION, new SetCameraEntityAbility(
                 EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(EntityType.PLAYER)).subPredicate(KamikotizationPredicate.ANY).build(),
                 Optional.of(Kamiko.SPECTATOR_SHADER),
                 Optional.of(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK),
+                false,
                 false,
                 Optional.empty(),
                 true));

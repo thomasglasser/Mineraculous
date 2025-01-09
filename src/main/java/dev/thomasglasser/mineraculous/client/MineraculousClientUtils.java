@@ -73,7 +73,7 @@ public class MineraculousClientUtils {
     }
 
     public static boolean isCameraEntityOther() {
-        return Minecraft.getInstance().cameraEntity != Minecraft.getInstance().player;
+        return Minecraft.getInstance().cameraEntity != Minecraft.getInstance().player && Minecraft.getInstance().cameraEntity != null;
     }
 
     public static void openKamikotizationSelectionScreen(Player target, KamikoData kamikoData) {

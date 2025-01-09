@@ -369,11 +369,12 @@ public class MineraculousEntityEvents {
     public static void renounceMiraculous(ItemStack miraculous, ServerLevel serverLevel) {
         miraculous.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
         KwamiData kwamiData = miraculous.get(MineraculousDataComponents.KWAMI_DATA.get());
-        if (kwamiData != null && serverLevel.getEntity(kwamiData.uuid()) instanceof Kwami kwami) {
-            miraculous.set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
-            kwami.discard();
-        } else
-            miraculous.remove(MineraculousDataComponents.KWAMI_DATA);
+        if (kwamiData != null) {
+            if (serverLevel.getEntity(kwamiData.uuid()) instanceof Kwami kwami) {
+                miraculous.set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
+                kwami.discard();
+            }
+        }
     }
 
     public static Kwami summonKwami(ServerLevel level, ResourceKey<Miraculous> miraculous, MiraculousData miraculousData, Player player) {

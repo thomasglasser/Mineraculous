@@ -86,13 +86,13 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
         if (level instanceof ServerLevel serverLevel) {
             if (entity instanceof Player player && (!stack.has(DataComponents.PROFILE) || !stack.get(DataComponents.PROFILE).gameProfile().equals(player.getGameProfile()))) {
                 stack.set(DataComponents.PROFILE, new ResolvableProfile(player.getGameProfile()));
-                KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA.get());
+                KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
                 if (kwamiData != null) {
                     Entity e = serverLevel.getEntity(kwamiData.uuid());
                     if (e instanceof Kwami kwami) {
                         kwami.tame(player);
-                    } else {
-                        stack.remove(MineraculousDataComponents.KWAMI_DATA.get());
+                    } else if (!stack.has(MineraculousDataComponents.POWERED)) {
+                        stack.remove(MineraculousDataComponents.KWAMI_DATA);
                     }
                 }
             }

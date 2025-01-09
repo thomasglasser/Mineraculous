@@ -24,6 +24,12 @@
     ],
     "subtitle": "subtitles.ability.kamikotization.use"
   },
+  "entity.kwami.hungry": {
+    "sounds": [
+      "mineraculous:entity/kwami/hungry"
+    ],
+    "subtitle": "subtitles.entity.kwami.hungry"
+  },
   "item.cat_staff.extend": {
     "sounds": [
       "mineraculous:item/cat_staff/extend"
@@ -77,6 +83,18 @@
       "mineraculous:miraculous/generic/detransform"
     ],
     "subtitle": "subtitles.miraculous.generic.detransform"
+  },
+  "miraculous.generic.timer_beep": {
+    "sounds": [
+      "mineraculous:miraculous/generic/timer_beep"
+    ],
+    "subtitle": "subtitles.miraculous.generic.timer_beep"
+  },
+  "miraculous.generic.timer_end": {
+    "sounds": [
+      "mineraculous:miraculous/generic/timer_end"
+    ],
+    "subtitle": "subtitles.miraculous.generic.timer_end"
   },
   "miraculous.generic.transform": {
     "sounds": [

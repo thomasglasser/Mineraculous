@@ -10,6 +10,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 
@@ -70,8 +71,9 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
     }
 
     public ItemStack createTool(ServerLevel level) {
-        if (miraculousItem().has(MineraculousDataComponents.MIRACULOUS)) {
-            Miraculous miraculous = level.holderOrThrow(miraculousItem().get(MineraculousDataComponents.MIRACULOUS)).value();
+        ResourceKey<Miraculous> key = miraculousItem().get(MineraculousDataComponents.MIRACULOUS);
+        if (key != null) {
+            Miraculous miraculous = level.holderOrThrow(key).value();
             if (miraculous.tool().isPresent()) {
                 ItemStack tool = miraculous.tool().get().getDefaultInstance();
                 tool.set(MineraculousDataComponents.KWAMI_DATA.get(), miraculousItem().get(MineraculousDataComponents.KWAMI_DATA.get()));

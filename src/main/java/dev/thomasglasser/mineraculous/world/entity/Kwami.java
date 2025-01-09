@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
@@ -13,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
@@ -86,7 +86,6 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private Component name;
     private TagKey<Item> foodTag;
     private TagKey<Item> treatTag;
-    private Holder<SoundEvent> hungrySound;
 
     public Kwami(EntityType<? extends Kwami> entityType, Level level) {
         super(entityType, level);
@@ -249,12 +248,14 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     }
 
     @Override
+    public float getVoicePitch() {
+        return super.getVoicePitch() * 1.7F;
+    }
+
+    @Override
     protected @Nullable SoundEvent getHurtSound(DamageSource damageSource) {
-        if (damageSource.is(DamageTypes.STARVE) && getMiraculous() != null) {
-            if (hungrySound == null)
-                hungrySound = level().holderOrThrow(getMiraculous()).value().kwamiHungrySound().orElse(null);
-            return hungrySound != null ? hungrySound.value() : null;
-        }
+        if (damageSource.is(DamageTypes.STARVE))
+            return MineraculousSoundEvents.KWAMI_HUNGRY.get();
         return super.getHurtSound(damageSource);
     }
 

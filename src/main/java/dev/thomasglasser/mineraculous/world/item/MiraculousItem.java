@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.client.renderer.item.MiraculousRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundPutToolInHandPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundRenounceMiraculousPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetPowerActivatedPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
@@ -36,9 +37,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Unit;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -91,22 +91,27 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                     Entity e = serverLevel.getEntity(kwamiData.uuid());
                     if (e instanceof Kwami kwami) {
                         kwami.tame(player);
+                    } else {
+                        stack.remove(MineraculousDataComponents.KWAMI_DATA.get());
                     }
                 }
             }
             if (!stack.has(MineraculousDataComponents.POWERED.get()) && !stack.has(MineraculousDataComponents.KWAMI_DATA.get())) {
                 stack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
             }
+        } else {
+            if (ClientUtils.getMainClientPlayer() == entity && slotId != -1) {
+                CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
+                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
+                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && !MineraculousClientUtils.isCameraEntityOther()) {
+                    if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown()) {
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(slotId));
+                        playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                    }
+                }
+                TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
+            }
         }
-    }
-
-    @Override
-    public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity interactionTarget, InteractionHand usedHand) {
-        if (!player.level().isClientSide && usedHand == InteractionHand.MAIN_HAND && interactionTarget instanceof Kwami kwami) {
-            if (MineraculousEntityEvents.renounceMiraculous(stack, kwami))
-                return InteractionResult.SUCCESS;
-        }
-        return InteractionResult.SUCCESS;
     }
 
     @Override
@@ -130,8 +135,8 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         LivingEntity entity = slotContext.entity();
-        if (entity instanceof Player player && stack.has(MineraculousDataComponents.MIRACULOUS) && player.level().holderOrThrow(stack.get(MineraculousDataComponents.MIRACULOUS)).value().acceptableSlot().equals(slotContext.identifier())) {
-            ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+        ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+        if (entity instanceof Player player && miraculous != null && player.level().holderOrThrow(miraculous).value().acceptableSlot().equals(slotContext.identifier())) {
             MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(miraculous);
             if (data.transformed()) {
                 if (player.level() instanceof ServerLevel serverLevel) {
@@ -157,10 +162,17 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                             entity.getArmorSlots().forEach(armorStack -> armorStack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, newTransformationTicks));
                         }
                     }
+                    if (data.shouldCountDown() && stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) <= 0) {
+                        MineraculousEntityEvents.handleMiraculousTransformation((ServerPlayer) player, miraculous, data, false, false);
+                        serverLevel.playSound(null, player, serverLevel.holderOrThrow(miraculous).value().timerEndSound().value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                    }
                 }
-                if (data.shouldCountDown())
-                    stack.set(MineraculousDataComponents.REMAINING_TICKS.get(), stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) - 1);
-                else if (stack.has(MineraculousDataComponents.REMAINING_TICKS))
+                if (data.shouldCountDown()) {
+                    int ticks = stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0);
+                    stack.set(MineraculousDataComponents.REMAINING_TICKS.get(), ticks - 1);
+                    if (ticks > 1 && ticks / 20.0F % 2 == 1)
+                        slotContext.entity().level().playSound(null, player, slotContext.entity().level().holderOrThrow(miraculous).value().timerBeepSound().value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                } else if (stack.has(MineraculousDataComponents.REMAINING_TICKS))
                     stack.remove(MineraculousDataComponents.REMAINING_TICKS);
                 AtomicBoolean overrideActive = new AtomicBoolean(false);
                 entity.level().holderOrThrow(miraculous).value().passiveAbilities().forEach(ability -> {
@@ -234,13 +246,8 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                     }
                 }
                 TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
-            } else if (player instanceof ServerPlayer serverPlayer) {
-                if (data.shouldCountDown() && stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) <= 0) {
-                    MineraculousEntityEvents.handleMiraculousTransformation(serverPlayer, miraculous, data, false, false);
-                }
             }
         }
-
         stack.inventoryTick(entity.level(), entity, -1, false);
     }
 
@@ -265,7 +272,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
         LivingEntity entity = slotContext.entity();
-        if (entity.level() instanceof ServerLevel serverLevel && entity instanceof Player player) {
+        if (entity.level() instanceof ServerLevel && entity instanceof Player && !(stack.is(newStack.getItem()) && stack.get(MineraculousDataComponents.MIRACULOUS) == newStack.get(MineraculousDataComponents.MIRACULOUS))) {
             MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS);
             MiraculousData data = miraculousDataSet.get(stack.get(MineraculousDataComponents.MIRACULOUS));
             if (!data.transformed()) {

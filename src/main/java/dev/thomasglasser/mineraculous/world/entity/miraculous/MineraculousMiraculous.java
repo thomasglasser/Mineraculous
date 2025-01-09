@@ -32,34 +32,37 @@ public class MineraculousMiraculous {
                 7,
                 Optional.of(MineraculousItems.BUTTERFLY_CANE.get()),
                 Optional.empty(),
-                Optional.empty(),
                 Optional.of(abilities.getOrThrow(MineraculousAbilities.KAMIKOTIZATION)),
                 List.of(
                         abilities.getOrThrow(MineraculousAbilities.KAMIKO_CONTROL),
                         abilities.getOrThrow(MineraculousAbilities.KAMIKOTIZED_COMMUNICATION)),
                 MineraculousSoundEvents.BUTTERFLY_TRANSFORM,
-                MineraculousSoundEvents.GENERIC_DETRANSFORM));
+                MineraculousSoundEvents.GENERIC_DETRANSFORM,
+                MineraculousSoundEvents.GENERIC_TIMER_BEEP,
+                MineraculousSoundEvents.GENERIC_TIMER_END));
         context.register(CAT, new Miraculous(
                 TextColor.fromRgb(0xc6f800),
                 MineraculousCuriosProvider.SLOT_RING,
                 9,
                 Optional.of(MineraculousItems.CAT_STAFF.get()),
                 Optional.of("belt"),
-                Optional.empty(),
                 Optional.of(abilities.getOrThrow(MineraculousAbilities.CATACLYSM)),
                 List.of(abilities.getOrThrow(MineraculousAbilities.CAT_VISION)),
                 MineraculousSoundEvents.CAT_TRANSFORM,
-                MineraculousSoundEvents.GENERIC_DETRANSFORM));
+                MineraculousSoundEvents.GENERIC_DETRANSFORM,
+                MineraculousSoundEvents.GENERIC_TIMER_BEEP,
+                MineraculousSoundEvents.GENERIC_TIMER_END));
         context.register(LADYBUG, new Miraculous(
                 TextColor.fromRgb(0xdd1731),
                 MineraculousCuriosProvider.SLOT_EARRINGS,
                 9,
                 Optional.of(MineraculousItems.LADYBUG_YOYO.get()),
                 Optional.of("belt"),
-                Optional.empty(),
                 Optional.empty(/*abilities.getOrThrow(MineraculousAbilities.MIRACULOUS_LADYBUG)*/),
                 List.of(),
                 MineraculousSoundEvents.LADYBUG_TRANSFORM,
-                MineraculousSoundEvents.GENERIC_DETRANSFORM));
+                MineraculousSoundEvents.GENERIC_DETRANSFORM,
+                MineraculousSoundEvents.GENERIC_TIMER_BEEP,
+                MineraculousSoundEvents.GENERIC_TIMER_END));
     }
 }

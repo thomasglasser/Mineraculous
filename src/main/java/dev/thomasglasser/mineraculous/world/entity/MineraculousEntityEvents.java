@@ -260,10 +260,7 @@ public class MineraculousEntityEvents {
                 MiraculousData data = miraculousDataSet.get(miraculous);
                 if (data.transformed())
                     handleMiraculousTransformation(player, miraculous, data, false, true);
-                KwamiData kwamiData = data.miraculousItem().get(MineraculousDataComponents.KWAMI_DATA.get());
-                if (kwamiData != null && player.serverLevel().getEntity(kwamiData.uuid()) instanceof Kwami kwami) {
-                    renounceMiraculous(data.miraculousItem(), kwami);
-                }
+                renounceMiraculous(data.miraculousItem(), player.serverLevel());
             });
             player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> handleKamikotizationTransformation(player, data, false, true, false, player.position().add(0, 1, 0)));
         }
@@ -369,15 +366,14 @@ public class MineraculousEntityEvents {
         }
     }
 
-    public static boolean renounceMiraculous(ItemStack miraculous, Kwami kwami) {
+    public static void renounceMiraculous(ItemStack miraculous, ServerLevel serverLevel) {
+        miraculous.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
         KwamiData kwamiData = miraculous.get(MineraculousDataComponents.KWAMI_DATA.get());
-        if (kwamiData != null && kwami.getUUID().equals(kwamiData.uuid())) {
+        if (kwamiData != null && serverLevel.getEntity(kwamiData.uuid()) instanceof Kwami kwami) {
             miraculous.set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
-            miraculous.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
             kwami.discard();
-            return true;
-        }
-        return false;
+        } else
+            miraculous.remove(MineraculousDataComponents.KWAMI_DATA);
     }
 
     public static Kwami summonKwami(ServerLevel level, ResourceKey<Miraculous> miraculous, MiraculousData miraculousData, Player player) {

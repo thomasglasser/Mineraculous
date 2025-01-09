@@ -25,6 +25,8 @@ public class MineraculousSoundEvents {
     // Miraculous
     public static final DeferredHolder<SoundEvent, SoundEvent> GENERIC_TRANSFORM = register("generic", "miraculous", "transform");
     public static final DeferredHolder<SoundEvent, SoundEvent> GENERIC_DETRANSFORM = register("generic", "miraculous", "detransform");
+    public static final DeferredHolder<SoundEvent, SoundEvent> GENERIC_TIMER_BEEP = register("generic", "miraculous", "timer_beep");
+    public static final DeferredHolder<SoundEvent, SoundEvent> GENERIC_TIMER_END = register("generic", "miraculous", "timer_end");
     public static final DeferredHolder<SoundEvent, SoundEvent> LADYBUG_TRANSFORM = register("ladybug", "miraculous", "transform");
     public static final DeferredHolder<SoundEvent, SoundEvent> CAT_TRANSFORM = register("cat", "miraculous", "transform");
     public static final DeferredHolder<SoundEvent, SoundEvent> BUTTERFLY_TRANSFORM = register("butterfly", "miraculous", "transform");
@@ -32,6 +34,9 @@ public class MineraculousSoundEvents {
     // Kamikotization
     public static final DeferredHolder<SoundEvent, SoundEvent> KAMIKOTIZATION_TRANSFORM = register("kamikotization", "transform");
     public static final DeferredHolder<SoundEvent, SoundEvent> KAMIKOTIZATION_DETRANSFORM = register("kamikotization", "detransform");
+
+    // Entities
+    public static final DeferredHolder<SoundEvent, SoundEvent> KWAMI_HUNGRY = register("kwami", "entity", "hungry");
 
     private static DeferredHolder<SoundEvent, SoundEvent> register(String subject, String type, String name) {
         return SOUND_EVENTS.register(subject + "_" + name, () -> SoundEvent.createVariableRangeEvent(Mineraculous.modLoc(type + "." + subject + "." + name)));

@@ -25,11 +25,15 @@ public class MineraculousSoundDefinitionsProvider extends ExtendedSoundDefinitio
 
         add(MineraculousSoundEvents.GENERIC_TRANSFORM);
         add(MineraculousSoundEvents.GENERIC_DETRANSFORM);
+        add(MineraculousSoundEvents.GENERIC_TIMER_BEEP);
+        add(MineraculousSoundEvents.GENERIC_TIMER_END);
         add(MineraculousSoundEvents.LADYBUG_TRANSFORM);
         add(MineraculousSoundEvents.CAT_TRANSFORM);
         add(MineraculousSoundEvents.BUTTERFLY_TRANSFORM);
 
         add(MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM);
         add(MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM);
+
+        add(MineraculousSoundEvents.KWAMI_HUNGRY);
     }
 }

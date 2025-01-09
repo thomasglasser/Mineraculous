@@ -92,7 +92,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         add(MineraculousKeyMappings.MIRACULOUS_CATEGORY, "Miraculous");
         add(MineraculousKeyMappings.TRANSFORM.get(), "Transform");
-        add(MineraculousKeyMappings.ACTIVATE_POWER.get(), "Activate Power");
+        add(MineraculousKeyMappings.ACTIVATE_POWER.get(), "Activate Power/Renounce Miraculous");
         add(MineraculousKeyMappings.ACTIVATE_TOOL.get(), "Activate Tool");
         add(MineraculousKeyMappings.OPEN_TOOL_WHEEL.get(), "Equip/Return Tool/Open Tool Wheel");
         add(MineraculousKeyMappings.TAKE_BREAK_ITEM.get(), "Take/Break Item");
@@ -205,11 +205,14 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousSoundEvents.CAT_STAFF_RETRACT.get(), "Staff retracts");
         add(MineraculousSoundEvents.GENERIC_TRANSFORM.get(), "Miraculous holder transforms");
         add(MineraculousSoundEvents.GENERIC_DETRANSFORM.get(), "Miraculous holder detransforms");
+        add(MineraculousSoundEvents.GENERIC_TIMER_BEEP.get(), "Miraculous beeps");
+        add(MineraculousSoundEvents.GENERIC_TIMER_END.get(), "Miraculous powers down");
         add(MineraculousSoundEvents.LADYBUG_TRANSFORM.get(), "Ladybug Miraculous holder puts spots on");
         add(MineraculousSoundEvents.CAT_TRANSFORM.get(), "Cat Miraculous holder takes claws out");
         add(MineraculousSoundEvents.BUTTERFLY_TRANSFORM.get(), "Butterfly Miraculous holder raises wings");
         add(MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM.get(), "Kamikotized player transforms");
         add(MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM.get(), "Kamikotized player detransforms");
+        add(MineraculousSoundEvents.KWAMI_HUNGRY.get(), "Kwami hungers");
 
         addPaintingVariant(MineraculousPaintingVariants.LADYBUG, "Ladybug", "NastyaGalaxy");
         addPaintingVariant(MineraculousPaintingVariants.MINI_LADYBUG, "Mini Ladybug", "NastyaGalaxy");

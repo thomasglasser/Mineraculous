@@ -86,6 +86,10 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
         return new MiraculousData(false, miraculousItem, curiosData, toolId, powerLevel, false, false, name, miraculousLook, suitLook, extraData);
     }
 
+    public MiraculousData unEquip() {
+        return new MiraculousData(transformed, ItemStack.EMPTY, new CuriosData(-1, ""), toolId, powerLevel, false, false, name, miraculousLook, suitLook, extraData);
+    }
+
     public MiraculousData transform(boolean transformed, ItemStack miraculousItem, int toolId) {
         return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, false, false, name, miraculousLook, suitLook, extraData);
     }

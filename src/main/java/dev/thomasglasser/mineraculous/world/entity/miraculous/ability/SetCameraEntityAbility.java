@@ -17,6 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.level.Level;
 
@@ -35,15 +36,13 @@ public record SetCameraEntityAbility(EntityPredicate entity, Optional<ResourceLo
         if (context == Context.PASSIVE && performer instanceof ServerPlayer serverPlayer) {
             Entity target = null;
             for (Entity e : serverPlayer.serverLevel().getEntities().getAll()) {
-                if ((!mustBeTamed || (e instanceof TamableAnimal tamable && tamable.getOwnerUUID() != null)) && entity.matches(serverPlayer.serverLevel(), e.position(), e)) {
-                    if (mustBeTamed && overrideOwner)
-                        ((TamableAnimal) e).setOwnerUUID(serverPlayer.getUUID());
+                if ((!mustBeTamed || (e instanceof OwnableEntity tamable && tamable.getOwnerUUID() != null)) && entity.matches(serverPlayer.serverLevel(), e.position(), e)) {
                     target = e;
                     break;
                 }
             }
             if (target != null) {
-                TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target.getId(), shader, toggleTag, true), serverPlayer);
+                TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target.getId(), shader, toggleTag, true, overrideOwner), serverPlayer);
                 playStartSound(level, pos);
                 return true;
             }
@@ -64,7 +63,7 @@ public record SetCameraEntityAbility(EntityPredicate entity, Optional<ResourceLo
                     break;
                 }
             }
-            TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target != null ? target.getId() : -1, Optional.empty(), toggleTag, true), serverPlayer);
+            TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target != null ? target.getId() : -1, Optional.empty(), toggleTag, true, overrideOwner), serverPlayer);
         }
     }
 

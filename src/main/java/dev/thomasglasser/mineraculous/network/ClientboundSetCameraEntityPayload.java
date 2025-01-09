@@ -16,7 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
-public record ClientboundSetCameraEntityPayload(int entityId, Optional<ResourceLocation> shader, Optional<String> toggleTag, boolean tagTarget) implements ExtendedPacketPayload {
+public record ClientboundSetCameraEntityPayload(int entityId, Optional<ResourceLocation> shader, Optional<String> toggleTag, boolean tagTarget, boolean overrideOwner) implements ExtendedPacketPayload {
 
     public static final Type<ClientboundSetCameraEntityPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_set_camera_entity"));
     public static final StreamCodec<ByteBuf, ClientboundSetCameraEntityPayload> CODEC = StreamCodec.composite(
@@ -24,6 +24,7 @@ public record ClientboundSetCameraEntityPayload(int entityId, Optional<ResourceL
             ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC), ClientboundSetCameraEntityPayload::shader,
             ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), ClientboundSetCameraEntityPayload::toggleTag,
             ByteBufCodecs.BOOL, ClientboundSetCameraEntityPayload::tagTarget,
+            ByteBufCodecs.BOOL, ClientboundSetCameraEntityPayload::overrideOwner,
             ClientboundSetCameraEntityPayload::new);
 
     // ON CLIENT
@@ -46,11 +47,13 @@ public record ClientboundSetCameraEntityPayload(int entityId, Optional<ResourceL
                 } else {
                     MineraculousClientUtils.setCameraEntity(entity);
                     shader.ifPresent(MineraculousClientUtils::setShader);
+                    if (overrideOwner)
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundTameEntityPayload(entity.getId()));
                 }
                 toggleTag.ifPresent(tag -> {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(tag, MineraculousClientUtils.getCameraEntity() != null));
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(tag, MineraculousClientUtils.isCameraEntityOther()));
                     if (tagTarget)
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(Optional.of(entity.getId()), tag, MineraculousClientUtils.getCameraEntity() != null));
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(Optional.of(entity.getId()), tag, MineraculousClientUtils.isCameraEntityOther()));
                 });
             }
         }

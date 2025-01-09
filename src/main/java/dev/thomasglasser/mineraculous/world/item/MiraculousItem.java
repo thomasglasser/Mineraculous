@@ -15,6 +15,7 @@ import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
+import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
@@ -82,9 +83,16 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
-        if (!level.isClientSide) {
+        if (level instanceof ServerLevel serverLevel) {
             if (entity instanceof Player player && (!stack.has(DataComponents.PROFILE) || !stack.get(DataComponents.PROFILE).gameProfile().equals(player.getGameProfile()))) {
                 stack.set(DataComponents.PROFILE, new ResolvableProfile(player.getGameProfile()));
+                KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA.get());
+                if (kwamiData != null) {
+                    Entity e = serverLevel.getEntity(kwamiData.uuid());
+                    if (e instanceof Kwami kwami) {
+                        kwami.tame(player);
+                    }
+                }
             }
             if (!stack.has(MineraculousDataComponents.POWERED.get()) && !stack.has(MineraculousDataComponents.KWAMI_DATA.get())) {
                 stack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
@@ -242,10 +250,27 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
         if (entity.level() instanceof ServerLevel serverLevel && entity instanceof Player player) {
             MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS);
             MiraculousData data = miraculousDataSet.get(stack.get(MineraculousDataComponents.MIRACULOUS));
-            if (stack.has(MineraculousDataComponents.POWERED.get()) && !data.transformed()) {
-                stack.remove(MineraculousDataComponents.POWERED.get());
+            if (!data.transformed()) {
                 data = data.equip(stack, new CuriosData(slotContext.index(), slotContext.identifier()));
-                MineraculousEntityEvents.summonKwami(serverLevel, stack.get(MineraculousDataComponents.MIRACULOUS), data, player);
+                if (stack.has(MineraculousDataComponents.POWERED.get())) {
+                    stack.remove(MineraculousDataComponents.POWERED.get());
+                    MineraculousEntityEvents.summonKwami(serverLevel, stack.get(MineraculousDataComponents.MIRACULOUS), data, player);
+                } else {
+                    miraculousDataSet.put(entity, stack.get(MineraculousDataComponents.MIRACULOUS), data, true);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
+        LivingEntity entity = slotContext.entity();
+        if (entity.level() instanceof ServerLevel serverLevel && entity instanceof Player player) {
+            MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS);
+            MiraculousData data = miraculousDataSet.get(stack.get(MineraculousDataComponents.MIRACULOUS));
+            if (!data.transformed()) {
+                data = data.unEquip();
+                miraculousDataSet.put(entity, stack.get(MineraculousDataComponents.MIRACULOUS), data, true);
             }
         }
     }

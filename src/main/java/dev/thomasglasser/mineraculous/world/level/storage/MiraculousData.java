@@ -75,7 +75,7 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
         if (key != null) {
             Miraculous miraculous = level.holderOrThrow(key).value();
             if (miraculous.tool().isPresent()) {
-                ItemStack tool = miraculous.tool().get().getDefaultInstance();
+                ItemStack tool = miraculous.tool().get();
                 tool.set(MineraculousDataComponents.KWAMI_DATA.get(), miraculousItem().get(MineraculousDataComponents.KWAMI_DATA.get()));
                 tool.set(MineraculousDataComponents.TOOL_ID.get(), toolId());
                 return tool;

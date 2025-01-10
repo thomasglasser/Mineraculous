@@ -42,6 +42,7 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -100,7 +101,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                 stack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
             }
         } else {
-            if (ClientUtils.getMainClientPlayer() == entity && slotId != -1) {
+            if (ClientUtils.getMainClientPlayer() == entity && (isSelected || slotId == Inventory.SLOT_OFFHAND)) {
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
                 int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
                 if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && !MineraculousClientUtils.isCameraEntityOther()) {
@@ -169,8 +170,12 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                 }
                 if (data.shouldCountDown()) {
                     int ticks = stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0);
+                    final float second = ticks / 20F;
+                    final float minute = (second / 60) + 1;
                     stack.set(MineraculousDataComponents.REMAINING_TICKS.get(), ticks - 1);
-                    if (ticks > 1 && ticks / 20.0F % 2 == 1)
+                    int i = (int) minute - 1;
+                    float every = (second <= 10 ? 0.25F : i < 1 ? 1F : (i * 2));
+                    if (ticks > 1 && (second % every) == (i > 0 ? 1 : 0))
                         slotContext.entity().level().playSound(null, player, slotContext.entity().level().holderOrThrow(miraculous).value().timerBeepSound().value(), SoundSource.PLAYERS, 1.0F, 1.0F);
                 } else if (stack.has(MineraculousDataComponents.REMAINING_TICKS))
                     stack.remove(MineraculousDataComponents.REMAINING_TICKS);
@@ -248,7 +253,6 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                 TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
             }
         }
-        stack.inventoryTick(entity.level(), entity, -1, false);
     }
 
     @Override

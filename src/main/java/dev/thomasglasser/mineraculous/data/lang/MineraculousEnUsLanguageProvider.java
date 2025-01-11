@@ -144,11 +144,12 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addMiraculous(MineraculousMiraculous.CAT, "Cat");
         addMiraculous(MineraculousMiraculous.LADYBUG, "Ladybug");
 
-        add(MineraculousAbilities.KAMIKOTIZATION, "Kamikotization");
-        add(MineraculousAbilities.KAMIKO_CONTROL, "Kamiko Control");
-        add(MineraculousAbilities.CATACLYSM, "Cataclysm");
-        add(MineraculousAbilities.CAT_VISION, "Cat Vision");
-        add(MineraculousAbilities.MIRACULOUS_LADYBUG, "Miraculous Ladybug");
+        addCapitalized(MineraculousAbilities.KAMIKOTIZATION);
+        addCapitalized(MineraculousAbilities.KAMIKO_CONTROL);
+        addCapitalized(MineraculousAbilities.KAMIKOTIZED_COMMUNICATION);
+        addCapitalized(MineraculousAbilities.CATACLYSM);
+        addCapitalized(MineraculousAbilities.CAT_VISION);
+        addCapitalized(MineraculousAbilities.MIRACULOUS_LADYBUG);
 
         add(MineraculousItemTags.BUTTERFLY_KWAMI_FOODS, "Butterfly Kwami Foods");
         add(MineraculousItemTags.BUTTERFLY_KWAMI_TREATS, "Butterfly Kwami Treats");
@@ -177,6 +178,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(KamikotizationSelectionScreen.TITLE, "Kamikotization");
         add(KamikotizationSelectionScreen.NO_KAMIKOTIZATIONS, "No valid kamikotizations found for %s");
         add(KamikotizationSelectionScreen.CHOOSE, "Choose");
+        add(KamikotizationSelectionScreen.ACTIVE_ABILITY, "Active Ability:");
+        add(KamikotizationSelectionScreen.PASSIVE_ABILITIES, "Passive Abilities:");
 
         add(KamikotizationChatScreen.INTRO_NAME, "%s, I am %s.");
         add(KamikotizationChatScreen.INTRO_NAMELESS, "%s.");
@@ -188,9 +191,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         add(MineraculousMobEffects.CATACLYSMED.get(), "Cataclysmed");
 
-        Arrays.stream(LadybugYoyoItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), WordUtils.capitalize(ability.name().toLowerCase().replace('_', ' '))));
-        Arrays.stream(CatStaffItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), WordUtils.capitalize(ability.name().toLowerCase().replace('_', ' '))));
-        Arrays.stream(ButterflyCaneItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), WordUtils.capitalize(ability.name().toLowerCase().replace('_', ' '))));
+        Arrays.stream(LadybugYoyoItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), capitalize(ability.name())));
+        Arrays.stream(CatStaffItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), capitalize(ability.name())));
+        Arrays.stream(ButterflyCaneItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), capitalize(ability.name())));
 
         addCuriosSlot(MineraculousCuriosProvider.SLOT_BROOCH);
         addCuriosSlot(MineraculousCuriosProvider.SLOT_EARRINGS);
@@ -241,9 +244,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
     protected void cheese(String name, Map<CheeseBlock.Age, DeferredItem<?>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxedBlocks) {
         for (CheeseBlock.Age age : CheeseBlock.Age.values()) {
-            add(wedges.get(age).get(), WordUtils.capitalize(age.getSerializedName()).replace('_', '-') + " Wedge of " + name);
-            add(blocks.get(age).get(), WordUtils.capitalize(age.getSerializedName()).replace('_', '-') + " Block of " + name);
-            add(waxedBlocks.get(age).get(), "Waxed " + WordUtils.capitalize(age.getSerializedName()).replace('_', '-') + " Block of " + name);
+            add(wedges.get(age).get(), capitalize(age.getSerializedName()).replace('_', '-') + " Wedge of " + name);
+            add(blocks.get(age).get(), capitalize(age.getSerializedName()).replace('_', '-') + " Block of " + name);
+            add(waxedBlocks.get(age).get(), "Waxed " + capitalize(age.getSerializedName()).replace('_', '-') + " Block of " + name);
         }
     }
 
@@ -257,6 +260,14 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     protected void addCuriosSlot(String name) {
-        add("curios.identifier." + name, WordUtils.capitalize(name));
+        add("curios.identifier." + name, capitalize(name));
+    }
+
+    protected String capitalize(String name) {
+        return WordUtils.capitalize(name.toLowerCase().replace('_', ' '));
+    }
+
+    protected void addCapitalized(ResourceKey<?> key) {
+        add(key, capitalize(key.location().getPath()));
     }
 }

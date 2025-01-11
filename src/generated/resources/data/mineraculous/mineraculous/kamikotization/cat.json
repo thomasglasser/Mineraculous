@@ -1,7 +1,8 @@
 {
-  "abilities": [
-    "mineraculous:cataclysm"
-  ],
+  "active_ability": "mineraculous:cataclysm",
   "default_name": "Kitty",
-  "item_predicate": {}
+  "item_predicate": {},
+  "passive_abilities": [
+    "mineraculous:cat_vision"
+  ]
 }

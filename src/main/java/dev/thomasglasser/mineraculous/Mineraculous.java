@@ -136,7 +136,8 @@ public class Mineraculous {
     }
 
     public enum Dependencies {
-        CURIOS("curios");
+        CURIOS("curios"),
+        MODONOMICON("modonomicon");
 
         private String id;
 

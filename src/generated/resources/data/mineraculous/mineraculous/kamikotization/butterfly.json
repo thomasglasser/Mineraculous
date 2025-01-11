@@ -1,5 +1,5 @@
 {
-  "abilities": [],
   "default_name": "Betterfly",
-  "item_predicate": {}
+  "item_predicate": {},
+  "passive_abilities": []
 }

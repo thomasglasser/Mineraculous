@@ -10,7 +10,7 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundPutToolInHandPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRenounceMiraculousPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundSetPowerActivatedPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundSetMiraculousPowerActivatedPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
@@ -243,7 +243,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                         }
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
                     } else if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown() && data.transformed() && !data.mainPowerActive() && !data.shouldCountDown() && slotContext.entity().level().holderOrThrow(miraculous).value().activeAbility().isPresent()) {
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetPowerActivatedPayload(miraculous, true, true));
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousPowerActivatedPayload(miraculous));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
                     } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown() && player.getMainHandItem().isEmpty()) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundPutToolInHandPayload(miraculous));

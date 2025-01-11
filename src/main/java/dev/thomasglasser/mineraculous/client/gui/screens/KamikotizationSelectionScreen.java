@@ -12,6 +12,7 @@ import dev.thomasglasser.mineraculous.network.ServerboundTriggerKamikotizationAd
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
@@ -19,6 +20,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
@@ -49,6 +51,8 @@ public class KamikotizationSelectionScreen extends Screen {
     public static final String TITLE = "gui.kamikotization.name";
     public static final String NO_KAMIKOTIZATIONS = "gui.kamikotization.no_kamikotizations";
     public static final String CHOOSE = "gui.choose";
+    public static final String ACTIVE_ABILITY = "gui.kamikotization.active_ability";
+    public static final String PASSIVE_ABILITIES = "gui.kamikotization.passive_abilities";
     public static final ResourceLocation SCROLLER_SPRITE = ResourceLocation.withDefaultNamespace("container/creative_inventory/scroller");
     public static final ResourceLocation SCROLLER_DISABLED_SPRITE = ResourceLocation.withDefaultNamespace("container/creative_inventory/scroller_disabled");
 
@@ -142,20 +146,30 @@ public class KamikotizationSelectionScreen extends Screen {
         if (targetPreview.getData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS).isEmpty())
             targetPreview.setData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS, target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS));
         if (selectedKamikotization != null) {
-            List<MutableComponent> abilities = selectedKamikotization.value().abilities().stream().map(holder -> Component.translatable(holder.getKey().location().toLanguageKey("ability"))).toList();
+            List<MutableComponent> components = new ArrayList<>();
+            Optional<Holder<Ability>> active = selectedKamikotization.value().activeAbility();
+            if (active.isPresent()) {
+                components.add(Component.translatable(ACTIVE_ABILITY).withStyle(ChatFormatting.BOLD));
+                components.add(Component.translatable(active.get().getKey().location().toLanguageKey("ability")));
+                components.add(Component.literal(""));
+            }
+            if (!selectedKamikotization.value().passiveAbilities().isEmpty()) {
+                components.add(Component.translatable(PASSIVE_ABILITIES).withStyle(ChatFormatting.UNDERLINE));
+                components.addAll(selectedKamikotization.value().passiveAbilities().stream().map(holder -> Component.translatable(holder.getKey().location().toLanguageKey("ability"))).toList());
+            }
 
             int x = (this.width - BACKGROUND_WIDTH) / 2;
             int y = (this.height - BACKGROUND_HEIGHT) / 2;
             renderEntityInInventorySpinning(guiGraphics, x + 15, y + 15, x + 113, y + 145, 60, rotation, targetPreview);
             rotation++;
             guiGraphics.drawString(this.font, Component.literal("---------------"), x + 131, y + 22, Optional.ofNullable(ChatFormatting.WHITE.getColor()).orElseThrow(), false);
-            for (int i = 0; i < abilities.size(); i++) {
-                MutableComponent ability = abilities.get(i);
+            for (int i = 0; i < components.size(); i++) {
+                MutableComponent component = components.get(i);
                 final int[] l = { i };
-                List<FormattedCharSequence> nameLines = this.font.split(ability, 90);
-                nameLines.forEach(formattedCharSequence -> {
+                List<FormattedCharSequence> lines = this.font.split(component, 90);
+                lines.forEach(line -> {
                     if (l[0] < descStart + 7 && l[0] >= descStart)
-                        guiGraphics.drawString(this.font, formattedCharSequence, x + 131, y + 31 + ((l[0] - descStart) * 10), ability.getStyle().getColor() != null ? ability.getStyle().getColor().getValue() : Optional.ofNullable(ChatFormatting.WHITE.getColor()).orElseThrow(), false);
+                        guiGraphics.drawString(this.font, line, x + 131, y + 31 + ((l[0] - descStart) * 10), component.getStyle().getColor() != null ? component.getStyle().getColor().getValue() : Optional.ofNullable(ChatFormatting.WHITE.getColor()).orElseThrow(), false);
                     l[0]++;
                 });
                 canScroll = l[0] > 7;
@@ -375,7 +389,7 @@ public class KamikotizationSelectionScreen extends Screen {
                     slotInfo = Either.right(new CuriosData(curiosSlot.getSlotIndex(), curiosSlot.getIdentifier()));
                 else
                     slotInfo = Either.left(target.getInventory().findSlotMatchingItem(slot.getItem()));
-                KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization.getKey(), slot.getItem(), slotInfo, kamikoData, name.getValue());
+                KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization.getKey(), slot.getItem(), slotInfo, kamikoData, false, name.getValue());
                 if (target == ClientUtils.getMainClientPlayer()) {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(kamikotizationData, true, false, false, ClientUtils.getMainClientPlayer().position().add(0, 1, 0)));
                     TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(target.getUUID(), target.getUUID(), kamikotizationData.kamikotization()));

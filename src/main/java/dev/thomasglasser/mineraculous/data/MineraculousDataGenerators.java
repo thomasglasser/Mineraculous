@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.data.datamaps.MineraculousDataMapProvider;
 import dev.thomasglasser.mineraculous.data.lang.MineraculousEnUsLanguageProvider;
 import dev.thomasglasser.mineraculous.data.loot.MineraculousLootTables;
 import dev.thomasglasser.mineraculous.data.models.MineraculousItemModelProvider;
+import dev.thomasglasser.mineraculous.data.modonomicons.MineraculousBookProvider;
 import dev.thomasglasser.mineraculous.data.particles.MineraculousParticleDescriptionProvider;
 import dev.thomasglasser.mineraculous.data.recipes.MineraculousRecipes;
 import dev.thomasglasser.mineraculous.data.sounds.MineraculousSoundDefinitionsProvider;
@@ -25,6 +26,7 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiracu
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.MineraculousAbilities;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -53,16 +55,19 @@ public class MineraculousDataGenerators {
                         new Kamikotization(
                                 "Kitty",
                                 ItemPredicate.Builder.item().build(),
-                                List.of(abilities.getOrThrow(MineraculousAbilities.CATACLYSM))));
+                                Optional.of(abilities.getOrThrow(MineraculousAbilities.CATACLYSM)),
+                                List.of(abilities.getOrThrow(MineraculousAbilities.CAT_VISION))));
                 context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, Mineraculous.modLoc("ladybug")),
                         new Kamikotization(
                                 "Bugaboo",
                                 ItemPredicate.Builder.item().build(),
-                                List.of()));
+                                Optional.empty(),
+                                List.of(abilities.getOrThrow(MineraculousAbilities.CAT_VISION), abilities.getOrThrow(MineraculousAbilities.KAMIKOTIZED_COMMUNICATION))));
                 context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, Mineraculous.modLoc("butterfly")),
                         new Kamikotization(
                                 "Betterfly",
                                 ItemPredicate.Builder.item().build(),
+                                Optional.empty(),
                                 List.of()));
             });
 
@@ -95,6 +100,7 @@ public class MineraculousDataGenerators {
         generator.addProvider(onServer, new MineraculousAdvancementProvider(packOutput, registries, existingFileHelper, enUs));
         generator.addProvider(onServer, new MineraculousDamageTypeTagsProvider(packOutput, registries, existingFileHelper));
         generator.addProvider(onServer, new MineraculousPaintingVariantTagsProvider(packOutput, registries, existingFileHelper));
+        generator.addProvider(onServer, new MineraculousBookProvider(packOutput, registries, enUs::add));
 
         // Client
         generator.addProvider(onClient, new MineraculousBlockStateProvider(packOutput, existingFileHelper));

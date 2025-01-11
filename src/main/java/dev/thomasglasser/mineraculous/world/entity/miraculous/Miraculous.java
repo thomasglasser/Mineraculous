@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
+import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.Holder;
@@ -65,5 +66,9 @@ public record Miraculous(TextColor color, String acceptableSlot, int transformat
         ItemStack stack = item.getDefaultInstance();
         stack.set(MineraculousDataComponents.MIRACULOUS, key);
         return stack;
+    }
+
+    public static ItemStack createMiraculousStack(ResourceKey<Miraculous> key) {
+        return createItemStack(MineraculousItems.MIRACULOUS.get(), key);
     }
 }

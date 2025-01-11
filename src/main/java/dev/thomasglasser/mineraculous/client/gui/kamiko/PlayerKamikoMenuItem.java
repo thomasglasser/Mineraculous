@@ -6,7 +6,6 @@ import dev.thomasglasser.mineraculous.network.ServerboundSetPlayerAttackTargetPa
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
@@ -49,7 +48,7 @@ public class PlayerKamikoMenuItem implements KamikoMenuItem {
             MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
             List<ResourceKey<Miraculous>> transformed = miraculousDataSet.getTransformed();
             if (!transformed.isEmpty())
-                guiGraphics.renderFakeItem(Miraculous.createItemStack(MineraculousItems.MIRACULOUS.get(), transformed.getFirst()), 0, 0);
+                guiGraphics.renderFakeItem(Miraculous.createMiraculousStack(transformed.getFirst()), 0, 0);
             else
                 PlayerFaceRenderer.draw(guiGraphics, this.skin.get(), 2, 2, 12);
         }

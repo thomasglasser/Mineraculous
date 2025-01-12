@@ -1,6 +1,0 @@
-{
-  "parent": "mineraculous:item/miraculous/butterfly/base",
-  "textures": {
-    "texture": "mineraculous:item/miraculous/butterfly/powered"
-  }
-}

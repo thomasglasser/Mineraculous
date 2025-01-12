@@ -6,6 +6,9 @@
     "mineraculous:kamiko_control",
     "mineraculous:kamikotized_communication"
   ],
-  "tool": "mineraculous:butterfly_cane",
-  "transform_sound": "mineraculous:butterfly_transform"
+  "tool": {
+    "id": "mineraculous:butterfly_cane"
+  },
+  "transform_sound": "mineraculous:butterfly_transform",
+  "transformation_frames": 7
 }

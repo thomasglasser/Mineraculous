@@ -13,10 +13,6 @@ public record ArmorData(ItemStack helmet, ItemStack chestplate, ItemStack leggin
             ItemStack.OPTIONAL_CODEC.fieldOf("leggings").forGetter(ArmorData::leggings),
             ItemStack.OPTIONAL_CODEC.fieldOf("boots").forGetter(ArmorData::boots))
             .apply(instance, ArmorData::new));
-    public ArmorData() {
-        this(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY);
-    }
-
     public ItemStack forSlot(EquipmentSlot slot) {
         switch (slot) {
             case HEAD -> {

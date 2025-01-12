@@ -1,7 +1,7 @@
 {
   "type": "mineraculous:context_aware",
   "block": {
-    "type": "mineraculous:random_directional_spread",
+    "type": "mineraculous:random_spread",
     "immune_blocks": {
       "blocks": "#mineraculous:cataclysm_immune"
     },

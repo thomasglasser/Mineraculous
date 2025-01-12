@@ -46,7 +46,7 @@ public record ReplaceItemsInHandAbility(ItemStack replacement, boolean hurtAndBr
                     if (stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.has(DataComponents.PROFILE)) {
                         ServerPlayer target = (ServerPlayer) performer.level().getPlayerByUUID(stack.get(DataComponents.PROFILE).gameProfile().getId());
                         if (target != null)
-                            MineraculousEntityEvents.handleKamikotizationTransformation(target, target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION), false, false, true, performer.position().add(0, 1, 0));
+                            MineraculousEntityEvents.handleKamikotizationTransformation(target, target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow(), false, false, true, performer.position().add(0, 1, 0));
                     }
                 }
             }

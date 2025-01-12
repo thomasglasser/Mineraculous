@@ -3,12 +3,14 @@ package dev.thomasglasser.mineraculous.client.gui.kamiko.categories;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.KamikoMenuCategory;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.KamikoMenuItem;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.PlayerKamikoMenuItem;
+import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 
 public class TargetPlayerMenuCategory implements KamikoMenuCategory {
@@ -22,7 +24,12 @@ public class TargetPlayerMenuCategory implements KamikoMenuCategory {
 
     public TargetPlayerMenuCategory(Collection<PlayerInfo> players) {
         this.items = players.stream()
-                .filter(p_253336_ -> p_253336_.getGameMode() != GameType.SPECTATOR)
+                .filter(p_253336_ -> {
+                    if (p_253336_.getGameMode() == GameType.SPECTATOR)
+                        return false;
+                    Player player = Minecraft.getInstance().level.getPlayerByUUID(p_253336_.getProfile().getId());
+                    return player != null && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isEmpty();
+                })
                 .sorted(PROFILE_ORDER)
                 .map(p_253334_ -> (KamikoMenuItem) new PlayerKamikoMenuItem(p_253334_.getProfile()))
                 .toList();

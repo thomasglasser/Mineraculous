@@ -58,6 +58,7 @@ public class MineraculousAbilities {
                 Optional.empty(),
                 Optional.of(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK),
                 true,
+                true,
                 Optional.empty(),
                 true));
         context.register(KAMIKOTIZED_COMMUNICATION, new SetCameraEntityAbility(
@@ -65,11 +66,12 @@ public class MineraculousAbilities {
                 Optional.of(Kamiko.SPECTATOR_SHADER),
                 Optional.of(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK),
                 false,
+                false,
                 Optional.empty(),
                 true));
 
         context.register(CATACLYSM, new ContextAwareAbility(
-                Optional.of(new RandomDirectionalSpreadAbility(
+                Optional.of(new RandomSpreadAbility(
                         MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(),
                         Optional.empty(),
                         Optional.of(BlockPredicate.Builder.block().of(MineraculousBlockTags.CATACLYSM_IMMUNE).build()),

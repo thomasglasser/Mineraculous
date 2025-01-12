@@ -21,6 +21,7 @@ import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.MineraculousAbilities;
@@ -91,7 +92,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         add(MineraculousKeyMappings.MIRACULOUS_CATEGORY, "Miraculous");
         add(MineraculousKeyMappings.TRANSFORM.get(), "Transform");
-        add(MineraculousKeyMappings.ACTIVATE_POWER.get(), "Activate Power");
+        add(MineraculousKeyMappings.ACTIVATE_POWER.get(), "Activate Power/Renounce Miraculous");
         add(MineraculousKeyMappings.ACTIVATE_TOOL.get(), "Activate Tool");
         add(MineraculousKeyMappings.OPEN_TOOL_WHEEL.get(), "Equip/Return Tool/Open Tool Wheel");
         add(MineraculousKeyMappings.TAKE_BREAK_ITEM.get(), "Take/Break Item");
@@ -105,6 +106,24 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.NAME_SET_SUCCESS_OTHER, "Set %s's %s hero name to %s.");
         add(MiraculousCommand.NAME_CLEAR_SUCCESS_SELF, "Your %s hero name has been cleared.");
         add(MiraculousCommand.NAME_CLEAR_SUCCESS_OTHER, "Cleared %s's %s hero name.");
+        add(MiraculousCommand.LOOK_SUIT_QUERY_SUCCESS_SELF, "Your %s hero suit look is %s.");
+        add(MiraculousCommand.LOOK_SUIT_QUERY_SUCCESS_OTHER, "%s's %s hero suit look is %s.");
+        add(MiraculousCommand.LOOK_SUIT_TRY_SET_SUCCESS_SELF, "Attempting to set your %s hero suit look to %s.");
+        add(MiraculousCommand.LOOK_SUIT_TRY_SET_SUCCESS_OTHER, "Attempting to set %s's %s hero suit look to %s.");
+        add(MiraculousCommand.LOOK_SUIT_SET_SUCCESS_SELF, "Your %s hero suit look has been set to %s.");
+        add(MiraculousCommand.LOOK_SUIT_SET_SUCCESS_OTHER, "Set %s's %s hero suit look to %s.");
+        add(MiraculousCommand.LOOK_SUIT_SET_FAILURE, "Missing or invalid assets requested for %s hero suit look %s.");
+        add(MiraculousCommand.LOOK_SUIT_CLEAR_SUCCESS_SELF, "Your %s hero suit look has been cleared.");
+        add(MiraculousCommand.LOOK_SUIT_CLEAR_SUCCESS_OTHER, "Cleared %s's %s hero suit look.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_QUERY_SUCCESS_SELF, "Your %s miraculous look is %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_QUERY_SUCCESS_OTHER, "%s's %s miraculous look is %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_TRY_SET_SUCCESS_SELF, "Attempting to set %s miraculous look to %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_TRY_SET_SUCCESS_OTHER, "Attempting to set %s's %s miraculous look to %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_SET_SUCCESS_SELF, "Your %s miraculous look has been set to %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_SET_SUCCESS_OTHER, "Set %s's %s miraculous look to %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_SET_FAILURE, "Missing or invalid assets requested for %s miraculous look %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_CLEAR_SUCCESS_SELF, "Your %s miraculous look has been cleared.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_CLEAR_SUCCESS_OTHER, "Cleared %s's %s miraculous look.");
         add(MiraculousCommand.CHARGED_TRUE, "charged");
         add(MiraculousCommand.CHARGED_FALSE, "not charged");
         add(MiraculousCommand.CHARGED_QUERY_SUCCESS_SELF, "Your %s kwami is %s.");
@@ -118,17 +137,19 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.NOT_LIVING_ENTITY, "Target must be a living entity.");
         add(MiraculousCommand.TRANSFORMED, "This command cannot be executed while %s is transformed.");
         add(MiraculousCommand.KWAMI_NOT_FOUND, "%s's %s kwami not found in the world");
+        add(MiraculousCommand.CUSTOM_LOOKS_DISABLED, "The server has disabled custom looks.");
         add(MiraculousCommand.MIRACULOUS_INVALID, "Invalid miraculous type %s");
 
         addMiraculous(MineraculousMiraculous.BUTTERFLY, "Butterfly");
         addMiraculous(MineraculousMiraculous.CAT, "Cat");
         addMiraculous(MineraculousMiraculous.LADYBUG, "Ladybug");
 
-        add(MineraculousAbilities.KAMIKOTIZATION, "Kamikotization");
-        add(MineraculousAbilities.KAMIKO_CONTROL, "Kamiko Control");
-        add(MineraculousAbilities.CATACLYSM, "Cataclysm");
-        add(MineraculousAbilities.CAT_VISION, "Cat Vision");
-        add(MineraculousAbilities.MIRACULOUS_LADYBUG, "Miraculous Ladybug");
+        addCapitalized(MineraculousAbilities.KAMIKOTIZATION);
+        addCapitalized(MineraculousAbilities.KAMIKO_CONTROL);
+        addCapitalized(MineraculousAbilities.KAMIKOTIZED_COMMUNICATION);
+        addCapitalized(MineraculousAbilities.CATACLYSM);
+        addCapitalized(MineraculousAbilities.CAT_VISION);
+        addCapitalized(MineraculousAbilities.MIRACULOUS_LADYBUG);
 
         add(MineraculousItemTags.BUTTERFLY_KWAMI_FOODS, "Butterfly Kwami Foods");
         add(MineraculousItemTags.BUTTERFLY_KWAMI_TREATS, "Butterfly Kwami Treats");
@@ -157,6 +178,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(KamikotizationSelectionScreen.TITLE, "Kamikotization");
         add(KamikotizationSelectionScreen.NO_KAMIKOTIZATIONS, "No valid kamikotizations found for %s");
         add(KamikotizationSelectionScreen.CHOOSE, "Choose");
+        add(KamikotizationSelectionScreen.ACTIVE_ABILITY, "Active Ability:");
+        add(KamikotizationSelectionScreen.PASSIVE_ABILITIES, "Passive Abilities:");
 
         add(KamikotizationChatScreen.INTRO_NAME, "%s, I am %s.");
         add(KamikotizationChatScreen.INTRO_NAMELESS, "%s.");
@@ -168,9 +191,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         add(MineraculousMobEffects.CATACLYSMED.get(), "Cataclysmed");
 
-        Arrays.stream(LadybugYoyoItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), WordUtils.capitalize(ability.name().toLowerCase().replace('_', ' '))));
-        Arrays.stream(CatStaffItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), WordUtils.capitalize(ability.name().toLowerCase().replace('_', ' '))));
-        Arrays.stream(ButterflyCaneItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), WordUtils.capitalize(ability.name().toLowerCase().replace('_', ' '))));
+        Arrays.stream(LadybugYoyoItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), capitalize(ability.name())));
+        Arrays.stream(CatStaffItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), capitalize(ability.name())));
+        Arrays.stream(ButterflyCaneItem.Ability.values()).toList().forEach(ability -> add(ability.translationKey(), capitalize(ability.name())));
 
         addCuriosSlot(MineraculousCuriosProvider.SLOT_BROOCH);
         addCuriosSlot(MineraculousCuriosProvider.SLOT_EARRINGS);
@@ -179,20 +202,37 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousSoundEvents.CATACLYSM_USE.get(), "Cataclysm triggers");
         add(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE.get(), "Kamiko powers up");
         add(MineraculousSoundEvents.KAMIKOTIZATION_USE.get(), "Kamikotization begins");
-        add(MineraculousSoundEvents.CAT_STAFF_SHIELD.get(), "Staff whirs");
+        add(MineraculousSoundEvents.GENERIC_SHIELD.get(), "Weapon whirs");
+        add(MineraculousSoundEvents.LADYBUG_YOYO_SHIELD.get(), "Yoyo whirs");
+        add(MineraculousSoundEvents.CAT_STAFF_EXTEND.get(), "Staff extends");
+        add(MineraculousSoundEvents.CAT_STAFF_RETRACT.get(), "Staff retracts");
         add(MineraculousSoundEvents.GENERIC_TRANSFORM.get(), "Miraculous holder transforms");
         add(MineraculousSoundEvents.GENERIC_DETRANSFORM.get(), "Miraculous holder detransforms");
+        add(MineraculousSoundEvents.GENERIC_TIMER_BEEP.get(), "Miraculous beeps");
+        add(MineraculousSoundEvents.GENERIC_TIMER_END.get(), "Miraculous powers down");
         add(MineraculousSoundEvents.LADYBUG_TRANSFORM.get(), "Ladybug Miraculous holder puts spots on");
         add(MineraculousSoundEvents.CAT_TRANSFORM.get(), "Cat Miraculous holder takes claws out");
         add(MineraculousSoundEvents.BUTTERFLY_TRANSFORM.get(), "Butterfly Miraculous holder raises wings");
         add(MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM.get(), "Kamikotized player transforms");
         add(MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM.get(), "Kamikotized player detransforms");
+        add(MineraculousSoundEvents.KWAMI_HUNGRY.get(), "Kwami hungers");
+
+        addPaintingVariant(MineraculousPaintingVariants.LADYBUG, "Ladybug", "NastyaGalaxy");
+        addPaintingVariant(MineraculousPaintingVariants.MINI_LADYBUG, "Mini Ladybug", "NastyaGalaxy");
+        addPaintingVariant(MineraculousPaintingVariants.CAT, "Cat", "NastyaGalaxy");
+        addPaintingVariant(MineraculousPaintingVariants.MINI_CAT, "Mini Cat", "NastyaGalaxy");
+        addPaintingVariant(MineraculousPaintingVariants.BUTTERFLY, "Butterfly", "NastyaGalaxy");
+        addPaintingVariant(MineraculousPaintingVariants.MINI_BUTTERFLY, "Mini Butterfly", "NastyaGalaxy");
     }
 
     private void addConfigs() {
         addConfigTitle(Mineraculous.MOD_NAME);
 
         // Server
+        addConfigSection(MineraculousServerConfig.MIRACULOUS, "Miraculous", "Settings for miraculous");
+        addConfig(MineraculousServerConfig.INSTANCE.enableCustomization, "Enable Customization", "Enable customization of miraculous suits and items. §4WARNING: This may lead to vulnerabilities. Only enable if you trust server members.");
+        addConfig(MineraculousServerConfig.INSTANCE.enableKamikotizationRejection, "Enable Kamikotization Rejection", "Enable rejection of kamikotization by the victim");
+
         addConfigSection(MineraculousServerConfig.STEALING, "Stealing", "Settings for item stealing");
         addConfig(MineraculousServerConfig.INSTANCE.stealingDuration, "Stealing Duration", "Duration in seconds that the key must be held to steal an item");
         addConfig(MineraculousServerConfig.INSTANCE.enableUniversalStealing, "Enable Universal Stealing", "Enable item stealing from all players all the time");
@@ -204,9 +244,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
     protected void cheese(String name, Map<CheeseBlock.Age, DeferredItem<?>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxedBlocks) {
         for (CheeseBlock.Age age : CheeseBlock.Age.values()) {
-            add(wedges.get(age).get(), WordUtils.capitalize(age.getSerializedName()).replace('_', '-') + " Wedge of " + name);
-            add(blocks.get(age).get(), WordUtils.capitalize(age.getSerializedName()).replace('_', '-') + " Block of " + name);
-            add(waxedBlocks.get(age).get(), "Waxed " + WordUtils.capitalize(age.getSerializedName()).replace('_', '-') + " Block of " + name);
+            add(wedges.get(age).get(), capitalize(age.getSerializedName()).replace('_', '-') + " Wedge of " + name);
+            add(blocks.get(age).get(), capitalize(age.getSerializedName()).replace('_', '-') + " Block of " + name);
+            add(waxedBlocks.get(age).get(), "Waxed " + capitalize(age.getSerializedName()).replace('_', '-') + " Block of " + name);
         }
     }
 
@@ -220,6 +260,14 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     protected void addCuriosSlot(String name) {
-        add("curios.identifier." + name, WordUtils.capitalize(name));
+        add("curios.identifier." + name, capitalize(name));
+    }
+
+    protected String capitalize(String name) {
+        return WordUtils.capitalize(name.toLowerCase().replace('_', ' '));
+    }
+
+    protected void addCapitalized(ResourceKey<?> key) {
+        add(key, capitalize(key.location().getPath()));
     }
 }

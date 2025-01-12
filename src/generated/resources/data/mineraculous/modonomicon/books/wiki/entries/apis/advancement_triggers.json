@@ -1,0 +1,64 @@
+{
+  "background_u_index": 0,
+  "background_v_index": 0,
+  "category": "apis",
+  "description": "book.mineraculous.wiki.apis.advancement_triggers.description",
+  "hide_while_locked": false,
+  "icon": {
+    "components": {
+      "mineraculous:miraculous": "mineraculous:butterfly"
+    },
+    "item": "mineraculous:miraculous"
+  },
+  "name": "book.mineraculous.wiki.apis.advancement_triggers.name",
+  "pages": [
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.advancement_triggers.transformed_miraculous.text",
+      "title": "book.mineraculous.wiki.apis.advancement_triggers.transformed_miraculous.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.advancement_triggers.used_miraculous_power.text",
+      "title": "book.mineraculous.wiki.apis.advancement_triggers.used_miraculous_power.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.advancement_triggers.kamikotized_player.text",
+      "title": "book.mineraculous.wiki.apis.advancement_triggers.kamikotized_player.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.advancement_triggers.transformed_kamikotization.text",
+      "title": "book.mineraculous.wiki.apis.advancement_triggers.transformed_kamikotization.title",
+      "use_markdown_in_title": false
+    }
+  ],
+  "show_when_any_parent_unlocked": false,
+  "sort_number": 0,
+  "x": 0,
+  "y": 0
+}

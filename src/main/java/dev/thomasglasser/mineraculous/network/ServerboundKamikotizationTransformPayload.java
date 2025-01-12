@@ -35,6 +35,8 @@ public record ServerboundKamikotizationTransformPayload(Optional<UUID> target, K
     public void handle(@Nullable Player player) {
         if (target.isPresent())
             player = player.level().getPlayerByUUID(target.get());
+        if (player == null)
+            return;
         MineraculousEntityEvents.handleKamikotizationTransformation((ServerPlayer) player, data, transform, instant, itemBroken, kamikoSpawnPos);
     }
 

@@ -55,9 +55,9 @@ public class KamikoMenu {
         int i = index + this.page * 6;
         if (this.page > 0 && index == 0) {
             return SCROLL_LEFT;
-        } else if (index == 7) {
+        } else if (index == MAX_PER_PAGE - 1) {
             return i < this.category.getItems().size() ? SCROLL_RIGHT_ENABLED : SCROLL_RIGHT_DISABLED;
-        } else if (index == 8) {
+        } else if (index == MAX_PER_PAGE) {
             return CLOSE_ITEM;
         } else {
             return i >= 0 && i < this.category.getItems().size() ? MoreObjects.firstNonNull(this.category.getItems().get(i), EMPTY_SLOT) : EMPTY_SLOT;

@@ -26,8 +26,6 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYoyo> {
     public ThrownLadybugYoyoRenderer(EntityRendererProvider.Context context) {
         super(context, new DefaultedItemGeoModel<>(Mineraculous.modLoc("ladybug_yoyo")));
-        // TODO: Implement glowing middle part
-//        addRenderLayer(new AutoGlowingGeoLayer<>(this));
     }
 
     @Override

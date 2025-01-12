@@ -1,7 +1,0 @@
-{
-  "parent": "mineraculous:item/miraculous/cat/base",
-  "textures": {
-    "base": "mineraculous:item/miraculous/cat/hidden",
-    "symbol": "mineraculous:item/empty"
-  }
-}

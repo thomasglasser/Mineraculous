@@ -69,7 +69,7 @@ public record ServerboundTryBreakItemPayload() implements ExtendedPacketPayload 
             if (mainHandItem.has(MineraculousDataComponents.KAMIKOTIZATION) && mainHandItem.has(DataComponents.PROFILE)) {
                 ServerPlayer target = (ServerPlayer) player.level().getPlayerByUUID(mainHandItem.get(DataComponents.PROFILE).gameProfile().getId());
                 if (target != null)
-                    MineraculousEntityEvents.handleKamikotizationTransformation(target, target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION), false, false, true, player.position().add(0, 1, 0));
+                    MineraculousEntityEvents.handleKamikotizationTransformation(target, target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow(), false, false, true, player.position().add(0, 1, 0));
             }
             mainHandItem.shrink(1);
             player.level().playSound(null, player.blockPosition(), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1f, 1f);

@@ -9,9 +9,12 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.NightVisio
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,10 +27,15 @@ public abstract class MinecraftMixin {
     @Nullable
     public abstract Entity getCameraEntity();
 
+    @Shadow
+    @Final
+    public GameRenderer gameRenderer;
+
     @Inject(method = "handleKeybinds", at = @At("TAIL"))
     private void handleKeybinds(CallbackInfo ci) {
         if (Minecraft.getInstance().gameRenderer.postEffect == null) {
-            if (TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer()).getBoolean(MineraculousEntityEvents.TAG_HASNIGHTVISION)) {
+            CompoundTag data = TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer());
+            if (data.getBoolean(MineraculousEntityEvents.TAG_HASNIGHTVISION)) {
                 ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed(ClientUtils.getLevel().registryAccess()).forEach(type -> {
                     if (type.activeAbility().isPresent() && type.activeAbility().get().value() instanceof NightVisionAbility nightVisionAbility && nightVisionAbility.shader().isPresent()) {
                         MineraculousClientUtils.setShader(nightVisionAbility.shader().get());
@@ -36,10 +44,10 @@ public abstract class MinecraftMixin {
                                 .findFirst().ifPresent(abilityHolder -> MineraculousClientUtils.setShader(((NightVisionAbility) abilityHolder.value()).shader().get()));
                     }
                 });
-            } else if (getCameraEntity() instanceof Kamiko) {
+            } else if (data.getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK) && getCameraEntity() != ClientUtils.getMainClientPlayer()) {
                 MineraculousClientUtils.setShader(Kamiko.SPECTATOR_SHADER);
             } else {
-                MineraculousClientUtils.setShader(null);
+                gameRenderer.checkEntityPostEffect(getCameraEntity());
             }
         }
     }

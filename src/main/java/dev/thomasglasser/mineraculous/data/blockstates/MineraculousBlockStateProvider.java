@@ -37,12 +37,6 @@ public class MineraculousBlockStateProvider extends ExtendedBlockStateProvider {
                     .build();
         });
 
-        // TODO: Textures for all
-//		cheese(MineraculousBlocks.CHEESE_BLOCKS, "cheese");
-//		cheese(MineraculousBlocks.WAXED_CHEESE_BLOCKS, "waxed_cheese");
-//		cheese(MineraculousBlocks.CAMEMBERT_BLOCKS, "camembert");
-//		cheese(MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS, "waxed_camembert");
-
         getVariantBuilder(MineraculousBlocks.HIBISCUS_BUSH.get()).forAllStates(state -> {
             int stage = state.getValue(SweetBerryBushBlock.AGE);
             return ConfiguredModel.builder()

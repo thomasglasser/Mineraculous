@@ -7,6 +7,11 @@ public class MineraculousServerConfig {
 
     public final ModConfigSpec configSpec;
 
+    // Miraculous
+    public static final String MIRACULOUS = "miraculous";
+    public final ModConfigSpec.BooleanValue enableCustomization;
+    public final ModConfigSpec.BooleanValue enableKamikotizationRejection;
+
     // Stealing
     public static final String STEALING = "stealing";
     public final ModConfigSpec.IntValue stealingDuration;
@@ -16,6 +21,13 @@ public class MineraculousServerConfig {
 
     public MineraculousServerConfig() {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
+
+        builder.push(MIRACULOUS);
+        enableCustomization = builder
+                .define("enable_customization", false);
+        enableKamikotizationRejection = builder
+                .define("enable_kamikotization_rejection", true);
+        builder.pop();
 
         builder.push(STEALING);
         stealingDuration = builder

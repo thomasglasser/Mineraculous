@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.Holder;
@@ -17,12 +18,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-public record Kamikotization(String defaultName, ItemPredicate itemPredicate, List<Holder<Ability>> abilities) {
+public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Optional<Holder<Ability>> activeAbility, List<Holder<Ability>> passiveAbilities) {
 
     public static final Codec<Kamikotization> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("default_name").forGetter(Kamikotization::defaultName),
             ItemPredicate.CODEC.fieldOf("item_predicate").forGetter(Kamikotization::itemPredicate),
-            Ability.CODEC.listOf().fieldOf("abilities").forGetter(Kamikotization::abilities)).apply(instance, Kamikotization::new));
+            Ability.CODEC.optionalFieldOf("active_ability").forGetter(Kamikotization::activeAbility),
+            Ability.CODEC.listOf().fieldOf("passive_abilities").forGetter(Kamikotization::passiveAbilities)).apply(instance, Kamikotization::new));
     public static Set<Holder<Kamikotization>> getFor(Player player) {
         Set<Holder<Kamikotization>> kamikotizations = new HashSet<>();
         for (Holder<Kamikotization> kamikotization : player.level().registryAccess().lookupOrThrow(MineraculousRegistries.KAMIKOTIZATION).listElements().toList()) {

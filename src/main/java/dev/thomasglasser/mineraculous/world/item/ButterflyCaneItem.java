@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.renderer.item.ButterflyCaneRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundSetButterflyCaneAbilityPayload;
+import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
@@ -217,6 +218,14 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
     }
 
     @Override
+    public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
+        super.onUseTick(level, livingEntity, stack, remainingUseDuration);
+        if (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()) == Ability.BLOCK && remainingUseDuration % 10 == 0) {
+            livingEntity.playSound(MineraculousSoundEvents.GENERIC_SHIELD.get());
+        }
+    }
+
+    @Override
     public void onStopUsing(ItemStack stack, LivingEntity entity, int count) {
         if (entity.level() instanceof ServerLevel serverLevel && stack.has(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get())) {
             long animId = GeoItem.getOrAssignId(stack, serverLevel);
@@ -241,7 +250,6 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
                         }
 
                         level.addFreshEntity(thrown);
-                        // TODO: Custom sound
                         level.playSound(null, thrown, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
                         if (!player.hasInfiniteMaterials()) {
                             player.getInventory().removeItem(stack);

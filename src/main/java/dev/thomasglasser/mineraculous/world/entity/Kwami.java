@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
@@ -13,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
@@ -29,21 +29,24 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.animal.FlyingAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.pathfinder.PathType;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
@@ -53,12 +56,12 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.AvoidEntity;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FleeTarget;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FloatToSurfaceOfFluid;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowOwner;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomFlyingTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetPlayerLookTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetRandomLookTarget;
+import net.tslat.smartbrainlib.api.core.navigation.SmoothFlyingPathNavigation;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyPlayersSensor;
 import net.tslat.smartbrainlib.util.BrainUtils;
@@ -72,7 +75,7 @@ import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoEntity {
+public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoEntity, FlyingAnimal {
     public static final RawAnimation EAT = RawAnimation.begin().thenPlay("misc.eat");
 
     private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
@@ -83,7 +86,6 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private Component name;
     private TagKey<Item> foodTag;
     private TagKey<Item> treatTag;
-    private Holder<SoundEvent> hungrySound;
 
     public Kwami(EntityType<? extends Kwami> entityType, Level level) {
         super(entityType, level);
@@ -110,7 +112,15 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
 
     @Override
     protected PathNavigation createNavigation(Level world) {
-        return new FlyingPathNavigation(this, world);
+        SmoothFlyingPathNavigation nav = new SmoothFlyingPathNavigation(this, world);
+        nav.setCanFloat(true);
+        nav.setCanPassDoors(true);
+        return nav;
+    }
+
+    @Override
+    public float getPathfindingMalus(PathType pathType) {
+        return 0;
     }
 
     public void setMiraculous(ResourceKey<Miraculous> type) {
@@ -147,12 +157,10 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     @Override
     public BrainActivityGroup<? extends Kwami> getCoreTasks() {
         return BrainActivityGroup.coreTasks(
-                new AvoidEntity<>().noCloserThan(5).stopCaringAfter(10).speedModifier(2f).avoiding(livingEntity -> livingEntity instanceof Player && livingEntity != getOwner()),
-                new FollowOwner<>().speedMod(10f).stopFollowingWithin(4).teleportToTargetAfter(10),
                 new MoveToWalkTarget<>(),
-                new FleeTarget<>().speedModifier(1.5f),
                 new LookAtTarget<>(),
-                new FloatToSurfaceOfFluid<>());
+                new AvoidEntity<>().noCloserThan(5).stopCaringAfter(10).speedModifier(2f).avoiding(livingEntity -> livingEntity instanceof Player && livingEntity != getOwner()),
+                new FleeTarget<>().speedModifier(1.5f));
     }
 
     @Override
@@ -162,9 +170,12 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                 new FirstApplicableBehaviour<>(
                         new SetPlayerLookTarget<>(),
                         new SetRandomLookTarget<>()),
-                new OneRandomBehaviour<>(
-                        new SetRandomFlyingTarget<>(),
-                        new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60))));
+                new FirstApplicableBehaviour<>(
+                        // TODO: Remove following when SBL updated to fix changing owners
+                        new FollowOwner<>().following(OwnableEntity::getOwner).speedMod(10f).stopFollowingWithin(4).teleportToTargetAfter(10).startCondition(kwami -> kwami.getOwner() != null),
+                        new OneRandomBehaviour<>(
+                                new SetRandomFlyingTarget<>(),
+                                new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)))));
     }
 
     public void setCharged(boolean charged) {
@@ -181,8 +192,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
             ItemStack stack = player.getItemInHand(hand);
             if (!isCharged()) {
                 if (isTreat(stack) || (isFood(stack) && random.nextInt(3) == 0)) {
-                    if (getHungrySound() != null)
-                        playSound(getHungrySound().value());
+                    playHurtSound(level().damageSources().starve());
                     setCharged(true);
                 }
                 if (isTreat(stack) || isFood(stack)) {
@@ -232,13 +242,21 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         return false;
     }
 
-    public @Nullable Holder<SoundEvent> getHungrySound() {
-        if (getMiraculous() != null) {
-            if (hungrySound == null)
-                hungrySound = level().holderOrThrow(getMiraculous()).value().kwamiHungrySound().orElse(null);
-            return hungrySound;
-        }
-        return null;
+    @Override
+    public void playHurtSound(DamageSource source) {
+        super.playHurtSound(source);
+    }
+
+    @Override
+    public float getVoicePitch() {
+        return super.getVoicePitch() * 1.7F;
+    }
+
+    @Override
+    protected @Nullable SoundEvent getHurtSound(DamageSource damageSource) {
+        if (damageSource.is(DamageTypes.STARVE))
+            return MineraculousSoundEvents.KWAMI_HUNGRY.get();
+        return super.getHurtSound(damageSource);
     }
 
     @Override
@@ -273,12 +291,19 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        compound.putBoolean("Charged", isCharged());
         compound.put("Miraculous", ResourceKey.codec(MineraculousRegistries.MIRACULOUS).encodeStart(NbtOps.INSTANCE, getMiraculous()).getOrThrow());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        setCharged(compound.getBoolean("Charged"));
         setMiraculous(ResourceKey.codec(MineraculousRegistries.MIRACULOUS).parse(NbtOps.INSTANCE, compound.get("Miraculous")).getOrThrow());
+    }
+
+    @Override
+    public boolean isFlying() {
+        return true;
     }
 }

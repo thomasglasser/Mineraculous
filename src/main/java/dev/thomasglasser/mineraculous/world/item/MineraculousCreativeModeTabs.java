@@ -14,15 +14,14 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackLinkedSet;
 
 public class MineraculousCreativeModeTabs {
     public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Mineraculous.MOD_ID);
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MIRACULOUS = TABS.register("miraculous", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(Mineraculous.modLoc("miraculous").toLanguageKey("item_group"))).icon(() -> Miraculous.createItemStack(MineraculousItems.MIRACULOUS.get(), MineraculousMiraculous.LADYBUG)).displayItems((parameters, output) -> {
-        generateMiraculous(MineraculousItems.MIRACULOUS.get(), output, parameters.holders().lookupOrThrow(MineraculousRegistries.MIRACULOUS));
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MIRACULOUS = TABS.register("miraculous", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(Mineraculous.modLoc("miraculous").toLanguageKey("item_group"))).icon(() -> Miraculous.createMiraculousStack(MineraculousMiraculous.LADYBUG)).displayItems((parameters, output) -> {
+        generateMiraculous(output, parameters.holders().lookupOrThrow(MineraculousRegistries.MIRACULOUS));
     }).build());
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MINERACULOUS = TABS.register(Mineraculous.MOD_ID, () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(Mineraculous.modLoc(Mineraculous.MOD_ID).toLanguageKey("item_group"))).icon(() -> MineraculousItems.CATACLYSM_DUST.get().getDefaultInstance()).type(CreativeModeTab.Type.SEARCH).displayItems((parameters, output) -> {
@@ -42,11 +41,10 @@ public class MineraculousCreativeModeTabs {
     }).build());
 
     private static void generateMiraculous(
-            Item item,
             CreativeModeTab.Output output,
             HolderLookup.RegistryLookup<Miraculous> miraculous) {
         miraculous.listElements()
-                .forEach(m -> output.accept(Miraculous.createItemStack(item, m.key())));
+                .forEach(m -> output.accept(Miraculous.createMiraculousStack(m.key())));
     }
 
     public static void init() {}

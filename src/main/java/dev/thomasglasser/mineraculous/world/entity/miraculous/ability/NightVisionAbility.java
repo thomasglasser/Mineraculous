@@ -82,7 +82,7 @@ public class NightVisionAbility implements Ability {
         nightVision = false;
         TommyLibServices.NETWORK.sendToClient(new ClientboundToggleNightVisionPayload(false, shader), serverPlayer);
         CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(serverPlayer);
-        tag.putBoolean(MineraculousEntityEvents.TAG_HASNIGHTVISION, nightVision);
+        tag.putBoolean(MineraculousEntityEvents.TAG_HASNIGHTVISION, false);
         TommyLibServices.ENTITY.setPersistentData(serverPlayer, tag, false);
     }
 

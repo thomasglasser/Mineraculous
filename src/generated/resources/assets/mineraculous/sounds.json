@@ -24,11 +24,35 @@
     ],
     "subtitle": "subtitles.ability.kamikotization.use"
   },
-  "item.cat_staff.shield": {
+  "entity.kwami.hungry": {
     "sounds": [
-      "mineraculous:item/cat_staff/shield"
+      "mineraculous:entity/kwami/hungry"
     ],
-    "subtitle": "subtitles.item.cat_staff.shield"
+    "subtitle": "subtitles.entity.kwami.hungry"
+  },
+  "item.cat_staff.extend": {
+    "sounds": [
+      "mineraculous:item/cat_staff/extend"
+    ],
+    "subtitle": "subtitles.item.cat_staff.extend"
+  },
+  "item.cat_staff.retract": {
+    "sounds": [
+      "mineraculous:item/cat_staff/retract"
+    ],
+    "subtitle": "subtitles.item.cat_staff.retract"
+  },
+  "item.generic.shield": {
+    "sounds": [
+      "mineraculous:item/generic/shield"
+    ],
+    "subtitle": "subtitles.item.generic.shield"
+  },
+  "item.ladybug_yoyo.shield": {
+    "sounds": [
+      "mineraculous:item/ladybug_yoyo/shield"
+    ],
+    "subtitle": "subtitles.item.ladybug_yoyo.shield"
   },
   "kamikotization.detransform": {
     "sounds": [
@@ -59,6 +83,18 @@
       "mineraculous:miraculous/generic/detransform"
     ],
     "subtitle": "subtitles.miraculous.generic.detransform"
+  },
+  "miraculous.generic.timer_beep": {
+    "sounds": [
+      "mineraculous:miraculous/generic/timer_beep"
+    ],
+    "subtitle": "subtitles.miraculous.generic.timer_beep"
+  },
+  "miraculous.generic.timer_end": {
+    "sounds": [
+      "mineraculous:miraculous/generic/timer_end"
+    ],
+    "subtitle": "subtitles.miraculous.generic.timer_end"
   },
   "miraculous.generic.transform": {
     "sounds": [

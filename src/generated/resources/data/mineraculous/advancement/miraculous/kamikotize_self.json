@@ -3,7 +3,7 @@
   "criteria": {
     "kamikotize_self": {
       "conditions": {
-        "requires_self": true
+        "self": true
       },
       "trigger": "mineraculous:transformed_kamikotization"
     }

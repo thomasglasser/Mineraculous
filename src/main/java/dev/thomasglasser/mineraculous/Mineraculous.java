@@ -100,6 +100,7 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onRegisterVillagerTrades);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityJoinLevel);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityLeaveLevel);
         NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onLoadLootTable);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerBreakSpeed);
 
@@ -135,7 +136,8 @@ public class Mineraculous {
     }
 
     public enum Dependencies {
-        CURIOS("curios");
+        CURIOS("curios"),
+        MODONOMICON("modonomicon");
 
         private String id;
 

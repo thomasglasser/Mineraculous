@@ -5,7 +5,9 @@
   "passive_abilities": [
     "mineraculous:cat_vision"
   ],
-  "tool": "mineraculous:cat_staff",
+  "tool": {
+    "id": "mineraculous:cat_staff"
+  },
   "tool_slot": "belt",
   "transform_sound": "mineraculous:cat_transform",
   "transformation_frames": 9

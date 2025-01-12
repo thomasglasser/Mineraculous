@@ -73,6 +73,15 @@ repositories {
 		}
 		filter { includeGroupAndSubgroups 'top.theillusivec4.curios' }
 	}
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = 'Modonomicon'
+				url = "https://dl.cloudsmith.io/public/klikli-dev/mods/maven/"
+			}
+		}
+		filter { includeGroupAndSubgroups "com.klikli_dev" }
+	}
 	maven {
 		name = 'TommyLib'
 		url = 'https://dl.cloudsmith.io/public/thomasglasser/tommylib/maven/'
@@ -153,6 +162,7 @@ dependencies {
 	implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${smartbrainlib_version}"
 	implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 	implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+	implementation "com.klikli_dev:modonomicon-${minecraft_version}-neoforge:${modonomicon_version}"
 
 	// Runtime
 	localRuntime "maven.modrinth:jade:${jade_version}+neoforge"

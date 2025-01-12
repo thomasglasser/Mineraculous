@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.world.entity.projectile;
 
+import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownLadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncLadybugYoyoPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
@@ -8,9 +9,12 @@ import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
-
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -43,6 +47,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     private boolean dealtDamage;
     public double maxRopeLength = 0; // used for rendering the rope
     public double serverMaxRopeLength = 0; // used for swinging physics
+    private static final EntityDataAccessor<Boolean> IS_RECALLING = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.BOOLEAN);
 
     public ThrownLadybugYoyo(LivingEntity owner, Level level, ItemStack pickupItemStack, @Nullable LadybugYoyoItem.Ability ability) {
         super(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), owner, level, pickupItemStack, null);
@@ -65,6 +70,16 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         this.noCulling = true;
     }
 
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(IS_RECALLING, false);
+    }
+
+    private boolean isRecalling() {
+        return this.entityData.get(IS_RECALLING);
+    }
+
     @Nullable
     public Player getPlayerOwner() {
         Entity entity = this.getOwner();
@@ -72,7 +87,9 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     }
 
     public boolean inGround() {
-        return this.inGround;
+        if (!isRecalling())
+            return this.inGround;
+        else return false;
     }
 
     @Override
@@ -86,15 +103,27 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
             return;
         if (entity instanceof Player player) {
             checkRecall(player);
-            if (this.inGround()) {
+
+            if (this.isRecalling()) {
+                this.setNoPhysics(true);
+                Vec3 vec3 = new Vec3(player.getX() - this.getX(), player.getY() - this.getY(), player.getZ() - this.getZ());
+                double distance = vec3.length();
+                vec3.normalize();
+                this.setDeltaMovement(vec3.scale(distance * 0.01));
+                if (vec3.length() <= 1) {
+                    this.discard();
+                }
+            } else if (this.inGround()) {
                 Vec3 fromProjectileToPlayer = new Vec3(player.getX() - this.getX(), player.getY() - this.getY(), player.getZ() - this.getZ());
                 double distance = fromProjectileToPlayer.length();
                 if (distance > this.serverMaxRopeLength) {
-
+                    Mineraculous.LOGGER.info("test");
                     Vec3 constrainedPosition = player.position()
                             .add(fromProjectileToPlayer.normalize().scale(serverMaxRopeLength - distance));
                     normalCollisions(false, player);
-                    player.setPos(constrainedPosition.x, constrainedPosition.y, constrainedPosition.z);
+                    if (player.level().isEmptyBlock(new BlockPos((int) constrainedPosition.x, (int) constrainedPosition.y, (int) constrainedPosition.z))) {
+                        player.setPos(constrainedPosition.x, constrainedPosition.y, constrainedPosition.z);
+                    }
 
                     Vec3 radialForce = fromProjectileToPlayer.normalize();
                     Vec3 tangentialVelocity = player.getDeltaMovement().subtract(
@@ -178,6 +207,10 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         return true;
     }
 
+    public void recall() {
+        this.entityData.set(IS_RECALLING, true);
+    }
+
     @Override
     protected void tickDespawn() {}
 
@@ -248,18 +281,16 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         if (ability != LadybugYoyoItem.Ability.TRAVEL) {
             //discard();
         }
-        //TODO if the ability is travel
         Player p = this.getPlayerOwner();
-        if (p != null && this.inGround) {
+        if (p != null && this.inGround() && !this.isRecalling()) {
             Vec3 vec3 = ThrownLadybugYoyoRenderer.getPlayerHandPos(p, 1, MineraculousItems.LADYBUG_YOYO.get(), Minecraft.getInstance().getEntityRenderDispatcher());
             Vec3 fromProjectileToHand = new Vec3(vec3.x - this.getX(), vec3.y - this.getY(), vec3.z - this.getZ());
             this.maxRopeLength = fromProjectileToHand.length();
 
             Vec3 fromProjectileToPlayer = new Vec3(p.getX() - this.getX(), p.getY() - this.getY(), p.getZ() - this.getZ());
-            this.serverMaxRopeLength = fromProjectileToPlayer.length() + 1;
+            this.serverMaxRopeLength = fromProjectileToPlayer.length() + 1.5;
         }
     }
-
 
     @Override
     public ItemStack getWeaponItem() {
@@ -302,6 +333,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         if (this.ability != null)
             compound.putString("Ability", this.ability.name());
         compound.putBoolean("DealtDamage", this.dealtDamage);
+        compound.putDouble("MaxRopeLength", this.serverMaxRopeLength);
     }
 
     @Override

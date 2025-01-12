@@ -51,6 +51,7 @@ import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -226,12 +227,20 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
 
     @Override
     public boolean onEntitySwing(ItemStack stack, LivingEntity entity, InteractionHand hand) {
-        if (stack.has(MineraculousDataComponents.ACTIVE) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
+        if (stack.has(MineraculousDataComponents.POWERED) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
             Optional<UUID> uuid = entity.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
             if (uuid.isPresent()) {
-                recallYoyo(stack, player);
+                Level level = player.level();
+                if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(uuid.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
+                    if (stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.TRAVEL && player.isCrouching() && thrownLadybugYoyo.inGround()) {
+                        Vec3 fromPlayerToYoyo = new Vec3(thrownLadybugYoyo.getX() - player.getX(), thrownLadybugYoyo.getY() - player.getY() + 2, thrownLadybugYoyo.getZ() - player.getZ());
+                        player.setDeltaMovement(fromPlayerToYoyo.scale(0.2).add(player.getDeltaMovement()));
+                        player.hurtMarked = true;
+                    }
+                    recallYoyo(stack, player);
+                }
             } else {
-                throwYoyo(stack, player, null);
+                throwYoyo(stack, player, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY));
             }
             player.getCooldowns().addCooldown(this, 5);
             return true;
@@ -249,7 +258,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         if (uuid.isPresent()) {
             Level level = player.level();
             if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(uuid.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
-                thrownLadybugYoyo.discard();
+                thrownLadybugYoyo.recall();
             }
             level.playSound(null, player, SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.PLAYERS, 1.0F, 1.0F);
             player.gameEvent(GameEvent.ITEM_INTERACT_FINISH);

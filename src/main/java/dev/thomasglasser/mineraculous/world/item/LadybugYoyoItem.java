@@ -167,7 +167,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                         boolean left = Minecraft.getInstance().player.input.left;
                         boolean right = Minecraft.getInstance().player.input.right;
                         TommyLibServices.NETWORK.sendToServer(new ServerboundWalkMidSwingingPayload(up, down, left, right));
-                    } //TODO do the same thing as above but with wasd and just use 1 payload because we dont care about the key status changing trigger
+                    }
                 }
                 TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
             }

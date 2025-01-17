@@ -28,13 +28,19 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
         super(context, new DefaultedItemGeoModel<>(Mineraculous.modLoc("ladybug_yoyo")));
     }
 
+    float partialTicks = 0;
+
     @Override
     public void render(ThrownLadybugYoyo projectileEntity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight) {
+        this.partialTicks = partialTick;
         if (projectileEntity.getOwner() instanceof Player) {
             poseStack.pushPose();
             Player projectilePlayer = projectileEntity.getPlayerOwner();
 
-            Vec3 vec3 = getPlayerHandPos(projectilePlayer, partialTick, MineraculousItems.LADYBUG_YOYO.get(), Minecraft.getInstance().getEntityRenderDispatcher());
+            float f = projectilePlayer.getAttackAnim(partialTick);
+            float f1 = Mth.sin(Mth.sqrt(f) * 3.1415927F);
+
+            Vec3 vec3 = getPlayerHandPos(projectilePlayer, f1, partialTick, MineraculousItems.LADYBUG_YOYO.get(), Minecraft.getInstance().getEntityRenderDispatcher());
             Vec3 projectilePos = new Vec3(projectileEntity.getX(), projectileEntity.getY(), projectileEntity.getZ());
 
             VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entityCutoutNoCull(Mineraculous.modLoc("textures/yoyorope.png")));
@@ -92,29 +98,26 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
         }
     }
 
-    public static Vec3 getPlayerHandPos(Player player, float partialTick, Item item, EntityRenderDispatcher entityRenderDispatcher) {
+    public static Vec3 getPlayerHandPos(Player player, float p_340872_, float partialTick, Item item, EntityRenderDispatcher entityRenderDispatcher) {
         int i = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
-        ItemStack itemStack = player.getMainHandItem();
-        if (!itemStack.is(item)) {
+        ItemStack itemstack = player.getMainHandItem();
+        if (!itemstack.is(item)) {
             i = -i;
         }
 
-        float g = player.getAttackAnim(partialTick);
-        float h = Mth.sin(Mth.sqrt(g) * 3.1415927F);
-        float j = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot) * 0.017453292F;
-        double d = Mth.sin(j);
-        double e = Mth.cos(j);
-        double k = (double) i * 0.35;
-        if (entityRenderDispatcher.options.getCameraType().isFirstPerson() && player == Minecraft.getInstance().player && entityRenderDispatcher.camera != null) { //ik the ide says its always true but i got a crash saying its null
-            double n = 960.0 / (double) entityRenderDispatcher.options.fov().get();
-            Vec3 vec3 = entityRenderDispatcher.camera.getNearPlane().getPointOnPlane((float) i * 0.9F, -1F);
-            vec3 = vec3.scale(n);
-            vec3 = vec3.yRot(h * 0.5F);
-            vec3 = vec3.xRot(-h * 0.7F);
-            return new Vec3(Mth.lerp(partialTick, player.xo, player.getX()) + vec3.x, Mth.lerp(partialTick, player.yo, player.getY()) + vec3.y + (double) player.getEyeHeight(), Mth.lerp((double) partialTick, player.zo, player.getZ()) + vec3.z);
+        if (entityRenderDispatcher.options.getCameraType().isFirstPerson() && player == Minecraft.getInstance().player && entityRenderDispatcher.camera != null) { //ik the null check seems useless but i get crashes abt it
+            double d4 = 960.0 / (double) (Integer) entityRenderDispatcher.options.fov().get();
+            Vec3 vec3 = entityRenderDispatcher.camera.getNearPlane().getPointOnPlane((float) i * 0.525F, -0.1F).scale(d4).yRot(p_340872_ * 0.5F).xRot(-p_340872_ * 0.7F);
+            return player.getEyePosition(partialTick).add(vec3);
         } else {
-            float m = player.isCrouching() ? -0.1875F : 0.0F;
-            return new Vec3(Mth.lerp(partialTick, player.xo, player.getX()) - e * k - d * 0.8, player.yo + (double) player.getEyeHeight() + (player.getY() - player.yo) * (double) partialTick - 0.45 + (double) m, Mth.lerp((double) partialTick, player.zo, player.getZ()) - d * k + e * 0.8);
+            float f = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot) * 0.017453292F;
+            double d0 = (double) Mth.sin(f);
+            double d1 = (double) Mth.cos(f);
+            float f1 = player.getScale();
+            double d2 = (double) i * 0.35 * (double) f1;
+            double d3 = 0.8 * (double) f1;
+            float f2 = player.isCrouching() ? -0.1875F : 0.0F;
+            return player.getEyePosition(partialTick).add(-d1 * d2 - d0 * d3, (double) f2 - 0.45 * (double) f1, -d0 * d2 + d1 * d3);
         }
     }
 

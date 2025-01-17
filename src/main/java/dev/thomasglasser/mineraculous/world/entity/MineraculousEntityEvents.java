@@ -55,6 +55,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -132,6 +133,17 @@ public class MineraculousEntityEvents {
         CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
 
         if (player.level().isClientSide && entityData.getInt(TAG_WAITTICKS) == 0 && ClientUtils.getMainClientPlayer() == player) {
+            //jump input key trigger started
+            if (Minecraft.getInstance().player != null) {
+                MineraculousClientUtils.jump = Minecraft.getInstance().player.input.jumping;
+                if (MineraculousClientUtils.jumpX != MineraculousClientUtils.jump) {
+                    MineraculousClientUtils.jumpKeyStartPressing = true;
+                } else {
+                    MineraculousClientUtils.jumpKeyStartPressing = false;
+                }
+                MineraculousClientUtils.jumpX = MineraculousClientUtils.jump;
+            }
+
             int takeTicks = entityData.getInt(MineraculousEntityEvents.TAG_TAKETICKS);
             if (MineraculousKeyMappings.TAKE_BREAK_ITEM.get().isDown()) {
                 ItemStack mainHandItem = player.getMainHandItem();

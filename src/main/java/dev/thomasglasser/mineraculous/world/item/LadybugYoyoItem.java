@@ -10,7 +10,9 @@ import dev.thomasglasser.mineraculous.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundActivateToolPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundEquipToolPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundJumpMidSwingingPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetLadybugYoyoAbilityPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundWalkMidSwingingPayload;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
@@ -27,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -156,7 +159,15 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                             TommyLibServices.NETWORK.sendToServer(new ServerboundEquipToolPayload(hand));
                         }
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
-                    }
+                    } else if (MineraculousClientUtils.jumpKeyStartPressing && stack.has(MineraculousDataComponents.ACTIVE)) {
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundJumpMidSwingingPayload());
+                    } else if (Minecraft.getInstance().player != null && (Minecraft.getInstance().player.input.up || Minecraft.getInstance().player.input.down || Minecraft.getInstance().player.input.left || Minecraft.getInstance().player.input.right)) {
+                        boolean up = Minecraft.getInstance().player.input.up;
+                        boolean down = Minecraft.getInstance().player.input.down;
+                        boolean left = Minecraft.getInstance().player.input.left;
+                        boolean right = Minecraft.getInstance().player.input.right;
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundWalkMidSwingingPayload(up, down, left, right));
+                    } //TODO do the same thing as above but with wasd and just use 1 payload because we dont care about the key status changing trigger
                 }
                 TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
             }
@@ -227,7 +238,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
 
     @Override
     public boolean onEntitySwing(ItemStack stack, LivingEntity entity, InteractionHand hand) {
-        if (stack.has(MineraculousDataComponents.POWERED) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
+        if (stack.has(MineraculousDataComponents.ACTIVE) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
             Optional<UUID> uuid = entity.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
             if (uuid.isPresent()) {
                 Level level = player.level();
@@ -237,7 +248,12 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                         player.setDeltaMovement(fromPlayerToYoyo.scale(0.2).add(player.getDeltaMovement()));
                         player.hurtMarked = true;
                     }
-                    recallYoyo(stack, player);
+                    if (thrownLadybugYoyo.isRecalling()) {
+                        thrownLadybugYoyo.discard();
+                        throwYoyo(stack, player, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY));
+                    } else {
+                        recallYoyo(stack, player);
+                    }
                 }
             } else {
                 throwYoyo(stack, player, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY));

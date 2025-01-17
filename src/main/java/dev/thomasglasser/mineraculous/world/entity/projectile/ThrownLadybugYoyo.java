@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.world.entity.projectile;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownLadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncLadybugYoyoPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
@@ -18,6 +17,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -46,8 +46,9 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     private LadybugYoyoItem.Ability ability;
     private boolean dealtDamage;
     public double maxRopeLength = 0; // used for rendering the rope
-    public double serverMaxRopeLength = 0; // used for swinging physics
     private static final EntityDataAccessor<Boolean> IS_RECALLING = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Float> SERVER_MAX_ROPE_LENGTH = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Integer> RECALLING_TICKS = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.INT);
 
     public ThrownLadybugYoyo(LivingEntity owner, Level level, ItemStack pickupItemStack, @Nullable LadybugYoyoItem.Ability ability) {
         super(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), owner, level, pickupItemStack, null);
@@ -74,10 +75,28 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(IS_RECALLING, false);
+        builder.define(RECALLING_TICKS, 0);
+        builder.define(SERVER_MAX_ROPE_LENGTH, 0f);
     }
 
-    private boolean isRecalling() {
+    public boolean isRecalling() {
         return this.entityData.get(IS_RECALLING);
+    }
+
+    private int getRecallingTicks() {
+        return this.entityData.get(RECALLING_TICKS);
+    }
+
+    private void updateRecallingTicks() {
+        this.entityData.set(RECALLING_TICKS, this.getRecallingTicks() + 1);
+    }
+
+    public float getServerMaxRopeLength() {
+        return this.entityData.get(SERVER_MAX_ROPE_LENGTH);
+    }
+
+    public void setServerMaxRopeLength(float f) {
+        this.entityData.set(SERVER_MAX_ROPE_LENGTH, f);
     }
 
     @Nullable
@@ -109,29 +128,33 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 Vec3 vec3 = new Vec3(player.getX() - this.getX(), player.getY() - this.getY(), player.getZ() - this.getZ());
                 double distance = vec3.length();
                 vec3.normalize();
-                this.setDeltaMovement(vec3.scale(distance * 0.01));
-                if (vec3.length() <= 1) {
+                this.setDeltaMovement(vec3.scale(Math.min(Math.max(distance * 0.01 * 2.5, 0.3), 0.5)));
+                if (distance <= 2 || distance > this.getServerMaxRopeLength() + 1 || this.getRecallingTicks() >= 15) {
                     this.discard();
                 }
+                this.updateRecallingTicks();
+
             } else if (this.inGround()) {
+
                 Vec3 fromProjectileToPlayer = new Vec3(player.getX() - this.getX(), player.getY() - this.getY(), player.getZ() - this.getZ());
                 double distance = fromProjectileToPlayer.length();
-                if (distance > this.serverMaxRopeLength) {
-                    Mineraculous.LOGGER.info("test");
+
+                if (distance > this.getServerMaxRopeLength()) {
+                    player.resetFallDistance();
                     Vec3 constrainedPosition = player.position()
-                            .add(fromProjectileToPlayer.normalize().scale(serverMaxRopeLength - distance));
+                            .add(fromProjectileToPlayer.normalize().scale(this.getServerMaxRopeLength() - distance));
                     normalCollisions(false, player);
-                    if (player.level().isEmptyBlock(new BlockPos((int) constrainedPosition.x, (int) constrainedPosition.y, (int) constrainedPosition.z))) {
+                    if (player.level().isEmptyBlock(new BlockPos((int) constrainedPosition.x, (int) (constrainedPosition.y + 0.5), (int) constrainedPosition.z))) {
                         player.setPos(constrainedPosition.x, constrainedPosition.y, constrainedPosition.z);
                     }
 
                     Vec3 radialForce = fromProjectileToPlayer.normalize();
                     Vec3 tangentialVelocity = player.getDeltaMovement().subtract(
                             radialForce.scale(player.getDeltaMovement().dot(radialForce)));
-                    double dampingFactor = Math.max(1.06, 1 - Math.abs(distance - serverMaxRopeLength) * 0.02); // Less damping near center
+                    double dampingFactor = Math.max(1.06, 1 - Math.abs(distance - this.getServerMaxRopeLength()) * 0.02); // Less damping near center
                     Vec3 dampedVelocity = tangentialVelocity.scale(dampingFactor);
 
-                    Vec3 correctiveForce = radialForce.scale((distance - serverMaxRopeLength) * 0.005);
+                    Vec3 correctiveForce = radialForce.scale((distance - this.getServerMaxRopeLength()) * 0.005);
                     Vec3 newVelocity = dampedVelocity.add(correctiveForce);
 
                     if (this.getY() > player.getY()) {
@@ -139,6 +162,9 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     }
 
                 }
+            } else { //if its flying
+                Vec3 motion = player.getLookAngle().scale(3); //this makes it follow the cursor
+                this.setDeltaMovement(motion);
             }
         }
     }
@@ -209,6 +235,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
 
     public void recall() {
         this.entityData.set(IS_RECALLING, true);
+        this.entityData.set(RECALLING_TICKS, 0);
     }
 
     @Override
@@ -278,17 +305,21 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     @Override
     protected void onHitBlock(BlockHitResult result) {
         super.onHitBlock(result);
-        if (ability != LadybugYoyoItem.Ability.TRAVEL) {
+        if (ability != LadybugYoyoItem.Ability.TRAVEL) { //tommy fix ability
             //discard();
         }
         Player p = this.getPlayerOwner();
         if (p != null && this.inGround() && !this.isRecalling()) {
-            Vec3 vec3 = ThrownLadybugYoyoRenderer.getPlayerHandPos(p, 1, MineraculousItems.LADYBUG_YOYO.get(), Minecraft.getInstance().getEntityRenderDispatcher());
+
+            float f = p.getAttackAnim(0);
+            float f1 = Mth.sin(Mth.sqrt(f) * 3.1415927F);
+
+            Vec3 vec3 = ThrownLadybugYoyoRenderer.getPlayerHandPos(p, f1, 0, MineraculousItems.LADYBUG_YOYO.get(), Minecraft.getInstance().getEntityRenderDispatcher());
             Vec3 fromProjectileToHand = new Vec3(vec3.x - this.getX(), vec3.y - this.getY(), vec3.z - this.getZ());
             this.maxRopeLength = fromProjectileToHand.length();
 
             Vec3 fromProjectileToPlayer = new Vec3(p.getX() - this.getX(), p.getY() - this.getY(), p.getZ() - this.getZ());
-            this.serverMaxRopeLength = fromProjectileToPlayer.length() + 1.5;
+            this.setServerMaxRopeLength((float) fromProjectileToPlayer.length() + 1.5f);
         }
     }
 
@@ -333,7 +364,6 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         if (this.ability != null)
             compound.putString("Ability", this.ability.name());
         compound.putBoolean("DealtDamage", this.dealtDamage);
-        compound.putDouble("MaxRopeLength", this.serverMaxRopeLength);
     }
 
     @Override

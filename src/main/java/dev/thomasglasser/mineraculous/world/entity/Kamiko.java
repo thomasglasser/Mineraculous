@@ -25,20 +25,17 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -53,8 +50,10 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowTemptation;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomFlyingTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
+import net.tslat.smartbrainlib.api.core.navigation.SmoothFlyingPathNavigation;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.util.BrainUtils;
+import net.tslat.smartbrainlib.util.RandomUtil;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -73,6 +72,14 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         super(type, level);
         moveControl = new FlyingMoveControl(this, 180, true);
         setNoGravity(true);
+    }
+
+    @Override
+    protected PathNavigation createNavigation(Level world) {
+        SmoothFlyingPathNavigation nav = new SmoothFlyingPathNavigation(this, world);
+        nav.setCanFloat(true);
+        nav.setCanPassDoors(true);
+        return nav;
     }
 
     @Override
@@ -123,7 +130,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     public boolean isInvulnerableTo(DamageSource source) {
         if (isPowered())
             return !(source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || source.is(MineraculousDamageTypes.CATACLYSM));
-        return source.is(DamageTypes.IN_WALL) || super.isInvulnerableTo(source);
+        return super.isInvulnerableTo(source);
     }
 
     @Override
@@ -138,11 +145,6 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                 .add(Attributes.FLYING_SPEED, 1)
                 .add(Attributes.GRAVITY, 0)
                 .add(Attributes.FOLLOW_RANGE, 2048);
-    }
-
-    @Override
-    protected PathNavigation createNavigation(Level level) {
-        return new FlyingPathNavigation(this, level);
     }
 
     @Override
@@ -170,8 +172,15 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     public BrainActivityGroup<? extends Kamiko> getIdleTasks() {
         return BrainActivityGroup.idleTasks(
                 new FirstApplicableBehaviour<>(
-                        // TODO: Remove following when SBL updates to fix changing owner
-                        new FollowOwner<>().following(OwnableEntity::getOwner).startCondition(kamiko -> !BrainUtils.hasMemory(kamiko.getBrain(), MemoryModuleType.ATTACK_TARGET) && kamiko.getOwner() != null && kamiko.getOwner().getData(MineraculousAttachmentTypes.MIRACULOUS).get(MineraculousMiraculous.BUTTERFLY).transformed()),
+                        new FollowOwner<Kamiko>() {
+                            // TODO: Update SBL
+                            @Override
+                            protected BlockPos getTeleportPos(Kamiko entity, LivingEntity target, BlockPos targetPos) {
+                                Level level = entity.level();
+
+                                return RandomUtil.getRandomPositionWithinRange(targetPos, 5, 5, 5, 1, 1, 1, false, level, 10, (state, statePos) -> this.teleportPredicate.test(entity, statePos, state));
+                            }
+                        }.startCondition(kamiko -> !BrainUtils.hasMemory(kamiko.getBrain(), MemoryModuleType.ATTACK_TARGET) && kamiko.getOwner() != null && kamiko.getOwner().getData(MineraculousAttachmentTypes.MIRACULOUS).get(MineraculousMiraculous.BUTTERFLY).transformed()),
                         new FollowTemptation<>(),
                         new SetRandomFlyingTarget<>()));
     }

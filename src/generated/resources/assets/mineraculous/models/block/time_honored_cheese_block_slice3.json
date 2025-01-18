@@ -1,0 +1,10 @@
+{
+  "parent": "mineraculous:block/cheese_slice3_base",
+  "textures": {
+    "bottom": "mineraculous:block/cheese/time_honored_cheese_bottom",
+    "inner": "mineraculous:block/cheese/time_honored_cheese_inner",
+    "particle": "mineraculous:block/cheese/time_honored_cheese_side",
+    "side": "mineraculous:block/cheese/time_honored_cheese_side",
+    "top": "mineraculous:block/cheese/time_honored_cheese_top"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "parent": "mineraculous:block/cheese_slice2_base",
+  "textures": {
+    "bottom": "mineraculous:block/cheese/ripened_cheese_bottom",
+    "inner": "mineraculous:block/cheese/ripened_cheese_inner",
+    "particle": "mineraculous:block/cheese/ripened_cheese_side",
+    "side": "mineraculous:block/cheese/ripened_cheese_side",
+    "top": "mineraculous:block/cheese/ripened_cheese_top"
+  }
+}

@@ -75,6 +75,15 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
 
         basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK);
 
+        MineraculousBlocks.CHEESE_BLOCKS.values().forEach(this::basicBlockItem);
+        MineraculousBlocks.WAXED_CHEESE_BLOCKS.forEach((age, block) -> withExistingParent(block.getId().getPath(), MineraculousBlocks.CHEESE_BLOCKS.get(age).getId().withPrefix("block/")));
+        MineraculousBlocks.CAMEMBERT_BLOCKS.values().forEach(this::basicBlockItem);
+        MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.forEach((age, block) -> withExistingParent(block.getId().getPath(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(age).getId().withPrefix("block/")));
+
+        // TODO: Add wedge items
+        MineraculousItems.CHEESE_WEDGES.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousBlocks.CHEESE_BLOCKS.get(age).getId().withPrefix("block/").withSuffix("_slice3")));
+        MineraculousItems.CAMEMBERT_WEDGES.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(age).getId().withPrefix("block/").withSuffix("_slice3")));
+
         ItemModelBuilder inHandLadybugYoyo = withEntityModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_in_hand"))
                 .transforms()
                 .transform(MineraculousItemDisplayContexts.CURIOS_BELT.getValue()).rotation(-90, 0, 0).translation(-2, 10, 3.7f).scale(0.8f).end()

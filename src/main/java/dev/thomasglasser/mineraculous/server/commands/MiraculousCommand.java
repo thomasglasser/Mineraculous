@@ -115,7 +115,7 @@ public class MiraculousCommand {
                                                             ServerPlayer target = EntityArgument.getPlayer(context, "target");
                                                             return getMiraculousLook(target, context, target == context.getSource().getPlayer());
                                                         })))
-                                        .then(Commands.argument("look", StringArgumentType.string())
+                                        .then(Commands.argument("look", StringArgumentType.word())
                                                 .executes(context -> trySetMiraculousLook(context.getSource().getPlayerOrException(), context, true))
                                                 .then(Commands.argument("target", EntityArgument.player())
                                                         .executes(context -> {
@@ -139,7 +139,7 @@ public class MiraculousCommand {
                                                             ServerPlayer target = EntityArgument.getPlayer(context, "target");
                                                             return getSuitLook(target, context, target == context.getSource().getPlayer());
                                                         })))
-                                        .then(Commands.argument("look", StringArgumentType.string())
+                                        .then(Commands.argument("look", StringArgumentType.word())
                                                 .executes(context -> trySetSuitLook(context.getSource().getPlayerOrException(), context, true))
                                                 .then(Commands.argument("target", EntityArgument.player())
                                                         .executes(context -> {

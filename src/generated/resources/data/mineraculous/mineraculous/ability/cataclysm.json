@@ -17,6 +17,7 @@
       "damage_type": "mineraculous:cataclysm",
       "drop_item": "mineraculous:cataclysm_dust",
       "effects": "mineraculous:cataclysmed",
+      "performer_tag": "Cataclysmed",
       "start_sound": "mineraculous:cataclysm_use"
     },
     "item": {

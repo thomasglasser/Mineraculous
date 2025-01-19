@@ -21,7 +21,6 @@ import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.EntityTypePredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -80,7 +79,8 @@ public class MineraculousAbilities {
                 Optional.of(new ApplyInfiniteEffectsOrDestroyAbility(
                         HolderSet.direct(MineraculousMobEffects.CATACLYSMED),
                         Optional.of(MineraculousItems.CATACLYSM_DUST.get()),
-                        Optional.of(context.lookup(Registries.DAMAGE_TYPE).getOrThrow(MineraculousDamageTypes.CATACLYSM).key()),
+                        Optional.of(MineraculousDamageTypes.CATACLYSM),
+                        Optional.of(MineraculousEntityEvents.TAG_CATACLYSMED),
                         Optional.of(MineraculousSoundEvents.CATACLYSM_USE),
                         false)),
                 Optional.of(new ReplaceItemsInHandAbility(

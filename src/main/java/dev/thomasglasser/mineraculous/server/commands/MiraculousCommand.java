@@ -242,7 +242,7 @@ public class MiraculousCommand {
     }
 
     private static int trySetMiraculousLook(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        if (MineraculousServerConfig.INSTANCE.enableCustomization.get()) {
+        if (MineraculousServerConfig.get().enableCustomization.get()) {
             Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
             String newLook = StringArgumentType.getString(context, "look");
             context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_MIRACULOUS_TRY_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_MIRACULOUS_TRY_SET_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);
@@ -272,7 +272,7 @@ public class MiraculousCommand {
     }
 
     private static int trySetSuitLook(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        if (MineraculousServerConfig.INSTANCE.enableCustomization.get()) {
+        if (MineraculousServerConfig.get().enableCustomization.get()) {
             Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
             String newLook = StringArgumentType.getString(context, "look");
             context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_SUIT_TRY_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_SUIT_TRY_SET_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);

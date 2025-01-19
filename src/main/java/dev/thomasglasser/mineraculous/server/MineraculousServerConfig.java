@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.server;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class MineraculousServerConfig {
-    public static final MineraculousServerConfig INSTANCE = new MineraculousServerConfig();
+    private static final MineraculousServerConfig INSTANCE = new MineraculousServerConfig();
 
     public final ModConfigSpec configSpec;
 
@@ -45,5 +45,9 @@ public class MineraculousServerConfig {
 
     public ModConfigSpec getConfigSpec() {
         return configSpec;
+    }
+
+    public static MineraculousServerConfig get() {
+        return INSTANCE;
     }
 }

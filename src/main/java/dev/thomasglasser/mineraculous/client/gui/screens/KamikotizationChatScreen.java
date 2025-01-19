@@ -218,7 +218,7 @@ public class KamikotizationChatScreen extends ChatScreen {
     }
 
     public void tryCancel() {
-        if (MineraculousServerConfig.INSTANCE.enableKamikotizationRejection.get())
+        if (MineraculousServerConfig.get().enableKamikotizationRejection.get())
             onClose(true, true);
     }
 

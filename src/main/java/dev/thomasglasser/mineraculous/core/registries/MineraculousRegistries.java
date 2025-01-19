@@ -17,6 +17,4 @@ public class MineraculousRegistries {
     private static <T> ResourceKey<Registry<T>> createRegistryKey(String pName) {
         return ResourceKey.createRegistryKey(Mineraculous.modLoc(pName));
     }
-
-    public static void init() {}
 }

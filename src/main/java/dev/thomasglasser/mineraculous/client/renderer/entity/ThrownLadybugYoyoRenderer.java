@@ -41,12 +41,12 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
             float f1 = Mth.sin(Mth.sqrt(f) * 3.1415927F);
 
             Vec3 vec3 = getPlayerHandPos(projectilePlayer, f1, partialTick, MineraculousItems.LADYBUG_YOYO.get(), Minecraft.getInstance().getEntityRenderDispatcher());
-            Vec3 projectilePos = new Vec3(projectileEntity.getX(), projectileEntity.getY(), projectileEntity.getZ());
+            Vec3 projectilePos = projectileEntity.getPosition(partialTicks);
 
             VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entityCutoutNoCull(Mineraculous.modLoc("textures/yoyorope.png")));
             PoseStack.Pose pose = poseStack.last();
 
-            Vec3 fromProjectileToHand = new Vec3(vec3.x - projectileEntity.getX(), vec3.y - projectileEntity.getY(), vec3.z - projectileEntity.getZ()); //relative to projectile
+            Vec3 fromProjectileToHand = new Vec3(vec3.x - projectilePos.x, vec3.y - projectilePos.y, vec3.z - projectilePos.z); //relative to projectile
             Vec3 fromPTHOnXZ = new Vec3(fromProjectileToHand.x, 0, fromProjectileToHand.z); //fromProjectileToHandOnXZ
             Vec3 ropeThickness = new Vec3(getSegmentThickness(projectilePos, vec3).toVector3f());
 
@@ -64,11 +64,12 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
                 final double T = 2048;
                 for (i = 1; i <= points; i++) {
                     double xi = i * (fromPTHOnXZ.length()) / (points + 1);
-                    double yi = i * (vec3.y - projectileEntity.getY()) / points - (2 * i * (maxLength - i * maxLength / (points + 1)) / (1 * T));
+                    double yi = i * (vec3.y - projectilePos.y) / points - (2 * i * (maxLength - i * maxLength / (points + 1)) / (1 * T));
+                    //yi = fromProjectileToHand.y * ((double) (i + 1) / (points + 1) * (double) (i + 1) / (points + 1) + (double) (i + 1) / (points + 1)) * 0.5d;
                     pointList.add(new RopePoint(xi, yi, i, fromPTHOnXZ));
                 }
 
-                Vec3 p0Pos = new Vec3(pointList.get(0).getX() + projectileEntity.getX(), pointList.get(0).getY() + projectileEntity.getY(), pointList.get(0).getZ() + projectileEntity.getZ());
+                Vec3 p0Pos = new Vec3(pointList.get(0).getX() + projectilePos.x, pointList.get(0).getY() + projectilePos.y, pointList.get(0).getZ() + projectilePos.z);
                 Vec3 projectileToP0Thickness = new Vec3(getSegmentThickness(projectilePos, p0Pos).toVector3f());
                 vertex(vertexConsumer, pose, (float) (0 - projectileToP0Thickness.x), (float) (0 - projectileToP0Thickness.y), (float) (0 - projectileToP0Thickness.z), 0f, 1f);
                 vertex(vertexConsumer, pose, (float) (pointList.get(0).getX() - projectileToP0Thickness.x), (float) (pointList.get(0).getY() - projectileToP0Thickness.y), (float) (pointList.get(0).getZ() - projectileToP0Thickness.z), 1f, 1f);
@@ -76,8 +77,8 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
                 vertex(vertexConsumer, pose, (float) (0 + projectileToP0Thickness.x), (float) (0 + projectileToP0Thickness.y), (float) (0 + projectileToP0Thickness.z), 0f, 0f);
 
                 for (i = 0; i <= points - 2; i++) {
-                    Vec3 p1Pos = new Vec3(pointList.get(i).getX() + projectileEntity.getX(), pointList.get(i).getY() + projectileEntity.getY(), pointList.get(i).getZ() + projectileEntity.getZ());
-                    Vec3 p2Pos = new Vec3(pointList.get(i + 1).getX() + projectileEntity.getX(), pointList.get(i + 1).getY() + projectileEntity.getY(), pointList.get(i + 1).getZ() + projectileEntity.getZ());
+                    Vec3 p1Pos = new Vec3(pointList.get(i).getX() + projectilePos.x, pointList.get(i).getY() + projectilePos.y, pointList.get(i).getZ() + projectilePos.z);
+                    Vec3 p2Pos = new Vec3(pointList.get(i + 1).getX() + projectilePos.x, pointList.get(i + 1).getY() + projectilePos.y, pointList.get(i + 1).getZ() + projectilePos.z);
                     Vec3 point1ToPoint2Thickness = new Vec3(getSegmentThickness(p1Pos, p2Pos).toVector3f());
                     vertex(vertexConsumer, pose, (float) (pointList.get(i).getX() - point1ToPoint2Thickness.x), (float) (pointList.get(i).getY() - point1ToPoint2Thickness.y), (float) (pointList.get(i).getZ() - point1ToPoint2Thickness.z), 0f, 1f);
                     vertex(vertexConsumer, pose, (float) (pointList.get(i + 1).getX() - point1ToPoint2Thickness.x), (float) (pointList.get(i + 1).getY() - point1ToPoint2Thickness.y), (float) (pointList.get(i + 1).getZ() - point1ToPoint2Thickness.z), 1f, 1f);
@@ -85,13 +86,13 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
                     vertex(vertexConsumer, pose, (float) (pointList.get(i).getX() + point1ToPoint2Thickness.x), (float) (pointList.get(i).getY() + point1ToPoint2Thickness.y), (float) (pointList.get(i).getZ() + point1ToPoint2Thickness.z), 0f, 0f);
                 }
 
-                Vec3 lastPointPos = new Vec3(pointList.get(points - 1).getX() + projectileEntity.getX(), pointList.get(points - 1).getY() + projectileEntity.getY(), pointList.get(points - 1).getZ() + projectileEntity.getZ());
+                /*Vec3 lastPointPos = new Vec3(pointList.get(points - 1).getX() + projectilePos.x, pointList.get(points - 1).getY() + projectilePos.y, pointList.get(points - 1).getZ() + projectilePos.z);
                 Vec3 lastPointToHandThickness = new Vec3(getSegmentThickness(lastPointPos, vec3).toVector3f());
                 vertex(vertexConsumer, pose, (float) (pointList.get(points - 1).getX() - lastPointToHandThickness.x), (float) (pointList.get(points - 1).getY() - lastPointToHandThickness.y), (float) (pointList.get(points - 1).getZ() - lastPointToHandThickness.z), 0f, 1f);
                 vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x - lastPointToHandThickness.x), (float) (fromProjectileToHand.y - lastPointToHandThickness.y), (float) (fromProjectileToHand.z - lastPointToHandThickness.z), 1f, 1f);
                 vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x + lastPointToHandThickness.x), (float) (fromProjectileToHand.y + lastPointToHandThickness.y), (float) (fromProjectileToHand.z + lastPointToHandThickness.z), 1f, 0f);
                 vertex(vertexConsumer, pose, (float) (pointList.get(points - 1).getX() + lastPointToHandThickness.x), (float) (pointList.get(points - 1).getY() + lastPointToHandThickness.y), (float) (pointList.get(points - 1).getZ() + lastPointToHandThickness.z), 0f, 0f);
-            }
+                */}
 
             poseStack.popPose();
             super.render(projectileEntity, entityYaw, partialTick, poseStack, multiBufferSource, packedLight);

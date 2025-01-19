@@ -7,6 +7,7 @@ import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -72,10 +73,11 @@ public record ServerboundWalkMidSwingingPayload(boolean up, boolean down, boolea
                             movement.scale(0.2);
 
                             movement = projectOnCircle(fromPlayerToProjectile, movement);
-                            Mineraculous.LOGGER.info(String.valueOf(movement));
 
-                            player.setDeltaMovement(movement);
-                            player.hurtMarked = true;
+                            if (movement.y < Y.y + thrownLadybugYoyo.getY()) {
+                                player.setDeltaMovement(movement);
+                                player.hurtMarked = true;
+                            }
                         }
                     }
                     if (player.isCrouching() && (up || down)) {
@@ -83,7 +85,13 @@ public record ServerboundWalkMidSwingingPayload(boolean up, boolean down, boolea
                             thrownLadybugYoyo.setServerMaxRopeLength(thrownLadybugYoyo.getServerMaxRopeLength() - 0.2f);
                         }
                         if (!up && down && distance >= maxRopeLn - 0.2) {
-                            thrownLadybugYoyo.setServerMaxRopeLength(thrownLadybugYoyo.getServerMaxRopeLength() + 0.2f);
+                            thrownLadybugYoyo.setServerMaxRopeLength(thrownLadybugYoyo.getServerMaxRopeLength() + 0.3f);
+                            Vec3 constrainedPosition = player.position()
+                                    .add(fromProjectileToPlayer.normalize().scale(distance - thrownLadybugYoyo.getServerMaxRopeLength()));
+                            thrownLadybugYoyo.normalCollisions(false, player);
+                            if (player.level().isEmptyBlock(new BlockPos((int) constrainedPosition.x, (int) (constrainedPosition.y + 0.5), (int) constrainedPosition.z))) {
+                                player.setPos(constrainedPosition.x, constrainedPosition.y, constrainedPosition.z);
+                            }
                         }
                     }
                 }

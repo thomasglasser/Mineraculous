@@ -70,7 +70,7 @@ public class MineraculousAbilities {
                 Optional.empty(),
                 true));
 
-        context.register(CATACLYSM, new ContextAwareAbility(
+        context.register(CATACLYSM, new DragAbility(new ContextAwareAbility(
                 Optional.of(new RandomSpreadAbility(
                         MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(),
                         Optional.empty(),
@@ -92,6 +92,9 @@ public class MineraculousAbilities {
                         false)),
                 Optional.empty(),
                 List.of(new RightHandParticlesAbility(MineraculousParticleTypes.BLACK_ORB.get(), Optional.empty(), false)),
+                Optional.empty(),
+                false),
+                20,
                 Optional.of(MineraculousSoundEvents.CATACLYSM_ACTIVATE),
                 false));
         context.register(CAT_VISION, new NightVisionAbility(Optional.of(ResourceLocation.withDefaultNamespace("shaders/post/creeper.json"))));

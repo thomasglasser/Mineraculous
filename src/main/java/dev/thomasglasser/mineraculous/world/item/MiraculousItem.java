@@ -207,7 +207,13 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                     if (overrideActive.get()) {
                         entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculous, data.withPowerStatus(false, false), true);
                     } else {
-                        entity.level().holderOrThrow(miraculous).value().activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(miraculous)), player.level(), player.blockPosition(), player, Ability.Context.PASSIVE);
+                        boolean usedPower = entity.level().holderOrThrow(miraculous).value().activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(miraculous)), player.level(), player.blockPosition(), player, Ability.Context.PASSIVE);
+                        if (usedPower) {
+                            entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculous, data.withUsedPower(), true);
+                            if (entity instanceof ServerPlayer serverPlayer) {
+                                MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, miraculous, MiraculousUsePowerTrigger.Context.ITEM);
+                            }
+                        }
                     }
                 }
             } else {

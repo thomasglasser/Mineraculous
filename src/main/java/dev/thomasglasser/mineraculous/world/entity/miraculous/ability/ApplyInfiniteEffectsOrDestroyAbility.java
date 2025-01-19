@@ -40,7 +40,7 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
             Entity target = context.entity();
             if (target instanceof LivingEntity livingEntity) {
                 for (Holder<MobEffect> mobEffect : effects) {
-                    MobEffectInstance effect = new MobEffectInstance(mobEffect, -1, data.powerLevel());
+                    MobEffectInstance effect = new MobEffectInstance(mobEffect, -1, (data.powerLevel() / 10));
                     livingEntity.addEffect(effect);
                     if (performer instanceof ServerPlayer serverPlayer)
                         serverPlayer.connection.send(new ClientboundUpdateMobEffectPacket(livingEntity.getId(), effect, true));

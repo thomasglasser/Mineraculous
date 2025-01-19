@@ -295,7 +295,13 @@ public class MineraculousEntityEvents {
                     if (overrideActive.get()) {
                         kamikotizationData.withMainPowerActive(false).save(player, !player.level().isClientSide);
                     } else {
-                        player.level().holderOrThrow(kamikotization).value().activeAbility().get().value().perform(new AbilityData(0, Either.right(kamikotization)), player.level(), player.blockPosition(), player, Ability.Context.PASSIVE);
+                        boolean usedPower = player.level().holderOrThrow(kamikotization).value().activeAbility().get().value().perform(new AbilityData(0, Either.right(kamikotization)), player.level(), player.blockPosition(), player, Ability.Context.PASSIVE);
+                        if (usedPower) {
+                            kamikotizationData.withMainPowerActive(false).save(player, !player.level().isClientSide);
+                            if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+                                MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, kamikotization, KamikotizationUsePowerTrigger.Context.ITEM);
+                            }
+                        }
                     }
                 }
             }

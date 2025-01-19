@@ -1,3 +1,23 @@
 {
-  "parent": "mineraculous:block/ripened_camembert_block"
+  "parent": "mineraculous:block/ripened_camembert_block",
+  "overrides": [
+    {
+      "model": "mineraculous:item/ripened_camembert_block_slice1",
+      "predicate": {
+        "mineraculous:bites": 1.0
+      }
+    },
+    {
+      "model": "mineraculous:item/ripened_camembert_block_slice2",
+      "predicate": {
+        "mineraculous:bites": 2.0
+      }
+    },
+    {
+      "model": "mineraculous:item/ripened_camembert_block_slice3",
+      "predicate": {
+        "mineraculous:bites": 3.0
+      }
+    }
+  ]
 }

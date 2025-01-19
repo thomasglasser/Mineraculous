@@ -52,12 +52,14 @@ public class MineraculousBlockStateProvider extends ExtendedBlockStateProvider {
                     .texture("particle", modBlockLoc("cheese/" + ageName + "_" + name + "_side"));
             models.put(age, bites, model);
             return ConfiguredModel.builder()
+                    .rotationY((int) (blockState.getValue(CheeseBlock.FACING).getOpposite()).toYRot())
                     .modelFile(model)
                     .build();
         })));
         waxed.forEach(((age, block) -> getVariantBuilder(block.get()).forAllStates(blockState -> {
             int bites = blockState.getValue(CheeseBlock.BITES);
             return ConfiguredModel.builder()
+                    .rotationY((int) (blockState.getValue(CheeseBlock.FACING).getOpposite()).toYRot())
                     .modelFile(models.get(age, bites))
                     .build();
         })));

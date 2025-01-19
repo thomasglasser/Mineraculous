@@ -47,12 +47,21 @@ public class MineraculousItems {
 
     // Cheese
     public static final SortedMap<CheeseBlock.Age, DeferredItem<?>> CHEESE_WEDGES = wedges("cheese", MineraculousFoods.CHEESE, () -> MineraculousBlocks.CHEESE_BLOCKS);
+    public static final SortedMap<CheeseBlock.Age, DeferredItem<?>> WAXED_CHEESE_WEDGES = waxedWedges("cheese", () -> MineraculousBlocks.WAXED_CHEESE_BLOCKS);
     public static final SortedMap<CheeseBlock.Age, DeferredItem<?>> CAMEMBERT_WEDGES = wedges("camembert", MineraculousFoods.CAMEMBERT, () -> MineraculousBlocks.CAMEMBERT_BLOCKS);
+    public static final SortedMap<CheeseBlock.Age, DeferredItem<?>> WAXED_CAMEMBERT_WEDGES = waxedWedges("camembert", () -> MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS);
 
     private static SortedMap<CheeseBlock.Age, DeferredItem<?>> wedges(String name, FoodProperties foodProperties, Supplier<SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>>> blocks) {
         SortedMap<CheeseBlock.Age, DeferredItem<?>> cheese = new Object2ObjectLinkedOpenHashMap<>(CheeseBlock.Age.values().length);
         for (CheeseBlock.Age age : CheeseBlock.Age.values())
             cheese.put(age, register(age.getSerializedName() + "_wedge_of_" + name, () -> new ItemNameBlockStateItem(blocks.get().get(age).get().defaultBlockState().setValue(CheeseBlock.BITES, CheeseBlock.MAX_BITES), new Item.Properties().food(foodProperties))));
+        return cheese;
+    }
+
+    private static SortedMap<CheeseBlock.Age, DeferredItem<?>> waxedWedges(String name, Supplier<SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>>> blocks) {
+        SortedMap<CheeseBlock.Age, DeferredItem<?>> cheese = new Object2ObjectLinkedOpenHashMap<>(CheeseBlock.Age.values().length);
+        for (CheeseBlock.Age age : CheeseBlock.Age.values())
+            cheese.put(age, register("waxed_" + age.getSerializedName() + "_wedge_of_" + name, () -> new ItemNameBlockStateItem(blocks.get().get(age).get().defaultBlockState().setValue(CheeseBlock.BITES, CheeseBlock.MAX_BITES), new Item.Properties())));
         return cheese;
     }
 

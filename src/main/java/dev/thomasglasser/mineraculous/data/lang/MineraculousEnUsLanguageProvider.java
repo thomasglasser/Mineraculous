@@ -79,8 +79,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousBlocks.CHEESE_POT.get(), "Cheese Pot");
         add(MineraculousBlocks.HIBISCUS_BUSH.get(), "Hibiscus Bush");
 
-        cheese("Cheese", MineraculousItems.CHEESE_WEDGES, MineraculousBlocks.CHEESE_BLOCKS, MineraculousBlocks.WAXED_CHEESE_BLOCKS);
-        cheese("Camembert", MineraculousItems.CAMEMBERT_WEDGES, MineraculousBlocks.CAMEMBERT_BLOCKS, MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS);
+        cheese("Cheese", MineraculousItems.CHEESE_WEDGES, MineraculousBlocks.CHEESE_BLOCKS, MineraculousItems.WAXED_CHEESE_WEDGES, MineraculousBlocks.WAXED_CHEESE_BLOCKS);
+        cheese("Camembert", MineraculousItems.CAMEMBERT_WEDGES, MineraculousBlocks.CAMEMBERT_BLOCKS, MineraculousItems.WAXED_CAMEMBERT_WEDGES, MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS);
 
         addConfigs();
 
@@ -242,10 +242,11 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         // Client
     }
 
-    protected void cheese(String name, Map<CheeseBlock.Age, DeferredItem<?>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxedBlocks) {
+    protected void cheese(String name, Map<CheeseBlock.Age, DeferredItem<?>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredItem<?>> waxedWedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxedBlocks) {
         for (CheeseBlock.Age age : CheeseBlock.Age.values()) {
             add(wedges.get(age).get(), capitalize(age.getSerializedName()).replace('_', '-') + " Wedge of " + name);
             add(blocks.get(age).get(), capitalize(age.getSerializedName()).replace('_', '-') + " Block of " + name);
+            add(waxedWedges.get(age).get(), "Waxed " + capitalize(age.getSerializedName()).replace('_', '-') + " Wedge of " + name);
             add(waxedBlocks.get(age).get(), "Waxed " + capitalize(age.getSerializedName()).replace('_', '-') + " Block of " + name);
         }
     }

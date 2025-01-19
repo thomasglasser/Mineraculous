@@ -109,6 +109,7 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onLoadLootTable);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerBreakSpeed);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onServerPlayerLoggedIn);
+        NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onServerStarted);
 
         if (TommyLibServices.PLATFORM.isClientSide()) {
             bus.addListener(MineraculousClientEvents::onRegisterAdditionalModels);

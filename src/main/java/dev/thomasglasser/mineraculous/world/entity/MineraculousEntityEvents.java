@@ -44,6 +44,8 @@ import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
@@ -52,6 +54,7 @@ import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -198,6 +201,21 @@ public class MineraculousEntityEvents {
                 flattenedLookDataHolder.mineraculous$getKamikotizationLookData().forEach((uuid, data) -> {
                     TommyLibServices.NETWORK.sendToClient(new ClientboundSyncKamikotizationLookPayload(uuid, data), serverPlayer);
                 });
+                for (ServerPlayer other : serverPlayer.serverLevel().players()) {
+                    MiraculousDataSet miraculousDataSet = other.getData(MineraculousAttachmentTypes.MIRACULOUS);
+                    for (ResourceKey<Miraculous> miraculous : miraculousDataSet.keySet()) {
+                        Map<String, FlattenedSuitLookData> commonSuitLooks = ((FlattenedLookDataHolder) serverPlayer.serverLevel().getServer().overworld()).mineraculous$getCommonSuitLookData().get(miraculous);
+                        String look = miraculousDataSet.get(miraculous).suitLook();
+                        if (commonSuitLooks.containsKey(look)) {
+                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(other.getUUID(), commonSuitLooks.get(look), true), serverPlayer.getServer());
+                        }
+                        Map<String, FlattenedMiraculousLookData> commonMiraculousLooks = ((FlattenedLookDataHolder) serverPlayer.serverLevel().getServer().overworld()).mineraculous$getCommonMiraculousLookData().get(miraculous);
+                        look = miraculousDataSet.get(miraculous).miraculousLook();
+                        if (commonMiraculousLooks.containsKey(look)) {
+                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(other.getUUID(), commonMiraculousLooks.get(look), true), serverPlayer.getServer());
+                        }
+                    }
+                }
             }
         }
 
@@ -833,12 +851,24 @@ public class MineraculousEntityEvents {
 
                 MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
                 for (ResourceKey<Miraculous> miraculous : miraculousDataSet.keySet()) {
+                    Map<String, FlattenedSuitLookData> commonSuitLooks = ((FlattenedLookDataHolder) event.getLevel().getServer().overworld()).mineraculous$getCommonSuitLookData().get(miraculous);
                     String look = miraculousDataSet.get(miraculous).suitLook();
-                    if (!look.isEmpty())
-                        TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncSuitLookPayload(Optional.empty(), false, miraculous, look), player);
+                    if (!look.isEmpty()) {
+                        if (commonSuitLooks.containsKey(look)) {
+                            miraculousDataSet.put(player, miraculous, miraculousDataSet.get(miraculous).withSuitLook(look), true);
+                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(player.getUUID(), commonSuitLooks.get(look), true), player.getServer());
+                        } else
+                            TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncSuitLookPayload(Optional.empty(), false, miraculous, look), player);
+                    }
+                    Map<String, FlattenedMiraculousLookData> commonMiraculousLooks = ((FlattenedLookDataHolder) event.getLevel().getServer().overworld()).mineraculous$getCommonMiraculousLookData().get(miraculous);
                     look = miraculousDataSet.get(miraculous).miraculousLook();
-                    if (!look.isEmpty())
-                        TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncMiraculousLookPayload(Optional.empty(), false, miraculous, look), player);
+                    if (!look.isEmpty()) {
+                        if (commonMiraculousLooks.containsKey(look)) {
+                            miraculousDataSet.put(player, miraculous, miraculousDataSet.get(miraculous).withMiraculousLook(look), true);
+                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), commonMiraculousLooks.get(look), true), player.getServer());
+                        } else
+                            TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncMiraculousLookPayload(Optional.empty(), false, miraculous, look), player);
+                    }
                 }
 
                 if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {

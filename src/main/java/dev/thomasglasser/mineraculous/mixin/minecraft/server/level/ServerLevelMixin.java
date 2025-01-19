@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.mixin.minecraft.server.level;
 
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
@@ -38,7 +39,11 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedLoo
     @Unique
     protected ToolIdData mineraculous$toolIdData;
     @Unique
-    protected Map<UUID, Set<FlattenedSuitLookData>> mineraculous$lookData;
+    protected Map<ResourceKey<Miraculous>, Map<String, FlattenedSuitLookData>> mineraculous$commonSuitLookData;
+    @Unique
+    protected Map<ResourceKey<Miraculous>, Map<String, FlattenedMiraculousLookData>> mineraculous$commonMiraculousLookData;
+    @Unique
+    protected Map<UUID, Set<FlattenedSuitLookData>> mineraculous$suitLookData;
     @Unique
     protected Map<UUID, Set<FlattenedMiraculousLookData>> mineraculous$miraculousLookData;
     @Unique
@@ -51,7 +56,9 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedLoo
     private void minejago_init(MinecraftServer minecraftServer, Executor executor, LevelStorageSource.LevelStorageAccess levelStorageAccess, ServerLevelData serverLevelData, ResourceKey<Level> resourceKey, LevelStem levelStem, ChunkProgressListener chunkProgressListener, boolean bl, long l, List list, boolean bl2, RandomSequences randomSequences, CallbackInfo ci) {
         if (resourceKey == Level.OVERWORLD) {
             mineraculous$toolIdData = this.getDataStorage().computeIfAbsent(ToolIdData.factory(mineraculous$INSTANCE), ToolIdData.FILE_ID);
-            mineraculous$lookData = new HashMap<>();
+            mineraculous$commonSuitLookData = new HashMap<>();
+            mineraculous$commonMiraculousLookData = new HashMap<>();
+            mineraculous$suitLookData = new HashMap<>();
             mineraculous$miraculousLookData = new HashMap<>();
             mineraculous$kamikotizationLookData = new HashMap<>();
         }
@@ -63,13 +70,33 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedLoo
     }
 
     @Override
+    public Map<ResourceKey<Miraculous>, Map<String, FlattenedSuitLookData>> mineraculous$getCommonSuitLookData() {
+        return mineraculous$commonSuitLookData;
+    }
+
+    @Override
+    public void mineraculous$setCommonSuitLookData(Map<ResourceKey<Miraculous>, Map<String, FlattenedSuitLookData>> data) {
+        mineraculous$commonSuitLookData = data;
+    }
+
+    @Override
+    public Map<ResourceKey<Miraculous>, Map<String, FlattenedMiraculousLookData>> mineraculous$getCommonMiraculousLookData() {
+        return mineraculous$commonMiraculousLookData;
+    }
+
+    @Override
+    public void mineraculous$setCommonMiraculousLookData(Map<ResourceKey<Miraculous>, Map<String, FlattenedMiraculousLookData>> data) {
+        mineraculous$commonMiraculousLookData = data;
+    }
+
+    @Override
     public Map<UUID, Set<FlattenedSuitLookData>> mineraculous$getSuitLookData() {
-        return mineraculous$lookData;
+        return mineraculous$suitLookData;
     }
 
     @Override
     public void mineraculous$addSuitLookData(UUID player, FlattenedSuitLookData data) {
-        mineraculous$lookData.computeIfAbsent(player, p -> new HashSet<>()).add(data);
+        mineraculous$suitLookData.computeIfAbsent(player, p -> new HashSet<>()).add(data);
     }
 
     @Override

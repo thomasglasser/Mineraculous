@@ -107,17 +107,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.NAME_SET_SUCCESS_OTHER, "Set %s's %s hero name to %s.");
         add(MiraculousCommand.NAME_CLEAR_SUCCESS_SELF, "Your %s hero name has been cleared.");
         add(MiraculousCommand.NAME_CLEAR_SUCCESS_OTHER, "Cleared %s's %s hero name.");
-        add(MiraculousCommand.LOOK_SUIT_QUERY_SUCCESS_SELF, "Your %s hero suit look is %s.");
-        add(MiraculousCommand.LOOK_SUIT_QUERY_SUCCESS_OTHER, "%s's %s hero suit look is %s.");
-        add(MiraculousCommand.LOOK_SUIT_TRY_SET_SUCCESS_SELF, "Attempting to set your %s hero suit look to %s.");
-        add(MiraculousCommand.LOOK_SUIT_TRY_SET_SUCCESS_OTHER, "Attempting to set %s's %s hero suit look to %s.");
-        add(MiraculousCommand.LOOK_SUIT_SET_SUCCESS_SELF, "Your %s hero suit look has been set to %s.");
-        add(MiraculousCommand.LOOK_SUIT_SET_SUCCESS_OTHER, "Set %s's %s hero suit look to %s.");
-        add(MiraculousCommand.LOOK_SUIT_SET_FAILURE, "Missing or invalid assets requested for %s hero suit look %s.");
-        add(MiraculousCommand.LOOK_SUIT_CLEAR_SUCCESS_SELF, "Your %s hero suit look has been cleared.");
-        add(MiraculousCommand.LOOK_SUIT_CLEAR_SUCCESS_OTHER, "Cleared %s's %s hero suit look.");
         add(MiraculousCommand.LOOK_MIRACULOUS_QUERY_SUCCESS_SELF, "Your %s miraculous look is %s.");
         add(MiraculousCommand.LOOK_MIRACULOUS_QUERY_SUCCESS_OTHER, "%s's %s miraculous look is %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_SET_SERVER_SUCCESS_SELF, "Your %s miraculous look has been set to server look %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_SET_SERVER_SUCCESS_OTHER, "Set %s's %s miraculous look to server look %s.");
         add(MiraculousCommand.LOOK_MIRACULOUS_TRY_SET_SUCCESS_SELF, "Attempting to set %s miraculous look to %s.");
         add(MiraculousCommand.LOOK_MIRACULOUS_TRY_SET_SUCCESS_OTHER, "Attempting to set %s's %s miraculous look to %s.");
         add(MiraculousCommand.LOOK_MIRACULOUS_SET_SUCCESS_SELF, "Your %s miraculous look has been set to %s.");
@@ -125,6 +118,17 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.LOOK_MIRACULOUS_SET_FAILURE, "Missing or invalid assets requested for %s miraculous look %s.");
         add(MiraculousCommand.LOOK_MIRACULOUS_CLEAR_SUCCESS_SELF, "Your %s miraculous look has been cleared.");
         add(MiraculousCommand.LOOK_MIRACULOUS_CLEAR_SUCCESS_OTHER, "Cleared %s's %s miraculous look.");
+        add(MiraculousCommand.LOOK_SUIT_QUERY_SUCCESS_SELF, "Your %s hero suit look is %s.");
+        add(MiraculousCommand.LOOK_SUIT_QUERY_SUCCESS_OTHER, "%s's %s hero suit look is %s.");
+        add(MiraculousCommand.LOOK_SUIT_SET_SERVER_SUCCESS_SELF, "Your %s hero suit look has been set to server look %s.");
+        add(MiraculousCommand.LOOK_SUIT_SET_SERVER_SUCCESS_OTHER, "Set %s's %s hero suit look to server look %s.");
+        add(MiraculousCommand.LOOK_SUIT_TRY_SET_SUCCESS_SELF, "Attempting to set your %s hero suit look to %s.");
+        add(MiraculousCommand.LOOK_SUIT_TRY_SET_SUCCESS_OTHER, "Attempting to set %s's %s hero suit look to %s.");
+        add(MiraculousCommand.LOOK_SUIT_SET_SUCCESS_SELF, "Your %s hero suit look has been set to %s.");
+        add(MiraculousCommand.LOOK_SUIT_SET_SUCCESS_OTHER, "Set %s's %s hero suit look to %s.");
+        add(MiraculousCommand.LOOK_SUIT_SET_FAILURE, "Missing or invalid assets requested for %s hero suit look %s.");
+        add(MiraculousCommand.LOOK_SUIT_CLEAR_SUCCESS_SELF, "Your %s hero suit look has been cleared.");
+        add(MiraculousCommand.LOOK_SUIT_CLEAR_SUCCESS_OTHER, "Cleared %s's %s hero suit look.");
         add(MiraculousCommand.CHARGED_TRUE, "charged");
         add(MiraculousCommand.CHARGED_FALSE, "not charged");
         add(MiraculousCommand.CHARGED_QUERY_SUCCESS_SELF, "Your %s kwami is %s.");
@@ -139,6 +143,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.TRANSFORMED, "This command cannot be executed while %s is transformed.");
         add(MiraculousCommand.KWAMI_NOT_FOUND, "%s's %s kwami not found in the world");
         add(MiraculousCommand.CUSTOM_LOOKS_NOT_ENABLED, "The server has not enabled custom looks.");
+        add(MiraculousCommand.CUSTOM_LOOKS_NO_NUMBERS, "Custom looks must not contain numbers.");
         add(MiraculousCommand.MIRACULOUS_INVALID, "Invalid miraculous type %s");
 
         addMiraculous(MineraculousMiraculous.BUTTERFLY, "Butterfly");

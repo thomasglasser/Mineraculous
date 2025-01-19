@@ -11,17 +11,24 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncMiraculousLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncSuitLookPayload;
+import dev.thomasglasser.mineraculous.network.ClientboundSyncMiraculousLookPayload;
+import dev.thomasglasser.mineraculous.network.ClientboundSyncSuitLookPayload;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.Map;
 import java.util.Optional;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceKeyArgument;
 import net.minecraft.core.Holder;
@@ -41,17 +48,10 @@ public class MiraculousCommand {
     public static final String NAME_SET_SUCCESS_OTHER = "commands.miraculous.name.set.success.other";
     public static final String NAME_CLEAR_SUCCESS_SELF = "commands.miraculous.name.clear.success.self";
     public static final String NAME_CLEAR_SUCCESS_OTHER = "commands.miraculous.name.clear.success.other";
-    public static final String LOOK_SUIT_QUERY_SUCCESS_SELF = "commands.miraculous.look.suit.query.success.self";
-    public static final String LOOK_SUIT_QUERY_SUCCESS_OTHER = "commands.miraculous.look.suit.query.success.other";
-    public static final String LOOK_SUIT_TRY_SET_SUCCESS_SELF = "commands.miraculous.look.suit.try_set.success.self";
-    public static final String LOOK_SUIT_TRY_SET_SUCCESS_OTHER = "commands.miraculous.look.suit.try_set.success.other";
-    public static final String LOOK_SUIT_SET_SUCCESS_SELF = "commands.miraculous.look.suit.set.success.self";
-    public static final String LOOK_SUIT_SET_SUCCESS_OTHER = "commands.miraculous.look.suit.set.success.other";
-    public static final String LOOK_SUIT_SET_FAILURE = "commands.miraculous.look.suit.set.failure";
-    public static final String LOOK_SUIT_CLEAR_SUCCESS_SELF = "commands.miraculous.look.suit.clear.success.self";
-    public static final String LOOK_SUIT_CLEAR_SUCCESS_OTHER = "commands.miraculous.look.suit.clear.success.other";
     public static final String LOOK_MIRACULOUS_QUERY_SUCCESS_SELF = "commands.miraculous.look.miraculous.query.success.self";
     public static final String LOOK_MIRACULOUS_QUERY_SUCCESS_OTHER = "commands.miraculous.look.miraculous.query.success.other";
+    public static final String LOOK_MIRACULOUS_SET_SERVER_SUCCESS_SELF = "commands.miraculous.look.miraculous.set_server.success.self";
+    public static final String LOOK_MIRACULOUS_SET_SERVER_SUCCESS_OTHER = "commands.miraculous.look.miraculous.set_server.success.other";
     public static final String LOOK_MIRACULOUS_TRY_SET_SUCCESS_SELF = "commands.miraculous.look.miraculous.try.set.success.self";
     public static final String LOOK_MIRACULOUS_TRY_SET_SUCCESS_OTHER = "commands.miraculous.look.miraculous.try.set.success.other";
     public static final String LOOK_MIRACULOUS_SET_SUCCESS_SELF = "commands.miraculous.look.miraculous.set.success.self";
@@ -59,6 +59,17 @@ public class MiraculousCommand {
     public static final String LOOK_MIRACULOUS_SET_FAILURE = "commands.miraculous.look.miraculous.set.failure";
     public static final String LOOK_MIRACULOUS_CLEAR_SUCCESS_SELF = "commands.miraculous.look.miraculous.clear.success.self";
     public static final String LOOK_MIRACULOUS_CLEAR_SUCCESS_OTHER = "commands.miraculous.look.miraculous.clear.success.other";
+    public static final String LOOK_SUIT_QUERY_SUCCESS_SELF = "commands.miraculous.look.suit.query.success.self";
+    public static final String LOOK_SUIT_QUERY_SUCCESS_OTHER = "commands.miraculous.look.suit.query.success.other";
+    public static final String LOOK_SUIT_SET_SERVER_SUCCESS_SELF = "commands.miraculous.look.suit.set_server.success.self";
+    public static final String LOOK_SUIT_SET_SERVER_SUCCESS_OTHER = "commands.miraculous.look.suit.set_server.success.other";
+    public static final String LOOK_SUIT_TRY_SET_SUCCESS_SELF = "commands.miraculous.look.suit.try_set.success.self";
+    public static final String LOOK_SUIT_TRY_SET_SUCCESS_OTHER = "commands.miraculous.look.suit.try_set.success.other";
+    public static final String LOOK_SUIT_SET_SUCCESS_SELF = "commands.miraculous.look.suit.set.success.self";
+    public static final String LOOK_SUIT_SET_SUCCESS_OTHER = "commands.miraculous.look.suit.set.success.other";
+    public static final String LOOK_SUIT_SET_FAILURE = "commands.miraculous.look.suit.set.failure";
+    public static final String LOOK_SUIT_CLEAR_SUCCESS_SELF = "commands.miraculous.look.suit.clear.success.self";
+    public static final String LOOK_SUIT_CLEAR_SUCCESS_OTHER = "commands.miraculous.look.suit.clear.success.other";
     public static final String CHARGED_TRUE = "commands.miraculous.charged.true";
     public static final String CHARGED_FALSE = "commands.miraculous.charged.false";
     public static final String CHARGED_QUERY_SUCCESS_SELF = "commands.miraculous.charged.query.success.self";
@@ -73,6 +84,7 @@ public class MiraculousCommand {
     public static final String TRANSFORMED = "commands.miraculous.failure.transformed";
     public static final String KWAMI_NOT_FOUND = "commands.miraculous.failure.kwami_not_found";
     public static final String CUSTOM_LOOKS_NOT_ENABLED = "commands.miraculous.failure.custom_looks_not_enabled";
+    public static final String CUSTOM_LOOKS_NO_NUMBERS = "commands.miraculous.failure.custom_looks_no_numbers";
     public static final String MIRACULOUS_INVALID = "commands.miraculous.miraculous.invalid";
     public static final DynamicCommandExceptionType ERROR_INVALID_MIRACULOUS = new DynamicCommandExceptionType(
             p_304101_ -> Component.translatableEscape(MIRACULOUS_INVALID, p_304101_));
@@ -116,6 +128,7 @@ public class MiraculousCommand {
                                                             return getMiraculousLook(target, context, target == context.getSource().getPlayer());
                                                         })))
                                         .then(Commands.argument("look", StringArgumentType.word())
+                                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(((FlattenedLookDataHolder) context.getSource().getServer().overworld()).mineraculous$getCommonMiraculousLookData().get(resolveMiraculous(context, "miraculous").key()).keySet(), builder))
                                                 .executes(context -> trySetMiraculousLook(context.getSource().getPlayerOrException(), context, true))
                                                 .then(Commands.argument("target", EntityArgument.player())
                                                         .executes(context -> {
@@ -140,6 +153,7 @@ public class MiraculousCommand {
                                                             return getSuitLook(target, context, target == context.getSource().getPlayer());
                                                         })))
                                         .then(Commands.argument("look", StringArgumentType.word())
+                                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(((FlattenedLookDataHolder) context.getSource().getServer().overworld()).mineraculous$getCommonSuitLookData().get(resolveMiraculous(context, "miraculous").key()).keySet(), builder))
                                                 .executes(context -> trySetSuitLook(context.getSource().getPlayerOrException(), context, true))
                                                 .then(Commands.argument("target", EntityArgument.player())
                                                         .executes(context -> {
@@ -242,9 +256,18 @@ public class MiraculousCommand {
     }
 
     private static int trySetMiraculousLook(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        if (MineraculousServerConfig.get().enableCustomization.get()) {
-            Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
-            String newLook = StringArgumentType.getString(context, "look");
+        Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
+        String newLook = StringArgumentType.getString(context, "look");
+        Map<String, FlattenedMiraculousLookData> serverLooks = ((FlattenedLookDataHolder) player.getServer().overworld()).mineraculous$getCommonMiraculousLookData().get(miraculousType.key());
+        if (newLook.chars().anyMatch(Character::isDigit))
+            context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_NO_NUMBERS));
+        else if (serverLooks.containsKey(newLook)) {
+            context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_MIRACULOUS_SET_SERVER_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_MIRACULOUS_SET_SERVER_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);
+            MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
+            miraculousDataSet.put(player, miraculousType.key(), miraculousDataSet.get(miraculousType.key()).withMiraculousLook(newLook), true);
+            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), serverLooks.get(newLook), true), player.getServer());
+            return 1;
+        } else if (MineraculousServerConfig.get().enableCustomization.get()) {
             context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_MIRACULOUS_TRY_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_MIRACULOUS_TRY_SET_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);
             TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncMiraculousLookPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), true, miraculousType.key(), newLook), player);
             return 1;
@@ -272,9 +295,18 @@ public class MiraculousCommand {
     }
 
     private static int trySetSuitLook(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        if (MineraculousServerConfig.get().enableCustomization.get()) {
-            Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
-            String newLook = StringArgumentType.getString(context, "look");
+        Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
+        String newLook = StringArgumentType.getString(context, "look");
+        Map<String, FlattenedSuitLookData> serverLooks = ((FlattenedLookDataHolder) player.getServer().overworld()).mineraculous$getCommonSuitLookData().get(miraculousType.key());
+        if (newLook.chars().anyMatch(Character::isDigit))
+            context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_NO_NUMBERS));
+        else if (serverLooks.containsKey(newLook)) {
+            context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_SUIT_SET_SERVER_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_SUIT_SET_SERVER_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);
+            MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
+            miraculousDataSet.put(player, miraculousType.key(), miraculousDataSet.get(miraculousType.key()).withSuitLook(newLook), true);
+            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(player.getUUID(), serverLooks.get(newLook), true), player.getServer());
+            return 1;
+        } else if (MineraculousServerConfig.get().enableCustomization.get()) {
             context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_SUIT_TRY_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_SUIT_TRY_SET_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);
             TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncSuitLookPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), true, miraculousType.key(), newLook), player);
             return 1;

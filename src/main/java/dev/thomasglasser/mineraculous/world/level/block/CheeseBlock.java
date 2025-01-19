@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
+import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -125,10 +126,9 @@ public class CheeseBlock extends HorizontalDirectionalBlock implements ChangeOve
     protected ItemInteractionResult useItemOn(ItemStack pStack, BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHitResult) {
         if (pStack.is(Items.HONEYCOMB) || pStack.canPerformAction(ItemAbilities.AXE_WAX_OFF))
             return ItemInteractionResult.FAIL;
-        if (!waxed && pStack.is(wedge)) {
-            // TODO: Fix
-            pLevel.setBlock(pPos, pState.setValue(BITES, pState.getValue(BITES) + 1), Block.UPDATE_ALL);
-            pStack.shrink(1);
+        if (!waxed && pStack.is(wedge) && pState.getValue(BITES) > 0) {
+            pLevel.setBlock(pPos, pState.setValue(BITES, pState.getValue(BITES) - 1), Block.UPDATE_ALL);
+            ItemUtils.safeShrink(1, pStack, pPlayer);
             return ItemInteractionResult.SUCCESS;
         }
         return super.useItemOn(pStack, pState, pLevel, pPos, pPlayer, pHand, pHitResult);

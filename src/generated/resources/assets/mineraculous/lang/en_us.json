@@ -247,6 +247,8 @@
   "key.mineraculous.transform": "Transform",
   "mineraculous.configuration.cosmetics": "Player Cosmetics",
   "mineraculous.configuration.cosmetics.tooltip": "Settings for player cosmetics",
+  "mineraculous.configuration.customization_permission_mode": "Customization Permissions Mode",
+  "mineraculous.configuration.customization_permission_mode.tooltip": "Permissions mode for customization. Whitelist: Only whitelisted players can customize. Blacklist: Only non-blacklisted players can customize.",
   "mineraculous.configuration.display_dev_team_cosmetic": "Display Dev Team Cosmetic",
   "mineraculous.configuration.display_dev_team_cosmetic.tooltip": "Display the Dev Team cosmetic (if eligible)",
   "mineraculous.configuration.display_legacy_dev_team_cosmetic": "Display Legacy Dev Team Cosmetic",

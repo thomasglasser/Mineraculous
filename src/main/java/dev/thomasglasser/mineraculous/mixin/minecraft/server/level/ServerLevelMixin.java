@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.mixin.minecraft.server.level;
 
+import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
@@ -19,6 +20,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.world.RandomSequences;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.storage.DimensionDataStorage;
@@ -48,6 +50,10 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedLoo
     protected Map<UUID, Set<FlattenedMiraculousLookData>> mineraculous$miraculousLookData;
     @Unique
     protected Map<UUID, FlattenedKamikotizationLookData> mineraculous$kamikotizationLookData;
+    @Unique
+    protected List<Either<UUID, String>> mineraculous$whitelist;
+    @Unique
+    protected List<Either<UUID, String>> mineraculous$blacklist;
 
     @Shadow
     public abstract DimensionDataStorage getDataStorage();
@@ -117,5 +123,25 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedLoo
     @Override
     public void mineraculous$addKamikotizationLookData(UUID player, FlattenedKamikotizationLookData data) {
         mineraculous$kamikotizationLookData.put(player, data);
+    }
+
+    @Override
+    public boolean mineraculous$isPlayerWhitelisted(Player player) {
+        return mineraculous$whitelist.stream().anyMatch(either -> either.left().isPresent() && either.left().get().equals(player.getUUID()) || either.right().orElseThrow().equals(player.getGameProfile().getName()));
+    }
+
+    @Override
+    public void mineraculous$setWhitelist(List<Either<UUID, String>> whitelist) {
+        mineraculous$whitelist = whitelist;
+    }
+
+    @Override
+    public boolean mineraculous$isPlayerBlacklisted(Player player) {
+        return mineraculous$blacklist.stream().anyMatch(either -> either.left().isPresent() && either.left().get().equals(player.getUUID()) || either.right().orElseThrow().equals(player.getGameProfile().getName()));
+    }
+
+    @Override
+    public void mineraculous$setBlacklist(List<Either<UUID, String>> blacklist) {
+        mineraculous$blacklist = blacklist;
     }
 }

@@ -258,7 +258,8 @@ public class MiraculousCommand {
     private static int trySetMiraculousLook(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
         Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
         String newLook = StringArgumentType.getString(context, "look");
-        Map<String, FlattenedMiraculousLookData> serverLooks = ((FlattenedLookDataHolder) player.getServer().overworld()).mineraculous$getCommonMiraculousLookData().get(miraculousType.key());
+        FlattenedLookDataHolder overworld = (FlattenedLookDataHolder) player.getServer().overworld();
+        Map<String, FlattenedMiraculousLookData> serverLooks = overworld.mineraculous$getCommonMiraculousLookData().get(miraculousType.key());
         if (newLook.chars().anyMatch(Character::isDigit))
             context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_NO_NUMBERS));
         else if (serverLooks.containsKey(newLook)) {
@@ -267,7 +268,7 @@ public class MiraculousCommand {
             miraculousDataSet.put(player, miraculousType.key(), miraculousDataSet.get(miraculousType.key()).withMiraculousLook(newLook), true);
             TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), serverLooks.get(newLook), true), player.getServer());
             return 1;
-        } else if (MineraculousServerConfig.get().enableCustomization.get()) {
+        } else if (MineraculousServerConfig.isCustomizationAllowed(player)) {
             context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_MIRACULOUS_TRY_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_MIRACULOUS_TRY_SET_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);
             TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncMiraculousLookPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), true, miraculousType.key(), newLook), player);
             return 1;
@@ -297,7 +298,8 @@ public class MiraculousCommand {
     private static int trySetSuitLook(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
         Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
         String newLook = StringArgumentType.getString(context, "look");
-        Map<String, FlattenedSuitLookData> serverLooks = ((FlattenedLookDataHolder) player.getServer().overworld()).mineraculous$getCommonSuitLookData().get(miraculousType.key());
+        FlattenedLookDataHolder overworld = (FlattenedLookDataHolder) player.getServer().overworld();
+        Map<String, FlattenedSuitLookData> serverLooks = overworld.mineraculous$getCommonSuitLookData().get(miraculousType.key());
         if (newLook.chars().anyMatch(Character::isDigit))
             context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_NO_NUMBERS));
         else if (serverLooks.containsKey(newLook)) {
@@ -306,7 +308,7 @@ public class MiraculousCommand {
             miraculousDataSet.put(player, miraculousType.key(), miraculousDataSet.get(miraculousType.key()).withSuitLook(newLook), true);
             TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(player.getUUID(), serverLooks.get(newLook), true), player.getServer());
             return 1;
-        } else if (MineraculousServerConfig.get().enableCustomization.get()) {
+        } else if (MineraculousServerConfig.isCustomizationAllowed(player)) {
             context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_SUIT_TRY_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_SUIT_TRY_SET_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);
             TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncSuitLookPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), true, miraculousType.key(), newLook), player);
             return 1;

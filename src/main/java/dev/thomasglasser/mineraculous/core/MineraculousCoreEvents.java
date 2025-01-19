@@ -1,6 +1,10 @@
 package dev.thomasglasser.mineraculous.core;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousBuiltInRegistries;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
@@ -14,12 +18,15 @@ import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLoo
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.tommylib.api.network.NeoForgeNetworkUtils;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
@@ -128,7 +135,46 @@ public class MineraculousCoreEvents {
             miraculousLooks.put(miraculous.key(), commonMiraculousLookData);
             suitLooks.put(miraculous.key(), commonSuitLookData);
         });
+        List<Either<UUID, String>> whitelist = new ArrayList<>();
+        Gson gson = new Gson();
+        File whitelistFile = new File(event.getServer().getServerDirectory().toFile(), "miraculouslooks/whitelist.json");
+        if (whitelistFile.exists()) {
+            try {
+                JsonArray jsonObject = gson.fromJson(new FileReader(whitelistFile), JsonArray.class);
+                for (JsonElement entry : jsonObject.asList()) {
+                    String id = entry.getAsString();
+                    try {
+                        UUID uuid = UUID.fromString(id);
+                        whitelist.add(Either.left(uuid));
+                    } catch (IllegalArgumentException e) {
+                        whitelist.add(Either.right(id));
+                    }
+                }
+            } catch (IOException e) {
+                Mineraculous.LOGGER.error("Failed to read whitelist file", e);
+            }
+        }
+        List<Either<UUID, String>> blacklist = new ArrayList<>();
+        File blacklistFile = new File(event.getServer().getServerDirectory().toFile(), "miraculouslooks/blacklist.json");
+        if (blacklistFile.exists()) {
+            try {
+                JsonArray jsonObject = gson.fromJson(new FileReader(blacklistFile), JsonArray.class);
+                for (JsonElement entry : jsonObject.asList()) {
+                    String id = entry.getAsString();
+                    try {
+                        UUID uuid = UUID.fromString(id);
+                        blacklist.add(Either.left(uuid));
+                    } catch (IllegalArgumentException e) {
+                        blacklist.add(Either.right(id));
+                    }
+                }
+            } catch (IOException e) {
+                Mineraculous.LOGGER.error("Failed to read blacklist file", e);
+            }
+        }
         ((FlattenedLookDataHolder) event.getServer().overworld()).mineraculous$setCommonMiraculousLookData(miraculousLooks);
         ((FlattenedLookDataHolder) event.getServer().overworld()).mineraculous$setCommonSuitLookData(suitLooks);
+        ((FlattenedLookDataHolder) event.getServer().overworld()).mineraculous$setWhitelist(whitelist);
+        ((FlattenedLookDataHolder) event.getServer().overworld()).mineraculous$setBlacklist(blacklist);
     }
 }

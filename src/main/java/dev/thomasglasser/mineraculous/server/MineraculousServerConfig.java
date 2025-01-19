@@ -1,5 +1,7 @@
 package dev.thomasglasser.mineraculous.server;
 
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
+import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class MineraculousServerConfig {
@@ -10,6 +12,7 @@ public class MineraculousServerConfig {
     // Miraculous
     public static final String MIRACULOUS = "miraculous";
     public final ModConfigSpec.BooleanValue enableCustomization;
+    public final ModConfigSpec.EnumValue<PermissionMode> customizationPermissionsMode;
     public final ModConfigSpec.BooleanValue enableKamikotizationRejection;
 
     // Stealing
@@ -25,6 +28,8 @@ public class MineraculousServerConfig {
         builder.push(MIRACULOUS);
         enableCustomization = builder
                 .define("enable_customization", false);
+        customizationPermissionsMode = builder
+                .defineEnum("customization_permission_mode", PermissionMode.WHITELIST);
         enableKamikotizationRejection = builder
                 .define("enable_kamikotization_rejection", true);
         builder.pop();
@@ -49,5 +54,15 @@ public class MineraculousServerConfig {
 
     public static MineraculousServerConfig get() {
         return INSTANCE;
+    }
+
+    public static boolean isCustomizationAllowed(Player player) {
+        FlattenedLookDataHolder overworld = (FlattenedLookDataHolder) player.getServer().overworld();
+        return get().enableCustomization.get() && (get().customizationPermissionsMode.get() == PermissionMode.WHITELIST ? overworld.mineraculous$isPlayerWhitelisted(player) : !overworld.mineraculous$isPlayerBlacklisted(player));
+    }
+
+    public enum PermissionMode {
+        WHITELIST,
+        BLACKLIST
     }
 }

@@ -20,7 +20,7 @@ public record ServerboundSyncKamikotizationLookPayload(FlattenedKamikotizationLo
     // ON SERVER
     @Override
     public void handle(Player player) {
-        if (!MineraculousServerConfig.get().enableCustomization.get())
+        if (!MineraculousServerConfig.isCustomizationAllowed(player))
             return;
         ((FlattenedLookDataHolder) player.getServer().overworld()).mineraculous$addKamikotizationLookData(player.getUUID(), data);
         TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncKamikotizationLookPayload(player.getUUID(), data), player.getServer());

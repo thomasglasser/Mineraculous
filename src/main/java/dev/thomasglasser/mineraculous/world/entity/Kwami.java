@@ -14,7 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
@@ -33,7 +32,6 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.Brain;
@@ -66,7 +64,6 @@ import net.tslat.smartbrainlib.api.core.navigation.SmoothFlyingPathNavigation;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyPlayersSensor;
 import net.tslat.smartbrainlib.util.BrainUtils;
-import net.tslat.smartbrainlib.util.RandomUtil;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -114,10 +111,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
 
     @Override
     protected PathNavigation createNavigation(Level world) {
-        SmoothFlyingPathNavigation nav = new SmoothFlyingPathNavigation(this, world);
-        nav.setCanFloat(true);
-        nav.setCanPassDoors(true);
-        return nav;
+        return new SmoothFlyingPathNavigation(this, world);
     }
 
     @Override
@@ -173,15 +167,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                         new SetPlayerLookTarget<>(),
                         new SetRandomLookTarget<>()),
                 new FirstApplicableBehaviour<>(
-                        new FollowOwner<Kwami>() {
-                            // TODO: Update SBL
-                            @Override
-                            protected BlockPos getTeleportPos(Kwami entity, LivingEntity target, BlockPos targetPos) {
-                                Level level = entity.level();
-
-                                return RandomUtil.getRandomPositionWithinRange(targetPos, 5, 5, 5, 1, 1, 1, false, level, 10, (state, statePos) -> this.teleportPredicate.test(entity, statePos, state));
-                            }
-                        }.speedMod(10f).stopFollowingWithin(4).teleportToTargetAfter(10).startCondition(kwami -> kwami.getOwner() != null),
+                        new FollowOwner<Kwami>().speedMod(10f).stopFollowingWithin(4).teleportToTargetAfter(10).startCondition(kwami -> kwami.getOwner() != null),
                         new OneRandomBehaviour<>(
                                 new SetRandomFlyingTarget<>(),
                                 new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)))));

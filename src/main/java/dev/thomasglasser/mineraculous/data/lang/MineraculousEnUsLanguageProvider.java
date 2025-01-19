@@ -137,7 +137,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.NOT_LIVING_ENTITY, "Target must be a living entity.");
         add(MiraculousCommand.TRANSFORMED, "This command cannot be executed while %s is transformed.");
         add(MiraculousCommand.KWAMI_NOT_FOUND, "%s's %s kwami not found in the world");
-        add(MiraculousCommand.CUSTOM_LOOKS_DISABLED, "The server has disabled custom looks.");
+        add(MiraculousCommand.CUSTOM_LOOKS_NOT_ENABLED, "The server has not enabled custom looks.");
         add(MiraculousCommand.MIRACULOUS_INVALID, "Invalid miraculous type %s");
 
         addMiraculous(MineraculousMiraculous.BUTTERFLY, "Butterfly");

@@ -37,7 +37,7 @@ public record ServerboundSyncSuitLookPayload(Optional<UUID> senderId, boolean an
         CommandSourceStack commandSourceStack = sender == null ? player.getServer().createCommandSourceStack() : sender.createCommandSourceStack();
         if (!MineraculousServerConfig.INSTANCE.enableCustomization.get()) {
             if (announce)
-                commandSourceStack.sendFailure(Component.translatable(MiraculousCommand.CUSTOM_LOOKS_DISABLED));
+                commandSourceStack.sendFailure(Component.translatable(MiraculousCommand.CUSTOM_LOOKS_NOT_ENABLED));
         } else if (announce) {
             commandSourceStack.sendSuccess(() -> sender == player ? Component.translatable(MiraculousCommand.LOOK_SUIT_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(data.miraculous())), data.look()) : Component.translatable(MiraculousCommand.LOOK_SUIT_SET_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(data.miraculous())), data.look()), true);
         }

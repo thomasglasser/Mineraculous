@@ -72,7 +72,7 @@ public class MiraculousCommand {
     public static final String NOT_LIVING_ENTITY = "commands.miraculous.failure.not_living_entity";
     public static final String TRANSFORMED = "commands.miraculous.failure.transformed";
     public static final String KWAMI_NOT_FOUND = "commands.miraculous.failure.kwami_not_found";
-    public static final String CUSTOM_LOOKS_DISABLED = "commands.miraculous.failure.custom_looks_disabled";
+    public static final String CUSTOM_LOOKS_NOT_ENABLED = "commands.miraculous.failure.custom_looks_not_enabled";
     public static final String MIRACULOUS_INVALID = "commands.miraculous.miraculous.invalid";
     public static final DynamicCommandExceptionType ERROR_INVALID_MIRACULOUS = new DynamicCommandExceptionType(
             p_304101_ -> Component.translatableEscape(MIRACULOUS_INVALID, p_304101_));
@@ -249,7 +249,7 @@ public class MiraculousCommand {
             TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncMiraculousLookPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), true, miraculousType.key(), newLook), player);
             return 1;
         } else {
-            context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_DISABLED));
+            context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_NOT_ENABLED));
         }
         return 0;
     }
@@ -279,7 +279,7 @@ public class MiraculousCommand {
             TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncSuitLookPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), true, miraculousType.key(), newLook), player);
             return 1;
         } else {
-            context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_DISABLED));
+            context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_NOT_ENABLED));
         }
         return 0;
     }

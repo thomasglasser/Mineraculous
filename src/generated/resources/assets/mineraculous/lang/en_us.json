@@ -135,7 +135,7 @@
   "commands.miraculous.charged.set.success.other": "Set charged state of %s's %s kwami to %s",
   "commands.miraculous.charged.set.success.self": "Set charged state of %s kwami to %s",
   "commands.miraculous.charged.true": "charged",
-  "commands.miraculous.failure.custom_looks_disabled": "The server has disabled custom looks.",
+  "commands.miraculous.failure.custom_looks_not_enabled": "The server has not enabled custom looks.",
   "commands.miraculous.failure.kwami_not_found": "%s's %s kwami not found in the world",
   "commands.miraculous.failure.not_living_entity": "Target must be a living entity.",
   "commands.miraculous.failure.transformed": "This command cannot be executed while %s is transformed.",

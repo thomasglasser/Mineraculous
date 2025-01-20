@@ -1,17 +1,20 @@
 package dev.thomasglasser.mineraculous.data.recipes;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.item.crafting.CheeseWedgeRecipe;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.recipes.ExtendedRecipeProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
+import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
+import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
@@ -25,6 +28,15 @@ public class MineraculousRecipes extends ExtendedRecipeProvider {
 
     @Override
     protected void buildRecipes(RecipeOutput recipeOutput, HolderLookup.Provider holderLookup) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, MineraculousBlocks.CHEESE_POT.get())
+                .pattern("I I")
+                .pattern("ICI")
+                .pattern("III")
+                .define('I', ConventionalItemTags.IRON_INGOTS)
+                .define('C', MineraculousItemTags.CHEESE_BLOCKS)
+                .unlockedBy("has_cheeses", has(MineraculousItemTags.CHEESE_BLOCKS))
+                .save(recipeOutput);
+
         cheeseWaxRecipes(recipeOutput, MineraculousBlocks.CHEESE_BLOCKS);
         cheeseWaxRecipes(recipeOutput, MineraculousBlocks.CAMEMBERT_BLOCKS);
 

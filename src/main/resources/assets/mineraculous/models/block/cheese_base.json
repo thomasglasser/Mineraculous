@@ -35,10 +35,12 @@
 			"scale": [0.5, 0.5, 0.5]
 		},
 		"ground": {
-			"translation": [0, 3, 0]
+			"translation": [0, 3, 0],
+			"scale": [0.5, 0.5, 0.5]
 		},
 		"gui": {
-			"rotation": [90, 180, 0]
+			"rotation": [35, 135, 0],
+			"translation": [0, 5, 0]
 		},
 		"head": {
 			"translation": [0, 14, 0]

@@ -25,9 +25,11 @@ public interface IItemExtensionMixin {
                 ServerPlayer target = (ServerPlayer) itemEntity.level().getPlayerByUUID(stack.get(DataComponents.PROFILE).gameProfile().getId());
                 if (target != null) {
                     KamikotizationData data = target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow();
-                    data.kamikotizedStack().setCount(1);
-                    MineraculousEntityEvents.handleKamikotizationTransformation(target, data, false, false, true, itemEntity.position().add(0, 1, 0));
-                    data.kamikotizedStack().setCount(0);
+                    if (data.stackCount() <= 1)
+                        MineraculousEntityEvents.handleKamikotizationTransformation(target, data, false, false, itemEntity.position().add(0, 1, 0));
+                    else {
+                        data.decrementStackCount().save(target, true);
+                    }
                 }
             }
         }

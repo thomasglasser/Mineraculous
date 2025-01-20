@@ -184,7 +184,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                 pPlayer.startUsingItem(pHand);
             else if (ability == Ability.TRAVEL) {
                 pPlayer.setDeltaMovement(pPlayer.getLookAngle().scale(4));
-                pPlayer.getCooldowns().addCooldown(stack.getItem(), 20);
+                pPlayer.getCooldowns().addCooldown(stack.getItem(), 10);
             } else if (ability == Ability.PERCH) {
                 if (pPlayer.getNearestViewDirection() == Direction.UP)
                     pPlayer.setDeltaMovement(new Vec3(0, 0.5, 0));

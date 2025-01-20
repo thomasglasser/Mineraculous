@@ -88,6 +88,8 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         MineraculousItems.CAMEMBERT_WEDGES.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(age).getId().withPrefix("block/").withSuffix("_slice3")));
         MineraculousItems.WAXED_CAMEMBERT_WEDGES.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousItems.CAMEMBERT_WEDGES.get(age).getId()));
 
+        basicItem(MineraculousBlocks.CHEESE_POT.getId());
+
         ItemModelBuilder inHandLadybugYoyo = withEntityModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_in_hand"))
                 .transforms()
                 .transform(MineraculousItemDisplayContexts.CURIOS_BELT.getValue()).rotation(-90, 0, 0).translation(-2, 10, 3.7f).scale(0.8f).end()

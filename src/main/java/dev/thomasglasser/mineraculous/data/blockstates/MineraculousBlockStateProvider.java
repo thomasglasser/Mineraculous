@@ -27,6 +27,8 @@ public class MineraculousBlockStateProvider extends ExtendedBlockStateProvider {
         cheese(MineraculousBlocks.CHEESE_BLOCKS, MineraculousBlocks.WAXED_CHEESE_BLOCKS, "cheese");
         cheese(MineraculousBlocks.CAMEMBERT_BLOCKS, MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS, "camembert");
 
+        simpleBlock(MineraculousBlocks.CHEESE_POT.get(), models().getExistingFile(blockLoc(MineraculousBlocks.CHEESE_POT)));
+
         getVariantBuilder(MineraculousBlocks.HIBISCUS_BUSH.get()).forAllStates(state -> {
             int stage = state.getValue(SweetBerryBushBlock.AGE);
             return ConfiguredModel.builder()

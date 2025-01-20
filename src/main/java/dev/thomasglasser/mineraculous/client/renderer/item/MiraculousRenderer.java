@@ -2,12 +2,15 @@ package dev.thomasglasser.mineraculous.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.DynamicAutoGlowingTexture;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousLookData;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
@@ -39,9 +42,26 @@ public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
         addRenderLayer(new AutoGlowingGeoLayer<>(this) {
             @Override
             protected @Nullable RenderType getRenderType(MiraculousItem animatable, @Nullable MultiBufferSource bufferSource) {
-                ResourceLocation texture = AutoGlowingTexture.appendToPath(getTextureLocation(animatable), "_glowmask");
-                if (Minecraft.getInstance().getTextureManager().getTexture(texture, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture() && Minecraft.getInstance().getResourceManager().getResource(texture).isEmpty())
+                ResourceLocation texture = getTextureLocation(animatable);
+                ResourceLocation glowmaskTexture = AutoGlowingTexture.appendToPath(texture, "_glowmask");
+                if (Minecraft.getInstance().getTextureManager().getTexture(glowmaskTexture, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture()) {
+                    if (Minecraft.getInstance().getResourceManager().getResource(glowmaskTexture).isPresent())
+                        return super.getRenderType(animatable, bufferSource);
+                    else if (getCurrentItemStack() != null) {
+                        MiraculousLookData data = getMiraculousLookData(getCurrentItemStack());
+                        if (data != null) {
+                            if (data.glowmask().isPresent() && texture.equals(data.texture())) {
+                                byte[] glowmask = data.glowmask().get();
+                                try {
+                                    DynamicAutoGlowingTexture.register(texture, glowmask);
+                                } catch (IOException e) {
+                                    Mineraculous.LOGGER.error("Failed to register glowmask texture for {}", texture, e);
+                                }
+                            }
+                        }
+                    }
                     return null;
+                }
                 return super.getRenderType(animatable, bufferSource);
             }
         });

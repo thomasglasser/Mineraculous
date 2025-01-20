@@ -80,7 +80,7 @@ public class MineraculousCoreEvents {
                 File[] files = folder.listFiles();
                 if (files != null) {
                     for (File texture : files) {
-                        if (texture.getName().endsWith(".png") && texture.getName().chars().noneMatch(Character::isDigit)) {
+                        if (texture.getName().endsWith(".png") && texture.getName().chars().noneMatch(Character::isDigit) && !texture.getName().contains("glowmask")) {
                             String look = texture.getName().replace(".png", "");
                             try {
                                 File model = new File(folder, look + ".geo.json");
@@ -89,14 +89,24 @@ public class MineraculousCoreEvents {
                                     convertedModel = Files.readString(model.toPath());
                                 }
                                 byte[] convertedImage = NativeImage.read(texture.toPath().toUri().toURL().openStream()).asByteArray();
+                                File glowmask = new File(folder, look + "_glowmask.png");
+                                byte[] convertedGlowmask = null;
+                                if (glowmask.exists()) {
+                                    convertedGlowmask = NativeImage.read(glowmask.toPath().toUri().toURL().openStream()).asByteArray();
+                                }
                                 List<byte[]> convertedFrames = new ArrayList<>();
+                                List<byte[]> convertedGlowmaskFrames = new ArrayList<>();
                                 for (int i = 1; i <= miraculous.value().transformationFrames(); i++) {
                                     File frame = new File(folder, look + "_" + i + ".png");
                                     if (frame.exists()) {
                                         convertedFrames.add(NativeImage.read(frame.toPath().toUri().toURL().openStream()).asByteArray());
                                     }
+                                    File glowmaskFrame = new File(folder, look + "_" + i + "_glowmask.png");
+                                    if (glowmaskFrame.exists()) {
+                                        convertedGlowmaskFrames.add(NativeImage.read(glowmaskFrame.toPath().toUri().toURL().openStream()).asByteArray());
+                                    }
                                 }
-                                commonSuitLookData.put(look, new FlattenedSuitLookData(miraculous.key(), look, Optional.ofNullable(convertedModel), convertedImage, convertedFrames));
+                                commonSuitLookData.put(look, new FlattenedSuitLookData(miraculous.key(), look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames));
                             } catch (Exception exception) {
                                 Mineraculous.LOGGER.error("Failed to handle common suit look syncing", exception);
                             }
@@ -119,12 +129,17 @@ public class MineraculousCoreEvents {
                                     convertedModel = Files.readString(model.toPath());
                                 }
                                 byte[] convertedImage = NativeImage.read(texture.toPath().toUri().toURL().openStream()).asByteArray();
+                                File glowmask = new File(folder, look + "_glowmask.png");
+                                byte[] convertedGlowmask = null;
+                                if (glowmask.exists()) {
+                                    convertedGlowmask = NativeImage.read(glowmask.toPath().toUri().toURL().openStream()).asByteArray();
+                                }
                                 File transforms = new File(folder, look + ".json");
                                 String convertedDisplay = null;
                                 if (transforms.exists()) {
                                     convertedDisplay = Files.readString(transforms.toPath());
                                 }
-                                commonMiraculousLookData.put(look, new FlattenedMiraculousLookData(miraculous.key(), look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedDisplay)));
+                                commonMiraculousLookData.put(look, new FlattenedMiraculousLookData(miraculous.key(), look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), Optional.ofNullable(convertedDisplay)));
                             } catch (Exception exception) {
                                 Mineraculous.LOGGER.error("Failed to handle common miraculous look syncing", exception);
                             }

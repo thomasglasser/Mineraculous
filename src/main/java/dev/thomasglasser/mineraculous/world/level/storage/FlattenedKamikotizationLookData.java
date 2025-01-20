@@ -8,10 +8,11 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 
-public record FlattenedKamikotizationLookData(ResourceKey<Kamikotization> kamikotization, Optional<String> model, byte[] pixels) {
+public record FlattenedKamikotizationLookData(ResourceKey<Kamikotization> kamikotization, Optional<String> model, byte[] pixels, Optional<byte[]> glowmaskPixels) {
     public static final StreamCodec<RegistryFriendlyByteBuf, FlattenedKamikotizationLookData> CODEC = StreamCodec.composite(
             ResourceKey.streamCodec(MineraculousRegistries.KAMIKOTIZATION), FlattenedKamikotizationLookData::kamikotization,
             ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), FlattenedKamikotizationLookData::model,
             ByteBufCodecs.BYTE_ARRAY, FlattenedKamikotizationLookData::pixels,
+            ByteBufCodecs.optional(ByteBufCodecs.BYTE_ARRAY), FlattenedKamikotizationLookData::glowmaskPixels,
             FlattenedKamikotizationLookData::new);
 }

@@ -49,12 +49,17 @@ public record ClientboundRequestSyncMiraculousLookPayload(Optional<UUID> senderI
                     convertedModel = Files.readString(model.toPath());
                 }
                 byte[] convertedImage = NativeImage.read(texture.toPath().toUri().toURL().openStream()).asByteArray();
+                File glowmask = new File(folder, look + "_glowmask.png");
+                byte[] convertedGlowmask = null;
+                if (glowmask.exists()) {
+                    convertedGlowmask = NativeImage.read(glowmask.toPath().toUri().toURL().openStream()).asByteArray();
+                }
                 File transforms = new File(folder, look + ".json");
                 String convertedDisplay = null;
                 if (transforms.exists()) {
                     convertedDisplay = Files.readString(transforms.toPath());
                 }
-                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncMiraculousLookPayload(senderId, announce, new FlattenedMiraculousLookData(miraculous, look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedDisplay))));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncMiraculousLookPayload(senderId, announce, new FlattenedMiraculousLookData(miraculous, look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), Optional.ofNullable(convertedDisplay))));
             } catch (Exception exception) {
                 sendFail();
                 Mineraculous.LOGGER.error("Failed to handle clientbound request sync miraculous look payload", exception);

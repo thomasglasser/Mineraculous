@@ -1,10 +1,13 @@
 package dev.thomasglasser.mineraculous.client.renderer.armor;
 
+import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.DynamicAutoGlowingTexture;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.item.armor.KamikotizationArmorItem;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationLookData;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
@@ -13,6 +16,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
@@ -31,9 +35,27 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
         addRenderLayer(new AutoGlowingGeoLayer<>(this) {
             @Override
             protected @Nullable RenderType getRenderType(KamikotizationArmorItem animatable, @Nullable MultiBufferSource bufferSource) {
-                ResourceLocation texture = AutoGlowingTexture.appendToPath(getTextureLocation(animatable), "_glowmask");
-                if (Minecraft.getInstance().getTextureManager().getTexture(texture, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture() && Minecraft.getInstance().getResourceManager().getResource(texture).isEmpty())
+                ResourceLocation texture = getTextureLocation(animatable);
+                ResourceLocation glowmaskTexture = AutoGlowingTexture.appendToPath(texture, "_glowmask");
+                if (Minecraft.getInstance().getTextureManager().getTexture(glowmaskTexture, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture()) {
+                    if (Minecraft.getInstance().getResourceManager().getResource(glowmaskTexture).isPresent())
+                        return super.getRenderType(animatable, bufferSource);
+                    else if (getCurrentStack() != null && getCurrentEntity() instanceof LivingEntity livingEntity) {
+                        ResourceKey<Kamikotization> kamikotization = getCurrentStack().get(MineraculousDataComponents.KAMIKOTIZATION);
+                        KamikotizationLookData data = livingEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS).get(kamikotization);
+                        if (data != null) {
+                            if (data.glowmask().isPresent() && texture.equals(data.texture())) {
+                                byte[] glowmask = data.glowmask().get();
+                                try {
+                                    DynamicAutoGlowingTexture.register(texture, glowmask);
+                                } catch (IOException e) {
+                                    Mineraculous.LOGGER.error("Failed to register glowmask texture for {}", texture, e);
+                                }
+                            }
+                        }
+                    }
                     return null;
+                }
                 return super.getRenderType(animatable, bufferSource);
             }
         });

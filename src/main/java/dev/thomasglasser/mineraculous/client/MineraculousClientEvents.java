@@ -383,7 +383,12 @@ public class MineraculousClientEvents {
                     convertedModel = Files.readString(model.toPath());
                 }
                 byte[] convertedImage = NativeImage.read(texture.toPath().toUri().toURL().openStream()).asByteArray();
-                return new FlattenedKamikotizationLookData(kamikotization, Optional.ofNullable(convertedModel), convertedImage);
+                File glowmask = new File(nameFolder, type + "_glowmask.png");
+                byte[] convertedGlowmask = null;
+                if (glowmask.exists()) {
+                    convertedGlowmask = NativeImage.read(glowmask.toPath().toUri().toURL().openStream()).asByteArray();
+                }
+                return new FlattenedKamikotizationLookData(kamikotization, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask));
             } catch (Exception exception) {
                 Mineraculous.LOGGER.error("Failed to handle clientbound request sync kamikotization look payload", exception);
             }
@@ -398,7 +403,7 @@ public class MineraculousClientEvents {
                 model = BakedModelFactory.getForNamespace(Mineraculous.MOD_ID).constructGeoModel(GeometryTree.fromModel(KeyFramesAdapter.GEO_GSON.fromJson(GsonHelper.fromJson(KeyFramesAdapter.GEO_GSON, data.model().get(), JsonObject.class), Model.class)));
             ResourceLocation texture = Mineraculous.modLoc("textures/miraculouslooks/kamikotizations" + target.getStringUUID() + "/" + data.kamikotization().location().getNamespace() + "/" + data.kamikotization().location().getPath() + ".png");
             Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(NativeImage.read(data.pixels())));
-            target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS).put(data.kamikotization(), new KamikotizationLookData(Optional.ofNullable(model), texture));
+            target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS).put(data.kamikotization(), new KamikotizationLookData(Optional.ofNullable(model), texture, data.glowmaskPixels()));
         } catch (Exception e) {
             Mineraculous.LOGGER.error("Failed to handle unpacking kamikotization look", e);
         }

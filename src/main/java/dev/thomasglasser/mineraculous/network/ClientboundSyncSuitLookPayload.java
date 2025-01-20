@@ -53,7 +53,7 @@ public record ClientboundSyncSuitLookPayload(UUID targetId, FlattenedSuitLookDat
                 frames.add(frame);
                 Minecraft.getInstance().getTextureManager().register(frame, new DynamicTexture(NativeImage.read(data.frames().get(i))));
             }
-            target.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).put(data.miraculous(), data.look(), new SuitLookData(Optional.ofNullable(model), texture, frames));
+            target.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).put(data.miraculous(), data.look(), new SuitLookData(Optional.ofNullable(model), texture, data.glowmaskPixels(), frames, data.glowmaskFrames()));
             if (override) {
                 MiraculousDataSet miraculousDataSet = target.getData(MineraculousAttachmentTypes.MIRACULOUS);
                 miraculousDataSet.put(target, data.miraculous(), miraculousDataSet.get(data.miraculous()).withSuitLook(data.look()), false);

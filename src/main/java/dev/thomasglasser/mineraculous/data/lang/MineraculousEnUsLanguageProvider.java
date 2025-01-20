@@ -144,6 +144,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.KWAMI_NOT_FOUND, "%s's %s kwami not found in the world");
         add(MiraculousCommand.CUSTOM_LOOKS_NOT_ENABLED, "The server has not enabled custom looks.");
         add(MiraculousCommand.CUSTOM_LOOKS_NO_NUMBERS, "Custom looks must not contain numbers.");
+        add(MiraculousCommand.CUSTOM_LOOKS_NO_GLOWMASK, "Custom looks must not contain 'glowmask'.");
         add(MiraculousCommand.MIRACULOUS_INVALID, "Invalid miraculous type %s");
 
         addMiraculous(MineraculousMiraculous.BUTTERFLY, "Butterfly");

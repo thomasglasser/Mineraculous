@@ -135,6 +135,7 @@
   "commands.miraculous.charged.set.success.other": "Set charged state of %s's %s kwami to %s",
   "commands.miraculous.charged.set.success.self": "Set charged state of %s kwami to %s",
   "commands.miraculous.charged.true": "charged",
+  "commands.miraculous.failure.custom_looks_no_glowmask": "Custom looks must not contain 'glowmask'.",
   "commands.miraculous.failure.custom_looks_no_numbers": "Custom looks must not contain numbers.",
   "commands.miraculous.failure.custom_looks_not_enabled": "The server has not enabled custom looks.",
   "commands.miraculous.failure.kwami_not_found": "%s's %s kwami not found in the world",

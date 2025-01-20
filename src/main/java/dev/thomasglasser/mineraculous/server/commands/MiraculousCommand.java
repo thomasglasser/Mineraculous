@@ -85,6 +85,7 @@ public class MiraculousCommand {
     public static final String KWAMI_NOT_FOUND = "commands.miraculous.failure.kwami_not_found";
     public static final String CUSTOM_LOOKS_NOT_ENABLED = "commands.miraculous.failure.custom_looks_not_enabled";
     public static final String CUSTOM_LOOKS_NO_NUMBERS = "commands.miraculous.failure.custom_looks_no_numbers";
+    public static final String CUSTOM_LOOKS_NO_GLOWMASK = "commands.miraculous.failure.custom_looks_no_glowmask";
     public static final String MIRACULOUS_INVALID = "commands.miraculous.miraculous.invalid";
     public static final DynamicCommandExceptionType ERROR_INVALID_MIRACULOUS = new DynamicCommandExceptionType(
             p_304101_ -> Component.translatableEscape(MIRACULOUS_INVALID, p_304101_));
@@ -262,6 +263,8 @@ public class MiraculousCommand {
         Map<String, FlattenedMiraculousLookData> serverLooks = overworld.mineraculous$getCommonMiraculousLookData().get(miraculousType.key());
         if (newLook.chars().anyMatch(Character::isDigit))
             context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_NO_NUMBERS));
+        else if (newLook.contains("glowmask"))
+            context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_NO_GLOWMASK));
         else if (serverLooks.containsKey(newLook)) {
             context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_MIRACULOUS_SET_SERVER_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_MIRACULOUS_SET_SERVER_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);
             MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
@@ -302,6 +305,8 @@ public class MiraculousCommand {
         Map<String, FlattenedSuitLookData> serverLooks = overworld.mineraculous$getCommonSuitLookData().get(miraculousType.key());
         if (newLook.chars().anyMatch(Character::isDigit))
             context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_NO_NUMBERS));
+        else if (newLook.contains("glowmask"))
+            context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_NO_GLOWMASK));
         else if (serverLooks.containsKey(newLook)) {
             context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_SUIT_SET_SERVER_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_SUIT_SET_SERVER_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);
             MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);

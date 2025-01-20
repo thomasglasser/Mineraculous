@@ -8,15 +8,20 @@ import dev.thomasglasser.mineraculous.world.level.storage.SuitLookData;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.cache.texture.AutoGlowingTexture;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
+import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmorItem> {
     private final Map<ResourceKey<Miraculous>, GeoModel<MiraculousArmorItem>> defaultModels = new HashMap<>();
@@ -24,6 +29,15 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
 
     public MiraculousArmorItemRenderer() {
         super(null);
+        addRenderLayer(new AutoGlowingGeoLayer<>(this) {
+            @Override
+            protected @Nullable RenderType getRenderType(MiraculousArmorItem animatable, @Nullable MultiBufferSource bufferSource) {
+                ResourceLocation texture = AutoGlowingTexture.appendToPath(getTextureLocation(animatable), "_glowmask");
+                if (Minecraft.getInstance().getTextureManager().getTexture(texture, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture() && Minecraft.getInstance().getResourceManager().getResource(texture).isEmpty())
+                    return null;
+                return super.getRenderType(animatable, bufferSource);
+            }
+        });
     }
 
     @Override

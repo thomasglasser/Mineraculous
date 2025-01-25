@@ -345,6 +345,7 @@ public class MineraculousEntityEvents {
 
     public static void handleMiraculousTransformation(ServerPlayer player, ResourceKey<Miraculous> miraculous, MiraculousData data, boolean transform, boolean instant) {
         if (player != null) {
+            player.removeEntitiesOnShoulder();
             ServerLevel serverLevel = player.serverLevel();
             ItemStack miraculousStack = data.miraculousItem();
             int transformationFrames = instant ? 0 : player.serverLevel().holderOrThrow(miraculous).value().transformationFrames();

@@ -311,6 +311,37 @@
 					}
 				}
 			}
+		},
+		"misc.sit": {
+			"loop": true,
+			"bones": {
+				"right_leg": {
+					"rotation": {
+						"vector": [-45, 0, 0]
+					},
+					"position": {
+						"vector": [0, 0.5, 0]
+					}
+				},
+				"left_leg": {
+					"rotation": {
+						"vector": [-45, 0, 0]
+					},
+					"position": {
+						"vector": [0, 0.5, 0]
+					}
+				},
+				"right_arm": {
+					"rotation": {
+						"vector": [0, -100, 0]
+					}
+				},
+				"left_arm": {
+					"rotation": {
+						"vector": [0, 100, 0]
+					}
+				}
+			}
 		}
 	},
 	"geckolib_format_version": 2

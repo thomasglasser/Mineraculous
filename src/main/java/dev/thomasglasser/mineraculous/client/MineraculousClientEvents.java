@@ -16,6 +16,7 @@ import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownButterflyCane
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownCatStaffRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownLadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.KamikoMaskLayer;
+import dev.thomasglasser.mineraculous.client.renderer.entity.layers.KwamiOnShoulderLayer;
 import dev.thomasglasser.mineraculous.client.renderer.item.MineraculousItemProperties;
 import dev.thomasglasser.mineraculous.client.renderer.item.curio.ContextDependentCurioRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
@@ -202,6 +203,7 @@ public class MineraculousClientEvents {
 
             if (player != null) {
                 player.addLayer(new KamikoMaskLayer<>(player, models));
+                player.addLayer(new KwamiOnShoulderLayer<>(player));
             }
         }
     }

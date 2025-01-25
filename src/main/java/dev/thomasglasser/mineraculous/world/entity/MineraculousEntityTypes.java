@@ -21,7 +21,7 @@ public class MineraculousEntityTypes {
 
     public static final DeferredHolder<EntityType<?>, EntityType<Kwami>> KWAMI = register("kwami",
             EntityType.Builder.of(Kwami::new, MobCategory.CREATURE)
-                    .sized(0.6F, 0.8F));
+                    .sized(0.3F, 0.4F));
     public static final DeferredHolder<EntityType<?>, EntityType<Kamiko>> KAMIKO = register("kamiko",
             EntityType.Builder.of(Kamiko::new, MobCategory.MISC)
                     .clientTrackingRange(Integer.MAX_VALUE / 16)

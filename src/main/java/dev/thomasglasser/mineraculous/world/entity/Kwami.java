@@ -33,7 +33,6 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -41,6 +40,7 @@ import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.FlyingAnimal;
+import net.minecraft.world.entity.animal.ShoulderRidingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -74,8 +74,9 @@ import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoEntity, FlyingAnimal {
+public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami>, GeoEntity, FlyingAnimal {
     public static final RawAnimation EAT = RawAnimation.begin().thenPlay("misc.eat");
+    public static final RawAnimation SIT = RawAnimation.begin().thenPlay("misc.sit");
 
     private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<ResourceKey<Miraculous>> DATA_MIRACULOUS = SynchedEntityData.defineId(Kwami.class, MineraculousEntityDataSerializers.MIRACULOUS.get());
@@ -85,6 +86,8 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private Component name;
     private TagKey<Item> foodTag;
     private TagKey<Item> treatTag;
+
+    private boolean onShoulder = false;
 
     public Kwami(EntityType<? extends Kwami> entityType, Level level) {
         super(entityType, level);
@@ -183,8 +186,11 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (!player.level().isClientSide && player == getOwner()) {
+        if (player instanceof ServerPlayer serverPlayer && player == getOwner()) {
             ItemStack stack = player.getItemInHand(hand);
+            if (stack.isEmpty()) {
+                return setEntityOnShoulder(serverPlayer) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
+            }
             if (!isCharged()) {
                 if (isTreat(stack) || (isFood(stack) && random.nextInt(3) == 0)) {
                     playHurtSound(level().damageSources().starve());
@@ -208,7 +214,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         controllers.add(new AnimationController<>(this, "move_controller", state -> {
             if (state.isMoving())
                 return state.setAndContinue(DefaultAnimations.FLY);
-            return state.setAndContinue(DefaultAnimations.IDLE);
+            return onShoulder ? state.setAndContinue(SIT) : state.setAndContinue(DefaultAnimations.IDLE);
         }));
         controllers.add(new AnimationController<>(this, "eat_controller", state -> PlayState.STOP)
                 .triggerableAnim("eat", EAT));
@@ -300,5 +306,9 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     @Override
     public boolean isFlying() {
         return true;
+    }
+
+    public void setOnShoulder() {
+        onShoulder = true;
     }
 }

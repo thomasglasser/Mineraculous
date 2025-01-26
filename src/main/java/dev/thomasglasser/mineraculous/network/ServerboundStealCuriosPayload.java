@@ -39,7 +39,7 @@ public record ServerboundStealCuriosPayload(UUID target, CuriosData data) implem
             ItemStack stack = CuriosUtils.getStackInSlot(target, this.data);
             ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
             if (miraculous != null && stack.has(MineraculousDataComponents.POWERED)) {
-                MineraculousEntityEvents.handleMiraculousTransformation((ServerPlayer) target, miraculous, target.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous), false, true);
+                MineraculousEntityEvents.handleMiraculousTransformation((ServerPlayer) target, miraculous, target.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous), false, true, false);
                 MineraculousEntityEvents.renounceMiraculous(stack, (ServerLevel) player.level());
             }
             if (EnchantmentHelper.has(stack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE)) {

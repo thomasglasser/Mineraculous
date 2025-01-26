@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.client;
 
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationSelectionScreen;
+import dev.thomasglasser.mineraculous.client.gui.screens.MiraculousTransferScreen;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.SnapshotTesterCosmeticOptions;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.VipData;
 import dev.thomasglasser.mineraculous.network.ServerboundChangeVipDataPayload;
@@ -148,6 +149,10 @@ public class MineraculousClientUtils {
     public static void closeKamikotizationChatScreen(boolean cancel) {
         if (Minecraft.getInstance().screen instanceof KamikotizationChatScreen screen)
             screen.onClose(cancel, false);
+    }
+
+    public static void openMiraculousTransferScreen(int kwamiId) {
+        ClientUtils.setScreen(new MiraculousTransferScreen(kwamiId));
     }
 
     public static void init() {}

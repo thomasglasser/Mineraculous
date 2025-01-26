@@ -28,7 +28,7 @@ public record ServerboundMiraculousTransformPayload(ResourceKey<Miraculous> mira
     // ON SERVER
     @Override
     public void handle(@Nullable Player player) {
-        MineraculousEntityEvents.handleMiraculousTransformation((ServerPlayer) player, miraculousType, data, transform, instant);
+        MineraculousEntityEvents.handleMiraculousTransformation((ServerPlayer) player, miraculousType, data, transform, instant, false);
     }
 
     @Override

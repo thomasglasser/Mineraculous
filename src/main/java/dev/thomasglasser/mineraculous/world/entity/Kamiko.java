@@ -16,6 +16,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
+import java.util.function.BiPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -50,6 +51,7 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowTemptation;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomFlyingTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.target.InvalidateAttackTarget;
 import net.tslat.smartbrainlib.api.core.navigation.SmoothFlyingPathNavigation;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.util.BrainUtils;
@@ -64,6 +66,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, GeoEntity {
     public static final ResourceLocation SPECTATOR_SHADER = Mineraculous.modLoc("post_effect/kamiko.json");
     public static final String CANT_KAMIKOTIZE_TRANSFORMED = "entity.mineraculous.kamiko.cant_kamikotize_transformed";
+    public static final BiPredicate<LivingEntity, LivingEntity> TARGET_TOO_FAR = (kamiko, target) -> (kamiko.getAttributes().hasAttribute(Attributes.FOLLOW_RANGE) && kamiko.distanceToSqr(target) >= Math.pow(kamiko.getAttributeValue(Attributes.FOLLOW_RANGE), 2));
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -75,10 +78,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
 
     @Override
     protected PathNavigation createNavigation(Level world) {
-        SmoothFlyingPathNavigation nav = new SmoothFlyingPathNavigation(this, world);
-        nav.setCanFloat(true);
-        nav.setCanPassDoors(true);
-        return nav;
+        return new SmoothFlyingPathNavigation(this, world);
     }
 
     @Override
@@ -139,11 +139,11 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH, 1) // Butterflies are weak, okay.
+                .add(Attributes.MAX_HEALTH, 1)
                 .add(Attributes.MOVEMENT_SPEED, 0.3)
                 .add(Attributes.FLYING_SPEED, 1)
                 .add(Attributes.GRAVITY, 0)
-                .add(Attributes.FOLLOW_RANGE, 2048);
+                .add(Attributes.FOLLOW_RANGE, 1024);
     }
 
     @Override
@@ -163,6 +163,12 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     @Override
     public BrainActivityGroup<? extends Kamiko> getCoreTasks() {
         return BrainActivityGroup.coreTasks(
+                new InvalidateAttackTarget<>() {
+                    @Override
+                    protected boolean canAttack(LivingEntity entity, LivingEntity target) {
+                        return entity.canBeSeenByAnyone();
+                    }
+                }.invalidateIf(TARGET_TOO_FAR),
                 new SetWalkTargetToAttackTarget<Kamiko>(),
                 new MoveToWalkTarget<Kamiko>());
     }
@@ -176,7 +182,6 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                         new SetRandomFlyingTarget<>()));
     }
 
-    // ANIMATION
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 0, state -> state.setAndContinue(DefaultAnimations.FLY)));

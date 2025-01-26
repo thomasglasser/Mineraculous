@@ -19,12 +19,10 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 
 public class PlayerKamikoMenuItem implements KamikoMenuItem {
-    private final GameProfile profile;
     private final Supplier<PlayerSkin> skin;
     private final Player player;
 
     public PlayerKamikoMenuItem(GameProfile profile) {
-        this.profile = profile;
         this.skin = Minecraft.getInstance().getSkinManager().lookupInsecure(profile);
         this.player = Minecraft.getInstance().level.getPlayerByUUID(profile.getId());
     }

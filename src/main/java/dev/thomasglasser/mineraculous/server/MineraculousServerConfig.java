@@ -13,6 +13,8 @@ public class MineraculousServerConfig {
     public static final String MIRACULOUS = "miraculous";
     public final ModConfigSpec.BooleanValue enableCustomization;
     public final ModConfigSpec.EnumValue<PermissionMode> customizationPermissionsMode;
+    public final ModConfigSpec.BooleanValue enableMiraculousTimer;
+    public final ModConfigSpec.BooleanValue enableLimitedPower;
     public final ModConfigSpec.BooleanValue enableKamikotizationRejection;
 
     // Stealing
@@ -30,6 +32,10 @@ public class MineraculousServerConfig {
                 .define("enable_customization", false);
         customizationPermissionsMode = builder
                 .defineEnum("customization_permission_mode", PermissionMode.WHITELIST);
+        enableMiraculousTimer = builder
+                .define("enable_miraculous_timer", true);
+        enableLimitedPower = builder
+                .define("enable_limited_power", true);
         enableKamikotizationRejection = builder
                 .define("enable_kamikotization_rejection", true);
         builder.pop();

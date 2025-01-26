@@ -88,18 +88,6 @@ public class MineraculousClientUtils {
         ClientUtils.setScreen(new KamikotizationChatScreen(targetName, performerName, target));
     }
 
-    public static boolean jump = false;
-    public static boolean jumpX = false;
-    public static boolean jumpKeyStartPressing = false;
-
-    public static boolean getJump() {
-        return jump;
-    }
-
-    public static void setJump(boolean i) {
-        jump = i;
-    }
-
     public static void closeKamikotizationChatScreen(boolean cancel) {
         if (Minecraft.getInstance().screen instanceof KamikotizationChatScreen screen)
             screen.onClose(cancel, false);

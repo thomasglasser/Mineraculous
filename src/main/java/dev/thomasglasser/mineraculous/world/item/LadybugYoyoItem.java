@@ -159,21 +159,21 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                             TommyLibServices.NETWORK.sendToServer(new ServerboundEquipToolPayload(hand));
                         }
                         playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
-                    } else if (MineraculousClientUtils.jumpKeyStartPressing && stack.has(MineraculousDataComponents.ACTIVE)) {
+                    } else if (Minecraft.getInstance().player.input.jumping && stack.has(MineraculousDataComponents.ACTIVE)) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundJumpMidSwingingPayload());
                     } else if (Minecraft.getInstance().player != null &&
                             (Minecraft.getInstance().player.input.up ||
                                     Minecraft.getInstance().player.input.down ||
                                     Minecraft.getInstance().player.input.left ||
                                     Minecraft.getInstance().player.input.right ||
-                                    MineraculousKeyMappings.INCREASE_SWINGING_ROPE_LENGTH.get().isDown() ||
-                                    MineraculousKeyMappings.SHRINK_SWINGING_ROPE_LENGTH.get().isDown())) {
+                                    MineraculousKeyMappings.UNWIND_YOYO.get().isDown() ||
+                                    MineraculousKeyMappings.WIND_YOYO.get().isDown())) {
                                         boolean front = Minecraft.getInstance().player.input.up;
                                         boolean back = Minecraft.getInstance().player.input.down;
                                         boolean left = Minecraft.getInstance().player.input.left;
                                         boolean right = Minecraft.getInstance().player.input.right;
-                                        boolean up = MineraculousKeyMappings.SHRINK_SWINGING_ROPE_LENGTH.get().isDown();
-                                        boolean down = MineraculousKeyMappings.INCREASE_SWINGING_ROPE_LENGTH.get().isDown();
+                                        boolean up = MineraculousKeyMappings.WIND_YOYO.get().isDown();
+                                        boolean down = MineraculousKeyMappings.UNWIND_YOYO.get().isDown();
                                         TommyLibServices.NETWORK.sendToServer(new ServerboundWalkMidSwingingPayload(front, back, left, right, up, down));
                                     }
                 }
@@ -193,43 +193,30 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         if (ability != null) {
             if (!ability.canBePerformedBy(pPlayer, stack))
                 return InteractionResultHolder.fail(stack);
-            // TODO: Implement abilities
             if (ability == Ability.BLOCK)
                 pPlayer.startUsingItem(pHand);
-//            if (ability == Ability.BLOCK || ability == Ability.THROW)
-//                pPlayer.startUsingItem(pHand);
-            else if (ability == Ability.TRAVEL &&
-                    stack.has(MineraculousDataComponents.ACTIVE) &&
-                    !pPlayer.getCooldowns().isOnCooldown(this)) {
-
-                        Optional<UUID> uuid = pPlayer.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
-                        if (uuid.isPresent()) {
-                            if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(uuid.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
-                                if (thrownLadybugYoyo.isRecalling()) {
-                                    thrownLadybugYoyo.discard();
-                                    throwYoyo(stack, pPlayer, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY));
-                                } else {
-                                    recallYoyo(stack, pPlayer);
-                                }
+            else if (!pPlayer.getCooldowns().isOnCooldown(this)) {
+                if (level instanceof ServerLevel serverLevel) {
+                    Optional<UUID> uuid = pPlayer.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
+                    if (uuid.isPresent()) {
+                        if (serverLevel.getEntity(uuid.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
+                            if (thrownLadybugYoyo.isRecalling() && ability == thrownLadybugYoyo.getAbility()) {
+                                thrownLadybugYoyo.discard();
+                                throwYoyo(stack, pPlayer, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY));
+                            } else {
+                                recallYoyo(pPlayer);
                             }
-                        } else {
-                            throwYoyo(stack, pPlayer, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY));
                         }
-                        pPlayer.getCooldowns().addCooldown(this, 5);
-
-                    }// else if (ability == Ability.PERCH) {
-//                if (pPlayer.getNearestViewDirection() == Direction.UP)
-//                    pPlayer.setDeltaMovement(new Vec3(0, 0.5, 0));
-//                else if (pPlayer.getNearestViewDirection() == Direction.DOWN) {
-//                    pPlayer.setDeltaMovement(new Vec3(0, -0.5, 0));
-//                    pPlayer.resetFallDistance();
-//                }
-//            }
+                    } else {
+                        throwYoyo(stack, pPlayer, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY));
+                    }
+                    pPlayer.getCooldowns().addCooldown(this, 5);
+                }
+            }
             if (level instanceof ServerLevel serverLevel) {
                 long animId = GeoItem.getOrAssignId(stack, serverLevel);
-                switch (ability) {
-                    case BLOCK -> triggerAnim(pPlayer, animId, CONTROLLER_USE, ANIMATION_BLOCK);
-                    default -> {}
+                if (ability == Ability.BLOCK) {
+                    triggerAnim(pPlayer, animId, CONTROLLER_USE, ANIMATION_BLOCK);
                 }
             }
             return InteractionResultHolder.consume(stack);
@@ -255,27 +242,26 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         }
     }
 
-    public void releaseUsing(ItemStack stack, Level level, LivingEntity entityLiving, int timeLeft) {
-        Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get());
-        // TODO: Implement ability
-    }
-
     @Override
     public boolean onEntitySwing(ItemStack stack, LivingEntity entity, InteractionHand hand) {
-        if (stack.has(MineraculousDataComponents.ACTIVE) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
+        if (entity.level() instanceof ServerLevel serverLevel && stack.has(MineraculousDataComponents.ACTIVE) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
             Optional<UUID> uuid = entity.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
             if (uuid.isPresent()) {
-                Level level = player.level();
-                if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(uuid.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
-                    if (stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.TRAVEL && thrownLadybugYoyo.inGround()) {
-                        Vec3 fromPlayerToYoyo = new Vec3(thrownLadybugYoyo.getX() - player.getX(), thrownLadybugYoyo.getY() - player.getY() + 2, thrownLadybugYoyo.getZ() - player.getZ());
-                        player.setDeltaMovement(fromPlayerToYoyo.scale(0.2).add(player.getDeltaMovement()));
-                        player.hurtMarked = true;
-                        thrownLadybugYoyo.recall();
+                if (serverLevel.getEntity(uuid.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
+                    if (thrownLadybugYoyo.getAbility() == Ability.TRAVEL) {
+                        if (thrownLadybugYoyo.inGround()) {
+                            Vec3 fromPlayerToYoyo = new Vec3(thrownLadybugYoyo.getX() - player.getX(), thrownLadybugYoyo.getY() - player.getY() + 2, thrownLadybugYoyo.getZ() - player.getZ());
+                            // TODO: Test some factors
+                            player.setDeltaMovement(fromPlayerToYoyo.scale(0.2).add(player.getDeltaMovement()));
+                            player.hurtMarked = true;
+                            thrownLadybugYoyo.recall();
+                        }
+                    } else if (thrownLadybugYoyo.getAbility() == null) {
+                        recallYoyo(player);
                     }
                 }
-            } else if (stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) != Ability.TRAVEL) {
-                throwYoyo(stack, player, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY));
+            } else {
+                throwYoyo(stack, player, null);
                 player.getCooldowns().addCooldown(this, 5);
             }
             return true;
@@ -288,7 +274,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         return false;
     }
 
-    public void recallYoyo(ItemStack stack, Player player) {
+    public void recallYoyo(Player player) {
         Optional<UUID> uuid = player.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
         if (uuid.isPresent()) {
             Level level = player.level();

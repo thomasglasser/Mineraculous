@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.world.entity.projectile;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownLadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncLadybugYoyoPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
@@ -42,10 +43,9 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    @Nullable
-    private LadybugYoyoItem.Ability ability;
     private boolean dealtDamage;
     public double maxRopeLength = 0; // used for rendering the rope
+    private static final EntityDataAccessor<Optional<LadybugYoyoItem.Ability>> ABILITY = SynchedEntityData.defineId(ThrownLadybugYoyo.class, MineraculousEntityDataSerializers.OPTIONAL_LADYBUG_YOYO_ABILITY.get());
     private static final EntityDataAccessor<Boolean> IS_RECALLING = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> SERVER_MAX_ROPE_LENGTH = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> RECALLING_TICKS = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.INT);
@@ -53,7 +53,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     public ThrownLadybugYoyo(LivingEntity owner, Level level, ItemStack pickupItemStack, @Nullable LadybugYoyoItem.Ability ability) {
         super(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), owner, level, pickupItemStack, null);
         setPos(owner.getX(), owner.getEyeY() - 0.2, owner.getZ());
-        this.ability = ability;
+        setAbility(ability);
         owner.setData(MineraculousAttachmentTypes.LADYBUG_YOYO, Optional.of(this.getUUID()));
         if (level instanceof ServerLevel serverLevel) {
             TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncLadybugYoyoPayload(Optional.of(this.getUUID())), serverLevel.getServer());
@@ -62,21 +62,29 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
 
     public ThrownLadybugYoyo(double x, double y, double z, Level level, ItemStack pickupItemStack, @Nullable LadybugYoyoItem.Ability ability) {
         super(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), x, y, z, level, pickupItemStack, null);
-        this.ability = ability;
+        setAbility(ability);
     }
 
     public ThrownLadybugYoyo(EntityType<? extends ThrownLadybugYoyo> entityType, Level level) {
         super(entityType, level);
-        this.ability = null;
         this.noCulling = true;
     }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
+        builder.define(ABILITY, Optional.empty());
         builder.define(IS_RECALLING, false);
         builder.define(RECALLING_TICKS, 0);
         builder.define(SERVER_MAX_ROPE_LENGTH, 0f);
+    }
+
+    public @Nullable LadybugYoyoItem.Ability getAbility() {
+        return this.entityData.get(ABILITY).orElse(null);
+    }
+
+    public void setAbility(@Nullable LadybugYoyoItem.Ability ability) {
+        this.entityData.set(ABILITY, Optional.ofNullable(ability));
     }
 
     public boolean isRecalling() {
@@ -274,7 +282,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         }
 
         this.dealtDamage = true;
-        if (this.ability == null) {
+        if (getAbility() == null) {
             if (entity.hurt(damagesource, f)) {
                 if (entity.getType() == EntityType.ENDERMAN) {
                     return;
@@ -313,16 +321,17 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     @Override
     protected void onHitBlock(BlockHitResult result) {
         super.onHitBlock(result);
-        if (ability != LadybugYoyoItem.Ability.TRAVEL) { //tommy fix ability
-            //discard();
-        }
-        Player p = this.getPlayerOwner();
-        if (p != null && this.inGround() && !this.isRecalling()) {
+        if (getAbility() == LadybugYoyoItem.Ability.TRAVEL) {
+            Player p = this.getPlayerOwner();
+            if (p != null && this.inGround() && !this.isRecalling()) {
 
-            updateRenderMaxRopeLength(p);
+                updateRenderMaxRopeLength(p);
 
-            Vec3 fromProjectileToPlayer = new Vec3(p.getX() - this.getX(), p.getY() - this.getY(), p.getZ() - this.getZ());
-            this.setServerMaxRopeLength((float) fromProjectileToPlayer.length() + 1.5f);
+                Vec3 fromProjectileToPlayer = new Vec3(p.getX() - this.getX(), p.getY() - this.getY(), p.getZ() - this.getZ());
+                this.setServerMaxRopeLength((float) fromProjectileToPlayer.length() + 1.5f);
+            }
+        } else {
+            recall();
         }
     }
 
@@ -366,15 +375,15 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         if (compound.contains("Ability"))
-            this.ability = LadybugYoyoItem.Ability.valueOf(compound.getString("Ability"));
+            setAbility(LadybugYoyoItem.Ability.valueOf(compound.getString("Ability")));
         this.dealtDamage = compound.getBoolean("DealtDamage");
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
-        if (this.ability != null)
-            compound.putString("Ability", this.ability.name());
+        if (getAbility() != null)
+            compound.putString("Ability", this.getAbility().name());
         compound.putBoolean("DealtDamage", this.dealtDamage);
     }
 

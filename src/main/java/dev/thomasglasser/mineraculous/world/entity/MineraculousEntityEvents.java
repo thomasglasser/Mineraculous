@@ -57,7 +57,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -85,7 +84,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
@@ -135,17 +133,6 @@ public class MineraculousEntityEvents {
         CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
 
         if (player.level().isClientSide && entityData.getInt(TAG_WAITTICKS) == 0 && ClientUtils.getMainClientPlayer() == player) {
-            //jump input key trigger started
-            if (Minecraft.getInstance().player != null) {
-                MineraculousClientUtils.jump = Minecraft.getInstance().player.input.jumping;
-                if (MineraculousClientUtils.jumpX != MineraculousClientUtils.jump) {
-                    MineraculousClientUtils.jumpKeyStartPressing = true;
-                } else {
-                    MineraculousClientUtils.jumpKeyStartPressing = false;
-                }
-                MineraculousClientUtils.jumpX = MineraculousClientUtils.jump;
-            }
-
             int takeTicks = entityData.getInt(MineraculousEntityEvents.TAG_TAKETICKS);
             if (MineraculousKeyMappings.TAKE_BREAK_ITEM.get().isDown()) {
                 ItemStack mainHandItem = player.getMainHandItem();
@@ -848,18 +835,18 @@ public class MineraculousEntityEvents {
         }
     }
 
-    public static void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
-        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            FlattenedLookDataHolder flattenedLookDataHolder = (FlattenedLookDataHolder) serverPlayer.getServer().overworld();
-            flattenedLookDataHolder.mineraculous$getSuitLookData().remove(serverPlayer.getUUID());
-            flattenedLookDataHolder.mineraculous$getMiraculousLookData().remove(serverPlayer.getUUID());
-            flattenedLookDataHolder.mineraculous$getKamikotizationLookData().remove(serverPlayer.getUUID());
-            Optional<UUID> uuid = serverPlayer.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
-            if (uuid.isPresent()) {
-                Level level = serverPlayer.level();
-                if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(uuid.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
-                    thrownLadybugYoyo.discard();
-                }
+    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        ServerPlayer serverPlayer = (ServerPlayer) event.getEntity();
+        FlattenedLookDataHolder flattenedLookDataHolder = (FlattenedLookDataHolder) serverPlayer.getServer().overworld();
+        flattenedLookDataHolder.mineraculous$getSuitLookData().remove(serverPlayer.getUUID());
+        flattenedLookDataHolder.mineraculous$getMiraculousLookData().remove(serverPlayer.getUUID());
+        flattenedLookDataHolder.mineraculous$getKamikotizationLookData().remove(serverPlayer.getUUID());
+        Optional<UUID> uuid = serverPlayer.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
+        if (uuid.isPresent()) {
+            Level level = serverPlayer.level();
+            if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(uuid.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
+                thrownLadybugYoyo.discard();
+                serverPlayer.setData(MineraculousAttachmentTypes.LADYBUG_YOYO, Optional.empty());
             }
         }
     }

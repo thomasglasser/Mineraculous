@@ -86,20 +86,17 @@ public record ServerboundWalkMidSwingingPayload(boolean front, boolean back, boo
                             player.hurtMarked = true;
                         }
                     }
-                    if (up || down) {
-                        if (up && !down && distance >= maxRopeLn - 0.2 && distance < maxRopeLn + 0.1) {
-                            thrownLadybugYoyo.setServerMaxRopeLength(thrownLadybugYoyo.getServerMaxRopeLength() - 0.2f);
-                            thrownLadybugYoyo.updateRenderMaxRopeLength(player);
-                        }
-                        if (!up && down && distance >= maxRopeLn - 0.2) {
-                            thrownLadybugYoyo.setServerMaxRopeLength(thrownLadybugYoyo.getServerMaxRopeLength() + 0.3f);
-                            thrownLadybugYoyo.updateRenderMaxRopeLength(player);
-                            Vec3 constrainedPosition = player.position()
-                                    .add(fromProjectileToPlayer.normalize().scale(distance - thrownLadybugYoyo.getServerMaxRopeLength()));
-                            thrownLadybugYoyo.normalCollisions(false, player);
-                            if (player.level().isEmptyBlock(new BlockPos((int) constrainedPosition.x, (int) (constrainedPosition.y + 0.5), (int) constrainedPosition.z))) {
-                                player.setPos(constrainedPosition.x, constrainedPosition.y, constrainedPosition.z);
-                            }
+                    if (up && distance > 2) {
+                        thrownLadybugYoyo.setServerMaxRopeLength(thrownLadybugYoyo.getServerMaxRopeLength() - 0.2f);
+                        thrownLadybugYoyo.updateRenderMaxRopeLength(player);
+                    } else if (down) {
+                        thrownLadybugYoyo.setServerMaxRopeLength(thrownLadybugYoyo.getServerMaxRopeLength() + 0.3f);
+                        thrownLadybugYoyo.updateRenderMaxRopeLength(player);
+                        Vec3 constrainedPosition = player.position()
+                                .add(fromProjectileToPlayer.normalize().scale(distance - thrownLadybugYoyo.getServerMaxRopeLength()));
+                        thrownLadybugYoyo.normalCollisions(false, player);
+                        if (player.level().isEmptyBlock(new BlockPos((int) constrainedPosition.x, (int) (constrainedPosition.y + 0.5), (int) constrainedPosition.z))) {
+                            player.setPos(constrainedPosition.x, constrainedPosition.y, constrainedPosition.z);
                         }
                     }
                 }

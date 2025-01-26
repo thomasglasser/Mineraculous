@@ -3,9 +3,9 @@ package dev.thomasglasser.mineraculous.client.renderer.entity;
 import net.minecraft.world.phys.Vec3;
 
 public class RopePoint {
-    double xP, yP; //xy coords inside fromProjectiletoHand and vertical vector plane.
+    double xP, yP; // xy coords inside fromProjectiletoHand and vertical vector plane.
     final int ID;
-    final Vec3 direction;//should always be from projectile to player ON XZ.
+    final Vec3 direction;// should always be from projectile to player ON XZ.
 
     public RopePoint(double x, double y, int ID, Vec3 direction) {
         this.xP = x;
@@ -14,17 +14,17 @@ public class RopePoint {
         this.direction = new Vec3(direction.toVector3f());
     }
 
-    public double getxP() {
+    public double getXP() {
         return xP;
     }
 
-    public double getyP() {
-        return yP;
+    public double getYP() {
+        return this.yP;
     }
 
     public double getX() {
         if (direction != null) {
-            double k = direction.length() / getxP();
+            double k = direction.length() / getXP();
             k = 1 / k;
             Vec3 toPoint = new Vec3(direction.scale(k).toVector3f());
             return toPoint.x;
@@ -33,14 +33,10 @@ public class RopePoint {
 
     public double getZ() {
         if (direction != null) {
-            double k = direction.length() / getxP();
+            double k = direction.length() / getXP();
             k = 1 / k;
             Vec3 toPoint = new Vec3(direction.scale(k).toVector3f());
             return toPoint.z;
         } else return 0;
-    }
-
-    public double getY() {
-        return this.yP;
     }
 }

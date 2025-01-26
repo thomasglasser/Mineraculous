@@ -99,6 +99,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousKeyMappings.ACTIVATE_TOOL.get(), "Activate Tool");
         add(MineraculousKeyMappings.OPEN_TOOL_WHEEL.get(), "Equip/Return Tool/Open Tool Wheel");
         add(MineraculousKeyMappings.TAKE_BREAK_ITEM.get(), "Take/Break Item");
+        add(MineraculousKeyMappings.UNWIND_YOYO.get(), "Unwind YoYo");
+        add(MineraculousKeyMappings.WIND_YOYO.get(), "Wind YoYo");
 
         add(MiraculousData.NAME_NOT_SET, "You haven't set your %s hero name yet! Use /miraculous %s name <name> to set.");
 

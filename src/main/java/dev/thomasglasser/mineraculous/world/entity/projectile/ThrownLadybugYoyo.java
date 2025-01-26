@@ -162,9 +162,17 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     }
 
                 }
-            } else { //if its flying
-                Vec3 motion = player.getLookAngle().scale(3); //this makes it follow the cursor
-                this.setDeltaMovement(motion);
+            } else {//if its flying
+                if (this.tickCount < 50) {
+                    if (player.onGround()) {
+                        this.setDeltaMovement(this.getDeltaMovement().normalize().scale(3));
+                    } else {
+                        Vec3 motion = player.getLookAngle().scale(4); //this makes it follow the cursor
+                        this.setDeltaMovement(motion);
+                    }
+                } else {
+                    this.setNoGravity(false);
+                }
             }
         }
     }
@@ -311,16 +319,20 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         Player p = this.getPlayerOwner();
         if (p != null && this.inGround() && !this.isRecalling()) {
 
-            float f = p.getAttackAnim(0);
-            float f1 = Mth.sin(Mth.sqrt(f) * 3.1415927F);
-
-            Vec3 vec3 = ThrownLadybugYoyoRenderer.getPlayerHandPos(p, f1, 0, MineraculousItems.LADYBUG_YOYO.get(), Minecraft.getInstance().getEntityRenderDispatcher());
-            Vec3 fromProjectileToHand = new Vec3(vec3.x - this.getX(), vec3.y - this.getY(), vec3.z - this.getZ());
-            this.maxRopeLength = fromProjectileToHand.length();
+            updateRenderMaxRopeLength(p);
 
             Vec3 fromProjectileToPlayer = new Vec3(p.getX() - this.getX(), p.getY() - this.getY(), p.getZ() - this.getZ());
             this.setServerMaxRopeLength((float) fromProjectileToPlayer.length() + 1.5f);
         }
+    }
+
+    public void updateRenderMaxRopeLength(Player p) {
+        float f = p.getAttackAnim(0);
+        float f1 = Mth.sin(Mth.sqrt(f) * 3.1415927F);
+
+        Vec3 vec3 = ThrownLadybugYoyoRenderer.getPlayerHandPos(p, f1, 0, MineraculousItems.LADYBUG_YOYO.get(), Minecraft.getInstance().getEntityRenderDispatcher());
+        Vec3 fromProjectileToHand = new Vec3(vec3.x - this.getX(), vec3.y - this.getY(), vec3.z - this.getZ());
+        this.maxRopeLength = fromProjectileToHand.length();
     }
 
     @Override

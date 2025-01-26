@@ -16,14 +16,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-public record ServerboundWalkMidSwingingPayload(boolean up, boolean down, boolean left, boolean right) implements ExtendedPacketPayload {
+public record ServerboundWalkMidSwingingPayload(boolean front, boolean back, boolean left, boolean right, boolean up, boolean down) implements ExtendedPacketPayload {
 
     public static final Type<ServerboundWalkMidSwingingPayload> TYPE = new Type<>(Mineraculous.modLoc("walk_mid_swinging"));
     public static final StreamCodec<ByteBuf, ServerboundWalkMidSwingingPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.BOOL, ServerboundWalkMidSwingingPayload::up,
-            ByteBufCodecs.BOOL, ServerboundWalkMidSwingingPayload::down,
+            ByteBufCodecs.BOOL, ServerboundWalkMidSwingingPayload::front,
+            ByteBufCodecs.BOOL, ServerboundWalkMidSwingingPayload::back,
             ByteBufCodecs.BOOL, ServerboundWalkMidSwingingPayload::left,
             ByteBufCodecs.BOOL, ServerboundWalkMidSwingingPayload::right,
+            ByteBufCodecs.BOOL, ServerboundWalkMidSwingingPayload::up,
+            ByteBufCodecs.BOOL, ServerboundWalkMidSwingingPayload::down,
             ServerboundWalkMidSwingingPayload::new);
     @Override
     public void handle(Player player) {
@@ -39,15 +41,15 @@ public record ServerboundWalkMidSwingingPayload(boolean up, boolean down, boolea
                 Vec3 oy = new Vec3(0, -1 * (double) maxRopeLn, 0);
                 Vec3 Y = ox.add(oy).normalize().scale(maxRopeLn);
                 if (thrownLadybugYoyo.inGround() && !player.isNoGravity() && !player.getAbilities().flying) {
-                    if (distance >= maxRopeLn - 0.2) {
-                        if (player.getY() < Y.y + thrownLadybugYoyo.getY() && !player.isCrouching()) {
+                    if (distance >= maxRopeLn - 0.2 && !player.onGround()) {
+                        if (player.getY() < Y.y + thrownLadybugYoyo.getY() + 3 && !player.isCrouching()) { //player.getY() < Y.y + thrownLadybugYoyo.getY() &&
                             Vec3 movement = new Vec3(0, 0, 0);
-                            if (up) {
+                            if (front) {
                                 Vec3 up = new Vec3(player.getLookAngle().normalize().x, 0, player.getLookAngle().normalize().z);
                                 up = up.normalize();
                                 movement = movement.add(up);
                             }
-                            if (down) {
+                            if (back) {
                                 Vec3 down = new Vec3(player.getLookAngle().normalize().x, 0, player.getLookAngle().normalize().z);
                                 down = down.scale(-1d);
                                 down = down.normalize();
@@ -73,19 +75,25 @@ public record ServerboundWalkMidSwingingPayload(boolean up, boolean down, boolea
                             movement.scale(0.2);
 
                             movement = projectOnCircle(fromPlayerToProjectile, movement);
-
-                            if (movement.y < Y.y + thrownLadybugYoyo.getY()) {
-                                player.setDeltaMovement(movement);
-                                player.hurtMarked = true;
+                            if (movement.y + player.getY() > Y.y + thrownLadybugYoyo.getY()) {
+                                double newY = movement.y - (Y.y + thrownLadybugYoyo.getY());
+                                newY = newY < 0 ? 0 : newY;
+                                movement = new Vec3(movement.x, newY, movement.z);
+                                Mineraculous.LOGGER.info(String.valueOf(movement.y));
                             }
+                            //Mineraculous.LOGGER.info(String.valueOf(Y.y + thrownLadybugYoyo.getY()));
+                            player.setDeltaMovement(movement);
+                            player.hurtMarked = true;
                         }
                     }
-                    if (player.isCrouching() && (up || down)) {
+                    if (up || down) {
                         if (up && !down && distance >= maxRopeLn - 0.2 && distance < maxRopeLn + 0.1) {
                             thrownLadybugYoyo.setServerMaxRopeLength(thrownLadybugYoyo.getServerMaxRopeLength() - 0.2f);
+                            thrownLadybugYoyo.updateRenderMaxRopeLength(player);
                         }
                         if (!up && down && distance >= maxRopeLn - 0.2) {
                             thrownLadybugYoyo.setServerMaxRopeLength(thrownLadybugYoyo.getServerMaxRopeLength() + 0.3f);
+                            thrownLadybugYoyo.updateRenderMaxRopeLength(player);
                             Vec3 constrainedPosition = player.position()
                                     .add(fromProjectileToPlayer.normalize().scale(distance - thrownLadybugYoyo.getServerMaxRopeLength()));
                             thrownLadybugYoyo.normalCollisions(false, player);

@@ -34,6 +34,7 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.NightVisionAbility;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerTrades;
+import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
@@ -53,6 +54,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import net.minecraft.client.Minecraft;
@@ -852,6 +854,13 @@ public class MineraculousEntityEvents {
             flattenedLookDataHolder.mineraculous$getSuitLookData().remove(serverPlayer.getUUID());
             flattenedLookDataHolder.mineraculous$getMiraculousLookData().remove(serverPlayer.getUUID());
             flattenedLookDataHolder.mineraculous$getKamikotizationLookData().remove(serverPlayer.getUUID());
+            Optional<UUID> uuid = serverPlayer.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
+            if (uuid.isPresent()) {
+                Level level = serverPlayer.level();
+                if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(uuid.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
+                    thrownLadybugYoyo.discard();
+                }
+            }
         }
     }
 

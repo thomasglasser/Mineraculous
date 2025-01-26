@@ -116,9 +116,9 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
             double d1 = (double) Mth.cos(f);
             float f1 = player.getScale();
             double d2 = (double) i * 0.35 * (double) f1;
-            double d3 = 0.8 * (double) f1;
+            double d3 = 0.15 * (double) f1;
             float f2 = player.isCrouching() ? -0.1875F : 0.0F;
-            return player.getEyePosition(partialTick).add(-d1 * d2 - d0 * d3, (double) f2 - 0.45 * (double) f1, -d0 * d2 + d1 * d3);
+            return player.getEyePosition(partialTick).add(-d1 * d2 - d0 * d3, (double) f2 - 0.75 * (double) f1, -d0 * d2 + d1 * d3);
         }
     }
 

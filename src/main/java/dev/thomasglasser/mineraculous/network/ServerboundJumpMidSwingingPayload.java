@@ -27,7 +27,7 @@ public record ServerboundJumpMidSwingingPayload() implements ExtendedPacketPaylo
             if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(uuid.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
                 Vec3 fromProjectileToPlayer = new Vec3(player.getX() - thrownLadybugYoyo.getX(), player.getY() - thrownLadybugYoyo.getY(), player.getZ() - thrownLadybugYoyo.getZ());
                 double distance = fromProjectileToPlayer.length();
-                if (thrownLadybugYoyo.inGround() && !player.isNoGravity() && !player.getAbilities().flying && distance >= thrownLadybugYoyo.getServerMaxRopeLength() - 0.2) {
+                if (thrownLadybugYoyo.inGround() && !player.isNoGravity() && !player.onGround() && !player.getAbilities().flying && distance >= thrownLadybugYoyo.getServerMaxRopeLength() - 0.2) {
                     player.addDeltaMovement(new Vec3(0, 1.2, 0));
                     player.hurtMarked = true;
                     thrownLadybugYoyo.recall();

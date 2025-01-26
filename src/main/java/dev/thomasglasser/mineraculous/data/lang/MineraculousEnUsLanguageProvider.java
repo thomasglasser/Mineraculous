@@ -200,7 +200,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         add(MineraculousSoundEvents.CATACLYSM_ACTIVATE.get(), "Cataclysm activates");
         add(MineraculousSoundEvents.CATACLYSM_USE.get(), "Cataclysm triggers");
-        add(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE.get(), "Kamiko powers up");
+        add(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE.get(), "Kamiko powers front");
         add(MineraculousSoundEvents.KAMIKOTIZATION_USE.get(), "Kamikotization begins");
         add(MineraculousSoundEvents.GENERIC_SHIELD.get(), "Weapon whirs");
         add(MineraculousSoundEvents.LADYBUG_YOYO_SHIELD.get(), "Yoyo whirs");
@@ -209,7 +209,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousSoundEvents.GENERIC_TRANSFORM.get(), "Miraculous holder transforms");
         add(MineraculousSoundEvents.GENERIC_DETRANSFORM.get(), "Miraculous holder detransforms");
         add(MineraculousSoundEvents.GENERIC_TIMER_BEEP.get(), "Miraculous beeps");
-        add(MineraculousSoundEvents.GENERIC_TIMER_END.get(), "Miraculous powers down");
+        add(MineraculousSoundEvents.GENERIC_TIMER_END.get(), "Miraculous powers back");
         add(MineraculousSoundEvents.LADYBUG_TRANSFORM.get(), "Ladybug Miraculous holder puts spots on");
         add(MineraculousSoundEvents.CAT_TRANSFORM.get(), "Cat Miraculous holder takes claws out");
         add(MineraculousSoundEvents.BUTTERFLY_TRANSFORM.get(), "Butterfly Miraculous holder raises wings");
@@ -237,7 +237,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfig(MineraculousServerConfig.INSTANCE.stealingDuration, "Stealing Duration", "Duration in seconds that the key must be held to steal an item");
         addConfig(MineraculousServerConfig.INSTANCE.enableUniversalStealing, "Enable Universal Stealing", "Enable item stealing from all players all the time");
         addConfig(MineraculousServerConfig.INSTANCE.enableSleepStealing, "Enable Sleep Stealing", "Enable item stealing from players while they sleep");
-        addConfig(MineraculousServerConfig.INSTANCE.wakeUpChance, "Wake Up Chance", "Percent chance that a player will wake up while being stolen from");
+        addConfig(MineraculousServerConfig.INSTANCE.wakeUpChance, "Wake Up Chance", "Percent chance that a player will wake front while being stolen from");
 
         // Client
     }

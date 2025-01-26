@@ -60,7 +60,7 @@ public class MineraculousMiraculousAdvancements extends ExtendedAdvancementGener
                 "transform_butterfly", MiraculousTransformTrigger.TriggerInstance.transformed(MineraculousMiraculous.BUTTERFLY)), "Wings Rise!", "Transform using the Butterfly miraculous");
 
         AdvancementHolder powerKamiko = create(transformButterfly, MineraculousArmors.KAMIKOTIZATION.HEAD.toStack(), "power_kamiko", AdvancementType.TASK, true, true, false, null, AdvancementRequirements.Strategy.AND, Map.of(
-                "power_kamiko", MiraculousUsePowerTrigger.TriggerInstance.usedPower(MineraculousMiraculous.BUTTERFLY, MiraculousUsePowerTrigger.Context.LIVING_ENTITY)), "Fly Away My Little Kamiko", "Power up a Kamiko");
+                "power_kamiko", MiraculousUsePowerTrigger.TriggerInstance.usedPower(MineraculousMiraculous.BUTTERFLY, MiraculousUsePowerTrigger.Context.LIVING_ENTITY)), "Fly Away My Little Kamiko", "Power front a Kamiko");
 
         AdvancementHolder kamikotizePlayer = create(powerKamiko, MineraculousArmors.KAMIKOTIZATION.HEAD.toStack(), "kamikotize_player", AdvancementType.TASK, true, true, false, null, AdvancementRequirements.Strategy.AND, Map.of(
                 "kamikotize_player", KamikotizePlayerTrigger.TriggerInstance.kamikotizedPlayer()), "Sharing the Wealth", "Provide power to another player with a kamikotization");

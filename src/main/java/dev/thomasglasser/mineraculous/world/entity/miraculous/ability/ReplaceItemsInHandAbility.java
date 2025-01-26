@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
+import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.BlockPos;
@@ -45,8 +46,14 @@ public record ReplaceItemsInHandAbility(ItemStack replacement, boolean hurtAndBr
                 } else {
                     if (stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.has(DataComponents.PROFILE)) {
                         ServerPlayer target = (ServerPlayer) performer.level().getPlayerByUUID(stack.get(DataComponents.PROFILE).gameProfile().getId());
-                        if (target != null)
-                            MineraculousEntityEvents.handleKamikotizationTransformation(target, target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow(), false, false, true, performer.position().add(0, 1, 0));
+                        if (target != null) {
+                            KamikotizationData kamikotizationData = target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow();
+                            if (kamikotizationData.stackCount() <= 1)
+                                MineraculousEntityEvents.handleKamikotizationTransformation(target, kamikotizationData, false, false, performer.position().add(0, 1, 0));
+                            else {
+                                kamikotizationData.decrementStackCount().save(target, true);
+                            }
+                        }
                     }
                 }
             }

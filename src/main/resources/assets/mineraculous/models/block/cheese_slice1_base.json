@@ -1,5 +1,5 @@
 {
-	"credit": "Made with Blockbench",
+	"parent": "mineraculous:block/cheese_base",
 	"elements": [
 		{
 			"from": [4, 0, 8],

@@ -36,7 +36,6 @@ public record RightHandParticlesAbility(ParticleOptions particle, Optional<Holde
             } else {
                 MineraculousClientUtils.renderParticlesFollowingEntity(performer, particle, 0, 0.1 + randomShiftForward, 0.35 + randomShiftRight, 0.7 + randomShiftUp, 0.6F, false);
             }
-
             playStartSound(level, pos);
             return true;
         }

@@ -2,15 +2,24 @@ package dev.thomasglasser.mineraculous.client;
 
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationSelectionScreen;
+import dev.thomasglasser.mineraculous.client.gui.screens.MiraculousTransferScreen;
+import dev.thomasglasser.mineraculous.client.renderer.entity.layers.SnapshotTesterCosmeticOptions;
+import dev.thomasglasser.mineraculous.client.renderer.entity.layers.VipData;
+import dev.thomasglasser.mineraculous.network.ServerboundChangeVipDataPayload;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.HashMap;
+import java.util.UUID;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec2;
@@ -18,6 +27,55 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public class MineraculousClientUtils {
+    private static final String GIST = "thomasglasser/aa8eb933847685b93d8f99a59f07b62e";
+    private static final HashMap<Player, VipData> vipData = new HashMap<>();
+
+    public static boolean renderCosmeticLayerInSlot(AbstractClientPlayer player, EquipmentSlot slot) {
+        return slot == null || !player.hasItemInSlot(slot);
+    }
+
+    public static boolean renderSnapshotTesterLayer(AbstractClientPlayer player) {
+        return vipData.get(player) != null && snapshotChoice(player) != null && renderCosmeticLayerInSlot(player, snapshotChoice(player).slot()) && vipData.get(player).displaySnapshot();
+    }
+
+    @Nullable
+    public static SnapshotTesterCosmeticOptions snapshotChoice(AbstractClientPlayer player) {
+//        return vipData.get(player) != null && vipData.get(player).choice() != null ? vipData.get(player).choice() : null;
+        return null;
+    }
+
+    public static boolean renderDevLayer(AbstractClientPlayer player) {
+        return vipData.get(player) != null && renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD/*TODO:Figure out slot*/) && vipData.get(player).displayDev();
+    }
+
+    public static boolean renderLegacyDevLayer(AbstractClientPlayer player) {
+        return vipData.get(player) != null && renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD/*TODO:Figure out slot*/) && vipData.get(player).displayLegacyDev();
+    }
+
+    public static void refreshVip() {
+        if (Minecraft.getInstance().player != null) {
+            UUID uuid = Minecraft.getInstance().player.getUUID();
+
+            boolean displaySnapshot;
+            boolean displayDev;
+            boolean displayLegacyDev;
+
+            displaySnapshot = MineraculousClientConfig.get().displaySnapshotTesterCosmetic.get() && ClientUtils.checkSnapshotTester(GIST, uuid);
+            displayDev = MineraculousClientConfig.get().displayDevTeamCosmetic.get() && ClientUtils.checkDevTeam(GIST, uuid);
+            displayLegacyDev = MineraculousClientConfig.get().displayLegacyDevTeamCosmetic.get() && ClientUtils.checkLegacyDevTeam(GIST, uuid);
+
+            TommyLibServices.NETWORK.sendToServer(new ServerboundChangeVipDataPayload(uuid, new VipData(/*MineraculousClientConfig.get().snapshotTesterCosmeticChoice.get(),*/ displaySnapshot, /*displayDev*/false, displayLegacyDev)));
+        }
+    }
+
+    public static boolean verifySnapshotTester(UUID uuid) {
+        return ClientUtils.checkSnapshotTester(GIST, uuid);
+    }
+
+    public static void setVipData(Player player, VipData data) {
+        vipData.put(player, data);
+    }
+
     public static void setShader(@Nullable ResourceLocation location) {
         PostChain current = Minecraft.getInstance().gameRenderer.postEffect;
         if (location != null)
@@ -91,6 +149,10 @@ public class MineraculousClientUtils {
     public static void closeKamikotizationChatScreen(boolean cancel) {
         if (Minecraft.getInstance().screen instanceof KamikotizationChatScreen screen)
             screen.onClose(cancel, false);
+    }
+
+    public static void openMiraculousTransferScreen(int kwamiId) {
+        ClientUtils.setScreen(new MiraculousTransferScreen(kwamiId));
     }
 
     public static void init() {}

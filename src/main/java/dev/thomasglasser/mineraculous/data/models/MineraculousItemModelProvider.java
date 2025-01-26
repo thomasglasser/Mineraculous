@@ -9,8 +9,10 @@ import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.models.ExtendedItemModelProvider;
+import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
@@ -74,6 +76,19 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         basicItem(MineraculousBlocks.HIBISCUS_BUSH.asItem());
 
         basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK);
+
+        MineraculousBlocks.CHEESE_BLOCKS.forEach((age, block) -> withBitesOverrides(block, basicBlockItem(block)));
+        MineraculousBlocks.WAXED_CHEESE_BLOCKS.forEach((age, block) -> withBitesOverrides(MineraculousBlocks.CHEESE_BLOCKS.get(age), withExistingParent(block.getId().getPath(), MineraculousBlocks.CHEESE_BLOCKS.get(age).getId().withPrefix("block/"))));
+        MineraculousBlocks.CAMEMBERT_BLOCKS.values().forEach(block -> withBitesOverrides(block, basicBlockItem(block)));
+        MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.forEach((age, block) -> withBitesOverrides(MineraculousBlocks.CAMEMBERT_BLOCKS.get(age), withExistingParent(block.getId().getPath(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(age).getId().withPrefix("block/"))));
+
+        // TODO: Add wedge items
+        MineraculousItems.CHEESE_WEDGES.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousBlocks.CHEESE_BLOCKS.get(age).getId().withPrefix("block/").withSuffix("_slice3")));
+        MineraculousItems.WAXED_CHEESE_WEDGES.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousItems.CHEESE_WEDGES.get(age).getId()));
+        MineraculousItems.CAMEMBERT_WEDGES.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(age).getId().withPrefix("block/").withSuffix("_slice3")));
+        MineraculousItems.WAXED_CAMEMBERT_WEDGES.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousItems.CAMEMBERT_WEDGES.get(age).getId()));
+
+        basicItem(MineraculousBlocks.CHEESE_POT.getId());
 
         ItemModelBuilder inHandLadybugYoyo = withEntityModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_in_hand"))
                 .transforms()
@@ -140,5 +155,21 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
 
     private ModelBuilder.TransformsBuilder miraculous(ResourceKey<Miraculous> name) {
         return getBuilder("item/miraculous/" + name.location().getPath()).transforms();
+    }
+
+    private ItemModelBuilder withBitesOverrides(DeferredBlock<?> block, ItemModelBuilder builder) {
+        return builder
+                .override()
+                .predicate(CheeseBlock.BITES_PROPERTY_ID, 1)
+                .model(withExistingParent(block.getId().getPath() + "_slice1", block.getId().withPrefix("block/").withSuffix("_slice1")))
+                .end()
+                .override()
+                .predicate(CheeseBlock.BITES_PROPERTY_ID, 2)
+                .model(withExistingParent(block.getId().getPath() + "_slice2", block.getId().withPrefix("block/").withSuffix("_slice2")))
+                .end()
+                .override()
+                .predicate(CheeseBlock.BITES_PROPERTY_ID, 3)
+                .model(withExistingParent(block.getId().getPath() + "_slice3", block.getId().withPrefix("block/").withSuffix("_slice3")))
+                .end();
     }
 }

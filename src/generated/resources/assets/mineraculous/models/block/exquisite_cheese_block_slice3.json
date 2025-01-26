@@ -1,0 +1,10 @@
+{
+  "parent": "mineraculous:block/cheese_slice3_base",
+  "textures": {
+    "bottom": "mineraculous:block/cheese/exquisite_cheese_bottom",
+    "inner": "mineraculous:block/cheese/exquisite_cheese_inner",
+    "particle": "mineraculous:block/cheese/exquisite_cheese_side",
+    "side": "mineraculous:block/cheese/exquisite_cheese_side",
+    "top": "mineraculous:block/cheese/exquisite_cheese_top"
+  }
+}

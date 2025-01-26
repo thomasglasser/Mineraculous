@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.world.level.storage;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.tommylib.api.network.NetworkUtils;
@@ -59,15 +60,19 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
     }
 
     public MiraculousData() {
-        this(false, ItemStack.EMPTY, new CuriosData(), 0, 0, false, false, "", "", "", new CompoundTag());
+        this(false, ItemStack.EMPTY, CuriosData.EMPTY, 0, 0, false, false, "", "", "", new CompoundTag());
     }
 
     public boolean hasLimitedPower() {
-        return powerLevel < 100;
+        return MineraculousServerConfig.get().enableLimitedPower.get() && powerLevel < 100;
+    }
+
+    public boolean usedLimitedPower() {
+        return mainPowerActivated() && hasLimitedPower();
     }
 
     public boolean shouldCountDown() {
-        return hasLimitedPower() && mainPowerActivated();
+        return MineraculousServerConfig.get().enableMiraculousTimer.get() && usedLimitedPower();
     }
 
     public ItemStack createTool(ServerLevel level) {
@@ -89,7 +94,7 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
     }
 
     public MiraculousData unEquip() {
-        return new MiraculousData(transformed, ItemStack.EMPTY, new CuriosData(-1, ""), toolId, powerLevel, false, false, name, miraculousLook, suitLook, extraData);
+        return new MiraculousData(transformed, ItemStack.EMPTY, CuriosData.EMPTY, toolId, powerLevel, false, false, name, miraculousLook, suitLook, extraData);
     }
 
     public MiraculousData transform(boolean transformed, ItemStack miraculousItem, int toolId) {
@@ -97,6 +102,10 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
     }
 
     public MiraculousData withItem(ItemStack miraculousItem) {
+        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, mainPowerActivated, mainPowerActive, name, miraculousLook, suitLook, extraData);
+    }
+
+    public MiraculousData withCuriosData(CuriosData curiosData) {
         return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, mainPowerActivated, mainPowerActive, name, miraculousLook, suitLook, extraData);
     }
 

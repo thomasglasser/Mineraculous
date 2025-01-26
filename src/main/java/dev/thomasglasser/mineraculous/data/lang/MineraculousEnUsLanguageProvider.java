@@ -1,11 +1,14 @@
 package dev.thomasglasser.mineraculous.data.lang;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.categories.TargetPlayerMenuCategory;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationSelectionScreen;
+import dev.thomasglasser.mineraculous.client.gui.screens.MiraculousEligiblePlayerEntry;
+import dev.thomasglasser.mineraculous.client.gui.screens.MiraculousTransferScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalInventoryScreen;
 import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
@@ -79,8 +82,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousBlocks.CHEESE_POT.get(), "Cheese Pot");
         add(MineraculousBlocks.HIBISCUS_BUSH.get(), "Hibiscus Bush");
 
-        cheese("Cheese", MineraculousItems.CHEESE_WEDGES, MineraculousBlocks.CHEESE_BLOCKS, MineraculousBlocks.WAXED_CHEESE_BLOCKS);
-        cheese("Camembert", MineraculousItems.CAMEMBERT_WEDGES, MineraculousBlocks.CAMEMBERT_BLOCKS, MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS);
+        cheese("Cheese", MineraculousItems.CHEESE_WEDGES, MineraculousBlocks.CHEESE_BLOCKS, MineraculousItems.WAXED_CHEESE_WEDGES, MineraculousBlocks.WAXED_CHEESE_BLOCKS);
+        cheese("Camembert", MineraculousItems.CAMEMBERT_WEDGES, MineraculousBlocks.CAMEMBERT_BLOCKS, MineraculousItems.WAXED_CAMEMBERT_WEDGES, MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS);
 
         addConfigs();
 
@@ -108,17 +111,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.NAME_SET_SUCCESS_OTHER, "Set %s's %s hero name to %s.");
         add(MiraculousCommand.NAME_CLEAR_SUCCESS_SELF, "Your %s hero name has been cleared.");
         add(MiraculousCommand.NAME_CLEAR_SUCCESS_OTHER, "Cleared %s's %s hero name.");
-        add(MiraculousCommand.LOOK_SUIT_QUERY_SUCCESS_SELF, "Your %s hero suit look is %s.");
-        add(MiraculousCommand.LOOK_SUIT_QUERY_SUCCESS_OTHER, "%s's %s hero suit look is %s.");
-        add(MiraculousCommand.LOOK_SUIT_TRY_SET_SUCCESS_SELF, "Attempting to set your %s hero suit look to %s.");
-        add(MiraculousCommand.LOOK_SUIT_TRY_SET_SUCCESS_OTHER, "Attempting to set %s's %s hero suit look to %s.");
-        add(MiraculousCommand.LOOK_SUIT_SET_SUCCESS_SELF, "Your %s hero suit look has been set to %s.");
-        add(MiraculousCommand.LOOK_SUIT_SET_SUCCESS_OTHER, "Set %s's %s hero suit look to %s.");
-        add(MiraculousCommand.LOOK_SUIT_SET_FAILURE, "Missing or invalid assets requested for %s hero suit look %s.");
-        add(MiraculousCommand.LOOK_SUIT_CLEAR_SUCCESS_SELF, "Your %s hero suit look has been cleared.");
-        add(MiraculousCommand.LOOK_SUIT_CLEAR_SUCCESS_OTHER, "Cleared %s's %s hero suit look.");
         add(MiraculousCommand.LOOK_MIRACULOUS_QUERY_SUCCESS_SELF, "Your %s miraculous look is %s.");
         add(MiraculousCommand.LOOK_MIRACULOUS_QUERY_SUCCESS_OTHER, "%s's %s miraculous look is %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_SET_SERVER_SUCCESS_SELF, "Your %s miraculous look has been set to server look %s.");
+        add(MiraculousCommand.LOOK_MIRACULOUS_SET_SERVER_SUCCESS_OTHER, "Set %s's %s miraculous look to server look %s.");
         add(MiraculousCommand.LOOK_MIRACULOUS_TRY_SET_SUCCESS_SELF, "Attempting to set %s miraculous look to %s.");
         add(MiraculousCommand.LOOK_MIRACULOUS_TRY_SET_SUCCESS_OTHER, "Attempting to set %s's %s miraculous look to %s.");
         add(MiraculousCommand.LOOK_MIRACULOUS_SET_SUCCESS_SELF, "Your %s miraculous look has been set to %s.");
@@ -126,6 +122,17 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.LOOK_MIRACULOUS_SET_FAILURE, "Missing or invalid assets requested for %s miraculous look %s.");
         add(MiraculousCommand.LOOK_MIRACULOUS_CLEAR_SUCCESS_SELF, "Your %s miraculous look has been cleared.");
         add(MiraculousCommand.LOOK_MIRACULOUS_CLEAR_SUCCESS_OTHER, "Cleared %s's %s miraculous look.");
+        add(MiraculousCommand.LOOK_SUIT_QUERY_SUCCESS_SELF, "Your %s hero suit look is %s.");
+        add(MiraculousCommand.LOOK_SUIT_QUERY_SUCCESS_OTHER, "%s's %s hero suit look is %s.");
+        add(MiraculousCommand.LOOK_SUIT_SET_SERVER_SUCCESS_SELF, "Your %s hero suit look has been set to server look %s.");
+        add(MiraculousCommand.LOOK_SUIT_SET_SERVER_SUCCESS_OTHER, "Set %s's %s hero suit look to server look %s.");
+        add(MiraculousCommand.LOOK_SUIT_TRY_SET_SUCCESS_SELF, "Attempting to set your %s hero suit look to %s.");
+        add(MiraculousCommand.LOOK_SUIT_TRY_SET_SUCCESS_OTHER, "Attempting to set %s's %s hero suit look to %s.");
+        add(MiraculousCommand.LOOK_SUIT_SET_SUCCESS_SELF, "Your %s hero suit look has been set to %s.");
+        add(MiraculousCommand.LOOK_SUIT_SET_SUCCESS_OTHER, "Set %s's %s hero suit look to %s.");
+        add(MiraculousCommand.LOOK_SUIT_SET_FAILURE, "Missing or invalid assets requested for %s hero suit look %s.");
+        add(MiraculousCommand.LOOK_SUIT_CLEAR_SUCCESS_SELF, "Your %s hero suit look has been cleared.");
+        add(MiraculousCommand.LOOK_SUIT_CLEAR_SUCCESS_OTHER, "Cleared %s's %s hero suit look.");
         add(MiraculousCommand.CHARGED_TRUE, "charged");
         add(MiraculousCommand.CHARGED_FALSE, "not charged");
         add(MiraculousCommand.CHARGED_QUERY_SUCCESS_SELF, "Your %s kwami is %s.");
@@ -139,7 +146,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.NOT_LIVING_ENTITY, "Target must be a living entity.");
         add(MiraculousCommand.TRANSFORMED, "This command cannot be executed while %s is transformed.");
         add(MiraculousCommand.KWAMI_NOT_FOUND, "%s's %s kwami not found in the world");
-        add(MiraculousCommand.CUSTOM_LOOKS_DISABLED, "The server has disabled custom looks.");
+        add(MiraculousCommand.CUSTOM_LOOKS_NOT_ENABLED, "The server has not enabled custom looks.");
+        add(MiraculousCommand.CUSTOM_LOOKS_NO_NUMBERS, "Custom looks must not contain numbers.");
+        add(MiraculousCommand.CUSTOM_LOOKS_NO_GLOWMASK, "Custom looks must not contain 'glowmask'.");
         add(MiraculousCommand.MIRACULOUS_INVALID, "Invalid miraculous type %s");
 
         addMiraculous(MineraculousMiraculous.BUTTERFLY, "Butterfly");
@@ -189,6 +198,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         add(MineraculousClientEvents.REVOKE, "Revoke Kamikotization");
 
+        add(MiraculousTransferScreen.TITLE, "Miraculous Transfer");
+        add(MiraculousEligiblePlayerEntry.RENOUNCE, "Renounce");
+        add(MiraculousEligiblePlayerEntry.TRANSFER, "Transfer");
+
         addAttackWithPlayer(MineraculousDamageTypes.CATACLYSM, "%1$s crumbled to dust", "while fighting %2$s");
 
         add(MineraculousMobEffects.CATACLYSMED.get(), "Cataclysmed");
@@ -232,22 +245,31 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         // Server
         addConfigSection(MineraculousServerConfig.MIRACULOUS, "Miraculous", "Settings for miraculous");
-        addConfig(MineraculousServerConfig.INSTANCE.enableCustomization, "Enable Customization", "Enable customization of miraculous suits and items. §4WARNING: This may lead to vulnerabilities. Only enable if you trust server members.");
-        addConfig(MineraculousServerConfig.INSTANCE.enableKamikotizationRejection, "Enable Kamikotization Rejection", "Enable rejection of kamikotization by the victim");
+        addConfig(MineraculousServerConfig.get().enableCustomization, "Enable Customization", "Enable customization of miraculous suits and items. §4WARNING: This may lead to vulnerabilities. Only enable if you trust server members.");
+        addConfig(MineraculousServerConfig.get().customizationPermissionsMode, "Customization Permissions Mode", "Permissions mode for customization. Whitelist: Only whitelisted players can customize. Blacklist: Only non-blacklisted players can customize.");
+        addConfig(MineraculousServerConfig.get().enableMiraculousTimer, "Enable Miraculous Timer", "Enable the detransformation timer for miraculous holders before they reach adulthood");
+        addConfig(MineraculousServerConfig.get().enableLimitedPower, "Enable Limited Power", "Enable limited power for miraculous holders before they reach adulthood");
+        addConfig(MineraculousServerConfig.get().enableKamikotizationRejection, "Enable Kamikotization Rejection", "Enable rejection of kamikotization by the victim");
 
         addConfigSection(MineraculousServerConfig.STEALING, "Stealing", "Settings for item stealing");
-        addConfig(MineraculousServerConfig.INSTANCE.stealingDuration, "Stealing Duration", "Duration in seconds that the key must be held to steal an item");
-        addConfig(MineraculousServerConfig.INSTANCE.enableUniversalStealing, "Enable Universal Stealing", "Enable item stealing from all players all the time");
-        addConfig(MineraculousServerConfig.INSTANCE.enableSleepStealing, "Enable Sleep Stealing", "Enable item stealing from players while they sleep");
-        addConfig(MineraculousServerConfig.INSTANCE.wakeUpChance, "Wake Up Chance", "Percent chance that a player will wake up while being stolen from");
+        addConfig(MineraculousServerConfig.get().stealingDuration, "Stealing Duration", "Duration in seconds that the key must be held to steal an item");
+        addConfig(MineraculousServerConfig.get().enableUniversalStealing, "Enable Universal Stealing", "Enable item stealing from all players all the time");
+        addConfig(MineraculousServerConfig.get().enableSleepStealing, "Enable Sleep Stealing", "Enable item stealing from players while they sleep");
+        addConfig(MineraculousServerConfig.get().wakeUpChance, "Wake Up Chance", "Percent chance that a player will wake up while being stolen from");
 
         // Client
+        addConfigSection(MineraculousClientConfig.COSMETICS, "Player Cosmetics", "Settings for player cosmetics");
+        addConfig(MineraculousClientConfig.get().displaySnapshotTesterCosmetic, "Display Snapshot Tester Cosmetic", "Display your preferred Snapshot Tester Cosmetic (if eligible)");
+//        addConfig(MineraculousClientConfig.get().snapshotTesterCosmeticChoice, "Snapshot Tester Cosmetic Choice", "The Snapshot Tester Cosmetic to be displayed (if eligible)");
+        addConfig(MineraculousClientConfig.get().displayDevTeamCosmetic, "Display Dev Team Cosmetic", "Display the Dev Team cosmetic (if eligible)");
+        addConfig(MineraculousClientConfig.get().displayLegacyDevTeamCosmetic, "Display Legacy Dev Team Cosmetic", "Display the Legacy Dev Team cosmetic (if eligible)");
     }
 
-    protected void cheese(String name, Map<CheeseBlock.Age, DeferredItem<?>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxedBlocks) {
+    protected void cheese(String name, Map<CheeseBlock.Age, DeferredItem<?>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredItem<?>> waxedWedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxedBlocks) {
         for (CheeseBlock.Age age : CheeseBlock.Age.values()) {
             add(wedges.get(age).get(), capitalize(age.getSerializedName()).replace('_', '-') + " Wedge of " + name);
             add(blocks.get(age).get(), capitalize(age.getSerializedName()).replace('_', '-') + " Block of " + name);
+            add(waxedWedges.get(age).get(), "Waxed " + capitalize(age.getSerializedName()).replace('_', '-') + " Wedge of " + name);
             add(waxedBlocks.get(age).get(), "Waxed " + capitalize(age.getSerializedName()).replace('_', '-') + " Block of " + name);
         }
     }

@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.mixin.minecraft.world.item;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import java.util.function.Consumer;
 import net.minecraft.core.component.DataComponentHolder;
 import net.minecraft.core.component.DataComponentType;
@@ -37,7 +38,12 @@ public abstract class ItemStackMixin implements DataComponentHolder {
         if (mineraculous$INSTANCE.has(MineraculousDataComponents.KAMIKOTIZATION.get()) && mineraculous$INSTANCE.has(DataComponents.PROFILE)) {
             ServerPlayer target = (ServerPlayer) level.getPlayerByUUID(mineraculous$INSTANCE.get(DataComponents.PROFILE).gameProfile().getId());
             if (target != null) {
-                MineraculousEntityEvents.handleKamikotizationTransformation(target, target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow(), false, false, true, breaker.position().add(0, 1, 0));
+                KamikotizationData data = target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow();
+                if (data.stackCount() <= 1)
+                    MineraculousEntityEvents.handleKamikotizationTransformation(target, data, false, false, breaker.position().add(0, 1, 0));
+                else {
+                    data.decrementStackCount().save(target, true);
+                }
             }
         }
     }

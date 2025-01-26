@@ -21,7 +21,6 @@ import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.EntityTypePredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -70,7 +69,7 @@ public class MineraculousAbilities {
                 Optional.empty(),
                 true));
 
-        context.register(CATACLYSM, new ContextAwareAbility(
+        context.register(CATACLYSM, new DragAbility(new ContextAwareAbility(
                 Optional.of(new RandomSpreadAbility(
                         MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(),
                         Optional.empty(),
@@ -80,7 +79,8 @@ public class MineraculousAbilities {
                 Optional.of(new ApplyInfiniteEffectsOrDestroyAbility(
                         HolderSet.direct(MineraculousMobEffects.CATACLYSMED),
                         Optional.of(MineraculousItems.CATACLYSM_DUST.get()),
-                        Optional.of(context.lookup(Registries.DAMAGE_TYPE).getOrThrow(MineraculousDamageTypes.CATACLYSM).key()),
+                        Optional.of(MineraculousDamageTypes.CATACLYSM),
+                        Optional.of(MineraculousEntityEvents.TAG_CATACLYSMED),
                         Optional.of(MineraculousSoundEvents.CATACLYSM_USE),
                         false)),
                 Optional.of(new ReplaceItemsInHandAbility(
@@ -92,6 +92,9 @@ public class MineraculousAbilities {
                         false)),
                 Optional.empty(),
                 List.of(new RightHandParticlesAbility(MineraculousParticleTypes.BLACK_ORB.get(), Optional.empty(), false)),
+                Optional.empty(),
+                false),
+                20,
                 Optional.of(MineraculousSoundEvents.CATACLYSM_ACTIVATE),
                 false));
         context.register(CAT_VISION, new NightVisionAbility(Optional.of(ResourceLocation.withDefaultNamespace("shaders/post/creeper.json"))));

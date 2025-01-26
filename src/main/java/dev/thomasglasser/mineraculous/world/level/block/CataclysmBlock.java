@@ -10,8 +10,8 @@ import net.minecraft.world.level.block.ColoredFallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class CataclysmBlock extends ColoredFallingBlock {
-    public CataclysmBlock(Properties properties) {
-        super(new ColorRGBA(0x201915), properties.randomTicks());
+    public CataclysmBlock(ColorRGBA color, Properties properties) {
+        super(color, properties.randomTicks());
     }
 
     @Override

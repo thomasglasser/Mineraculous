@@ -52,14 +52,24 @@ public record ClientboundRequestSyncSuitLookPayload(Optional<UUID> senderId, boo
                     convertedModel = Files.readString(model.toPath());
                 }
                 byte[] convertedImage = NativeImage.read(texture.toPath().toUri().toURL().openStream()).asByteArray();
+                File glowmask = new File(folder, look + "_glowmask.png");
+                byte[] convertedGlowmask = null;
+                if (glowmask.exists()) {
+                    convertedGlowmask = NativeImage.read(glowmask.toPath().toUri().toURL().openStream()).asByteArray();
+                }
                 List<byte[]> convertedFrames = new ArrayList<>();
+                List<byte[]> convertedGlowmaskFrames = new ArrayList<>();
                 for (int i = 1; i <= ClientUtils.getLevel().holderOrThrow(miraculous).value().transformationFrames(); i++) {
                     File frame = new File(folder, look + "_" + i + ".png");
                     if (frame.exists()) {
                         convertedFrames.add(NativeImage.read(frame.toPath().toUri().toURL().openStream()).asByteArray());
                     }
+                    File glowmaskFrame = new File(folder, look + "_" + i + "_glowmask.png");
+                    if (glowmaskFrame.exists()) {
+                        convertedGlowmaskFrames.add(NativeImage.read(glowmaskFrame.toPath().toUri().toURL().openStream()).asByteArray());
+                    }
                 }
-                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncSuitLookPayload(senderId, announce, new FlattenedSuitLookData(miraculous, look, Optional.ofNullable(convertedModel), convertedImage, convertedFrames)));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncSuitLookPayload(senderId, announce, new FlattenedSuitLookData(miraculous, look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames)));
             } catch (Exception exception) {
                 sendFail();
                 Mineraculous.LOGGER.error("Failed to handle clientbound request sync suit look payload", exception);

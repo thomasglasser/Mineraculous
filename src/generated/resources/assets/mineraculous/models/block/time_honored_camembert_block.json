@@ -1,0 +1,10 @@
+{
+  "parent": "mineraculous:block/cheese_base",
+  "textures": {
+    "bottom": "mineraculous:block/cheese/time_honored_camembert_bottom",
+    "inner": "mineraculous:block/cheese/time_honored_camembert_inner",
+    "particle": "mineraculous:block/cheese/time_honored_camembert_side",
+    "side": "mineraculous:block/cheese/time_honored_camembert_side",
+    "top": "mineraculous:block/cheese/time_honored_camembert_top"
+  }
+}

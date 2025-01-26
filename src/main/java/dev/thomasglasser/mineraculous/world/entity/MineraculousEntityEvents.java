@@ -10,6 +10,7 @@ import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
+import dev.thomasglasser.mineraculous.network.ClientboundRefreshVipDataPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncKamikotizationLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncMiraculousLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncSuitLookPayload;
@@ -43,7 +44,10 @@ import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
+import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
@@ -52,6 +56,7 @@ import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -79,7 +84,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
@@ -137,12 +141,12 @@ public class MineraculousEntityEvents {
             if (MineraculousKeyMappings.TAKE_BREAK_ITEM.get().isDown()) {
                 ItemStack mainHandItem = player.getMainHandItem();
                 if (mainHandItem.isEmpty()) {
-                    if (MineraculousClientUtils.getLookEntity() instanceof Player target && (MineraculousServerConfig.INSTANCE.enableUniversalStealing.get() || player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).isTransformed()) && (MineraculousServerConfig.INSTANCE.enableSleepStealing.get() || !target.isSleeping())) {
+                    if (MineraculousClientUtils.getLookEntity() instanceof Player target && (MineraculousServerConfig.get().enableUniversalStealing.get() || player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).isTransformed()) && (MineraculousServerConfig.get().enableSleepStealing.get() || !target.isSleeping())) {
                         entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, ++takeTicks);
-                        if (target.isSleeping() && MineraculousServerConfig.INSTANCE.wakeUpChance.get() > 0 && (MineraculousServerConfig.INSTANCE.wakeUpChance.get() >= 100 || player.getRandom().nextFloat() < MineraculousServerConfig.INSTANCE.wakeUpChance.get() / (20f * 5 * 100))) {
+                        if (target.isSleeping() && MineraculousServerConfig.get().wakeUpChance.get() > 0 && (MineraculousServerConfig.get().wakeUpChance.get() >= 100 || player.getRandom().nextFloat() < MineraculousServerConfig.get().wakeUpChance.get() / (20f * 5 * 100))) {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundWakeUpPayload(target.getUUID(), true));
                         }
-                        if (takeTicks > (20 * MineraculousServerConfig.INSTANCE.stealingDuration.get())) {
+                        if (takeTicks > (20 * MineraculousServerConfig.get().stealingDuration.get())) {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
                             ClientUtils.setScreen(new ExternalCuriosInventoryScreen(target, true, ((slot, target1, menu) -> {
                                 if (slot instanceof CurioSlot curioSlot)
@@ -174,6 +178,9 @@ public class MineraculousEntityEvents {
                     int currentId = ((ToolIdDataHolder) serverPlayer.serverLevel().getServer().overworld()).mineraculous$getToolIdData().getToolId(itemStack.get(MineraculousDataComponents.KWAMI_DATA));
                     Integer stackId = itemStack.get(MineraculousDataComponents.TOOL_ID);
                     return stackId != null && stackId != currentId;
+                } else if (itemStack.has(MineraculousDataComponents.KAMIKOTIZATION) && itemStack.has(DataComponents.PROFILE)) {
+                    Player target = serverPlayer.level().getPlayerByUUID(itemStack.get(DataComponents.PROFILE).id().orElseThrow());
+                    return target == null || target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isEmpty();
                 }
                 return false;
             }, Integer.MAX_VALUE, new SimpleContainer());
@@ -198,6 +205,21 @@ public class MineraculousEntityEvents {
                 flattenedLookDataHolder.mineraculous$getKamikotizationLookData().forEach((uuid, data) -> {
                     TommyLibServices.NETWORK.sendToClient(new ClientboundSyncKamikotizationLookPayload(uuid, data), serverPlayer);
                 });
+                for (ServerPlayer other : serverPlayer.serverLevel().players()) {
+                    MiraculousDataSet miraculousDataSet = other.getData(MineraculousAttachmentTypes.MIRACULOUS);
+                    for (ResourceKey<Miraculous> miraculous : miraculousDataSet.keySet()) {
+                        Map<String, FlattenedSuitLookData> commonSuitLooks = ((FlattenedLookDataHolder) serverPlayer.serverLevel().getServer().overworld()).mineraculous$getCommonSuitLookData().get(miraculous);
+                        String look = miraculousDataSet.get(miraculous).suitLook();
+                        if (commonSuitLooks.containsKey(look)) {
+                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(other.getUUID(), commonSuitLooks.get(look), true), serverPlayer.getServer());
+                        }
+                        Map<String, FlattenedMiraculousLookData> commonMiraculousLooks = ((FlattenedLookDataHolder) serverPlayer.serverLevel().getServer().overworld()).mineraculous$getCommonMiraculousLookData().get(miraculous);
+                        look = miraculousDataSet.get(miraculous).miraculousLook();
+                        if (commonMiraculousLooks.containsKey(look)) {
+                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(other.getUUID(), commonMiraculousLooks.get(look), true), serverPlayer.getServer());
+                        }
+                    }
+                }
             }
         }
 
@@ -205,54 +227,42 @@ public class MineraculousEntityEvents {
         if (optionalData.isPresent()) {
             KamikotizationData kamikotizationData = optionalData.get();
             ResourceKey<Kamikotization> kamikotization = kamikotizationData.kamikotization();
-            Integer transformationFrames = kamikotizationData.kamikotizedStack().get(MineraculousDataComponents.TRANSFORMATION_FRAMES);
-            Integer detransformationFrames = kamikotizationData.kamikotizedStack().get(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
+            Optional<Integer> transformationFrames = kamikotizationData.transformationFrames().left();
+            Optional<Integer> detransformationFrames = kamikotizationData.transformationFrames().right();
             if (player instanceof ServerPlayer serverPlayer) {
-                boolean useHead = detransformationFrames == null;
-                if (useHead)
-                    detransformationFrames = player.getItemBySlot(EquipmentSlot.HEAD).get(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
-                if (transformationFrames != null && transformationFrames >= 1) {
+                if (transformationFrames.isPresent() && transformationFrames.get() >= 1) {
                     if (player.tickCount % 2 == 0) {
-                        if (transformationFrames <= 1) {
-                            kamikotizationData.kamikotizedStack().remove(MineraculousDataComponents.TRANSFORMATION_FRAMES);
-                            kamikotizationData.save(player, true);
+                        if (transformationFrames.get() <= 1) {
+                            kamikotizationData.withTransformationFrames(-1).save(player, true);
                             ArmorData armor = new ArmorData(player.getItemBySlot(EquipmentSlot.HEAD), player.getItemBySlot(EquipmentSlot.CHEST), player.getItemBySlot(EquipmentSlot.LEGS), player.getItemBySlot(EquipmentSlot.FEET));
                             player.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
                             for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
                                 ItemStack stack = Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.getForSlot(slot).get(), kamikotization);
-                                stack.enchant(player.level().holderOrThrow(Enchantments.BINDING_CURSE), 1);
                                 stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
                                 player.setItemSlot(slot, stack);
                             }
+                            player.refreshDisplayName();
                         } else {
-                            kamikotizationData.kamikotizedStack().set(MineraculousDataComponents.TRANSFORMATION_FRAMES, transformationFrames - 1);
-                            kamikotizationData.save(player, true);
+                            kamikotizationData.withTransformationFrames(transformationFrames.get() - 1).save(player, true);
                         }
                     }
-                    serverPlayer.serverLevel().sendParticles(MineraculousParticleTypes.KAMIKOTIZATION.get(), player.getX(), player.getY() + 2 - (11 - transformationFrames) / 5.0, player.getZ(), 100, Math.random() / 3.0, Math.random() / 3.0, Math.random() / 3.0, 0);
-                } else if (detransformationFrames != null && detransformationFrames >= 1) {
+                    serverPlayer.serverLevel().sendParticles(MineraculousParticleTypes.KAMIKOTIZATION.get(), player.getX(), player.getY() + 2 - (11 - transformationFrames.get()) / 5.0, player.getZ(), 100, Math.random() / 3.0, Math.random() / 3.0, Math.random() / 3.0, 0);
+                } else if (detransformationFrames.isPresent() && detransformationFrames.get() >= 1) {
                     if (player.tickCount % 2 == 0) {
-                        if (detransformationFrames <= 1) {
-                            if (useHead)
-                                player.getItemBySlot(EquipmentSlot.HEAD).remove(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
-                            else
-                                kamikotizationData.kamikotizedStack().remove(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
+                        if (detransformationFrames.get() <= 1) {
+                            kamikotizationData.withDetransformationFrames(-1);
                             KamikotizationData.remove(player, true);
                             player.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(data -> {
                                 for (EquipmentSlot slot : Arrays.stream(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR).toArray(EquipmentSlot[]::new)) {
                                     player.setItemSlot(slot, data.forSlot(slot));
                                 }
                             });
+                            player.refreshDisplayName();
                         } else {
-                            if (useHead)
-                                player.getItemBySlot(EquipmentSlot.HEAD).set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, detransformationFrames - 1);
-                            else {
-                                kamikotizationData.kamikotizedStack().set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, detransformationFrames - 1);
-                                kamikotizationData.save(player, true);
-                            }
+                            kamikotizationData.withDetransformationFrames(detransformationFrames.get() - 1).save(player, true);
                         }
                     }
-                    serverPlayer.serverLevel().sendParticles(MineraculousParticleTypes.KAMIKOTIZATION.get(), player.getX(), player.getY() + 2 - (11 - detransformationFrames) / 5.0, player.getZ(), 100, Math.random() / 3.0, Math.random() / 3.0, Math.random() / 3.0, 0);
+                    serverPlayer.serverLevel().sendParticles(MineraculousParticleTypes.KAMIKOTIZATION.get(), player.getX(), player.getY() + 2 - (11 - detransformationFrames.get()) / 5.0, player.getZ(), 100, Math.random() / 3.0, Math.random() / 3.0, Math.random() / 3.0, 0);
                 }
             } else if (ClientUtils.getMainClientPlayer() == player) {
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(player);
@@ -296,10 +306,23 @@ public class MineraculousEntityEvents {
                     if (overrideActive.get()) {
                         kamikotizationData.withMainPowerActive(false).save(player, !player.level().isClientSide);
                     } else {
-                        player.level().holderOrThrow(kamikotization).value().activeAbility().get().value().perform(new AbilityData(0, Either.right(kamikotization)), player.level(), player.blockPosition(), player, Ability.Context.PASSIVE);
+                        boolean usedPower = player.level().holderOrThrow(kamikotization).value().activeAbility().get().value().perform(new AbilityData(0, Either.right(kamikotization)), player.level(), player.blockPosition(), player, Ability.Context.PASSIVE);
+                        if (usedPower) {
+                            kamikotizationData.withMainPowerActive(false).save(player, !player.level().isClientSide);
+                            if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+                                MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, kamikotization, KamikotizationUsePowerTrigger.Context.ITEM);
+                            }
+                        }
                     }
                 }
             }
+        }
+    }
+
+    public static void onServerPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        Player player = event.getEntity();
+        for (ServerPlayer serverPlayer : ((ServerLevel) player.level()).getPlayers(serverPlayer -> true)) {
+            TommyLibServices.NETWORK.sendToAllClients(ClientboundRefreshVipDataPayload.INSTANCE, serverPlayer.getServer());
         }
     }
 
@@ -310,18 +333,19 @@ public class MineraculousEntityEvents {
             miraculousDataSet.keySet().forEach(miraculous -> {
                 MiraculousData data = miraculousDataSet.get(miraculous);
                 if (data.transformed())
-                    handleMiraculousTransformation(player, miraculous, data, false, true);
+                    handleMiraculousTransformation(player, miraculous, data, false, true, false);
                 renounceMiraculous(data.miraculousItem(), player.serverLevel());
             });
-            player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> handleKamikotizationTransformation(player, data, false, true, false, player.position().add(0, 1, 0)));
+            player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> handleKamikotizationTransformation(player, data, false, true, player.position().add(0, 1, 0)));
         }
         if (entity.hasEffect(MineraculousMobEffects.CATACLYSMED) && TommyLibServices.ENTITY.getPersistentData(entity).hasUUID(TAG_CATACLYSMED)) {
             entity.setLastHurtByPlayer(entity.level().getPlayerByUUID(TommyLibServices.ENTITY.getPersistentData(entity).getUUID(TAG_CATACLYSMED)));
         }
     }
 
-    public static void handleMiraculousTransformation(ServerPlayer player, ResourceKey<Miraculous> miraculous, MiraculousData data, boolean transform, boolean instant) {
+    public static void handleMiraculousTransformation(ServerPlayer player, ResourceKey<Miraculous> miraculous, MiraculousData data, boolean transform, boolean instant, boolean removed) {
         if (player != null) {
+            player.removeEntitiesOnShoulder();
             ServerLevel serverLevel = player.serverLevel();
             ItemStack miraculousStack = data.miraculousItem();
             int transformationFrames = instant ? 0 : player.serverLevel().holderOrThrow(miraculous).value().transformationFrames();
@@ -338,14 +362,15 @@ public class MineraculousEntityEvents {
                         player.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
                         for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
                             ItemStack stack = Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.getForSlot(slot).get(), miraculous);
-                            stack.enchant(serverLevel.holderOrThrow(Enchantments.BINDING_CURSE), 1);
                             stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
                             if (transformationFrames > 0)
                                 stack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, transformationFrames);
                             player.setItemSlot(slot, stack);
                         }
 
-                        miraculousStack.enchant(serverLevel.holderOrThrow(Enchantments.BINDING_CURSE), 1);
+                        int newToolId = ((ToolIdDataHolder) serverLevel.getServer().overworld()).mineraculous$getToolIdData().incrementToolId(kwamiData);
+                        data = data.transform(true, miraculousStack, newToolId);
+
                         miraculousStack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
                         miraculousStack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
                         if (transformationFrames > 0)
@@ -364,10 +389,10 @@ public class MineraculousEntityEvents {
                             }
                         }
 
-                        data = data.transform(true, miraculousStack, ((ToolIdDataHolder) serverLevel.getServer().overworld()).mineraculous$getToolIdData().getToolId(kwamiData));
                         player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);
                         serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), serverLevel.holderOrThrow(miraculous).value().transformSound(), SoundSource.PLAYERS, 1, 1);
-                        CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack, true);
+                        if (data.curiosData() != CuriosData.EMPTY)
+                            CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack, true);
                         if (data.name().isEmpty())
                             player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(Miraculous.toLanguageKey(miraculous)), miraculous.location().getPath()), true);
                         int powerLevel = data.powerLevel();
@@ -405,16 +430,29 @@ public class MineraculousEntityEvents {
                 }
                 miraculousStack.remove(MineraculousDataComponents.REMAINING_TICKS.get());
                 miraculousStack.remove(MineraculousDataComponents.POWERED.get());
-                CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack, true);
-                int newToolId = ((ToolIdDataHolder) serverLevel.getServer().overworld()).mineraculous$getToolIdData().incrementToolId(new KwamiData(kwami.getUUID(), kwami.isCharged()));
-                data = data.transform(false, miraculousStack, newToolId);
+                if (data.curiosData() != CuriosData.EMPTY)
+                    CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack, true);
+                if (removed) {
+                    renounceMiraculous(miraculousStack, serverLevel);
+                    ((ChargeOverrideDataHolder) serverLevel.getServer().overworld()).mineraculous$getChargeOverrideData().put(kwami.getUUID(), false);
+                }
+                data = data.transform(false, miraculousStack, ((ToolIdDataHolder) serverLevel.getServer().overworld()).mineraculous$getToolIdData().getToolId(kwami.getUUID()));
+                if (removed)
+                    data = data.unEquip();
                 player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);
+                player.getInventory().clearOrCountMatchingItems(itemStack -> itemStack.has(MineraculousDataComponents.TOOL_ID) && itemStack.has(MineraculousDataComponents.KWAMI_DATA) && itemStack.get(MineraculousDataComponents.KWAMI_DATA).uuid().equals(kwami.getUUID()), Integer.MAX_VALUE, new SimpleContainer());
+                CuriosUtils.getAllItems(player).forEach(((curiosData, itemStack) -> {
+                    if (itemStack.has(MineraculousDataComponents.TOOL_ID) && itemStack.has(MineraculousDataComponents.KWAMI_DATA) && itemStack.get(MineraculousDataComponents.KWAMI_DATA).uuid().equals(kwami.getUUID())) {
+                        itemStack.shrink(1);
+                    }
+                }));
                 serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), serverLevel.holderOrThrow(miraculous).value().detransformSound(), SoundSource.PLAYERS, 1, 1);
                 MIRACULOUS_EFFECTS.forEach(player::removeEffect);
                 MiraculousData finalData = data;
                 serverLevel.holderOrThrow(miraculous).value().activeAbility().ifPresent(ability -> ability.value().detransform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
                 serverLevel.holderOrThrow(miraculous).value().passiveAbilities().forEach(ability -> ability.value().detransform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
             }
+            player.refreshDisplayName();
         }
     }
 
@@ -457,7 +495,8 @@ public class MineraculousEntityEvents {
                 level.addFreshEntity(kwami);
 
                 miraculousData.miraculousItem().set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
-                CuriosUtils.setStackInSlot(player, miraculousData.curiosData(), miraculousData.miraculousItem(), true);
+                if (miraculousData.curiosData() != CuriosData.EMPTY)
+                    CuriosUtils.setStackInSlot(player, miraculousData.curiosData(), miraculousData.miraculousItem(), true);
                 player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, miraculousData.withItem(miraculousData.miraculousItem()), true);
                 return kwami;
             }
@@ -777,7 +816,7 @@ public class MineraculousEntityEvents {
             } else if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
                 KamikotizationData data = entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
                 Style newStyle = style.withColor(entity.level().holderOrThrow(MineraculousMiraculous.BUTTERFLY).value().color());
-                return Component.literal(data.name()).setStyle(newStyle);
+                return Entity.removeAction(Component.literal(data.name()).setStyle(newStyle.withHoverEvent(null)));
             }
         }
         return original;
@@ -820,12 +859,24 @@ public class MineraculousEntityEvents {
 
                 MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
                 for (ResourceKey<Miraculous> miraculous : miraculousDataSet.keySet()) {
+                    Map<String, FlattenedSuitLookData> commonSuitLooks = ((FlattenedLookDataHolder) event.getLevel().getServer().overworld()).mineraculous$getCommonSuitLookData().get(miraculous);
                     String look = miraculousDataSet.get(miraculous).suitLook();
-                    if (!look.isEmpty())
-                        TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncSuitLookPayload(Optional.empty(), false, miraculous, look), player);
+                    if (!look.isEmpty()) {
+                        if (commonSuitLooks.containsKey(look)) {
+                            miraculousDataSet.put(player, miraculous, miraculousDataSet.get(miraculous).withSuitLook(look), true);
+                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(player.getUUID(), commonSuitLooks.get(look), true), player.getServer());
+                        } else
+                            TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncSuitLookPayload(Optional.empty(), false, miraculous, look), player);
+                    }
+                    Map<String, FlattenedMiraculousLookData> commonMiraculousLooks = ((FlattenedLookDataHolder) event.getLevel().getServer().overworld()).mineraculous$getCommonMiraculousLookData().get(miraculous);
                     look = miraculousDataSet.get(miraculous).miraculousLook();
-                    if (!look.isEmpty())
-                        TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncMiraculousLookPayload(Optional.empty(), false, miraculous, look), player);
+                    if (!look.isEmpty()) {
+                        if (commonMiraculousLooks.containsKey(look)) {
+                            miraculousDataSet.put(player, miraculous, miraculousDataSet.get(miraculous).withMiraculousLook(look), true);
+                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), commonMiraculousLooks.get(look), true), player.getServer());
+                        } else
+                            TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncMiraculousLookPayload(Optional.empty(), false, miraculous, look), player);
+                    }
                 }
 
                 if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
@@ -851,10 +902,10 @@ public class MineraculousEntityEvents {
         }
     }
 
-    public static void handleKamikotizationTransformation(ServerPlayer player, KamikotizationData data, boolean transform, boolean instant, boolean itemBroken, Vec3 kamikoSpawnPos) {
+    public static void handleKamikotizationTransformation(ServerPlayer player, KamikotizationData data, boolean transform, boolean instant, Vec3 kamikoSpawnPos) {
         if (player != null) {
             ServerLevel serverLevel = player.serverLevel();
-            ItemStack kamikotizationStack = data.kamikotizedStack();
+            ItemStack kamikotizationStack = data.slotInfo().left().isPresent() ? player.getInventory().getItem(data.slotInfo().left().get()) : CuriosUtils.getStackInSlot(player, data.slotInfo().right().get());
             int transformationFrames = 10;
             if (transform) {
                 // Transform
@@ -867,14 +918,13 @@ public class MineraculousEntityEvents {
                 kamikotizationStack.set(DataComponents.PROFILE, new ResolvableProfile(player.getGameProfile()));
 
                 if (!instant) {
-                    kamikotizationStack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, transformationFrames);
+                    data = data.withTransformationFrames(transformationFrames);
                 } else {
-                    kamikotizationStack.remove(MineraculousDataComponents.TRANSFORMATION_FRAMES);
+                    data = data.withTransformationFrames(-1);
                     ArmorData armor = new ArmorData(player.getItemBySlot(EquipmentSlot.HEAD), player.getItemBySlot(EquipmentSlot.CHEST), player.getItemBySlot(EquipmentSlot.LEGS), player.getItemBySlot(EquipmentSlot.FEET));
                     player.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
                     for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
                         ItemStack stack = Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.getForSlot(slot).get(), data.kamikotization());
-                        stack.enchant(player.level().holderOrThrow(Enchantments.BINDING_CURSE), 1);
                         stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
                         player.setItemSlot(slot, stack);
                     }
@@ -883,7 +933,6 @@ public class MineraculousEntityEvents {
                     }
                 }
 
-                data = data.withKamikotizationStack(kamikotizationStack);
                 data.save(player, true);
                 serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM, SoundSource.PLAYERS, 1, 1);
                 if (data.slotInfo().left().isPresent()) {
@@ -909,15 +958,9 @@ public class MineraculousEntityEvents {
                 kamikotizationStack.remove(DataComponents.PROFILE);
 
                 if (!instant) {
-                    if (itemBroken)
-                        player.getItemBySlot(EquipmentSlot.HEAD).set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, transformationFrames);
-                    else
-                        kamikotizationStack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, transformationFrames);
+                    data = data.withDetransformationFrames(transformationFrames);
                 } else {
-                    if (itemBroken)
-                        player.getItemBySlot(EquipmentSlot.HEAD).remove(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
-                    else
-                        kamikotizationStack.remove(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
+                    data = data.withDetransformationFrames(-1);
                     KamikotizationData.remove(player, true);
                     player.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(armorData -> {
                         for (EquipmentSlot slot : Arrays.stream(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR).toArray(EquipmentSlot[]::new)) {
@@ -931,8 +974,10 @@ public class MineraculousEntityEvents {
                 } else {
                     CuriosUtils.setStackInSlot(player, data.slotInfo().right().get(), kamikotizationStack, true);
                 }
-                data = data.withKamikotizationStack(kamikotizationStack);
-                data.save(player, true);
+                if (instant)
+                    KamikotizationData.remove(player, true);
+                else
+                    data.save(player, true);
                 serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM, SoundSource.PLAYERS, 1, 1);
                 MIRACULOUS_EFFECTS.forEach(player::removeEffect);
                 KamikotizationData finalData1 = data;
@@ -942,31 +987,22 @@ public class MineraculousEntityEvents {
                 entityData.putBoolean(TAG_SHOW_KAMIKO_MASK, false);
                 TommyLibServices.ENTITY.setPersistentData(player, entityData, true);
             }
+            player.refreshDisplayName();
         }
     }
 
     public static Kamiko summonKamiko(Level level, KamikotizationData data, Player player, Vec3 kamikoSpawnPos) {
-        if (data.kamikotizedStack().has(MineraculousDataComponents.KAMIKOTIZATION)) {
-            Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(level);
-            if (kamiko != null) {
-                KamikoData kamikoData = data.kamikotizedStack().get(MineraculousDataComponents.KAMIKO_DATA);
-                if (kamikoData != null) {
-                    kamiko.setUUID(kamikoData.uuid());
-                    kamiko.setOwnerUUID(kamikoData.owner());
-                }
-                kamiko.setPos(kamikoSpawnPos);
-                level.addFreshEntity(kamiko);
-
-                data.kamikotizedStack().remove(MineraculousDataComponents.KAMIKO_DATA);
-                if (data.slotInfo().left().isPresent()) {
-                    player.getInventory().setItem(data.slotInfo().left().get(), data.kamikotizedStack());
-                } else {
-                    CuriosUtils.setStackInSlot(player, data.slotInfo().right().get(), data.kamikotizedStack(), true);
-                }
-                return kamiko;
+        Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(level);
+        if (kamiko != null) {
+            KamikoData kamikoData = data.kamikoData();
+            if (kamikoData != null) {
+                kamiko.setUUID(kamikoData.uuid());
+                kamiko.setOwnerUUID(kamikoData.owner());
             }
+            kamiko.setPos(kamikoSpawnPos);
+            level.addFreshEntity(kamiko);
         }
-        return null;
+        return kamiko;
     }
 
     public static void onPlayerBreakSpeed(PlayerEvent.BreakSpeed event) {

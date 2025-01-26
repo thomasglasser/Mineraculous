@@ -2,16 +2,21 @@ package dev.thomasglasser.mineraculous.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.DynamicAutoGlowingTexture;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousLookData;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.component.DataComponents;
@@ -22,9 +27,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.cache.texture.AutoGlowingTexture;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
+import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
     private final Map<ResourceKey<Miraculous>, GeoModel<MiraculousItem>> defaultModels = new HashMap<>();
@@ -32,6 +39,32 @@ public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
 
     public MiraculousRenderer() {
         super(null);
+        addRenderLayer(new AutoGlowingGeoLayer<>(this) {
+            @Override
+            protected @Nullable RenderType getRenderType(MiraculousItem animatable, @Nullable MultiBufferSource bufferSource) {
+                ResourceLocation texture = getTextureLocation(animatable);
+                ResourceLocation glowmaskTexture = AutoGlowingTexture.appendToPath(texture, "_glowmask");
+                if (Minecraft.getInstance().getTextureManager().getTexture(glowmaskTexture, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture()) {
+                    if (Minecraft.getInstance().getResourceManager().getResource(glowmaskTexture).isPresent())
+                        return super.getRenderType(animatable, bufferSource);
+                    else if (getCurrentItemStack() != null) {
+                        MiraculousLookData data = getMiraculousLookData(getCurrentItemStack());
+                        if (data != null) {
+                            if (data.glowmask().isPresent() && texture.equals(data.texture())) {
+                                byte[] glowmask = data.glowmask().get();
+                                try {
+                                    DynamicAutoGlowingTexture.register(texture, glowmask);
+                                } catch (IOException e) {
+                                    Mineraculous.LOGGER.error("Failed to register glowmask texture for {}", texture, e);
+                                }
+                            }
+                        }
+                    }
+                    return null;
+                }
+                return super.getRenderType(animatable, bufferSource);
+            }
+        });
     }
 
     @Override
@@ -40,12 +73,14 @@ public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
         if (getCurrentItemStack() != null) {
             ResourceKey<Miraculous> miraculous = getCurrentItemStack().get(MineraculousDataComponents.MIRACULOUS);
             MiraculousLookData data = getMiraculousLookData(getCurrentItemStack());
-            if (data != null && data.transforms().isPresent() && data.transforms().get().hasTransform(renderPerspective) && !getCurrentItemStack().has(MineraculousDataComponents.POWERED)) {
-                data.transforms().get().getTransform(renderPerspective).apply(false, poseStack);
-            } else {
-                BakedModel miraculousModel = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(miraculous.location().getNamespace(), "item/miraculous/" + miraculous.location().getPath())));
-                if (miraculousModel != Minecraft.getInstance().getModelManager().getMissingModel()) {
-                    miraculousModel.applyTransform(renderPerspective, poseStack, false);
+            if (!isReRender) {
+                if (data != null && data.transforms().isPresent() && data.transforms().get().hasTransform(renderPerspective) && !getCurrentItemStack().has(MineraculousDataComponents.POWERED)) {
+                    data.transforms().get().getTransform(renderPerspective).apply(false, poseStack);
+                } else {
+                    BakedModel miraculousModel = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(miraculous.location().getNamespace(), "item/miraculous/" + miraculous.location().getPath())));
+                    if (miraculousModel != Minecraft.getInstance().getModelManager().getMissingModel()) {
+                        miraculousModel.applyTransform(renderPerspective, poseStack, false);
+                    }
                 }
             }
             // Special case for earrings

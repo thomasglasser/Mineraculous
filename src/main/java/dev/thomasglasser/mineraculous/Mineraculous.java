@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous;
 
 import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.advancements.critereon.MineraculousEntitySubPredicates;
+import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
@@ -10,7 +11,6 @@ import dev.thomasglasser.mineraculous.core.MineraculousCoreEvents;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousBuiltInRegistries;
-import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.data.MineraculousDataGenerators;
 import dev.thomasglasser.mineraculous.network.MineraculousPayloads;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
@@ -31,11 +31,13 @@ import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.crafting.MineraculousRecipeSerializers;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
@@ -51,7 +53,10 @@ public class Mineraculous {
     public Mineraculous(IEventBus bus, ModContainer modContainer) {
         LOGGER.info("Initializing {} for {} in a {} environment...", MOD_NAME, TommyLibServices.PLATFORM.getPlatformName(), TommyLibServices.PLATFORM.getEnvironmentName());
 
-        MineraculousRegistries.init();
+        if (FMLEnvironment.production && FMLEnvironment.dist.isClient() && !modContainer.getModInfo().getVersion().getQualifier().isEmpty() && !MineraculousClientUtils.verifySnapshotTester(Minecraft.getInstance().getUser().getProfileId())) {
+            throw new RuntimeException("You are running a snapshot version of Mineraculous and are not a part of the Snapshot Program. Please switch to a stable version.");
+        }
+
         MineraculousBuiltInRegistries.init();
         MineraculousItems.init();
         MineraculousArmors.init();
@@ -103,6 +108,8 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerLoggedOut);
         NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onLoadLootTable);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerBreakSpeed);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onServerPlayerLoggedIn);
+        NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onServerStarted);
 
         if (TommyLibServices.PLATFORM.isClientSide()) {
             bus.addListener(MineraculousClientEvents::onRegisterAdditionalModels);
@@ -115,6 +122,7 @@ public class Mineraculous {
             bus.addListener(MineraculousClientEvents::onAddLayers);
             bus.addListener(MineraculousClientEvents::onRegisterItemColorHandlers);
             bus.addListener(MineraculousClientEvents::onBuildCreativeModeTabContents);
+            bus.addListener(MineraculousClientEvents::onClientConfigChanged);
 
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onGetPlayerHeartType);
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderHand);
@@ -123,11 +131,13 @@ public class Mineraculous {
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onMouseButtonClick);
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientTick);
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientChatReceived);
+            NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onPlayerLoggedIn);
         }
     }
 
     private static void registerConfigs(ModContainer modContainer) {
-        modContainer.registerConfig(ModConfig.Type.SERVER, MineraculousServerConfig.INSTANCE.getConfigSpec());
+        modContainer.registerConfig(ModConfig.Type.SERVER, MineraculousServerConfig.get().getConfigSpec());
+        modContainer.registerConfig(ModConfig.Type.CLIENT, MineraculousClientConfig.get().getConfigSpec());
         modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
     }
 

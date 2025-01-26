@@ -26,7 +26,7 @@ public record ServerboundSyncKamikotizationLooksPayload(UUID senderId, List<Flat
     @Override
     public void handle(Player player) {
         Player sender = player.level().getPlayerByUUID(senderId);
-        if (sender != null && MineraculousServerConfig.INSTANCE.enableCustomization.get()) {
+        if (sender != null && MineraculousServerConfig.isCustomizationAllowed(player)) {
             TommyLibServices.NETWORK.sendToClient(new ClientboundSyncKamikotizationLooksPayload(player.getUUID(), looks), (ServerPlayer) sender);
         }
     }

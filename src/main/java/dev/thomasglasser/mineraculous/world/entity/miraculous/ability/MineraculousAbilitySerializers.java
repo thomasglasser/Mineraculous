@@ -17,6 +17,7 @@ public class MineraculousAbilitySerializers {
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<NightVisionAbility>> NIGHT_VISION = ABILITIES.register("night_vision", () -> NightVisionAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<SetOwnerAbility>> SET_OWNER = ABILITIES.register("set_owner", () -> SetOwnerAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<SetCameraEntityAbility>> SET_CAMERA_ENTITY = ABILITIES.register("set_camera_entity", () -> SetCameraEntityAbility.CODEC);
+    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<DragAbility>> DRAG = ABILITIES.register("drag", () -> DragAbility.CODEC);
 
     public static void init() {}
 }

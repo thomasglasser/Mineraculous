@@ -50,7 +50,7 @@ public record ClientboundSyncMiraculousLookPayload(UUID targetId, FlattenedMirac
             ItemTransforms transforms = null;
             if (data.transforms().isPresent())
                 transforms = BlockModel.fromString(data.transforms().get()).getTransforms();
-            target.getData(MineraculousAttachmentTypes.MIRACULOUS_MIRACULOUS_LOOKS).put(data.miraculous(), data.look(), new MiraculousLookData(Optional.ofNullable(model), texture, Optional.ofNullable(transforms)));
+            target.getData(MineraculousAttachmentTypes.MIRACULOUS_MIRACULOUS_LOOKS).put(data.miraculous(), data.look(), new MiraculousLookData(Optional.ofNullable(model), texture, data.glowmaskPixels(), Optional.ofNullable(transforms)));
             if (override) {
                 MiraculousDataSet miraculousDataSet = target.getData(MineraculousAttachmentTypes.MIRACULOUS);
                 miraculousDataSet.put(target, data.miraculous(), miraculousDataSet.get(data.miraculous()).withMiraculousLook(data.look()), false);

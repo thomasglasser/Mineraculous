@@ -1,12 +1,16 @@
 package dev.thomasglasser.mineraculous.world.level.block;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
+import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.RandomSource;
@@ -19,6 +23,7 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.BlockItemStateProperties;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -27,6 +32,7 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ChangeOverTimeBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
@@ -41,7 +47,9 @@ import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
 import org.jetbrains.annotations.Nullable;
 
-public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBlock.Age> {
+public class CheeseBlock extends HorizontalDirectionalBlock implements ChangeOverTimeBlock<CheeseBlock.Age> {
+    public static final MapCodec<CheeseBlock> CODEC = simpleCodec(CheeseBlock::new);
+    public static final ResourceLocation BITES_PROPERTY_ID = Mineraculous.modLoc("bites");
     public static final int MAX_BITES = 3;
     public static final IntegerProperty BITES = IntegerProperty.create("bites", 0, MAX_BITES);
     protected static final VoxelShape SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 3.0, 12.0);
@@ -63,7 +71,17 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
         this.unwaxedBlock = unwaxedBlock;
         this.wedge = wedge;
         this.foodProperties = foodProperties;
-        this.registerDefaultState(this.stateDefinition.any().setValue(BITES, 0));
+        this.registerDefaultState(this.stateDefinition.any().setValue(BITES, 0).setValue(FACING, Direction.NORTH));
+    }
+
+    public CheeseBlock(Properties properties) {
+        this(Age.FRESH, false, null, null, null, null, null, properties);
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        Direction opposite = context.getHorizontalDirection().getOpposite();
+        return this.defaultBlockState().setValue(FACING, opposite);
     }
 
     @Override
@@ -106,8 +124,13 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
 
     @Override
     protected ItemInteractionResult useItemOn(ItemStack pStack, BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHitResult) {
-        if (pStack.is(Items.HONEYCOMB))
+        if (pStack.is(Items.HONEYCOMB) || pStack.canPerformAction(ItemAbilities.AXE_WAX_OFF))
             return ItemInteractionResult.FAIL;
+        if (!waxed && pStack.is(wedge) && pState.getValue(BITES) > 0) {
+            pLevel.setBlock(pPos, pState.setValue(BITES, pState.getValue(BITES) - 1), Block.UPDATE_ALL);
+            ItemUtils.safeShrink(1, pStack, pPlayer);
+            return ItemInteractionResult.SUCCESS;
+        }
         return super.useItemOn(pStack, pState, pLevel, pPos, pPlayer, pHand, pHitResult);
     }
 
@@ -155,6 +178,7 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
 
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(BITES);
+        builder.add(FACING);
     }
 
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
@@ -198,6 +222,11 @@ public class CheeseBlock extends Block implements ChangeOverTimeBlock<CheeseBloc
             });
             return cloneItemStack;
         }
+    }
+
+    @Override
+    protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
+        return CODEC;
     }
 
     public enum Age implements StringRepresentable {

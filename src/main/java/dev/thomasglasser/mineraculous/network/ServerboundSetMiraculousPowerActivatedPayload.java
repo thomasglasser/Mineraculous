@@ -29,12 +29,13 @@ public record ServerboundSetMiraculousPowerActivatedPayload(ResourceKey<Miraculo
     public void handle(Player player) {
         MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
         MiraculousData data = miraculousDataSet.get(miraculousType);
-        if (data.hasLimitedPower())
+        data = data.withPowerStatus(true, true);
+        if (data.shouldCountDown())
             data.miraculousItem().set(MineraculousDataComponents.REMAINING_TICKS.get(), MiraculousItem.FIVE_MINUTES);
         Level level = player.level();
         Ability power = level.registryAccess().holderOrThrow(miraculousType).value().activeAbility().get().value();
         power.playStartSound(level, player.blockPosition());
-        miraculousDataSet.put(player, miraculousType, data.withPowerStatus(true, true), true);
+        miraculousDataSet.put(player, miraculousType, data, true);
         CuriosUtils.setStackInSlot(player, data.curiosData(), data.miraculousItem(), true);
     }
 

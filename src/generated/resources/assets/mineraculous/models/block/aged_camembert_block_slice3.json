@@ -1,0 +1,10 @@
+{
+  "parent": "mineraculous:block/cheese_slice3_base",
+  "textures": {
+    "bottom": "mineraculous:block/cheese/aged_camembert_bottom",
+    "inner": "mineraculous:block/cheese/aged_camembert_inner",
+    "particle": "mineraculous:block/cheese/aged_camembert_side",
+    "side": "mineraculous:block/cheese/aged_camembert_side",
+    "top": "mineraculous:block/cheese/aged_camembert_top"
+  }
+}

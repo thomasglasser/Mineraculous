@@ -101,12 +101,6 @@ public class KamikoMenu {
         return this.selectedSlot;
     }
 
-    public void selectCategory(KamikoMenuCategory category) {
-        this.category = category;
-        this.selectedSlot = KamikoPage.NO_SELECTION;
-        this.page = 0;
-    }
-
     public KamikoPage getCurrentPage() {
         return new KamikoPage(this.getItems(), this.selectedSlot);
     }

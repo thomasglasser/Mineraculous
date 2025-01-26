@@ -1,22 +1,31 @@
 package dev.thomasglasser.mineraculous.client.renderer.armor;
 
+import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.DynamicAutoGlowingTexture;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.armor.MiraculousArmorItem;
 import dev.thomasglasser.mineraculous.world.level.storage.SuitLookData;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.cache.texture.AutoGlowingTexture;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
+import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmorItem> {
     private final Map<ResourceKey<Miraculous>, GeoModel<MiraculousArmorItem>> defaultModels = new HashMap<>();
@@ -24,6 +33,43 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
 
     public MiraculousArmorItemRenderer() {
         super(null);
+        addRenderLayer(new AutoGlowingGeoLayer<>(this) {
+            @Override
+            protected @Nullable RenderType getRenderType(MiraculousArmorItem animatable, @Nullable MultiBufferSource bufferSource) {
+                ResourceLocation texture = getTextureLocation(animatable);
+                ResourceLocation glowmaskTexture = AutoGlowingTexture.appendToPath(texture, "_glowmask");
+                if (Minecraft.getInstance().getTextureManager().getTexture(glowmaskTexture, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture()) {
+                    if (Minecraft.getInstance().getResourceManager().getResource(glowmaskTexture).isPresent())
+                        return super.getRenderType(animatable, bufferSource);
+                    else if (getCurrentStack() != null && getCurrentEntity() instanceof LivingEntity livingEntity) {
+                        String look = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS).get(getCurrentStack().get(MineraculousDataComponents.MIRACULOUS)).suitLook();
+                        SuitLookData data = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).get(getCurrentStack().get(MineraculousDataComponents.MIRACULOUS), look);
+                        if (data != null) {
+                            if (data.glowmask().isPresent() && texture.equals(data.texture())) {
+                                byte[] glowmask = data.glowmask().get();
+                                try {
+                                    DynamicAutoGlowingTexture.register(texture, glowmask);
+                                } catch (IOException e) {
+                                    Mineraculous.LOGGER.error("Failed to register glowmask texture for {}", texture, e);
+                                }
+                            }
+                            if (!data.glowmaskFrames().isEmpty()) {
+                                try {
+                                    byte[] glowmaskFrame = data.glowmaskFrames().get(data.frames().indexOf(texture));
+                                    DynamicAutoGlowingTexture.register(texture, glowmaskFrame);
+                                } catch (IndexOutOfBoundsException e) {
+                                    return null;
+                                } catch (IOException e) {
+                                    Mineraculous.LOGGER.error("Failed to register glowmask frame texture for {}", texture, e);
+                                }
+                            }
+                        }
+                    }
+                    return null;
+                }
+                return super.getRenderType(animatable, bufferSource);
+            }
+        });
     }
 
     @Override

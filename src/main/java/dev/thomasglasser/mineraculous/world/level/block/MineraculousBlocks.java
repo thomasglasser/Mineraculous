@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.function.Supplier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.ColorRGBA;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -23,13 +24,14 @@ import net.minecraft.world.item.ItemNameBlockItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 
 public class MineraculousBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Mineraculous.MOD_ID);
 
-    public static final DeferredBlock<CataclysmBlock> CATACLYSM_BLOCK = registerWithItem("cataclysm_block", () -> new CataclysmBlock(Block.Properties.of().noCollission()), List.of(CreativeModeTabs.NATURAL_BLOCKS));
+    public static final DeferredBlock<CataclysmBlock> CATACLYSM_BLOCK = registerWithItem("cataclysm_block", () -> new CataclysmBlock(new ColorRGBA(0x201915), Block.Properties.of().noCollission().mapColor(MapColor.COLOR_BLACK).instrument(NoteBlockInstrument.SNARE).sound(SoundType.SAND)), List.of(CreativeModeTabs.NATURAL_BLOCKS));
 
     public static final DeferredBlock<Block> CHEESE_POT = registerWithItem("cheese_pot", () -> new Block(BlockBehaviour.Properties.of().strength(0.5f).noOcclusion().sound(SoundType.METAL).mapColor(MapColor.GOLD)), List.of(CreativeModeTabs.FUNCTIONAL_BLOCKS));
 
@@ -37,9 +39,9 @@ public class MineraculousBlocks {
 
     // Cheese
     public static final SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> CHEESE_BLOCKS = cheese("cheese", MineraculousFoods.CHEESE, MineraculousItems.CHEESE_WEDGES);
-    public static final SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> WAXED_CHEESE_BLOCKS = waxed("cheese");
+    public static final SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> WAXED_CHEESE_BLOCKS = waxed("cheese", MineraculousItems.WAXED_CHEESE_WEDGES);
     public static final SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> CAMEMBERT_BLOCKS = cheese("camembert", MineraculousFoods.CAMEMBERT, MineraculousItems.CAMEMBERT_WEDGES);
-    public static final SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> WAXED_CAMEMBERT_BLOCKS = waxed("camembert");
+    public static final SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> WAXED_CAMEMBERT_BLOCKS = waxed("camembert", MineraculousItems.WAXED_CAMEMBERT_WEDGES);
     private static final Supplier<BiMap<DeferredBlock<CheeseBlock>, DeferredBlock<CheeseBlock>>> WAXABLES = Suppliers.memoize(
             () -> {
                 ImmutableBiMap.Builder<DeferredBlock<CheeseBlock>, DeferredBlock<CheeseBlock>> builder = ImmutableBiMap.builder();
@@ -53,14 +55,14 @@ public class MineraculousBlocks {
     private static SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> cheese(String name, FoodProperties foodProperties, SortedMap<CheeseBlock.Age, DeferredItem<?>> wedgeMap) {
         SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> cheese = new Object2ObjectLinkedOpenHashMap<>(CheeseBlock.Age.values().length);
         for (CheeseBlock.Age age : CheeseBlock.Age.values())
-            cheese.put(age, registerWithItem(age.getSerializedName() + "_" + name + "_block", () -> new CheeseBlock(age, false, cheese.get(age.getNext()), WAXABLES.get().get(cheese.get(age)), null, wedgeMap.get(age), foodProperties, BlockBehaviour.Properties.of().strength(0.5f).forceSolidOn().sound(SoundType.SPONGE).mapColor(MapColor.GOLD).randomTicks()), List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
+            cheese.put(age, registerWithItem(age.getSerializedName() + "_" + name + "_block", () -> new CheeseBlock(age, false, cheese.get(age.getNext()), WAXABLES.get().get(cheese.get(age)), null, wedgeMap.get(age), foodProperties, BlockBehaviour.Properties.of().strength(0.5f).sound(SoundType.SPONGE).mapColor(MapColor.GOLD).randomTicks()), List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
         return cheese;
     }
 
-    private static SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxed(String name) {
+    private static SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxed(String name, SortedMap<CheeseBlock.Age, DeferredItem<?>> wedgeMap) {
         SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> cheese = new Object2ObjectLinkedOpenHashMap<>(CheeseBlock.Age.values().length);
         for (CheeseBlock.Age age : CheeseBlock.Age.values())
-            cheese.put(age, registerWithItem("waxed_" + age.getSerializedName() + "_" + name + "_block", () -> new CheeseBlock(age, true, cheese.get(age.getNext()), null, UNWAXABLES.get().get(cheese.get(age)), null, null, BlockBehaviour.Properties.of().strength(1f).forceSolidOn().sound(SoundType.SPONGE).mapColor(MapColor.GOLD).randomTicks()), List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
+            cheese.put(age, registerWithItem("waxed_" + age.getSerializedName() + "_" + name + "_block", () -> new CheeseBlock(age, true, cheese.get(age.getNext()), null, UNWAXABLES.get().get(cheese.get(age)), wedgeMap.get(age), null, BlockBehaviour.Properties.of().strength(1f).sound(SoundType.SPONGE).mapColor(MapColor.GOLD).randomTicks()), List.of(CreativeModeTabs.FOOD_AND_DRINKS)));
         return cheese;
     }
 

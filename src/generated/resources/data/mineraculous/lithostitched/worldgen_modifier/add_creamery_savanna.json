@@ -1,0 +1,17 @@
+{
+  "type": "lithostitched:add_template_pool_elements",
+  "elements": [
+    {
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "mineraculous:village/savanna/houses/creamery",
+        "processors": {
+          "processors": []
+        },
+        "projection": "rigid"
+      },
+      "weight": 9
+    }
+  ],
+  "template_pools": "minecraft:village/savanna/houses"
+}

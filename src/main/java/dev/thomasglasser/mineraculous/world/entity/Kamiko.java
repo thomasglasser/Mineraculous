@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.function.BiPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -155,8 +156,13 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     public List<? extends ExtendedSensor<? extends Kamiko>> getSensors() {
         return ObjectArrayList.of(
                 new PlayerTemptingSensor<Kamiko>().temptedWith((entity, player, stack) -> {
-                    MiraculousData butterflyData = player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(MineraculousMiraculous.BUTTERFLY);
-                    return butterflyData.mainPowerActive() || (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == ButterflyCaneItem.Ability.KAMIKO_STORE && ButterflyCaneItem.Ability.KAMIKO_STORE.canBePerformedBy(player, stack) && !butterflyData.extraData().contains(ButterflyCaneItem.TAG_STORED_KAMIKO));
+                    if (player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(MineraculousMiraculous.BUTTERFLY).mainPowerActive())
+                        return true;
+                    if (!stack.has(DataComponents.PROFILE))
+                        return false;
+                    Player caneOwner = player.level().getPlayerByUUID(stack.get(DataComponents.PROFILE).id().orElseThrow());
+                    MiraculousData butterflyData = caneOwner.getData(MineraculousAttachmentTypes.MIRACULOUS).get(MineraculousMiraculous.BUTTERFLY);
+                    return (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == ButterflyCaneItem.Ability.KAMIKO_STORE && !butterflyData.extraData().contains(ButterflyCaneItem.TAG_STORED_KAMIKO));
                 }));
     }
 

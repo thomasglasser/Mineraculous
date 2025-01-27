@@ -74,7 +74,7 @@ public class NightVisionAbility implements Ability {
         playStartSound(serverPlayer.level(), serverPlayer.blockPosition());
         TommyLibServices.NETWORK.sendToClient(new ClientboundToggleNightVisionPayload(true, shader), serverPlayer);
         CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(serverPlayer);
-        tag.putBoolean(MineraculousEntityEvents.TAG_HASNIGHTVISION, nightVision);
+        tag.putBoolean(MineraculousEntityEvents.TAG_HAS_NIGHT_VISION, nightVision);
         TommyLibServices.ENTITY.setPersistentData(serverPlayer, tag, false);
     }
 
@@ -82,7 +82,7 @@ public class NightVisionAbility implements Ability {
         nightVision = false;
         TommyLibServices.NETWORK.sendToClient(new ClientboundToggleNightVisionPayload(false, shader), serverPlayer);
         CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(serverPlayer);
-        tag.putBoolean(MineraculousEntityEvents.TAG_HASNIGHTVISION, false);
+        tag.putBoolean(MineraculousEntityEvents.TAG_HAS_NIGHT_VISION, false);
         TommyLibServices.ENTITY.setPersistentData(serverPlayer, tag, false);
     }
 

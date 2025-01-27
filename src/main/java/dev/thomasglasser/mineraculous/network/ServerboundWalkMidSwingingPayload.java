@@ -6,7 +6,6 @@ import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -29,10 +28,10 @@ public record ServerboundWalkMidSwingingPayload(boolean front, boolean back, boo
             ServerboundWalkMidSwingingPayload::new);
     @Override
     public void handle(Player player) {
-        Optional<UUID> uuid = player.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
-        if (uuid.isPresent()) {
+        Optional<Integer> id = player.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
+        if (id.isPresent()) {
             Level level = player.level();
-            if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(uuid.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
+            if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(id.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
                 Vec3 fromProjectileToPlayer = new Vec3(player.getX() - thrownLadybugYoyo.getX(), player.getY() - thrownLadybugYoyo.getY(), player.getZ() - thrownLadybugYoyo.getZ());
                 Vec3 fromPlayerToProjectile = new Vec3(fromProjectileToPlayer.scale(-1).toVector3f());
                 double distance = fromProjectileToPlayer.length();

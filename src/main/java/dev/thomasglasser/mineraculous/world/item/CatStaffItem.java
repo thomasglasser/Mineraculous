@@ -133,7 +133,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                 InteractionHand hand = player.getMainHandItem() == stack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
 
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
-                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
+                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
                 if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen()) {
                     if (MineraculousKeyMappings.ACTIVATE_TOOL.get().isDown()) {
                         boolean activate = !stack.has(MineraculousDataComponents.ACTIVE);
@@ -143,7 +143,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                             stack.remove(MineraculousDataComponents.ACTIVE);
                         }
                         TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, hand, CONTROLLER_USE, activate ? ANIMATION_EXTEND : ANIMATION_RETRACT, activate ? Optional.of(MineraculousSoundEvents.CAT_STAFF_EXTEND) : Optional.of(MineraculousSoundEvents.CAT_STAFF_RETRACT)));
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown()) {
                         if (stack.has(MineraculousDataComponents.ACTIVE)) {
                             MineraculousClientEvents.openToolWheel(MineraculousMiraculous.CAT, stack, option -> {
@@ -155,7 +155,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         } else {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundEquipToolPayload(hand));
                         }
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     }
                 }
                 TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);

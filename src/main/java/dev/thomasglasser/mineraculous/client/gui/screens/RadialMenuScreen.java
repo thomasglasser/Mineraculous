@@ -108,7 +108,7 @@ public class RadialMenuScreen extends Screen {
         if (selectedOption != -1) {
             onSelected.accept(options.get(selectedOption));
             CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer());
-            playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 20);
+            playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 20);
             TommyLibServices.ENTITY.setPersistentData(ClientUtils.getMainClientPlayer(), playerData, false);
         }
         super.onClose();

@@ -4,10 +4,12 @@ import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownLadybugYoyoRe
 import dev.thomasglasser.mineraculous.network.ClientboundSyncLadybugYoyoPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityDataSerializers;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.List;
 import java.util.Optional;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -16,6 +18,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -33,6 +36,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
@@ -41,22 +45,25 @@ import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-
-    private boolean dealtDamage;
-    public double maxRopeLength = 0; // used for rendering the rope
     private static final EntityDataAccessor<Optional<LadybugYoyoItem.Ability>> ABILITY = SynchedEntityData.defineId(ThrownLadybugYoyo.class, MineraculousEntityDataSerializers.OPTIONAL_LADYBUG_YOYO_ABILITY.get());
+    private static final EntityDataAccessor<Vector3f> BOUND_POS = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.VECTOR3);
     private static final EntityDataAccessor<Boolean> IS_RECALLING = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> SERVER_MAX_ROPE_LENGTH = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> RECALLING_TICKS = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.INT);
+
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+
+    public double maxRopeLength = 0; // used for rendering the rope
+
+    private boolean dealtDamage;
 
     public ThrownLadybugYoyo(LivingEntity owner, Level level, ItemStack pickupItemStack, @Nullable LadybugYoyoItem.Ability ability) {
         super(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), owner, level, pickupItemStack, null);
         setPos(owner.getX(), owner.getEyeY() - 0.2, owner.getZ());
         setAbility(ability);
-        owner.setData(MineraculousAttachmentTypes.LADYBUG_YOYO, Optional.of(this.getUUID()));
+        owner.setData(MineraculousAttachmentTypes.LADYBUG_YOYO, Optional.of(this.getId()));
         if (level instanceof ServerLevel serverLevel) {
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncLadybugYoyoPayload(Optional.of(this.getUUID())), serverLevel.getServer());
+            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncLadybugYoyoPayload(Optional.of(this.getId())), serverLevel.getServer());
         }
     }
 
@@ -74,6 +81,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(ABILITY, Optional.empty());
+        builder.define(BOUND_POS, Vec3.ZERO.toVector3f());
         builder.define(IS_RECALLING, false);
         builder.define(RECALLING_TICKS, 0);
         builder.define(SERVER_MAX_ROPE_LENGTH, 0f);
@@ -85,6 +93,22 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
 
     public void setAbility(@Nullable LadybugYoyoItem.Ability ability) {
         this.entityData.set(ABILITY, Optional.ofNullable(ability));
+    }
+
+    public @Nullable Vec3 getBoundPos() {
+        return this.entityData.get(BOUND_POS).equals(Vec3.ZERO.toVector3f()) ? null : new Vec3(this.entityData.get(BOUND_POS));
+    }
+
+    public void setBoundPos(@Nullable Vec3 boundPos) {
+        this.entityData.set(BOUND_POS, boundPos == null ? Vec3.ZERO.toVector3f() : boundPos.toVector3f());
+    }
+
+    public boolean isBound() {
+        return getBoundPos() != null;
+    }
+
+    public void clearBoundPos() {
+        setBoundPos(null);
     }
 
     public boolean isRecalling() {
@@ -110,7 +134,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     @Nullable
     public Player getPlayerOwner() {
         Entity entity = this.getOwner();
-        return entity instanceof Player ? (Player) entity : null;
+        return entity instanceof Player player ? player : null;
     }
 
     public boolean inGround() {
@@ -121,14 +145,18 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
 
     @Override
     public void tick() {
+        super.tick();
+        if (getBoundPos() != null) {
+            this.teleportTo(getBoundPos().x(), getBoundPos().y(), getBoundPos().z());
+            return;
+        }
         if (this.inGroundTime > 4) {
             this.dealtDamage = true;
         }
-        super.tick();
         Entity entity = getOwner();
         if (entity == null)
             return;
-        if (entity instanceof Player player) {
+        if (entity instanceof ServerPlayer player) {
             checkRecall(player);
 
             if (this.isRecalling()) {
@@ -273,34 +301,51 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
-        Entity entity = result.getEntity();
-        float f = 8.0F;
-        Entity entity1 = this.getOwner();
-        DamageSource damagesource = this.damageSources().trident(this, entity1 == null ? this : entity1);
-        if (this.level() instanceof ServerLevel serverlevel) {
-            f = EnchantmentHelper.modifyDamage(serverlevel, this.getWeaponItem(), entity, damagesource, f);
-        }
+        if (level() instanceof ServerLevel serverlevel) {
+            if (getAbility() == null) {
+                Entity entity = result.getEntity();
+                float f = 8.0F;
+                Entity entity1 = this.getOwner();
+                DamageSource damagesource = this.damageSources().trident(this, entity1 == null ? this : entity1);
+                f = EnchantmentHelper.modifyDamage(serverlevel, this.getWeaponItem(), entity, damagesource, f);
 
-        this.dealtDamage = true;
-        if (getAbility() == null) {
-            if (entity.hurt(damagesource, f)) {
-                if (entity.getType() == EntityType.ENDERMAN) {
-                    return;
+                this.dealtDamage = true;
+                if (entity.hurt(damagesource, f)) {
+                    if (entity.getType() == EntityType.ENDERMAN) {
+                        return;
+                    }
+
+                    if (this.level() instanceof ServerLevel serverlevel1) {
+                        EnchantmentHelper.doPostAttackEffectsWithItemSource(
+                                serverlevel1, entity, damagesource, this.getWeaponItem());
+                    }
+
+                    if (entity instanceof LivingEntity livingentity) {
+                        this.doKnockback(livingentity, damagesource);
+                        this.doPostHurtEffects(livingentity);
+                    }
                 }
 
-                if (this.level() instanceof ServerLevel serverlevel1) {
-                    EnchantmentHelper.doPostAttackEffectsWithItemSource(
-                            serverlevel1, entity, damagesource, this.getWeaponItem());
-                }
-
-                if (entity instanceof LivingEntity livingentity) {
-                    this.doKnockback(livingentity, damagesource);
-                    this.doPostHurtEffects(livingentity);
+                this.discard();
+                this.playSound(SoundEvents.ARROW_HIT, 1.0F, 1.0F);
+            } else if (getAbility() == LadybugYoyoItem.Ability.LASSO) {
+                Entity main = result.getEntity();
+                Vec3 boundPos = main.position().add(0, 0.5, 0);
+                setBoundPos(boundPos);
+                setDeltaMovement(Vec3.ZERO);
+                teleportTo(boundPos.x(), boundPos.y(), boundPos.z());
+                List<Entity> list = this.level().getEntities(getOwner(), main.getBoundingBox().inflate(2, 1, 2), Entity::isPickable);
+                for (Entity entity : list) {
+                    entity.teleportTo(main.getX(), main.getY(), main.getZ());
+                    CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(entity);
+                    CompoundTag pos = new CompoundTag();
+                    pos.putDouble("X", main.getX());
+                    pos.putDouble("Y", main.getY());
+                    pos.putDouble("Z", main.getZ());
+                    entityData.put(MineraculousEntityEvents.TAG_YOYO_BOUND_POS, pos);
+                    TommyLibServices.ENTITY.setPersistentData(entity, entityData, true);
                 }
             }
-
-            this.discard();
-            this.playSound(SoundEvents.ARROW_HIT, 1.0F, 1.0F);
         }
     }
 
@@ -320,18 +365,22 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
 
     @Override
     protected void onHitBlock(BlockHitResult result) {
-        super.onHitBlock(result);
-        if (getAbility() == LadybugYoyoItem.Ability.TRAVEL) {
-            Player p = this.getPlayerOwner();
-            if (p != null && this.inGround() && !this.isRecalling()) {
+        if (getAbility() != LadybugYoyoItem.Ability.LASSO || getBoundPos() == null) {
+            super.onHitBlock(result);
+            if (this.level() instanceof ServerLevel) {
+                if (getAbility() == LadybugYoyoItem.Ability.TRAVEL) {
+                    Player p = this.getPlayerOwner();
+                    if (p != null && this.inGround() && !this.isRecalling()) {
 
-                updateRenderMaxRopeLength(p);
+                        updateRenderMaxRopeLength(p);
 
-                Vec3 fromProjectileToPlayer = new Vec3(p.getX() - this.getX(), p.getY() - this.getY(), p.getZ() - this.getZ());
-                this.setServerMaxRopeLength((float) fromProjectileToPlayer.length() + 1.5f);
+                        Vec3 fromProjectileToPlayer = new Vec3(p.getX() - this.getX(), p.getY() - this.getY(), p.getZ() - this.getZ());
+                        this.setServerMaxRopeLength((float) fromProjectileToPlayer.length() + 1.5f);
+                    }
+                } else {
+                    recall();
+                }
             }
-        } else {
-            recall();
         }
     }
 

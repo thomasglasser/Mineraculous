@@ -34,7 +34,7 @@ public record ClientboundToggleNightVisionPayload(boolean nightVision, Optional<
             player.removeEffect(MobEffects.NIGHT_VISION);
         }
         CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(player);
-        tag.putBoolean(MineraculousEntityEvents.TAG_HASNIGHTVISION, nightVision);
+        tag.putBoolean(MineraculousEntityEvents.TAG_HAS_NIGHT_VISION, nightVision);
         TommyLibServices.ENTITY.setPersistentData(player, tag, false);
     }
 

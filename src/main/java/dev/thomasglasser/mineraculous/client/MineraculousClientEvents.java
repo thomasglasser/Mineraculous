@@ -145,7 +145,7 @@ public class MineraculousClientEvents {
     private static void renderStealingProgressBar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         LocalPlayer player = Minecraft.getInstance().player;
         CompoundTag data = TommyLibServices.ENTITY.getPersistentData(player);
-        int width = data.getInt(MineraculousEntityEvents.TAG_TAKETICKS);
+        int width = data.getInt(MineraculousEntityEvents.TAG_TAKE_TICKS);
         if (player != null && width > 0) {
             int x = (guiGraphics.guiWidth() - 18) / 2;
             int y = (guiGraphics.guiHeight() + 12) / 2;

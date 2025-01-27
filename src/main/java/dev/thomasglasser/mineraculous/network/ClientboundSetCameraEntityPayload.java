@@ -40,7 +40,7 @@ public record ClientboundSetCameraEntityPayload(int entityId, Optional<ResourceL
                     TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(Optional.of(entity.getId()), tag, false));
             });
         } else if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown()) {
-            if (entityData.getInt(MineraculousEntityEvents.TAG_WAITTICKS) <= 6) {
+            if (entityData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS) <= 6) {
                 MineraculousKeyMappings.ACTIVATE_POWER.get().setDown(false);
                 if (MineraculousClientUtils.getCameraEntity() == entity) {
                     MineraculousClientUtils.setCameraEntity(null);

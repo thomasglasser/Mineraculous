@@ -59,7 +59,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import net.minecraft.core.Direction;
@@ -101,12 +100,13 @@ import net.neoforged.neoforge.event.village.VillagerTradesEvent;
 import top.theillusivec4.curios.common.inventory.CurioSlot;
 
 public class MineraculousEntityEvents {
-    public static final String TAG_WAITTICKS = "WaitTicks";
-    public static final String TAG_HASNIGHTVISION = "HasNightVision";
-    public static final String TAG_TAKETICKS = "TakeTicks";
+    public static final String TAG_WAIT_TICKS = "WaitTicks";
+    public static final String TAG_HAS_NIGHT_VISION = "HasNightVision";
+    public static final String TAG_TAKE_TICKS = "TakeTicks";
     public static final String TAG_CATACLYSMED = "Cataclysmed";
     public static final String TAG_SHOW_KAMIKO_MASK = "ShowKamikoMask";
     public static final String TAG_CAMERA_CONTROL_INTERRUPTED = "CameraControlInterrupted";
+    public static final String TAG_YOYO_BOUND_POS = "YoyoBoundPos";
 
     public static final String ITEM_BROKEN_KEY = "mineraculous.item_broken";
 
@@ -124,25 +124,31 @@ public class MineraculousEntityEvents {
             MobEffects.ABSORPTION);
 
     public static void onLivingTick(EntityTickEvent.Post event) {
-        CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(event.getEntity());
-        int waitTicks = entityData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
+        Entity entity = event.getEntity();
+        CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(entity);
+        int waitTicks = entityData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
         if (waitTicks > 0) {
-            entityData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, --waitTicks);
+            entityData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, --waitTicks);
         }
-        TommyLibServices.ENTITY.setPersistentData(event.getEntity(), entityData, false);
+        if (!entity.level().isClientSide && entityData.contains(TAG_YOYO_BOUND_POS)) {
+            entity.resetFallDistance();
+            CompoundTag pos = entityData.getCompound(TAG_YOYO_BOUND_POS);
+            entity.teleportTo(pos.getDouble("X"), pos.getDouble("Y"), pos.getDouble("Z"));
+        }
+        TommyLibServices.ENTITY.setPersistentData(entity, entityData, false);
     }
 
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
         CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
 
-        if (player.level().isClientSide && entityData.getInt(TAG_WAITTICKS) == 0 && ClientUtils.getMainClientPlayer() == player) {
-            int takeTicks = entityData.getInt(MineraculousEntityEvents.TAG_TAKETICKS);
+        if (player.level().isClientSide && entityData.getInt(TAG_WAIT_TICKS) == 0 && ClientUtils.getMainClientPlayer() == player) {
+            int takeTicks = entityData.getInt(MineraculousEntityEvents.TAG_TAKE_TICKS);
             if (MineraculousKeyMappings.TAKE_BREAK_ITEM.get().isDown()) {
                 ItemStack mainHandItem = player.getMainHandItem();
                 if (mainHandItem.isEmpty()) {
                     if (MineraculousClientUtils.getLookEntity() instanceof Player target && (MineraculousServerConfig.get().enableUniversalStealing.get() || player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).isTransformed()) && (MineraculousServerConfig.get().enableSleepStealing.get() || !target.isSleeping())) {
-                        entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, ++takeTicks);
+                        entityData.putInt(MineraculousEntityEvents.TAG_TAKE_TICKS, ++takeTicks);
                         if (target.isSleeping() && MineraculousServerConfig.get().wakeUpChance.get() > 0 && (MineraculousServerConfig.get().wakeUpChance.get() >= 100 || player.getRandom().nextFloat() < MineraculousServerConfig.get().wakeUpChance.get() / (20f * 5 * 100))) {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundWakeUpPayload(target.getUUID(), true));
                         }
@@ -157,17 +163,17 @@ public class MineraculousEntityEvents {
                                 TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
                                 TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(player.getUUID()));
                             }));
-                            entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, 0);
+                            entityData.putInt(MineraculousEntityEvents.TAG_TAKE_TICKS, 0);
                         }
                         TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
                     }
                 } else {
                     TommyLibServices.NETWORK.sendToServer(ServerboundTryBreakItemPayload.INSTANCE);
-                    entityData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                    entityData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
                 }
             } else if (takeTicks > 0) {
-                entityData.putInt(MineraculousEntityEvents.TAG_TAKETICKS, 0);
+                entityData.putInt(MineraculousEntityEvents.TAG_TAKE_TICKS, 0);
                 TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
             }
         }
@@ -266,11 +272,11 @@ public class MineraculousEntityEvents {
                 }
             } else if (ClientUtils.getMainClientPlayer() == player) {
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(player);
-                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
+                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
                 if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && !MineraculousClientUtils.isCameraEntityOther()) {
                     if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown() && !kamikotizationData.mainPowerActive() && player.level().holderOrThrow(kamikotization).value().activeAbility().isPresent()) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundSetKamikotizationPowerActivatedPayload(kamikotization));
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown() && player.getMainHandItem().isEmpty()) {
 //                            TommyLibServices.NETWORK.sendToServer(new ServerboundPutToolInHandPayload(miraculous));
 //                            playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
@@ -376,7 +382,7 @@ public class MineraculousEntityEvents {
                         if (transformationFrames > 0)
                             miraculousStack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, transformationFrames);
                         else {
-                            ItemStack tool = data.createTool(serverLevel);
+                            ItemStack tool = data.createTool(player);
                             if (!tool.isEmpty()) {
                                 if (serverLevel.holderOrThrow(miraculous).value().toolSlot().isPresent()) {
                                     boolean added = CuriosUtils.setStackInFirstValidSlot(player, serverLevel.holderOrThrow(miraculous).value().toolSlot().get(), tool, true);
@@ -892,10 +898,10 @@ public class MineraculousEntityEvents {
         flattenedLookDataHolder.mineraculous$getSuitLookData().remove(serverPlayer.getUUID());
         flattenedLookDataHolder.mineraculous$getMiraculousLookData().remove(serverPlayer.getUUID());
         flattenedLookDataHolder.mineraculous$getKamikotizationLookData().remove(serverPlayer.getUUID());
-        Optional<UUID> uuid = serverPlayer.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
-        if (uuid.isPresent()) {
+        Optional<Integer> id = serverPlayer.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
+        if (id.isPresent()) {
             Level level = serverPlayer.level();
-            if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(uuid.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
+            if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(id.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
                 thrownLadybugYoyo.discard();
                 serverPlayer.setData(MineraculousAttachmentTypes.LADYBUG_YOYO, Optional.empty());
             }

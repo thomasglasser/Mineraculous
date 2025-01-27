@@ -7,13 +7,15 @@ import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.tommylib.api.network.NetworkUtils;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ResolvableProfile;
 
 public record MiraculousData(boolean transformed, ItemStack miraculousItem, CuriosData curiosData, int toolId, int powerLevel, boolean mainPowerActivated, boolean mainPowerActive, String name, String miraculousLook, String suitLook, CompoundTag extraData) {
 
@@ -75,12 +77,13 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
         return MineraculousServerConfig.get().enableMiraculousTimer.get() && usedLimitedPower();
     }
 
-    public ItemStack createTool(ServerLevel level) {
+    public ItemStack createTool(ServerPlayer player) {
         ResourceKey<Miraculous> key = miraculousItem().get(MineraculousDataComponents.MIRACULOUS);
         if (key != null) {
-            Miraculous miraculous = level.holderOrThrow(key).value();
+            Miraculous miraculous = player.level().holderOrThrow(key).value();
             if (miraculous.tool().isPresent()) {
                 ItemStack tool = miraculous.tool().get();
+                tool.set(DataComponents.PROFILE, new ResolvableProfile(player.getGameProfile()));
                 tool.set(MineraculousDataComponents.KWAMI_DATA.get(), miraculousItem().get(MineraculousDataComponents.KWAMI_DATA.get()));
                 tool.set(MineraculousDataComponents.TOOL_ID.get(), toolId());
                 return tool;

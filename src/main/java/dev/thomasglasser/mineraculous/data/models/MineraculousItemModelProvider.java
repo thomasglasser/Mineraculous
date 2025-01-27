@@ -102,13 +102,21 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         ItemModelBuilder inventoryLadybugYoyo = basicInventoryItem(MineraculousItems.LADYBUG_YOYO);
         ItemModelBuilder inHandThrownLadybugYoyo = basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_thrown_in_hand"), "empty");
         ItemModelBuilder inventoryThrownLadybugYoyo = basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_thrown_inventory"), MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_thrown").getPath());
+        ItemModelBuilder inventoryLandedLadybugYoyo = basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_landed_inventory"), MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_landed").getPath());
         generatedModels.remove(inHandThrownLadybugYoyo.getLocation());
         generatedModels.remove(inventoryThrownLadybugYoyo.getLocation());
+        generatedModels.remove(inventoryLandedLadybugYoyo.getLocation());
         ItemModelBuilder thrownLadybugYoyo = withSeparateTransforms(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_thrown"))
                 .base(inHandThrownLadybugYoyo)
                 .perspective(ItemDisplayContext.GUI, inventoryThrownLadybugYoyo)
                 .perspective(ItemDisplayContext.FIXED, inventoryThrownLadybugYoyo)
                 .perspective(ItemDisplayContext.GROUND, inventoryThrownLadybugYoyo)
+                .end();
+        ItemModelBuilder landedLadybugYoyo = withSeparateTransforms(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_landed"))
+                .base(inHandThrownLadybugYoyo)
+                .perspective(ItemDisplayContext.GUI, inventoryLandedLadybugYoyo)
+                .perspective(ItemDisplayContext.FIXED, inventoryLandedLadybugYoyo)
+                .perspective(ItemDisplayContext.GROUND, inventoryLandedLadybugYoyo)
                 .end();
         withEntityModelInHand(MineraculousItems.LADYBUG_YOYO, inHandLadybugYoyo, inventoryLadybugYoyo)
                 .override()
@@ -116,8 +124,12 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .model(withEntityModelInHand(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_extended"), inHandLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_extended"))))
                 .end()
                 .override()
-                .predicate(LadybugYoyoItem.THROWN_PROPERTY_ID, 1)
+                .predicate(LadybugYoyoItem.EXTENDED_PROPERTY_ID, 2)
                 .model(thrownLadybugYoyo)
+                .end()
+                .override()
+                .predicate(LadybugYoyoItem.EXTENDED_PROPERTY_ID, 3)
+                .model(landedLadybugYoyo)
                 .end();
 
         ItemModelBuilder inHandCatStaff = withEntityModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_in_hand"))

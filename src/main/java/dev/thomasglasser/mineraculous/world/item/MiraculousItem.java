@@ -115,11 +115,11 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
         } else {
             if (ClientUtils.getMainClientPlayer() == entity && (isSelected || slotId == Inventory.SLOT_OFFHAND)) {
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
-                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
+                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
                 if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && !MineraculousClientUtils.isCameraEntityOther()) {
                     if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown()) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(slotId));
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     }
                 }
                 TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
@@ -153,12 +153,13 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
             MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(miraculous);
             if (data.transformed()) {
                 if (player.level() instanceof ServerLevel serverLevel) {
+                    ServerPlayer serverPlayer = (ServerPlayer) player;
                     Integer transformationFrames = stack.get(MineraculousDataComponents.TRANSFORMATION_FRAMES);
                     if (transformationFrames != null && transformationFrames >= 1 && player.tickCount % 2 == 0) {
                         if (transformationFrames <= 1) {
                             stack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, null);
                             entity.getArmorSlots().forEach(armorStack -> armorStack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, null));
-                            ItemStack tool = data.createTool(serverLevel);
+                            ItemStack tool = data.createTool(serverPlayer);
                             if (!tool.isEmpty()) {
                                 if (player.level().holderOrThrow(miraculous).value().toolSlot().isPresent()) {
                                     boolean added = CuriosUtils.setStackInFirstValidSlot(player, player.level().holderOrThrow(miraculous).value().toolSlot().get(), tool, true);
@@ -251,7 +252,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
             }
             if (entity.level().isClientSide && ClientUtils.getMainClientPlayer() == player) {
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
-                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
+                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
                 if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && !MineraculousClientUtils.isCameraEntityOther()) {
                     if (MineraculousKeyMappings.TRANSFORM.get().isDown()) {
                         if (data.transformed()) {
@@ -259,13 +260,13 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                         } else {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, data, true, false));
                         }
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     } else if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown() && data.transformed() && !data.mainPowerActive() && !data.usedLimitedPower() && slotContext.entity().level().holderOrThrow(miraculous).value().activeAbility().isPresent()) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousPowerActivatedPayload(miraculous));
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown() && player.getMainHandItem().isEmpty()) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundPutToolInHandPayload(miraculous));
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     }
                 }
                 TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);

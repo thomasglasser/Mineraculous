@@ -171,15 +171,13 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
             MiraculousDataSet miraculousDataSet = caneOwner.getData(MineraculousAttachmentTypes.MIRACULOUS);
             MiraculousData butterflyData = miraculousDataSet.get(MineraculousMiraculous.BUTTERFLY);
             if (!butterflyData.extraData().contains(TAG_STORED_KAMIKO)) {
-                CompoundTag tag = new CompoundTag();
-                kamiko.save(tag);
-                kamiko.discard();
                 if (player.level() instanceof ServerLevel serverLevel) {
                     long animId = GeoItem.getOrAssignId(stack, serverLevel);
                     triggerAnim(player, animId, CONTROLLER_USE, ANIMATION_CLOSE);
-                    butterflyData.extraData().put(TAG_STORED_KAMIKO, tag);
+                    butterflyData.extraData().put(TAG_STORED_KAMIKO, kamiko.saveWithoutId(new CompoundTag()));
                     miraculousDataSet.put(caneOwner, MineraculousMiraculous.BUTTERFLY, butterflyData, true);
                 }
+                kamiko.discard();
                 player.setItemInHand(usedHand, stack);
                 return InteractionResult.sidedSuccess(player.level().isClientSide);
             }

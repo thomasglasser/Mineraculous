@@ -20,7 +20,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
 
 public class MiraculousDataSet {
     public static final UnboundedMapCodec<ResourceKey<Miraculous>, MiraculousData> MAP_CODEC = Codec.unboundedMap(ResourceKey.codec(MineraculousRegistries.MIRACULOUS), MiraculousData.CODEC);
@@ -48,7 +48,7 @@ public class MiraculousDataSet {
         return map.getOrDefault(key, new MiraculousData());
     }
 
-    public MiraculousData put(LivingEntity entity, ResourceKey<Miraculous> key, MiraculousData value, boolean syncToClient) {
+    public MiraculousData put(Entity entity, ResourceKey<Miraculous> key, MiraculousData value, boolean syncToClient) {
         MiraculousData data = map.put(key, value);
         if (value.transformed() && entity instanceof ServerPlayer player)
             MineraculousCriteriaTriggers.TRANSFORMED_MIRACULOUS.get().trigger(player, key);
@@ -80,7 +80,7 @@ public class MiraculousDataSet {
         return map.values().stream().anyMatch(MiraculousData::transformed);
     }
 
-    public void save(LivingEntity entity, boolean syncToClient) {
+    public void save(Entity entity, boolean syncToClient) {
         entity.setData(MineraculousAttachmentTypes.MIRACULOUS.get(), this);
         if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousDataSetPayload(this, entity.getId()), entity.level().getServer());
     }

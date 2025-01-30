@@ -3,17 +3,22 @@ package dev.thomasglasser.mineraculous.world.entity.projectile;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownLadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncLadybugYoyoPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -169,9 +174,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     this.discard();
                 }
                 this.updateRecallingTicks();
-
             } else if (this.inGround()) {
-
                 Vec3 fromProjectileToPlayer = new Vec3(player.getX() - this.getX(), player.getY() - this.getY(), player.getZ() - this.getZ());
                 double distance = fromProjectileToPlayer.length();
 
@@ -198,7 +201,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     }
 
                 }
-            } else {//if its flying
+            } else {
                 if (this.tickCount < 50) {
                     if (player.onGround()) {
                         this.setDeltaMovement(this.getDeltaMovement().normalize().scale(3));
@@ -334,7 +337,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 setBoundPos(boundPos);
                 setDeltaMovement(Vec3.ZERO);
                 teleportTo(boundPos.x(), boundPos.y(), boundPos.z());
-                List<Entity> list = this.level().getEntities(getOwner(), main.getBoundingBox().inflate(2, 1, 2), Entity::isPickable);
+                List<Entity> list = this.level().getEntities(getOwner(), main.getBoundingBox().inflate(2, 1, 2), entity -> entity != this);
                 for (Entity entity : list) {
                     entity.teleportTo(main.getX(), main.getY(), main.getZ());
                     CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(entity);
@@ -345,8 +348,24 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     entityData.put(MineraculousEntityEvents.TAG_YOYO_BOUND_POS, pos);
                     TommyLibServices.ENTITY.setPersistentData(entity, entityData, true);
                 }
+            } else if (getAbility() == LadybugYoyoItem.Ability.PURIFY && getOwner() != null && result.getEntity() instanceof Kamiko kamiko && kamiko.isPowered()) {
+                MiraculousDataSet miraculousDataSet = getOwner().getData(MineraculousAttachmentTypes.MIRACULOUS);
+                MiraculousData data = miraculousDataSet.get(MineraculousMiraculous.LADYBUG);
+                CompoundTag kamikoData = kamiko.saveWithoutId(new CompoundTag());
+                ListTag list = data.extraData().getList(LadybugYoyoItem.TAG_STORED_KAMIKOS, 10);
+                list.add(kamikoData);
+                kamiko.discard();
+                data.extraData().put(LadybugYoyoItem.TAG_STORED_KAMIKOS, list);
+                miraculousDataSet.put(getOwner(), MineraculousMiraculous.LADYBUG, data, true);
+                discard();
             }
         }
+    }
+
+    @Override
+    protected boolean canHitEntity(Entity target) {
+        Entity entity = this.getOwner();
+        return entity == null || this.leftOwner || !entity.isPassengerOfSameVehicle(target);
     }
 
     @Override

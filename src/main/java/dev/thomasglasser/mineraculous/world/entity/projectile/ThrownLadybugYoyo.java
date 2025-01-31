@@ -291,7 +291,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     private void checkRecall(Player player) {
         ItemStack itemstack = player.getMainHandItem();
         boolean flag = itemstack.is(MineraculousItems.LADYBUG_YOYO);
-        if (!(!player.isRemoved() && player.isAlive() && flag)) {
+        if (player.isRemoved() || !flag) {
             this.discard();
         }
     }

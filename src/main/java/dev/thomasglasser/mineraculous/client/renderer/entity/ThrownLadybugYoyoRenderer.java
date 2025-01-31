@@ -18,7 +18,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
@@ -61,8 +60,8 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
                 vertex(vertexConsumer, pose, (float) ropeThickness.x, (float) +ropeThickness.y, (float) ropeThickness.z, 0f, 0f);
             } else {
                 ArrayList<RopePoint> pointList = new ArrayList<>();
-                int i = 0;
-                int points = 100; //TODO maybe make this configurable
+                int i;
+                int points = 100;
                 final double T = 2048;
                 for (i = 1; i <= points; i++) {
                     double xi = i * (fromPTHOnXZ.length()) / (points + 1);
@@ -103,13 +102,9 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
 
     public static Vec3 getPlayerHandPos(Player player, float p_340872_, float partialTick, Item item, EntityRenderDispatcher entityRenderDispatcher) {
         int i = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
-        ItemStack itemstack = player.getMainHandItem();
-        if (!itemstack.is(item)) {
-            i = -i;
-        }
 
         if (entityRenderDispatcher.options.getCameraType().isFirstPerson() && player == Minecraft.getInstance().player && entityRenderDispatcher.camera != null) { //ik the null check seems useless but i get crashes abt it
-            double d4 = 960.0 / (double) (Integer) entityRenderDispatcher.options.fov().get();
+            double d4 = 960.0 / (double) entityRenderDispatcher.options.fov().get();
             Vec3 vec3 = entityRenderDispatcher.camera.getNearPlane().getPointOnPlane((float) i * 0.525F, -0.1F).scale(d4).yRot(p_340872_ * 0.5F).xRot(-p_340872_ * 0.7F);
             return player.getEyePosition(partialTick).add(vec3);
         } else {

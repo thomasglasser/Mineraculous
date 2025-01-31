@@ -187,6 +187,8 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player pPlayer, InteractionHand pHand) {
+        if (pHand == InteractionHand.OFF_HAND)
+            return InteractionResultHolder.pass(pPlayer.getItemInHand(pHand));
         ItemStack stack = pPlayer.getItemInHand(pHand);
         if (!stack.has(MineraculousDataComponents.ACTIVE))
             return InteractionResultHolder.fail(stack);

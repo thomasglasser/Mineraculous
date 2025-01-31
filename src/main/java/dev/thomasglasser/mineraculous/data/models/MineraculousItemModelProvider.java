@@ -95,8 +95,8 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(MineraculousItemDisplayContexts.CURIOS_BELT.getValue()).rotation(-90, 0, 0).translation(-2, 10, 3.7f).scale(0.8f).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0, 0, 2).scale(0.6f).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).translation(0, 0, 2).scale(0.6f).end()
-                .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(2, 0, 1).scale(0.6f).end()
-                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).translation(2, 0, 1).scale(0.6f).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(2, 0, 0).scale(0.6f).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).translation(2, 0, 0).scale(0.6f).end()
                 .transform(ItemDisplayContext.HEAD).translation(0, 6.25f, 0).end()
                 .end();
         ItemModelBuilder inventoryLadybugYoyo = basicInventoryItem(MineraculousItems.LADYBUG_YOYO);

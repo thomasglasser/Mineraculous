@@ -462,7 +462,11 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 0, state -> state.setAndContinue(DefaultAnimations.IDLE)));
+        controllers.add(new AnimationController<>(this, "controller", 0, state -> {
+            if (getAbility() == LadybugYoyoItem.Ability.PURIFY)
+                return state.setAndContinue(LadybugYoyoItem.OPEN_IDLE);
+            return state.setAndContinue(DefaultAnimations.IDLE);
+        }));
     }
 
     @Override

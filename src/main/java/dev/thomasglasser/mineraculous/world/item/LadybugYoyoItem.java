@@ -75,19 +75,16 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICurioItem {
     public static final ResourceLocation EXTENDED_PROPERTY_ID = Mineraculous.modLoc("extended");
+    public static final RawAnimation OPEN_IDLE = RawAnimation.begin().thenPlay("misc.open_idle");
     public static final String TAG_STORED_KAMIKOS = "StoredKamikos";
     public static final String CONTROLLER_USE = "use_controller";
     public static final String ANIMATION_BLOCK = "block";
-    public static final String ANIMATION_EXTEND = "extend";
-    public static final String ANIMATION_RETRACT = "retract";
     public static final String CONTROLLER_OPEN = "open_controller";
     public static final String ANIMATION_OPEN = "open";
     public static final String ANIMATION_CLOSE = "close";
 
-    private static final RawAnimation EXTEND = RawAnimation.begin().thenPlay("misc.extend");
-    private static final RawAnimation RETRACT = RawAnimation.begin().thenPlay("misc.retract");
-    private static final RawAnimation OPEN = RawAnimation.begin().thenPlay("attack.open");
-    private static final RawAnimation CLOSE = RawAnimation.begin().thenPlay("attack.close");
+    private static final RawAnimation OPEN = RawAnimation.begin().thenPlay("misc.open");
+    private static final RawAnimation CLOSE = RawAnimation.begin().thenPlay("misc.close");
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -101,13 +98,11 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, CONTROLLER_USE, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
-            if (!stack.has(MineraculousDataComponents.ACTIVE) && !state.isCurrentAnimation(RETRACT))
-                return state.setAndContinue(DefaultAnimations.IDLE);
-            return PlayState.STOP;
+            if (stack.has(MineraculousDataComponents.ACTIVE) && stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.PURIFY && !state.isCurrentAnimation(OPEN))
+                return state.setAndContinue(OPEN_IDLE);
+            return state.setAndContinue(DefaultAnimations.IDLE);
         })
-                .triggerableAnim(ANIMATION_BLOCK, DefaultAnimations.ATTACK_BLOCK)
-                .triggerableAnim(ANIMATION_EXTEND, EXTEND)
-                .triggerableAnim(ANIMATION_RETRACT, RETRACT));
+                .triggerableAnim(ANIMATION_BLOCK, DefaultAnimations.ATTACK_BLOCK));
         controllers.add(new AnimationController<>(this, CONTROLLER_OPEN, state -> PlayState.CONTINUE)
                 .triggerableAnim(ANIMATION_OPEN, OPEN)
                 .triggerableAnim(ANIMATION_CLOSE, CLOSE));
@@ -147,7 +142,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                         } else {
                             stack.remove(MineraculousDataComponents.ACTIVE);
                         }
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, hand, CONTROLLER_USE, activate ? ANIMATION_EXTEND : ANIMATION_RETRACT, Optional.empty()));
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, hand));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown()) {
                         if (stack.has(MineraculousDataComponents.ACTIVE)) {
@@ -302,6 +297,11 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
             return true;
         }
         return false;
+    }
+
+    @Override
+    public boolean onLeftClickEntity(ItemStack stack, Player player, Entity entity) {
+        return stack.has(MineraculousDataComponents.ACTIVE);
     }
 
     @Override

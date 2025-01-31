@@ -20,8 +20,9 @@ jobs:
 
       - name: Build with Gradle
         uses: gradle/actions/setup-gradle@v4
-        with:
-          arguments: build
+
+      - name: Assemble the project
+        run: ./gradlew build
 
       - name: Upload Jars
         uses: actions/upload-artifact@v4

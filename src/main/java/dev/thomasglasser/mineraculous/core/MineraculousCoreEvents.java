@@ -8,6 +8,7 @@ import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousBuiltInRegistries;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.mineraculous.network.MineraculousPayloads;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
@@ -39,6 +40,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
+import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 
 public class MineraculousCoreEvents {
     public static void onRegisterPackets(RegisterPayloadHandlersEvent event) {
@@ -54,6 +56,10 @@ public class MineraculousCoreEvents {
 
     public static void onNewRegistry(NewRegistryEvent event) {
         event.register(MineraculousBuiltInRegistries.ABILITY_SERIALIZER);
+    }
+
+    public static void onRegisterDataMapTypes(RegisterDataMapTypesEvent event) {
+        event.register(MineraculousDataMaps.LUCKY_CHARMS);
     }
 
     public static void onLoadLootTable(LootTableLoadEvent event) {

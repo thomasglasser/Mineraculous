@@ -90,6 +90,7 @@ public class Mineraculous {
         bus.addListener(MineraculousCoreEvents::onRegisterPackets);
         bus.addListener(MineraculousCoreEvents::onNewDataPackRegistry);
         bus.addListener(MineraculousCoreEvents::onNewRegistry);
+        bus.addListener(MineraculousCoreEvents::onRegisterDataMapTypes);
 
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingDeath);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityInteract);

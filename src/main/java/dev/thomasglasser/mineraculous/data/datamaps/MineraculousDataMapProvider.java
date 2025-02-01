@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.data.datamaps;
 
+import dev.thomasglasser.mineraculous.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerProfessions;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.MineraculousGiftLootKeys;
 import java.util.concurrent.CompletableFuture;
@@ -16,6 +17,9 @@ public class MineraculousDataMapProvider extends DataMapProvider {
 
     @Override
     protected void gather() {
+        builder(MineraculousDataMaps.LUCKY_CHARMS)
+                .build();
+
         builder(NeoForgeDataMaps.RAID_HERO_GIFTS)
                 .add(MineraculousVillagerProfessions.FROMAGER, new RaidHeroGift(MineraculousGiftLootKeys.FROMAGER_GIFT), false)
                 .build();

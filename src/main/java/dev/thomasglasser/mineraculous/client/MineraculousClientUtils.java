@@ -1,10 +1,14 @@
 package dev.thomasglasser.mineraculous.client;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationSelectionScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.MiraculousTransferScreen;
+import dev.thomasglasser.mineraculous.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.SnapshotTesterCosmeticOptions;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.VipData;
+import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundChangeVipDataPayload;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
@@ -14,6 +18,7 @@ import java.util.HashMap;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
@@ -22,6 +27,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -153,6 +159,10 @@ public class MineraculousClientUtils {
 
     public static void openMiraculousTransferScreen(int kwamiId) {
         ClientUtils.setScreen(new MiraculousTransferScreen(kwamiId));
+    }
+
+    public static VertexConsumer checkLuckyCharm(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack) {
+        return itemStack.has(MineraculousDataComponents.LUCKY_CHARM) ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.luckyCharm()), buffer) : buffer;
     }
 
     public static void init() {}

@@ -43,6 +43,8 @@ import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
+import dev.thomasglasser.mineraculous.world.level.storage.AffectedChunksData;
+import dev.thomasglasser.mineraculous.world.level.storage.AffectedChunksDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
@@ -84,7 +86,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.storage.ChunkSerializer;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -131,10 +135,17 @@ public class MineraculousEntityEvents {
         if (waitTicks > 0) {
             entityData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, --waitTicks);
         }
-        if (!entity.level().isClientSide && entityData.contains(TAG_YOYO_BOUND_POS)) {
-            entity.resetFallDistance();
-            CompoundTag pos = entityData.getCompound(TAG_YOYO_BOUND_POS);
-            entity.teleportTo(pos.getDouble("X"), pos.getDouble("Y"), pos.getDouble("Z"));
+        if (entity.level() instanceof ServerLevel serverLevel) {
+            if (entityData.contains(TAG_YOYO_BOUND_POS)) {
+                entity.resetFallDistance();
+                CompoundTag pos = entityData.getCompound(TAG_YOYO_BOUND_POS);
+                entity.teleportTo(pos.getDouble("X"), pos.getDouble("Y"), pos.getDouble("Z"));
+            }
+            AffectedChunksData affectedChunksData = ((AffectedChunksDataHolder) serverLevel.getServer().overworld()).mineraculous$getAffectedChunksData();
+            if (affectedChunksData.isBeingTracked(entity.getUUID())) {
+                ChunkPos chunkPos = entity.chunkPosition();
+                affectedChunksData.putAffectedChunkIfAbsent(entity.getUUID(), chunkPos, ChunkSerializer.write(serverLevel, serverLevel.getChunk(entity.blockPosition())));
+            }
         }
         TommyLibServices.ENTITY.setPersistentData(entity, entityData, false);
     }

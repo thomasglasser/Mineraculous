@@ -2,6 +2,8 @@ package dev.thomasglasser.mineraculous.mixin.minecraft.server.level;
 
 import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.level.storage.AffectedChunksData;
+import dev.thomasglasser.mineraculous.world.level.storage.AffectedChunksDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideData;
 import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
@@ -38,13 +40,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerLevel.class)
-public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmIdDataHolder, FlattenedLookDataHolder, ChargeOverrideDataHolder {
+public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmIdDataHolder, FlattenedLookDataHolder, ChargeOverrideDataHolder, AffectedChunksDataHolder {
     @Unique
     protected ToolIdData mineraculous$toolIdData;
     @Unique
     protected LuckyCharmIdData mineraculous$luckyCharmIdData;
     @Unique
     protected ChargeOverrideData mineraculous$chargeOverrideData;
+    @Unique
+    protected AffectedChunksData mineraculous$affectedChunksData;
     @Unique
     protected Map<ResourceKey<Miraculous>, Map<String, FlattenedSuitLookData>> mineraculous$commonSuitLookData;
     @Unique
@@ -69,6 +73,7 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmId
             mineraculous$toolIdData = this.getDataStorage().computeIfAbsent(ToolIdData.factory(), ToolIdData.FILE_ID);
             mineraculous$luckyCharmIdData = this.getDataStorage().computeIfAbsent(LuckyCharmIdData.factory(), LuckyCharmIdData.FILE_ID);
             mineraculous$chargeOverrideData = this.getDataStorage().computeIfAbsent(ChargeOverrideData.factory(), ChargeOverrideData.FILE_ID);
+            mineraculous$affectedChunksData = this.getDataStorage().computeIfAbsent(AffectedChunksData.factory(), AffectedChunksData.FILE_ID);
             mineraculous$commonSuitLookData = new HashMap<>();
             mineraculous$commonMiraculousLookData = new HashMap<>();
             mineraculous$suitLookData = new HashMap<>();
@@ -85,6 +90,11 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmId
     @Override
     public LuckyCharmIdData mineraculous$getLuckyCharmIdData() {
         return mineraculous$luckyCharmIdData;
+    }
+
+    @Override
+    public AffectedChunksData mineraculous$getAffectedChunksData() {
+        return mineraculous$affectedChunksData;
     }
 
     @Override

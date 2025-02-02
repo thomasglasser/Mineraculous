@@ -11,23 +11,29 @@ import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
+import dev.thomasglasser.mineraculous.world.level.storage.AffectedChunksData;
+import dev.thomasglasser.mineraculous.world.level.storage.AffectedChunksDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharm;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdDataHolder;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.ProtoChunk;
+import net.minecraft.world.level.chunk.storage.ChunkSerializer;
 
 public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<ParticleOptions> spreadParticle, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
 
@@ -67,10 +73,16 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
 
     public static void beginRecovery(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Optional<ParticleOptions> spreadParticle, Optional<Holder<SoundEvent>> startSound) {
         ItemStack luckyCharm = entity.getMainHandItem();
-        Optional<Entity> target = luckyCharm.get(MineraculousDataComponents.LUCKY_CHARM).target().map(level::getEntity);
+        Optional<UUID> target = luckyCharm.get(MineraculousDataComponents.LUCKY_CHARM).target();
         if (target.isPresent()) {
-            // TODO: Heal everything from target
-            System.out.println("You're healed!");
+            AffectedChunksData affectedChunksData = ((AffectedChunksDataHolder) level.getServer().overworld()).mineraculous$getAffectedChunksData();
+            for (Map.Entry<ChunkPos, CompoundTag> entry : affectedChunksData.getAffectedChunks(target.get()).entrySet()) {
+                ProtoChunk read = ChunkSerializer.read(level, level.getPoiManager(), level.getChunkSource().chunkMap.storageInfo(), entry.getKey(), entry.getValue());
+                read.setUnsaved(true);
+                level.getChunkSource().chunkMap.save(read);
+                level.getChunk(entry.getKey().getMiddleBlockPosition(0)).setUnsaved(false);
+            }
+            affectedChunksData.stopTracking(target.get());
         }
         UUID charmId;
         if (data.power().left().isPresent()) {

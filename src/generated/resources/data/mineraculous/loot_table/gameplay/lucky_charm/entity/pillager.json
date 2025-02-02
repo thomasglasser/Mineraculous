@@ -79,7 +79,7 @@
                       "shape": "small_ball"
                     }
                   ],
-                  "flight_duration": 20
+                  "flight_duration": 3
                 }
               },
               "function": "minecraft:set_components"

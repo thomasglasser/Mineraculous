@@ -173,7 +173,7 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                         .add(
                                                 LootItem.lootTableItem(Items.FIREWORK_ROCKET)
                                                         .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 4))))
-                                                        .apply(SetComponentsFunction.setComponent(DataComponents.FIREWORKS, new Fireworks(20, List.of(
+                                                        .apply(SetComponentsFunction.setComponent(DataComponents.FIREWORKS, new Fireworks(3, List.of(
                                                                 new FireworkExplosion(FireworkExplosion.Shape.SMALL_BALL, IntList.of(0xf7121d), IntList.of(0x15000b), true, true))))))
                                         .add(
                                                 TagEntry.expandTag(ItemTags.ARROWS)

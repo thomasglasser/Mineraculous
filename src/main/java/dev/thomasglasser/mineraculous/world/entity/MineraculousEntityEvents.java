@@ -43,8 +43,6 @@ import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
-import dev.thomasglasser.mineraculous.world.level.storage.AffectedChunksData;
-import dev.thomasglasser.mineraculous.world.level.storage.AffectedChunksDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
@@ -54,6 +52,8 @@ import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdDataHolder;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -62,6 +62,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
 import net.minecraft.core.Direction;
@@ -86,9 +87,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.chunk.storage.ChunkSerializer;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
@@ -141,10 +141,15 @@ public class MineraculousEntityEvents {
                 CompoundTag pos = entityData.getCompound(TAG_YOYO_BOUND_POS);
                 entity.teleportTo(pos.getDouble("X"), pos.getDouble("Y"), pos.getDouble("Z"));
             }
-            AffectedChunksData affectedChunksData = ((AffectedChunksDataHolder) serverLevel.getServer().overworld()).mineraculous$getAffectedChunksData();
-            if (affectedChunksData.isBeingTracked(entity.getUUID())) {
-                ChunkPos chunkPos = entity.chunkPosition();
-                affectedChunksData.putAffectedChunkIfAbsent(entity.getUUID(), chunkPos, ChunkSerializer.write(serverLevel, serverLevel.getChunk(entity.blockPosition())));
+            MiraculousRecoveryEntityData miraculousRecoveryEntityData = ((MiraculousRecoveryDataHolder) serverLevel.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData();
+            if (miraculousRecoveryEntityData.isBeingTracked(entity.getUUID())) {
+                List<UUID> alreadyRelated = miraculousRecoveryEntityData.getRelatedEntities(entity.getUUID());
+                List<LivingEntity> related = entity.level().getEntities(EntityTypeTest.forClass(LivingEntity.class), entity.getBoundingBox().inflate(16), livingEntity -> !alreadyRelated.contains(livingEntity.getUUID()) && (livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed() || livingEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()));
+                for (LivingEntity livingEntity : related) {
+                    if (livingEntity.getUUID() != entity.getUUID()) {
+                        miraculousRecoveryEntityData.putRelatedEntity(entity.getUUID(), livingEntity.getUUID());
+                    }
+                }
             }
         }
         TommyLibServices.ENTITY.setPersistentData(entity, entityData, false);
@@ -193,6 +198,7 @@ public class MineraculousEntityEvents {
 
         if (player instanceof ServerPlayer serverPlayer) {
             player.getInventory().clearOrCountMatchingItems(itemStack -> {
+                ((MiraculousRecoveryDataHolder) serverPlayer.serverLevel().getServer().overworld()).mineraculous$getMiraculousRecoveryItemData().checkRecovered(player.getInventory(), itemStack);
                 if (itemStack.has(MineraculousDataComponents.KWAMI_DATA)) {
                     if (itemStack.has(MineraculousDataComponents.TOOL_ID)) {
                         int currentId = ((ToolIdDataHolder) serverPlayer.serverLevel().getServer().overworld()).mineraculous$getToolIdData().getToolId(itemStack.get(MineraculousDataComponents.KWAMI_DATA));
@@ -218,6 +224,7 @@ public class MineraculousEntityEvents {
                 return false;
             }, Integer.MAX_VALUE, new SimpleContainer());
             CuriosUtils.getAllItems(player).forEach(((curiosData, itemStack) -> {
+                ((MiraculousRecoveryDataHolder) serverPlayer.serverLevel().getServer().overworld()).mineraculous$getMiraculousRecoveryItemData().checkRecovered(player.getInventory(), itemStack);
                 if (itemStack.has(MineraculousDataComponents.KWAMI_DATA)) {
                     if (itemStack.has(MineraculousDataComponents.TOOL_ID)) {
                         int currentId = ((ToolIdDataHolder) serverPlayer.serverLevel().getServer().overworld()).mineraculous$getToolIdData().getToolId(itemStack.get(MineraculousDataComponents.KWAMI_DATA));

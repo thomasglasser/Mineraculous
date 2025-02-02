@@ -64,6 +64,11 @@ public record DragAbility(Ability ability, int dragTicks, Optional<Holder<SoundE
         return ability.canActivate(data, level, pos, entity);
     }
 
+    @Override
+    public void restore(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
+        ability.restore(data, level, pos, entity);
+    }
+
     MiraculousUsePowerTrigger.Context miraculousContextFrom(Ability.Context context) {
         return switch (context) {
             case PASSIVE, INTERACT_AIR -> MiraculousUsePowerTrigger.Context.EMPTY;

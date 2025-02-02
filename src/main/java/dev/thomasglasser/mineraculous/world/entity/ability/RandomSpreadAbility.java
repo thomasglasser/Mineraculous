@@ -55,7 +55,7 @@ public record RandomSpreadAbility(BlockState blockState, Optional<BlockPredicate
     }
 
     private boolean canBlockBeReplaced(ServerLevel level, BlockPos newPos) {
-        return (validBlocks.isEmpty() || validBlocks.get().matches(level, newPos)) && (invalidBlocks.isEmpty() || !invalidBlocks.get().matches(level, newPos)) && level.random.nextBoolean();
+        return (validBlocks.isEmpty() || validBlocks.get().matches(level, newPos)) && (invalidBlocks.isEmpty() || !invalidBlocks.get().matches(level, newPos));
     }
 
     private void replaceBlocksWithin(int radius, ServerLevel level, BlockPos pos, List<BlockPos> blocksAffected) {
@@ -66,7 +66,7 @@ public record RandomSpreadAbility(BlockState blockState, Optional<BlockPredicate
                 int kRange = level.random.nextInt(radius);
                 for (int k = -kRange; k <= kRange; k++) {
                     BlockPos newPos = pos.offset(i, j, k);
-                    if (canBlockBeReplaced(level, newPos)) {
+                    if (canBlockBeReplaced(level, newPos) && level.random.nextBoolean()) {
                         level.setBlock(newPos, blockState, Block.UPDATE_ALL);
                         blocksAffected.add(newPos);
                     }

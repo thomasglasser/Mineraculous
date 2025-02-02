@@ -13,7 +13,9 @@ import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharm;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
+import java.util.UUID;
 import java.util.function.Supplier;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -34,6 +36,7 @@ public class MineraculousDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceKey<Miraculous>>> MIRACULOUS = register("miraculous", ResourceKey.codec(MineraculousRegistries.MIRACULOUS), ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS), false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceKey<Kamikotization>>> KAMIKOTIZATION = register("kamikotization", ResourceKey.codec(MineraculousRegistries.KAMIKOTIZATION), ResourceKey.streamCodec(MineraculousRegistries.KAMIKOTIZATION), false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<LuckyCharm>> LUCKY_CHARM = register("lucky_charm", LuckyCharm.CODEC, LuckyCharm.STREAM_CODEC, false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> RECOVERABLE_ITEM_ID = register("recoverable_item_id", UUIDUtil.CODEC, UUIDUtil.STREAM_CODEC, false);
 
     // Miraculous Item
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TRANSFORMATION_FRAMES = register("transformation_frames", Codec.INT, null, false);

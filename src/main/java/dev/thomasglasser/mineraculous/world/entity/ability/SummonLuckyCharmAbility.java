@@ -15,9 +15,9 @@ import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
-import dev.thomasglasser.mineraculous.world.level.storage.AffectedChunksDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharm;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.parameters.MineraculousLootContextParamSets;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.parameters.MineraculousLootContextParams;
 import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;
@@ -52,11 +52,14 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
     @Override
     public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
         if (context == Context.PASSIVE) {
-            LivingEntity target = entity.getKillCredit() != null ? entity.getKillCredit() : entity.getLastHurtMob();
+//            UUID tracked = ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData().getTrackedEntity(entity.getUUID());
+//            LivingEntity trackedEntity = tracked != null ? level.getEntity(tracked) instanceof LivingEntity livingEntity ? livingEntity : null : null;
+            LivingEntity target = /*trackedEntity != null ? trackedEntity :*/ entity.getKillCredit() != null ? entity.getKillCredit() : entity.getLastHurtMob();
+            if (target != null)
+                ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData().putRelatedEntity(target.getUUID(), entity.getUUID());
             LuckyCharms charms = getCharms(level, target);
             AtomicReference<ItemStack> result = new AtomicReference<>();
             if (charms.items().left().isPresent()) {
-                assert target != null;
                 LootTable loottable = level.getServer().reloadableRegistries().getLootTable(charms.items().left().get());
                 LootParams.Builder lootparams$builder = new LootParams.Builder(level)
                         .withParameter(LootContextParams.THIS_ENTITY, entity)
@@ -102,8 +105,6 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
                 uuid = entity.getUUID();
                 toAdd.set(MineraculousDataComponents.KAMIKOTIZATION, data.power().right().get());
             }
-            if (target != null)
-                ((AffectedChunksDataHolder) level.getServer().overworld()).mineraculous$getAffectedChunksData().startTracking(target.getUUID(), level, target.chunkPosition(), target.blockPosition());
             toAdd.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.ofNullable(target != null ? target.getUUID() : null), ((LuckyCharmIdDataHolder) level.getServer().overworld()).mineraculous$getLuckyCharmIdData().incrementLuckyCharmId(uuid)));
             LuckyCharmItemSpawner item = LuckyCharmItemSpawner.create(level, toAdd);
             item.setPos(entity.position().add(0, 4, 0));

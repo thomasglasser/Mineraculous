@@ -34,6 +34,8 @@ public interface Ability {
         return true;
     }
 
+    default void restore(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {}
+
     Optional<Holder<SoundEvent>> startSound();
 
     boolean overrideActive();

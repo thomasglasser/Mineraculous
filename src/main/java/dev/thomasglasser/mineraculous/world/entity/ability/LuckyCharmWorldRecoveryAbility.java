@@ -11,19 +11,21 @@ import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
-import dev.thomasglasser.mineraculous.world.level.storage.AffectedChunksData;
-import dev.thomasglasser.mineraculous.world.level.storage.AffectedChunksDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharm;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,9 +33,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.chunk.ProtoChunk;
-import net.minecraft.world.level.chunk.storage.ChunkSerializer;
 
 public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<ParticleOptions> spreadParticle, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
 
@@ -75,14 +74,30 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
         ItemStack luckyCharm = entity.getMainHandItem();
         Optional<UUID> target = luckyCharm.get(MineraculousDataComponents.LUCKY_CHARM).target();
         if (target.isPresent()) {
-            AffectedChunksData affectedChunksData = ((AffectedChunksDataHolder) level.getServer().overworld()).mineraculous$getAffectedChunksData();
-            for (Map.Entry<ChunkPos, CompoundTag> entry : affectedChunksData.getAffectedChunks(target.get()).entrySet()) {
-                ProtoChunk read = ChunkSerializer.read(level, level.getPoiManager(), level.getChunkSource().chunkMap.storageInfo(), entry.getKey(), entry.getValue());
-                read.setUnsaved(true);
-                level.getChunkSource().chunkMap.save(read);
-                level.getChunk(entry.getKey().getMiddleBlockPosition(0)).setUnsaved(false);
+            MiraculousRecoveryEntityData miraculousRecoveryEntityData = ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData();
+            for (UUID related : miraculousRecoveryEntityData.getTrackedAndRelatedEntities(target.get())) {
+                LivingEntity recovering = level.getEntity(related) instanceof LivingEntity livingEntity ? livingEntity : null;
+                if (recovering != null) {
+                    MiraculousDataSet miraculousDataSet = recovering.getData(MineraculousAttachmentTypes.MIRACULOUS);
+                    List<ResourceKey<Miraculous>> transformed = miraculousDataSet.keySet();
+                    Optional<KamikotizationData> kamikotizationData = recovering.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
+                    if (kamikotizationData.isPresent()) {
+                        ResourceKey<Kamikotization> kamikotizationKey = kamikotizationData.get().kamikotization();
+                        Kamikotization kamikotization = level.holderOrThrow(kamikotizationKey).value();
+                        AbilityData abilityData = new AbilityData(0, Either.right(kamikotizationKey));
+                        kamikotization.activeAbility().ifPresent(ability -> ability.value().restore(abilityData, level, recovering.blockPosition(), recovering));
+                        kamikotization.passiveAbilities().forEach(ability -> ability.value().restore(abilityData, level, recovering.blockPosition(), recovering));
+                    }
+                    for (ResourceKey<Miraculous> miraculousKey : transformed) {
+                        Miraculous miraculous = level.holderOrThrow(miraculousKey).value();
+                        MiraculousData miraculousData = miraculousDataSet.get(miraculousKey);
+                        AbilityData abilityData = new AbilityData(miraculousData.powerLevel(), Either.left(miraculousKey));
+                        miraculous.activeAbility().ifPresent(ability -> ability.value().restore(abilityData, level, recovering.blockPosition(), recovering));
+                        miraculous.passiveAbilities().forEach(ability -> ability.value().restore(abilityData, level, recovering.blockPosition(), recovering));
+                    }
+                }
             }
-            affectedChunksData.stopTracking(target.get());
+            miraculousRecoveryEntityData.stopTracking(target.get());
         }
         UUID charmId;
         if (data.power().left().isPresent()) {

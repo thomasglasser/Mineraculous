@@ -2,8 +2,6 @@ package dev.thomasglasser.mineraculous.mixin.minecraft.server.level;
 
 import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.level.storage.AffectedChunksData;
-import dev.thomasglasser.mineraculous.world.level.storage.AffectedChunksDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideData;
 import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
@@ -12,6 +10,9 @@ import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLoo
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryItemData;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdData;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdDataHolder;
 import java.util.HashMap;
@@ -40,7 +41,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerLevel.class)
-public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmIdDataHolder, FlattenedLookDataHolder, ChargeOverrideDataHolder, AffectedChunksDataHolder {
+public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmIdDataHolder, FlattenedLookDataHolder, ChargeOverrideDataHolder, MiraculousRecoveryDataHolder {
     @Unique
     protected ToolIdData mineraculous$toolIdData;
     @Unique
@@ -48,7 +49,9 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmId
     @Unique
     protected ChargeOverrideData mineraculous$chargeOverrideData;
     @Unique
-    protected AffectedChunksData mineraculous$affectedChunksData;
+    protected MiraculousRecoveryEntityData mineraculous$miraculousRecoveryEntityData;
+    @Unique
+    protected MiraculousRecoveryItemData mineraculous$miraculousRecoveryItemData;
     @Unique
     protected Map<ResourceKey<Miraculous>, Map<String, FlattenedSuitLookData>> mineraculous$commonSuitLookData;
     @Unique
@@ -73,7 +76,8 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmId
             mineraculous$toolIdData = this.getDataStorage().computeIfAbsent(ToolIdData.factory(), ToolIdData.FILE_ID);
             mineraculous$luckyCharmIdData = this.getDataStorage().computeIfAbsent(LuckyCharmIdData.factory(), LuckyCharmIdData.FILE_ID);
             mineraculous$chargeOverrideData = this.getDataStorage().computeIfAbsent(ChargeOverrideData.factory(), ChargeOverrideData.FILE_ID);
-            mineraculous$affectedChunksData = this.getDataStorage().computeIfAbsent(AffectedChunksData.factory(), AffectedChunksData.FILE_ID);
+            mineraculous$miraculousRecoveryEntityData = this.getDataStorage().computeIfAbsent(MiraculousRecoveryEntityData.factory(), MiraculousRecoveryEntityData.FILE_ID);
+            mineraculous$miraculousRecoveryItemData = this.getDataStorage().computeIfAbsent(MiraculousRecoveryItemData.factory(), MiraculousRecoveryItemData.FILE_ID);
             mineraculous$commonSuitLookData = new HashMap<>();
             mineraculous$commonMiraculousLookData = new HashMap<>();
             mineraculous$suitLookData = new HashMap<>();
@@ -93,8 +97,13 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmId
     }
 
     @Override
-    public AffectedChunksData mineraculous$getAffectedChunksData() {
-        return mineraculous$affectedChunksData;
+    public MiraculousRecoveryEntityData mineraculous$getMiraculousRecoveryEntityData() {
+        return mineraculous$miraculousRecoveryEntityData;
+    }
+
+    @Override
+    public MiraculousRecoveryItemData mineraculous$getMiraculousRecoveryItemData() {
+        return mineraculous$miraculousRecoveryItemData;
     }
 
     @Override

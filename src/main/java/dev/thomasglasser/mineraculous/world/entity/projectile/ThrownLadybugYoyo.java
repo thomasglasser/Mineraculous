@@ -161,7 +161,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         Entity entity = getOwner();
         if (entity == null)
             return;
-        if (entity instanceof ServerPlayer player) {
+        if (entity instanceof Player player) {
             checkRecall(player);
 
             if (this.isRecalling()) {

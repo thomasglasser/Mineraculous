@@ -32,6 +32,11 @@ public class MineraculousItemTags {
     // Item Breaking System
     public static final TagKey<Item> TOUGH = create("tough");
 
+    // Lucky Charms
+    public static final TagKey<Item> GENERIC_LUCKY_CHARMS = create("lucky_charms/generic");
+    public static final TagKey<Item> GUARDIAN_LUCKY_CHARMS = create("lucky_charms/guardian");
+    public static final TagKey<Item> WARDEN_DISTRACTORS = create("warden_distractors");
+
     private static TagKey<Item> create(String name) {
         return TagKey.create(Registries.ITEM, Mineraculous.modLoc(name));
     }

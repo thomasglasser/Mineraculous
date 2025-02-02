@@ -8,6 +8,8 @@ import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizatio
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
+import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdData;
+import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdData;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdDataHolder;
 import java.util.HashMap;
@@ -36,12 +38,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerLevel.class)
-public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedLookDataHolder, ChargeOverrideDataHolder {
-    @Unique
-    private final ServerLevel mineraculous$INSTANCE = ((ServerLevel) (Object) (this));
-
+public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmIdDataHolder, FlattenedLookDataHolder, ChargeOverrideDataHolder {
     @Unique
     protected ToolIdData mineraculous$toolIdData;
+    @Unique
+    protected LuckyCharmIdData mineraculous$luckyCharmIdData;
     @Unique
     protected ChargeOverrideData mineraculous$chargeOverrideData;
     @Unique
@@ -66,6 +67,7 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedLoo
     private void minejago_init(MinecraftServer minecraftServer, Executor executor, LevelStorageSource.LevelStorageAccess levelStorageAccess, ServerLevelData serverLevelData, ResourceKey<Level> resourceKey, LevelStem levelStem, ChunkProgressListener chunkProgressListener, boolean bl, long l, List list, boolean bl2, RandomSequences randomSequences, CallbackInfo ci) {
         if (resourceKey == Level.OVERWORLD) {
             mineraculous$toolIdData = this.getDataStorage().computeIfAbsent(ToolIdData.factory(), ToolIdData.FILE_ID);
+            mineraculous$luckyCharmIdData = this.getDataStorage().computeIfAbsent(LuckyCharmIdData.factory(), LuckyCharmIdData.FILE_ID);
             mineraculous$chargeOverrideData = this.getDataStorage().computeIfAbsent(ChargeOverrideData.factory(), ChargeOverrideData.FILE_ID);
             mineraculous$commonSuitLookData = new HashMap<>();
             mineraculous$commonMiraculousLookData = new HashMap<>();
@@ -78,6 +80,11 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, FlattenedLoo
     @Override
     public ToolIdData mineraculous$getToolIdData() {
         return mineraculous$toolIdData;
+    }
+
+    @Override
+    public LuckyCharmIdData mineraculous$getLuckyCharmIdData() {
+        return mineraculous$luckyCharmIdData;
     }
 
     @Override

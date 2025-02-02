@@ -90,6 +90,22 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
                 .add(Items.NETHER_STAR)
                 .add(Items.TOTEM_OF_UNDYING);
 
+        tag(MineraculousItemTags.GENERIC_LUCKY_CHARMS)
+                .add(Items.APPLE)
+                .addTag(ConventionalItemTags.MELEE_WEAPON_TOOLS)
+                .add(Items.RABBIT_FOOT)
+                .addTag(ConventionalItemTags.GOLDEN_FOODS)
+                .add(Items.COMPASS);
+
+        tag(MineraculousItemTags.GUARDIAN_LUCKY_CHARMS)
+                .add(Items.CONDUIT)
+                .add(Items.TURTLE_HELMET);
+
+        tag(MineraculousItemTags.WARDEN_DISTRACTORS)
+                .add(Items.SNOWBALL)
+                .add(Items.EGG)
+                .add(Items.SNOW_GOLEM_SPAWN_EGG);
+
         curios(MineraculousItems.MIRACULOUS.get(),
                 MineraculousCuriosProvider.SLOT_BROOCH,
                 MineraculousCuriosProvider.SLOT_RING,

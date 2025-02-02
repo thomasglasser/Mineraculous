@@ -12,6 +12,8 @@ public class MineraculousParticleTypes {
 
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> BLACK_ORB = PARTICLE_TYPES.register("black_orb", () -> new SimpleParticleType(true));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> KAMIKOTIZATION = PARTICLE_TYPES.register("kamikotization", () -> new SimpleParticleType(true));
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SUMMONING_LADYBUG = PARTICLE_TYPES.register("summoning_ladybug", () -> new SimpleParticleType(true));
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SPREADING_LADYBUG = PARTICLE_TYPES.register("spreading_ladybug", () -> new SimpleParticleType(true));
 
     public static void init() {}
 }

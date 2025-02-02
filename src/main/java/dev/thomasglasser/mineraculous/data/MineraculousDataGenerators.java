@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.data.blockstates.MineraculousBlockStatePro
 import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.data.datamaps.MineraculousDataMapProvider;
 import dev.thomasglasser.mineraculous.data.lang.MineraculousEnUsLanguageProvider;
+import dev.thomasglasser.mineraculous.data.lang.expansions.AkumatizationPackEnUsLanguageProvider;
 import dev.thomasglasser.mineraculous.data.loot.MineraculousLootTables;
 import dev.thomasglasser.mineraculous.data.models.MineraculousItemModelProvider;
 import dev.thomasglasser.mineraculous.data.modonomicons.MineraculousBookProvider;
@@ -19,12 +20,13 @@ import dev.thomasglasser.mineraculous.data.tags.MineraculousItemTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousPaintingVariantTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousPoiTypeTagsProvider;
 import dev.thomasglasser.mineraculous.data.trimmed.MineraculousTrimDatagenSuite;
+import dev.thomasglasser.mineraculous.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
+import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
+import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilities;
 import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.MineraculousAbilities;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -108,5 +110,12 @@ public class MineraculousDataGenerators {
         generator.addProvider(onClient, new MineraculousParticleDescriptionProvider(packOutput, existingFileHelper));
         generator.addProvider(onClient, new MineraculousSoundDefinitionsProvider(packOutput, existingFileHelper));
         generator.addProvider(onClient, enUs);
+
+        generateAkumatizationPack(generator, new PackOutput(packOutput.getOutputFolder().resolve("packs/" + MineraculousPacks.AKUMATIZATION.knownPack().namespace() + "/" + MineraculousPacks.AKUMATIZATION.knownPack().id())), registries, existingFileHelper, onServer, onClient);
+    }
+
+    private static void generateAkumatizationPack(DataGenerator generator, PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper, boolean onServer, boolean onClient) {
+        // Client
+        generator.addProvider(onClient, new AkumatizationPackEnUsLanguageProvider(packOutput));
     }
 }

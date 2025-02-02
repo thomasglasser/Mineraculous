@@ -12,15 +12,15 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootTable;
 
-public record LuckyCharms(Either<HolderSet<Item>, ResourceKey<LootTable>> items) {
+public record LuckyCharms(Either<ResourceKey<LootTable>, HolderSet<Item>> items) {
     public static final Codec<LuckyCharms> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            new EitherCodec<>(HolderSetCodec.create(Registries.ITEM, BuiltInRegistries.ITEM.holderByNameCodec(), false), ResourceKey.codec(Registries.LOOT_TABLE)).fieldOf("items").forGetter(LuckyCharms::items)).apply(instance, LuckyCharms::new));
-
-    public LuckyCharms(HolderSet<Item> items) {
-        this(Either.left(items));
-    }
+            new EitherCodec<>(ResourceKey.codec(Registries.LOOT_TABLE), HolderSetCodec.create(Registries.ITEM, BuiltInRegistries.ITEM.holderByNameCodec(), false)).fieldOf("items").forGetter(LuckyCharms::items)).apply(instance, LuckyCharms::new));
 
     public LuckyCharms(ResourceKey<LootTable> lootTable) {
-        this(Either.right(lootTable));
+        this(Either.left(lootTable));
+    }
+
+    public LuckyCharms(HolderSet<Item> items) {
+        this(Either.right(items));
     }
 }

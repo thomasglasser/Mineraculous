@@ -1,3 +1,25 @@
 {
-  "values": {}
+  "values": {
+    "minecraft:blaze": {
+      "items": "mineraculous:gameplay/lucky_charm/entity/blaze"
+    },
+    "minecraft:creeper": {
+      "items": "mineraculous:gameplay/lucky_charm/entity/creeper"
+    },
+    "minecraft:enderman": {
+      "items": "mineraculous:gameplay/lucky_charm/entity/enderman"
+    },
+    "minecraft:piglin": {
+      "items": "mineraculous:gameplay/lucky_charm/entity/piglin"
+    },
+    "minecraft:pillager": {
+      "items": "mineraculous:gameplay/lucky_charm/entity/pillager"
+    },
+    "minecraft:skeleton": {
+      "items": "mineraculous:gameplay/lucky_charm/entity/skeleton"
+    },
+    "minecraft:warden": {
+      "items": "mineraculous:gameplay/lucky_charm/entity/warden"
+    }
+  }
 }

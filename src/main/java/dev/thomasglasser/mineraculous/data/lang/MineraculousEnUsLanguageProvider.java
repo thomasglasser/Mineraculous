@@ -14,6 +14,7 @@ import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalInven
 import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
+import dev.thomasglasser.mineraculous.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.server.commands.MiraculousCommand;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
@@ -24,10 +25,10 @@ import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilities;
 import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.MineraculousAbilities;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerProfessions;
 import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
@@ -89,6 +90,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         add(MineraculousEntityTypes.KAMIKO.get(), "Kamiko");
         add(MineraculousEntityTypes.KWAMI.get(), "Kwami");
+        add(MineraculousEntityTypes.LUCKY_CHARM_ITEM_SPAWNER.get(), "Lucky Charm Item Spawner");
         add(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), "Ladybug Yoyo");
         add(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), "Cat Staff");
         add(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), "Butterfly Cane");
@@ -217,6 +219,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousSoundEvents.CATACLYSM_USE.get(), "Cataclysm triggers");
         add(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE.get(), "Kamiko powers up");
         add(MineraculousSoundEvents.KAMIKOTIZATION_USE.get(), "Kamikotization begins");
+        add(MineraculousSoundEvents.LUCKY_CHARM_ACTIVATE.get(), "Lucky Charm activates");
+        add(MineraculousSoundEvents.MIRACULOUS_LADYBUG_ACTIVATE.get(), "Miraculous Ladybugs flourish");
         add(MineraculousSoundEvents.GENERIC_SHIELD.get(), "Weapon whirs");
         add(MineraculousSoundEvents.LADYBUG_YOYO_SHIELD.get(), "Yoyo whirs");
         add(MineraculousSoundEvents.CAT_STAFF_EXTEND.get(), "Staff extends");
@@ -231,6 +235,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM.get(), "Kamikotized player transforms");
         add(MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM.get(), "Kamikotized player detransforms");
         add(MineraculousSoundEvents.KWAMI_HUNGRY.get(), "Kwami hungers");
+        add(MineraculousSoundEvents.KWAMI_SUMMON.get(), "Kwami appears");
 
         addPaintingVariant(MineraculousPaintingVariants.LADYBUG, "Ladybug", "NastyaGalaxy");
         addPaintingVariant(MineraculousPaintingVariants.MINI_LADYBUG, "Mini Ladybug", "NastyaGalaxy");
@@ -238,6 +243,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addPaintingVariant(MineraculousPaintingVariants.MINI_CAT, "Mini Cat", "NastyaGalaxy");
         addPaintingVariant(MineraculousPaintingVariants.BUTTERFLY, "Butterfly", "NastyaGalaxy");
         addPaintingVariant(MineraculousPaintingVariants.MINI_BUTTERFLY, "Mini Butterfly", "NastyaGalaxy");
+
+        add(MineraculousPacks.AKUMATIZATION, "Akumatization Pack", "Renames \"Kamikotization\" to \"Akumatization\"");
     }
 
     private void addConfigs() {

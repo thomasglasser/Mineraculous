@@ -16,6 +16,10 @@ public class MineraculousSoundEvents {
     public static final DeferredHolder<SoundEvent, SoundEvent> KAMIKOTIZATION_ACTIVATE = register("kamikotization", "ability", "activate");
     public static final DeferredHolder<SoundEvent, SoundEvent> KAMIKOTIZATION_USE = register("kamikotization", "ability", "use");
 
+    public static final DeferredHolder<SoundEvent, SoundEvent> LUCKY_CHARM_ACTIVATE = register("lucky_charm", "ability", "activate");
+
+    public static final DeferredHolder<SoundEvent, SoundEvent> MIRACULOUS_LADYBUG_ACTIVATE = register("miraculous_ladybug", "ability", "activate");
+
     // Items
     public static final DeferredHolder<SoundEvent, SoundEvent> GENERIC_SHIELD = register("generic", "item", "shield");
     public static final DeferredHolder<SoundEvent, SoundEvent> LADYBUG_YOYO_SHIELD = register("ladybug_yoyo", "item", "shield");
@@ -37,6 +41,7 @@ public class MineraculousSoundEvents {
 
     // Entities
     public static final DeferredHolder<SoundEvent, SoundEvent> KWAMI_HUNGRY = register("kwami", "entity", "hungry");
+    public static final DeferredHolder<SoundEvent, SoundEvent> KWAMI_SUMMON = register("kwami", "entity", "summon");
 
     private static DeferredHolder<SoundEvent, SoundEvent> register(String subject, String type, String name) {
         return SOUND_EVENTS.register(subject + "_" + name, () -> SoundEvent.createVariableRangeEvent(Mineraculous.modLoc(type + "." + subject + "." + name)));

@@ -5,6 +5,7 @@ import dev.thomasglasser.mineraculous.advancements.critereon.KamikotizationTrans
 import dev.thomasglasser.mineraculous.advancements.critereon.KamikotizePlayerTrigger;
 import dev.thomasglasser.mineraculous.advancements.critereon.MiraculousTransformTrigger;
 import dev.thomasglasser.mineraculous.advancements.critereon.MiraculousUsePowerTrigger;
+import dev.thomasglasser.mineraculous.advancements.critereon.ReleasePurifiedKamikoTrigger;
 import dev.thomasglasser.mineraculous.tags.MineraculousDamageTypeTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
@@ -40,6 +41,9 @@ public class MineraculousMiraculousAdvancements extends ExtendedAdvancementGener
 
         AdvancementHolder transformLadybug = create(root, Miraculous.createMiraculousStack(MineraculousMiraculous.LADYBUG), "transform_ladybug", AdvancementType.TASK, true, true, false, AdvancementRewards.Builder.experience(10).build(), AdvancementRequirements.Strategy.AND, Map.of(
                 "transform_ladybug", MiraculousTransformTrigger.TriggerInstance.transformed(MineraculousMiraculous.LADYBUG)), "Spots On!", "Transform using the Ladybug miraculous");
+
+        AdvancementHolder releasePurifiedKamiko = create(transformLadybug, MineraculousItems.LADYBUG_YOYO, "release_purified_kamiko", AdvancementType.TASK, true, true, false, null, AdvancementRequirements.Strategy.AND, Map.of(
+                "release_purified_kamiko", ReleasePurifiedKamikoTrigger.TriggerInstance.releasedPurifiedKamiko()), "Bye Bye, Little Butterfly", "Purify and release a Kamiko");
 
         AdvancementHolder transformCat = create(root, Miraculous.createMiraculousStack(MineraculousMiraculous.CAT), "transform_cat", AdvancementType.TASK, true, true, false, AdvancementRewards.Builder.experience(10).build(), AdvancementRequirements.Strategy.AND, Map.of(
                 "transform_cat", MiraculousTransformTrigger.TriggerInstance.transformed(MineraculousMiraculous.CAT)), "Claws Out!", "Transform using the Cat miraculous");

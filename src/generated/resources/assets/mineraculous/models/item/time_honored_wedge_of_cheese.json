@@ -1,3 +1,6 @@
 {
-  "parent": "mineraculous:block/time_honored_cheese_block_slice3"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "mineraculous:item/time_honored_wedge_of_cheese"
+  }
 }

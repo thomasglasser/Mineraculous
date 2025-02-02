@@ -82,10 +82,9 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         MineraculousBlocks.CAMEMBERT_BLOCKS.values().forEach(block -> withBitesOverrides(block, basicBlockItem(block)));
         MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.forEach((age, block) -> withBitesOverrides(MineraculousBlocks.CAMEMBERT_BLOCKS.get(age), withExistingParent(block.getId().getPath(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(age).getId().withPrefix("block/"))));
 
-        // TODO: Add wedge items
-        MineraculousItems.CHEESE_WEDGES.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousBlocks.CHEESE_BLOCKS.get(age).getId().withPrefix("block/").withSuffix("_slice3")));
+        MineraculousItems.CHEESE_WEDGES.values().forEach(this::basicItem);
         MineraculousItems.WAXED_CHEESE_WEDGES.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousItems.CHEESE_WEDGES.get(age).getId()));
-        MineraculousItems.CAMEMBERT_WEDGES.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(age).getId().withPrefix("block/").withSuffix("_slice3")));
+        MineraculousItems.CAMEMBERT_WEDGES.values().forEach(this::basicItem);
         MineraculousItems.WAXED_CAMEMBERT_WEDGES.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousItems.CAMEMBERT_WEDGES.get(age).getId()));
 
         basicItem(MineraculousBlocks.CHEESE_POT.getId());

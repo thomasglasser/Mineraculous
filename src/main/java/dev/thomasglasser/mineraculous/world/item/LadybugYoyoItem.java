@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.world.item;
 
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
@@ -41,6 +42,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -225,6 +227,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                         MiraculousData data = pPlayer.getData(MineraculousAttachmentTypes.MIRACULOUS).get(MineraculousMiraculous.LADYBUG);
                         CompoundTag extraData = data.extraData();
                         ListTag kamikos = extraData.getList(LadybugYoyoItem.TAG_STORED_KAMIKOS, 10);
+                        MineraculousCriteriaTriggers.RELEASED_PURIFIED_KAMIKO.get().trigger((ServerPlayer) pPlayer, kamikos.size());
                         for (Tag tag : kamikos) {
                             Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(serverLevel);
                             if (kamiko != null && tag instanceof CompoundTag compoundTag) {

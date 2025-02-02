@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.core.registries;
 
 import com.mojang.serialization.MapCodec;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
+import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
 import net.minecraft.core.Registry;
 import net.neoforged.neoforge.registries.RegistryBuilder;
 

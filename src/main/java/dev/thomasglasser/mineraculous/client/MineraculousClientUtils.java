@@ -94,7 +94,7 @@ public class MineraculousClientUtils {
         return Minecraft.getInstance().options.getCameraType().isFirstPerson();
     }
 
-    public static void renderParticlesFollowingEntity(LivingEntity entity, ParticleOptions type, double distanceFromSkin, double forwardShift, double rightShift, double upShift, float scale, boolean firstPerson) {
+    public static void renderParticlesFollowingEntity(LivingEntity entity, ParticleOptions type, double distanceFromSkin, double forwardShift, double rightShift, double upShift, boolean firstPerson) {
         Vec3 angle = firstPerson ? entity.getLookAngle() : new Vec3(0, 0, 0);
         Vec3 worldUp = new Vec3(0, 1, 0);
         Vec3 localForward = Vec3.directionFromRotation(new Vec2(0, firstPerson ? entity.getYRot() : entity.yBodyRot));

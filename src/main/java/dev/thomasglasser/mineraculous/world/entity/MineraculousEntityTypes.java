@@ -23,9 +23,13 @@ public class MineraculousEntityTypes {
             EntityType.Builder.of(Kwami::new, MobCategory.CREATURE)
                     .sized(0.3F, 0.4F));
     public static final DeferredHolder<EntityType<?>, EntityType<Kamiko>> KAMIKO = register("kamiko",
-            EntityType.Builder.of(Kamiko::new, MobCategory.MISC)
+            EntityType.Builder.of(Kamiko::new, MobCategory.CREATURE)
                     .clientTrackingRange(Integer.MAX_VALUE / 16)
                     .sized(1.0F, 1.0F));
+    public static final DeferredHolder<EntityType<?>, EntityType<LuckyCharmItemSpawner>> LUCKY_CHARM_ITEM_SPAWNER = register("lucky_charm_item_spawner",
+            EntityType.Builder.of(LuckyCharmItemSpawner::new, MobCategory.MISC)
+                    .clientTrackingRange(8)
+                    .sized(0.25F, 0.25F));
 
     // Projectiles
     public static final DeferredHolder<EntityType<?>, EntityType<ThrownLadybugYoyo>> THROWN_LADYBUG_YOYO = register("thrown_ladybug_yoyo",

@@ -32,7 +32,7 @@ public record ClientboundSetCameraEntityPayload(int entityId, Optional<ResourceL
     public void handle(Player player) {
         CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
         Entity entity = player.level().getEntity(entityId);
-        if (entity == null || entityData.getBoolean(MineraculousEntityEvents.TAG_CAMERA_CONTROL_INTERRUPTED)) {
+        if (MineraculousClientUtils.getCameraEntity() != player && (entity == null || entityData.getBoolean(MineraculousEntityEvents.TAG_CAMERA_CONTROL_INTERRUPTED))) {
             MineraculousClientUtils.setCameraEntity(null);
             toggleTag.ifPresent(tag -> {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(tag, false));

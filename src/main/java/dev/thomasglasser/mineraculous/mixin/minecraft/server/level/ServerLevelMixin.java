@@ -10,6 +10,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLoo
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryBlockData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryItemData;
@@ -53,6 +54,8 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmId
     @Unique
     protected MiraculousRecoveryItemData mineraculous$miraculousRecoveryItemData;
     @Unique
+    protected MiraculousRecoveryBlockData mineraculous$miraculousRecoveryBlockData;
+    @Unique
     protected Map<ResourceKey<Miraculous>, Map<String, FlattenedSuitLookData>> mineraculous$commonSuitLookData;
     @Unique
     protected Map<ResourceKey<Miraculous>, Map<String, FlattenedMiraculousLookData>> mineraculous$commonMiraculousLookData;
@@ -78,6 +81,7 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmId
             mineraculous$chargeOverrideData = this.getDataStorage().computeIfAbsent(ChargeOverrideData.factory(), ChargeOverrideData.FILE_ID);
             mineraculous$miraculousRecoveryEntityData = this.getDataStorage().computeIfAbsent(MiraculousRecoveryEntityData.factory(), MiraculousRecoveryEntityData.FILE_ID);
             mineraculous$miraculousRecoveryItemData = this.getDataStorage().computeIfAbsent(MiraculousRecoveryItemData.factory(), MiraculousRecoveryItemData.FILE_ID);
+            mineraculous$miraculousRecoveryBlockData = this.getDataStorage().computeIfAbsent(MiraculousRecoveryBlockData.factory(), MiraculousRecoveryBlockData.FILE_ID);
             mineraculous$commonSuitLookData = new HashMap<>();
             mineraculous$commonMiraculousLookData = new HashMap<>();
             mineraculous$suitLookData = new HashMap<>();
@@ -104,6 +108,11 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmId
     @Override
     public MiraculousRecoveryItemData mineraculous$getMiraculousRecoveryItemData() {
         return mineraculous$miraculousRecoveryItemData;
+    }
+
+    @Override
+    public MiraculousRecoveryBlockData mineraculous$getMiraculousRecoveryBlockData() {
+        return mineraculous$miraculousRecoveryBlockData;
     }
 
     @Override

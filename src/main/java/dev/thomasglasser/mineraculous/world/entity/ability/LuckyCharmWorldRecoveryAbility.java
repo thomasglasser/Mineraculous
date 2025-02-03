@@ -80,11 +80,12 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
                 if (recovering != null) {
                     MiraculousDataSet miraculousDataSet = recovering.getData(MineraculousAttachmentTypes.MIRACULOUS);
                     List<ResourceKey<Miraculous>> transformed = miraculousDataSet.keySet();
-                    Optional<KamikotizationData> kamikotizationData = recovering.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
-                    if (kamikotizationData.isPresent()) {
-                        ResourceKey<Kamikotization> kamikotizationKey = kamikotizationData.get().kamikotization();
-                        Kamikotization kamikotization = level.holderOrThrow(kamikotizationKey).value();
-                        AbilityData abilityData = new AbilityData(0, Either.right(kamikotizationKey));
+                    Optional<ResourceKey<Kamikotization>> kamikotizationKey = recovering.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization);
+                    if (kamikotizationKey.isEmpty())
+                        kamikotizationKey = recovering.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION);
+                    if (kamikotizationKey.isPresent()) {
+                        Kamikotization kamikotization = level.holderOrThrow(kamikotizationKey.get()).value();
+                        AbilityData abilityData = new AbilityData(0, Either.right(kamikotizationKey.get()));
                         kamikotization.activeAbility().ifPresent(ability -> ability.value().restore(abilityData, level, recovering.blockPosition(), recovering));
                         kamikotization.passiveAbilities().forEach(ability -> ability.value().restore(abilityData, level, recovering.blockPosition(), recovering));
                     }
@@ -98,6 +99,7 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
                 }
             }
             miraculousRecoveryEntityData.stopTracking(target.get());
+            ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryItemData().recoverKamikotized(target.get(), level);
         }
         UUID charmId;
         if (data.power().left().isPresent()) {

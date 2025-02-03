@@ -34,6 +34,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -52,9 +53,11 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
     @Override
     public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
         if (context == Context.PASSIVE) {
-//            UUID tracked = ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData().getTrackedEntity(entity.getUUID());
-//            LivingEntity trackedEntity = tracked != null ? level.getEntity(tracked) instanceof LivingEntity livingEntity ? livingEntity : null : null;
-            LivingEntity target = /*trackedEntity != null ? trackedEntity :*/ entity.getKillCredit() != null ? entity.getKillCredit() : entity.getLastHurtMob();
+            UUID tracked = ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData().getTrackedEntity(entity.getUUID());
+            LivingEntity trackedEntity = tracked != null ? level.getEntity(tracked) instanceof LivingEntity livingEntity ? livingEntity : null : null;
+            LivingEntity target = trackedEntity != null ? trackedEntity : entity.getKillCredit() != null ? entity.getKillCredit() : entity.getLastHurtMob();
+            if (target instanceof OwnableEntity ownable && ownable.getOwnerUUID() != null)
+                target = level.getEntity(ownable.getOwnerUUID()) instanceof LivingEntity livingEntity ? livingEntity : target;
             if (target != null)
                 ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData().putRelatedEntity(target.getUUID(), entity.getUUID());
             LuckyCharms charms = getCharms(level, target);

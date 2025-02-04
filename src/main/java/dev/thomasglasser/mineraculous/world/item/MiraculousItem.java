@@ -113,6 +113,9 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                     }
                 }
             }
+            if (slotId != -1 && stack.has(MineraculousDataComponents.REMAINING_TICKS)) {
+                stack.remove(MineraculousDataComponents.REMAINING_TICKS);
+            }
         } else {
             if (ClientUtils.getMainClientPlayer() == entity && (isSelected || slotId == Inventory.SLOT_OFFHAND)) {
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);

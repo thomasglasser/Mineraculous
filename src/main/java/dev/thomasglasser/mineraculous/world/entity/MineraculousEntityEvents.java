@@ -500,7 +500,8 @@ public class MineraculousEntityEvents {
     }
 
     public static void renounceMiraculous(ItemStack miraculous, ServerLevel serverLevel) {
-        miraculous.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
+        miraculous.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
+        miraculous.remove(MineraculousDataComponents.REMAINING_TICKS);
         KwamiData kwamiData = miraculous.get(MineraculousDataComponents.KWAMI_DATA.get());
         if (kwamiData != null) {
             if (serverLevel.getEntity(kwamiData.uuid()) instanceof Kwami kwami) {

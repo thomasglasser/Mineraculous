@@ -36,6 +36,16 @@ public class CheeseEntry extends IndexModeEntryProvider {
         pageText("""
                 Camembert is a white, creamy, and *very* stinky cheese.
                 """);
+
+        page("finding", () -> BookImagePageModel.create()
+                .withImages(Mineraculous.modLoc("textures/item/cheese_pot.png"))
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        pageTitle("Finding Cheese");
+        pageText("""
+                Cheese can be found in village Creameries and traded from the Fromager.
+                """);
     }
 
     @Override

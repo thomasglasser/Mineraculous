@@ -20,6 +20,7 @@ import dev.thomasglasser.mineraculous.data.tags.MineraculousItemTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousPaintingVariantTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousPoiTypeTagsProvider;
 import dev.thomasglasser.mineraculous.data.trimmed.MineraculousTrimDatagenSuite;
+import dev.thomasglasser.mineraculous.data.worldgen.MineraculousWorldgenModifiers;
 import dev.thomasglasser.mineraculous.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
@@ -27,10 +28,13 @@ import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilities
 import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+
+import dev.worldgen.lithostitched.registry.LithostitchedRegistryKeys;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
@@ -47,6 +51,7 @@ public class MineraculousDataGenerators {
     public static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
             .add(Registries.DAMAGE_TYPE, MineraculousDamageTypes::bootstrap)
             .add(Registries.PAINTING_VARIANT, MineraculousPaintingVariants::bootstrap)
+            .add(LithostitchedRegistryKeys.WORLDGEN_MODIFIER, MineraculousWorldgenModifiers::bootstrap)
             .add(MineraculousRegistries.ABILITY, MineraculousAbilities::bootstrap)
             .add(MineraculousRegistries.MIRACULOUS, MineraculousMiraculous::bootstrap)
             .add(MineraculousRegistries.KAMIKOTIZATION, context -> {

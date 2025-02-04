@@ -22,7 +22,7 @@ public class MiraculousEntry extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Generator");
         add(context().pageText(), """
-                A generator for miraculous can be found online [here](https://jsons.thomasglasser.dev/mineraculous/miraculous/).
+                A generator for miraculous can be found online [here](https://snapshot-jsons.thomasglasser.dev/mineraculous/miraculous/).
                 """);
 
         page("fields", () -> BookTextPageModel.create()

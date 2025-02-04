@@ -21,7 +21,7 @@ public class KamikotizationsEntry extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Generator");
         add(context().pageText(), """
-                A generator for kamikotizations can be found online [here](https://jsons.thomasglasser.dev/mineraculous/kamikotization/).
+                A generator for kamikotizations can be found online [here](https://snapshot-jsons.thomasglasser.dev/mineraculous/kamikotization/).
                 """);
 
         page("fields", () -> BookTextPageModel.create()

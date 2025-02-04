@@ -22,7 +22,7 @@ public class TagsEntry extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Generator");
         add(context().pageText(), """
-                A generator for tags can be found online [here](https://jsons.thomasglasser.dev/generators/).
+                A generator for tags can be found online [here](https://snapshot-jsons.thomasglasser.dev/generators/).
                 """);
 
         page("block", () -> BookTextPageModel.create()

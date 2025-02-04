@@ -22,7 +22,7 @@ public class AdvancementTriggersEntry extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Generator");
         add(context().pageText(), """
-                A generator for advancements can be found online [here](https://jsons.thomasglasser.dev/advancement/).
+                A generator for advancements can be found online [here](https://snapshot-jsons.thomasglasser.dev/advancement/).
                 """);
 
         page("transformed_miraculous", () -> BookTextPageModel.create()

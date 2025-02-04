@@ -21,7 +21,7 @@ public class AbilitiesEntry extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Generator");
         add(context().pageText(), """
-                A generator for abilities can be found online [here](https://jsons.thomasglasser.dev/mineraculous/ability/).
+                A generator for abilities can be found online [here](https://snapshot-jsons.thomasglasser.dev/mineraculous/ability/).
                 """);
 
         page("type", () -> BookTextPageModel.create()

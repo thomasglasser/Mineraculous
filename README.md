@@ -8,7 +8,7 @@ A new generation of miraculous gameplay, feature entirely data-driven miraculous
 [![Available on Modrinth](https://rawcdn.githack.com/intergrav/devins-badges/1aec26abb75544baec37249f42008b2fcc0e731f/assets/cozy/available/modrinth_vector.svg)](https://modrinth.com/mod/mineraculous)
 [![Available on Curseforge](https://rawcdn.githack.com/intergrav/devins-badges/1aec26abb75544baec37249f42008b2fcc0e731f/assets/cozy/available/curseforge_vector.svg)](https://www.curseforge.com/minecraft/mc-mods/mineraculous)
 
-[![Supported on NeoForge](https://rawcdn.githack.com/thomasglasser/thomasglasser/1f85027a20670b89b94462ddd345af897b47ac17/files/badges/cozy/supported/neoforge_vector.svg)](https://modrinth.com/mod/sherdsapi/versions?l=neoforge)
+[![Supported on NeoForge](https://rawcdn.githack.com/thomasglasser/thomasglasser/1f85027a20670b89b94462ddd345af897b47ac17/files/badges/cozy/supported/neoforge_vector.svg)](https://modrinth.com/mod/mineraculous/versions?l=neoforge)
 
 [![Read the Documentation](https://rawcdn.githack.com/intergrav/devins-badges/1aec26abb75544baec37249f42008b2fcc0e731f/assets/cozy/documentation/ghpages_vector.svg)](https://mineraculous.wiki.thomasglasser.dev/)
 [![Buy Me a Coffee](https://rawcdn.githack.com/intergrav/devins-badges/1aec26abb75544baec37249f42008b2fcc0e731f/assets/cozy/donate/buymeacoffee-singular_vector.svg)](https://buymeacoffee.com/Mineraculous)

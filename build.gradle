@@ -187,7 +187,13 @@ processResources {
 			"github_name": github_name,
 			"resource_pack_version": resource_pack_version,
 			"data_pack_version": data_pack_version,
-			"tommylib_version": tommylib_version
+			"tommylib_version": tommylib_version,
+			"geckolib_version": geckolib_version,
+			"smartbrainlib_version": smartbrainlib_version,
+			"curios_version": curios_version,
+			"trimmed_version": trimmed_version,
+			"jei_version": jei_version,
+			"modonomicon_version": modonomicon_version,
 	]
 
 	filesMatching(['META-INF/neoforge.mods.toml', '*.mixins.json', '**/pack.mcmeta']) {

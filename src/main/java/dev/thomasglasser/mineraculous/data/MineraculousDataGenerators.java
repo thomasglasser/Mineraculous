@@ -28,13 +28,11 @@ import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilities
 import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
-
+import dev.worldgen.lithostitched.registry.LithostitchedRegistryKeys;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-
-import dev.worldgen.lithostitched.registry.LithostitchedRegistryKeys;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;

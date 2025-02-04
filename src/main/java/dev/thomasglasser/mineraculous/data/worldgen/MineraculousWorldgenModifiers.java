@@ -31,7 +31,7 @@ public class MineraculousWorldgenModifiers {
 
         // Creamery
         addStructureToVillage(context, "desert", "creamery", 8, null, zombieDesert);
-        addStructureToVillage(context, "plains", "creamery", 8, mossify10, zombiePlains);
+        addStructureToVillage(context, "plains", "creamery", 10, mossify10, zombiePlains);
         addStructureToVillage(context, "savanna", "creamery", 9, null, zombieSavanna);
         addStructureToVillage(context, "snowy", "creamery", 9, null, zombieSnowy);
         addStructureToVillage(context, "taiga", "creamery", 8, mossify10, zombieTaiga);

@@ -8,7 +8,7 @@
         "processors": "minecraft:mossify_10_percent",
         "projection": "rigid"
       },
-      "weight": 8
+      "weight": 10
     }
   ],
   "template_pools": "minecraft:village/plains/houses"

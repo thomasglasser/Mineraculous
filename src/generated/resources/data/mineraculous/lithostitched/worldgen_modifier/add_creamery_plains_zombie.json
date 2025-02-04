@@ -8,7 +8,7 @@
         "processors": "minecraft:zombie_plains",
         "projection": "rigid"
       },
-      "weight": 8
+      "weight": 10
     }
   ],
   "template_pools": "minecraft:village/plains/zombie/houses"

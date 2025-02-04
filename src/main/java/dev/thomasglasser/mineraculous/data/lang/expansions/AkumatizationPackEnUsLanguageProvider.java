@@ -60,23 +60,55 @@ public class AkumatizationPackEnUsLanguageProvider extends ExtendedEnUsLanguageP
         addAdvancement("miraculous", "transform_kamikotization", "desc", "Accept an akumatization from the Butterfly miraculous holder");
 
         // Modonomicon
-        addModonomiconPage("wiki", "apis", "advancement_triggers", "kamikotized_player", "text", "This trigger is called when a player akumatizes another player. It has one parameter:\n- \"type\": The type of akumatization that was used.\n");
-        addModonomiconPage("wiki", "apis", "advancement_triggers", "kamikotized_player", "title", "Akumatized Player");
-        addModonomiconPage("wiki", "apis", "advancement_triggers", "transformed_kamikotization", "text", "This trigger is called when a player is transformed by an akumatization. It has two parameters:\n- \"type\": The type of akumatization that was used.\n- \"self\": Whether the player akumatized themselves.\n");
-        addModonomiconPage("wiki", "apis", "advancement_triggers", "transformed_kamikotization", "title", "Transformed Akumatization");
-        addModonomiconDescription("wiki", "cosmetics", "Per-player customization for Miraculous and Akumatizations.");
+        addEntryDescription("wiki", "apis", "abilities", "Supernatural abilities that can be used by Miraculous holders or Akumatizations");
+        addPage("wiki", "apis", "advancement_triggers", "kamikotized_player", "text", "This trigger is called when a player akumatizes another player. It has one parameter:\n- \"type\": The type of akumatization that was used.\n");
+        addPage("wiki", "apis", "advancement_triggers", "kamikotized_player", "title", "Akumatized Player");
+        addPage("wiki", "apis", "advancement_triggers", "released_purified_kamiko", "text", "This trigger is called when a player releases a purified akuma. It has one parameter:\n- \"count\": The number of purified akumas that were released.\n");
+        addPage("wiki", "apis", "advancement_triggers", "released_purified_kamiko", "title", "Released Purified Akuma");
+        addPage("wiki", "apis", "advancement_triggers", "transformed_kamikotization", "text", "This trigger is called when a player is transformed by a akumatization. It has two parameters:\n- \"type\": The type of akumatization that was used.\n- \"self\": Whether the player akumatized themselves.\n");
+        addPage("wiki", "apis", "advancement_triggers", "transformed_kamikotization", "title", "Transformed Akumatization");
+        addPage("wiki", "apis", "advancement_triggers", "used_kamikotization_power", "text", "This trigger is called when a player uses a akumatization ability. It has two parameters:\n- \"type\": The type of akumatization that was used.\n- \"context\": The context in which the power was used. Can be one of the following:\n    - empty\n    - block\n    - entity\n    - living_entity\n    - item\n");
+        addPage("wiki", "apis", "advancement_triggers", "used_kamikotization_power", "title", "Used Akumatization Power");
+        addPage("wiki", "apis", "data_maps", "lucky_charms", "text", "Contextual lucky charms are determined for entities, miraculous holders, and akumatizations via data maps.\nThey are located in \"data/<namespace>/entity_type/lucky_charms.json\",\n\"data/<namespace>/mineraculous/miraculous/lucky_charms.json\",\nand \"data/<namespace>/mineraculous/kamikotization/lucky_charms.json\".\nGenerators can be found online [here](https://jsons.thomasglasser.dev/partners/).\n");
+        addPage("wiki", "apis", "kamikotizations", "fields", "text", "Akumatizations have a few fields that determine how they work:\n- active_ability: The ability that is activated when the Activate Power button (default: O) is pressed.\n- default_name: The default name of the akumatization.\n- item_predicate: The predicate that determines if the akumatization can be applied to an item.\n- passive_abilities: The abilities that are active at all times when akumatized.\n");
+        addPage("wiki", "apis", "kamikotizations", "generator", "text", "A generator for akumatizations can be found online [here](https://jsons.thomasglasser.dev/mineraculous/kamikotization/).\n");
+        addEntryName("wiki", "flora_and_fauna", "kamikos", "Akumas");
+        addPage("wiki", "flora_and_fauna", "kamikos", "obtaining", "text", "Akumas can only be obtained via spawn egg in the creative menu.\n");
+        addPage("wiki", "flora_and_fauna", "kamikos", "powered", "text", "Once powered, akumas follow their owner if they're transformed.\nIf not, they also fly around aimlessly.\n");
+        addPage("wiki", "flora_and_fauna", "kamikos", "unpowered", "text", "Unpowered akumas are normal butterflies.\nThey just fly around aimlessly.\nIf an open butterfly cane or powered butterfly miraculous holder are nearby, they will fly around it.\n");
+        addPage("wiki", "miraculous", "butterfly", "abilities", "text", "The Butterfly Miraculous has 3 abilities:\n- Akumatization\n- Akuma Control\n- Akumatized Communication\n");
+        addPage("wiki", "miraculous", "butterfly", "cane_abilities", "text", "The Butterfly Miraculous has 3 abilities:\n- Blade\n- Block\n- Akuma Store\n- Throw\n");
+        addPage("wiki", "miraculous", "butterfly", "kamiko_control", "text", "The Akuma Control ability can be activated by pressing the Activate Power button (default: O) with a powered [Akuma](entry://flora_and_fauna/kamikos) nearby.\nIt will cause a mask to appear on your face and will allow you to see through the eyes of the [Akuma](entry://flora_and_fauna/kamikos).\nYou can then press the number keys to select a target that the [Akuma](entry://flora_and_fauna/kamikos) will fly to.\nOnce it reaches the target, it will open the Akumatization Selection Screen and allow you to akumatize the target.\n");
+        addPage("wiki", "miraculous", "butterfly", "kamiko_control", "title", "Akuma Control");
+        addPage("wiki", "miraculous", "butterfly", "kamiko_store", "text", "Akuma Store mode allows you to right click to store a powered [Akuma](entry://flora_and_fauna/kamikos).\nYou can then right click again to release the [Akuma](entry://flora_and_fauna/kamikos).\n");
+        addPage("wiki", "miraculous", "butterfly", "kamiko_store", "title", "Akuma Store");
+        addPage("wiki", "miraculous", "butterfly", "kamikotization", "text", "The Akumatization ability can be activated by pressing the Activate Power button (default: O) with no powered [Akumas](entry://flora_and_fauna/kamikos) nearby.\nIt will cause particles to come from your hand.\nYou can then interact with an unpowered [Akuma](entry://flora_and_fauna/kamikos) to power and tame it.\n");
+        addPage("wiki", "miraculous", "butterfly", "kamikotization", "title", "Akumatization");
+        addPage("wiki", "miraculous", "butterfly", "kamikotized_communication", "text", "The Akumatized Communication ability can be activated by pressing the Activate Power button (default: O) with a akumatized player nearby.\nIt will cause a mask to appear on your face and the player's face and will allow you to see through their eyes.\nYou can then speak to the player or revoke their akumatization.\n");
+        addPage("wiki", "miraculous", "butterfly", "kamikotized_communication", "title", "Akumatized Communication");
+        addPage("wiki", "miraculous", "customization", "kamikotization", "text", "Akumatization looks can be customized in the 'kamikotizations' subfolder.\nYou can provide a custom texture, model, glowmask, and transforms with an id that is used in the command.\nThe only required file is the texture.\nIf only the texture is provided, it will use the default model.\n");
+        addPage("wiki", "miraculous", "customization", "kamikotization", "title", "Akumatization");
+        addPage("wiki", "miraculous", "ladybug", "purify", "text", "Purify mode allows you to catch and purify powered [Akumas](entry://flora_and_fauna/kamikos) with left click.\nYou can capture as many as you want and right click to release them all at once.\n");
     }
 
     private void addAdvancement(String category, String id, String suffix, String name) {
         add("advancement.mineraculous." + category + "." + id + "." + suffix, name);
     }
 
-    private void addModonomiconPage(String book, String category, String entry, String page, String suffix, String name) {
+    private void addPage(String book, String category, String entry, String page, String suffix, String name) {
         add("book.mineraculous." + book + "." + category + "." + entry + "." + page + "." + suffix, name);
     }
 
-    private void addModonomiconDescription(String book, String category, String name) {
+    private void addCategoryDescription(String book, String category, String name) {
         add("book.mineraculous." + book + "." + category + ".description", name);
+    }
+
+    private void addEntryDescription(String book, String category, String entry, String name) {
+        add("book.mineraculous." + book + "." + category + "." + entry + ".description", name);
+    }
+
+    private void addEntryName(String book, String category, String entry, String name) {
+        add("book.mineraculous." + book + "." + category + "." + entry + ".name", name);
     }
 
     @Override

@@ -1,0 +1,154 @@
+{
+  "background_u_index": 0,
+  "background_v_index": 0,
+  "category": "miraculous",
+  "description": "book.mineraculous.wiki.miraculous.ladybug.description",
+  "hide_while_locked": false,
+  "icon": {
+    "components": {
+      "mineraculous:miraculous": "mineraculous:ladybug"
+    },
+    "item": "mineraculous:miraculous"
+  },
+  "name": "book.mineraculous.wiki.miraculous.ladybug.name",
+  "pages": [
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/charging.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.ladybug.charging.text",
+      "title": "book.mineraculous.wiki.miraculous.ladybug.charging.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/yoyo/abilities.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.ladybug.yoyo_abilities.text",
+      "title": "book.mineraculous.wiki.miraculous.ladybug.yoyo_abilities.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/yoyo/attack.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.ladybug.attack.text",
+      "title": "book.mineraculous.wiki.miraculous.ladybug.attack.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.miraculous.ladybug.block.text",
+      "title": "book.mineraculous.wiki.miraculous.ladybug.block.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/yoyo/lasso.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.ladybug.lasso.text",
+      "title": "book.mineraculous.wiki.miraculous.ladybug.lasso.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/yoyo/purify.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.ladybug.purify.text",
+      "title": "book.mineraculous.wiki.miraculous.ladybug.purify.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/yoyo/travel.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.ladybug.travel.text",
+      "title": "book.mineraculous.wiki.miraculous.ladybug.travel.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.miraculous.ladybug.abilities.text",
+      "title": "book.mineraculous.wiki.miraculous.ladybug.abilities.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/abilities/lucky_charm.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.ladybug.lucky_charm.text",
+      "title": "book.mineraculous.wiki.miraculous.ladybug.lucky_charm.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/abilities/miraculous_ladybug.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.ladybug.miraculous_ladybug.text",
+      "title": "book.mineraculous.wiki.miraculous.ladybug.miraculous_ladybug.title",
+      "use_legacy_rendering": false
+    }
+  ],
+  "show_when_any_parent_unlocked": false,
+  "sort_number": 1,
+  "x": 0,
+  "y": 0
+}

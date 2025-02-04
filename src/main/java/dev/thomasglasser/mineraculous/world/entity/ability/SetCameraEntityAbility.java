@@ -55,6 +55,7 @@ public class SetCameraEntityAbility implements Ability {
     public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
         if (context == Context.PASSIVE) {
             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target.getId(), shader, toggleTag, true, overrideOwner), (ServerPlayer) entity);
+            target = null;
             playStartSound(level, pos);
             return true;
         }
@@ -76,6 +77,11 @@ public class SetCameraEntityAbility implements Ability {
             }
             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target != null ? target.getId() : -1, Optional.empty(), toggleTag, true, overrideOwner), serverPlayer);
         }
+        toggleTag.ifPresent(tag -> {
+            CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(performer);
+            entityData.putBoolean(tag, false);
+            TommyLibServices.ENTITY.setPersistentData(performer, entityData, true);
+        });
     }
 
     @Override

@@ -5,17 +5,20 @@ import com.klikli_dev.modonomicon.api.datagen.book.BookModel;
 import com.klikli_dev.modonomicon.book.BookDisplayMode;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.apis.ApisCategoryProvider;
-import dev.thomasglasser.mineraculous.data.modonomicons.wiki.cosmetics.CosmeticsCategoryProvider;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.decorations.DecorationsCategoryProvider;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.dependencies.DependenciesCategoryProvider;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.expansions.ExpansionsCategoryProvider;
+import dev.thomasglasser.mineraculous.data.modonomicons.wiki.floraandfauna.FloraAndFaunaCategoryProvider;
+import dev.thomasglasser.mineraculous.data.modonomicons.wiki.food.FoodCategoryProvider;
+import dev.thomasglasser.mineraculous.data.modonomicons.wiki.itemstealingandbreaking.ItemStealingAndBreakingCategoryProvider;
+import dev.thomasglasser.mineraculous.data.modonomicons.wiki.miraculous.MiraculousCategoryProvider;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.support.SupportCategoryProvider;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
 import java.util.function.BiConsumer;
 import net.minecraft.resources.ResourceLocation;
 
 public class WikiBookSubProvider extends SingleBookSubProvider {
-    public static final String ID = "wiki";
+    private static final String ID = "wiki";
 
     public WikiBookSubProvider(BiConsumer<String, String> lang) {
         super(ID, Mineraculous.MOD_ID, lang);
@@ -25,13 +28,11 @@ public class WikiBookSubProvider extends SingleBookSubProvider {
 
     @Override
     protected void generateCategories() {
-        // TODO
-        // Miraculous
-        // Item Stealing and Breaking
-        // Flora and Fauna
-        // Food
+        add(new MiraculousCategoryProvider(this).generate());
+        add(new ItemStealingAndBreakingCategoryProvider(this).generate());
+        add(new FloraAndFaunaCategoryProvider(this).generate());
+        add(new FoodCategoryProvider(this).generate());
         add(new DecorationsCategoryProvider(this).generate());
-        add(new CosmeticsCategoryProvider(this).generate());
         add(new ExpansionsCategoryProvider(this).generate());
         add(new DependenciesCategoryProvider(this).generate());
         add(new ApisCategoryProvider(this).generate());

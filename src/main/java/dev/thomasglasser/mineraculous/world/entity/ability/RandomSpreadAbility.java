@@ -25,7 +25,7 @@ public record RandomSpreadAbility(BlockState blockState, Optional<BlockPredicate
     public static final MapCodec<RandomSpreadAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             BlockState.CODEC.optionalFieldOf("state", Blocks.AIR.defaultBlockState()).forGetter(RandomSpreadAbility::blockState),
             BlockPredicate.CODEC.optionalFieldOf("valid_blocks").forGetter(RandomSpreadAbility::validBlocks),
-            BlockPredicate.CODEC.optionalFieldOf("immune_blocks").forGetter(RandomSpreadAbility::invalidBlocks),
+            BlockPredicate.CODEC.optionalFieldOf("invalid_blocks").forGetter(RandomSpreadAbility::invalidBlocks),
             SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(RandomSpreadAbility::startSound),
             Codec.BOOL.optionalFieldOf("override_active", false).forGetter(RandomSpreadAbility::overrideActive)).apply(instance, RandomSpreadAbility::new));
     @Override

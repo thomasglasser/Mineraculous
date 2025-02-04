@@ -6,7 +6,7 @@ import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import net.minecraft.world.item.Items;
 
 public class DecorationsCategoryProvider extends IndexModeCategoryProvider {
-    public static final String ID = "decorations";
+    private static final String ID = "decorations";
 
     public DecorationsCategoryProvider(ModonomiconProviderBase parent) {
         super(parent);

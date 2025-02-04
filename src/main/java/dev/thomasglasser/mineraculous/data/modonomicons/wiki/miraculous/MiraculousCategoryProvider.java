@@ -1,39 +1,40 @@
-package dev.thomasglasser.mineraculous.data.modonomicons.wiki.cosmetics;
+package dev.thomasglasser.mineraculous.data.modonomicons.wiki.miraculous;
 
 import com.klikli_dev.modonomicon.api.datagen.IndexModeCategoryProvider;
 import com.klikli_dev.modonomicon.api.datagen.ModonomiconProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 
-public class CosmeticsCategoryProvider extends IndexModeCategoryProvider {
-    public static final String ID = "cosmetics";
+public class MiraculousCategoryProvider extends IndexModeCategoryProvider {
+    private static final String ID = "miraculous";
 
-    public CosmeticsCategoryProvider(ModonomiconProviderBase parent) {
+    public MiraculousCategoryProvider(ModonomiconProviderBase parent) {
         super(parent);
     }
 
     @Override
     protected void generateEntries() {
-        // Miraculous looks
-        // Suit looks
-        // Kamikotization looks
+        add(new GeneralEntry(this).generate());
+        add(new LadybugEntry(this).generate());
+        add(new CatEntry(this).generate());
+        add(new ButterflyEntry(this).generate());
+        add(new CustomizationEntry(this).generate());
     }
 
     @Override
     protected String categoryName() {
-        return "Cosmetics";
+        return "Miraculous";
     }
 
     @Override
     protected String categoryDescription() {
-        return "Per-player customization for Miraculous and Kamikotizations.";
+        return "Magical jewels that provide amazing abilities";
     }
 
     @Override
     protected BookIconModel categoryIcon() {
-        return BookIconModel.create(Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.HEAD.get(), MineraculousMiraculous.LADYBUG));
+        return BookIconModel.create(Miraculous.createMiraculousStack(MineraculousMiraculous.LADYBUG));
     }
 
     @Override

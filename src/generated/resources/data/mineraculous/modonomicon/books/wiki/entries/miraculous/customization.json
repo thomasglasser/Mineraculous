@@ -1,0 +1,87 @@
+{
+  "background_u_index": 0,
+  "background_v_index": 0,
+  "category": "miraculous",
+  "description": "book.mineraculous.wiki.miraculous.customization.description",
+  "hide_while_locked": false,
+  "icon": {
+    "components": {
+      "mineraculous:miraculous": "mineraculous:ladybug"
+    },
+    "item": "mineraculous:miraculous_mask"
+  },
+  "name": "book.mineraculous.wiki.miraculous.customization.name",
+  "pages": [
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/customization/name.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.customization.name.text",
+      "title": "book.mineraculous.wiki.miraculous.customization.name.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.miraculous.customization.advanced.text",
+      "title": "book.mineraculous.wiki.miraculous.customization.advanced.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/customization/suit.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.customization.suit.text",
+      "title": "book.mineraculous.wiki.miraculous.customization.suit.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/customization/miraculous.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.customization.miraculous.text",
+      "title": "book.mineraculous.wiki.miraculous.customization.miraculous.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/customization/kamikotization.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.customization.kamikotization.text",
+      "title": "book.mineraculous.wiki.miraculous.customization.kamikotization.title",
+      "use_legacy_rendering": false
+    }
+  ],
+  "show_when_any_parent_unlocked": false,
+  "sort_number": 4,
+  "x": 0,
+  "y": 0
+}

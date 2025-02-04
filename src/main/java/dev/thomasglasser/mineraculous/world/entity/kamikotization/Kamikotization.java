@@ -22,9 +22,9 @@ public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Op
 
     public static final Codec<Kamikotization> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("default_name").forGetter(Kamikotization::defaultName),
-            ItemPredicate.CODEC.fieldOf("item_predicate").forGetter(Kamikotization::itemPredicate),
+            ItemPredicate.CODEC.optionalFieldOf("item_predicate", ItemPredicate.Builder.item().build()).forGetter(Kamikotization::itemPredicate),
             Ability.CODEC.optionalFieldOf("active_ability").forGetter(Kamikotization::activeAbility),
-            Ability.CODEC.listOf().fieldOf("passive_abilities").forGetter(Kamikotization::passiveAbilities)).apply(instance, Kamikotization::new));
+            Ability.CODEC.listOf().optionalFieldOf("passive_abilities", List.of()).forGetter(Kamikotization::passiveAbilities)).apply(instance, Kamikotization::new));
     public static Set<Holder<Kamikotization>> getFor(Player player) {
         Set<Holder<Kamikotization>> kamikotizations = new HashSet<>();
         for (Holder<Kamikotization> kamikotization : player.level().registryAccess().lookupOrThrow(MineraculousRegistries.KAMIKOTIZATION).listElements().toList()) {

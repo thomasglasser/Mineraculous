@@ -1,0 +1,140 @@
+{
+  "background_u_index": 0,
+  "background_v_index": 0,
+  "category": "miraculous",
+  "description": "book.mineraculous.wiki.miraculous.cat.description",
+  "hide_while_locked": false,
+  "icon": {
+    "components": {
+      "mineraculous:miraculous": "mineraculous:cat"
+    },
+    "item": "mineraculous:miraculous"
+  },
+  "name": "book.mineraculous.wiki.miraculous.cat.name",
+  "pages": [
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/cat/charging.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.cat.charging.text",
+      "title": "book.mineraculous.wiki.miraculous.cat.charging.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/cat/staff/abilities.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.cat.staff_abilities.text",
+      "title": "book.mineraculous.wiki.miraculous.cat.staff_abilities.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.miraculous.cat.block.text",
+      "title": "book.mineraculous.wiki.miraculous.cat.block.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/cat/staff/perch.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.cat.perch.text",
+      "title": "book.mineraculous.wiki.miraculous.cat.perch.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/cat/staff/throw.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.cat.throw.text",
+      "title": "book.mineraculous.wiki.miraculous.cat.throw.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/cat/staff/travel.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.cat.travel.text",
+      "title": "book.mineraculous.wiki.miraculous.cat.travel.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.miraculous.cat.abilities.text",
+      "title": "book.mineraculous.wiki.miraculous.cat.abilities.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/cat/abilities/cataclysm.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.cat.cataclysm.text",
+      "title": "book.mineraculous.wiki.miraculous.cat.cataclysm.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/cat/abilities/cat_vision.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculous.cat.cat_vision.text",
+      "title": "book.mineraculous.wiki.miraculous.cat.cat_vision.title",
+      "use_legacy_rendering": false
+    }
+  ],
+  "show_when_any_parent_unlocked": false,
+  "sort_number": 2,
+  "x": 0,
+  "y": 0
+}

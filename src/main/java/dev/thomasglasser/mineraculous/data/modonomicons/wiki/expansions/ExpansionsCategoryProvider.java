@@ -14,7 +14,7 @@ public class ExpansionsCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected void generateEntries() {
-        // Kamikotizations
+        add(new AkumatizationEntry(this).generate());
     }
 
     @Override

@@ -15,6 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
 
 public record DragAbility(Ability ability, int dragTicks, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
@@ -22,7 +23,7 @@ public record DragAbility(Ability ability, int dragTicks, Optional<Holder<SoundE
     public static final String DRAG_TICKS = "DragTicks";
     public static final MapCodec<DragAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Ability.DIRECT_CODEC.fieldOf("ability").forGetter(DragAbility::ability),
-            Codec.INT.optionalFieldOf("drag_ticks", 20).forGetter(DragAbility::dragTicks),
+            ExtraCodecs.POSITIVE_INT.optionalFieldOf("drag_ticks", 20).forGetter(DragAbility::dragTicks),
             SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(DragAbility::startSound),
             Codec.BOOL.optionalFieldOf("override_active", false).forGetter(DragAbility::overrideActive)).apply(instance, DragAbility::new));
     @Override

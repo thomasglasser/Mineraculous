@@ -4,7 +4,7 @@
     "type": "mineraculous:context_aware",
     "block": {
       "type": "mineraculous:random_spread",
-      "immune_blocks": {
+      "invalid_blocks": {
         "blocks": "#mineraculous:cataclysm_immune"
       },
       "start_sound": "mineraculous:cataclysm_use",

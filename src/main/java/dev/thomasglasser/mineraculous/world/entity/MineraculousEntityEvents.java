@@ -7,7 +7,6 @@ import dev.thomasglasser.mineraculous.advancements.critereon.KamikotizationUsePo
 import dev.thomasglasser.mineraculous.advancements.critereon.MiraculousUsePowerTrigger;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
-import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.network.ClientboundRefreshVipDataPayload;
@@ -20,8 +19,6 @@ import dev.thomasglasser.mineraculous.network.ClientboundSyncSuitLookPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestMiraculousDataSetSyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetKamikotizationPowerActivatedPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundStealCuriosPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundStealItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
@@ -106,7 +103,6 @@ import net.neoforged.neoforge.event.level.BlockDropsEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import net.neoforged.neoforge.event.village.VillagerTradesEvent;
-import top.theillusivec4.curios.common.inventory.CurioSlot;
 
 public class MineraculousEntityEvents {
     public static final String TAG_WAIT_TICKS = "WaitTicks";
@@ -184,15 +180,7 @@ public class MineraculousEntityEvents {
                         }
                         if (takeTicks > (20 * MineraculousServerConfig.get().stealingDuration.get())) {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
-                            ClientUtils.setScreen(new ExternalCuriosInventoryScreen(target, true, ((slot, target1, menu) -> {
-                                if (slot instanceof CurioSlot curioSlot)
-                                    TommyLibServices.NETWORK.sendToServer(new ServerboundStealCuriosPayload(target1.getUUID(), new CuriosData(curioSlot.getSlotIndex(), curioSlot.getIdentifier())));
-                                else
-                                    TommyLibServices.NETWORK.sendToServer(new ServerboundStealItemPayload(target1.getUUID(), menu.slots.indexOf(slot)));
-                            }), exit -> {
-                                TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
-                                TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(player.getUUID()));
-                            }));
+                            MineraculousClientUtils.openExternalCuriosInventoryScreen(target, player);
                             entityData.putInt(MineraculousEntityEvents.TAG_TAKE_TICKS, 0);
                         }
                         TommyLibServices.ENTITY.setPersistentData(player, entityData, false);

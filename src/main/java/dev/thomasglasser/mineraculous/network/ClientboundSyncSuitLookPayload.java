@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.network;
 
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.platform.NativeImage;
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -46,12 +44,12 @@ public record ClientboundSyncSuitLookPayload(UUID targetId, FlattenedSuitLookDat
             if (data.model().isPresent())
                 model = BakedModelFactory.getForNamespace(Mineraculous.MOD_ID).constructGeoModel(GeometryTree.fromModel(KeyFramesAdapter.GEO_GSON.fromJson(GsonHelper.fromJson(KeyFramesAdapter.GEO_GSON, data.model().get(), JsonObject.class), Model.class)));
             ResourceLocation texture = Mineraculous.modLoc("textures/miraculouslooks/suits/" + target.getStringUUID() + "/" + data.miraculous().location().getNamespace() + "/" + data.miraculous().location().getPath() + "/" + data.look() + ".png");
-            Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(NativeImage.read(data.pixels())));
+            MineraculousClientUtils.registerDynamicTexture(texture, data.pixels());
             List<ResourceLocation> frames = new ArrayList<>();
             for (int i = 0; i < data.frames().size(); i++) {
                 ResourceLocation frame = Mineraculous.modLoc("textures/miraculouslooks/suits/" + target.getStringUUID() + "/" + data.miraculous().location().getNamespace() + "/" + data.miraculous().location().getPath() + "/" + data.look() + "_" + (i + 1) + ".png");
                 frames.add(frame);
-                Minecraft.getInstance().getTextureManager().register(frame, new DynamicTexture(NativeImage.read(data.frames().get(i))));
+                MineraculousClientUtils.registerDynamicTexture(frame, data.frames().get(i));
             }
             target.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).put(data.miraculous(), data.look(), new SuitLookData(Optional.ofNullable(model), texture, data.glowmaskPixels(), frames, data.glowmaskFrames()));
             if (override) {

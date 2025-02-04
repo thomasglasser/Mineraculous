@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.network;
 
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.platform.NativeImage;
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
@@ -10,10 +10,8 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousLookData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.Optional;
 import java.util.UUID;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -46,7 +44,7 @@ public record ClientboundSyncMiraculousLookPayload(UUID targetId, FlattenedMirac
             if (data.model().isPresent())
                 model = BakedModelFactory.getForNamespace(Mineraculous.MOD_ID).constructGeoModel(GeometryTree.fromModel(KeyFramesAdapter.GEO_GSON.fromJson(GsonHelper.fromJson(KeyFramesAdapter.GEO_GSON, data.model().get(), JsonObject.class), Model.class)));
             ResourceLocation texture = Mineraculous.modLoc("textures/miraculouslooks/miraculous" + target.getStringUUID() + "/" + data.miraculous().location().getNamespace() + "/" + data.miraculous().location().getPath() + "/" + data.look() + ".png");
-            Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(NativeImage.read(data.pixels())));
+            MineraculousClientUtils.registerDynamicTexture(texture, data.pixels());
             ItemTransforms transforms = null;
             if (data.transforms().isPresent())
                 transforms = BlockModel.fromString(data.transforms().get()).getTransforms();

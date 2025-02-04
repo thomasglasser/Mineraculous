@@ -65,7 +65,6 @@ public class Mineraculous {
         MineraculousArmors.init();
         MineraculousCreativeModeTabs.init();
         MineraculousEntityTypes.init();
-        MineraculousKeyMappings.init();
         MineraculousPayloads.init();
         MineraculousParticleTypes.init();
         MineraculousBlocks.init();
@@ -86,9 +85,12 @@ public class Mineraculous {
         MineraculousLootItemConditions.init();
         MineraculousLootContextParamSets.init();
 
-        registerConfigs(modContainer);
+        if (TommyLibServices.PLATFORM.isClientSide()) {
+            MineraculousKeyMappings.init();
+            MineraculousClientUtils.init();
+        }
 
-        if (TommyLibServices.PLATFORM.isClientSide()) MineraculousClientUtils.init();
+        registerConfigs(modContainer);
 
         bus.addListener(MineraculousDataGenerators::onGatherData);
 
@@ -149,7 +151,7 @@ public class Mineraculous {
     private static void registerConfigs(ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.SERVER, MineraculousServerConfig.get().getConfigSpec());
         modContainer.registerConfig(ModConfig.Type.CLIENT, MineraculousClientConfig.get().getConfigSpec());
-        modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+        if (FMLEnvironment.dist.isClient()) modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
     }
 
     public static ResourceLocation modLoc(String s) {

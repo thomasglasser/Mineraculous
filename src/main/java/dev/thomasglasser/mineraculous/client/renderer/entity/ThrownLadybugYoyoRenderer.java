@@ -152,7 +152,7 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
 
         Vec3 segmentThinkness = fromPOVToRope.cross(fromP1ToPOV);
         segmentThinkness = segmentThinkness.scale(1 / segmentThinkness.length());
-        segmentThinkness = segmentThinkness.scale(0.02d); //0.02 is the thinkness, TODO make it configurable maybe.
+        segmentThinkness = segmentThinkness.scale(0.02d); //0.02 is the thickness
         return segmentThinkness;
     }
 }

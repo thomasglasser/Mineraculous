@@ -1,0 +1,61 @@
+{
+  "background_u_index": 0,
+  "background_v_index": 0,
+  "category": "apis",
+  "description": "book.mineraculous.wiki.apis.tags.description",
+  "hide_while_locked": false,
+  "icon": {
+    "item": "mineraculous:fresh_wedge_of_camembert"
+  },
+  "name": "book.mineraculous.wiki.apis.tags.name",
+  "pages": [
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.tags.generator.text",
+      "title": "book.mineraculous.wiki.apis.tags.generator.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.tags.block.text",
+      "title": "book.mineraculous.wiki.apis.tags.block.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.tags.item.text",
+      "title": "book.mineraculous.wiki.apis.tags.item.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.tags.damage_type.text",
+      "title": "book.mineraculous.wiki.apis.tags.damage_type.title",
+      "use_markdown_in_title": false
+    }
+  ],
+  "show_when_any_parent_unlocked": false,
+  "sort_number": 5,
+  "x": 0,
+  "y": 0
+}

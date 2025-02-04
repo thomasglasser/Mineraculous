@@ -5,7 +5,7 @@ import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.NightVisionAbility;
+import dev.thomasglasser.mineraculous.world.entity.ability.NightVisionAbility;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.client.Minecraft;
@@ -35,7 +35,7 @@ public abstract class MinecraftMixin {
     private void handleKeybinds(CallbackInfo ci) {
         if (Minecraft.getInstance().gameRenderer.postEffect == null) {
             CompoundTag data = TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer());
-            if (data.getBoolean(MineraculousEntityEvents.TAG_HASNIGHTVISION)) {
+            if (data.getBoolean(MineraculousEntityEvents.TAG_HAS_NIGHT_VISION)) {
                 ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed(ClientUtils.getLevel().registryAccess()).forEach(type -> {
                     if (type.activeAbility().isPresent() && type.activeAbility().get().value() instanceof NightVisionAbility nightVisionAbility && nightVisionAbility.shader().isPresent()) {
                         MineraculousClientUtils.setShader(nightVisionAbility.shader().get());

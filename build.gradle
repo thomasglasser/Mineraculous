@@ -68,7 +68,7 @@ repositories {
 		forRepository {
 			maven {
 				name = 'Curios'
-				url = "https://maven.octo-studios.com/releases"
+				url = "https://maven.theillusivec4.top/"
 			}
 		}
 		filter { includeGroupAndSubgroups 'top.theillusivec4.curios' }
@@ -186,10 +186,19 @@ processResources {
 			"java_version": java_version,
 			"icon": icon,
 			"github_name": github_name,
-			"tommylib_version": tommylib_version
+			"resource_pack_version": resource_pack_version,
+			"data_pack_version": data_pack_version,
+			"tommylib_version": tommylib_version,
+			"geckolib_version": geckolib_version,
+			"smartbrainlib_version": smartbrainlib_version,
+			"curios_version": curios_version,
+			"trimmed_version": trimmed_version,
+			"lithostitched_version": lithostitched_version,
+			"jei_version": jei_version,
+			"modonomicon_version": modonomicon_version,
 	]
 
-	filesMatching(['META-INF/neoforge.mods.toml', '*.mixins.json']) {
+	filesMatching(['META-INF/neoforge.mods.toml', '*.mixins.json', '**/pack.mcmeta']) {
 		expand expandProps
 	}
 	inputs.properties(expandProps)

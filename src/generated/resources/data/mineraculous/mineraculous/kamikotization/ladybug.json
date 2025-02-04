@@ -1,6 +1,5 @@
 {
   "default_name": "Bugaboo",
-  "item_predicate": {},
   "passive_abilities": [
     "mineraculous:cat_vision",
     "mineraculous:kamikotized_communication"

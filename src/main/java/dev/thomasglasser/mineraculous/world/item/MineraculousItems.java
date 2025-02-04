@@ -54,14 +54,14 @@ public class MineraculousItems {
     private static SortedMap<CheeseBlock.Age, DeferredItem<?>> wedges(String name, FoodProperties foodProperties, Supplier<SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>>> blocks) {
         SortedMap<CheeseBlock.Age, DeferredItem<?>> cheese = new Object2ObjectLinkedOpenHashMap<>(CheeseBlock.Age.values().length);
         for (CheeseBlock.Age age : CheeseBlock.Age.values())
-            cheese.put(age, register(age.getSerializedName() + "_wedge_of_" + name, () -> new ItemNameBlockStateItem(blocks.get().get(age).get().defaultBlockState().setValue(CheeseBlock.BITES, CheeseBlock.MAX_BITES), new Item.Properties().food(foodProperties))));
+            cheese.put(age, register(age.getSerializedName() + "_wedge_of_" + name, () -> new ItemNameBlockStateItem(blocks.get().get(age).get().defaultBlockState().setValue(CheeseBlock.BITES, CheeseBlock.MAX_BITES), new Item.Properties().stacksTo(16).food(foodProperties))));
         return cheese;
     }
 
     private static SortedMap<CheeseBlock.Age, DeferredItem<?>> waxedWedges(String name, Supplier<SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>>> blocks) {
         SortedMap<CheeseBlock.Age, DeferredItem<?>> cheese = new Object2ObjectLinkedOpenHashMap<>(CheeseBlock.Age.values().length);
         for (CheeseBlock.Age age : CheeseBlock.Age.values())
-            cheese.put(age, register("waxed_" + age.getSerializedName() + "_wedge_of_" + name, () -> new ItemNameBlockStateItem(blocks.get().get(age).get().defaultBlockState().setValue(CheeseBlock.BITES, CheeseBlock.MAX_BITES), new Item.Properties())));
+            cheese.put(age, register("waxed_" + age.getSerializedName() + "_wedge_of_" + name, () -> new ItemNameBlockStateItem(blocks.get().get(age).get().defaultBlockState().setValue(CheeseBlock.BITES, CheeseBlock.MAX_BITES), new Item.Properties().stacksTo(16))));
         return cheese;
     }
 

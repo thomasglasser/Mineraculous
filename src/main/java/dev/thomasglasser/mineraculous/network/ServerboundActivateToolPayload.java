@@ -20,16 +20,23 @@ import net.minecraft.world.item.ItemStack;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 
-public record ServerboundActivateToolPayload(boolean activate, InteractionHand hand, String controller, String animation, Optional<Holder<SoundEvent>> sound) implements ExtendedPacketPayload {
+public record ServerboundActivateToolPayload(boolean activate, InteractionHand hand, Optional<String> controller, Optional<String> animation, Optional<Holder<SoundEvent>> sound) implements ExtendedPacketPayload {
 
     public static final Type<ServerboundActivateToolPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_activate_tool"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundActivateToolPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL, ServerboundActivateToolPayload::activate,
             NetworkUtils.enumCodec(InteractionHand.class), ServerboundActivateToolPayload::hand,
-            ByteBufCodecs.STRING_UTF8, ServerboundActivateToolPayload::controller,
-            ByteBufCodecs.STRING_UTF8, ServerboundActivateToolPayload::animation,
+            ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), ServerboundActivateToolPayload::controller,
+            ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), ServerboundActivateToolPayload::animation,
             ByteBufCodecs.optional(SoundEvent.STREAM_CODEC), ServerboundActivateToolPayload::sound,
             ServerboundActivateToolPayload::new);
+    public ServerboundActivateToolPayload(boolean activate, InteractionHand hand, String controller, String animation, Holder<SoundEvent> sound) {
+        this(activate, hand, Optional.of(controller), Optional.of(animation), Optional.of(sound));
+    }
+
+    public ServerboundActivateToolPayload(boolean activate, InteractionHand hand) {
+        this(activate, hand, Optional.empty(), Optional.empty(), Optional.empty());
+    }
 
     // ON SERVER
     @Override
@@ -40,7 +47,8 @@ public record ServerboundActivateToolPayload(boolean activate, InteractionHand h
         } else {
             itemInHand.remove(MineraculousDataComponents.ACTIVE.get());
         }
-        ((SingletonGeoAnimatable) itemInHand.getItem()).triggerAnim(player, GeoItem.getOrAssignId(itemInHand, (ServerLevel) player.level()), controller, animation);
+        if (controller.isPresent() && animation.isPresent())
+            ((SingletonGeoAnimatable) itemInHand.getItem()).triggerAnim(player, GeoItem.getOrAssignId(itemInHand, (ServerLevel) player.level()), controller.get(), animation.get());
         sound.ifPresent(holder -> player.level().playSound(null, player.getX(), player.getY() + 1, player.getZ(), holder.value(), SoundSource.PLAYERS, 1.0F, 1.0F));
         player.setItemInHand(hand, itemInHand);
     }

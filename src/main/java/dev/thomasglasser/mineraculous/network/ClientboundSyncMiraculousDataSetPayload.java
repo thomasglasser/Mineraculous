@@ -7,7 +7,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
 public record ClientboundSyncMiraculousDataSetPayload(MiraculousDataSet miraculousDataSet, int entity) implements ExtendedPacketPayload {
@@ -20,8 +20,9 @@ public record ClientboundSyncMiraculousDataSetPayload(MiraculousDataSet miraculo
     // ON CLIENT
     @Override
     public void handle(Player player) {
-        if (player.level().getEntity(entity) instanceof LivingEntity livingEntity)
-            miraculousDataSet.save(livingEntity, false);
+        Entity e = player.level().getEntity(entity);
+        if (e != null)
+            miraculousDataSet.save(e, false);
     }
 
     @Override

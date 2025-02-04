@@ -1,0 +1,53 @@
+{
+  "background_u_index": 0,
+  "background_v_index": 0,
+  "category": "apis",
+  "description": "book.mineraculous.wiki.apis.miraculous.description",
+  "hide_while_locked": false,
+  "icon": {
+    "components": {
+      "mineraculous:miraculous": "mineraculous:cat"
+    },
+    "item": "mineraculous:miraculous"
+  },
+  "name": "book.mineraculous.wiki.apis.miraculous.name",
+  "pages": [
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.miraculous.generator.text",
+      "title": "book.mineraculous.wiki.apis.miraculous.generator.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.miraculous.fields.text",
+      "title": "book.mineraculous.wiki.apis.miraculous.fields.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.miraculous.example.text",
+      "title": "book.mineraculous.wiki.apis.miraculous.example.title",
+      "use_markdown_in_title": false
+    }
+  ],
+  "show_when_any_parent_unlocked": false,
+  "sort_number": 1,
+  "x": 0,
+  "y": 0
+}

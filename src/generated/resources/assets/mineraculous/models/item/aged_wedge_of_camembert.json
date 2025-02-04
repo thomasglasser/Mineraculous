@@ -1,3 +1,6 @@
 {
-  "parent": "mineraculous:block/aged_camembert_block_slice3"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "mineraculous:item/aged_wedge_of_camembert"
+  }
 }

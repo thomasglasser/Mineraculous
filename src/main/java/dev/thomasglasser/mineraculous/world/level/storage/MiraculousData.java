@@ -3,16 +3,19 @@ package dev.thomasglasser.mineraculous.world.level.storage;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.tommylib.api.network.NetworkUtils;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ResolvableProfile;
 
 public record MiraculousData(boolean transformed, ItemStack miraculousItem, CuriosData curiosData, int toolId, int powerLevel, boolean mainPowerActivated, boolean mainPowerActive, String name, String miraculousLook, String suitLook, CompoundTag extraData) {
 
@@ -59,23 +62,28 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
     }
 
     public MiraculousData() {
-        this(false, ItemStack.EMPTY, new CuriosData(), 0, 0, false, false, "", "", "", new CompoundTag());
+        this(false, ItemStack.EMPTY, CuriosData.EMPTY, 0, 0, false, false, "", "", "", new CompoundTag());
     }
 
     public boolean hasLimitedPower() {
-        return powerLevel < 100;
+        return MineraculousServerConfig.get().enableLimitedPower.get() && powerLevel < 100;
+    }
+
+    public boolean usedLimitedPower() {
+        return mainPowerActivated() && hasLimitedPower();
     }
 
     public boolean shouldCountDown() {
-        return hasLimitedPower() && mainPowerActivated();
+        return MineraculousServerConfig.get().enableMiraculousTimer.get() && usedLimitedPower();
     }
 
-    public ItemStack createTool(ServerLevel level) {
+    public ItemStack createTool(ServerPlayer player) {
         ResourceKey<Miraculous> key = miraculousItem().get(MineraculousDataComponents.MIRACULOUS);
         if (key != null) {
-            Miraculous miraculous = level.holderOrThrow(key).value();
+            Miraculous miraculous = player.level().holderOrThrow(key).value();
             if (miraculous.tool().isPresent()) {
                 ItemStack tool = miraculous.tool().get();
+                tool.set(DataComponents.PROFILE, new ResolvableProfile(player.getGameProfile()));
                 tool.set(MineraculousDataComponents.KWAMI_DATA.get(), miraculousItem().get(MineraculousDataComponents.KWAMI_DATA.get()));
                 tool.set(MineraculousDataComponents.TOOL_ID.get(), toolId());
                 return tool;
@@ -89,7 +97,7 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
     }
 
     public MiraculousData unEquip() {
-        return new MiraculousData(transformed, ItemStack.EMPTY, new CuriosData(-1, ""), toolId, powerLevel, false, false, name, miraculousLook, suitLook, extraData);
+        return new MiraculousData(transformed, ItemStack.EMPTY, CuriosData.EMPTY, toolId, powerLevel, false, false, name, miraculousLook, suitLook, extraData);
     }
 
     public MiraculousData transform(boolean transformed, ItemStack miraculousItem, int toolId) {
@@ -97,6 +105,10 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
     }
 
     public MiraculousData withItem(ItemStack miraculousItem) {
+        return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, mainPowerActivated, mainPowerActive, name, miraculousLook, suitLook, extraData);
+    }
+
+    public MiraculousData withCuriosData(CuriosData curiosData) {
         return new MiraculousData(transformed, miraculousItem, curiosData, toolId, powerLevel, mainPowerActivated, mainPowerActive, name, miraculousLook, suitLook, extraData);
     }
 

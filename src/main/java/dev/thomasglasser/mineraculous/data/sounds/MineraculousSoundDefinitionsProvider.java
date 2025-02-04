@@ -17,6 +17,8 @@ public class MineraculousSoundDefinitionsProvider extends ExtendedSoundDefinitio
         add(MineraculousSoundEvents.CATACLYSM_USE);
         add(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE);
         add(MineraculousSoundEvents.KAMIKOTIZATION_USE);
+        add(MineraculousSoundEvents.LUCKY_CHARM_ACTIVATE);
+        add(MineraculousSoundEvents.MIRACULOUS_LADYBUG_ACTIVATE);
 
         add(MineraculousSoundEvents.GENERIC_SHIELD);
         add(MineraculousSoundEvents.LADYBUG_YOYO_SHIELD);
@@ -35,5 +37,6 @@ public class MineraculousSoundDefinitionsProvider extends ExtendedSoundDefinitio
         add(MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM);
 
         add(MineraculousSoundEvents.KWAMI_HUNGRY);
+        add(MineraculousSoundEvents.KWAMI_SUMMON);
     }
 }

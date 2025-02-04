@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.client.particle;
 
-import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
@@ -12,10 +11,7 @@ import net.minecraft.core.particles.SimpleParticleType;
 public class HoveringOrbParticle extends TextureSheetParticle {
     public HoveringOrbParticle(ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
         super(pLevel, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed);
-        if (MineraculousClientUtils.isFirstPerson())
-            scale(0.1f);
-        else
-            scale(0.3f);
+        scale(pLevel.random.nextInt(1, 2) / 10.0F);
         this.friction = 0.96F;
         this.speedUpWhenYMotionIsBlocked = true;
         this.xd *= 0.1F;

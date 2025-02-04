@@ -2,9 +2,9 @@ package dev.thomasglasser.mineraculous.core.registries;
 
 import com.mojang.serialization.MapCodec;
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 

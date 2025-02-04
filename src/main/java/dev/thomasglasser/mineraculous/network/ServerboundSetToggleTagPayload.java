@@ -32,7 +32,7 @@ public record ServerboundSetToggleTagPayload(Optional<Integer> target, String ta
         CompoundTag compoundTag = TommyLibServices.ENTITY.getPersistentData(entity);
         compoundTag.putBoolean(tag, show);
         compoundTag.putBoolean(MineraculousEntityEvents.TAG_CAMERA_CONTROL_INTERRUPTED, false);
-        compoundTag.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+        compoundTag.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
         TommyLibServices.ENTITY.setPersistentData(entity, compoundTag, true);
     }
 

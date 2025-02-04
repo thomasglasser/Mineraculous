@@ -96,11 +96,27 @@
 					]
 				},
 				{
+					"name": "right_hand",
+					"parent": "right_arm",
+					"pivot": [-1.8, 4.05, 0],
+					"cubes": [
+						{"origin": [-1.8, 4.05, 0], "size": [0, 0, 0], "uv": [4, 2]}
+					]
+				},
+				{
 					"name": "left_arm",
 					"parent": "all",
 					"pivot": [0.8, 5.05, 0],
 					"cubes": [
 						{"origin": [0.55, 4.05, -0.5], "size": [2, 1, 1], "inflate": -0.15, "pivot": [1.55, 4.8, 0], "rotation": [0, 0, 45], "uv": [10, 8], "mirror": true}
+					]
+				},
+				{
+					"name": "left_hand",
+					"parent": "left_arm",
+					"pivot": [1.95, 4.05, 0],
+					"cubes": [
+						{"origin": [1.95, 4.05, 0], "size": [0, 0, 0], "uv": [4, 2]}
 					]
 				}
 			]

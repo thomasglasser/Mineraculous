@@ -14,12 +14,14 @@ import dev.thomasglasser.mineraculous.network.ServerboundSetMiraculousPowerActiv
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
+import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideData;
+import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -31,6 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -85,9 +88,9 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
         if (level instanceof ServerLevel serverLevel) {
+            KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA.get());
             if (entity instanceof Player player && (!stack.has(DataComponents.PROFILE) || !stack.get(DataComponents.PROFILE).gameProfile().equals(player.getGameProfile()))) {
                 stack.set(DataComponents.PROFILE, new ResolvableProfile(player.getGameProfile()));
-                KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
                 if (kwamiData != null) {
                     Entity e = serverLevel.getEntity(kwamiData.uuid());
                     if (e instanceof Kwami kwami) {
@@ -100,14 +103,27 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
             if (!stack.has(MineraculousDataComponents.POWERED.get()) && !stack.has(MineraculousDataComponents.KWAMI_DATA.get())) {
                 stack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
             }
+            if (kwamiData != null) {
+                ChargeOverrideData overrideData = ((ChargeOverrideDataHolder) serverLevel.getServer().overworld()).mineraculous$getChargeOverrideData();
+                if (overrideData.has(kwamiData.uuid())) {
+                    Entity e = serverLevel.getEntity(kwamiData.uuid());
+                    if (e instanceof Kwami kwami) {
+                        kwami.setCharged(overrideData.get(kwamiData.uuid()));
+                        overrideData.remove(kwamiData.uuid());
+                    }
+                }
+            }
+            if (slotId != -1 && stack.has(MineraculousDataComponents.REMAINING_TICKS)) {
+                stack.remove(MineraculousDataComponents.REMAINING_TICKS);
+            }
         } else {
             if (ClientUtils.getMainClientPlayer() == entity && (isSelected || slotId == Inventory.SLOT_OFFHAND)) {
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
-                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
+                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
                 if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && !MineraculousClientUtils.isCameraEntityOther()) {
                     if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown()) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(slotId));
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     }
                 }
                 TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
@@ -136,20 +152,21 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     @Override
     public void curioTick(SlotContext slotContext, ItemStack stack) {
         LivingEntity entity = slotContext.entity();
-        ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-        if (entity instanceof Player player && miraculous != null && player.level().holderOrThrow(miraculous).value().acceptableSlot().equals(slotContext.identifier())) {
-            MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(miraculous);
+        ResourceKey<Miraculous> miraculousKey = stack.get(MineraculousDataComponents.MIRACULOUS);
+        if (entity instanceof Player player && miraculousKey != null && player.level().holderOrThrow(miraculousKey).value().acceptableSlot().equals(slotContext.identifier())) {
+            MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(miraculousKey);
             if (data.transformed()) {
                 if (player.level() instanceof ServerLevel serverLevel) {
+                    ServerPlayer serverPlayer = (ServerPlayer) player;
                     Integer transformationFrames = stack.get(MineraculousDataComponents.TRANSFORMATION_FRAMES);
                     if (transformationFrames != null && transformationFrames >= 1 && player.tickCount % 2 == 0) {
                         if (transformationFrames <= 1) {
                             stack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, null);
                             entity.getArmorSlots().forEach(armorStack -> armorStack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, null));
-                            ItemStack tool = data.createTool(serverLevel);
+                            ItemStack tool = data.createTool(serverPlayer);
                             if (!tool.isEmpty()) {
-                                if (player.level().holderOrThrow(miraculous).value().toolSlot().isPresent()) {
-                                    boolean added = CuriosUtils.setStackInFirstValidSlot(player, player.level().holderOrThrow(miraculous).value().toolSlot().get(), tool, true);
+                                if (serverLevel.holderOrThrow(miraculousKey).value().toolSlot().isPresent()) {
+                                    boolean added = CuriosUtils.setStackInFirstValidSlot(player, serverLevel.holderOrThrow(miraculousKey).value().toolSlot().get(), tool, true);
                                     if (!added) {
                                         player.addItem(tool);
                                     }
@@ -164,8 +181,43 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                         }
                     }
                     if (data.shouldCountDown() && stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) <= 0) {
-                        MineraculousEntityEvents.handleMiraculousTransformation((ServerPlayer) player, miraculous, data, false, false);
-                        serverLevel.playSound(null, player, serverLevel.holderOrThrow(miraculous).value().timerEndSound().value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                        MineraculousEntityEvents.handleMiraculousTransformation((ServerPlayer) player, miraculousKey, data, false, false, false);
+                        serverLevel.playSound(null, player, serverLevel.holderOrThrow(miraculousKey).value().timerEndSound().value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                    }
+                    AtomicBoolean overrideActive = new AtomicBoolean(false);
+                    AbilityData abilityData = new AbilityData(data.powerLevel(), Either.left(miraculousKey));
+                    Miraculous miraculous = entity.level().holderOrThrow(miraculousKey).value();
+                    miraculous.passiveAbilities().stream().map(Holder::value).forEach(ability -> {
+                        if (ability.canActivate(abilityData, serverLevel, player.blockPosition(), player) && ability.perform(abilityData, serverLevel, player.blockPosition(), player, Ability.Context.PASSIVE) && ability.overrideActive())
+                            overrideActive.set(true);
+                    });
+                    if (!entity.getMainHandItem().isEmpty()) {
+                        miraculous.passiveAbilities().stream().map(Holder::value).forEach(ability -> {
+                            if (ability.canActivate(abilityData, serverLevel, player.blockPosition(), player) && ability.perform(abilityData, serverLevel, player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem())) && ability.overrideActive())
+                                overrideActive.set(true);
+                        });
+                        if (data.mainPowerActive()) {
+                            if (overrideActive.get()) {
+                                entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculousKey, data.withPowerStatus(false, false), true);
+                            } else {
+                                boolean usedPower = miraculous.activeAbility().get().value().perform(abilityData, serverLevel, player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem()));
+                                if (usedPower) {
+                                    entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculousKey, data.withUsedPower(), true);
+                                    MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, miraculousKey, MiraculousUsePowerTrigger.Context.ITEM);
+                                }
+                            }
+                        }
+                    }
+                    if (data.mainPowerActive()) {
+                        if (overrideActive.get()) {
+                            entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculousKey, data.withPowerStatus(false, false), true);
+                        } else {
+                            boolean usedPower = miraculous.activeAbility().get().value().perform(abilityData, serverLevel, player.blockPosition(), player, Ability.Context.PASSIVE);
+                            if (usedPower) {
+                                entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculousKey, data.withUsedPower(), true);
+                                MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, miraculousKey, MiraculousUsePowerTrigger.Context.ITEM);
+                            }
+                        }
                     }
                 }
                 if (data.shouldCountDown()) {
@@ -176,46 +228,9 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                     int i = (int) minute - 1;
                     float every = (second <= 10 ? 0.25F : i < 1 ? 1F : (i * 2));
                     if (ticks > 1 && (second % every) == (i > 0 ? 1 : 0))
-                        slotContext.entity().level().playSound(null, player, slotContext.entity().level().holderOrThrow(miraculous).value().timerBeepSound().value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                        slotContext.entity().level().playSound(null, player, slotContext.entity().level().holderOrThrow(miraculousKey).value().timerBeepSound().value(), SoundSource.PLAYERS, 1.0F, 1.0F);
                 } else if (stack.has(MineraculousDataComponents.REMAINING_TICKS))
                     stack.remove(MineraculousDataComponents.REMAINING_TICKS);
-                AtomicBoolean overrideActive = new AtomicBoolean(false);
-                entity.level().holderOrThrow(miraculous).value().passiveAbilities().forEach(ability -> {
-                    if (ability.value().perform(new AbilityData(data.powerLevel(), Either.left(miraculous)), player.level(), player.blockPosition(), player, Ability.Context.PASSIVE) && ability.value().overrideActive())
-                        overrideActive.set(true);
-                });
-                if (!entity.getMainHandItem().isEmpty()) {
-                    entity.level().holderOrThrow(miraculous).value().passiveAbilities().forEach(ability -> {
-                        if (ability.value().perform(new AbilityData(data.powerLevel(), Either.left(miraculous)), player.level(), player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem())) && ability.value().overrideActive())
-                            overrideActive.set(true);
-                    });
-                    if (data.mainPowerActive()) {
-                        if (overrideActive.get()) {
-                            entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculous, data.withPowerStatus(false, false), true);
-                        } else {
-                            boolean usedPower = entity.level().holderOrThrow(miraculous).value().activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(miraculous)), player.level(), player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem()));
-                            if (usedPower) {
-                                entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculous, data.withUsedPower(), true);
-                                if (entity instanceof ServerPlayer serverPlayer) {
-                                    MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, miraculous, MiraculousUsePowerTrigger.Context.ITEM);
-                                }
-                            }
-                        }
-                    }
-                }
-                if (data.mainPowerActive()) {
-                    if (overrideActive.get()) {
-                        entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculous, data.withPowerStatus(false, false), true);
-                    } else {
-                        boolean usedPower = entity.level().holderOrThrow(miraculous).value().activeAbility().get().value().perform(new AbilityData(data.powerLevel(), Either.left(miraculous)), player.level(), player.blockPosition(), player, Ability.Context.PASSIVE);
-                        if (usedPower) {
-                            entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculous, data.withUsedPower(), true);
-                            if (entity instanceof ServerPlayer serverPlayer) {
-                                MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, miraculous, MiraculousUsePowerTrigger.Context.ITEM);
-                            }
-                        }
-                    }
-                }
             } else {
                 if (!player.level().isClientSide()) {
                     Integer detransformationFrames = stack.get(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
@@ -239,21 +254,21 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
             }
             if (entity.level().isClientSide && ClientUtils.getMainClientPlayer() == player) {
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
-                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAITTICKS);
+                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
                 if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && !MineraculousClientUtils.isCameraEntityOther()) {
                     if (MineraculousKeyMappings.TRANSFORM.get().isDown()) {
                         if (data.transformed()) {
-                            TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, data, false, false));
+                            TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculousKey, data, false, false));
                         } else {
-                            TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, data, true, false));
+                            TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculousKey, data, true, false));
                         }
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
-                    } else if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown() && data.transformed() && !data.mainPowerActive() && !data.shouldCountDown() && slotContext.entity().level().holderOrThrow(miraculous).value().activeAbility().isPresent()) {
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousPowerActivatedPayload(miraculous));
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
+                    } else if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown() && data.transformed() && !data.mainPowerActive() && !data.usedLimitedPower() && slotContext.entity().level().holderOrThrow(miraculousKey).value().activeAbility().isPresent()) {
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousPowerActivatedPayload(miraculousKey));
+                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown() && player.getMainHandItem().isEmpty()) {
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundPutToolInHandPayload(miraculous));
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundPutToolInHandPayload(miraculousKey));
+                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     }
                 }
                 TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
@@ -282,12 +297,16 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     @Override
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
         LivingEntity entity = slotContext.entity();
-        if (entity.level() instanceof ServerLevel && entity instanceof Player && !(stack.is(newStack.getItem()) && stack.get(MineraculousDataComponents.MIRACULOUS) == newStack.get(MineraculousDataComponents.MIRACULOUS))) {
+        ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+        if (entity instanceof ServerPlayer serverPlayer && !(stack.is(newStack.getItem()) && miraculous == newStack.get(MineraculousDataComponents.MIRACULOUS))) {
             MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS);
-            MiraculousData data = miraculousDataSet.get(stack.get(MineraculousDataComponents.MIRACULOUS));
-            if (!data.transformed()) {
+            MiraculousData data = miraculousDataSet.get(miraculous);
+            if (data.transformed()) {
+                data = data.withCuriosData(CuriosData.EMPTY).withItem(stack.copy());
+                MineraculousEntityEvents.handleMiraculousTransformation(serverPlayer, miraculous, data, false, true, true);
+            } else {
                 data = data.unEquip();
-                miraculousDataSet.put(entity, stack.get(MineraculousDataComponents.MIRACULOUS), data, true);
+                miraculousDataSet.put(entity, miraculous, data, true);
             }
         }
     }

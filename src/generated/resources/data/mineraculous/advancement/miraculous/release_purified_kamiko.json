@@ -1,0 +1,26 @@
+{
+  "parent": "mineraculous:miraculous/transform_ladybug",
+  "criteria": {
+    "release_purified_kamiko": {
+      "trigger": "mineraculous:released_purified_kamiko"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.mineraculous.miraculous.release_purified_kamiko.desc"
+    },
+    "icon": {
+      "count": 1,
+      "id": "mineraculous:ladybug_yoyo"
+    },
+    "title": {
+      "translate": "advancement.mineraculous.miraculous.release_purified_kamiko.title"
+    }
+  },
+  "requirements": [
+    [
+      "release_purified_kamiko"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

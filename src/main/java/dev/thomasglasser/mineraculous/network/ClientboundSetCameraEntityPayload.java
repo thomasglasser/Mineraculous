@@ -32,7 +32,7 @@ public record ClientboundSetCameraEntityPayload(int entityId, Optional<ResourceL
     public void handle(Player player) {
         CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
         Entity entity = player.level().getEntity(entityId);
-        if (entity == null || entityData.getBoolean(MineraculousEntityEvents.TAG_CAMERA_CONTROL_INTERRUPTED)) {
+        if (MineraculousClientUtils.getCameraEntity() != player && (entity == null || entityData.getBoolean(MineraculousEntityEvents.TAG_CAMERA_CONTROL_INTERRUPTED))) {
             MineraculousClientUtils.setCameraEntity(null);
             toggleTag.ifPresent(tag -> {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(tag, false));
@@ -40,7 +40,7 @@ public record ClientboundSetCameraEntityPayload(int entityId, Optional<ResourceL
                     TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(Optional.of(entity.getId()), tag, false));
             });
         } else if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown()) {
-            if (entityData.getInt(MineraculousEntityEvents.TAG_WAITTICKS) <= 6) {
+            if (entityData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS) <= 6) {
                 MineraculousKeyMappings.ACTIVATE_POWER.get().setDown(false);
                 if (MineraculousClientUtils.getCameraEntity() == entity) {
                     MineraculousClientUtils.setCameraEntity(null);

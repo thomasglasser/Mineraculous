@@ -8,15 +8,18 @@ import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousBuiltInRegistries;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.mineraculous.network.MineraculousPayloads;
+import dev.thomasglasser.mineraculous.packs.MineraculousPacks;
+import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.tommylib.api.network.NeoForgeNetworkUtils;
+import dev.thomasglasser.tommylib.api.packs.PackInfo;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -28,17 +31,25 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.packs.PackLocationInfo;
+import net.minecraft.server.packs.PackResources;
+import net.minecraft.server.packs.PathPackResources;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
+import net.neoforged.fml.ModList;
+import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
+import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 
 public class MineraculousCoreEvents {
     public static void onRegisterPackets(RegisterPayloadHandlersEvent event) {
@@ -54,6 +65,12 @@ public class MineraculousCoreEvents {
 
     public static void onNewRegistry(NewRegistryEvent event) {
         event.register(MineraculousBuiltInRegistries.ABILITY_SERIALIZER);
+    }
+
+    public static void onRegisterDataMapTypes(RegisterDataMapTypesEvent event) {
+        event.register(MineraculousDataMaps.KAMIKOTIZATION_LUCKY_CHARMS);
+        event.register(MineraculousDataMaps.MIRACULOUS_LUCKY_CHARMS);
+        event.register(MineraculousDataMaps.ENTITY_LUCKY_CHARMS);
     }
 
     public static void onLoadLootTable(LootTableLoadEvent event) {
@@ -191,5 +208,25 @@ public class MineraculousCoreEvents {
         ((FlattenedLookDataHolder) event.getServer().overworld()).mineraculous$setCommonSuitLookData(suitLooks);
         ((FlattenedLookDataHolder) event.getServer().overworld()).mineraculous$setWhitelist(whitelist);
         ((FlattenedLookDataHolder) event.getServer().overworld()).mineraculous$setBlacklist(blacklist);
+    }
+
+    public static void onAddPackFinders(AddPackFindersEvent event) {
+        for (PackInfo info : MineraculousPacks.getPacks()) {
+            if (event.getPackType() == info.type()) {
+                var resourcePath = ModList.get().getModFileById(Mineraculous.MOD_ID).getFile().findResource("packs/" + info.knownPack().namespace() + "/" + info.knownPack().id());
+                var pack = Pack.readMetaAndCreate(new PackLocationInfo("builtin/" + info.knownPack().id(), Component.translatable(info.titleKey()), info.source(), Optional.of(info.knownPack())), new Pack.ResourcesSupplier() {
+                    @Override
+                    public PackResources openFull(PackLocationInfo p_326241_, Pack.Metadata p_325959_) {
+                        return new PathPackResources(p_326241_, resourcePath);
+                    }
+
+                    @Override
+                    public PackResources openPrimary(PackLocationInfo p_326301_) {
+                        return new PathPackResources(p_326301_, resourcePath);
+                    }
+                }, info.type(), PackInfo.BUILT_IN_SELECTION_CONFIG);
+                event.addRepositorySource((packConsumer) -> packConsumer.accept(pack));
+            }
+        }
     }
 }

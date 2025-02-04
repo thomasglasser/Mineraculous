@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
+import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import java.util.List;
 import java.util.Optional;
@@ -25,10 +25,10 @@ public record Miraculous(TextColor color, String acceptableSlot, int transformat
             TextColor.CODEC.fieldOf("color").forGetter(Miraculous::color),
             Codec.STRING.fieldOf("acceptable_slot").forGetter(Miraculous::acceptableSlot),
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("transformation_frames", 0).forGetter(Miraculous::transformationFrames),
-            ItemStack.STRICT_SINGLE_ITEM_CODEC.optionalFieldOf("tool").forGetter(Miraculous::tool),
+            ItemStack.SINGLE_ITEM_CODEC.optionalFieldOf("tool").forGetter(Miraculous::tool),
             Codec.STRING.optionalFieldOf("tool_slot").forGetter(Miraculous::toolSlot),
             Ability.CODEC.optionalFieldOf("active_ability").forGetter(Miraculous::activeAbility),
-            Ability.CODEC.listOf().fieldOf("passive_abilities").forGetter(Miraculous::passiveAbilities),
+            Ability.CODEC.listOf().optionalFieldOf("passive_abilities", List.of()).forGetter(Miraculous::passiveAbilities),
             SoundEvent.CODEC.optionalFieldOf("transform_sound", MineraculousSoundEvents.GENERIC_TRANSFORM).forGetter(Miraculous::transformSound),
             SoundEvent.CODEC.optionalFieldOf("detransform_sound", MineraculousSoundEvents.GENERIC_DETRANSFORM).forGetter(Miraculous::detransformSound),
             SoundEvent.CODEC.optionalFieldOf("timer_beep_sound", MineraculousSoundEvents.GENERIC_TIMER_BEEP).forGetter(Miraculous::timerBeepSound),

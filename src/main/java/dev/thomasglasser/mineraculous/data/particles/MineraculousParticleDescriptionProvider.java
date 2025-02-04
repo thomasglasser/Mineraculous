@@ -7,12 +7,6 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.common.data.ParticleDescriptionProvider;
 
 public class MineraculousParticleDescriptionProvider extends ParticleDescriptionProvider {
-    /**
-     * Creates an instance of the data provider.
-     *
-     * @param output     the expected root directory the data generator outputs to
-     * @param fileHelper the helper used to validate a texture's existence
-     */
     public MineraculousParticleDescriptionProvider(PackOutput output, ExistingFileHelper fileHelper) {
         super(output, fileHelper);
     }
@@ -21,5 +15,7 @@ public class MineraculousParticleDescriptionProvider extends ParticleDescription
     protected void addDescriptions() {
         sprite(MineraculousParticleTypes.BLACK_ORB.get(), Mineraculous.modLoc("black_orb"));
         sprite(MineraculousParticleTypes.KAMIKOTIZATION.get(), Mineraculous.modLoc("kamikotization"));
+        sprite(MineraculousParticleTypes.SUMMONING_LADYBUG.get(), Mineraculous.modLoc("ladybug"));
+        sprite(MineraculousParticleTypes.SPREADING_LADYBUG.get(), Mineraculous.modLoc("ladybug"));
     }
 }

@@ -16,6 +16,15 @@ public class AdvancementTriggersEntry extends IndexModeEntryProvider {
 
     @Override
     protected void generatePages() {
+        page("generator", () -> BookTextPageModel.create()
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        add(context().pageTitle(), "Generator");
+        add(context().pageText(), """
+                A generator for advancements can be found online [here](https://snapshot-jsons.thomasglasser.dev/advancement/).
+                """);
+
         page("transformed_miraculous", () -> BookTextPageModel.create()
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
@@ -61,6 +70,32 @@ public class AdvancementTriggersEntry extends IndexModeEntryProvider {
                 This trigger is called when a player is transformed by a kamikotization. It has two parameters:
                 - "type": The type of kamikotization that was used.
                 - "self": Whether the player kamikotized themselves.
+                """);
+
+        page("used_kamikotization_power", () -> BookTextPageModel.create()
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        add(context().pageTitle(), "Used Kamikotization Power");
+        add(context().pageText(), """
+                This trigger is called when a player uses a kamikotization ability. It has two parameters:
+                - "type": The type of kamikotization that was used.
+                - "context": The context in which the power was used. Can be one of the following:
+                    - empty
+                    - block
+                    - entity
+                    - living_entity
+                    - item
+                """);
+
+        page("released_purified_kamiko", () -> BookTextPageModel.create()
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        add(context().pageTitle(), "Released Purified Kamiko");
+        add(context().pageText(), """
+                This trigger is called when a player releases a purified kamiko. It has one parameter:
+                - "count": The number of purified kamikos that were released.
                 """);
     }
 

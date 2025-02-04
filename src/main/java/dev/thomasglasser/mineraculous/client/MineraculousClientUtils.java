@@ -1,19 +1,33 @@
 package dev.thomasglasser.mineraculous.client;
 
+import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationSelectionScreen;
+import dev.thomasglasser.mineraculous.client.gui.screens.MiraculousTransferScreen;
+import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
+import dev.thomasglasser.mineraculous.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.SnapshotTesterCosmeticOptions;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.VipData;
+import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundChangeVipDataPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundStealCuriosPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundStealItemPayload;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
+import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -21,9 +35,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import top.theillusivec4.curios.common.inventory.CurioSlot;
 
 public class MineraculousClientUtils {
     private static final String GIST = "thomasglasser/aa8eb933847685b93d8f99a59f07b62e";
@@ -87,7 +103,7 @@ public class MineraculousClientUtils {
         return Minecraft.getInstance().options.getCameraType().isFirstPerson();
     }
 
-    public static void renderParticlesFollowingEntity(LivingEntity entity, ParticleOptions type, double distanceFromSkin, double forwardShift, double rightShift, double upShift, float scale, boolean firstPerson) {
+    public static void renderParticlesFollowingEntity(LivingEntity entity, ParticleOptions type, double distanceFromSkin, double forwardShift, double rightShift, double upShift, boolean firstPerson) {
         Vec3 angle = firstPerson ? entity.getLookAngle() : new Vec3(0, 0, 0);
         Vec3 worldUp = new Vec3(0, 1, 0);
         Vec3 localForward = Vec3.directionFromRotation(new Vec2(0, firstPerson ? entity.getYRot() : entity.yBodyRot));
@@ -148,6 +164,30 @@ public class MineraculousClientUtils {
     public static void closeKamikotizationChatScreen(boolean cancel) {
         if (Minecraft.getInstance().screen instanceof KamikotizationChatScreen screen)
             screen.onClose(cancel, false);
+    }
+
+    public static void openMiraculousTransferScreen(int kwamiId) {
+        ClientUtils.setScreen(new MiraculousTransferScreen(kwamiId));
+    }
+
+    public static VertexConsumer checkLuckyCharm(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack) {
+        return itemStack.has(MineraculousDataComponents.LUCKY_CHARM) ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.luckyCharm()), buffer) : buffer;
+    }
+
+    public static void registerDynamicTexture(ResourceLocation texture, byte[] pixels) throws IOException {
+        Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(NativeImage.read(pixels)));
+    }
+
+    public static void openExternalCuriosInventoryScreen(Player target, Player player) {
+        ClientUtils.setScreen(new ExternalCuriosInventoryScreen(target, true, ((slot, target1, menu) -> {
+            if (slot instanceof CurioSlot curioSlot)
+                TommyLibServices.NETWORK.sendToServer(new ServerboundStealCuriosPayload(target1.getUUID(), new CuriosData(curioSlot.getSlotIndex(), curioSlot.getIdentifier())));
+            else
+                TommyLibServices.NETWORK.sendToServer(new ServerboundStealItemPayload(target1.getUUID(), menu.slots.indexOf(slot)));
+        }), exit -> {
+            TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(player.getUUID()));
+        }));
     }
 
     public static void init() {}

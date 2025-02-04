@@ -1,17 +1,19 @@
 package dev.thomasglasser.mineraculous.network;
 
+import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 
 public record ServerboundSetKamikotizationPowerActivatedPayload(ResourceKey<Kamikotization> kamikotization) implements ExtendedPacketPayload {
     public static final Type<ServerboundSetKamikotizationPowerActivatedPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_set_kamikotization_power_activated"));
@@ -22,10 +24,12 @@ public record ServerboundSetKamikotizationPowerActivatedPayload(ResourceKey<Kami
     // ON SERVER
     @Override
     public void handle(Player player) {
-        Level level = player.level();
+        ServerLevel level = (ServerLevel) player.level();
         Ability power = level.registryAccess().holderOrThrow(kamikotization).value().activeAbility().get().value();
-        power.playStartSound(level, player.blockPosition());
-        player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow().withMainPowerActive(true).save(player, true);
+        if (power.canActivate(new AbilityData(0, Either.right(kamikotization)), level, player.blockPosition(), player)) {
+            power.playStartSound(level, player.blockPosition());
+            player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow().withMainPowerActive(true).save(player, true);
+        }
     }
 
     @Override

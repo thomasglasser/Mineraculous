@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.data.loot;
 
+import dev.thomasglasser.mineraculous.world.level.storage.loot.parameters.MineraculousLootContextParamSets;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -12,6 +13,7 @@ public class MineraculousLootTables extends LootTableProvider {
     public MineraculousLootTables(PackOutput pOutput, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         super(pOutput, Set.of(), List.of(
                 new SubProviderEntry(MineraculousBlockLoot::new, LootContextParamSets.BLOCK),
-                new SubProviderEntry(MineraculousGiftLoot::new, LootContextParamSets.GIFT)), lookupProvider);
+                new SubProviderEntry(MineraculousGiftLoot::new, LootContextParamSets.GIFT),
+                new SubProviderEntry(MineraculousLuckyCharmLoot::new, MineraculousLootContextParamSets.LUCKY_CHARM)), lookupProvider);
     }
 }

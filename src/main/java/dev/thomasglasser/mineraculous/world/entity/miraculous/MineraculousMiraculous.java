@@ -4,8 +4,8 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.Ability;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.ability.MineraculousAbilities;
+import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
+import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilities;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import java.util.List;
 import java.util.Optional;
@@ -58,8 +58,8 @@ public class MineraculousMiraculous {
                 9,
                 Optional.of(MineraculousItems.LADYBUG_YOYO.toStack()),
                 Optional.of("belt"),
-                Optional.empty(/*abilities.getOrThrow(MineraculousAbilities.MIRACULOUS_LADYBUG)*/),
-                List.of(),
+                Optional.of(abilities.getOrThrow(MineraculousAbilities.LUCKY_CHARM)),
+                List.of(abilities.getOrThrow(MineraculousAbilities.MIRACULOUS_LADYBUG)),
                 MineraculousSoundEvents.LADYBUG_TRANSFORM,
                 MineraculousSoundEvents.GENERIC_DETRANSFORM,
                 MineraculousSoundEvents.GENERIC_TIMER_BEEP,

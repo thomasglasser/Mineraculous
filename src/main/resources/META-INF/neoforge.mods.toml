@@ -62,6 +62,12 @@ versionRange="[${trimmed_version},)"
 ordering="NONE"
 side="BOTH"
 [[dependencies.${mod_id}]]
+modId="lithostitched"
+type="required"
+versionRange="[${lithostitched_version},)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.${mod_id}]]
 modId="jei"
 type="optional"
 versionRange="[${jei_version},)"

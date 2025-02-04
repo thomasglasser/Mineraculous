@@ -155,12 +155,13 @@ configurations {
 
 dependencies {
 	jarJar implementation("dev.thomasglasser.tommylib:tommylib-neoforge-${minecraft_version}:${tommylib_version}")
-
 	jarJar implementation("maven.modrinth:trimmed:${trimmed_version}+neoforge")
 
 	implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 	implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${smartbrainlib_version}"
 	implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
+	implementation "maven.modrinth:lithostitched:${lithostitched_version}-neoforge"
+
 	implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 	implementation "com.klikli_dev:modonomicon-${minecraft_version}-neoforge:${modonomicon_version}"
 
@@ -192,6 +193,7 @@ processResources {
 			"smartbrainlib_version": smartbrainlib_version,
 			"curios_version": curios_version,
 			"trimmed_version": trimmed_version,
+			"lithostitched_version": lithostitched_version,
 			"jei_version": jei_version,
 			"modonomicon_version": modonomicon_version,
 	]

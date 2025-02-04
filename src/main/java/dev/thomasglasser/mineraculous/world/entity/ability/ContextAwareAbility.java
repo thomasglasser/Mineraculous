@@ -46,6 +46,15 @@ public record ContextAwareAbility(Optional<Ability> blockAbility, Optional<Abili
     }
 
     @Override
+    public void restore(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
+        blockAbility.ifPresent(ability -> ability.restore(data, level, pos, entity));
+        entityAbility.ifPresent(ability -> ability.restore(data, level, pos, entity));
+        itemAbility.ifPresent(ability -> ability.restore(data, level, pos, entity));
+        airAbility.ifPresent(ability -> ability.restore(data, level, pos, entity));
+        passiveAbilities.forEach(ability -> ability.restore(data, level, pos, entity));
+    }
+
+    @Override
     public MapCodec<? extends Ability> codec() {
         return MineraculousAbilitySerializers.CONTEXT_AWARE.get();
     }

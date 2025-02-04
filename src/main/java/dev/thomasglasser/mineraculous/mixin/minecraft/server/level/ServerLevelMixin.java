@@ -10,6 +10,10 @@ import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLoo
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryBlockData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryItemData;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdData;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdDataHolder;
 import java.util.HashMap;
@@ -38,13 +42,19 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerLevel.class)
-public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmIdDataHolder, FlattenedLookDataHolder, ChargeOverrideDataHolder {
+public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmIdDataHolder, FlattenedLookDataHolder, ChargeOverrideDataHolder, MiraculousRecoveryDataHolder {
     @Unique
     protected ToolIdData mineraculous$toolIdData;
     @Unique
     protected LuckyCharmIdData mineraculous$luckyCharmIdData;
     @Unique
     protected ChargeOverrideData mineraculous$chargeOverrideData;
+    @Unique
+    protected MiraculousRecoveryEntityData mineraculous$miraculousRecoveryEntityData;
+    @Unique
+    protected MiraculousRecoveryItemData mineraculous$miraculousRecoveryItemData;
+    @Unique
+    protected MiraculousRecoveryBlockData mineraculous$miraculousRecoveryBlockData;
     @Unique
     protected Map<ResourceKey<Miraculous>, Map<String, FlattenedSuitLookData>> mineraculous$commonSuitLookData;
     @Unique
@@ -69,6 +79,9 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmId
             mineraculous$toolIdData = this.getDataStorage().computeIfAbsent(ToolIdData.factory(), ToolIdData.FILE_ID);
             mineraculous$luckyCharmIdData = this.getDataStorage().computeIfAbsent(LuckyCharmIdData.factory(), LuckyCharmIdData.FILE_ID);
             mineraculous$chargeOverrideData = this.getDataStorage().computeIfAbsent(ChargeOverrideData.factory(), ChargeOverrideData.FILE_ID);
+            mineraculous$miraculousRecoveryEntityData = this.getDataStorage().computeIfAbsent(MiraculousRecoveryEntityData.factory(), MiraculousRecoveryEntityData.FILE_ID);
+            mineraculous$miraculousRecoveryItemData = this.getDataStorage().computeIfAbsent(MiraculousRecoveryItemData.factory(), MiraculousRecoveryItemData.FILE_ID);
+            mineraculous$miraculousRecoveryBlockData = this.getDataStorage().computeIfAbsent(MiraculousRecoveryBlockData.factory(), MiraculousRecoveryBlockData.FILE_ID);
             mineraculous$commonSuitLookData = new HashMap<>();
             mineraculous$commonMiraculousLookData = new HashMap<>();
             mineraculous$suitLookData = new HashMap<>();
@@ -85,6 +98,21 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmId
     @Override
     public LuckyCharmIdData mineraculous$getLuckyCharmIdData() {
         return mineraculous$luckyCharmIdData;
+    }
+
+    @Override
+    public MiraculousRecoveryEntityData mineraculous$getMiraculousRecoveryEntityData() {
+        return mineraculous$miraculousRecoveryEntityData;
+    }
+
+    @Override
+    public MiraculousRecoveryItemData mineraculous$getMiraculousRecoveryItemData() {
+        return mineraculous$miraculousRecoveryItemData;
+    }
+
+    @Override
+    public MiraculousRecoveryBlockData mineraculous$getMiraculousRecoveryBlockData() {
+        return mineraculous$miraculousRecoveryBlockData;
     }
 
     @Override

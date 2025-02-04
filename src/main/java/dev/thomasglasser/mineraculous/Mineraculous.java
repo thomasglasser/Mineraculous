@@ -109,7 +109,7 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEffectRemoved);
         NeoForge.EVENT_BUS.addListener(MineraculousCommandEvents::onCommandsRegister);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingHeal);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingTick);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityTick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onRegisterVillagerTrades);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityJoinLevel);
@@ -119,6 +119,8 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onServerPlayerLoggedIn);
         NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onServerStarted);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onMobEffectRemoved);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onBlockDrops);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingDrops);
 
         if (TommyLibServices.PLATFORM.isClientSide()) {
             bus.addListener(MineraculousClientEvents::onRegisterAdditionalModels);

@@ -59,11 +59,14 @@ public record KamikotizationData(ResourceKey<Kamikotization> kamikotization, int
 
     public void save(LivingEntity entity, boolean syncToClient) {
         entity.setData(MineraculousAttachmentTypes.KAMIKOTIZATION, Optional.of(this));
+        if (entity.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION).isPresent())
+            entity.setData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION, Optional.empty());
         if (syncToClient)
             TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncKamikotizationDataPayload(this, entity.getId()), entity.getServer());
     }
 
     public static void remove(LivingEntity entity, boolean syncToClient) {
+        entity.setData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION, entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization));
         entity.setData(MineraculousAttachmentTypes.KAMIKOTIZATION, Optional.empty());
         if (syncToClient)
             TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncKamikotizationDataPayload(entity.getId()), entity.getServer());

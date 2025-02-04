@@ -4,8 +4,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
-import java.util.ArrayList;
-import java.util.List;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.core.BlockPos;
@@ -31,7 +32,9 @@ public record RandomSpreadAbility(BlockState blockState, Optional<BlockPredicate
     public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
         if (context == Context.INTERACT_BLOCK) {
             if (canBlockBeReplaced(level, pos)) {
-                applyToBlock(level, pos, data.powerLevel(), new ArrayList<>());
+                Map<BlockPos, BlockState> blocksAffected = new HashMap<>();
+                applyToBlock(level, pos, data.powerLevel(), blocksAffected);
+                ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryBlockData().putRecoverable(entity.getUUID(), blocksAffected);
                 playStartSound(level, pos);
             }
             return true;
@@ -39,9 +42,11 @@ public record RandomSpreadAbility(BlockState blockState, Optional<BlockPredicate
         return false;
     }
 
-    private void applyToBlock(ServerLevel level, BlockPos pos, int powerLevel, List<BlockPos> blocksAffected) {
-        if (blocksAffected.contains(pos) || blocksAffected.size() >= Math.max(powerLevel, 1) * 100 || (validBlocks.isPresent() && !validBlocks.get().matches(level, pos)) || (invalidBlocks.isPresent() && invalidBlocks.get().matches(level, pos)))
+    private void applyToBlock(ServerLevel level, BlockPos pos, int powerLevel, Map<BlockPos, BlockState> blocksAffected) {
+        if (blocksAffected.containsKey(pos) || blocksAffected.size() >= Math.max(powerLevel, 1) * 100 || (validBlocks.isPresent() && !validBlocks.get().matches(level, pos)) || (invalidBlocks.isPresent() && invalidBlocks.get().matches(level, pos)))
             return;
+
+        blocksAffected.put(pos, level.getBlockState(pos));
 
         RandomSource randomSource = level.random;
         replaceBlocksWithin(randomSource.nextInt(4, 8), level, pos, blocksAffected);
@@ -51,14 +56,13 @@ public record RandomSpreadAbility(BlockState blockState, Optional<BlockPredicate
                 applyToBlock(level, pos.relative(direction), powerLevel, blocksAffected);
             }
         }
-        blocksAffected.add(pos);
     }
 
     private boolean canBlockBeReplaced(ServerLevel level, BlockPos newPos) {
-        return (validBlocks.isEmpty() || validBlocks.get().matches(level, newPos)) && (invalidBlocks.isEmpty() || !invalidBlocks.get().matches(level, newPos)) && level.random.nextBoolean();
+        return (validBlocks.isEmpty() || validBlocks.get().matches(level, newPos)) && (invalidBlocks.isEmpty() || !invalidBlocks.get().matches(level, newPos));
     }
 
-    private void replaceBlocksWithin(int radius, ServerLevel level, BlockPos pos, List<BlockPos> blocksAffected) {
+    private void replaceBlocksWithin(int radius, ServerLevel level, BlockPos pos, Map<BlockPos, BlockState> blocksAffected) {
         int iRange = level.random.nextInt(radius);
         for (int i = -iRange; i <= iRange; i++) {
             int jRange = level.random.nextInt(radius);
@@ -66,13 +70,18 @@ public record RandomSpreadAbility(BlockState blockState, Optional<BlockPredicate
                 int kRange = level.random.nextInt(radius);
                 for (int k = -kRange; k <= kRange; k++) {
                     BlockPos newPos = pos.offset(i, j, k);
-                    if (canBlockBeReplaced(level, newPos)) {
+                    if (canBlockBeReplaced(level, newPos) && level.getBlockEntity(newPos) == null && level.random.nextBoolean()) {
+                        blocksAffected.put(newPos, level.getBlockState(newPos));
                         level.setBlock(newPos, blockState, Block.UPDATE_ALL);
-                        blocksAffected.add(newPos);
                     }
                 }
             }
         }
+    }
+
+    @Override
+    public void restore(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
+        ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryBlockData().recover(entity.getUUID(), level);
     }
 
     @Override

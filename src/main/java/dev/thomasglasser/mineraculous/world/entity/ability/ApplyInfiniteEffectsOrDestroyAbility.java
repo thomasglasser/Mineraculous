@@ -3,9 +3,12 @@ package dev.thomasglasser.mineraculous.world.entity.ability;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -26,6 +29,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.VehicleEntity;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameRules;
 
 public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects, Optional<Item> dropItem, Optional<ResourceKey<DamageType>> damageType, Optional<String> blameTag, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
 
@@ -40,6 +45,7 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
     public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
         if (context == Context.INTERACT_ENTITY) {
             Entity target = context.entity();
+            ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData().putRecoverable(entity.getUUID(), target);
             if (target instanceof LivingEntity livingEntity) {
                 for (Holder<MobEffect> mobEffect : effects) {
                     MobEffectInstance effect = new MobEffectInstance(mobEffect, -1, (data.powerLevel() / 10));
@@ -56,7 +62,14 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
                     });
                 }
             } else if (target instanceof VehicleEntity vehicle && dropItem.isPresent()) {
-                vehicle.destroy(dropItem.get());
+                vehicle.kill();
+                if (level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                    ItemStack itemstack = new ItemStack(dropItem.get());
+                    UUID id = UUID.randomUUID();
+                    itemstack.set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
+                    ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryItemData().putRemovable(entity.getUUID(), id);
+                    vehicle.spawnAtLocation(itemstack);
+                }
             } else {
                 target.hurt(damageType.map(damageTypeResourceKey -> entity.damageSources().source(damageTypeResourceKey, entity)).orElse(entity.damageSources().indirectMagic(entity, entity)), 1024);
             }
@@ -64,6 +77,18 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void restore(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
+        ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData().recover(entity.getUUID(), level, target -> {
+            if (target instanceof LivingEntity livingEntity) {
+                for (Holder<MobEffect> mobEffect : effects) {
+                    livingEntity.removeEffect(mobEffect);
+                }
+            }
+            return target;
+        });
     }
 
     @Override

@@ -8,7 +8,9 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
 import java.util.Optional;
+import java.util.UUID;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -38,8 +40,11 @@ public record ReplaceItemsInHandAbility(ItemStack replacement, boolean hurtAndBr
                 return false;
             if (invalidItems.isPresent() && invalidItems.get().test(stack))
                 return false;
-            ItemStack replacement = this.replacement.copyWithCount(stack.getCount());
-            replacement.applyComponentsAndValidate(stack.getComponentsPatch());
+            ItemStack replacement = this.replacement.copyWithCount(1);
+            UUID id = UUID.randomUUID();
+            replacement.set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
+            ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryItemData().putRecoverable(entity.getUUID(), id, stack);
+            stack.setCount(0);
             if (hurtAndBreak) {
                 if (stack.isDamageableItem()) {
                     stack.hurtAndBreak(stack.getMaxDamage(), entity, EquipmentSlot.MAINHAND);
@@ -65,6 +70,11 @@ public record ReplaceItemsInHandAbility(ItemStack replacement, boolean hurtAndBr
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void restore(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
+        ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryItemData().markRecovered(entity.getUUID());
     }
 
     @Override

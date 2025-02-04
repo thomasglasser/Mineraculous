@@ -18,7 +18,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.LivingEntity;
 
-public record KamikotizationData(ResourceKey<Kamikotization> kamikotization, int stackCount, Either<Integer, CuriosData> slotInfo, KamikoData kamikoData, boolean mainPowerActive, Either<Integer, Integer> transformationFrames, String name) {
+public record KamikotizationData(ResourceKey<Kamikotization> kamikotization, int stackCount, Either<Integer, CuriosData> slotInfo, KamikoData kamikoData, boolean mainPowerActive, Optional<Either<Integer, Integer>> transformationFrames, String name) {
 
     public static final Codec<KamikotizationData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceKey.codec(MineraculousRegistries.KAMIKOTIZATION).fieldOf("kamikotization").forGetter(KamikotizationData::kamikotization),
@@ -26,7 +26,7 @@ public record KamikotizationData(ResourceKey<Kamikotization> kamikotization, int
             Codec.either(Codec.INT, CuriosData.CODEC).fieldOf("slot_info").forGetter(KamikotizationData::slotInfo),
             KamikoData.CODEC.fieldOf("kamiko_data").forGetter(KamikotizationData::kamikoData),
             Codec.BOOL.fieldOf("main_power_active").forGetter(KamikotizationData::mainPowerActive),
-            Codec.either(Codec.INT, Codec.INT).fieldOf("transformation_frames").forGetter(KamikotizationData::transformationFrames),
+            Codec.either(Codec.INT, Codec.INT).optionalFieldOf("transformation_frames").forGetter(KamikotizationData::transformationFrames),
             Codec.STRING.optionalFieldOf("name", "").forGetter(KamikotizationData::name)).apply(instance, KamikotizationData::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, KamikotizationData> STREAM_CODEC = NetworkUtils.composite(
             ResourceKey.streamCodec(MineraculousRegistries.KAMIKOTIZATION), KamikotizationData::kamikotization,
@@ -34,7 +34,7 @@ public record KamikotizationData(ResourceKey<Kamikotization> kamikotization, int
             ByteBufCodecs.either(ByteBufCodecs.INT, CuriosData.STREAM_CODEC), KamikotizationData::slotInfo,
             KamikoData.STREAM_CODEC, KamikotizationData::kamikoData,
             ByteBufCodecs.BOOL, KamikotizationData::mainPowerActive,
-            ByteBufCodecs.either(ByteBufCodecs.INT, ByteBufCodecs.INT), KamikotizationData::transformationFrames,
+            ByteBufCodecs.optional(ByteBufCodecs.either(ByteBufCodecs.INT, ByteBufCodecs.INT)), KamikotizationData::transformationFrames,
             ByteBufCodecs.STRING_UTF8, KamikotizationData::name,
             KamikotizationData::new);
     public KamikotizationData decrementStackCount() {
@@ -46,11 +46,15 @@ public record KamikotizationData(ResourceKey<Kamikotization> kamikotization, int
     }
 
     public KamikotizationData withTransformationFrames(int frames) {
-        return new KamikotizationData(kamikotization, stackCount, slotInfo, kamikoData, mainPowerActive, Either.left(frames), name);
+        return new KamikotizationData(kamikotization, stackCount, slotInfo, kamikoData, mainPowerActive, Optional.of(Either.left(frames)), name);
     }
 
     public KamikotizationData withDetransformationFrames(int frames) {
-        return new KamikotizationData(kamikotization, stackCount, slotInfo, kamikoData, mainPowerActive, Either.right(frames), name);
+        return new KamikotizationData(kamikotization, stackCount, slotInfo, kamikoData, mainPowerActive, Optional.of(Either.right(frames)), name);
+    }
+
+    public KamikotizationData clearTransformationFrames() {
+        return new KamikotizationData(kamikotization, stackCount, slotInfo, kamikoData, mainPowerActive, Optional.empty(), name);
     }
 
     public void save(LivingEntity entity, boolean syncToClient) {

@@ -389,7 +389,7 @@ public class KamikotizationSelectionScreen extends Screen {
                     slotInfo = Either.right(new CuriosData(curiosSlot.getSlotIndex(), curiosSlot.getIdentifier()));
                 else
                     slotInfo = Either.left(slot.getSlotIndex());
-                KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization.getKey(), slot.getItem().getCount(), slotInfo, kamikoData, false, Either.left(0), name.getValue());
+                KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization.getKey(), slot.getItem().getCount(), slotInfo, kamikoData, false, Optional.of(Either.left(0)), name.getValue());
                 if (target == ClientUtils.getMainClientPlayer()) {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(kamikotizationData, true, false, false, ClientUtils.getMainClientPlayer().position().add(0, 1, 0)));
                     TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(target.getUUID(), target.getUUID(), kamikotizationData.kamikotization()));

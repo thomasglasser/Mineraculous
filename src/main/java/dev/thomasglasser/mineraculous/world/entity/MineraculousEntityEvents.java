@@ -269,13 +269,13 @@ public class MineraculousEntityEvents {
             KamikotizationData kamikotizationData = optionalData.get();
             ResourceKey<Kamikotization> kamikotizationKey = kamikotizationData.kamikotization();
             Kamikotization kamikotization = level.holderOrThrow(kamikotizationKey).value();
-            Optional<Integer> transformationFrames = kamikotizationData.transformationFrames().left();
-            Optional<Integer> detransformationFrames = kamikotizationData.transformationFrames().right();
+            Optional<Integer> transformationFrames = kamikotizationData.transformationFrames().isPresent() ? kamikotizationData.transformationFrames().get().left() : Optional.empty();
+            Optional<Integer> detransformationFrames = kamikotizationData.transformationFrames().isPresent() ? kamikotizationData.transformationFrames().get().right() : Optional.empty();
             if (player instanceof ServerPlayer serverPlayer) {
                 if (transformationFrames.isPresent() && transformationFrames.get() >= 1) {
                     if (player.tickCount % 2 == 0) {
                         if (transformationFrames.get() <= 1) {
-                            kamikotizationData.withTransformationFrames(-1).save(player, true);
+                            kamikotizationData.clearTransformationFrames().save(player, true);
                             ArmorData armor = new ArmorData(player.getItemBySlot(EquipmentSlot.HEAD), player.getItemBySlot(EquipmentSlot.CHEST), player.getItemBySlot(EquipmentSlot.LEGS), player.getItemBySlot(EquipmentSlot.FEET));
                             player.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
                             for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {

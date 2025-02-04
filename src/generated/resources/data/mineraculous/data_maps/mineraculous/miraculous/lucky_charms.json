@@ -1,7 +1,5 @@
 {
   "values": {
-    "mineraculous:cat": {
-      "items": "mineraculous:gameplay/lucky_charm/miraculous/cat"
-    }
+    "mineraculous:cat": "mineraculous:gameplay/lucky_charm/miraculous/cat"
   }
 }

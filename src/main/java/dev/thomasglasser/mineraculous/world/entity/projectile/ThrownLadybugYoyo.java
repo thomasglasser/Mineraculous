@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.world.entity.projectile;
 
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownLadybugYoyoRenderer;
+import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncLadybugYoyoPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
@@ -177,7 +178,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 Vec3 fromProjectileToPlayer = new Vec3(player.getX() - this.getX(), player.getY() - this.getY(), player.getZ() - this.getZ());
                 double distance = fromProjectileToPlayer.length();
 
-                if (distance > this.getServerMaxRopeLength()) {
+                if (distance > this.getServerMaxRopeLength() && this.getServerMaxRopeLength() > 0) {
                     player.resetFallDistance();
                     Vec3 constrainedPosition = player.position()
                             .add(fromProjectileToPlayer.normalize().scale(this.getServerMaxRopeLength() - distance));
@@ -289,7 +290,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
 
     private void checkRecall(Player player) {
         ItemStack itemstack = player.getMainHandItem();
-        boolean flag = itemstack.is(MineraculousItems.LADYBUG_YOYO);
+        boolean flag = itemstack.is(MineraculousItems.LADYBUG_YOYO) && itemstack.has(MineraculousDataComponents.ACTIVE);
         if (player.isRemoved() || !flag) {
             this.discard();
         }
@@ -406,7 +407,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         float f = p.getAttackAnim(0);
         float f1 = Mth.sin(Mth.sqrt(f) * 3.1415927F);
 
-        Vec3 vec3 = ThrownLadybugYoyoRenderer.getPlayerHandPos(p, f1, 0, MineraculousItems.LADYBUG_YOYO.get(), Minecraft.getInstance().getEntityRenderDispatcher());
+        Vec3 vec3 = ThrownLadybugYoyoRenderer.getPlayerHandPos(p, f1, 0, Minecraft.getInstance().getEntityRenderDispatcher());
         Vec3 fromProjectileToHand = new Vec3(vec3.x - this.getX(), vec3.y - this.getY(), vec3.z - this.getZ());
         this.maxRopeLength = fromProjectileToHand.length();
     }

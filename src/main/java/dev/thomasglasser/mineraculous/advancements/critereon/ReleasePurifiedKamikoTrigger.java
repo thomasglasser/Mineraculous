@@ -9,6 +9,7 @@ import net.minecraft.advancements.critereon.ContextAwarePredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
 
 public class ReleasePurifiedKamikoTrigger extends SimpleCriterionTrigger<ReleasePurifiedKamikoTrigger.TriggerInstance> {
     @Override
@@ -25,7 +26,7 @@ public class ReleasePurifiedKamikoTrigger extends SimpleCriterionTrigger<Release
         public static final Codec<ReleasePurifiedKamikoTrigger.TriggerInstance> CODEC = RecordCodecBuilder.create(
                 p_337367_ -> p_337367_.group(
                         EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(ReleasePurifiedKamikoTrigger.TriggerInstance::player),
-                        Codec.INT.optionalFieldOf("count").forGetter(ReleasePurifiedKamikoTrigger.TriggerInstance::count))
+                        ExtraCodecs.POSITIVE_INT.optionalFieldOf("count").forGetter(ReleasePurifiedKamikoTrigger.TriggerInstance::count))
                         .apply(p_337367_, ReleasePurifiedKamikoTrigger.TriggerInstance::new));
 
         public static Criterion<ReleasePurifiedKamikoTrigger.TriggerInstance> releasedPurifiedKamiko() {

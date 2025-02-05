@@ -5,8 +5,7 @@
       "bonus_rolls": 0.0,
       "conditions": [
         {
-          "condition": "mineraculous:has_ammo",
-          "has_ammo": true
+          "condition": "mineraculous:has_ammo"
         }
       ],
       "entries": [

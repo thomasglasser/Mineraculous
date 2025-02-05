@@ -10,7 +10,7 @@ import net.minecraft.world.item.crafting.SimpleCraftingRecipeSerializer;
 public class MineraculousRecipeSerializers {
     public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(Registries.RECIPE_SERIALIZER, Mineraculous.MOD_ID);
 
-    public static final DeferredHolder<RecipeSerializer<?>, SimpleCraftingRecipeSerializer<CheeseWedgeRecipe>> CHEESE_WEDGE = RECIPE_SERIALIZERS.register("cheese_wedge", () -> new SimpleCraftingRecipeSerializer<>(CheeseWedgeRecipe::new));
+    public static final DeferredHolder<RecipeSerializer<?>, SimpleCraftingRecipeSerializer<CheeseWedgeRecipe>> CHEESE_WEDGE = RECIPE_SERIALIZERS.register("crafting_special_cheesewedge", () -> new SimpleCraftingRecipeSerializer<>(CheeseWedgeRecipe::new));
 
     public static void init() {}
 }

@@ -227,18 +227,20 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                         MiraculousData data = pPlayer.getData(MineraculousAttachmentTypes.MIRACULOUS).get(MineraculousMiraculous.LADYBUG);
                         CompoundTag extraData = data.extraData();
                         ListTag kamikos = extraData.getList(LadybugYoyoItem.TAG_STORED_KAMIKOS, 10);
-                        MineraculousCriteriaTriggers.RELEASED_PURIFIED_KAMIKO.get().trigger((ServerPlayer) pPlayer, kamikos.size());
-                        for (Tag tag : kamikos) {
-                            Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(serverLevel);
-                            if (kamiko != null && tag instanceof CompoundTag compoundTag) {
-                                kamiko.load(compoundTag);
-                                kamiko.setOwnerUUID(null);
-                                kamiko.setPos(pPlayer.getX(), pPlayer.getY() + 0.5, pPlayer.getZ());
-                                kamiko.addDeltaMovement(new Vec3(0, 1, 0));
-                                serverLevel.addFreshEntity(kamiko);
+                        if (!kamikos.isEmpty()) {
+                            MineraculousCriteriaTriggers.RELEASED_PURIFIED_KAMIKO.get().trigger((ServerPlayer) pPlayer, kamikos.size());
+                            for (Tag tag : kamikos) {
+                                Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(serverLevel);
+                                if (kamiko != null && tag instanceof CompoundTag compoundTag) {
+                                    kamiko.load(compoundTag);
+                                    kamiko.setOwnerUUID(null);
+                                    kamiko.setPos(pPlayer.getX(), pPlayer.getY() + 0.5, pPlayer.getZ());
+                                    kamiko.addDeltaMovement(new Vec3(0, 1, 0));
+                                    serverLevel.addFreshEntity(kamiko);
+                                }
                             }
+                            extraData.remove(LadybugYoyoItem.TAG_STORED_KAMIKOS);
                         }
-                        extraData.remove(LadybugYoyoItem.TAG_STORED_KAMIKOS);
                         pPlayer.getData(MineraculousAttachmentTypes.MIRACULOUS).put(pPlayer, MineraculousMiraculous.LADYBUG, data, true);
                     } else {
                         throwYoyo(stack, pPlayer, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY));

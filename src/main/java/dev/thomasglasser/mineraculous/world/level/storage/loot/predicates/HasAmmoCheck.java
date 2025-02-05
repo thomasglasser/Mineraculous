@@ -12,7 +12,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
 public record HasAmmoCheck(boolean hasAmmo) implements LootItemCondition {
     public static final MapCodec<HasAmmoCheck> CODEC = RecordCodecBuilder.mapCodec(
-            p_345271_ -> p_345271_.group(Codec.BOOL.fieldOf("has_ammo").forGetter(HasAmmoCheck::hasAmmo)).apply(p_345271_, HasAmmoCheck::new));
+            p_345271_ -> p_345271_.group(Codec.BOOL.optionalFieldOf("has_ammo", true).forGetter(HasAmmoCheck::hasAmmo)).apply(p_345271_, HasAmmoCheck::new));
 
     public boolean test(LootContext context) {
         Boolean hasAmmo = context.getParamOrNull(MineraculousLootContextParams.HAS_AMMO);

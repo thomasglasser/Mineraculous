@@ -270,6 +270,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 //        addConfig(MineraculousClientConfig.get().snapshotTesterCosmeticChoice, "Snapshot Tester Cosmetic Choice", "The Snapshot Tester Cosmetic to be displayed (if eligible)");
         addConfig(MineraculousClientConfig.get().displayDevTeamCosmetic, "Display Dev Team Cosmetic", "Display the Dev Team cosmetic (if eligible)");
         addConfig(MineraculousClientConfig.get().displayLegacyDevTeamCosmetic, "Display Legacy Dev Team Cosmetic", "Display the Legacy Dev Team cosmetic (if eligible)");
+
+        addConfigSection(MineraculousClientConfig.TOOL_WHEEL, "Tool Wheel", "Settings for the tool wheel");
+        addConfig(MineraculousClientConfig.get().animationSpeed, "Animation Speed", "The speed at which the tool wheel opens");
     }
 
     protected void cheese(String name, Map<CheeseBlock.Age, DeferredItem<?>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredItem<?>> waxedWedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxedBlocks) {

@@ -9,6 +9,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -120,6 +121,28 @@ public class ThrownButterflyCane extends AbstractArrow implements GeoEntity {
         if (this.inGroundTime > 4) {
             this.dealtDamage = true;
         }
+
+        Entity entity = this.getOwner();
+        if ((this.dealtDamage || this.isNoPhysics()) && entity != null) {
+            if (!(entity.isAlive() && (!(entity instanceof ServerPlayer) || !entity.isSpectator()))) {
+                if (!this.level().isClientSide && this.pickup == AbstractArrow.Pickup.ALLOWED) {
+                    this.spawnAtLocation(this.getPickupItem(), 0.1F);
+                }
+
+                this.discard();
+            } else {
+                this.setNoPhysics(true);
+                Vec3 vec3 = entity.getEyePosition().subtract(this.position());
+                this.setPosRaw(this.getX(), this.getY() + vec3.y * 0.015, this.getZ());
+                if (this.level().isClientSide) {
+                    this.yOld = this.getY();
+                }
+
+                double d0 = 0.05;
+                this.setDeltaMovement(this.getDeltaMovement().scale(0.95).add(vec3.normalize().scale(d0)));
+            }
+        }
+
         super.tick();
     }
 

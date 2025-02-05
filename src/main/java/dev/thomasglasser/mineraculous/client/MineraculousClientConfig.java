@@ -14,6 +14,10 @@ public class MineraculousClientConfig {
     public final ModConfigSpec.BooleanValue displayDevTeamCosmetic;
     public final ModConfigSpec.BooleanValue displayLegacyDevTeamCosmetic;
 
+    // Tool Wheel
+    public static final String TOOL_WHEEL = "tool_wheel";
+    public final ModConfigSpec.IntValue animationSpeed;
+
     public MineraculousClientConfig() {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
@@ -28,6 +32,10 @@ public class MineraculousClientConfig {
         displayLegacyDevTeamCosmetic = builder
                 .define("display_legacy_dev_team_cosmetic", true);
         builder.pop();
+
+        builder.push(TOOL_WHEEL);
+        animationSpeed = builder
+                .defineInRange("animation_speed", 10, 1, 20);
 
         configSpec = builder.build();
     }

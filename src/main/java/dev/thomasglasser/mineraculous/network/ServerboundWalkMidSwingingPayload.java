@@ -80,7 +80,6 @@ public record ServerboundWalkMidSwingingPayload(boolean front, boolean back, boo
                                 movement = new Vec3(movement.x, newY, movement.z);
                                 Mineraculous.LOGGER.info(String.valueOf(movement.y));
                             }
-                            //Mineraculous.LOGGER.info(String.valueOf(Y.y + thrownLadybugYoyo.getY()));
                             player.setDeltaMovement(movement);
                             player.hurtMarked = true;
                         }

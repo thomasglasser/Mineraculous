@@ -117,16 +117,16 @@ public class MineraculousEntityEvents {
 
     public static final BiFunction<Holder<MobEffect>, Integer, MobEffectInstance> INFINITE_HIDDEN_EFFECT = (effect, amplifier) -> new MobEffectInstance(effect, -1, amplifier, false, false, false);
 
-    public static final List<Holder<MobEffect>> MIRACULOUS_EFFECTS = List.of(
-            MobEffects.DAMAGE_RESISTANCE,
-            MobEffects.DAMAGE_BOOST,
-            MobEffects.MOVEMENT_SPEED,
-            MobEffects.DIG_SPEED,
-            MobEffects.JUMP,
-            MobEffects.REGENERATION,
-            MobEffects.HEALTH_BOOST,
-            MobEffects.SATURATION,
-            MobEffects.ABSORPTION);
+    public static final Map<Holder<MobEffect>, Integer> MIRACULOUS_EFFECTS = Map.of(
+            MobEffects.DAMAGE_RESISTANCE, 1,
+            MobEffects.DAMAGE_BOOST, 1,
+            MobEffects.MOVEMENT_SPEED, 1,
+            MobEffects.DIG_SPEED, 1,
+            MobEffects.JUMP, 2,
+            MobEffects.REGENERATION, 1,
+            MobEffects.HEALTH_BOOST, 1,
+            MobEffects.SATURATION, 1,
+            MobEffects.ABSORPTION, 1);
 
     public static void onEntityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
@@ -468,7 +468,7 @@ public class MineraculousEntityEvents {
                         if (data.name().isEmpty())
                             player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(Miraculous.toLanguageKey(miraculous)), miraculous.location().getPath()), true);
                         int powerLevel = data.powerLevel();
-                        MIRACULOUS_EFFECTS.forEach(effect -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, powerLevel / 10)));
+                        MIRACULOUS_EFFECTS.forEach((effect, startLevel) -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, startLevel + (powerLevel / 10))));
                         kwami.discard();
                         MiraculousData finalData = data;
                         serverLevel.holderOrThrow(miraculous).value().activeAbility().ifPresent(ability -> ability.value().transform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
@@ -509,6 +509,7 @@ public class MineraculousEntityEvents {
                     ((ChargeOverrideDataHolder) serverLevel.getServer().overworld()).mineraculous$getChargeOverrideData().put(kwami.getUUID(), false);
                 }
                 data = data.transform(false, miraculousStack, ((ToolIdDataHolder) serverLevel.getServer().overworld()).mineraculous$getToolIdData().getToolId(kwami.getUUID()));
+                ((LuckyCharmIdDataHolder) serverLevel).mineraculous$getLuckyCharmIdData().incrementLuckyCharmId(kwami.getUUID());
                 if (removed)
                     data = data.unEquip();
                 player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);
@@ -519,7 +520,7 @@ public class MineraculousEntityEvents {
                     }
                 }));
                 serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), serverLevel.holderOrThrow(miraculous).value().detransformSound(), SoundSource.PLAYERS, 1, 1);
-                MIRACULOUS_EFFECTS.forEach(player::removeEffect);
+                MIRACULOUS_EFFECTS.keySet().forEach(player::removeEffect);
                 MiraculousData finalData = data;
                 serverLevel.holderOrThrow(miraculous).value().activeAbility().ifPresent(ability -> ability.value().detransform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
                 serverLevel.holderOrThrow(miraculous).value().passiveAbilities().forEach(ability -> ability.value().detransform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
@@ -1060,7 +1061,7 @@ public class MineraculousEntityEvents {
                 } else {
                     CuriosUtils.setStackInSlot(player, data.slotInfo().right().get(), kamikotizationStack, true);
                 }
-                MIRACULOUS_EFFECTS.forEach(effect -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, 0)));
+                MIRACULOUS_EFFECTS.forEach((effect, startLevel) -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, startLevel)));
                 KamikotizationData finalData = data;
                 serverLevel.holderOrThrow(data.kamikotization()).value().activeAbility().ifPresent(ability -> ability.value().transform(new AbilityData(0, Either.right(finalData.kamikotization())), serverLevel, player.blockPosition(), player));
                 serverLevel.holderOrThrow(data.kamikotization()).value().passiveAbilities().forEach(ability -> ability.value().transform(new AbilityData(0, Either.right(finalData.kamikotization())), serverLevel, player.blockPosition(), player));
@@ -1100,7 +1101,7 @@ public class MineraculousEntityEvents {
                 else
                     data.save(player, true);
                 serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM, SoundSource.PLAYERS, 1, 1);
-                MIRACULOUS_EFFECTS.forEach(player::removeEffect);
+                MIRACULOUS_EFFECTS.keySet().forEach(player::removeEffect);
                 KamikotizationData finalData1 = data;
                 serverLevel.holderOrThrow(data.kamikotization()).value().activeAbility().ifPresent(ability -> ability.value().detransform(new AbilityData(0, Either.right(finalData1.kamikotization())), serverLevel, player.blockPosition(), player));
                 serverLevel.holderOrThrow(data.kamikotization()).value().passiveAbilities().forEach(ability -> ability.value().detransform(new AbilityData(0, Either.right(finalData1.kamikotization())), serverLevel, player.blockPosition(), player));
@@ -1134,7 +1135,7 @@ public class MineraculousEntityEvents {
     }
 
     public static void onMobEffectRemoved(MobEffectEvent.Remove event) {
-        if (event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed() && MIRACULOUS_EFFECTS.contains(event.getEffect()))
+        if (event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed() && MIRACULOUS_EFFECTS.containsKey(event.getEffect()))
             event.setCanceled(true);
     }
 

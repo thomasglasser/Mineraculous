@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
-import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -17,7 +16,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
@@ -41,7 +39,7 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
             float f = projectilePlayer.getAttackAnim(partialTick);
             float f1 = Mth.sin(Mth.sqrt(f) * 3.1415927F);
 
-            Vec3 vec3 = getPlayerHandPos(projectilePlayer, f1, partialTick, MineraculousItems.LADYBUG_YOYO.get(), Minecraft.getInstance().getEntityRenderDispatcher());
+            Vec3 vec3 = getPlayerHandPos(projectilePlayer, f1, partialTick, Minecraft.getInstance().getEntityRenderDispatcher());
             Vec3 projectilePos = projectileEntity.getPosition(partialTicks);
 
             VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
@@ -100,7 +98,7 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
         }
     }
 
-    public static Vec3 getPlayerHandPos(Player player, float p_340872_, float partialTick, Item item, EntityRenderDispatcher entityRenderDispatcher) {
+    public static Vec3 getPlayerHandPos(Player player, float p_340872_, float partialTick, EntityRenderDispatcher entityRenderDispatcher) {
         int i = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
 
         if (entityRenderDispatcher.options.getCameraType().isFirstPerson() && player == Minecraft.getInstance().player && entityRenderDispatcher.camera != null) { //ik the null check seems useless but i get crashes abt it

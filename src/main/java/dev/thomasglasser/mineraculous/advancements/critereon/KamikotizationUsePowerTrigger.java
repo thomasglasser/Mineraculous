@@ -32,7 +32,7 @@ public class KamikotizationUsePowerTrigger extends SimpleCriterionTrigger<Kamiko
                 p_337367_ -> p_337367_.group(
                         EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(KamikotizationUsePowerTrigger.TriggerInstance::player),
                         ResourceKey.codec(MineraculousRegistries.KAMIKOTIZATION).fieldOf("type").forGetter(KamikotizationUsePowerTrigger.TriggerInstance::type),
-                        StringRepresentable.fromEnum(Context::values).listOf().fieldOf("contexts").forGetter(KamikotizationUsePowerTrigger.TriggerInstance::contexts))
+                        StringRepresentable.fromEnum(Context::values).listOf().optionalFieldOf("contexts", Context.any()).forGetter(KamikotizationUsePowerTrigger.TriggerInstance::contexts))
                         .apply(p_337367_, KamikotizationUsePowerTrigger.TriggerInstance::new));
         public static Criterion<KamikotizationUsePowerTrigger.TriggerInstance> usedPower(ResourceKey<Kamikotization> type) {
             return usedPower(type, Context.any());

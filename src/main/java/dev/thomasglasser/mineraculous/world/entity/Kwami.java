@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -195,10 +196,10 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
                         new SetPlayerLookTarget<>(),
                         new SetRandomLookTarget<>()),
                 new FirstApplicableBehaviour<>(
-                        new FollowOwner<Kwami>().speedMod(10f).stopFollowingWithin(4).teleportToTargetAfter(10).startCondition(kwami -> kwami.getOwner() != null),
+                        new FollowOwner<Kwami>().speedMod(10f).stopFollowingWithin(2).teleportToTargetAfter(8).startCondition(kwami -> kwami.getOwner() != null),
                         new FollowTemptation<>(),
                         new OneRandomBehaviour<>(
-                                new SetRandomFlyingTarget<>(),
+                                new SetRandomFlyingTarget<>().flightTargetPredicate((entity, pos) -> entity.level().getBlockState(BlockPos.containing(pos)).isAir()),
                                 new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)))));
     }
 

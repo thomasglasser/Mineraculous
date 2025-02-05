@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -22,7 +23,6 @@ import net.minecraft.world.item.ItemStack;
 public class RadialMenuScreen extends Screen {
     private static final float MAX_CIRCLE_SIZE = 180f;
     private static final float PRECISION = 2.5f / 360.0f;
-    private static final int MAX_ANIMATION_TICKS = 10;
 
     protected final List<RadialMenuOption> options;
     protected final ItemStack stack;
@@ -99,10 +99,10 @@ public class RadialMenuScreen extends Screen {
     public void onClose() {
         float circleSize;
 
-        if (this.animationTick < MAX_ANIMATION_TICKS) {
+        if (this.animationTick < MineraculousClientConfig.get().animationSpeed.get()) {
             animationTime = this.animationTick;
         }
-        circleSize = animationTime * MAX_CIRCLE_SIZE / (float) MAX_ANIMATION_TICKS;
+        circleSize = animationTime * MAX_CIRCLE_SIZE / (float) MineraculousClientConfig.get().animationSpeed.get();
         circleSize /= 2f;
         int selectedOption = this.getSelectedOption((int) (currentMouseX - (double) width / 2), (int) (-1 * (currentMouseY - (double) height / 2)), circleSize);
         if (selectedOption != -1) {
@@ -124,7 +124,7 @@ public class RadialMenuScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
-        if (animationTick < MAX_ANIMATION_TICKS) {
+        if (animationTick < MineraculousClientConfig.get().animationSpeed.get()) {
             animationTick++;
         }
     }
@@ -138,10 +138,10 @@ public class RadialMenuScreen extends Screen {
 
         float circleSize;
 
-        if (this.animationTick < MAX_ANIMATION_TICKS) {
+        if (this.animationTick < MineraculousClientConfig.get().animationSpeed.get()) {
             animationTime = this.animationTick + pPartialTick;
         }
-        circleSize = animationTime * MAX_CIRCLE_SIZE / (float) MAX_ANIMATION_TICKS;
+        circleSize = animationTime * MAX_CIRCLE_SIZE / (float) MineraculousClientConfig.get().animationSpeed.get();
         circleSize /= 2f;
 
         int selectedOption = getSelectedOption(mouseX, mouseY, circleSize);

@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -46,9 +47,14 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "swing(Lnet/minecraft/world/InteractionHand;Z)V", at = @At("HEAD"), cancellable = true)
     private void swing(InteractionHand hand, boolean swingHand, CallbackInfo ci) {
-        if (mineraculous$INSTANCE.level().isClientSide() && mineraculous$INSTANCE instanceof Player player && player.isLocalPlayer() && player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(MineraculousMiraculous.BUTTERFLY).transformed() && MineraculousClientUtils.getCameraEntity() instanceof Player target && player != target && target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() && target.getHealth() > 4) {
-            TommyLibServices.NETWORK.sendToServer(new ServerboundHurtEntityPayload(target.getId(), DamageTypes.PLAYER_ATTACK, 15));
-            ci.cancel();
+        if (mineraculous$INSTANCE instanceof Player player && player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(MineraculousMiraculous.BUTTERFLY).transformed()) {
+            Entity camera = player.isLocalPlayer() ? MineraculousClientUtils.getCameraEntity() : ((ServerPlayer) player).getCamera();
+            if (camera instanceof Player target && player != target && target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() && target.getHealth() > 4) {
+                if (player.isLocalPlayer())
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundHurtEntityPayload(target.getId(), DamageTypes.PLAYER_ATTACK, 15));
+            }
+            if (camera != null && camera != mineraculous$INSTANCE)
+                ci.cancel();
         }
     }
 }

@@ -42,7 +42,7 @@ public class KamikoMenu {
         }
     };
     private final KamikoMenuListener listener;
-    private KamikoMenuCategory category;
+    private final KamikoMenuCategory category;
     private int selectedSlot = KamikoPage.NO_SELECTION;
     int page;
 

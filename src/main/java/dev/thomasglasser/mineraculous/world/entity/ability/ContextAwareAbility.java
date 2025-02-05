@@ -6,13 +6,15 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
+import org.jetbrains.annotations.Nullable;
 
-public record ContextAwareAbility(Optional<Ability> blockAbility, Optional<Ability> entityAbility, Optional<Ability> itemAbility, Optional<Ability> airAbility, List<Ability> passiveAbilities, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
+public record ContextAwareAbility(Optional<Ability> blockAbility, Optional<Ability> entityAbility, Optional<Ability> itemAbility, Optional<Ability> airAbility, List<Ability> passiveAbilities, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability, HasSubAbility {
 
     public static final MapCodec<ContextAwareAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Ability.DIRECT_CODEC.optionalFieldOf("block").forGetter(ContextAwareAbility::blockAbility),
@@ -52,6 +54,11 @@ public record ContextAwareAbility(Optional<Ability> blockAbility, Optional<Abili
         itemAbility.ifPresent(ability -> ability.restore(data, level, pos, entity));
         airAbility.ifPresent(ability -> ability.restore(data, level, pos, entity));
         passiveAbilities.forEach(ability -> ability.restore(data, level, pos, entity));
+    }
+
+    @Override
+    public @Nullable Ability getFirstMatching(Predicate<Ability> predicate) {
+        return blockAbility.map(ability -> Ability.getFirstMatching(predicate, ability)).orElseGet(() -> entityAbility.map(ability -> Ability.getFirstMatching(predicate, ability)).orElseGet(() -> itemAbility.map(ability -> Ability.getFirstMatching(predicate, ability)).orElseGet(() -> airAbility.map(ability -> Ability.getFirstMatching(predicate, ability)).orElseGet(() -> passiveAbilities.stream().filter(ability -> Ability.getFirstMatching(predicate, ability) != null).findFirst().orElse(null)))));
     }
 
     @Override

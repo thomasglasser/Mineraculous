@@ -24,6 +24,7 @@ import dev.thomasglasser.mineraculous.client.renderer.item.curio.ContextDependen
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.network.ServerboundKamikotizationTransformPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundSetOwnerPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetToggleTagPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
@@ -69,6 +70,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -112,9 +114,9 @@ public class MineraculousClientEvents {
         MineraculousItemProperties.init();
     }
 
-    public static void openToolWheel(ResourceKey<Miraculous> miraculousType, ItemStack stack, Consumer<RadialMenuOption> onSelected, RadialMenuOption... options) {
+    public static void openToolWheel(int color, ItemStack stack, Consumer<RadialMenuOption> onSelected, RadialMenuOption... options) {
         if (ClientUtils.getMinecraft().screen == null) {
-            ClientUtils.setScreen(new RadialMenuScreen(Arrays.asList(options), stack, onSelected, MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().getKey().getValue(), ClientUtils.getLevel().holderOrThrow(miraculousType).value().color().getValue()));
+            ClientUtils.setScreen(new RadialMenuScreen(Arrays.asList(options), stack, onSelected, MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().getKey().getValue(), color));
         }
     }
 
@@ -178,17 +180,20 @@ public class MineraculousClientEvents {
     private static void renderRevokeButton(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         if (revokeButton == null) {
             revokeButton = Button.builder(Component.translatable(REVOKE), button -> {
-                if (MineraculousClientUtils.getCameraEntity() instanceof Player target) {
+                Entity cameraEntity = MineraculousClientUtils.getCameraEntity();
+                if (cameraEntity instanceof Player target) {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(Optional.of(target.getUUID()), target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow(), false, false, false, target.position().add(0, 1, 0)));
                     TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
-                    MineraculousClientUtils.setCameraEntity(ClientUtils.getMainClientPlayer());
+                } else if (cameraEntity instanceof Kamiko kamiko) {
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetOwnerPayload(kamiko.getId(), Optional.empty()));
                 }
+                MineraculousClientUtils.setCameraEntity(ClientUtils.getMainClientPlayer());
             })
                     .bounds(Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 - 100, Minecraft.getInstance().getWindow().getGuiScaledHeight() - 40, 200, 20)
                     .build();
         }
 
-        if (MineraculousClientUtils.getCameraEntity() instanceof Player player && player != ClientUtils.getMainClientPlayer() && !ClientUtils.getMainClientPlayer().isSpectator() && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
+        if (!ClientUtils.getMainClientPlayer().isSpectator() && ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed() && (MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko && ClientUtils.getMainClientPlayer().getUUID().equals(kamiko.getOwnerUUID())) || (MineraculousClientUtils.getCameraEntity() instanceof Player player && player != ClientUtils.getMainClientPlayer() && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent())) {
             int mouseX = (int) (Minecraft.getInstance().mouseHandler.xpos()
                     * (double) Minecraft.getInstance().getWindow().getGuiScaledWidth()
                     / (double) Minecraft.getInstance().getWindow().getScreenWidth());

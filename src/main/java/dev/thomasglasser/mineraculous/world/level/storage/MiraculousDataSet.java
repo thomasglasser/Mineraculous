@@ -20,7 +20,10 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 public class MiraculousDataSet {
     public static final UnboundedMapCodec<ResourceKey<Miraculous>, MiraculousData> MAP_CODEC = Codec.unboundedMap(ResourceKey.codec(MineraculousRegistries.MIRACULOUS), MiraculousData.CODEC);
@@ -78,6 +81,10 @@ public class MiraculousDataSet {
 
     public boolean isTransformed() {
         return map.values().stream().anyMatch(MiraculousData::transformed);
+    }
+
+    public @Nullable ResourceKey<Miraculous> getFirstKeyIn(TagKey<Miraculous> tag, Level level) {
+        return keySet().stream().filter(key -> level.holderOrThrow(key).is(tag)).findFirst().orElse(null);
     }
 
     public void save(Entity entity, boolean syncToClient) {

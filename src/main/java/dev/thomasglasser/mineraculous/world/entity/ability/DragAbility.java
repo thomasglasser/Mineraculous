@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.advancements.critereon.MiraculousUsePowerT
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -17,8 +18,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
+import org.jetbrains.annotations.Nullable;
 
-public record DragAbility(Ability ability, int dragTicks, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
+public record DragAbility(Ability ability, int dragTicks, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability, HasSubAbility {
 
     public static final String DRAG_TICKS = "DragTicks";
     public static final MapCodec<DragAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -86,6 +88,11 @@ public record DragAbility(Ability ability, int dragTicks, Optional<Holder<SoundE
             case INTERACT_ENTITY -> context.entity() instanceof LivingEntity ? KamikotizationUsePowerTrigger.Context.LIVING_ENTITY : KamikotizationUsePowerTrigger.Context.ENTITY;
             case INTERACT_ITEM -> KamikotizationUsePowerTrigger.Context.ITEM;
         };
+    }
+
+    @Override
+    public @Nullable Ability getFirstMatching(Predicate<Ability> predicate) {
+        return predicate.test(this) ? this : predicate.test(ability) ? ability : null;
     }
 
     @Override

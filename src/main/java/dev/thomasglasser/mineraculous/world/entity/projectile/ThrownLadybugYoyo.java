@@ -3,12 +3,13 @@ package dev.thomasglasser.mineraculous.world.entity.projectile;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownLadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncLadybugYoyoPayload;
+import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
@@ -23,6 +24,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -350,14 +352,17 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 }
             } else if (getAbility() == LadybugYoyoItem.Ability.PURIFY && getOwner() != null && result.getEntity() instanceof Kamiko kamiko && kamiko.isPowered()) {
                 MiraculousDataSet miraculousDataSet = getOwner().getData(MineraculousAttachmentTypes.MIRACULOUS);
-                MiraculousData data = miraculousDataSet.get(MineraculousMiraculous.LADYBUG);
-                CompoundTag kamikoData = kamiko.saveWithoutId(new CompoundTag());
-                ListTag list = data.extraData().getList(LadybugYoyoItem.TAG_STORED_KAMIKOS, 10);
-                list.add(kamikoData);
-                kamiko.discard();
-                data.extraData().put(LadybugYoyoItem.TAG_STORED_KAMIKOS, list);
-                miraculousDataSet.put(getOwner(), MineraculousMiraculous.LADYBUG, data, true);
-                discard();
+                ResourceKey<Miraculous> storingKey = miraculousDataSet.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_LADYBUG_YOYO, level());
+                MiraculousData storingData = miraculousDataSet.get(storingKey);
+                if (storingData != null) {
+                    CompoundTag kamikoData = kamiko.saveWithoutId(new CompoundTag());
+                    ListTag list = storingData.extraData().getList(LadybugYoyoItem.TAG_STORED_KAMIKOS, 10);
+                    list.add(kamikoData);
+                    kamiko.discard();
+                    storingData.extraData().put(LadybugYoyoItem.TAG_STORED_KAMIKOS, list);
+                    miraculousDataSet.put(getOwner(), storingKey, storingData, true);
+                    discard();
+                }
             }
         }
     }

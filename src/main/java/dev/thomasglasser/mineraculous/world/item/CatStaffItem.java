@@ -12,8 +12,11 @@ import dev.thomasglasser.mineraculous.network.ServerboundActivateToolPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetCatStaffAbilityPayload;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
+import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
+import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -29,6 +32,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -51,6 +55,7 @@ import net.minecraft.world.item.ProjectileItem;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -145,7 +150,17 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown()) {
                         if (stack.has(MineraculousDataComponents.ACTIVE)) {
-                            MineraculousClientEvents.openToolWheel(MineraculousMiraculous.CAT, stack, option -> {
+                            int color = level.holderOrThrow(MineraculousMiraculous.CAT).value().color().getValue();
+                            ResolvableProfile resolvableProfile = stack.get(DataComponents.PROFILE);
+                            if (resolvableProfile != null) {
+                                Player staffOwner = player.level().getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
+                                if (staffOwner != null) {
+                                    ResourceKey<Miraculous> colorKey = staffOwner.getData(MineraculousAttachmentTypes.MIRACULOUS).getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_CAT_STAFF, level);
+                                    if (colorKey != null)
+                                        color = level.holderOrThrow(colorKey).value().color().getValue();
+                                }
+                            }
+                            MineraculousClientEvents.openToolWheel(color, stack, option -> {
                                 if (option instanceof Ability ability) {
                                     stack.set(MineraculousDataComponents.CAT_STAFF_ABILITY.get(), ability);
                                     TommyLibServices.NETWORK.sendToServer(new ServerboundSetCatStaffAbilityPayload(player.getInventory().findSlotMatchingItem(stack), ability.name()));

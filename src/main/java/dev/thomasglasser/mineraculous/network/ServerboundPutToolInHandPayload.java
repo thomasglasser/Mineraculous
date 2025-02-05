@@ -34,6 +34,7 @@ public record ServerboundPutToolInHandPayload(ResourceKey<Miraculous> miraculous
                     ItemStack itemstack = player.getInventory().getItem(i);
                     if (itemstack.is(defaultTool.getItem()) && itemstack.has(MineraculousDataComponents.KWAMI_DATA.get()) && itemstack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(uuid)) {
                         player.getInventory().setPickedItem(itemstack);
+                        player.getInventory().setItem(i, ItemStack.EMPTY);
                         return;
                     }
                 }

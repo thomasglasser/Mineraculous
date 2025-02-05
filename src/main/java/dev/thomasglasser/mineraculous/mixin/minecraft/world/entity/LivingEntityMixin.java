@@ -5,7 +5,6 @@ import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.network.ServerboundHurtEntityPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -47,7 +46,7 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "swing(Lnet/minecraft/world/InteractionHand;Z)V", at = @At("HEAD"), cancellable = true)
     private void swing(InteractionHand hand, boolean swingHand, CallbackInfo ci) {
-        if (mineraculous$INSTANCE instanceof Player player && player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(MineraculousMiraculous.BUTTERFLY).transformed()) {
+        if (mineraculous$INSTANCE instanceof Player player && player.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed()) {
             Entity camera = player.isLocalPlayer() ? MineraculousClientUtils.getCameraEntity() : ((ServerPlayer) player).getCamera();
             if (camera instanceof Player target && player != target && target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() && target.getHealth() > 4) {
                 if (player.isLocalPlayer())

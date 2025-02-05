@@ -43,12 +43,16 @@ public record SetOwnerAbility(Optional<Integer> maxOfTypes, Optional<EntityPredi
     public boolean canActivate(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
         List<Entity> like = new ArrayList<>();
         for (Entity e : level.getEntities().getAll()) {
-            if ((validEntities.isEmpty() || validEntities.get().matches(level, e.position(), e))
-                    && (invalidEntities.isEmpty() || !invalidEntities.get().matches(level, e.position(), e))
-                    && (e instanceof TamableAnimal ta && ta.isOwnedBy(entity)))
+            if (isValid(e) && (entity instanceof TamableAnimal ta && ta.isOwnedBy(entity)))
                 like.add(e);
         }
         return maxOfTypes.isEmpty() || like.size() < maxOfTypes.get();
+    }
+
+    public boolean isValid(Entity entity) {
+        ServerLevel level = (ServerLevel) entity.level();
+        return (validEntities.isEmpty() || validEntities.get().matches(level, entity.position(), entity))
+                && (invalidEntities.isEmpty() || !invalidEntities.get().matches(level, entity.position(), entity));
     }
 
     @Override

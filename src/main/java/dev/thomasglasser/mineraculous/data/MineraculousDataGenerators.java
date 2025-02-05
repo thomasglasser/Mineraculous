@@ -19,6 +19,7 @@ import dev.thomasglasser.mineraculous.data.tags.MineraculousDamageTypeTagsProvid
 import dev.thomasglasser.mineraculous.data.tags.MineraculousItemTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousPaintingVariantTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousPoiTypeTagsProvider;
+import dev.thomasglasser.mineraculous.data.tags.MiraculousTagProvider;
 import dev.thomasglasser.mineraculous.data.trimmed.MineraculousTrimDatagenSuite;
 import dev.thomasglasser.mineraculous.data.worldgen.MineraculousWorldgenModifiers;
 import dev.thomasglasser.mineraculous.packs.MineraculousPacks;
@@ -107,6 +108,7 @@ public class MineraculousDataGenerators {
         generator.addProvider(onServer, new MineraculousAdvancementProvider(packOutput, registries, existingFileHelper, enUs));
         generator.addProvider(onServer, new MineraculousDamageTypeTagsProvider(packOutput, registries, existingFileHelper));
         generator.addProvider(onServer, new MineraculousPaintingVariantTagsProvider(packOutput, registries, existingFileHelper));
+        generator.addProvider(onServer, new MiraculousTagProvider(packOutput, registries, Mineraculous.MOD_ID, existingFileHelper));
         generator.addProvider(onServer, new MineraculousBookProvider(packOutput, registries, enUs::add));
 
         // Client

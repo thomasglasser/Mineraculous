@@ -2,8 +2,8 @@ package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
@@ -35,14 +35,14 @@ public record ServerboundSetButterflyCaneAbilityPayload(int slot, String selecte
         if (old != current) {
             ServerLevel serverlevel = (ServerLevel) player.level();
             MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-            MiraculousData butterflyData = miraculousDataSet.get(MineraculousMiraculous.BUTTERFLY);
+            MiraculousData storingData = miraculousDataSet.get(miraculousDataSet.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_BUTTERFLY_CANE, serverlevel));
             if (old == ButterflyCaneItem.Ability.BLADE)
                 ((SingletonGeoAnimatable) stack.getItem()).triggerAnim(player, GeoItem.getOrAssignId(stack, serverlevel), ButterflyCaneItem.CONTROLLER_USE, ButterflyCaneItem.ANIMATION_SHEATHE);
-            else if (old == ButterflyCaneItem.Ability.KAMIKO_STORE && !butterflyData.extraData().contains(ButterflyCaneItem.TAG_STORED_KAMIKO))
+            else if (old == ButterflyCaneItem.Ability.KAMIKO_STORE && storingData != null && !storingData.extraData().contains(ButterflyCaneItem.TAG_STORED_KAMIKO))
                 ((SingletonGeoAnimatable) stack.getItem()).triggerAnim(player, GeoItem.getOrAssignId(stack, serverlevel), ButterflyCaneItem.CONTROLLER_USE, ButterflyCaneItem.ANIMATION_CLOSE);
             if (current == ButterflyCaneItem.Ability.BLADE)
                 ((SingletonGeoAnimatable) stack.getItem()).triggerAnim(player, GeoItem.getOrAssignId(stack, serverlevel), ButterflyCaneItem.CONTROLLER_USE, ButterflyCaneItem.ANIMATION_UNSHEATHE);
-            else if (current == ButterflyCaneItem.Ability.KAMIKO_STORE && !butterflyData.extraData().contains(ButterflyCaneItem.TAG_STORED_KAMIKO))
+            else if (current == ButterflyCaneItem.Ability.KAMIKO_STORE && storingData != null && !storingData.extraData().contains(ButterflyCaneItem.TAG_STORED_KAMIKO))
                 ((SingletonGeoAnimatable) stack.getItem()).triggerAnim(player, GeoItem.getOrAssignId(stack, serverlevel), ButterflyCaneItem.CONTROLLER_USE, ButterflyCaneItem.ANIMATION_OPEN);
         }
     }

@@ -5,6 +5,7 @@ import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.ability.NightVisionAbility;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -37,11 +38,16 @@ public abstract class MinecraftMixin {
             CompoundTag data = TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer());
             if (data.getBoolean(MineraculousEntityEvents.TAG_HAS_NIGHT_VISION)) {
                 ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed(ClientUtils.getLevel().registryAccess()).forEach(type -> {
-                    if (type.activeAbility().isPresent() && type.activeAbility().get().value() instanceof NightVisionAbility nightVisionAbility && nightVisionAbility.shader().isPresent()) {
-                        MineraculousClientUtils.setShader(nightVisionAbility.shader().get());
+                    if (type.activeAbility().isPresent()) {
+                        NightVisionAbility nightVisionAbility = Ability.getFirstMatching(ability -> ability instanceof NightVisionAbility n && n.shader().isPresent(), type.activeAbility().get().value()) instanceof NightVisionAbility n ? n : null;
+                        if (nightVisionAbility != null) {
+                            MineraculousClientUtils.setShader(nightVisionAbility.shader().get());
+                        }
                     } else {
-                        type.passiveAbilities().stream().filter(abilityHolder -> abilityHolder.value() instanceof NightVisionAbility nightVisionAbility && nightVisionAbility.shader().isPresent())
-                                .findFirst().ifPresent(abilityHolder -> MineraculousClientUtils.setShader(((NightVisionAbility) abilityHolder.value()).shader().get()));
+                        NightVisionAbility nightVisionAbility = type.passiveAbilities().stream().filter(ability -> Ability.getFirstMatching(a -> a instanceof NightVisionAbility n && n.shader().isPresent(), ability.value()) instanceof NightVisionAbility).findFirst().orElse(null) instanceof NightVisionAbility n ? n : null;
+                        if (nightVisionAbility != null) {
+                            MineraculousClientUtils.setShader(nightVisionAbility.shader().get());
+                        }
                     }
                 });
             } else if (data.getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK) && getCameraEntity() != ClientUtils.getMainClientPlayer()) {

@@ -29,7 +29,6 @@ import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.ability.NightVisionAbility;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerTrades;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
@@ -218,8 +217,9 @@ public class MineraculousEntityEvents {
                         return stackId != currentId;
                     }
                 } else if (itemStack.has(MineraculousDataComponents.KAMIKOTIZATION)) {
-                    if (itemStack.has(DataComponents.PROFILE)) {
-                        Player target = serverPlayer.level().getPlayerByUUID(itemStack.get(DataComponents.PROFILE).id().orElseThrow());
+                    ResolvableProfile resolvableProfile = itemStack.get(DataComponents.PROFILE);
+                    if (resolvableProfile != null) {
+                        Player target = serverPlayer.level().getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
                         return target == null || target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isEmpty();
                     }
                     if (itemStack.has(MineraculousDataComponents.LUCKY_CHARM)) {
@@ -250,8 +250,9 @@ public class MineraculousEntityEvents {
                             itemStack.shrink(1);
                     }
                 } else if (itemStack.has(MineraculousDataComponents.KAMIKOTIZATION)) {
-                    if (itemStack.has(DataComponents.PROFILE)) {
-                        Player target = serverPlayer.level().getPlayerByUUID(itemStack.get(DataComponents.PROFILE).id().orElseThrow());
+                    ResolvableProfile resolvableProfile = itemStack.get(DataComponents.PROFILE);
+                    if (resolvableProfile != null) {
+                        Player target = serverPlayer.level().getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
                         if (target == null || target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isEmpty())
                             itemStack.shrink(1);
                     }
@@ -931,7 +932,7 @@ public class MineraculousEntityEvents {
                 }
             } else if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
                 KamikotizationData data = entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
-                Style newStyle = style.withColor(entity.level().holderOrThrow(MineraculousMiraculous.BUTTERFLY).value().color());
+                Style newStyle = style.withColor(data.kamikoData().nameColor());
                 return Entity.removeAction(Component.literal(data.name()).setStyle(newStyle.withHoverEvent(null)));
             }
         }
@@ -967,10 +968,15 @@ public class MineraculousEntityEvents {
         } else {
             if (event.getEntity() instanceof ServerPlayer player) {
                 event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed(event.getLevel().registryAccess()).forEach(miraculous -> {
-                    if (miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value() instanceof NightVisionAbility nightVisionAbility) {
-                        nightVisionAbility.resetNightVision(player);
+                    if (miraculous.activeAbility().isPresent()) {
+                        NightVisionAbility nightVisionAbility = Ability.getFirstMatching(ability -> ability instanceof NightVisionAbility, miraculous.activeAbility().get().value()) instanceof NightVisionAbility n ? n : null;
+                        if (nightVisionAbility != null)
+                            nightVisionAbility.resetNightVision(player);
                     }
-                    miraculous.passiveAbilities().stream().filter(ability -> ability.value() instanceof NightVisionAbility).map(ability -> (NightVisionAbility) ability.value()).forEach(nightVisionAbility -> nightVisionAbility.resetNightVision(player));
+                    List<NightVisionAbility> abilities = miraculous.passiveAbilities().stream().filter(ability -> Ability.getFirstMatching(a -> a instanceof NightVisionAbility, ability.value()) instanceof NightVisionAbility).map(ability -> (NightVisionAbility) ability.value()).toList();
+                    for (NightVisionAbility ability : abilities) {
+                        ability.resetNightVision(player);
+                    }
                 });
 
                 MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);

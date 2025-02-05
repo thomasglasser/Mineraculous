@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.RegistryFixedCodec;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 public interface Ability {
     Codec<Ability> DIRECT_CODEC = MineraculousBuiltInRegistries.ABILITY_SERIALIZER.byNameCodec()
@@ -46,6 +48,16 @@ public interface Ability {
     }
 
     MapCodec<? extends Ability> codec();
+
+    static @Nullable Ability getFirstMatching(Predicate<Ability> predicate, Ability ability) {
+        if (predicate.test(ability))
+            return ability;
+        return ability instanceof HasSubAbility hasSubAbility ? hasSubAbility.getFirstMatching(predicate) : null;
+    }
+
+    static boolean hasMatching(Predicate<Ability> predicate, Ability ability) {
+        return getFirstMatching(predicate, ability) != null;
+    }
 
     enum Context {
         INTERACT_BLOCK,

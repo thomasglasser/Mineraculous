@@ -6,6 +6,7 @@ import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
@@ -27,9 +28,11 @@ public record ServerboundJumpMidSwingingPayload() implements ExtendedPacketPaylo
                 Vec3 fromProjectileToPlayer = new Vec3(player.getX() - thrownLadybugYoyo.getX(), player.getY() - thrownLadybugYoyo.getY(), player.getZ() - thrownLadybugYoyo.getZ());
                 double distance = fromProjectileToPlayer.length();
                 if (thrownLadybugYoyo.inGround() && !player.isNoGravity() && !player.onGround() && !player.getAbilities().flying && distance >= thrownLadybugYoyo.getServerMaxRopeLength() - 0.2) {
-                    player.addDeltaMovement(new Vec3(0, 1.2, 0));
-                    player.hurtMarked = true;
-                    thrownLadybugYoyo.recall();
+                    if (!level.getBlockState(new BlockPos((int) player.getX(), (int) player.getY() - 1, (int) player.getZ())).isSolid()) {
+                        player.addDeltaMovement(new Vec3(0, 1.2, 0));
+                        player.hurtMarked = true;
+                        thrownLadybugYoyo.recall();
+                    }
                 }
             }
         }

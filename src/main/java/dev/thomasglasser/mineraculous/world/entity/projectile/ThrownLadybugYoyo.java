@@ -183,7 +183,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     Vec3 constrainedPosition = player.position()
                             .add(fromProjectileToPlayer.normalize().scale(this.getServerMaxRopeLength() - distance));
                     normalCollisions(false, player);
-                    if (player.level().isEmptyBlock(new BlockPos((int) constrainedPosition.x, (int) (constrainedPosition.y + 0.5), (int) constrainedPosition.z))) {
+                    if (!player.level().getBlockState(new BlockPos((int) constrainedPosition.x, (int) (constrainedPosition.y + 0.5), (int) constrainedPosition.z)).isSolid()) {
                         player.setPos(constrainedPosition.x, constrainedPosition.y, constrainedPosition.z);
                     }
 

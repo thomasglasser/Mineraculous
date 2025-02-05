@@ -6,7 +6,6 @@ import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -38,7 +37,7 @@ public record ServerboundWalkMidSwingingPayload(boolean front, boolean back, boo
                 float maxRopeLn = thrownLadybugYoyo.getServerMaxRopeLength();
                 Vec3 ox = new Vec3(maxRopeLn, 0, 0);
                 Vec3 oy = new Vec3(0, -1 * (double) maxRopeLn, 0);
-                Vec3 Y = ox.add(oy).normalize().scale(maxRopeLn);
+                Vec3 Y = ox.add(oy.scale(1.7)).normalize().scale(maxRopeLn);
                 if (thrownLadybugYoyo.inGround() && !player.isNoGravity() && !player.getAbilities().flying) {
                     if (distance >= maxRopeLn - 0.2 && !player.onGround()) {
                         if (player.getY() < Y.y + thrownLadybugYoyo.getY() + 3 && !player.isCrouching()) { //player.getY() < Y.y + thrownLadybugYoyo.getY() &&
@@ -78,7 +77,6 @@ public record ServerboundWalkMidSwingingPayload(boolean front, boolean back, boo
                                 double newY = movement.y - (Y.y + thrownLadybugYoyo.getY());
                                 newY = newY < 0 ? 0 : newY;
                                 movement = new Vec3(movement.x, newY, movement.z);
-                                Mineraculous.LOGGER.info(String.valueOf(movement.y));
                             }
                             player.setDeltaMovement(movement);
                             player.hurtMarked = true;
@@ -87,15 +85,10 @@ public record ServerboundWalkMidSwingingPayload(boolean front, boolean back, boo
                     if (up && distance > 2) {
                         thrownLadybugYoyo.setServerMaxRopeLength(thrownLadybugYoyo.getServerMaxRopeLength() - 0.2f);
                         thrownLadybugYoyo.updateRenderMaxRopeLength(player);
-                    } else if (down) {
+                        //Mineraculous.LOGGER.info(String.valueOf(distance - fromPlayerToProjectile.length()));
+                    } else if (down && distance >= maxRopeLn - 0.2) {
                         thrownLadybugYoyo.setServerMaxRopeLength(thrownLadybugYoyo.getServerMaxRopeLength() + 0.3f);
                         thrownLadybugYoyo.updateRenderMaxRopeLength(player);
-                        Vec3 constrainedPosition = player.position()
-                                .add(fromProjectileToPlayer.normalize().scale(distance - thrownLadybugYoyo.getServerMaxRopeLength()));
-                        thrownLadybugYoyo.normalCollisions(false, player);
-                        if (player.level().isEmptyBlock(new BlockPos((int) constrainedPosition.x, (int) (constrainedPosition.y + 0.5), (int) constrainedPosition.z))) {
-                            player.setPos(constrainedPosition.x, constrainedPosition.y, constrainedPosition.z);
-                        }
                     }
                 }
             }

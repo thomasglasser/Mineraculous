@@ -28,6 +28,7 @@ import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilities
 import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
+import dev.thomasglasser.tommylib.api.data.info.ModRegistryDumpReport;
 import dev.worldgen.lithostitched.registry.LithostitchedRegistryKeys;
 import java.util.List;
 import java.util.Optional;
@@ -94,6 +95,7 @@ public class MineraculousDataGenerators {
         DatapackBuiltinEntriesProvider builtinEntriesProvider = new DatapackBuiltinEntriesProvider(packOutput, registries, BUILDER, Set.of(Mineraculous.MOD_ID));
         generator.addProvider(onServer, builtinEntriesProvider);
         registries = builtinEntriesProvider.getRegistryProvider();
+        generator.addProvider(onServer, new ModRegistryDumpReport(packOutput, Mineraculous.MOD_ID, registries));
         MineraculousBlockTagsProvider blockTagsProvider = new MineraculousBlockTagsProvider(packOutput, registries, existingFileHelper);
         generator.addProvider(onServer, blockTagsProvider);
         generator.addProvider(onServer, new MineraculousItemTagsProvider(packOutput, registries, blockTagsProvider.contentsGetter(), existingFileHelper));

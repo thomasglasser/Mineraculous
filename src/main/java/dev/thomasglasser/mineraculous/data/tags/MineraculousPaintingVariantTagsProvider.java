@@ -2,17 +2,19 @@ package dev.thomasglasser.mineraculous.data.tags;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
+import dev.thomasglasser.tommylib.api.data.tags.ExtendedTagsProvider;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.tags.PaintingVariantTagsProvider;
 import net.minecraft.tags.PaintingVariantTags;
+import net.minecraft.world.entity.decoration.PaintingVariant;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
-public class MineraculousPaintingVariantTagsProvider extends PaintingVariantTagsProvider {
+public class MineraculousPaintingVariantTagsProvider extends ExtendedTagsProvider<PaintingVariant> {
     public MineraculousPaintingVariantTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> provider, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, provider, Mineraculous.MOD_ID, existingFileHelper);
+        super(output, Registries.PAINTING_VARIANT, provider, Mineraculous.MOD_ID, existingFileHelper);
     }
 
     @Override

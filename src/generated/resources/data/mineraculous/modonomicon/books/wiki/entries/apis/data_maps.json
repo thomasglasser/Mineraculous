@@ -7,7 +7,7 @@
   "icon": {
     "components": {
       "mineraculous:lucky_charm": {
-        "id": -1
+        "id": 0
       }
     },
     "item": "minecraft:bow"

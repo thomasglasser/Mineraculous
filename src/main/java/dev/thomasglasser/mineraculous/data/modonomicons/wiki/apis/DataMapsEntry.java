@@ -46,7 +46,7 @@ public class DataMapsEntry extends IndexModeEntryProvider {
     @Override
     protected BookIconModel entryIcon() {
         ItemStack stack = new ItemStack(Items.BOW);
-        stack.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.empty(), -1));
+        stack.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.empty(), 0));
         return BookIconModel.create(stack);
     }
 

@@ -96,19 +96,19 @@ public class MineraculousDataGenerators {
         DatapackBuiltinEntriesProvider builtinEntriesProvider = new DatapackBuiltinEntriesProvider(packOutput, registries, BUILDER, Set.of(Mineraculous.MOD_ID));
         generator.addProvider(onServer, builtinEntriesProvider);
         registries = builtinEntriesProvider.getRegistryProvider();
+        generator.addProvider(onServer, new MineraculousLootTables(packOutput, registries));
+        generator.addProvider(onServer, new MineraculousRecipes(packOutput, registries));
+        generator.addProvider(onServer, new MineraculousAdvancementProvider(packOutput, registries, existingFileHelper, enUs));
         generator.addProvider(onServer, new ModRegistryDumpReport(packOutput, Mineraculous.MOD_ID, registries));
         MineraculousBlockTagsProvider blockTagsProvider = new MineraculousBlockTagsProvider(packOutput, registries, existingFileHelper);
         generator.addProvider(onServer, blockTagsProvider);
         generator.addProvider(onServer, new MineraculousItemTagsProvider(packOutput, registries, blockTagsProvider.contentsGetter(), existingFileHelper));
-        generator.addProvider(onServer, new MineraculousCuriosProvider(packOutput, existingFileHelper, registries));
-        generator.addProvider(onServer, new MineraculousLootTables(packOutput, registries));
-        generator.addProvider(onServer, new MineraculousRecipes(packOutput, registries));
         generator.addProvider(onServer, new MineraculousPoiTypeTagsProvider(packOutput, registries, existingFileHelper));
-        generator.addProvider(onServer, new MineraculousDataMapProvider(packOutput, registries));
-        generator.addProvider(onServer, new MineraculousAdvancementProvider(packOutput, registries, existingFileHelper, enUs));
         generator.addProvider(onServer, new MineraculousDamageTypeTagsProvider(packOutput, registries, existingFileHelper));
         generator.addProvider(onServer, new MineraculousPaintingVariantTagsProvider(packOutput, registries, existingFileHelper));
         generator.addProvider(onServer, new MiraculousTagProvider(packOutput, registries, Mineraculous.MOD_ID, existingFileHelper));
+        generator.addProvider(onServer, new MineraculousDataMapProvider(packOutput, registries));
+        generator.addProvider(onServer, new MineraculousCuriosProvider(packOutput, existingFileHelper, registries));
         generator.addProvider(onServer, new MineraculousBookProvider(packOutput, registries, enUs::add));
 
         // Client

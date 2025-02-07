@@ -1,9 +1,0 @@
-{
-  "values": [
-    "mineraculous:cataclysm_dust",
-    {
-      "id": "#c:unbreakable_blocks",
-      "required": false
-    }
-  ]
-}

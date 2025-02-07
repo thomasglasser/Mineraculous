@@ -1,5 +1,0 @@
-{
-  "type": "mineraculous:summon_lucky_charm",
-  "require_tool": true,
-  "start_sound": "mineraculous:lucky_charm_activate"
-}

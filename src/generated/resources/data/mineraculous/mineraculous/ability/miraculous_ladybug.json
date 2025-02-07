@@ -1,9 +1,0 @@
-{
-  "type": "mineraculous:lucky_charm_world_recovery",
-  "override_active": true,
-  "require_in_hand": true,
-  "spread_particle": {
-    "type": "mineraculous:spreading_ladybug"
-  },
-  "start_sound": "mineraculous:miraculous_ladybug_activate"
-}

@@ -117,7 +117,7 @@
   "book.mineraculous.wiki.apis.tags.damage_type.text": "There is a damage type tag for those resisted by miraculous.\n",
   "book.mineraculous.wiki.apis.tags.damage_type.title": "Damage Type",
   "book.mineraculous.wiki.apis.tags.description": "Lists used for mod functionality",
-  "book.mineraculous.wiki.apis.tags.generator.text": "A generator for tags can be found online [here](https://snapshot-jsons.thomasglasser.dev/generators/).\n",
+  "book.mineraculous.wiki.apis.tags.generator.text": "A generator for vanilla tags can be found online [here](https://snapshot-jsons.thomasglasser.dev/generators/) and mod tags can be found online [here](https://snapshot-jsons.thomasglasser.dev/partners/).\n",
   "book.mineraculous.wiki.apis.tags.generator.title": "Generator",
   "book.mineraculous.wiki.apis.tags.item.text": "There are tags for all of the kwami foods and treats.\nThere are also lucky charm tags for general situations, guardians, and warden distractors.\nThere is a tag for cataclysm immune items and tough items that take longer to break.\nThere are tags for cheeses as well.\n",
   "book.mineraculous.wiki.apis.tags.item.title": "Item",

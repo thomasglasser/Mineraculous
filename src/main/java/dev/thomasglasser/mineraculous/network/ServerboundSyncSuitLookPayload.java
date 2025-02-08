@@ -1,8 +1,7 @@
 package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
-import dev.thomasglasser.mineraculous.server.commands.MiraculousCommand;
+import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
@@ -10,42 +9,26 @@ import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.Optional;
-import java.util.UUID;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 
-public record ServerboundSyncSuitLookPayload(Optional<UUID> senderId, boolean announce, FlattenedSuitLookData data) implements ExtendedPacketPayload {
-
+public record ServerboundSyncSuitLookPayload(ResourceKey<Miraculous> key, FlattenedSuitLookData data) implements ExtendedPacketPayload {
     public static final Type<ServerboundSyncSuitLookPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_sync_suit_look"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundSyncSuitLookPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), ServerboundSyncSuitLookPayload::senderId,
-            ByteBufCodecs.BOOL, ServerboundSyncSuitLookPayload::announce,
+            ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS), ServerboundSyncSuitLookPayload::key,
             FlattenedSuitLookData.CODEC, ServerboundSyncSuitLookPayload::data,
             ServerboundSyncSuitLookPayload::new);
 
     // ON SERVER
     @Override
     public void handle(Player player) {
-        Player sender = senderId.map(uuid -> player.level().getPlayerByUUID(uuid)).orElse(null);
-        CommandSourceStack commandSourceStack = sender == null ? player.getServer().createCommandSourceStack() : sender.createCommandSourceStack();
-        if (!MineraculousServerConfig.isCustomizationAllowed(player)) {
-            if (announce)
-                commandSourceStack.sendFailure(Component.translatable(MiraculousCommand.CUSTOM_LOOKS_NOT_ENABLED));
-        } else if (announce) {
-            commandSourceStack.sendSuccess(() -> sender == player ? Component.translatable(MiraculousCommand.LOOK_SUIT_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(data.miraculous())), data.look()) : Component.translatable(MiraculousCommand.LOOK_SUIT_SET_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(data.miraculous())), data.look()), true);
-        }
-
         MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-        miraculousDataSet.put(player, data.miraculous(), miraculousDataSet.get(data.miraculous()).withSuitLook(data.look()), false);
-        ((FlattenedLookDataHolder) player.getServer().overworld()).mineraculous$addSuitLookData(player.getUUID(), data);
-        TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(player.getUUID(), data, true), player.getServer());
+        miraculousDataSet.put(player, key, miraculousDataSet.get(key).withSuitLook(data.look()), false);
+        ((FlattenedLookDataHolder) player.getServer().overworld()).mineraculous$addSuitLookData(player.getUUID(), key, data);
+        TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(player.getUUID(), key, data, true), player.getServer());
     }
 
     @Override

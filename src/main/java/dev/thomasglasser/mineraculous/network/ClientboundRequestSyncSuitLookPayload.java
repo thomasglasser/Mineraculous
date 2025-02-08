@@ -13,9 +13,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import net.minecraft.client.Minecraft;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -23,12 +21,9 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 
-public record ClientboundRequestSyncSuitLookPayload(Optional<UUID> senderId, boolean announce, ResourceKey<Miraculous> miraculous, String look) implements ExtendedPacketPayload {
-
+public record ClientboundRequestSyncSuitLookPayload(ResourceKey<Miraculous> miraculous, String look) implements ExtendedPacketPayload {
     public static final Type<ClientboundRequestSyncSuitLookPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_request_sync_suit_look"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundRequestSyncSuitLookPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), ClientboundRequestSyncSuitLookPayload::senderId,
-            ByteBufCodecs.BOOL, ClientboundRequestSyncSuitLookPayload::announce,
             ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS), ClientboundRequestSyncSuitLookPayload::miraculous,
             ByteBufCodecs.STRING_UTF8, ClientboundRequestSyncSuitLookPayload::look,
             ClientboundRequestSyncSuitLookPayload::new);
@@ -40,7 +35,6 @@ public record ClientboundRequestSyncSuitLookPayload(Optional<UUID> senderId, boo
         String type = miraculous.location().getPath();
         File folder = new File(Minecraft.getInstance().gameDirectory, "miraculouslooks" + File.separator + "suits" + File.separator + namespace + File.separator + type);
         if (!folder.exists()) {
-            sendFail();
             return;
         }
         File texture = new File(folder, look + ".png");
@@ -69,18 +63,11 @@ public record ClientboundRequestSyncSuitLookPayload(Optional<UUID> senderId, boo
                         convertedGlowmaskFrames.add(NativeImage.read(glowmaskFrame.toPath().toUri().toURL().openStream()).asByteArray());
                     }
                 }
-                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncSuitLookPayload(senderId, announce, new FlattenedSuitLookData(miraculous, look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames)));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncSuitLookPayload(miraculous, new FlattenedSuitLookData(look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames)));
             } catch (Exception exception) {
-                sendFail();
                 Mineraculous.LOGGER.error("Failed to handle clientbound request sync suit look payload", exception);
             }
-        } else {
-            sendFail();
         }
-    }
-
-    private void sendFail() {
-        TommyLibServices.NETWORK.sendToServer(new ServerboundReportSuitLookAbsentPayload(senderId, miraculous, look));
     }
 
     @Override

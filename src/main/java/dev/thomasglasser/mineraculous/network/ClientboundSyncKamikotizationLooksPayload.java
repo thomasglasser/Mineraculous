@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationLookData;
@@ -31,7 +30,7 @@ public record ClientboundSyncKamikotizationLooksPayload(UUID targetId, List<Flat
         if (target != null) {
             HashMap<ResourceKey<Kamikotization>, KamikotizationLookData> kamikotizationLooks = new HashMap<>();
             for (FlattenedKamikotizationLookData data : looks) {
-                MineraculousClientEvents.unpackKamikotizationLook(target, data);
+                data.unpack(target);
             }
         } else {
             Mineraculous.LOGGER.error("Failed to handle clientbound sync kamikotization look payload, player " + targetId + " not found");

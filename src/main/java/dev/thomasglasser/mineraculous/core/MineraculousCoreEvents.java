@@ -123,7 +123,7 @@ public class MineraculousCoreEvents {
                                         convertedGlowmaskFrames.add(NativeImage.read(glowmaskFrame.toPath().toUri().toURL().openStream()).asByteArray());
                                     }
                                 }
-                                commonSuitLookData.put(look, new FlattenedSuitLookData(miraculous.key(), look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames));
+                                commonSuitLookData.put(look, new FlattenedSuitLookData(look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames));
                             } catch (Exception exception) {
                                 Mineraculous.LOGGER.error("Failed to handle common suit look syncing", exception);
                             }
@@ -137,7 +137,7 @@ public class MineraculousCoreEvents {
                 File[] files = folder.listFiles();
                 if (files != null) {
                     for (File texture : files) {
-                        if (texture.getName().endsWith(".png")) {
+                        if (texture.getName().endsWith(".png") && texture.getName().chars().noneMatch(Character::isDigit) && !texture.getName().contains("glowmask")) {
                             String look = texture.getName().replace(".png", "");
                             try {
                                 File model = new File(folder, look + ".geo.json");
@@ -156,7 +156,7 @@ public class MineraculousCoreEvents {
                                 if (transforms.exists()) {
                                     convertedDisplay = Files.readString(transforms.toPath());
                                 }
-                                commonMiraculousLookData.put(look, new FlattenedMiraculousLookData(miraculous.key(), look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), Optional.ofNullable(convertedDisplay)));
+                                commonMiraculousLookData.put(look, new FlattenedMiraculousLookData(look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), Optional.ofNullable(convertedDisplay)));
                             } catch (Exception exception) {
                                 Mineraculous.LOGGER.error("Failed to handle common miraculous look syncing", exception);
                             }
@@ -204,10 +204,11 @@ public class MineraculousCoreEvents {
                 Mineraculous.LOGGER.error("Failed to read blacklist file", e);
             }
         }
-        ((FlattenedLookDataHolder) event.getServer().overworld()).mineraculous$setCommonMiraculousLookData(miraculousLooks);
-        ((FlattenedLookDataHolder) event.getServer().overworld()).mineraculous$setCommonSuitLookData(suitLooks);
-        ((FlattenedLookDataHolder) event.getServer().overworld()).mineraculous$setWhitelist(whitelist);
-        ((FlattenedLookDataHolder) event.getServer().overworld()).mineraculous$setBlacklist(blacklist);
+        FlattenedLookDataHolder overworld = (FlattenedLookDataHolder) event.getServer().overworld();
+        overworld.mineraculous$setCommonMiraculousLookData(miraculousLooks);
+        overworld.mineraculous$setCommonSuitLookData(suitLooks);
+        overworld.mineraculous$setWhitelist(whitelist);
+        overworld.mineraculous$setBlacklist(blacklist);
     }
 
     public static void onAddPackFinders(AddPackFindersEvent event) {

@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.client;
 
-import com.google.gson.JsonObject;
 import com.mojang.blaze3d.platform.NativeImage;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.gui.MineraculousHeartTypes;
@@ -37,12 +36,16 @@ import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
-import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationLookData;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.io.File;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -58,7 +61,6 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -69,7 +71,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.FastColor;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
@@ -94,11 +95,6 @@ import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.loading.json.raw.Model;
-import software.bernie.geckolib.loading.json.typeadapter.KeyFramesAdapter;
-import software.bernie.geckolib.loading.object.BakedModelFactory;
-import software.bernie.geckolib.loading.object.GeometryTree;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 public class MineraculousClientEvents {
@@ -422,16 +418,89 @@ public class MineraculousClientEvents {
         return null;
     }
 
-    public static void unpackKamikotizationLook(Player target, FlattenedKamikotizationLookData data) {
-        try {
-            BakedGeoModel model = null;
-            if (data.model().isPresent())
-                model = BakedModelFactory.getForNamespace(Mineraculous.MOD_ID).constructGeoModel(GeometryTree.fromModel(KeyFramesAdapter.GEO_GSON.fromJson(GsonHelper.fromJson(KeyFramesAdapter.GEO_GSON, data.model().get(), JsonObject.class), Model.class)));
-            ResourceLocation texture = Mineraculous.modLoc("textures/miraculouslooks/kamikotizations" + target.getStringUUID() + "/" + data.kamikotization().location().getNamespace() + "/" + data.kamikotization().location().getPath() + ".png");
-            Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(NativeImage.read(data.pixels())));
-            target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS).put(data.kamikotization(), new KamikotizationLookData(Optional.ofNullable(model), texture, data.glowmaskPixels()));
-        } catch (Exception e) {
-            Mineraculous.LOGGER.error("Failed to handle unpacking kamikotization look", e);
+    public static Map<String, FlattenedSuitLookData> fetchSuitLooks(ResourceKey<Miraculous> miraculousKey) {
+        Miraculous miraculous = Minecraft.getInstance().level.holderOrThrow(miraculousKey).value();
+        String namespace = miraculousKey.location().getNamespace();
+        String type = miraculousKey.location().getPath();
+        File folder = new File(Minecraft.getInstance().gameDirectory, "miraculouslooks" + File.separator + "suits" + File.separator + namespace + File.separator + type);
+        Map<String, FlattenedSuitLookData> suitLooks = new HashMap<>();
+        if (folder.exists() && folder.isDirectory()) {
+            File[] files = folder.listFiles();
+            if (files != null) {
+                for (File texture : files) {
+                    if (texture.getName().endsWith(".png") && texture.getName().chars().noneMatch(Character::isDigit) && !texture.getName().contains("glowmask")) {
+                        String look = texture.getName().replace(".png", "");
+                        try {
+                            File model = new File(folder, look + ".geo.json");
+                            String convertedModel = null;
+                            if (model.exists()) {
+                                convertedModel = Files.readString(model.toPath());
+                            }
+                            byte[] convertedImage = NativeImage.read(texture.toPath().toUri().toURL().openStream()).asByteArray();
+                            File glowmask = new File(folder, look + "_glowmask.png");
+                            byte[] convertedGlowmask = null;
+                            if (glowmask.exists()) {
+                                convertedGlowmask = NativeImage.read(glowmask.toPath().toUri().toURL().openStream()).asByteArray();
+                            }
+                            List<byte[]> convertedFrames = new ArrayList<>();
+                            List<byte[]> convertedGlowmaskFrames = new ArrayList<>();
+                            for (int i = 1; i <= miraculous.transformationFrames(); i++) {
+                                File frame = new File(folder, look + "_" + i + ".png");
+                                if (frame.exists()) {
+                                    convertedFrames.add(NativeImage.read(frame.toPath().toUri().toURL().openStream()).asByteArray());
+                                }
+                                File glowmaskFrame = new File(folder, look + "_" + i + "_glowmask.png");
+                                if (glowmaskFrame.exists()) {
+                                    convertedGlowmaskFrames.add(NativeImage.read(glowmaskFrame.toPath().toUri().toURL().openStream()).asByteArray());
+                                }
+                            }
+                            suitLooks.put(look, new FlattenedSuitLookData(look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames));
+                        } catch (Exception exception) {
+                            Mineraculous.LOGGER.error("Failed to handle common suit look syncing", exception);
+                        }
+                    }
+                }
+            }
         }
+        return suitLooks;
+    }
+
+    public static Map<String, FlattenedMiraculousLookData> fetchMiraculousLooks(ResourceKey<Miraculous> miraculousKey) {
+        String namespace = miraculousKey.location().getNamespace();
+        String type = miraculousKey.location().getPath();
+        File folder = new File(Minecraft.getInstance().gameDirectory, "miraculouslooks" + File.separator + "miraculous" + File.separator + namespace + File.separator + type);
+        Map<String, FlattenedMiraculousLookData> miraculousLooks = new HashMap<>();
+        if (folder.exists() && folder.isDirectory()) {
+            File[] files = folder.listFiles();
+            if (files != null) {
+                for (File texture : files) {
+                    if (texture.getName().endsWith(".png") && texture.getName().chars().noneMatch(Character::isDigit) && !texture.getName().contains("glowmask")) {
+                        String look = texture.getName().replace(".png", "");
+                        try {
+                            File model = new File(folder, look + ".geo.json");
+                            String convertedModel = null;
+                            if (model.exists()) {
+                                convertedModel = Files.readString(model.toPath());
+                            }
+                            byte[] convertedImage = NativeImage.read(texture.toPath().toUri().toURL().openStream()).asByteArray();
+                            File glowmask = new File(folder, look + "_glowmask.png");
+                            byte[] convertedGlowmask = null;
+                            if (glowmask.exists()) {
+                                convertedGlowmask = NativeImage.read(glowmask.toPath().toUri().toURL().openStream()).asByteArray();
+                            }
+                            File transforms = new File(folder, look + ".json");
+                            String convertedDisplay = null;
+                            if (transforms.exists()) {
+                                convertedDisplay = Files.readString(transforms.toPath());
+                            }
+                            miraculousLooks.put(look, new FlattenedMiraculousLookData(look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), Optional.ofNullable(convertedDisplay)));
+                        } catch (Exception exception) {
+                            Mineraculous.LOGGER.error("Failed to handle common miraculous look syncing", exception);
+                        }
+                    }
+                }
+            }
+        }
+        return miraculousLooks;
     }
 }

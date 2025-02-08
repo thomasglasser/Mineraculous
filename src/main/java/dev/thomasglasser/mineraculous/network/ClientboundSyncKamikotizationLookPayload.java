@@ -1,8 +1,9 @@
 package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
+import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
+import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationLookData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.UUID;
 import net.minecraft.core.UUIDUtil;
@@ -22,7 +23,12 @@ public record ClientboundSyncKamikotizationLookPayload(UUID targetId, FlattenedK
     @Override
     public void handle(Player player) {
         Player target = player.level().getPlayerByUUID(targetId);
-        MineraculousClientEvents.unpackKamikotizationLook(target, data);
+        if (target != null) {
+            KamikotizationLookData lookData = data.unpack(target);
+            if (lookData == null)
+                return;
+            target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS).put(data.kamikotization(), lookData);
+        }
     }
 
     @Override

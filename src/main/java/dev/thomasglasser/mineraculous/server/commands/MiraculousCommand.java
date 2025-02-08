@@ -3,17 +3,12 @@ package dev.thomasglasser.mineraculous.server.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
-import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncMiraculousLookPayload;
-import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncSuitLookPayload;
-import dev.thomasglasser.mineraculous.network.ClientboundSyncMiraculousLookPayload;
-import dev.thomasglasser.mineraculous.network.ClientboundSyncSuitLookPayload;
-import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
+import dev.thomasglasser.mineraculous.network.ClientboundOpenLookCustomizationScreenPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
@@ -28,7 +23,6 @@ import java.util.Map;
 import java.util.Optional;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceKeyArgument;
 import net.minecraft.core.Holder;
@@ -48,28 +42,8 @@ public class MiraculousCommand {
     public static final String NAME_SET_SUCCESS_OTHER = "commands.miraculous.name.set.success.other";
     public static final String NAME_CLEAR_SUCCESS_SELF = "commands.miraculous.name.clear.success.self";
     public static final String NAME_CLEAR_SUCCESS_OTHER = "commands.miraculous.name.clear.success.other";
-    public static final String LOOK_MIRACULOUS_QUERY_SUCCESS_SELF = "commands.miraculous.look.miraculous.query.success.self";
-    public static final String LOOK_MIRACULOUS_QUERY_SUCCESS_OTHER = "commands.miraculous.look.miraculous.query.success.other";
-    public static final String LOOK_MIRACULOUS_SET_SERVER_SUCCESS_SELF = "commands.miraculous.look.miraculous.set_server.success.self";
-    public static final String LOOK_MIRACULOUS_SET_SERVER_SUCCESS_OTHER = "commands.miraculous.look.miraculous.set_server.success.other";
-    public static final String LOOK_MIRACULOUS_TRY_SET_SUCCESS_SELF = "commands.miraculous.look.miraculous.try.set.success.self";
-    public static final String LOOK_MIRACULOUS_TRY_SET_SUCCESS_OTHER = "commands.miraculous.look.miraculous.try.set.success.other";
-    public static final String LOOK_MIRACULOUS_SET_SUCCESS_SELF = "commands.miraculous.look.miraculous.set.success.self";
-    public static final String LOOK_MIRACULOUS_SET_SUCCESS_OTHER = "commands.miraculous.look.miraculous.set.success.other";
-    public static final String LOOK_MIRACULOUS_SET_FAILURE = "commands.miraculous.look.miraculous.set.failure";
-    public static final String LOOK_MIRACULOUS_CLEAR_SUCCESS_SELF = "commands.miraculous.look.miraculous.clear.success.self";
-    public static final String LOOK_MIRACULOUS_CLEAR_SUCCESS_OTHER = "commands.miraculous.look.miraculous.clear.success.other";
-    public static final String LOOK_SUIT_QUERY_SUCCESS_SELF = "commands.miraculous.look.suit.query.success.self";
-    public static final String LOOK_SUIT_QUERY_SUCCESS_OTHER = "commands.miraculous.look.suit.query.success.other";
-    public static final String LOOK_SUIT_SET_SERVER_SUCCESS_SELF = "commands.miraculous.look.suit.set_server.success.self";
-    public static final String LOOK_SUIT_SET_SERVER_SUCCESS_OTHER = "commands.miraculous.look.suit.set_server.success.other";
-    public static final String LOOK_SUIT_TRY_SET_SUCCESS_SELF = "commands.miraculous.look.suit.try_set.success.self";
-    public static final String LOOK_SUIT_TRY_SET_SUCCESS_OTHER = "commands.miraculous.look.suit.try_set.success.other";
-    public static final String LOOK_SUIT_SET_SUCCESS_SELF = "commands.miraculous.look.suit.set.success.self";
-    public static final String LOOK_SUIT_SET_SUCCESS_OTHER = "commands.miraculous.look.suit.set.success.other";
-    public static final String LOOK_SUIT_SET_FAILURE = "commands.miraculous.look.suit.set.failure";
-    public static final String LOOK_SUIT_CLEAR_SUCCESS_SELF = "commands.miraculous.look.suit.clear.success.self";
-    public static final String LOOK_SUIT_CLEAR_SUCCESS_OTHER = "commands.miraculous.look.suit.clear.success.other";
+    public static final String CUSTOMIZE_OPEN_SUCCESS_SELF = "commands.miraculous.customize.open.success.self";
+    public static final String CUSTOMIZE_OPEN_SUCCESS_OTHER = "commands.miraculous.customize.open.success.other";
     public static final String CHARGED_TRUE = "commands.miraculous.charged.true";
     public static final String CHARGED_FALSE = "commands.miraculous.charged.false";
     public static final String CHARGED_QUERY_SUCCESS_SELF = "commands.miraculous.charged.query.success.self";
@@ -93,82 +67,13 @@ public class MiraculousCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("miraculous")
                 .then(Commands.argument("miraculous", ResourceKeyArgument.key(MineraculousRegistries.MIRACULOUS))
-                        .then(Commands.literal("name")
-                                .then(Commands.literal("query")
-                                        .executes(context -> getName(context.getSource().getPlayerOrException(), context, true))
-                                        .then(Commands.argument("target", EntityArgument.entity())
-                                                .requires(source -> source.hasPermission(COMMANDS_ENABLED_PERMISSION_LEVEL))
-                                                .executes(context -> {
-                                                    LivingEntity target = EntityArgument.getEntity(context, "target") instanceof LivingEntity livingEntity ? livingEntity : null;
-                                                    return getName(target, context, target == context.getSource().getPlayer());
-                                                })))
-                                .then(Commands.argument("name", StringArgumentType.string())
-                                        .executes(context -> setName(context.getSource().getPlayerOrException(), context, true))
-                                        .then(Commands.argument("target", EntityArgument.entity())
-                                                .requires(source -> source.hasPermission(COMMANDS_ENABLED_PERMISSION_LEVEL))
-                                                .executes(context -> {
-                                                    LivingEntity target = EntityArgument.getEntity(context, "target") instanceof LivingEntity livingEntity ? livingEntity : null;
-                                                    return setName(target, context, target == context.getSource().getPlayer());
-                                                })))
-                                .then(Commands.literal("clear")
-                                        .executes(context -> clearName(context.getSource().getPlayerOrException(), context, true))
-                                        .then(Commands.argument("target", EntityArgument.entity())
-                                                .requires(source -> source.hasPermission(COMMANDS_ENABLED_PERMISSION_LEVEL))
-                                                .executes(context -> {
-                                                    LivingEntity target = EntityArgument.getEntity(context, "target") instanceof LivingEntity livingEntity ? livingEntity : null;
-                                                    return clearName(target, context, target == context.getSource().getPlayer());
-                                                }))))
-                        .then(Commands.literal("look")
-                                .then(Commands.literal("miraculous")
-                                        .then(Commands.literal("query")
-                                                .executes(context -> getMiraculousLook(context.getSource().getPlayerOrException(), context, true))
-                                                .then(Commands.argument("target", EntityArgument.player())
-                                                        .requires(source -> source.hasPermission(COMMANDS_ENABLED_PERMISSION_LEVEL))
-                                                        .executes(context -> {
-                                                            ServerPlayer target = EntityArgument.getPlayer(context, "target");
-                                                            return getMiraculousLook(target, context, target == context.getSource().getPlayer());
-                                                        })))
-                                        .then(Commands.argument("look", StringArgumentType.word())
-                                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(((FlattenedLookDataHolder) context.getSource().getServer().overworld()).mineraculous$getCommonMiraculousLookData().get(resolveMiraculous(context, "miraculous").key()).keySet(), builder))
-                                                .executes(context -> trySetMiraculousLook(context.getSource().getPlayerOrException(), context, true))
-                                                .then(Commands.argument("target", EntityArgument.player())
-                                                        .executes(context -> {
-                                                            ServerPlayer target = EntityArgument.getPlayer(context, "target");
-                                                            return trySetMiraculousLook(target, context, target == context.getSource().getPlayer());
-                                                        })))
-                                        .then(Commands.literal("clear")
-                                                .executes(context -> clearMiraculousLook(context.getSource().getPlayerOrException(), context, true))
-                                                .then(Commands.argument("target", EntityArgument.player())
-                                                        .requires(source -> source.hasPermission(COMMANDS_ENABLED_PERMISSION_LEVEL))
-                                                        .executes(context -> {
-                                                            ServerPlayer target = EntityArgument.getPlayer(context, "target");
-                                                            return clearMiraculousLook(target, context, target == context.getSource().getPlayer());
-                                                        }))))
-                                .then(Commands.literal("suit")
-                                        .then(Commands.literal("query")
-                                                .executes(context -> getSuitLook(context.getSource().getPlayerOrException(), context, true))
-                                                .then(Commands.argument("target", EntityArgument.player())
-                                                        .requires(source -> source.hasPermission(COMMANDS_ENABLED_PERMISSION_LEVEL))
-                                                        .executes(context -> {
-                                                            ServerPlayer target = EntityArgument.getPlayer(context, "target");
-                                                            return getSuitLook(target, context, target == context.getSource().getPlayer());
-                                                        })))
-                                        .then(Commands.argument("look", StringArgumentType.word())
-                                                .suggests((context, builder) -> SharedSuggestionProvider.suggest(((FlattenedLookDataHolder) context.getSource().getServer().overworld()).mineraculous$getCommonSuitLookData().get(resolveMiraculous(context, "miraculous").key()).keySet(), builder))
-                                                .executes(context -> trySetSuitLook(context.getSource().getPlayerOrException(), context, true))
-                                                .then(Commands.argument("target", EntityArgument.player())
-                                                        .executes(context -> {
-                                                            ServerPlayer target = EntityArgument.getPlayer(context, "target");
-                                                            return trySetSuitLook(target, context, target == context.getSource().getPlayer());
-                                                        })))
-                                        .then(Commands.literal("clear")
-                                                .executes(context -> clearSuitLook(context.getSource().getPlayerOrException(), context, true))
-                                                .then(Commands.argument("target", EntityArgument.player())
-                                                        .requires(source -> source.hasPermission(COMMANDS_ENABLED_PERMISSION_LEVEL))
-                                                        .executes(context -> {
-                                                            ServerPlayer target = EntityArgument.getPlayer(context, "target");
-                                                            return clearSuitLook(target, context, target == context.getSource().getPlayer());
-                                                        })))))
+                        .then(Commands.literal("customize")
+                                .executes(context -> tryOpenCustomizationScreen(context.getSource().getPlayerOrException(), context, true))
+                                .then(Commands.argument("target", EntityArgument.player())
+                                        .executes(context -> {
+                                            ServerPlayer target = EntityArgument.getPlayer(context, "target");
+                                            return tryOpenCustomizationScreen(target, context, target == context.getSource().getPlayer());
+                                        })))
                         .then(Commands.literal("charged")
                                 .requires(source -> source.hasPermission(COMMANDS_ENABLED_PERMISSION_LEVEL))
                                 .then(Commands.literal("query")
@@ -205,130 +110,12 @@ public class MiraculousCommand {
                                                 }))))));
     }
 
-    private static int getName(LivingEntity entity, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        if (entity != null) {
-            Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
-            MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS.get());
-            MiraculousData data = miraculousDataSet.get(miraculousType.key());
-            context.getSource().sendSuccess(() -> self ? Component.translatable(NAME_QUERY_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), data.name().isEmpty() ? Component.translatable(NOT_SET) : data.name()) : Component.translatable(NAME_QUERY_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), data.name().isEmpty() ? Component.translatable(NOT_SET) : data.name()), true);
-            return 1;
-        } else {
-            context.getSource().sendFailure(Component.translatable(NOT_LIVING_ENTITY));
-        }
-        return 0;
-    }
-
-    private static int setName(LivingEntity livingEntity, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        if (livingEntity != null) {
-            Component oldName = livingEntity.getDisplayName();
-            Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
-            String newName = StringArgumentType.getString(context, "name");
-            MiraculousDataSet miraculousDataSet = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS.get());
-            MiraculousData data = miraculousDataSet.get(miraculousType.key());
-            miraculousDataSet.put(livingEntity, miraculousType.key(), data.withName(newName), true);
-            context.getSource().sendSuccess(() -> self ? Component.translatable(NAME_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newName) : Component.translatable(NAME_SET_SUCCESS_OTHER, oldName, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newName), true);
-            return 1;
-        } else {
-            context.getSource().sendFailure(Component.translatable(NOT_LIVING_ENTITY));
-        }
-        return 0;
-    }
-
-    private static int clearName(LivingEntity livingEntity, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        if (livingEntity != null) {
-            Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
-            MiraculousDataSet miraculousDataSet = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS.get());
-            MiraculousData data = miraculousDataSet.get(miraculousType.key());
-            miraculousDataSet.put(livingEntity, miraculousType.key(), data.withName(""), true);
-            context.getSource().sendSuccess(() -> self ? Component.translatable(NAME_CLEAR_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))) : Component.translatable(NAME_CLEAR_SUCCESS_OTHER, livingEntity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))), true);
-            return 1;
-        } else {
-            context.getSource().sendFailure(Component.translatable(NOT_LIVING_ENTITY));
-        }
-        return 0;
-    }
-
-    private static int getMiraculousLook(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
+    private static int tryOpenCustomizationScreen(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
         Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
-        MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS.get());
-        MiraculousData data = miraculousDataSet.get(miraculousType.key());
-        context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_MIRACULOUS_QUERY_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), data.miraculousLook().isEmpty() ? Component.translatable(NOT_SET) : data.miraculousLook()) : Component.translatable(LOOK_MIRACULOUS_QUERY_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), data.miraculousLook().isEmpty() ? Component.translatable(NOT_SET) : data.miraculousLook()), true);
-        return 1;
-    }
-
-    private static int trySetMiraculousLook(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
-        String newLook = StringArgumentType.getString(context, "look");
-        FlattenedLookDataHolder overworld = (FlattenedLookDataHolder) player.getServer().overworld();
-        Map<String, FlattenedMiraculousLookData> serverLooks = overworld.mineraculous$getCommonMiraculousLookData().get(miraculousType.key());
-        if (newLook.chars().anyMatch(Character::isDigit))
-            context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_NO_NUMBERS));
-        else if (newLook.contains("glowmask"))
-            context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_NO_GLOWMASK));
-        else if (serverLooks.containsKey(newLook)) {
-            context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_MIRACULOUS_SET_SERVER_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_MIRACULOUS_SET_SERVER_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);
-            MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-            miraculousDataSet.put(player, miraculousType.key(), miraculousDataSet.get(miraculousType.key()).withMiraculousLook(newLook), true);
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), serverLooks.get(newLook), true), player.getServer());
-            return 1;
-        } else if (MineraculousServerConfig.isCustomizationAllowed(player)) {
-            context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_MIRACULOUS_TRY_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_MIRACULOUS_TRY_SET_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);
-            TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncMiraculousLookPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), true, miraculousType.key(), newLook), player);
-            return 1;
-        } else {
-            context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_NOT_ENABLED));
-        }
-        return 0;
-    }
-
-    private static int clearMiraculousLook(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
-        MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS.get());
-        MiraculousData data = miraculousDataSet.get(miraculousType.key());
-        miraculousDataSet.put(player, miraculousType.key(), data.withMiraculousLook(""), true);
-        context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_MIRACULOUS_CLEAR_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))) : Component.translatable(LOOK_MIRACULOUS_CLEAR_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))), true);
-        return 1;
-    }
-
-    private static int getSuitLook(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
-        MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS.get());
-        MiraculousData data = miraculousDataSet.get(miraculousType.key());
-        context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_SUIT_QUERY_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), data.suitLook().isEmpty() ? Component.translatable(NOT_SET) : data.suitLook()) : Component.translatable(LOOK_SUIT_QUERY_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), data.suitLook().isEmpty() ? Component.translatable(NOT_SET) : data.suitLook()), true);
-        return 1;
-    }
-
-    private static int trySetSuitLook(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
-        String newLook = StringArgumentType.getString(context, "look");
-        FlattenedLookDataHolder overworld = (FlattenedLookDataHolder) player.getServer().overworld();
-        Map<String, FlattenedSuitLookData> serverLooks = overworld.mineraculous$getCommonSuitLookData().get(miraculousType.key());
-        if (newLook.chars().anyMatch(Character::isDigit))
-            context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_NO_NUMBERS));
-        else if (newLook.contains("glowmask"))
-            context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_NO_GLOWMASK));
-        else if (serverLooks.containsKey(newLook)) {
-            context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_SUIT_SET_SERVER_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_SUIT_SET_SERVER_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);
-            MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-            miraculousDataSet.put(player, miraculousType.key(), miraculousDataSet.get(miraculousType.key()).withSuitLook(newLook), true);
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(player.getUUID(), serverLooks.get(newLook), true), player.getServer());
-            return 1;
-        } else if (MineraculousServerConfig.isCustomizationAllowed(player)) {
-            context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_SUIT_TRY_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook) : Component.translatable(LOOK_SUIT_TRY_SET_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLook), true);
-            TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncSuitLookPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), true, miraculousType.key(), newLook), player);
-            return 1;
-        } else {
-            context.getSource().sendFailure(Component.translatable(CUSTOM_LOOKS_NOT_ENABLED));
-        }
-        return 0;
-    }
-
-    private static int clearSuitLook(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
-        MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS.get());
-        MiraculousData data = miraculousDataSet.get(miraculousType.key());
-        miraculousDataSet.put(player, miraculousType.key(), data.withSuitLook(""), true);
-        context.getSource().sendSuccess(() -> self ? Component.translatable(LOOK_SUIT_CLEAR_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))) : Component.translatable(LOOK_SUIT_CLEAR_SUCCESS_OTHER, player.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))), true);
+        Map<String, FlattenedSuitLookData> serverSuits = ((FlattenedLookDataHolder) context.getSource().getServer().overworld()).mineraculous$getCommonSuitLookData().get(resolveMiraculous(context, "miraculous").key());
+        Map<String, FlattenedMiraculousLookData> serverMiraculous = ((FlattenedLookDataHolder) context.getSource().getServer().overworld()).mineraculous$getCommonMiraculousLookData().get(resolveMiraculous(context, "miraculous").key());
+        context.getSource().sendSuccess(() -> self ? Component.translatable(CUSTOMIZE_OPEN_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))) : Component.translatable(CUSTOMIZE_OPEN_SUCCESS_OTHER, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), player.getDisplayName()), true);
+        TommyLibServices.NETWORK.sendToClient(new ClientboundOpenLookCustomizationScreenPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), true, miraculousType.key(), serverSuits, serverMiraculous), player);
         return 1;
     }
 

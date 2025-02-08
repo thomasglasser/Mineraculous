@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
@@ -18,13 +17,13 @@ public interface FlattenedLookDataHolder {
 
     void mineraculous$setCommonMiraculousLookData(Map<ResourceKey<Miraculous>, Map<String, FlattenedMiraculousLookData>> data);
 
-    Map<UUID, Set<FlattenedSuitLookData>> mineraculous$getSuitLookData();
+    Map<UUID, Map<ResourceKey<Miraculous>, FlattenedSuitLookData>> mineraculous$getSuitLookData();
 
-    void mineraculous$addSuitLookData(UUID player, FlattenedSuitLookData data);
+    void mineraculous$addSuitLookData(UUID player, ResourceKey<Miraculous> miraculous, FlattenedSuitLookData data);
 
-    Map<UUID, Set<FlattenedMiraculousLookData>> mineraculous$getMiraculousLookData();
+    Map<UUID, Map<ResourceKey<Miraculous>, FlattenedMiraculousLookData>> mineraculous$getMiraculousLookData();
 
-    void mineraculous$addMiraculousLookData(UUID player, FlattenedMiraculousLookData data);
+    void mineraculous$addMiraculousLookData(UUID player, ResourceKey<Miraculous> miraculous, FlattenedMiraculousLookData data);
 
     Map<UUID, FlattenedKamikotizationLookData> mineraculous$getKamikotizationLookData();
 

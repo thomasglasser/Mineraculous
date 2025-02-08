@@ -178,7 +178,7 @@ public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
     private MiraculousLookData getMiraculousLookData(ItemStack stack) {
         ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
         ResolvableProfile profile = getCurrentItemStack().get(DataComponents.PROFILE);
-        if (profile != null && Minecraft.getInstance().level != null && Minecraft.getInstance().level.getPlayerByUUID(profile.id().orElse(profile.gameProfile().getId())) != null) {
+        if (profile != null && Minecraft.getInstance().level != null) {
             Player player = Minecraft.getInstance().level.getPlayerByUUID(profile.id().orElse(profile.gameProfile().getId()));
             if (player != null) {
                 String look = player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).miraculousLook();

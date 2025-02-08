@@ -17,10 +17,8 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryItem
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdData;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdDataHolder;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import net.minecraft.resources.ResourceKey;
@@ -60,9 +58,9 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmId
     @Unique
     protected Map<ResourceKey<Miraculous>, Map<String, FlattenedMiraculousLookData>> mineraculous$commonMiraculousLookData;
     @Unique
-    protected Map<UUID, Set<FlattenedSuitLookData>> mineraculous$suitLookData;
+    protected Map<UUID, Map<ResourceKey<Miraculous>, FlattenedSuitLookData>> mineraculous$suitLookData;
     @Unique
-    protected Map<UUID, Set<FlattenedMiraculousLookData>> mineraculous$miraculousLookData;
+    protected Map<UUID, Map<ResourceKey<Miraculous>, FlattenedMiraculousLookData>> mineraculous$miraculousLookData;
     @Unique
     protected Map<UUID, FlattenedKamikotizationLookData> mineraculous$kamikotizationLookData;
     @Unique
@@ -136,23 +134,23 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmId
     }
 
     @Override
-    public Map<UUID, Set<FlattenedSuitLookData>> mineraculous$getSuitLookData() {
+    public Map<UUID, Map<ResourceKey<Miraculous>, FlattenedSuitLookData>> mineraculous$getSuitLookData() {
         return mineraculous$suitLookData;
     }
 
     @Override
-    public void mineraculous$addSuitLookData(UUID player, FlattenedSuitLookData data) {
-        mineraculous$suitLookData.computeIfAbsent(player, p -> new HashSet<>()).add(data);
+    public void mineraculous$addSuitLookData(UUID player, ResourceKey<Miraculous> miraculous, FlattenedSuitLookData data) {
+        mineraculous$suitLookData.computeIfAbsent(player, p -> new HashMap<>()).put(miraculous, data);
     }
 
     @Override
-    public Map<UUID, Set<FlattenedMiraculousLookData>> mineraculous$getMiraculousLookData() {
+    public Map<UUID, Map<ResourceKey<Miraculous>, FlattenedMiraculousLookData>> mineraculous$getMiraculousLookData() {
         return mineraculous$miraculousLookData;
     }
 
     @Override
-    public void mineraculous$addMiraculousLookData(UUID player, FlattenedMiraculousLookData data) {
-        mineraculous$miraculousLookData.computeIfAbsent(player, p -> new HashSet<>()).add(data);
+    public void mineraculous$addMiraculousLookData(UUID player, ResourceKey<Miraculous> miraculous, FlattenedMiraculousLookData data) {
+        mineraculous$miraculousLookData.computeIfAbsent(player, p -> new HashMap<>()).put(miraculous, data);
     }
 
     @Override

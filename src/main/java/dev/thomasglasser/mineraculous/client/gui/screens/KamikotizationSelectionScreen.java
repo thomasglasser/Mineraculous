@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.client.gui.screens;
 
 import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.network.ServerboundKamikotizationTransformPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundOpenPerformerKamikotizationChatScreenPayload;
@@ -30,7 +31,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.core.Holder;
@@ -39,18 +39,14 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 import top.theillusivec4.curios.common.inventory.CurioSlot;
 
 public class KamikotizationSelectionScreen extends Screen {
     public static final String TITLE = "gui.kamikotization.name";
     public static final String NO_KAMIKOTIZATIONS = "gui.kamikotization.no_kamikotizations";
-    public static final String CHOOSE = "gui.choose";
     public static final String ACTIVE_ABILITY = "gui.kamikotization.active_ability";
     public static final String PASSIVE_ABILITIES = "gui.kamikotization.passive_abilities";
     public static final ResourceLocation SCROLLER_SPRITE = ResourceLocation.withDefaultNamespace("container/creative_inventory/scroller");
@@ -97,7 +93,7 @@ public class KamikotizationSelectionScreen extends Screen {
             }
             int i = (this.width - BACKGROUND_WIDTH) / 2;
             int j = (this.height - BACKGROUND_HEIGHT) / 2;
-            this.name = new EditBox(this.font, i + 130, j + 7, 92, 17, Component.translatable("container.repair"));
+            this.name = new EditBox(this.font, i + 130, j + 7, 92, 17, Component.translatable(MineraculousClientUtils.NAME));
             this.name.setCanLoseFocus(true);
             this.name.setTextColor(-1);
             this.name.setTextColorUneditable(-1);
@@ -106,7 +102,7 @@ public class KamikotizationSelectionScreen extends Screen {
             this.name.setValue("");
             this.addWidget(this.name);
             this.name.setEditable(true);
-            selectOrDone = Button.builder(Component.translatable(CHOOSE), button -> {
+            selectOrDone = Button.builder(Component.translatable(MineraculousClientUtils.CHOOSE), button -> {
                 onClose(false);
             }).build();
             selectOrDone.setX(((this.width - BACKGROUND_WIDTH) / 2) + 50);
@@ -160,7 +156,7 @@ public class KamikotizationSelectionScreen extends Screen {
 
             int x = (this.width - BACKGROUND_WIDTH) / 2;
             int y = (this.height - BACKGROUND_HEIGHT) / 2;
-            renderEntityInInventorySpinning(guiGraphics, x + 15, y + 15, x + 113, y + 145, 60, rotation, targetPreview);
+            MineraculousClientUtils.renderEntityInInventorySpinning(guiGraphics, x + 15, y + 15, x + 113, y + 145, 60, rotation, targetPreview);
             rotation++;
             guiGraphics.drawString(this.font, Component.literal("---------------"), x + 131, y + 22, Optional.ofNullable(ChatFormatting.WHITE.getColor()).orElseThrow(), false);
             for (int i = 0; i < components.size(); i++) {
@@ -175,43 +171,6 @@ public class KamikotizationSelectionScreen extends Screen {
                 canScroll = l[0] > 7;
             }
         }
-    }
-
-    public static void renderEntityInInventorySpinning(
-            GuiGraphics guiGraphics,
-            int xStart,
-            int yStart,
-            int xEnd,
-            int yEnd,
-            int scale,
-            float rotation,
-            LivingEntity entity) {
-        float x = (float) (xStart + xEnd) / 2.0F;
-        float y = (float) (yStart + yEnd) / 2.0F;
-        guiGraphics.enableScissor(xStart, yStart, xEnd, yEnd);
-        Quaternionf quaternionf = new Quaternionf().rotateZ((float) Math.PI);
-        Quaternionf quaternionf1 = new Quaternionf().rotateX(90 * 20.0F * (float) (Math.PI / 180.0));
-        quaternionf.mul(quaternionf1);
-        float f4 = entity.yBodyRot;
-        float f5 = entity.getYRot();
-        float f6 = entity.getXRot();
-        float f7 = entity.yHeadRotO;
-        float f8 = entity.yHeadRot;
-        entity.yBodyRot = 180.0F + rotation * 2;
-        entity.setYRot(180.0F + rotation * 2);
-        entity.setXRot(-90 * 20.0F);
-        entity.yHeadRot = entity.getYRot();
-        entity.yHeadRotO = entity.getYRot();
-        float f9 = entity.getScale();
-        Vector3f vector3f = new Vector3f(0.0F, entity.getBbHeight() / 2.0F + 0.0625F * f9, 0.0F);
-        float f10 = (float) scale / f9;
-        InventoryScreen.renderEntityInInventory(guiGraphics, x, y, f10, vector3f, quaternionf, quaternionf1, entity);
-        entity.yBodyRot = f4;
-        entity.setYRot(f5);
-        entity.setXRot(f6);
-        entity.yHeadRotO = f7;
-        entity.yHeadRot = f8;
-        guiGraphics.disableScissor();
     }
 
     protected void renderScrollBar(GuiGraphics guiGraphics) {
@@ -333,8 +292,8 @@ public class KamikotizationSelectionScreen extends Screen {
     }
 
     protected void refreshArrows() {
-        showLeftArrow = kamikotizations.indexOf(selectedKamikotization) > 0;
-        showRightArrow = kamikotizations.indexOf(selectedKamikotization) < kamikotizations.size() - 1;
+        showLeftArrow = selectedKamikotization != null && selectedKamikotization != kamikotizations.getFirst();
+        showRightArrow = selectedKamikotization != null && selectedKamikotization != kamikotizations.getLast();
     }
 
     protected boolean nextKamikotization() {

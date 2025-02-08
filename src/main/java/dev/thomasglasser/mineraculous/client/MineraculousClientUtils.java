@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationSelectionScreen;
+import dev.thomasglasser.mineraculous.client.gui.screens.LookCustomizationScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.MiraculousTransferScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.client.renderer.MineraculousRenderTypes;
@@ -15,21 +16,28 @@ import dev.thomasglasser.mineraculous.network.ServerboundChangeVipDataPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundStealCuriosPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundStealItemPayload;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
+import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -39,9 +47,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import top.theillusivec4.curios.common.inventory.CurioSlot;
 
 public class MineraculousClientUtils {
+    public static final String CHOOSE = "gui.choose";
+    public static final String NAME = "gui.name";
+
     private static final String GIST = "thomasglasser/aa8eb933847685b93d8f99a59f07b62e";
     private static final HashMap<Player, VipData> vipData = new HashMap<>();
 
@@ -188,6 +201,47 @@ public class MineraculousClientUtils {
             TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
             TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(player.getUUID()));
         }));
+    }
+
+    public static void openLookCustomizationScreen(ResourceKey<Miraculous> miraculous, Map<String, FlattenedSuitLookData> serverSuits, Map<String, FlattenedMiraculousLookData> serverMiraculous) {
+        ClientUtils.setScreen(new LookCustomizationScreen(miraculous, serverSuits, serverMiraculous));
+    }
+
+    public static void renderEntityInInventorySpinning(
+            GuiGraphics guiGraphics,
+            int xStart,
+            int yStart,
+            int xEnd,
+            int yEnd,
+            int scale,
+            float rotation,
+            LivingEntity entity) {
+        float x = (float) (xStart + xEnd) / 2.0F;
+        float y = (float) (yStart + yEnd) / 2.0F;
+        guiGraphics.enableScissor(xStart, yStart, xEnd, yEnd);
+        Quaternionf quaternionf = new Quaternionf().rotateZ((float) Math.PI);
+        Quaternionf quaternionf1 = new Quaternionf().rotateX(90 * 20.0F * (float) (Math.PI / 180.0));
+        quaternionf.mul(quaternionf1);
+        float f4 = entity.yBodyRot;
+        float f5 = entity.getYRot();
+        float f6 = entity.getXRot();
+        float f7 = entity.yHeadRotO;
+        float f8 = entity.yHeadRot;
+        entity.yBodyRot = 180.0F + rotation * 2;
+        entity.setYRot(180.0F + rotation * 2);
+        entity.setXRot(-90 * 20.0F);
+        entity.yHeadRot = entity.getYRot();
+        entity.yHeadRotO = entity.getYRot();
+        float f9 = entity.getScale();
+        Vector3f vector3f = new Vector3f(0.0F, entity.getBbHeight() / 2.0F + 0.0625F * f9, 0.0F);
+        float f10 = (float) scale / f9;
+        InventoryScreen.renderEntityInInventory(guiGraphics, x, y, f10, vector3f, quaternionf, quaternionf1, entity);
+        entity.yBodyRot = f4;
+        entity.setYRot(f5);
+        entity.setXRot(f6);
+        entity.yHeadRotO = f7;
+        entity.yHeadRot = f8;
+        guiGraphics.disableScissor();
     }
 
     public static void init() {}

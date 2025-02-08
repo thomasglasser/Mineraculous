@@ -3,10 +3,12 @@ package dev.thomasglasser.mineraculous.data.lang;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
+import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.categories.TargetPlayerMenuCategory;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationSelectionScreen;
+import dev.thomasglasser.mineraculous.client.gui.screens.LookCustomizationScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.MiraculousEligiblePlayerEntry;
 import dev.thomasglasser.mineraculous.client.gui.screens.MiraculousTransferScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
@@ -113,28 +115,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.NAME_SET_SUCCESS_OTHER, "Set %s's %s hero name to %s.");
         add(MiraculousCommand.NAME_CLEAR_SUCCESS_SELF, "Your %s hero name has been cleared.");
         add(MiraculousCommand.NAME_CLEAR_SUCCESS_OTHER, "Cleared %s's %s hero name.");
-        add(MiraculousCommand.LOOK_MIRACULOUS_QUERY_SUCCESS_SELF, "Your %s miraculous look is %s.");
-        add(MiraculousCommand.LOOK_MIRACULOUS_QUERY_SUCCESS_OTHER, "%s's %s miraculous look is %s.");
-        add(MiraculousCommand.LOOK_MIRACULOUS_SET_SERVER_SUCCESS_SELF, "Your %s miraculous look has been set to server look %s.");
-        add(MiraculousCommand.LOOK_MIRACULOUS_SET_SERVER_SUCCESS_OTHER, "Set %s's %s miraculous look to server look %s.");
-        add(MiraculousCommand.LOOK_MIRACULOUS_TRY_SET_SUCCESS_SELF, "Attempting to set %s miraculous look to %s.");
-        add(MiraculousCommand.LOOK_MIRACULOUS_TRY_SET_SUCCESS_OTHER, "Attempting to set %s's %s miraculous look to %s.");
-        add(MiraculousCommand.LOOK_MIRACULOUS_SET_SUCCESS_SELF, "Your %s miraculous look has been set to %s.");
-        add(MiraculousCommand.LOOK_MIRACULOUS_SET_SUCCESS_OTHER, "Set %s's %s miraculous look to %s.");
-        add(MiraculousCommand.LOOK_MIRACULOUS_SET_FAILURE, "Missing or invalid assets requested for %s miraculous look %s.");
-        add(MiraculousCommand.LOOK_MIRACULOUS_CLEAR_SUCCESS_SELF, "Your %s miraculous look has been cleared.");
-        add(MiraculousCommand.LOOK_MIRACULOUS_CLEAR_SUCCESS_OTHER, "Cleared %s's %s miraculous look.");
-        add(MiraculousCommand.LOOK_SUIT_QUERY_SUCCESS_SELF, "Your %s hero suit look is %s.");
-        add(MiraculousCommand.LOOK_SUIT_QUERY_SUCCESS_OTHER, "%s's %s hero suit look is %s.");
-        add(MiraculousCommand.LOOK_SUIT_SET_SERVER_SUCCESS_SELF, "Your %s hero suit look has been set to server look %s.");
-        add(MiraculousCommand.LOOK_SUIT_SET_SERVER_SUCCESS_OTHER, "Set %s's %s hero suit look to server look %s.");
-        add(MiraculousCommand.LOOK_SUIT_TRY_SET_SUCCESS_SELF, "Attempting to set your %s hero suit look to %s.");
-        add(MiraculousCommand.LOOK_SUIT_TRY_SET_SUCCESS_OTHER, "Attempting to set %s's %s hero suit look to %s.");
-        add(MiraculousCommand.LOOK_SUIT_SET_SUCCESS_SELF, "Your %s hero suit look has been set to %s.");
-        add(MiraculousCommand.LOOK_SUIT_SET_SUCCESS_OTHER, "Set %s's %s hero suit look to %s.");
-        add(MiraculousCommand.LOOK_SUIT_SET_FAILURE, "Missing or invalid assets requested for %s hero suit look %s.");
-        add(MiraculousCommand.LOOK_SUIT_CLEAR_SUCCESS_SELF, "Your %s hero suit look has been cleared.");
-        add(MiraculousCommand.LOOK_SUIT_CLEAR_SUCCESS_OTHER, "Cleared %s's %s hero suit look.");
+        add(MiraculousCommand.CUSTOMIZE_OPEN_SUCCESS_SELF, "Opening %s miraculous look customization screen.");
+        add(MiraculousCommand.CUSTOMIZE_OPEN_SUCCESS_OTHER, "Opening %s miraculous look customization screen for %s.");
         add(MiraculousCommand.CHARGED_TRUE, "charged");
         add(MiraculousCommand.CHARGED_FALSE, "not charged");
         add(MiraculousCommand.CHARGED_QUERY_SUCCESS_SELF, "Your %s kwami is %s.");
@@ -188,9 +170,13 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         add(Kamiko.CANT_KAMIKOTIZE_TRANSFORMED, "Kamikotizing transformed players is not currently supported.");
 
+        add(MineraculousClientUtils.CHOOSE, "Choose");
+        add(MineraculousClientUtils.NAME, "Name");
+
+        add(LookCustomizationScreen.TITLE, "%s Look Customization");
+
         add(KamikotizationSelectionScreen.TITLE, "Kamikotization");
         add(KamikotizationSelectionScreen.NO_KAMIKOTIZATIONS, "No valid kamikotizations found for %s");
-        add(KamikotizationSelectionScreen.CHOOSE, "Choose");
         add(KamikotizationSelectionScreen.ACTIVE_ABILITY, "Active Ability:");
         add(KamikotizationSelectionScreen.PASSIVE_ABILITIES, "Passive Abilities:");
 

@@ -185,6 +185,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(KamikotizationChatScreen.ACCEPT, "Accept Kamikotization");
 
         add(MineraculousClientEvents.REVOKE, "Revoke Kamikotization");
+        add(MineraculousClientEvents.REVOKE_WITH_SPACE, "Revoke Kamikotization (Press Space)");
 
         add(MiraculousTransferScreen.TITLE, "Miraculous Transfer");
         add(MiraculousEligiblePlayerEntry.RENOUNCE, "Renounce");

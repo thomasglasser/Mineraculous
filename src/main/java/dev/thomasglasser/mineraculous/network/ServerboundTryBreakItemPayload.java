@@ -11,7 +11,6 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import java.util.function.Consumer;
-import org.jetbrains.annotations.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -31,6 +30,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import org.jetbrains.annotations.Nullable;
 
 public record ServerboundTryBreakItemPayload() implements ExtendedPacketPayload {
     public static final ServerboundTryBreakItemPayload INSTANCE = new ServerboundTryBreakItemPayload();

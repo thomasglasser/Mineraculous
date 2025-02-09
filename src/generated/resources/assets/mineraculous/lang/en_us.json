@@ -358,6 +358,7 @@
   "gui.kamikotization.passive_abilities": "Passive Abilities:",
   "gui.look.name": "%s Look Customization",
   "gui.mineraculous.revoke": "Revoke Kamikotization",
+  "gui.mineraculous.revoke_with_space": "Revoke Kamikotization (Press Space)",
   "gui.miraculous_transfer.renounce": "Renounce",
   "gui.miraculous_transfer.transfer": "Transfer",
   "gui.name": "Name",

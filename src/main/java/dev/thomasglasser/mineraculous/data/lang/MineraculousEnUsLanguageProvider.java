@@ -273,7 +273,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
     protected void addMiraculous(ResourceKey<Miraculous> type, String name) {
         add(type, name);
-        add(MineraculousEntityTypes.KWAMI.getId().toLanguageKey("entity", type.location().getPath()), name + " Kwami");
+        add(MineraculousEntityTypes.KWAMI.getId().toLanguageKey("entity", type.location().toShortLanguageKey()), name + " Kwami");
     }
 
     protected void add(RadialMenuOption option, String name) {

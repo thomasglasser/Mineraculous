@@ -95,10 +95,12 @@ import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
 import org.jetbrains.annotations.Nullable;
+import org.lwjgl.glfw.GLFW;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 public class MineraculousClientEvents {
     public static final String REVOKE = "gui.mineraculous.revoke";
+    public static final String REVOKE_WITH_SPACE = "gui.mineraculous.revoke_with_space";
 
     private static KamikoGui kamikoGui;
 
@@ -175,7 +177,7 @@ public class MineraculousClientEvents {
 
     private static void renderRevokeButton(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         if (revokeButton == null) {
-            revokeButton = Button.builder(Component.translatable(REVOKE), button -> {
+            revokeButton = new Button(Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 - 100, Minecraft.getInstance().getWindow().getGuiScaledHeight() - 35, 200, 20, Component.translatable(REVOKE), button -> {
                 Entity cameraEntity = MineraculousClientUtils.getCameraEntity();
                 if (cameraEntity instanceof Player target) {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(Optional.of(target.getUUID()), target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow(), false, false, false, target.position().add(0, 1, 0)));
@@ -184,9 +186,26 @@ public class MineraculousClientEvents {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundSetOwnerPayload(kamiko.getId(), Optional.empty()));
                 }
                 MineraculousClientUtils.setCameraEntity(ClientUtils.getMainClientPlayer());
-            })
-                    .bounds(Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 - 100, Minecraft.getInstance().getWindow().getGuiScaledHeight() - 40, 200, 20)
-                    .build();
+            }, Button.DEFAULT_NARRATION) {
+                @Override
+                public Component getMessage() {
+                    if (MineraculousClientUtils.hasNoScreenOpen())
+                        return Component.translatable(REVOKE_WITH_SPACE);
+                    else
+                        return Component.translatable(REVOKE);
+                }
+
+                @Override
+                public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+                    if (active) {
+                        if (keyCode == GLFW.GLFW_KEY_SPACE) {
+                            revokeButton.onPress();
+                            return true;
+                        }
+                    }
+                    return super.keyPressed(keyCode, scanCode, modifiers);
+                }
+            };
         }
 
         if (!ClientUtils.getMainClientPlayer().isSpectator() && ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed() && (MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko && ClientUtils.getMainClientPlayer().getUUID().equals(kamiko.getOwnerUUID())) || (MineraculousClientUtils.getCameraEntity() instanceof Player player && player != ClientUtils.getMainClientPlayer() && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent())) {
@@ -240,6 +259,9 @@ public class MineraculousClientEvents {
                 if (Minecraft.getInstance().options.keyHotbarSlots[i].consumeClick()) {
                     kamikoGui.onHotbarSelected(i);
                 }
+            }
+            if (event.getKey() == GLFW.GLFW_KEY_SPACE && MineraculousClientUtils.hasNoScreenOpen() && revokeButton != null && revokeButton.active) {
+                revokeButton.onPress();
             }
         }
     }

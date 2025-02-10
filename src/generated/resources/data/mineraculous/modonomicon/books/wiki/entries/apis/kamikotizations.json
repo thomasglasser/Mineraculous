@@ -27,8 +27,8 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.apis.kamikotizations.fields.text",
-      "title": "book.mineraculous.wiki.apis.kamikotizations.fields.title",
+      "text": "book.mineraculous.wiki.apis.kamikotizations.guide.text",
+      "title": "book.mineraculous.wiki.apis.kamikotizations.guide.title",
       "use_markdown_in_title": false
     }
   ],

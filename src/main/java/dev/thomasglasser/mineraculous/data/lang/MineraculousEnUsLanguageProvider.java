@@ -185,6 +185,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(KamikotizationChatScreen.ACCEPT, "Accept Kamikotization");
 
         add(MineraculousClientEvents.REVOKE, "Revoke Kamikotization");
+        add(MineraculousClientEvents.REVOKE_WITH_SPACE, "Revoke Kamikotization (Press Space)");
 
         add(MiraculousTransferScreen.TITLE, "Miraculous Transfer");
         add(MiraculousEligiblePlayerEntry.RENOUNCE, "Renounce");
@@ -272,7 +273,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
     protected void addMiraculous(ResourceKey<Miraculous> type, String name) {
         add(type, name);
-        add(MineraculousEntityTypes.KWAMI.getId().toLanguageKey("entity", type.location().getPath()), name + " Kwami");
+        add(MineraculousEntityTypes.KWAMI.getId().toLanguageKey("entity", type.location().toShortLanguageKey()), name + " Kwami");
     }
 
     protected void add(RadialMenuOption option, String name) {

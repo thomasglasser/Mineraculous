@@ -24,22 +24,14 @@ public class KamikotizationsEntry extends IndexModeEntryProvider {
                 A generator for kamikotizations can be found online [here](https://snapshot-jsons.thomasglasser.dev/mineraculous/kamikotization/).
                 """);
 
-        page("fields", () -> BookTextPageModel.create()
+        page("guide", () -> BookTextPageModel.create()
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
-        add(context().pageTitle(), "Fields");
+        add(context().pageTitle(), "Guide");
         add(context().pageText(), """
-                Kamikotizations have a few fields that determine how they work:
-                - active_ability: The ability that is activated when the Activate Power button (default: O) is pressed.
-                - default_name: The default name of the kamikotization.
-                - item_predicate: The predicate that determines if the kamikotization can be applied to an item.
-                - passive_abilities: The abilities that are active at all times when kamikotized.
+                A guide for creating miraculous can be found [here](https://snapshot-jsons.thomasglasser.dev/guides/miraculous/).
                 """);
-
-//        page("example", () -> BookTextPageModel.create()
-//                .withTitle(context().pageTitle())
-//                .withText(context().pageText()));
     }
 
     @Override

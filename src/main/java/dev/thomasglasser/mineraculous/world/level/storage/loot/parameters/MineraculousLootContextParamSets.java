@@ -8,18 +8,16 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 public class MineraculousLootContextParamSets {
-    public static final LootContextParamSet LUCKY_CHARM = register("lucky_charm", builder -> {
-        builder
-                .required(LootContextParams.THIS_ENTITY)
-                .required(LootContextParams.ORIGIN)
-                .required(LootContextParams.TOOL)
-                .optional(LootContextParams.DAMAGE_SOURCE)
-                .optional(LootContextParams.ATTACKING_ENTITY)
-                .optional(MineraculousLootContextParams.POWER_LEVEL)
-                .optional(MineraculousLootContextParams.HAS_AMMO)
-                .optional(MineraculousLootContextParams.SHOOTER)
-                .build();
-    });
+    public static final LootContextParamSet LUCKY_CHARM = register("lucky_charm", builder -> builder
+            .required(LootContextParams.THIS_ENTITY)
+            .required(LootContextParams.ORIGIN)
+            .required(LootContextParams.TOOL)
+            .optional(LootContextParams.DAMAGE_SOURCE)
+            .optional(LootContextParams.ATTACKING_ENTITY)
+            .optional(MineraculousLootContextParams.POWER_LEVEL)
+            .optional(MineraculousLootContextParams.HAS_AMMO)
+            .optional(MineraculousLootContextParams.SHOOTER)
+            .build());
 
     private static LootContextParamSet register(String registryName, Consumer<LootContextParamSet.Builder> builderConsumer) {
         LootContextParamSet.Builder lootcontextparamset$builder = new LootContextParamSet.Builder();

@@ -29,7 +29,8 @@ public class DataMapsEntry extends IndexModeEntryProvider {
                 They are located in "data/<namespace>/entity_type/lucky_charms.json",
                 "data/<namespace>/mineraculous/miraculous/lucky_charms.json",
                 and "data/<namespace>/mineraculous/kamikotization/lucky_charms.json".
-                Generators can be found online [here](https://snapshot-jsons.thomasglasser.dev/partners/).
+                Generators for these can be found online [here](https://snapshot-jsons.thomasglasser.dev/partners/).
+                Generators for the loot table can be found [here](https://snapshot-jsons.thomasglasser.dev/mineraculous/lucky-charm-loot-table/).
                 """);
     }
 

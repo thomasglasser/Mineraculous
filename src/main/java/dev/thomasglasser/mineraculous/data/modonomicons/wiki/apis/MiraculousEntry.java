@@ -25,44 +25,13 @@ public class MiraculousEntry extends IndexModeEntryProvider {
                 A generator for miraculous can be found online [here](https://snapshot-jsons.thomasglasser.dev/mineraculous/miraculous/).
                 """);
 
-        page("fields", () -> BookTextPageModel.create()
+        page("guide", () -> BookTextPageModel.create()
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
-        add(context().pageTitle(), "Fields");
+        add(context().pageTitle(), "Guide");
         add(context().pageText(), """
-                Miraculous have a few fields that determine how they work:
-                - acceptable_slot: The curios slot that the miraculous can be placed in.
-                - active_ability: The ability that is activated when the Activate Power button (default: O) is pressed.
-                - color: The color of the miraculous.
-                - passive_abilities: The abilities that are active at all times when transformed.
-                - tool: The tool that is given to the miraculous holder.
-                - tool_slot: The slot that the tool is put in when transformed.
-                - transform_sound: The sound that is played when transformed.
-                - transformation_frames: The number of frames that the miraculous transforms.
-                """);
-
-        page("example", () -> BookTextPageModel.create()
-                .withTitle(context().pageTitle())
-                .withText(context().pageText()));
-
-        add(context().pageTitle(), "Example");
-        add(context().pageText(), """
-                The following is an example of a ladybug miraculous:
-                {
-                  "acceptable_slot": "earrings",
-                  "active_ability": "mineraculous:lucky_charm",
-                  "color": "#DD1731",
-                  "passive_abilities": [
-                    "mineraculous:miraculous_ladybug"
-                  ],
-                  "tool": {
-                    "id": "mineraculous:ladybug_yoyo"
-                  },
-                  "tool_slot": "belt",
-                  "transform_sound": "mineraculous:ladybug_transform",
-                  "transformation_frames": 9
-                }
+                A guide for creating miraculous can be found [here](https://snapshot-jsons.thomasglasser.dev/guides/miraculous/).
                 """);
     }
 

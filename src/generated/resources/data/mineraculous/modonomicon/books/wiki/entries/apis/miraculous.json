@@ -30,19 +30,8 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.apis.miraculous.fields.text",
-      "title": "book.mineraculous.wiki.apis.miraculous.fields.title",
-      "use_markdown_in_title": false
-    },
-    {
-      "type": "modonomicon:text",
-      "anchor": "",
-      "condition": {
-        "type": "modonomicon:none"
-      },
-      "show_title_separator": true,
-      "text": "book.mineraculous.wiki.apis.miraculous.example.text",
-      "title": "book.mineraculous.wiki.apis.miraculous.example.title",
+      "text": "book.mineraculous.wiki.apis.miraculous.guide.text",
+      "title": "book.mineraculous.wiki.apis.miraculous.guide.title",
       "use_markdown_in_title": false
     }
   ],

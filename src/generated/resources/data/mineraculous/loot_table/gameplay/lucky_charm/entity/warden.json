@@ -58,13 +58,13 @@
               "condition": "minecraft:any_of",
               "terms": [
                 {
-                  "condition": "mineraculous:shooter_matches",
+                  "condition": "mineraculous:has_item",
                   "predicate": {
                     "items": "#c:tools/bow"
                   }
                 },
                 {
-                  "condition": "mineraculous:shooter_matches",
+                  "condition": "mineraculous:has_item",
                   "predicate": {
                     "items": "#c:tools/crossbow"
                   }

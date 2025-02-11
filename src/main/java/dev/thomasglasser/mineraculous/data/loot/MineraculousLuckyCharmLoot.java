@@ -2,8 +2,7 @@ package dev.thomasglasser.mineraculous.data.loot;
 
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.MineraculousLuckyCharmLootKeys;
-import dev.thomasglasser.mineraculous.world.level.storage.loot.predicates.HasAmmoCheck;
-import dev.thomasglasser.mineraculous.world.level.storage.loot.predicates.MatchShooter;
+import dev.thomasglasser.mineraculous.world.level.storage.loot.predicates.HasItem;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.providers.number.PowerLevelMultiplierGenerator;
 import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -47,7 +46,7 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
     public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> biConsumer) {
         // Miraculous
         biConsumer.accept(
-                MineraculousLuckyCharmLootKeys.CAT_MIRACULOUS_LUCKY_CHARM,
+                MineraculousLuckyCharmLootKeys.CAT_MIRACULOUS,
                 LootTable.lootTable()
                         .withPool(
                                 LootPool.lootPool()
@@ -59,7 +58,7 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
 
         // Entities
         biConsumer.accept(
-                MineraculousLuckyCharmLootKeys.BLAZE_LUCKY_CHARM,
+                MineraculousLuckyCharmLootKeys.BLAZE,
                 LootTable.lootTable()
                         .withPool(
                                 LootPool.lootPool()
@@ -92,7 +91,7 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                                         .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1))))
                                         .when(InvertedLootItemCondition.invert(LocationCheck.checkLocation(LocationPredicate.Builder.location().setDimension(Level.NETHER))))));
         biConsumer.accept(
-                MineraculousLuckyCharmLootKeys.CREEPER_LUCKY_CHARM,
+                MineraculousLuckyCharmLootKeys.CREEPER,
                 LootTable.lootTable()
                         .withPool(
                                 LootPool.lootPool()
@@ -103,7 +102,7 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                                         .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(4, 6)))
                                                                 .fromOptions(HolderSet.direct(registries.holderOrThrow(Enchantments.KNOCKBACK)))))));
         biConsumer.accept(
-                MineraculousLuckyCharmLootKeys.ENDERMAN_LUCKY_CHARM,
+                MineraculousLuckyCharmLootKeys.ENDERMAN,
                 LootTable.lootTable()
                         .withPool(
                                 LootPool.lootPool()
@@ -123,7 +122,7 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                                         .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
                                                         .apply(SetPotionFunction.setPotion(Potions.WATER)))));
         biConsumer.accept(
-                MineraculousLuckyCharmLootKeys.PIGLIN_LUCKY_CHARM,
+                MineraculousLuckyCharmLootKeys.PIGLIN,
                 LootTable.lootTable()
                         .withPool(
                                 LootPool.lootPool()
@@ -142,7 +141,7 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                                 TagEntry.expandTag(ConventionalItemTags.CROSSBOW_TOOLS)
                                                         .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
                                                         .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(4, 6)))))
-                                        .when(HasAmmoCheck.hasAmmoCheck()))
+                                        .when(HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ItemTags.ARROWS))))
                         .withPool(
                                 LootPool.lootPool()
                                         .setRolls(ConstantValue.exactly(1.0F))
@@ -154,10 +153,10 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                         .add(
                                                 TagEntry.expandTag(ItemTags.ARROWS)
                                                         .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 4)))))
-                                        .when(MatchShooter.shooterMatches(ItemPredicate.Builder.item().of(ConventionalItemTags.CROSSBOW_TOOLS)))));
+                                        .when(HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ConventionalItemTags.CROSSBOW_TOOLS)))));
 
         biConsumer.accept(
-                MineraculousLuckyCharmLootKeys.PILLAGER_LUCKY_CHARM,
+                MineraculousLuckyCharmLootKeys.PILLAGER,
                 LootTable.lootTable()
                         .withPool(
                                 LootPool.lootPool()
@@ -166,7 +165,7 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                                 TagEntry.expandTag(ConventionalItemTags.CROSSBOW_TOOLS)
                                                         .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
                                                         .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(4, 6)))))
-                                        .when(HasAmmoCheck.hasAmmoCheck()))
+                                        .when(HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ItemTags.ARROWS))))
                         .withPool(
                                 LootPool.lootPool()
                                         .setRolls(ConstantValue.exactly(1.0F))
@@ -179,9 +178,9 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                                 TagEntry.expandTag(ItemTags.ARROWS)
                                                         .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 16))))
                                                         .apply(SetPotionFunction.setPotion(Potions.LUCK)))
-                                        .when(MatchShooter.shooterMatches(ItemPredicate.Builder.item().of(ConventionalItemTags.CROSSBOW_TOOLS)))));
+                                        .when(HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ConventionalItemTags.CROSSBOW_TOOLS)))));
         biConsumer.accept(
-                MineraculousLuckyCharmLootKeys.SKELETON_LUCKY_CHARM,
+                MineraculousLuckyCharmLootKeys.SKELETON,
                 LootTable.lootTable()
                         .withPool(
                                 LootPool.lootPool()
@@ -197,7 +196,7 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                                 TagEntry.expandTag(ConventionalItemTags.BOW_TOOLS)
                                                         .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
                                                         .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(0, 3)))))
-                                        .when(HasAmmoCheck.hasAmmoCheck()))
+                                        .when(HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ItemTags.ARROWS))))
                         .withPool(
                                 LootPool.lootPool()
                                         .setRolls(ConstantValue.exactly(1.0F))
@@ -207,10 +206,10 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                                         .apply(SetPotionFunction.setPotion(Potions.LUCK)))
                                         .when(
                                                 AnyOfCondition.anyOf(
-                                                        MatchShooter.shooterMatches(ItemPredicate.Builder.item().of(ConventionalItemTags.BOW_TOOLS)),
-                                                        MatchShooter.shooterMatches(ItemPredicate.Builder.item().of(ConventionalItemTags.CROSSBOW_TOOLS))))));
+                                                        HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ConventionalItemTags.BOW_TOOLS)),
+                                                        HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ConventionalItemTags.CROSSBOW_TOOLS))))));
         biConsumer.accept(
-                MineraculousLuckyCharmLootKeys.WARDEN_LUCKY_CHARM,
+                MineraculousLuckyCharmLootKeys.WARDEN,
                 LootTable.lootTable()
                         .withPool(
                                 LootPool.lootPool()
@@ -228,8 +227,8 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                                 LootItem.lootTableItem(Items.SPECTRAL_ARROW)
                                                         .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 16))))
                                                         .when(AnyOfCondition.anyOf(
-                                                                MatchShooter.shooterMatches(ItemPredicate.Builder.item().of(ConventionalItemTags.BOW_TOOLS)),
-                                                                MatchShooter.shooterMatches(ItemPredicate.Builder.item().of(ConventionalItemTags.CROSSBOW_TOOLS)))))
+                                                                HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ConventionalItemTags.BOW_TOOLS)),
+                                                                HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ConventionalItemTags.CROSSBOW_TOOLS)))))
                                         .when(
                                                 LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, EntityPredicate.Builder.entity().effects(MobEffectsPredicate.Builder.effects().and(MobEffects.DARKNESS))))));
     }

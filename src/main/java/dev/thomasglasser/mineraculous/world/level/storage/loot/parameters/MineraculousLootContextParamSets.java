@@ -15,8 +15,6 @@ public class MineraculousLootContextParamSets {
             .optional(LootContextParams.DAMAGE_SOURCE)
             .optional(LootContextParams.ATTACKING_ENTITY)
             .optional(MineraculousLootContextParams.POWER_LEVEL)
-            .optional(MineraculousLootContextParams.HAS_AMMO)
-            .optional(MineraculousLootContextParams.SHOOTER)
             .build());
 
     private static LootContextParamSet register(String registryName, Consumer<LootContextParamSet.Builder> builderConsumer) {

@@ -138,8 +138,7 @@
     "mineraculous:waxed_time_honored_wedge_of_cheese"
   ],
   "minecraft:loot_condition_type": [
-    "mineraculous:has_ammo",
-    "mineraculous:shooter_matches"
+    "mineraculous:has_item"
   ],
   "minecraft:loot_number_provider_type": [
     "mineraculous:power_level_multiplier"

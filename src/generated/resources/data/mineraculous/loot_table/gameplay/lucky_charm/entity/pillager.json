@@ -5,7 +5,10 @@
       "bonus_rolls": 0.0,
       "conditions": [
         {
-          "condition": "mineraculous:has_ammo"
+          "condition": "mineraculous:has_item",
+          "predicate": {
+            "items": "#minecraft:arrows"
+          }
         }
       ],
       "entries": [
@@ -40,7 +43,7 @@
       "bonus_rolls": 0.0,
       "conditions": [
         {
-          "condition": "mineraculous:shooter_matches",
+          "condition": "mineraculous:has_item",
           "predicate": {
             "items": "#c:tools/crossbow"
           }

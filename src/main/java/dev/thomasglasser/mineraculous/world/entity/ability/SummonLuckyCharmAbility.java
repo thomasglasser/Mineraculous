@@ -20,24 +20,18 @@ import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdDataHolder
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.parameters.MineraculousLootContextParamSets;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.parameters.MineraculousLootContextParams;
-import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
-import net.minecraft.world.entity.npc.InventoryCarrier;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -71,24 +65,6 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
                         .withParameter(MineraculousLootContextParams.POWER_LEVEL, data.powerLevel())
                         .withOptionalParameter(LootContextParams.DAMAGE_SOURCE, entity.getLastDamageSource())
                         .withOptionalParameter(LootContextParams.ATTACKING_ENTITY, target);
-                if (entity instanceof InventoryCarrier || entity instanceof Player) {
-                    NonNullList<ItemStack> items;
-                    if (entity instanceof InventoryCarrier inventoryCarrier) {
-                        items = inventoryCarrier.getInventory().getItems();
-                    } else {
-                        Inventory inventory = ((Player) entity).getInventory();
-                        items = NonNullList.create();
-                        inventory.compartments.forEach(items::addAll);
-                    }
-                    if (!items.isEmpty()) {
-                        if (items.stream().anyMatch(stack -> stack.is(ItemTags.ARROWS)))
-                            lootparams$builder = lootparams$builder.withParameter(MineraculousLootContextParams.HAS_AMMO, true);
-                        Optional<ItemStack> shooter = items.stream().filter(stack -> stack.is(ConventionalItemTags.BOW_TOOLS) || stack.is(ConventionalItemTags.CROSSBOW_TOOLS)).findFirst();
-                        if (shooter.isPresent()) {
-                            lootparams$builder = lootparams$builder.withParameter(MineraculousLootContextParams.SHOOTER, shooter.get());
-                        }
-                    }
-                }
 
                 LootParams lootparams = lootparams$builder.create(MineraculousLootContextParamSets.LUCKY_CHARM);
                 loottable.getRandomItems(lootparams, target.getLootTableSeed(), result::set);

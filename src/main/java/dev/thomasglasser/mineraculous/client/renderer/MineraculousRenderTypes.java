@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.RenderType;
 
 public class MineraculousRenderTypes {
     private static final RenderType LUCKY_CHARM = RenderType.create(
-            "lucky_charm",
+            "mineraculous:lucky_charm",
             DefaultVertexFormat.POSITION_TEX,
             VertexFormat.Mode.QUADS,
             1536,
@@ -16,9 +16,7 @@ public class MineraculousRenderTypes {
                     .setShaderState(RenderStateShard.RENDERTYPE_GLINT_SHADER)
                     .setTextureState(new RenderStateShard.TextureStateShard(Mineraculous.modLoc("textures/misc/lucky_charm.png"), true, false))
                     .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                    .setCullState(RenderStateShard.NO_CULL)
-//                    .setDepthTestState(RenderStateShard.EQUAL_DEPTH_TEST)
-                    .setTransparencyState(RenderStateShard.GLINT_TRANSPARENCY)
+                    .setDepthTestState(RenderStateShard.EQUAL_DEPTH_TEST)
                     .setTexturingState(RenderStateShard.GLINT_TEXTURING)
                     .createCompositeState(false));
 

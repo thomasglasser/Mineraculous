@@ -145,6 +145,7 @@ public class Mineraculous {
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientTick);
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientChatReceived);
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onPlayerLoggedIn);
+            NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onInteractionKeyMappingTriggered);
         }
     }
 

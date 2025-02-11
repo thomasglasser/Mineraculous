@@ -136,8 +136,8 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (entity instanceof Player player && !player.isUsingItem()) {
-            if (level.isClientSide() && player.getMainHandItem() == stack) {
-                InteractionHand hand = InteractionHand.MAIN_HAND;
+            if (level.isClientSide() && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
+                InteractionHand hand = player.getMainHandItem() == stack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
 
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
                 int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
@@ -166,7 +166,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                             MineraculousClientEvents.openToolWheel(color, stack, option -> {
                                 if (option instanceof Ability ability) {
                                     stack.set(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get(), ability);
-                                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetLadybugYoyoAbilityPayload(player.getInventory().findSlotMatchingItem(stack), ability.name()));
+                                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetLadybugYoyoAbilityPayload(hand, ability.name()));
                                 }
                             }, Arrays.stream(Ability.values()).filter(ability -> {
                                 if (ability == Ability.PURIFY)
@@ -204,8 +204,6 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player pPlayer, InteractionHand pHand) {
-        if (pHand == InteractionHand.OFF_HAND)
-            return InteractionResultHolder.pass(pPlayer.getItemInHand(pHand));
         ItemStack stack = pPlayer.getItemInHand(pHand);
         if (!stack.has(MineraculousDataComponents.ACTIVE))
             return InteractionResultHolder.fail(stack);
@@ -292,33 +290,35 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
 
     @Override
     public boolean onEntitySwing(ItemStack stack, LivingEntity entity, InteractionHand hand) {
-        if (entity.level() instanceof ServerLevel serverLevel && stack.has(MineraculousDataComponents.ACTIVE) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
-            Optional<Integer> id = entity.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
-            if (id.isPresent()) {
-                if (serverLevel.getEntity(id.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
-                    if (thrownLadybugYoyo.getAbility() == Ability.TRAVEL) {
-                        if (thrownLadybugYoyo.inGround()) {
-                            Vec3 fromPlayerToYoyo = new Vec3(thrownLadybugYoyo.getX() - player.getX(), thrownLadybugYoyo.getY() - player.getY() + 2, thrownLadybugYoyo.getZ() - player.getZ());
-                            player.setDeltaMovement(fromPlayerToYoyo.scale(0.2).add(player.getDeltaMovement()));
-                            player.hurtMarked = true;
+        if (stack.has(MineraculousDataComponents.ACTIVE) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
+            if (entity.level() instanceof ServerLevel serverLevel) {
+                Optional<Integer> id = entity.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
+                if (id.isPresent()) {
+                    if (serverLevel.getEntity(id.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
+                        if (thrownLadybugYoyo.getAbility() == Ability.TRAVEL) {
+                            if (thrownLadybugYoyo.inGround()) {
+                                Vec3 fromPlayerToYoyo = new Vec3(thrownLadybugYoyo.getX() - player.getX(), thrownLadybugYoyo.getY() - player.getY() + 2, thrownLadybugYoyo.getZ() - player.getZ());
+                                player.setDeltaMovement(fromPlayerToYoyo.scale(0.2).add(player.getDeltaMovement()));
+                                player.hurtMarked = true;
+                            }
+                        } else if (thrownLadybugYoyo.getAbility() == LadybugYoyoItem.Ability.LASSO) {
+                            List<Entity> entities = serverLevel.getEntities(thrownLadybugYoyo.getOwner(), thrownLadybugYoyo.getBoundingBox().inflate(2, 1, 2), e -> e != thrownLadybugYoyo);
+                            for (Entity e : entities) {
+                                CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(e);
+                                entityData.remove(MineraculousEntityEvents.TAG_YOYO_BOUND_POS);
+                                TommyLibServices.ENTITY.setPersistentData(e, entityData, true);
+                                Vec3 fromEntityToPlayer = new Vec3(entity.getX() - e.getX(), entity.getY() - e.getY(), entity.getZ() - e.getZ());
+                                e.setDeltaMovement(fromEntityToPlayer.scale(0.2));
+                                e.hurtMarked = true;
+                            }
+                            thrownLadybugYoyo.clearBoundPos();
                         }
-                    } else if (thrownLadybugYoyo.getAbility() == LadybugYoyoItem.Ability.LASSO) {
-                        List<Entity> entities = serverLevel.getEntities(thrownLadybugYoyo.getOwner(), thrownLadybugYoyo.getBoundingBox().inflate(2, 1, 2), e -> e != thrownLadybugYoyo);
-                        for (Entity e : entities) {
-                            CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(e);
-                            entityData.remove(MineraculousEntityEvents.TAG_YOYO_BOUND_POS);
-                            TommyLibServices.ENTITY.setPersistentData(e, entityData, true);
-                            Vec3 fromEntityToPlayer = new Vec3(entity.getX() - e.getX(), entity.getY() - e.getY(), entity.getZ() - e.getZ());
-                            e.setDeltaMovement(fromEntityToPlayer.scale(0.2));
-                            e.hurtMarked = true;
-                        }
-                        thrownLadybugYoyo.clearBoundPos();
+                        recallYoyo(player);
                     }
-                    recallYoyo(player);
+                } else {
+                    throwYoyo(stack, player, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()) == Ability.PURIFY ? Ability.PURIFY : null);
+                    player.getCooldowns().addCooldown(this, 5);
                 }
-            } else {
-                throwYoyo(stack, player, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()) == Ability.PURIFY ? Ability.PURIFY : null);
-                player.getCooldowns().addCooldown(this, 5);
             }
             return true;
         }

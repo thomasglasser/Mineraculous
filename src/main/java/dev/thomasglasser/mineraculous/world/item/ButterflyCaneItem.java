@@ -147,7 +147,8 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (entity instanceof Player player && !player.isUsingItem()) {
-            if (level.isClientSide() && player.getMainHandItem() == stack || player.getOffhandItem() == stack) {
+            if (level.isClientSide() && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
+                InteractionHand hand = player.getMainHandItem() == stack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
                 int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
                 if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown()) {
@@ -163,7 +164,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
                     }
                     MineraculousClientEvents.openToolWheel(color, stack, option -> {
                         if (option instanceof Ability ability) {
-                            TommyLibServices.NETWORK.sendToServer(new ServerboundSetButterflyCaneAbilityPayload(player.getInventory().findSlotMatchingItem(stack), ability.name()));
+                            TommyLibServices.NETWORK.sendToServer(new ServerboundSetButterflyCaneAbilityPayload(hand, ability.name()));
                             stack.set(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get(), ability);
                         }
                     }, Arrays.stream(Ability.values()).filter(ability -> {

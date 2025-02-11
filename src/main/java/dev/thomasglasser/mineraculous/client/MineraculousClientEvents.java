@@ -23,6 +23,7 @@ import dev.thomasglasser.mineraculous.client.renderer.item.curio.ContextDependen
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.network.ServerboundKamikotizationTransformPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundSendOffhandSwingPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetOwnerPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetToggleTagPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
@@ -71,6 +72,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.FastColor;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
@@ -524,5 +526,14 @@ public class MineraculousClientEvents {
             }
         }
         return miraculousLooks;
+    }
+
+    public static void onInteractionKeyMappingTriggered(InputEvent.InteractionKeyMappingTriggered event) {
+        if (event.isAttack() && event.getHand() == InteractionHand.MAIN_HAND && ClientUtils.getMainClientPlayer().getOffhandItem().is(MineraculousItems.LADYBUG_YOYO)) {
+            TommyLibServices.NETWORK.sendToServer(ServerboundSendOffhandSwingPayload.INSTANCE);
+            if (ClientUtils.getMainClientPlayer().getOffhandItem().onEntitySwing(ClientUtils.getMainClientPlayer(), InteractionHand.OFF_HAND)) {
+                event.setCanceled(true);
+            }
+        }
     }
 }

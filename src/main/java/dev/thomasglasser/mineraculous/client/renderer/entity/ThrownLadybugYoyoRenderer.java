@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
+import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import java.util.ArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -16,6 +17,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
@@ -100,6 +102,10 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
 
     public static Vec3 getPlayerHandPos(Player player, float p_340872_, float partialTick, EntityRenderDispatcher entityRenderDispatcher) {
         int i = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
+        ItemStack itemstack = player.getMainHandItem();
+        if (!itemstack.is(MineraculousItems.LADYBUG_YOYO)) {
+            i = -i;
+        }
 
         if (entityRenderDispatcher.options.getCameraType().isFirstPerson() && player == Minecraft.getInstance().player && entityRenderDispatcher.camera != null) { //ik the null check seems useless but i get crashes abt it
             double d4 = 960.0 / (double) entityRenderDispatcher.options.fov().get();

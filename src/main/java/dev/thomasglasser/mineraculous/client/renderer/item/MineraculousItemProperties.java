@@ -19,7 +19,7 @@ public class MineraculousItemProperties {
     public static void init() {
         ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), LadybugYoyoItem.EXTENDED_PROPERTY_ID, (stack, level, entity, seed) -> {
             if (stack.has(MineraculousDataComponents.ACTIVE)) {
-                if (entity instanceof Player player && player.getMainHandItem() == stack && player.getData(MineraculousAttachmentTypes.LADYBUG_YOYO).isPresent()) {
+                if (entity instanceof Player player && (player.getMainHandItem() == stack || player.getOffhandItem() == stack) && player.getData(MineraculousAttachmentTypes.LADYBUG_YOYO).isPresent()) {
                     Entity thrown = player.level().getEntity(player.getData(MineraculousAttachmentTypes.LADYBUG_YOYO).get());
                     if (thrown instanceof ThrownLadybugYoyo yoyo)
                         return yoyo.inGround() || yoyo.isBound() ? 3 : 2;

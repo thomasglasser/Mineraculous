@@ -133,7 +133,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (entity instanceof Player player && !player.isUsingItem()) {
-            if (level.isClientSide() && player.getMainHandItem() == stack || player.getOffhandItem() == stack) {
+            if (level.isClientSide() && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
                 InteractionHand hand = player.getMainHandItem() == stack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
 
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
@@ -163,7 +163,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                             MineraculousClientEvents.openToolWheel(color, stack, option -> {
                                 if (option instanceof Ability ability) {
                                     stack.set(MineraculousDataComponents.CAT_STAFF_ABILITY.get(), ability);
-                                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetCatStaffAbilityPayload(player.getInventory().findSlotMatchingItem(stack), ability.name()));
+                                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetCatStaffAbilityPayload(hand, ability.name()));
                                 }
                             }, Ability.values());
                         } else {

@@ -13,22 +13,23 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 
-public record ServerboundSetButterflyCaneAbilityPayload(int slot, String selected) implements ExtendedPacketPayload {
+public record ServerboundSetButterflyCaneAbilityPayload(InteractionHand hand, String selected) implements ExtendedPacketPayload {
     public static final Type<ServerboundSetButterflyCaneAbilityPayload> TYPE = new Type<>(Mineraculous.modLoc("set_butterfly_cane_ability"));
     public static final StreamCodec<ByteBuf, ServerboundSetButterflyCaneAbilityPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT, ServerboundSetButterflyCaneAbilityPayload::slot,
+            ByteBufCodecs.STRING_UTF8.map(InteractionHand::valueOf, InteractionHand::name), ServerboundSetButterflyCaneAbilityPayload::hand,
             ByteBufCodecs.STRING_UTF8, ServerboundSetButterflyCaneAbilityPayload::selected,
             ServerboundSetButterflyCaneAbilityPayload::new);
 
     // ON SERVER
     @Override
     public void handle(Player player) {
-        ItemStack stack = player.getInventory().getItem(slot);
+        ItemStack stack = player.getItemInHand(hand);
         ButterflyCaneItem.Ability old = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY);
         ButterflyCaneItem.Ability current = ButterflyCaneItem.Ability.valueOf(selected);
         stack.set(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY, current);

@@ -1,11 +1,8 @@
 {
   "values": {
-    "#minecraft:skeletons": "mineraculous:gameplay/lucky_charm/entity/skeleton",
-    "minecraft:blaze": "mineraculous:gameplay/lucky_charm/entity/blaze",
-    "minecraft:creeper": "mineraculous:gameplay/lucky_charm/entity/creeper",
-    "minecraft:enderman": "mineraculous:gameplay/lucky_charm/entity/enderman",
-    "minecraft:piglin": "mineraculous:gameplay/lucky_charm/entity/piglin",
-    "minecraft:pillager": "mineraculous:gameplay/lucky_charm/entity/pillager",
-    "minecraft:warden": "mineraculous:gameplay/lucky_charm/entity/warden"
+    "minecraft:elder_guardian": "mineraculous:gameplay/lucky_charm/entity/elder_guardian",
+    "minecraft:ender_dragon": "mineraculous:gameplay/lucky_charm/entity/ender_dragon",
+    "minecraft:warden": "mineraculous:gameplay/lucky_charm/entity/warden",
+    "minecraft:wither": "mineraculous:gameplay/lucky_charm/entity/wither"
   }
 }

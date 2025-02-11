@@ -10,13 +10,10 @@ public class MineraculousLuckyCharmLootKeys {
     public static final ResourceKey<LootTable> CAT_MIRACULOUS = miraculous("cat");
 
     // Entities
-    public static final ResourceKey<LootTable> BLAZE = entity("blaze");
-    public static final ResourceKey<LootTable> CREEPER = entity("creeper");
-    public static final ResourceKey<LootTable> ENDERMAN = entity("enderman");
-    public static final ResourceKey<LootTable> PIGLIN = entity("piglin");
-    public static final ResourceKey<LootTable> PILLAGER = entity("pillager");
-    public static final ResourceKey<LootTable> SKELETON = entity("skeleton");
+    public static final ResourceKey<LootTable> ENDER_DRAGON = entity("ender_dragon");
+    public static final ResourceKey<LootTable> ELDER_GUARDIAN = entity("elder_guardian");
     public static final ResourceKey<LootTable> WARDEN = entity("warden");
+    public static final ResourceKey<LootTable> WITHER = entity("wither");
 
     private static ResourceKey<LootTable> miraculous(String name) {
         return modLoc("miraculous/" + name);

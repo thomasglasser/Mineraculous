@@ -23,12 +23,9 @@
   "mineraculous:blocks/waxed_time_honored_camembert_block",
   "mineraculous:blocks/waxed_time_honored_cheese_block",
   "mineraculous:gameplay/hero_of_the_village/fromager_gift",
-  "mineraculous:gameplay/lucky_charm/entity/blaze",
-  "mineraculous:gameplay/lucky_charm/entity/creeper",
-  "mineraculous:gameplay/lucky_charm/entity/enderman",
-  "mineraculous:gameplay/lucky_charm/entity/piglin",
-  "mineraculous:gameplay/lucky_charm/entity/pillager",
-  "mineraculous:gameplay/lucky_charm/entity/skeleton",
+  "mineraculous:gameplay/lucky_charm/entity/elder_guardian",
+  "mineraculous:gameplay/lucky_charm/entity/ender_dragon",
   "mineraculous:gameplay/lucky_charm/entity/warden",
+  "mineraculous:gameplay/lucky_charm/entity/wither",
   "mineraculous:gameplay/lucky_charm/miraculous/cat"
 ]

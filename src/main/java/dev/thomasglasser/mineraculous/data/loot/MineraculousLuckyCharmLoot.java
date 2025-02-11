@@ -5,38 +5,27 @@ import dev.thomasglasser.mineraculous.world.level.storage.loot.MineraculousLucky
 import dev.thomasglasser.mineraculous.world.level.storage.loot.predicates.HasItem;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.providers.number.PowerLevelMultiplierGenerator;
 import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;
-import it.unimi.dsi.fastutil.ints.IntList;
-import java.util.List;
 import java.util.function.BiConsumer;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.advancements.critereon.LocationPredicate;
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.advancements.critereon.MobEffectsPredicate;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.data.loot.LootTableSubProvider;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.world.item.component.FireworkExplosion;
-import net.minecraft.world.item.component.Fireworks;
-import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.TagEntry;
 import net.minecraft.world.level.storage.loot.functions.EnchantWithLevelsFunction;
-import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.functions.SetPotionFunction;
 import net.minecraft.world.level.storage.loot.predicates.AnyOfCondition;
-import net.minecraft.world.level.storage.loot.predicates.InvertedLootItemCondition;
-import net.minecraft.world.level.storage.loot.predicates.LocationCheck;
 import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
@@ -58,51 +47,7 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
 
         // Entities
         biConsumer.accept(
-                MineraculousLuckyCharmLootKeys.BLAZE,
-                LootTable.lootTable()
-                        .withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1.0F))
-                                        .add(
-                                                LootItem.lootTableItem(Items.POTION)
-                                                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
-                                                        .apply(SetPotionFunction.setPotion(Potions.FIRE_RESISTANCE)))
-                                        .add(
-                                                LootItem.lootTableItem(Items.SPLASH_POTION)
-                                                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
-                                                        .apply(SetPotionFunction.setPotion(Potions.FIRE_RESISTANCE)))
-                                        .add(
-                                                LootItem.lootTableItem(Items.LINGERING_POTION)
-                                                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
-                                                        .apply(SetPotionFunction.setPotion(Potions.FIRE_RESISTANCE))))
-                        .withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1.0F))
-                                        .add(
-                                                LootItem.lootTableItem(Items.SPLASH_POTION)
-                                                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
-                                                        .apply(SetPotionFunction.setPotion(Potions.WATER)))
-                                        .add(
-                                                LootItem.lootTableItem(Items.LINGERING_POTION)
-                                                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
-                                                        .apply(SetPotionFunction.setPotion(Potions.WATER)))
-                                        .add(
-                                                LootItem.lootTableItem(Items.WATER_BUCKET)
-                                                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1))))
-                                        .when(InvertedLootItemCondition.invert(LocationCheck.checkLocation(LocationPredicate.Builder.location().setDimension(Level.NETHER))))));
-        biConsumer.accept(
-                MineraculousLuckyCharmLootKeys.CREEPER,
-                LootTable.lootTable()
-                        .withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1.0F))
-                                        .add(
-                                                LootItem.lootTableItem(Items.WOODEN_SWORD)
-                                                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
-                                                        .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(4, 6)))
-                                                                .fromOptions(HolderSet.direct(registries.holderOrThrow(Enchantments.KNOCKBACK)))))));
-        biConsumer.accept(
-                MineraculousLuckyCharmLootKeys.ENDERMAN,
+                MineraculousLuckyCharmLootKeys.ENDER_DRAGON,
                 LootTable.lootTable()
                         .withPool(
                                 LootPool.lootPool()
@@ -111,103 +56,36 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                                 LootItem.lootTableItem(Items.ENDER_PEARL)
                                                         .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 16)))))
                                         .add(
+                                                LootItem.lootTableItem(Items.WIND_CHARGE)
+                                                        .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 16)))))
+                                        .add(
                                                 LootItem.lootTableItem(Items.WATER_BUCKET)
                                                         .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1))))
                                         .add(
-                                                LootItem.lootTableItem(Items.SPLASH_POTION)
+                                                TagEntry.expandTag(ConventionalItemTags.POTIONS)
                                                         .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
-                                                        .apply(SetPotionFunction.setPotion(Potions.WATER)))
-                                        .add(
-                                                LootItem.lootTableItem(Items.LINGERING_POTION)
-                                                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
-                                                        .apply(SetPotionFunction.setPotion(Potions.WATER)))));
+                                                        .apply(SetPotionFunction.setPotion(Potions.LONG_SLOW_FALLING)))));
         biConsumer.accept(
-                MineraculousLuckyCharmLootKeys.PIGLIN,
+                MineraculousLuckyCharmLootKeys.ELDER_GUARDIAN,
                 LootTable.lootTable()
                         .withPool(
                                 LootPool.lootPool()
                                         .setRolls(ConstantValue.exactly(1.0F))
                                         .add(
-                                                TagEntry.expandTag(ItemTags.PIGLIN_LOVED)
-                                                        .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 4))))
-                                                        .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(4, 6)))))
+                                                LootItem.lootTableItem(Blocks.SPONGE)
+                                                        .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 16)))))
                                         .add(
-                                                TagEntry.expandTag(ItemTags.PIGLIN_REPELLENTS)
-                                                        .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 4))))))
-                        .withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1.0F))
-                                        .add(
-                                                TagEntry.expandTag(ConventionalItemTags.CROSSBOW_TOOLS)
+                                                LootItem.lootTableItem(Blocks.CONDUIT)
                                                         .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
-                                                        .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(4, 6)))))
-                                        .when(HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ItemTags.ARROWS))))
-                        .withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1.0F))
+                                                        .when(HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(Blocks.PRISMARINE, Blocks.PRISMARINE_BRICKS, Blocks.SEA_LANTERN, Blocks.DARK_PRISMARINE).withCount(MinMaxBounds.Ints.atLeast(16)))))
                                         .add(
-                                                LootItem.lootTableItem(Items.FIREWORK_ROCKET)
-                                                        .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 4))))
-                                                        .apply(SetComponentsFunction.setComponent(DataComponents.FIREWORKS, new Fireworks(20, List.of(
-                                                                new FireworkExplosion(FireworkExplosion.Shape.SMALL_BALL, IntList.of(0xf7121d), IntList.of(0x15000b), true, true))))))
+                                                LootItem.lootTableItem(Blocks.PRISMARINE)
+                                                        .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(16, 32))))
+                                                        .when(HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(Blocks.CONDUIT))))
                                         .add(
-                                                TagEntry.expandTag(ItemTags.ARROWS)
-                                                        .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 4)))))
-                                        .when(HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ConventionalItemTags.CROSSBOW_TOOLS)))));
-
-        biConsumer.accept(
-                MineraculousLuckyCharmLootKeys.PILLAGER,
-                LootTable.lootTable()
-                        .withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1.0F))
-                                        .add(
-                                                TagEntry.expandTag(ConventionalItemTags.CROSSBOW_TOOLS)
-                                                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
-                                                        .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(4, 6)))))
-                                        .when(HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ItemTags.ARROWS))))
-                        .withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1.0F))
-                                        .add(
-                                                LootItem.lootTableItem(Items.FIREWORK_ROCKET)
-                                                        .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 4))))
-                                                        .apply(SetComponentsFunction.setComponent(DataComponents.FIREWORKS, new Fireworks(3, List.of(
-                                                                new FireworkExplosion(FireworkExplosion.Shape.SMALL_BALL, IntList.of(0xf7121d), IntList.of(0x15000b), true, true))))))
-                                        .add(
-                                                TagEntry.expandTag(ItemTags.ARROWS)
-                                                        .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 16))))
-                                                        .apply(SetPotionFunction.setPotion(Potions.LUCK)))
-                                        .when(HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ConventionalItemTags.CROSSBOW_TOOLS)))));
-        biConsumer.accept(
-                MineraculousLuckyCharmLootKeys.SKELETON,
-                LootTable.lootTable()
-                        .withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1.0F))
-                                        .add(
-                                                TagEntry.expandTag(ConventionalItemTags.SHIELD_TOOLS)
-                                                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
-                                                        .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(0, 3))))))
-                        .withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1.0F))
-                                        .add(
-                                                TagEntry.expandTag(ConventionalItemTags.BOW_TOOLS)
-                                                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
-                                                        .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(0, 3)))))
-                                        .when(HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ItemTags.ARROWS))))
-                        .withPool(
-                                LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1.0F))
-                                        .add(
-                                                TagEntry.expandTag(ItemTags.ARROWS)
-                                                        .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 16))))
-                                                        .apply(SetPotionFunction.setPotion(Potions.LUCK)))
-                                        .when(
-                                                AnyOfCondition.anyOf(
-                                                        HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ConventionalItemTags.BOW_TOOLS)),
-                                                        HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ConventionalItemTags.CROSSBOW_TOOLS))))));
+                                                LootItem.lootTableItem(Items.MILK_BUCKET)
+                                                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1))))
+                                        .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, EntityPredicate.Builder.entity().effects(MobEffectsPredicate.Builder.effects().and(MobEffects.DIG_SLOWDOWN))))));
         biConsumer.accept(
                 MineraculousLuckyCharmLootKeys.WARDEN,
                 LootTable.lootTable()
@@ -231,5 +109,17 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                                                 HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(ConventionalItemTags.CROSSBOW_TOOLS)))))
                                         .when(
                                                 LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, EntityPredicate.Builder.entity().effects(MobEffectsPredicate.Builder.effects().and(MobEffects.DARKNESS))))));
+        biConsumer.accept(
+                MineraculousLuckyCharmLootKeys.WITHER,
+                LootTable.lootTable()
+                        .withPool(
+                                LootPool.lootPool()
+                                        .setRolls(ConstantValue.exactly(1.0F))
+                                        .add(
+                                                LootItem.lootTableItem(Blocks.OBSIDIAN)
+                                                        .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 16)))))
+                                        .add(
+                                                LootItem.lootTableItem(Items.SHEEP_SPAWN_EGG)
+                                                        .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 16)))))));
     }
 }

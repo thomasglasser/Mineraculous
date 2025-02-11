@@ -27,6 +27,24 @@
           "functions": [
             {
               "add": false,
+              "count": {
+                "type": "mineraculous:power_level_multiplier",
+                "base": {
+                  "type": "minecraft:uniform",
+                  "max": 16.0,
+                  "min": 1.0
+                }
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:wind_charge"
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
               "count": 1.0,
               "function": "minecraft:set_count"
             }
@@ -34,7 +52,8 @@
           "name": "minecraft:water_bucket"
         },
         {
-          "type": "minecraft:item",
+          "type": "minecraft:tag",
+          "expand": true,
           "functions": [
             {
               "add": false,
@@ -43,29 +62,14 @@
             },
             {
               "function": "minecraft:set_potion",
-              "id": "minecraft:water"
+              "id": "minecraft:long_slow_falling"
             }
           ],
-          "name": "minecraft:splash_potion"
-        },
-        {
-          "type": "minecraft:item",
-          "functions": [
-            {
-              "add": false,
-              "count": 1.0,
-              "function": "minecraft:set_count"
-            },
-            {
-              "function": "minecraft:set_potion",
-              "id": "minecraft:water"
-            }
-          ],
-          "name": "minecraft:lingering_potion"
+          "name": "c:potions"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "mineraculous:gameplay/lucky_charm/entity/enderman"
+  "random_sequence": "mineraculous:gameplay/lucky_charm/entity/ender_dragon"
 }

@@ -1,0 +1,48 @@
+{
+  "type": "mineraculous:lucky_charm",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "mineraculous:power_level_multiplier",
+                "base": {
+                  "type": "minecraft:uniform",
+                  "max": 16.0,
+                  "min": 1.0
+                }
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:obsidian"
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "mineraculous:power_level_multiplier",
+                "base": {
+                  "type": "minecraft:uniform",
+                  "max": 16.0,
+                  "min": 1.0
+                }
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:sheep_spawn_egg"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "mineraculous:gameplay/lucky_charm/entity/wither"
+}

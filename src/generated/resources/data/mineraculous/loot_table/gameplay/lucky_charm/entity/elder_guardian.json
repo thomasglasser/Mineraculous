@@ -1,0 +1,105 @@
+{
+  "type": "mineraculous:lucky_charm",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:entity_properties",
+          "entity": "this",
+          "predicate": {
+            "effects": {
+              "minecraft:mining_fatigue": {}
+            }
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "mineraculous:power_level_multiplier",
+                "base": {
+                  "type": "minecraft:uniform",
+                  "max": 16.0,
+                  "min": 1.0
+                }
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:sponge"
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "condition": "mineraculous:has_item",
+              "predicate": {
+                "count": {
+                  "min": 16
+                },
+                "items": [
+                  "minecraft:prismarine",
+                  "minecraft:prismarine_bricks",
+                  "minecraft:sea_lantern",
+                  "minecraft:dark_prismarine"
+                ]
+              }
+            }
+          ],
+          "functions": [
+            {
+              "add": false,
+              "count": 1.0,
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:conduit"
+        },
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "condition": "mineraculous:has_item",
+              "predicate": {
+                "items": "minecraft:conduit"
+              }
+            }
+          ],
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "mineraculous:power_level_multiplier",
+                "base": {
+                  "type": "minecraft:uniform",
+                  "max": 32.0,
+                  "min": 16.0
+                }
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:prismarine"
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": 1.0,
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:milk_bucket"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "mineraculous:gameplay/lucky_charm/entity/elder_guardian"
+}

@@ -541,5 +541,6 @@ public class MineraculousClientEvents {
 
     public static void onRegisterRenderBuffers(RegisterRenderBuffersEvent event) {
         event.registerRenderBuffer(MineraculousRenderTypes.luckyCharm());
+        event.registerRenderBuffer(MineraculousRenderTypes.armorLuckyCharm());
     }
 }

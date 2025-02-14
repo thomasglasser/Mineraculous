@@ -4,6 +4,7 @@
   "package": "dev.thomasglasser.mineraculous.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "geckolib.renderer.GeoRendererMixin",
     "minecraft.server.level.ServerLevelMixin",
     "minecraft.world.entity.EntityMixin",
     "minecraft.world.entity.LivingEntityMixin",
@@ -15,18 +16,18 @@
     "neoforge.common.extensions.IItemExtensionMixin"
   ],
   "client": [
-    "geckolib.renderer.GeoArmorRendererMixin",
-    "geckolib.renderer.GeoItemRendererMixin",
     "minecraft.client.MinecraftMixin",
     "minecraft.client.gui.GuiMixin",
     "minecraft.client.player.LocalPlayerMixin",
     "minecraft.client.renderer.BlockEntityWithoutLevelRendererMixin",
     "minecraft.client.renderer.GameRendererMixin",
+    "minecraft.client.renderer.entity.ArrowRendererMixin",
     "minecraft.client.renderer.entity.ItemRendererMixin",
     "minecraft.client.renderer.entity.LivingEntityRendererMixin",
     "minecraft.client.renderer.entity.ThrownTridentRendererMixin",
     "minecraft.client.renderer.entity.layers.CapeLayerMixin",
     "minecraft.client.renderer.entity.layers.ElytraLayerMixin",
+    "minecraft.client.renderer.entity.layers.HumanoidArmorLayerMixin",
     "tommylib.api.client.renderer.entity.ThrownSwordRendererMixin"
   ],
   "server": [

@@ -183,8 +183,8 @@ public class MineraculousClientUtils {
         ClientUtils.setScreen(new MiraculousTransferScreen(kwamiId));
     }
 
-    public static VertexConsumer checkLuckyCharm(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack) {
-        return itemStack.has(MineraculousDataComponents.LUCKY_CHARM) ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.luckyCharm()), buffer) : buffer;
+    public static VertexConsumer checkLuckyCharm(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack, boolean armor) {
+        return itemStack.has(MineraculousDataComponents.LUCKY_CHARM) ? VertexMultiConsumer.create(bufferSource.getBuffer(armor ? MineraculousRenderTypes.armorLuckyCharm() : MineraculousRenderTypes.luckyCharm()), buffer) : buffer;
     }
 
     public static void registerDynamicTexture(ResourceLocation texture, byte[] pixels) throws IOException {

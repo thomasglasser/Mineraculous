@@ -60,7 +60,7 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
             if (luckyCharm != null) {
                 if (power.left().isPresent()) {
                     KwamiData stackKwamiData = mainHandItem.get(MineraculousDataComponents.KWAMI_DATA);
-                    return stackKwamiData != null && stackKwamiData.uuid() == entity.getData(MineraculousAttachmentTypes.MIRACULOUS).get(power.left().get()).miraculousItem().get(MineraculousDataComponents.KWAMI_DATA).uuid() && luckyCharm.id() == ((LuckyCharmIdDataHolder) level.getServer().overworld()).mineraculous$getLuckyCharmIdData().getLuckyCharmId(stackKwamiData.uuid());
+                    return stackKwamiData != null && stackKwamiData.uuid().equals(entity.getData(MineraculousAttachmentTypes.MIRACULOUS).get(power.left().get()).miraculousItem().get(MineraculousDataComponents.KWAMI_DATA).uuid()) && luckyCharm.id() == ((LuckyCharmIdDataHolder) level.getServer().overworld()).mineraculous$getLuckyCharmIdData().getLuckyCharmId(stackKwamiData.uuid());
                 } else {
                     return mainHandItem.get(MineraculousDataComponents.KAMIKOTIZATION) == power.right().get() && luckyCharm.id() == ((LuckyCharmIdDataHolder) level.getServer().overworld()).mineraculous$getLuckyCharmIdData().getLuckyCharmId(entity.getUUID());
                 }

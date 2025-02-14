@@ -74,5 +74,6 @@ public class MineraculousPayloads {
         PAYLOADS.add(new PayloadInfo<>(ClientboundSendRightHandParticlesPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSendRightHandParticlesPayload.CODEC));
         PAYLOADS.add(new PayloadInfo<>(ClientboundCheckLuckyCharmWorldRecoveryPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundCheckLuckyCharmWorldRecoveryPayload.CODEC));
         PAYLOADS.add(new PayloadInfo<>(ClientboundOpenLookCustomizationScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundOpenLookCustomizationScreenPayload.CODEC));
+        PAYLOADS.add(new PayloadInfo<>(ClientboundSyncArrowPickupStackPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncArrowPickupStackPayload.CODEC));
     }
 }

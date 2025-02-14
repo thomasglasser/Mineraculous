@@ -14,10 +14,9 @@ public class MineraculousRenderTypes {
             1536,
             RenderType.CompositeState.builder()
                     .setShaderState(RenderStateShard.RENDERTYPE_GLINT_SHADER)
-                    .setTextureState(new RenderStateShard.TextureStateShard(Mineraculous.modLoc("textures/misc/lucky_charm.png"), true, false))
+                    .setTextureState(new RenderStateShard.TextureStateShard(Mineraculous.modLoc("textures/misc/lucky_charm.png"), false, false))
                     .setWriteMaskState(RenderStateShard.COLOR_WRITE)
                     .setDepthTestState(RenderStateShard.EQUAL_DEPTH_TEST)
-                    .setTexturingState(RenderStateShard.GLINT_TEXTURING)
                     .createCompositeState(false));
 
     public static RenderType luckyCharm() {

@@ -71,7 +71,7 @@ public record ServerboundSendEmptyLeftClickPayload(int entityId) implements Exte
                 });
                 if (data.mainPowerActive()) {
                     if (!overrideActive.get()) {
-                        boolean usedPower = kamikotization.activeAbility().isPresent() && kamikotization.activeAbility().get().value().perform(abilityData, level, livingEntity.blockPosition(), livingEntity, Ability.Context.from());
+                        boolean usedPower = kamikotization.powerSource().right().isPresent() && kamikotization.powerSource().right().get().value().perform(abilityData, level, livingEntity.blockPosition(), livingEntity, Ability.Context.from());
                         if (usedPower) {
                             data.withMainPowerActive(false).save(livingEntity, true);
                             if (livingEntity instanceof ServerPlayer serverPlayer) {

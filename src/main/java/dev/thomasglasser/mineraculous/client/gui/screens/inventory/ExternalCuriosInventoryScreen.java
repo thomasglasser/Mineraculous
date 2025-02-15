@@ -138,8 +138,7 @@ public class ExternalCuriosInventoryScreen extends CuriosScreen {
     protected void slotClicked(Slot slot, int slotId, int mouseButton,
             ClickType type) {
         if (slot != null && slot.hasItem() && mouseButton == 0) {
-            if (type == ClickType.PICKUP) {
-                pickupHandler.handle(slot, target, menu);
+            if (type == ClickType.PICKUP && pickupHandler.handle(slot, target, menu)) {
                 onClose(false);
             }
         }

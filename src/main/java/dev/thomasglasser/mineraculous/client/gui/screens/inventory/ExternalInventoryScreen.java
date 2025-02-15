@@ -49,8 +49,7 @@ public class ExternalInventoryScreen extends InventoryScreen {
     @Override
     protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
         if (slot.hasItem() && mouseButton == 0) {
-            if (type == ClickType.PICKUP) {
-                pickupHandler.handle(slot, target, menu);
+            if (type == ClickType.PICKUP && pickupHandler.handle(slot, target, menu)) {
                 onClose(false);
             }
         }
@@ -68,7 +67,7 @@ public class ExternalInventoryScreen extends InventoryScreen {
 
     @FunctionalInterface
     public interface ItemPickupHandler {
-        void handle(Slot slot, Player target, AbstractContainerMenu menu);
+        boolean handle(Slot slot, Player target, AbstractContainerMenu menu);
     }
 
     @FunctionalInterface

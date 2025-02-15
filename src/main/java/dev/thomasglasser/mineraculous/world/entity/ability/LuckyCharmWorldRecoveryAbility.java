@@ -86,7 +86,7 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
                     if (kamikotizationKey.isPresent()) {
                         Kamikotization kamikotization = level.holderOrThrow(kamikotizationKey.get()).value();
                         AbilityData abilityData = new AbilityData(0, Either.right(kamikotizationKey.get()));
-                        kamikotization.activeAbility().ifPresent(ability -> ability.value().restore(abilityData, level, recovering.blockPosition(), recovering));
+                        kamikotization.powerSource().right().ifPresent(ability -> ability.value().restore(abilityData, level, recovering.blockPosition(), recovering));
                         kamikotization.passiveAbilities().forEach(ability -> ability.value().restore(abilityData, level, recovering.blockPosition(), recovering));
                     }
                     for (ResourceKey<Miraculous> miraculousKey : transformed) {

@@ -23,25 +23,33 @@ public class KamikotizationTransformTrigger extends SimpleCriterionTrigger<Kamik
         this.trigger(player, (instance) -> instance.matches(type, self));
     }
 
-    public record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<ResourceKey<Kamikotization>> type, boolean self)
+    public record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<ResourceKey<Kamikotization>> type, Optional<Boolean> self)
             implements SimpleInstance {
 
         public static final Codec<KamikotizationTransformTrigger.TriggerInstance> CODEC = RecordCodecBuilder.create(
                 p_337367_ -> p_337367_.group(
                         EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(KamikotizationTransformTrigger.TriggerInstance::player),
                         ResourceKey.codec(MineraculousRegistries.KAMIKOTIZATION).optionalFieldOf("type").forGetter(KamikotizationTransformTrigger.TriggerInstance::type),
-                        Codec.BOOL.optionalFieldOf("self", false).forGetter(KamikotizationTransformTrigger.TriggerInstance::self))
+                        Codec.BOOL.optionalFieldOf("self").forGetter(KamikotizationTransformTrigger.TriggerInstance::self))
                         .apply(p_337367_, KamikotizationTransformTrigger.TriggerInstance::new));
+        public static Criterion<KamikotizationTransformTrigger.TriggerInstance> transformed() {
+            return MineraculousCriteriaTriggers.TRANSFORMED_KAMIKOTIZATION.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.empty(), Optional.empty()));
+        }
+
+        public static Criterion<KamikotizationTransformTrigger.TriggerInstance> transformed(ResourceKey<Kamikotization> type) {
+            return MineraculousCriteriaTriggers.TRANSFORMED_KAMIKOTIZATION.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.of(type), Optional.empty()));
+        }
+
         public static Criterion<KamikotizationTransformTrigger.TriggerInstance> transformed(boolean self) {
-            return MineraculousCriteriaTriggers.TRANSFORMED_KAMIKOTIZATION.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.empty(), self));
+            return MineraculousCriteriaTriggers.TRANSFORMED_KAMIKOTIZATION.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.empty(), Optional.of(self)));
         }
 
         public static Criterion<KamikotizationTransformTrigger.TriggerInstance> transformed(ResourceKey<Kamikotization> type, boolean self) {
-            return MineraculousCriteriaTriggers.TRANSFORMED_KAMIKOTIZATION.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.of(type), self));
+            return MineraculousCriteriaTriggers.TRANSFORMED_KAMIKOTIZATION.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.of(type), Optional.of(self)));
         }
 
         public boolean matches(ResourceKey<Kamikotization> type, boolean self) {
-            return (this.type.isEmpty() || this.type.get() == type) && this.self == self;
+            return (this.type.isEmpty() || this.type.get() == type) && (this.self.isEmpty() || this.self.get() == self);
         }
     }
 }

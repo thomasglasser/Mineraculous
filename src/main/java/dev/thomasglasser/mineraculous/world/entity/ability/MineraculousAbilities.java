@@ -27,7 +27,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 
 public class MineraculousAbilities {
-    public static final ResourceKey<Ability> EMPTY = register("empty");
     public static final ResourceKey<Ability> KAMIKOTIZATION = register("kamikotization");
     public static final ResourceKey<Ability> KAMIKO_CONTROL = register("kamiko_control");
     public static final ResourceKey<Ability> KAMIKOTIZED_COMMUNICATION = register("kamikotized_communication");
@@ -41,7 +40,6 @@ public class MineraculousAbilities {
     }
 
     public static void bootstrap(BootstrapContext<Ability> context) {
-        context.register(EMPTY, new EmptyAbility());
         context.register(KAMIKOTIZATION, new ContextAwareAbility(
                 Optional.empty(),
                 Optional.of(new SetOwnerAbility(

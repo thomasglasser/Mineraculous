@@ -5,8 +5,8 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
+import dev.thomasglasser.mineraculous.core.MineraculousCoreEvents;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundSyncCustomizationPayload;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
@@ -105,7 +105,7 @@ public class LookCustomizationScreen extends Screen {
     protected Map<String, FlattenedSuitLookData> getFlattenedSuitLooks(Map<String, FlattenedSuitLookData> serverSuits) {
         Map<String, FlattenedSuitLookData> suitLooks = new HashMap<>(serverSuits);
         if (MineraculousServerConfig.get().enableCustomization.get()) {
-            for (Map.Entry<String, FlattenedSuitLookData> entry : MineraculousClientEvents.fetchSuitLooks(miraculous).entrySet()) {
+            for (Map.Entry<String, FlattenedSuitLookData> entry : MineraculousCoreEvents.fetchSuitLooks(Minecraft.getInstance().gameDirectory.toPath(), Minecraft.getInstance().level.holderOrThrow(miraculous)).entrySet()) {
                 suitLooks.putIfAbsent(entry.getKey(), entry.getValue());
             }
         }
@@ -126,7 +126,7 @@ public class LookCustomizationScreen extends Screen {
     protected Map<String, FlattenedMiraculousLookData> getFlattenedMiraculousLooks(Map<String, FlattenedMiraculousLookData> serverMiraculous) {
         Map<String, FlattenedMiraculousLookData> miraculousLooks = new HashMap<>(serverMiraculous);
         if (MineraculousServerConfig.get().enableCustomization.get()) {
-            for (Map.Entry<String, FlattenedMiraculousLookData> entry : MineraculousClientEvents.fetchMiraculousLooks(miraculous).entrySet()) {
+            for (Map.Entry<String, FlattenedMiraculousLookData> entry : MineraculousCoreEvents.fetchMiraculousLooks(Minecraft.getInstance().gameDirectory.toPath(), miraculous).entrySet()) {
                 miraculousLooks.putIfAbsent(entry.getKey(), entry.getValue());
             }
         }

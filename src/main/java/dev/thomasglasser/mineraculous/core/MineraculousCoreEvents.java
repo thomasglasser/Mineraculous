@@ -20,16 +20,20 @@ import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLoo
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.tommylib.api.network.NeoForgeNetworkUtils;
 import dev.thomasglasser.tommylib.api.packs.PackInfo;
-import java.io.File;
-import java.io.FileReader;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -89,90 +93,15 @@ public class MineraculousCoreEvents {
         Map<ResourceKey<Miraculous>, Map<String, FlattenedSuitLookData>> suitLooks = new HashMap<>();
         Registry<Miraculous> registry = event.getServer().registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS);
         registry.holders().forEach(miraculous -> {
-            String namespace = miraculous.key().location().getNamespace();
-            String type = miraculous.key().location().getPath();
-            File folder = new File(event.getServer().getServerDirectory().toFile(), "miraculouslooks" + File.separator + "suits" + File.separator + namespace + File.separator + type);
-            Map<String, FlattenedSuitLookData> commonSuitLookData = new HashMap<>();
-            if (folder.exists() && folder.isDirectory()) {
-                File[] files = folder.listFiles();
-                if (files != null) {
-                    for (File texture : files) {
-                        if (texture.getName().endsWith(".png") && texture.getName().chars().noneMatch(Character::isDigit) && !texture.getName().contains("glowmask")) {
-                            String look = texture.getName().replace(".png", "");
-                            try {
-                                File model = new File(folder, look + ".geo.json");
-                                String convertedModel = null;
-                                if (model.exists()) {
-                                    convertedModel = Files.readString(model.toPath());
-                                }
-                                byte[] convertedImage = NativeImage.read(texture.toPath().toUri().toURL().openStream()).asByteArray();
-                                File glowmask = new File(folder, look + "_glowmask.png");
-                                byte[] convertedGlowmask = null;
-                                if (glowmask.exists()) {
-                                    convertedGlowmask = NativeImage.read(glowmask.toPath().toUri().toURL().openStream()).asByteArray();
-                                }
-                                List<byte[]> convertedFrames = new ArrayList<>();
-                                List<byte[]> convertedGlowmaskFrames = new ArrayList<>();
-                                for (int i = 1; i <= miraculous.value().transformationFrames(); i++) {
-                                    File frame = new File(folder, look + "_" + i + ".png");
-                                    if (frame.exists()) {
-                                        convertedFrames.add(NativeImage.read(frame.toPath().toUri().toURL().openStream()).asByteArray());
-                                    }
-                                    File glowmaskFrame = new File(folder, look + "_" + i + "_glowmask.png");
-                                    if (glowmaskFrame.exists()) {
-                                        convertedGlowmaskFrames.add(NativeImage.read(glowmaskFrame.toPath().toUri().toURL().openStream()).asByteArray());
-                                    }
-                                }
-                                commonSuitLookData.put(look, new FlattenedSuitLookData(look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames));
-                            } catch (Exception exception) {
-                                Mineraculous.LOGGER.error("Failed to handle common suit look syncing", exception);
-                            }
-                        }
-                    }
-                }
-            }
-            folder = new File(event.getServer().getServerDirectory().toFile(), "miraculouslooks" + File.separator + "miraculous" + File.separator + namespace + File.separator + type);
-            Map<String, FlattenedMiraculousLookData> commonMiraculousLookData = new HashMap<>();
-            if (folder.exists() && folder.isDirectory()) {
-                File[] files = folder.listFiles();
-                if (files != null) {
-                    for (File texture : files) {
-                        if (texture.getName().endsWith(".png") && texture.getName().chars().noneMatch(Character::isDigit) && !texture.getName().contains("glowmask")) {
-                            String look = texture.getName().replace(".png", "");
-                            try {
-                                File model = new File(folder, look + ".geo.json");
-                                String convertedModel = null;
-                                if (model.exists()) {
-                                    convertedModel = Files.readString(model.toPath());
-                                }
-                                byte[] convertedImage = NativeImage.read(texture.toPath().toUri().toURL().openStream()).asByteArray();
-                                File glowmask = new File(folder, look + "_glowmask.png");
-                                byte[] convertedGlowmask = null;
-                                if (glowmask.exists()) {
-                                    convertedGlowmask = NativeImage.read(glowmask.toPath().toUri().toURL().openStream()).asByteArray();
-                                }
-                                File transforms = new File(folder, look + ".json");
-                                String convertedDisplay = null;
-                                if (transforms.exists()) {
-                                    convertedDisplay = Files.readString(transforms.toPath());
-                                }
-                                commonMiraculousLookData.put(look, new FlattenedMiraculousLookData(look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), Optional.ofNullable(convertedDisplay)));
-                            } catch (Exception exception) {
-                                Mineraculous.LOGGER.error("Failed to handle common miraculous look syncing", exception);
-                            }
-                        }
-                    }
-                }
-            }
-            miraculousLooks.put(miraculous.key(), commonMiraculousLookData);
-            suitLooks.put(miraculous.key(), commonSuitLookData);
+            suitLooks.put(miraculous.key(), fetchSuitLooks(event.getServer().getServerDirectory(), miraculous));
+            miraculousLooks.put(miraculous.key(), fetchMiraculousLooks(event.getServer().getServerDirectory(), miraculous.key()));
         });
         List<Either<UUID, String>> whitelist = new ArrayList<>();
         Gson gson = new Gson();
-        File whitelistFile = new File(event.getServer().getServerDirectory().toFile(), "miraculouslooks/whitelist.json");
-        if (whitelistFile.exists()) {
-            try {
-                JsonArray jsonObject = gson.fromJson(new FileReader(whitelistFile), JsonArray.class);
+        Path whitelistFile = event.getServer().getServerDirectory().resolve("miraculouslooks").resolve("whitelist.json");
+        if (Files.exists(whitelistFile)) {
+            try (BufferedReader reader = Files.newBufferedReader(whitelistFile)) {
+                JsonArray jsonObject = gson.fromJson(reader, JsonArray.class);
                 for (JsonElement entry : jsonObject.asList()) {
                     String id = entry.getAsString();
                     try {
@@ -187,10 +116,10 @@ public class MineraculousCoreEvents {
             }
         }
         List<Either<UUID, String>> blacklist = new ArrayList<>();
-        File blacklistFile = new File(event.getServer().getServerDirectory().toFile(), "miraculouslooks/blacklist.json");
-        if (blacklistFile.exists()) {
-            try {
-                JsonArray jsonObject = gson.fromJson(new FileReader(blacklistFile), JsonArray.class);
+        Path blacklistFile = event.getServer().getServerDirectory().resolve("miraculouslooks").resolve("blacklist.json");
+        if (Files.exists(blacklistFile)) {
+            try (BufferedReader reader = Files.newBufferedReader(blacklistFile)) {
+                JsonArray jsonObject = gson.fromJson(reader, JsonArray.class);
                 for (JsonElement entry : jsonObject.asList()) {
                     String id = entry.getAsString();
                     try {
@@ -209,6 +138,138 @@ public class MineraculousCoreEvents {
         overworld.mineraculous$setCommonSuitLookData(suitLooks);
         overworld.mineraculous$setWhitelist(whitelist);
         overworld.mineraculous$setBlacklist(blacklist);
+    }
+
+    public static Map<String, FlattenedSuitLookData> fetchSuitLooks(Path root, Holder<Miraculous> miraculous) {
+        int transformationFrames = miraculous.value().transformationFrames();
+        String namespace = miraculous.getKey().location().getNamespace();
+        String type = miraculous.getKey().location().getPath();
+        root = root.resolve("miraculouslooks");
+        Map<String, FlattenedSuitLookData> suitLooks = fetchSuitLooks(root.resolve("suits").resolve(namespace).resolve(type), transformationFrames, "");
+        if (Files.exists(root) && Files.isDirectory(root)) {
+            try (Stream<Path> files = Files.list(root)) {
+                for (Path file : files.toList()) {
+                    String fileName = file.getFileName().toString();
+                    if (fileName.endsWith(".zip")) {
+                        String zipNamespace = fileName.toLowerCase().replace(".zip", "").replace(" ", "_");
+                        try (FileSystem fs = FileSystems.newFileSystem(file)) {
+                            suitLooks.putAll(fetchSuitLooks(fs.getRootDirectories().iterator().next().resolve("suits").resolve(namespace).resolve(type), transformationFrames, zipNamespace));
+                        }
+                    }
+                }
+            } catch (Exception exception) {
+                Mineraculous.LOGGER.error("Failed to handle suit look syncing", exception);
+            }
+        }
+        return suitLooks;
+    }
+
+    public static Map<String, FlattenedSuitLookData> fetchSuitLooks(Path folder, int transformationFrames, String namespace) {
+        Map<String, FlattenedSuitLookData> suitLooks = new HashMap<>();
+        if (Files.exists(folder) && Files.isDirectory(folder)) {
+            try (Stream<Path> files = Files.list(folder)) {
+                for (Path texture : files.toList()) {
+                    String fileName = texture.getFileName().toString();
+                    if (fileName.endsWith(".png") && fileName.chars().noneMatch(Character::isDigit) && !fileName.contains("glowmask")) {
+                        String look = fileName.replace(".png", "");
+                        try {
+                            Path model = texture.resolveSibling(look + ".geo.json");
+                            String convertedModel = null;
+                            if (Files.exists(model)) {
+                                convertedModel = Files.readString(model);
+                            }
+                            byte[] convertedImage = NativeImage.read(texture.toUri().toURL().openStream()).asByteArray();
+                            Path glowmask = texture.resolveSibling(look + "_glowmask.png");
+                            byte[] convertedGlowmask = null;
+                            if (Files.exists(glowmask)) {
+                                convertedGlowmask = NativeImage.read(glowmask.toUri().toURL().openStream()).asByteArray();
+                            }
+                            List<byte[]> convertedFrames = new ArrayList<>();
+                            List<byte[]> convertedGlowmaskFrames = new ArrayList<>();
+                            for (int i = 1; i <= transformationFrames; i++) {
+                                Path frame = texture.resolveSibling(look + "_" + i + ".png");
+                                if (Files.exists(frame)) {
+                                    convertedFrames.add(NativeImage.read(frame.toUri().toURL().openStream()).asByteArray());
+                                }
+                                Path glowmaskFrame = texture.resolveSibling(look + "_" + i + "_glowmask.png");
+                                if (Files.exists(glowmaskFrame)) {
+                                    convertedGlowmaskFrames.add(NativeImage.read(glowmaskFrame.toUri().toURL().openStream()).asByteArray());
+                                }
+                            }
+                            String lookName = namespace.isEmpty() ? look : namespace + "/" + look;
+                            suitLooks.put(lookName, new FlattenedSuitLookData(lookName, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames));
+                        } catch (Exception exception) {
+                            Mineraculous.LOGGER.error("Failed to handle suit look syncing", exception);
+                        }
+                    }
+                }
+            } catch (Exception exception) {
+                Mineraculous.LOGGER.error("Failed to handle suit look syncing", exception);
+            }
+        }
+        return suitLooks;
+    }
+
+    public static Map<String, FlattenedMiraculousLookData> fetchMiraculousLooks(Path root, ResourceKey<Miraculous> miraculousKey) {
+        String namespace = miraculousKey.location().getNamespace();
+        String type = miraculousKey.location().getPath();
+        root = root.resolve("miraculouslooks");
+        Map<String, FlattenedMiraculousLookData> miraculousLooks = fetchMiraculousLooks(root.resolve("miraculous").resolve(namespace).resolve(type), "");
+        if (Files.exists(root) && Files.isDirectory(root)) {
+            try (Stream<Path> files = Files.list(root)) {
+                for (Path file : files.toList()) {
+                    String fileName = file.getFileName().toString();
+                    if (fileName.endsWith(".zip")) {
+                        String zipNamespace = fileName.toLowerCase().replace(".zip", "").replace(" ", "_");
+                        try (FileSystem fs = FileSystems.newFileSystem(file)) {
+                            miraculousLooks.putAll(fetchMiraculousLooks(fs.getRootDirectories().iterator().next().resolve("miraculous").resolve(namespace).resolve(type), zipNamespace));
+                        }
+                    }
+                }
+            } catch (Exception exception) {
+                Mineraculous.LOGGER.error("Failed to handle miraculous look syncing", exception);
+            }
+        }
+        return miraculousLooks;
+    }
+
+    public static Map<String, FlattenedMiraculousLookData> fetchMiraculousLooks(Path folder, String namespace) {
+        Map<String, FlattenedMiraculousLookData> miraculousLooks = new HashMap<>();
+        if (Files.exists(folder) && Files.isDirectory(folder)) {
+            try (Stream<Path> files = Files.list(folder)) {
+                for (Path texture : files.toList()) {
+                    String fileName = texture.getFileName().toString();
+                    if (fileName.endsWith(".png") && fileName.chars().noneMatch(Character::isDigit) && !fileName.contains("glowmask")) {
+                        String look = fileName.replace(".png", "");
+                        try {
+                            Path model = texture.resolveSibling(look + ".geo.json");
+                            String convertedModel = null;
+                            if (Files.exists(model)) {
+                                convertedModel = Files.readString(model);
+                            }
+                            byte[] convertedImage = NativeImage.read(texture.toUri().toURL().openStream()).asByteArray();
+                            Path glowmask = texture.resolveSibling(look + "_glowmask.png");
+                            byte[] convertedGlowmask = null;
+                            if (Files.exists(glowmask)) {
+                                convertedGlowmask = NativeImage.read(glowmask.toUri().toURL().openStream()).asByteArray();
+                            }
+                            Path transforms = texture.resolveSibling(look + ".json");
+                            String convertedDisplay = null;
+                            if (Files.exists(transforms)) {
+                                convertedDisplay = Files.readString(transforms);
+                            }
+                            String lookName = namespace.isEmpty() ? look : namespace + "/" + look;
+                            miraculousLooks.put(lookName, new FlattenedMiraculousLookData(lookName, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), Optional.ofNullable(convertedDisplay)));
+                        } catch (Exception exception) {
+                            Mineraculous.LOGGER.error("Failed to handle miraculous look syncing", exception);
+                        }
+                    }
+                }
+            } catch (Exception exception) {
+                Mineraculous.LOGGER.error("Failed to handle miraculous look syncing", exception);
+            }
+        }
+        return miraculousLooks;
     }
 
     public static void onAddPackFinders(AddPackFindersEvent event) {

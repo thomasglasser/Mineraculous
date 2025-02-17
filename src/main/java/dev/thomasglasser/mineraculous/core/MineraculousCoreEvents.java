@@ -136,6 +136,13 @@ public class MineraculousCoreEvents {
         String namespace = miraculous.getKey().location().getNamespace();
         String type = miraculous.getKey().location().getPath();
         root = root.resolve("miraculouslooks");
+        if (!Files.exists(root)) {
+            try {
+                Files.createDirectory(root);
+            } catch (IOException e) {
+                Mineraculous.LOGGER.error("Failed to create miraculous look directory", e);
+            }
+        }
         Map<String, FlattenedSuitLookData> suitLooks = fetchSuitLooks(root.resolve("suits").resolve(namespace).resolve(type), transformationFrames, "");
         if (Files.exists(root) && Files.isDirectory(root)) {
             try (Stream<Path> files = Files.list(root)) {
@@ -205,6 +212,13 @@ public class MineraculousCoreEvents {
         String namespace = miraculousKey.location().getNamespace();
         String type = miraculousKey.location().getPath();
         root = root.resolve("miraculouslooks");
+        if (!Files.exists(root)) {
+            try {
+                Files.createDirectory(root);
+            } catch (IOException e) {
+                Mineraculous.LOGGER.error("Failed to create miraculous look directory", e);
+            }
+        }
         Map<String, FlattenedMiraculousLookData> miraculousLooks = fetchMiraculousLooks(root.resolve("miraculous").resolve(namespace).resolve(type), "");
         if (Files.exists(root) && Files.isDirectory(root)) {
             try (Stream<Path> files = Files.list(root)) {

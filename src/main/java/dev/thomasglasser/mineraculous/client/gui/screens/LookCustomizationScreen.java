@@ -13,6 +13,7 @@ import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
@@ -84,6 +85,7 @@ public class LookCustomizationScreen extends Screen {
         this.previewSuit.setItemSlot(EquipmentSlot.CHEST, Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.CHEST.get(), miraculous));
         this.previewSuit.setItemSlot(EquipmentSlot.LEGS, Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.LEGS.get(), miraculous));
         this.previewSuit.setItemSlot(EquipmentSlot.FEET, Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.FEET.get(), miraculous));
+        CuriosUtils.setStackInFirstValidSlot(this.previewSuit, Miraculous.createMiraculousStack(miraculous), false);
         HashBasedTable<ResourceKey<Miraculous>, String, SuitLookData> previewSuitLooks = HashBasedTable.create();
         for (Map.Entry<String, SuitLookData> entry : suitLooks) {
             previewSuitLooks.put(miraculous, entry.getKey(), entry.getValue());

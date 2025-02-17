@@ -42,6 +42,7 @@ public class AkumatizationPackEnUsLanguageProvider extends ExtendedEnUsLanguageP
         add(KamikotizationChatScreen.ACCEPT, "Accept Akumatization");
 
         add(MineraculousClientEvents.REVOKE, "Revoke Akumatization");
+        add(MineraculousClientEvents.REVOKE_WITH_SPACE, "Revoke Akumatization (Press Space)");
 
         add(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE.get(), "Akuma powers up");
         add(MineraculousSoundEvents.KAMIKOTIZATION_USE.get(), "Akumatization begins");

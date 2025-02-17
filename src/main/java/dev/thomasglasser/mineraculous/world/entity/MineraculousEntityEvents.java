@@ -974,13 +974,16 @@ public class MineraculousEntityEvents {
             ServerLevel serverLevel = player.serverLevel();
             ItemStack originalStack = data.slotInfo().left().isPresent() ? player.getInventory().getItem(data.slotInfo().left().get()) : CuriosUtils.getStackInSlot(player, data.slotInfo().right().get());
             Kamikotization kamikotization = serverLevel.holderOrThrow(data.kamikotization()).value();
-            ItemStack kamikotizationStack = kamikotization.powerSource().right().isPresent() ? originalStack.copy() : kamikotization.powerSource().left().get().copy();
+            ItemStack kamikotizationStack = originalStack.copy();
             int transformationFrames = 10;
             if (transform) {
                 // Transform
                 if (player.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed()) {
                     return;
                 }
+
+                if (kamikotization.powerSource().left().isPresent())
+                    kamikotizationStack = kamikotization.powerSource().left().get();
 
                 kamikotizationStack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
                 kamikotizationStack.set(MineraculousDataComponents.KAMIKO_DATA.get(), data.kamikoData());

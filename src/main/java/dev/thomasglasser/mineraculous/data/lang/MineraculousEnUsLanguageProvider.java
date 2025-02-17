@@ -55,6 +55,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         super(output, Mineraculous.MOD_ID);
     }
 
+    public MineraculousEnUsLanguageProvider(PackOutput output, String modId) {
+        super(output, modId);
+    }
+
     @Override
     protected void addTranslations() {
         add(MineraculousItems.LADYBUG_YOYO.get(), "Ladybug Yoyo");

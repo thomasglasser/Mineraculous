@@ -269,8 +269,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                 MiraculousDataSet miraculousDataSet = owner.getData(MineraculousAttachmentTypes.MIRACULOUS);
                 miraculousDataSet.getTransformed().stream().filter(key -> {
                     Miraculous miraculous = level().holderOrThrow(key).value();
-                    MiraculousData data = miraculousDataSet.get(key);
-                    return (miraculous.activeAbility().isPresent() && data.mainPowerActive() && Ability.hasMatching(ability -> ability instanceof SetOwnerAbility setOwnerAbility && setOwnerAbility.isValid(this), miraculous.activeAbility().get().value())) ||
+                    return (miraculous.activeAbility().isPresent() && Ability.hasMatching(ability -> ability instanceof SetOwnerAbility setOwnerAbility && setOwnerAbility.isValid(this), miraculous.activeAbility().get().value())) ||
                             (miraculous.passiveAbilities().stream().anyMatch(ability -> Ability.hasMatching(a -> a instanceof SetOwnerAbility setOwnerAbility && setOwnerAbility.isValid(this), ability.value())));
                 }).findFirst().ifPresent(colorKey -> setNameColor(level().holderOrThrow(colorKey).value().color().getValue()));
             }

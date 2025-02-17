@@ -151,10 +151,12 @@ public class KamikotizationSelectionScreen extends Screen {
                 components.add(Component.translatable(TOOL).withStyle(ChatFormatting.BOLD));
                 components.add(powerSource.left().get().getHoverName().copy());
                 components.add(Component.literal(""));
+                targetPreview.setItemSlot(EquipmentSlot.MAINHAND, powerSource.left().get());
             } else if (powerSource.right().isPresent()) {
                 components.add(Component.translatable(ACTIVE_ABILITY).withStyle(ChatFormatting.BOLD));
                 components.add(Component.translatable(powerSource.right().get().getKey().location().toLanguageKey("ability")));
                 components.add(Component.literal(""));
+                targetPreview.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
             }
             if (!selectedKamikotization.value().passiveAbilities().isEmpty()) {
                 components.add(Component.translatable(PASSIVE_ABILITIES).withStyle(ChatFormatting.UNDERLINE));

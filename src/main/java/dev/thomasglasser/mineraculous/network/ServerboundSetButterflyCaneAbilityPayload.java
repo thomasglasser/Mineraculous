@@ -19,11 +19,11 @@ import net.minecraft.world.item.ItemStack;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 
-public record ServerboundSetButterflyCaneAbilityPayload(InteractionHand hand, String selected) implements ExtendedPacketPayload {
+public record ServerboundSetButterflyCaneAbilityPayload(InteractionHand hand, ButterflyCaneItem.Ability selected) implements ExtendedPacketPayload {
     public static final Type<ServerboundSetButterflyCaneAbilityPayload> TYPE = new Type<>(Mineraculous.modLoc("set_butterfly_cane_ability"));
     public static final StreamCodec<ByteBuf, ServerboundSetButterflyCaneAbilityPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8.map(InteractionHand::valueOf, InteractionHand::name), ServerboundSetButterflyCaneAbilityPayload::hand,
-            ByteBufCodecs.STRING_UTF8, ServerboundSetButterflyCaneAbilityPayload::selected,
+            ButterflyCaneItem.Ability.STREAM_CODEC, ServerboundSetButterflyCaneAbilityPayload::selected,
             ServerboundSetButterflyCaneAbilityPayload::new);
 
     // ON SERVER
@@ -31,9 +31,8 @@ public record ServerboundSetButterflyCaneAbilityPayload(InteractionHand hand, St
     public void handle(Player player) {
         ItemStack stack = player.getItemInHand(hand);
         ButterflyCaneItem.Ability old = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY);
-        ButterflyCaneItem.Ability current = ButterflyCaneItem.Ability.valueOf(selected);
-        stack.set(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY, current);
-        if (old != current) {
+        stack.set(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY, selected);
+        if (old != selected) {
             ServerLevel serverlevel = (ServerLevel) player.level();
             MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
             MiraculousData storingData = miraculousDataSet.get(miraculousDataSet.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_BUTTERFLY_CANE, serverlevel));
@@ -41,9 +40,9 @@ public record ServerboundSetButterflyCaneAbilityPayload(InteractionHand hand, St
                 ((SingletonGeoAnimatable) stack.getItem()).triggerAnim(player, GeoItem.getOrAssignId(stack, serverlevel), ButterflyCaneItem.CONTROLLER_USE, ButterflyCaneItem.ANIMATION_SHEATHE);
             else if (old == ButterflyCaneItem.Ability.KAMIKO_STORE && storingData != null && !storingData.extraData().contains(ButterflyCaneItem.TAG_STORED_KAMIKO))
                 ((SingletonGeoAnimatable) stack.getItem()).triggerAnim(player, GeoItem.getOrAssignId(stack, serverlevel), ButterflyCaneItem.CONTROLLER_USE, ButterflyCaneItem.ANIMATION_CLOSE);
-            if (current == ButterflyCaneItem.Ability.BLADE)
+            if (selected == ButterflyCaneItem.Ability.BLADE)
                 ((SingletonGeoAnimatable) stack.getItem()).triggerAnim(player, GeoItem.getOrAssignId(stack, serverlevel), ButterflyCaneItem.CONTROLLER_USE, ButterflyCaneItem.ANIMATION_UNSHEATHE);
-            else if (current == ButterflyCaneItem.Ability.KAMIKO_STORE && storingData != null && !storingData.extraData().contains(ButterflyCaneItem.TAG_STORED_KAMIKO))
+            else if (selected == ButterflyCaneItem.Ability.KAMIKO_STORE && storingData != null && !storingData.extraData().contains(ButterflyCaneItem.TAG_STORED_KAMIKO))
                 ((SingletonGeoAnimatable) stack.getItem()).triggerAnim(player, GeoItem.getOrAssignId(stack, serverlevel), ButterflyCaneItem.CONTROLLER_USE, ButterflyCaneItem.ANIMATION_OPEN);
         }
     }

@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.network.ClientboundCheckLuckyCharmWorldRec
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.item.KamikotizedPowerSourceItem;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
@@ -86,7 +87,11 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
                     if (kamikotizationKey.isPresent()) {
                         Kamikotization kamikotization = level.holderOrThrow(kamikotizationKey.get()).value();
                         AbilityData abilityData = new AbilityData(0, Either.right(kamikotizationKey.get()));
-                        kamikotization.powerSource().right().ifPresent(ability -> ability.value().restore(abilityData, level, recovering.blockPosition(), recovering));
+                        if (kamikotization.powerSource().left().isPresent()) {
+                            if (kamikotization.powerSource().left().get().getItem() instanceof KamikotizedPowerSourceItem item)
+                                item.restore(recovering);
+                        } else
+                            kamikotization.powerSource().right().get().value().restore(abilityData, level, recovering.blockPosition(), recovering);
                         kamikotization.passiveAbilities().forEach(ability -> ability.value().restore(abilityData, level, recovering.blockPosition(), recovering));
                     }
                     for (ResourceKey<Miraculous> miraculousKey : transformed) {

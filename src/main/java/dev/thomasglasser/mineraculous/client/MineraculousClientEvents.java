@@ -50,6 +50,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.FlyStraightTowardsParticle;
@@ -208,16 +209,26 @@ public class MineraculousClientEvents {
         }
 
         if (!ClientUtils.getMainClientPlayer().isSpectator() && ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed() && (MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko && ClientUtils.getMainClientPlayer().getUUID().equals(kamiko.getOwnerUUID())) || (MineraculousClientUtils.getCameraEntity() instanceof Player player && player != ClientUtils.getMainClientPlayer() && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent())) {
+            if (MineraculousClientUtils.hasNoScreenOpen()) {
+                revokeButton.setPosition(revokeButton.getX(), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 60);
+                revokeButton.active = true;
+            } else if (Minecraft.getInstance().screen instanceof ChatScreen) {
+                revokeButton.setPosition(revokeButton.getX(), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 35);
+                revokeButton.active = true;
+            } else
+                revokeButton.active = false;
+        } else
+            revokeButton.active = false;
+
+        if (revokeButton.active) {
             int mouseX = (int) (Minecraft.getInstance().mouseHandler.xpos()
                     * (double) Minecraft.getInstance().getWindow().getGuiScaledWidth()
                     / (double) Minecraft.getInstance().getWindow().getScreenWidth());
             int mouseY = (int) (Minecraft.getInstance().mouseHandler.ypos()
                     * (double) Minecraft.getInstance().getWindow().getGuiScaledHeight()
                     / (double) Minecraft.getInstance().getWindow().getScreenHeight());
-            revokeButton.active = true;
             revokeButton.render(guiGraphics, mouseX, mouseY, 0);
-        } else
-            revokeButton.active = false;
+        }
     }
 
     public static void onGetPlayerHeartType(PlayerHeartTypeEvent event) {

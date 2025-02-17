@@ -65,7 +65,6 @@ public class Mineraculous {
         MineraculousArmors.init();
         MineraculousCreativeModeTabs.init();
         MineraculousEntityTypes.init();
-        MineraculousPayloads.init();
         MineraculousParticleTypes.init();
         MineraculousBlocks.init();
         MineraculousArmorMaterials.init();
@@ -94,8 +93,9 @@ public class Mineraculous {
 
         bus.addListener(MineraculousDataGenerators::onGatherData);
 
+        bus.addListener(MineraculousPayloads::onRegisterPackets);
+
         bus.addListener(MineraculousEntityEvents::onEntityAttributeCreation);
-        bus.addListener(MineraculousCoreEvents::onRegisterPackets);
         bus.addListener(MineraculousCoreEvents::onNewDataPackRegistry);
         bus.addListener(MineraculousCoreEvents::onNewRegistry);
         bus.addListener(MineraculousCoreEvents::onRegisterDataMapTypes);

@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.world.level.storage;
 
-import java.util.HashMap;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -16,33 +17,29 @@ import net.minecraft.world.level.saveddata.SavedData;
 
 public class MiraculousRecoveryBlockData extends SavedData {
     public static final String FILE_ID = "miraculous_recovery_block";
-    private final Map<UUID, Map<BlockPos, BlockState>> recoverableBlocks = new HashMap<>();
+    private final Table<UUID, BlockPos, BlockState> recoverableBlocks = HashBasedTable.create();
 
     public static Factory<MiraculousRecoveryBlockData> factory() {
         return new Factory<>(MiraculousRecoveryBlockData::new, MiraculousRecoveryBlockData::load, DataFixTypes.LEVEL);
     }
 
     public void recover(UUID owner, ServerLevel level) {
-        if (recoverableBlocks.containsKey(owner)) {
-            for (Map.Entry<BlockPos, BlockState> entry : recoverableBlocks.get(owner).entrySet()) {
-                BlockPos pos = entry.getKey();
-                BlockState state = entry.getValue();
-                level.setBlock(pos, state, Block.UPDATE_ALL);
-            }
-            recoverableBlocks.remove(owner);
-            setDirty();
+        for (Map.Entry<BlockPos, BlockState> entry : recoverableBlocks.row(owner).entrySet()) {
+            level.setBlock(entry.getKey(), entry.getValue(), Block.UPDATE_ALL);
         }
+        recoverableBlocks.row(owner).clear();
+        setDirty();
     }
 
     public void putRecoverable(UUID owner, Map<BlockPos, BlockState> recoverable) {
-        recoverableBlocks.computeIfAbsent(owner, p -> new HashMap<>()).putAll(recoverable);
+        recoverableBlocks.row(owner).putAll(recoverable);
         setDirty();
     }
 
     public UUID getRecoverer(BlockPos pos) {
-        for (Map.Entry<UUID, Map<BlockPos, BlockState>> entry : recoverableBlocks.entrySet()) {
-            if (entry.getValue().containsKey(pos))
-                return entry.getKey();
+        for (Table.Cell<UUID, BlockPos, BlockState> cell : recoverableBlocks.cellSet()) {
+            if (cell.getColumnKey().equals(pos))
+                return cell.getRowKey();
         }
         return null;
     }
@@ -50,11 +47,11 @@ public class MiraculousRecoveryBlockData extends SavedData {
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
         ListTag recoverable = new ListTag();
-        for (Map.Entry<UUID, Map<BlockPos, BlockState>> entry : this.recoverableBlocks.entrySet()) {
+        for (UUID uuid : this.recoverableBlocks.rowKeySet()) {
             CompoundTag compoundTag = new CompoundTag();
-            compoundTag.putUUID("UUID", entry.getKey());
+            compoundTag.putUUID("UUID", uuid);
             ListTag recoverableBlocks = new ListTag();
-            for (Map.Entry<BlockPos, BlockState> entry1 : entry.getValue().entrySet()) {
+            for (Map.Entry<BlockPos, BlockState> entry1 : this.recoverableBlocks.row(uuid).entrySet()) {
                 CompoundTag compoundTag1 = new CompoundTag();
                 compoundTag1.putLong("BlockPos", entry1.getKey().asLong());
                 compoundTag1.put("BlockState", BlockState.CODEC.encodeStart(NbtOps.INSTANCE, entry1.getValue()).result().orElseThrow());
@@ -74,14 +71,12 @@ public class MiraculousRecoveryBlockData extends SavedData {
             CompoundTag compoundTag = recoverable.getCompound(i);
             UUID owner = compoundTag.getUUID("UUID");
             ListTag recoverableBlocks = compoundTag.getList("Blocks", 10);
-            Map<BlockPos, BlockState> recoverableMap = new HashMap<>();
             for (int j = 0; j < recoverableBlocks.size(); j++) {
                 CompoundTag compoundTag1 = recoverableBlocks.getCompound(j);
                 BlockPos blockPos = BlockPos.of(compoundTag1.getLong("BlockPos"));
                 BlockState blockState = BlockState.CODEC.parse(NbtOps.INSTANCE, compoundTag1.get("BlockState")).result().orElseThrow();
-                recoverableMap.put(blockPos, blockState);
+                miraculousRecoveryEntityData.recoverableBlocks.put(owner, blockPos, blockState);
             }
-            miraculousRecoveryEntityData.recoverableBlocks.put(owner, recoverableMap);
         }
         return miraculousRecoveryEntityData;
     }

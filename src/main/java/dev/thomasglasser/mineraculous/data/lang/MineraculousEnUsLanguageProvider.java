@@ -73,8 +73,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addArmorTrim(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE.get(), "Cat");
         addArmorTrim(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE.get(), "Butterfly");
 
-        addCreativeTab(MineraculousCreativeModeTabs.MINERACULOUS, "Mineraculous");
-        addCreativeTab(MineraculousCreativeModeTabs.MIRACULOUS, "Miraculous");
+        add(MineraculousCreativeModeTabs.MIRACULOUS.get(), "Miraculous");
+        add(MineraculousCreativeModeTabs.KAMIKOTIZATION_TOOLS.get(), "Kamikotization Tools");
+        add(MineraculousCreativeModeTabs.KAMIKOTIZABLES.get(), "Kamikotizables");
+        add(MineraculousCreativeModeTabs.MINERACULOUS.get(), "Mineraculous");
 
         add(MineraculousArmors.MIRACULOUS.HEAD.get(), "Miraculous Mask");
         add(MineraculousArmors.MIRACULOUS.CHEST.get(), "Miraculous Chestplate");

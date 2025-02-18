@@ -40,6 +40,8 @@
     "mineraculous:waxed_time_honored_cheese_block"
   ],
   "minecraft:creative_mode_tab": [
+    "mineraculous:kamikotizables",
+    "mineraculous:kamikotization_tools",
     "mineraculous:mineraculous",
     "mineraculous:miraculous"
   ],

@@ -66,6 +66,8 @@ public class MineraculousCoreEvents {
         event.register(MineraculousDataMaps.KAMIKOTIZATION_LUCKY_CHARMS);
         event.register(MineraculousDataMaps.MIRACULOUS_LUCKY_CHARMS);
         event.register(MineraculousDataMaps.ENTITY_LUCKY_CHARMS);
+
+        event.register(MineraculousDataMaps.MIRACULOUS_EFFECTS);
     }
 
     public static void onLoadLootTable(LootTableLoadEvent event) {

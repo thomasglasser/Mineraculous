@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
+import dev.thomasglasser.mineraculous.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.mineraculous.network.ClientboundRefreshVipDataPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncKamikotizationLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncMiraculousLookPayload;
@@ -28,6 +29,7 @@ import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
+import dev.thomasglasser.mineraculous.world.entity.ability.ApplyEffectsWhileTransformedAbility;
 import dev.thomasglasser.mineraculous.world.entity.ability.NightVisionAbility;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
@@ -65,6 +67,7 @@ import java.util.function.BiFunction;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -76,7 +79,6 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -116,17 +118,6 @@ public class MineraculousEntityEvents {
     public static final String ITEM_BROKEN_KEY = "mineraculous.item_broken";
 
     public static final BiFunction<Holder<MobEffect>, Integer, MobEffectInstance> INFINITE_HIDDEN_EFFECT = (effect, amplifier) -> new MobEffectInstance(effect, -1, amplifier, false, false, false);
-
-    public static final Map<Holder<MobEffect>, Integer> MIRACULOUS_EFFECTS = Map.of(
-            MobEffects.DAMAGE_RESISTANCE, 1,
-            MobEffects.DAMAGE_BOOST, 1,
-            MobEffects.MOVEMENT_SPEED, 1,
-            MobEffects.DIG_SPEED, 1,
-            MobEffects.JUMP, 2,
-            MobEffects.REGENERATION, 1,
-            MobEffects.HEALTH_BOOST, 1,
-            MobEffects.SATURATION, 1,
-            MobEffects.ABSORPTION, 1);
 
     public static void onEntityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
@@ -470,7 +461,7 @@ public class MineraculousEntityEvents {
                         if (data.name().isEmpty())
                             player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(Miraculous.toLanguageKey(miraculous)), miraculous.location().getPath()), true);
                         int powerLevel = data.powerLevel();
-                        MIRACULOUS_EFFECTS.forEach((effect, startLevel) -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, startLevel + (powerLevel / 10))));
+                        serverLevel.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, startLevel) -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(serverLevel.holderOrThrow(effect), startLevel + (powerLevel / 10))));
                         kwami.discard();
                         MiraculousData finalData = data;
                         serverLevel.holderOrThrow(miraculous).value().activeAbility().ifPresent(ability -> ability.value().transform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
@@ -522,7 +513,7 @@ public class MineraculousEntityEvents {
                     }
                 }));
                 serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), serverLevel.holderOrThrow(miraculous).value().detransformSound(), SoundSource.PLAYERS, 1, 1);
-                MIRACULOUS_EFFECTS.keySet().forEach(player::removeEffect);
+                serverLevel.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).keySet().stream().map(serverLevel::holderOrThrow).forEach(player::removeEffect);
                 MiraculousData finalData = data;
                 serverLevel.holderOrThrow(miraculous).value().activeAbility().ifPresent(ability -> ability.value().detransform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
                 serverLevel.holderOrThrow(miraculous).value().passiveAbilities().forEach(ability -> ability.value().detransform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
@@ -912,19 +903,19 @@ public class MineraculousEntityEvents {
             TommyLibServices.NETWORK.sendToServer(new ServerboundRequestMiraculousDataSetSyncPayload(event.getEntity().getId()));
         } else {
             if (event.getEntity() instanceof ServerPlayer player) {
-                event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed(event.getLevel().registryAccess()).forEach(miraculous -> {
-                    if (miraculous.activeAbility().isPresent()) {
-                        NightVisionAbility nightVisionAbility = Ability.getFirstMatching(ability -> ability instanceof NightVisionAbility, miraculous.activeAbility().get().value()) instanceof NightVisionAbility n ? n : null;
-                        if (nightVisionAbility != null)
-                            nightVisionAbility.resetNightVision(player);
-                    }
-                    List<NightVisionAbility> abilities = miraculous.passiveAbilities().stream().filter(ability -> Ability.getFirstMatching(a -> a instanceof NightVisionAbility, ability.value()) instanceof NightVisionAbility).map(ability -> (NightVisionAbility) ability.value()).toList();
-                    for (NightVisionAbility ability : abilities) {
-                        ability.resetNightVision(player);
-                    }
-                });
-
                 MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
+                miraculousDataSet.getTransformedHolders(event.getLevel().registryAccess()).forEach(miraculous -> {
+                    NightVisionAbility nightVisionAbility = Ability.getFirstMatching(ability -> ability instanceof NightVisionAbility, miraculous.value(), miraculousDataSet.get(miraculous.getKey()).mainPowerActive()) instanceof NightVisionAbility n ? n : null;
+                    if (nightVisionAbility != null)
+                        nightVisionAbility.resetNightVision(player);
+                });
+                if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
+                    KamikotizationData kamikotizationData = player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
+                    NightVisionAbility nightVisionAbility = Ability.getFirstMatching(ability -> ability instanceof NightVisionAbility, player.level().holderOrThrow(kamikotizationData.kamikotization()).value(), kamikotizationData.mainPowerActive()) instanceof NightVisionAbility n ? n : null;
+                    if (nightVisionAbility != null)
+                        nightVisionAbility.resetNightVision(player);
+                }
+
                 for (ResourceKey<Miraculous> miraculous : miraculousDataSet.keySet()) {
                     Map<String, FlattenedSuitLookData> commonSuitLooks = ((FlattenedLookDataHolder) event.getLevel().getServer().overworld()).mineraculous$getCommonSuitLookData().get(miraculous);
                     String look = miraculousDataSet.get(miraculous).suitLook();
@@ -1016,7 +1007,7 @@ public class MineraculousEntityEvents {
                 } else {
                     CuriosUtils.setStackInSlot(player, data.slotInfo().right().get(), kamikotizationStack, true);
                 }
-                MIRACULOUS_EFFECTS.forEach((effect, startLevel) -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(effect, startLevel)));
+                serverLevel.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, startLevel) -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(serverLevel.holderOrThrow(effect), startLevel)));
                 KamikotizationData finalData = data;
                 kamikotization.powerSource().right().ifPresent(ability -> ability.value().transform(new AbilityData(0, Either.right(finalData.kamikotization())), serverLevel, player.blockPosition(), player));
                 kamikotization.passiveAbilities().forEach(ability -> ability.value().transform(new AbilityData(0, Either.right(finalData.kamikotization())), serverLevel, player.blockPosition(), player));
@@ -1056,7 +1047,7 @@ public class MineraculousEntityEvents {
                 else
                     data.save(player, true);
                 serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM, SoundSource.PLAYERS, 1, 1);
-                MIRACULOUS_EFFECTS.keySet().forEach(player::removeEffect);
+                serverLevel.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).keySet().stream().map(serverLevel::holderOrThrow).forEach(player::removeEffect);
                 KamikotizationData finalData1 = data;
                 kamikotization.powerSource().right().ifPresent(ability -> ability.value().detransform(new AbilityData(0, Either.right(finalData1.kamikotization())), serverLevel, player.blockPosition(), player));
                 kamikotization.passiveAbilities().forEach(ability -> ability.value().detransform(new AbilityData(0, Either.right(finalData1.kamikotization())), serverLevel, player.blockPosition(), player));
@@ -1090,8 +1081,30 @@ public class MineraculousEntityEvents {
     }
 
     public static void onMobEffectRemoved(MobEffectEvent.Remove event) {
-        if (event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed() && MIRACULOUS_EFFECTS.containsKey(event.getEffect()))
-            event.setCanceled(true);
+        LivingEntity entity = event.getEntity();
+        Map<ResourceKey<MobEffect>, Integer> effectsMap = entity.level().registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS);
+        Holder<MobEffect> effect = event.getEffect();
+        ResourceKey<MobEffect> effectKey = effect.getKey();
+        MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS);
+        if (miraculousDataSet.isTransformed()) {
+            if (effectsMap.containsKey(effectKey))
+                event.setCanceled(true);
+            else {
+                for (ResourceKey<Miraculous> miraculous : miraculousDataSet.getTransformed()) {
+                    if (Ability.hasMatching(a -> a instanceof ApplyEffectsWhileTransformedAbility effectsAbility && effectsAbility.effects().contains(effect), entity.level().holderOrThrow(miraculous).value(), true))
+                        event.setCanceled(true);
+                }
+            }
+        }
+        if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
+            KamikotizationData data = entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
+            if (effectsMap.containsKey(effectKey))
+                event.setCanceled(true);
+            else {
+                if (Ability.hasMatching(a -> a instanceof ApplyEffectsWhileTransformedAbility effectsAbility && effectsAbility.effects().contains(effect), entity.level().holderOrThrow(data.kamikotization()).value(), true))
+                    event.setCanceled(true);
+            }
+        }
     }
 
     public static void onBlockDrops(BlockDropsEvent event) {

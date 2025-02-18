@@ -8,6 +8,7 @@ import dev.thomasglasser.mineraculous.advancements.critereon.KamikotizationUsePo
 import dev.thomasglasser.mineraculous.advancements.critereon.MiraculousUsePowerTrigger;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
@@ -18,7 +19,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
-import org.jetbrains.annotations.Nullable;
 
 public record DragAbility(Ability ability, int dragTicks, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability, HasSubAbility {
 
@@ -91,8 +91,8 @@ public record DragAbility(Ability ability, int dragTicks, Optional<Holder<SoundE
     }
 
     @Override
-    public @Nullable Ability getFirstMatching(Predicate<Ability> predicate) {
-        return predicate.test(this) ? this : predicate.test(ability) ? ability : null;
+    public List<Ability> getMatching(Predicate<Ability> predicate) {
+        return predicate.test(ability) ? List.of(ability) : List.of();
     }
 
     @Override

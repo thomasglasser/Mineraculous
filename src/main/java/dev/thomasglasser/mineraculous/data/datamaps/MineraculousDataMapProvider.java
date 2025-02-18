@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.loot.MineraculousLucky
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.neoforged.neoforge.common.data.DataMapProvider;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
@@ -21,6 +22,7 @@ public class MineraculousDataMapProvider extends DataMapProvider {
 
     @Override
     protected void gather() {
+        // Lucky Charms
         builder(MineraculousDataMaps.KAMIKOTIZATION_LUCKY_CHARMS)
                 .build();
         builder(MineraculousDataMaps.MIRACULOUS_LUCKY_CHARMS)
@@ -33,6 +35,20 @@ public class MineraculousDataMapProvider extends DataMapProvider {
                 .add(EntityType.WITHER.builtInRegistryHolder(), new LuckyCharms(MineraculousLuckyCharmLootKeys.WITHER), false)
                 .build();
 
+        // Mob Effects
+        builder(MineraculousDataMaps.MIRACULOUS_EFFECTS)
+                .add(MobEffects.DAMAGE_RESISTANCE, 1, false)
+                .add(MobEffects.DAMAGE_BOOST, 1, false)
+                .add(MobEffects.MOVEMENT_SPEED, 1, false)
+                .add(MobEffects.DIG_SPEED, 1, false)
+                .add(MobEffects.JUMP, 2, false)
+                .add(MobEffects.REGENERATION, 1, false)
+                .add(MobEffects.HEALTH_BOOST, 1, false)
+                .add(MobEffects.SATURATION, 1, false)
+                .add(MobEffects.ABSORPTION, 1, false)
+                .build();
+
+        // Villager Professions
         builder(NeoForgeDataMaps.RAID_HERO_GIFTS)
                 .add(MineraculousVillagerProfessions.FROMAGER, new RaidHeroGift(MineraculousGiftLootKeys.FROMAGER_GIFT), false)
                 .build();

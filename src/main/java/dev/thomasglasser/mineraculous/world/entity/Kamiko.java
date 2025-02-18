@@ -15,10 +15,12 @@ import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
+import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiPredicate;
@@ -183,12 +185,16 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         return ObjectArrayList.of(
                 new PlayerTemptingSensor<Kamiko>().temptedWith((entity, player, stack) -> {
                     MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-                    List<ResourceKey<Miraculous>> tempting = miraculousDataSet.getTransformed().stream().filter(key -> {
+                    List<ResourceKey<?>> tempting = new ArrayList<>(miraculousDataSet.getTransformed().stream().filter(key -> {
                         Miraculous miraculous = level().holderOrThrow(key).value();
                         MiraculousData data = miraculousDataSet.get(key);
-                        return (miraculous.activeAbility().isPresent() && data.mainPowerActive() && Ability.hasMatching(ability -> ability instanceof SetOwnerAbility setOwnerAbility && setOwnerAbility.isValid(entity), miraculous.activeAbility().get().value())) ||
-                                (miraculous.passiveAbilities().stream().anyMatch(ability -> Ability.hasMatching(a -> a instanceof SetOwnerAbility setOwnerAbility && setOwnerAbility.isValid(entity), ability.value())));
-                    }).toList();
+                        return Ability.hasMatching(ability -> ability instanceof SetOwnerAbility setOwnerAbility && setOwnerAbility.isValid(entity), miraculous, data.mainPowerActive());
+                    }).toList());
+                    if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
+                        KamikotizationData kamikotizationData = player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
+                        if (Ability.hasMatching(ability -> ability instanceof SetOwnerAbility setOwnerAbility && setOwnerAbility.isValid(entity), player.level().holderOrThrow(kamikotizationData.kamikotization()).value(), kamikotizationData.mainPowerActive()))
+                            tempting.add(kamikotizationData.kamikotization());
+                    }
                     if (!tempting.isEmpty())
                         return true;
                     ResolvableProfile resolvableProfile = stack.get(DataComponents.PROFILE);
@@ -269,9 +275,13 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                 MiraculousDataSet miraculousDataSet = owner.getData(MineraculousAttachmentTypes.MIRACULOUS);
                 miraculousDataSet.getTransformed().stream().filter(key -> {
                     Miraculous miraculous = level().holderOrThrow(key).value();
-                    return (miraculous.activeAbility().isPresent() && Ability.hasMatching(ability -> ability instanceof SetOwnerAbility setOwnerAbility && setOwnerAbility.isValid(this), miraculous.activeAbility().get().value())) ||
-                            (miraculous.passiveAbilities().stream().anyMatch(ability -> Ability.hasMatching(a -> a instanceof SetOwnerAbility setOwnerAbility && setOwnerAbility.isValid(this), ability.value())));
+                    return Ability.hasMatching(ability -> ability instanceof SetOwnerAbility setOwnerAbility && setOwnerAbility.isValid(this), miraculous, true);
                 }).findFirst().ifPresent(colorKey -> setNameColor(level().holderOrThrow(colorKey).value().color().getValue()));
+                if (owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
+                    KamikotizationData kamikotizationData = owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
+                    if (Ability.hasMatching(ability -> ability instanceof SetOwnerAbility setOwnerAbility && setOwnerAbility.isValid(this), owner.level().holderOrThrow(kamikotizationData.kamikotization()).value(), true))
+                        setNameColor(kamikotizationData.kamikoData().nameColor());
+                }
             }
         }
     }

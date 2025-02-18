@@ -75,7 +75,7 @@ public class MiraculousDataSet {
         return getTransformed().stream().map(lookup::holderOrThrow).toList();
     }
 
-    public List<Miraculous> getTransformed(HolderLookup.Provider lookup) {
+    public List<Miraculous> getTransformedDirect(HolderLookup.Provider lookup) {
         return getTransformedHolders(lookup).stream().map(Holder::value).toList();
     }
 

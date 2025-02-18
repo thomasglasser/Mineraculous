@@ -212,9 +212,12 @@
     "mineraculous:kamikotization",
     "mineraculous:kamikotized_communication",
     "mineraculous:lucky_charm",
-    "mineraculous:miraculous_ladybug"
+    "mineraculous:miraculous_ladybug",
+    "mineraculous:passive_luck",
+    "mineraculous:passive_unluck"
   ],
   "mineraculous:ability_serializer": [
+    "mineraculous:apply_effects_while_transformed",
     "mineraculous:apply_infinite_effects_or_destroy",
     "mineraculous:context_aware",
     "mineraculous:drag",

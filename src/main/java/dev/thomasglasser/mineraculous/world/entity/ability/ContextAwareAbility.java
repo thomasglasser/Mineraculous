@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -12,7 +13,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
-import org.jetbrains.annotations.Nullable;
 
 public record ContextAwareAbility(Optional<Ability> blockAbility, Optional<Ability> entityAbility, Optional<Ability> itemAbility, Optional<Ability> airAbility, List<Ability> passiveAbilities, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability, HasSubAbility {
 
@@ -57,8 +57,16 @@ public record ContextAwareAbility(Optional<Ability> blockAbility, Optional<Abili
     }
 
     @Override
-    public @Nullable Ability getFirstMatching(Predicate<Ability> predicate) {
-        return blockAbility.map(ability -> Ability.getFirstMatching(predicate, ability)).orElseGet(() -> entityAbility.map(ability -> Ability.getFirstMatching(predicate, ability)).orElseGet(() -> itemAbility.map(ability -> Ability.getFirstMatching(predicate, ability)).orElseGet(() -> airAbility.map(ability -> Ability.getFirstMatching(predicate, ability)).orElseGet(() -> passiveAbilities.stream().filter(ability -> Ability.getFirstMatching(predicate, ability) != null).findFirst().orElse(null)))));
+    public List<Ability> getMatching(Predicate<Ability> predicate) {
+        List<Ability> abilities = new ArrayList<>();
+        abilities.addAll(blockAbility.map(ability -> Ability.getMatching(predicate, ability)).orElse(List.of()));
+        abilities.addAll(entityAbility.map(ability -> Ability.getMatching(predicate, ability)).orElse(List.of()));
+        abilities.addAll(itemAbility.map(ability -> Ability.getMatching(predicate, ability)).orElse(List.of()));
+        abilities.addAll(airAbility.map(ability -> Ability.getMatching(predicate, ability)).orElse(List.of()));
+        for (Ability ability : passiveAbilities) {
+            abilities.addAll(Ability.getMatching(predicate, ability));
+        }
+        return abilities;
     }
 
     @Override

@@ -70,7 +70,6 @@ public class KamikotizationSelectionScreen extends Screen {
     private boolean canScroll = false;
     private boolean scrolling = false;
     private int descStart = 0;
-    private int rotation = 0;
     private Button selectOrDone;
     private EditBox name;
 
@@ -165,8 +164,7 @@ public class KamikotizationSelectionScreen extends Screen {
 
             int x = (this.width - BACKGROUND_WIDTH) / 2;
             int y = (this.height - BACKGROUND_HEIGHT) / 2;
-            MineraculousClientUtils.renderEntityInInventorySpinning(guiGraphics, x + 15, y + 15, x + 113, y + 145, 60, rotation, targetPreview);
-            rotation++;
+            MineraculousClientUtils.renderEntityInInventorySpinning(guiGraphics, x + 15, y + 15, x + 113, y + 145, 60, (Minecraft.getInstance().player.tickCount % 360) * 2, targetPreview);
             guiGraphics.drawString(this.font, Component.literal("---------------"), x + 131, y + 22, Optional.ofNullable(ChatFormatting.WHITE.getColor()).orElseThrow(), false);
             for (int i = 0; i < components.size(); i++) {
                 MutableComponent component = components.get(i);
@@ -338,7 +336,6 @@ public class KamikotizationSelectionScreen extends Screen {
             name.setValue(selectedKamikotization.value().defaultName());
         }
         refreshArrows();
-        rotation = 0;
     }
 
     public void onClose(boolean cancel) {

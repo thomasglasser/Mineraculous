@@ -326,7 +326,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
         KAMIKO_STORE,
         THROW;
 
-        public static final Codec<Ability> CODEC = Codec.STRING.xmap(Ability::of, Ability::getSerializedName);
+        public static final Codec<Ability> CODEC = StringRepresentable.fromEnum(Ability::values);
         public static final StreamCodec<ByteBuf, ButterflyCaneItem.Ability> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(Ability::of, Ability::getSerializedName);
 
         private final String translationKey;

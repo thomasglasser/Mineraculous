@@ -22,7 +22,7 @@ public class MineraculousRenderTypes {
                     .setTexturingState(RenderStateShard.GLINT_TEXTURING)
                     .createCompositeState(false));
     public static final RenderType ARMOR_LUCKY_CHARM = RenderType.create(
-            "armor_lucky_charm",
+            "mineraculous:armor_lucky_charm",
             DefaultVertexFormat.POSITION_TEX,
             VertexFormat.Mode.QUADS,
             1536,

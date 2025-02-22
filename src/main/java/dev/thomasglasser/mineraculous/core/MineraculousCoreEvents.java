@@ -131,6 +131,9 @@ public class MineraculousCoreEvents {
         overworld.mineraculous$setCommonSuitLookData(suitLooks);
         overworld.mineraculous$setWhitelist(whitelist);
         overworld.mineraculous$setBlacklist(blacklist);
+        if (event.getServer().registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).size() == 0) {
+            Mineraculous.LOGGER.warn(Component.translatable(Kamikotization.NO_KAMIKOTIZATIONS).getString());
+        }
     }
 
     public static Map<String, FlattenedSuitLookData> fetchSuitLooks(Path root, Holder<Miraculous> miraculous) {

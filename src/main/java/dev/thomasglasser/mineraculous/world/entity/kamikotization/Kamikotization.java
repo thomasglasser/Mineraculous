@@ -25,6 +25,7 @@ import net.neoforged.neoforge.common.extensions.IHolderExtension;
 
 public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Either<ItemStack, Holder<Ability>> powerSource, List<Holder<Ability>> passiveAbilities) {
 
+    public static final String NO_KAMIKOTIZATIONS = "mineraculous.no_kamikotizations";
     public static final Codec<Kamikotization> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("default_name").forGetter(Kamikotization::defaultName),
             ItemPredicate.CODEC.optionalFieldOf("item_predicate", ItemPredicate.Builder.item().build()).forGetter(Kamikotization::itemPredicate),

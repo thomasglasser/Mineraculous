@@ -124,13 +124,13 @@ neoForge {
 			client()
 			ideName = "Client 2"
 			gameDirectory = project.layout.projectDirectory.dir('runs/client_alt')
-			programArguments = ["--username", "DevAlt"]
+			programArguments.addAll "--username", "DevAlt"
 		}
 		client_alt_alt {
 			client()
 			ideName = "Client 3"
 			gameDirectory = project.layout.projectDirectory.dir('runs/client_alt_alt')
-			programArguments = ["--username", "DevAltAlt"]
+			programArguments.addAll "--username", "DevAltAlt"
 		}
 		server {
 			server()

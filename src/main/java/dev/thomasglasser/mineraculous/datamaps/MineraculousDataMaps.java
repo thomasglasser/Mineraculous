@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.datamaps;
 
-import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;

@@ -112,6 +112,9 @@ neoForge {
 	}
 
 	runs {
+		configureEach {
+			systemProperties.put('terminal.ansi', 'true')
+		}
 		client {
 			client()
 			ideName = "Client"

@@ -137,6 +137,7 @@ public class Mineraculous {
             bus.addListener(MineraculousClientEvents::onBuildCreativeModeTabContents);
             bus.addListener(MineraculousClientEvents::onClientConfigChanged);
             bus.addListener(MineraculousClientEvents::onRegisterRenderBuffers);
+            bus.addListener(MineraculousClientEvents::onRegisterClientReloadListeners);
 
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onGetPlayerHeartType);
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderHand);

@@ -199,8 +199,13 @@ public class MineraculousCoreEvents {
                                     convertedGlowmaskFrames.add(NativeImage.read(glowmaskFrame.toUri().toURL().openStream()).asByteArray());
                                 }
                             }
+                            String convertedAnimations = null;
+                            Path animations = texture.resolveSibling(look + ".animation.json");
+                            if (Files.exists(animations)) {
+                                convertedAnimations = Files.readString(animations);
+                            }
                             String lookName = namespace.isEmpty() ? look : namespace + "/" + look;
-                            suitLooks.put(lookName, new FlattenedSuitLookData(lookName, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames));
+                            suitLooks.put(lookName, new FlattenedSuitLookData(lookName, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames, Optional.ofNullable(convertedAnimations)));
                         } catch (Exception exception) {
                             Mineraculous.LOGGER.error("Failed to handle suit look syncing", exception);
                         }

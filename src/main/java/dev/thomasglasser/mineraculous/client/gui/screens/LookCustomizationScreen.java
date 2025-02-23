@@ -116,7 +116,7 @@ public class LookCustomizationScreen extends Screen {
 
     protected List<Map.Entry<String, SuitLookData>> getSuitLooks(Map<String, FlattenedSuitLookData> flattenedSuitLooks) {
         Map<String, SuitLookData> suitLooks = new HashMap<>();
-        suitLooks.put("", new SuitLookData(Optional.empty(), ResourceLocation.withDefaultNamespace(""), Optional.empty(), List.of(), List.of()));
+        suitLooks.put("", new SuitLookData(Optional.empty(), ResourceLocation.withDefaultNamespace(""), Optional.empty(), List.of(), List.of(), Optional.empty()));
         for (Map.Entry<String, FlattenedSuitLookData> entry : flattenedSuitLooks.entrySet()) {
             SuitLookData data = entry.getValue() == null ? null : entry.getValue().unpack(miraculous, Minecraft.getInstance().player);
             if (data != null)

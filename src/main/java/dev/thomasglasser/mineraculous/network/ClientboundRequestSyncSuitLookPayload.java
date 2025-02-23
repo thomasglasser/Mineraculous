@@ -63,7 +63,12 @@ public record ClientboundRequestSyncSuitLookPayload(ResourceKey<Miraculous> mira
                         convertedGlowmaskFrames.add(NativeImage.read(glowmaskFrame.toUri().toURL().openStream()).asByteArray());
                     }
                 }
-                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncSuitLookPayload(miraculous, new FlattenedSuitLookData(look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames)));
+                Path animations = texture.resolveSibling(look + ".animation.json");
+                String convertedAnimations = null;
+                if (Files.exists(animations)) {
+                    convertedAnimations = Files.readString(animations);
+                }
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncSuitLookPayload(miraculous, new FlattenedSuitLookData(look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames, Optional.ofNullable(convertedAnimations))));
             } catch (Exception exception) {
                 Mineraculous.LOGGER.error("Failed to handle clientbound request sync suit look payload", exception);
             }

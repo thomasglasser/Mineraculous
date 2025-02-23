@@ -34,7 +34,9 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.world.item.armor.KamikotizationArmorItem;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.world.item.armor.MiraculousArmorItem;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
@@ -68,6 +70,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -86,6 +89,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterEntitySpectatorShadersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
@@ -442,7 +446,12 @@ public class MineraculousClientEvents {
                 if (Files.exists(glowmask)) {
                     convertedGlowmask = NativeImage.read(glowmask.toUri().toURL().openStream()).asByteArray();
                 }
-                return new FlattenedKamikotizationLookData(kamikotization, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask));
+                Path animations = texture.resolveSibling(type + ".animation.json");
+                String convertedAnimations = null;
+                if (Files.exists(animations)) {
+                    convertedAnimations = Files.readString(animations);
+                }
+                return new FlattenedKamikotizationLookData(kamikotization, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), Optional.ofNullable(convertedAnimations));
             } catch (Exception exception) {
                 Mineraculous.LOGGER.error("Failed to handle clientbound request sync kamikotization look payload", exception);
             }
@@ -462,5 +471,12 @@ public class MineraculousClientEvents {
     public static void onRegisterRenderBuffers(RegisterRenderBuffersEvent event) {
         event.registerRenderBuffer(MineraculousRenderTypes.luckyCharm());
         event.registerRenderBuffer(MineraculousRenderTypes.armorLuckyCharm());
+    }
+
+    public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
+            MiraculousArmorItem.clearAnimationData();
+            KamikotizationArmorItem.clearAnimationData();
+        });
     }
 }

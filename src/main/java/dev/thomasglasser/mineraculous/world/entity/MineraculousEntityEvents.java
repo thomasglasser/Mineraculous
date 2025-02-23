@@ -302,6 +302,7 @@ public class MineraculousEntityEvents {
                             player.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
                             for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
                                 ItemStack stack = Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.getForSlot(slot).get(), kamikotizationKey);
+                                stack.enchant(level.holderOrThrow(Enchantments.BINDING_CURSE), 1);
                                 stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
                                 player.setItemSlot(slot, stack);
                             }
@@ -974,7 +975,9 @@ public class MineraculousEntityEvents {
                 }
 
                 if (kamikotization.powerSource().left().isPresent())
-                    kamikotizationStack = kamikotization.powerSource().left().get();
+                    kamikotizationStack = kamikotization.powerSource().left().get().copyWithCount(Math.min(kamikotizationStack.getCount(), kamikotization.powerSource().left().get().getMaxStackSize()));
+
+                data = data.withStackCount(kamikotizationStack.getCount());
 
                 kamikotizationStack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
                 kamikotizationStack.set(MineraculousDataComponents.KAMIKO_DATA.get(), data.kamikoData());

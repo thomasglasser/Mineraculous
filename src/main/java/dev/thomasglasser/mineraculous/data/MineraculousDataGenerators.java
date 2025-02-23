@@ -43,7 +43,11 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -58,6 +62,7 @@ public class MineraculousDataGenerators {
             .add(MineraculousRegistries.KAMIKOTIZATION, context -> {
                 // TODO: Remove when testing is done (don't forget to remove the assets)
                 HolderGetter<Ability> abilities = context.lookup(MineraculousRegistries.ABILITY);
+                HolderGetter<Enchantment> enchantments = context.lookup(Registries.ENCHANTMENT);
 
                 context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, Mineraculous.modLoc("cat")),
                         new Kamikotization(
@@ -71,11 +76,15 @@ public class MineraculousDataGenerators {
                                 ItemPredicate.Builder.item().build(),
                                 Either.left(Items.DIAMOND_SWORD.getDefaultInstance()),
                                 List.of(abilities.getOrThrow(MineraculousAbilities.CAT_VISION), abilities.getOrThrow(MineraculousAbilities.KAMIKOTIZED_COMMUNICATION))));
-                context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, Mineraculous.modLoc("butterfly")),
+                ItemStack stormyTool = Items.DIAMOND.getDefaultInstance();
+                stormyTool.enchant(enchantments.getOrThrow(Enchantments.SHARPNESS), 1);
+                stormyTool.enchant(enchantments.getOrThrow(Enchantments.SMITE), 1);
+                stormyTool.enchant(enchantments.getOrThrow(Enchantments.KNOCKBACK), 10);
+                context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, Mineraculous.modLoc("stormy")),
                         new Kamikotization(
-                                "Betterfly",
-                                ItemPredicate.Builder.item().build(),
-                                Either.left(Items.DIAMOND.getDefaultInstance()),
+                                "Stormy Tester",
+                                ItemPredicate.Builder.item().of(ItemTags.BANNERS).build(),
+                                Either.left(stormyTool),
                                 List.of()));
             });
 

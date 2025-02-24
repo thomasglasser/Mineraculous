@@ -67,11 +67,10 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     private static final EntityDataAccessor<Vector3f> BOUND_POS = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.VECTOR3);
     private static final EntityDataAccessor<Boolean> IS_RECALLING = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> SERVER_MAX_ROPE_LENGTH = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> RENDER_MAX_ROPE_LENGTH = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> RECALLING_TICKS = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-
-    public double maxRopeLength = 0; // used for rendering the rope
 
     private boolean dealtDamage;
 
@@ -103,6 +102,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         builder.define(IS_RECALLING, false);
         builder.define(RECALLING_TICKS, 0);
         builder.define(SERVER_MAX_ROPE_LENGTH, 0f);
+        builder.define(RENDER_MAX_ROPE_LENGTH, 0f);
     }
 
     public @Nullable LadybugYoyoItem.Ability getAbility() {
@@ -147,6 +147,14 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
 
     public void setServerMaxRopeLength(float f) {
         this.entityData.set(SERVER_MAX_ROPE_LENGTH, f);
+    }
+
+    public float getRenderMaxRopeLength() {
+        return this.entityData.get(RENDER_MAX_ROPE_LENGTH);
+    }
+
+    public void setRenderMaxRopeLength(float f) {
+        this.entityData.set(RENDER_MAX_ROPE_LENGTH, f);
     }
 
     @Nullable
@@ -491,7 +499,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
 
         Vec3 vec3 = ThrownLadybugYoyoRenderer.getPlayerHandPos(p, f1, 0, Minecraft.getInstance().getEntityRenderDispatcher());
         Vec3 fromProjectileToHand = new Vec3(vec3.x - this.getX(), vec3.y - this.getY(), vec3.z - this.getZ());
-        this.maxRopeLength = fromProjectileToHand.length();
+        setRenderMaxRopeLength((float) fromProjectileToHand.length());
     }
 
     @Override

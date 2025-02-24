@@ -85,7 +85,6 @@ public record ServerboundWalkMidSwingingPayload(boolean front, boolean back, boo
                     if (up && distance > 2) {
                         thrownLadybugYoyo.setServerMaxRopeLength(thrownLadybugYoyo.getServerMaxRopeLength() - 0.2f);
                         thrownLadybugYoyo.updateRenderMaxRopeLength(player);
-                        //Mineraculous.LOGGER.info(String.valueOf(distance - fromPlayerToProjectile.length()));
                     } else if (down && distance >= maxRopeLn - 0.2) {
                         thrownLadybugYoyo.setServerMaxRopeLength(thrownLadybugYoyo.getServerMaxRopeLength() + 0.3f);
                         thrownLadybugYoyo.updateRenderMaxRopeLength(player);

@@ -51,9 +51,10 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
             Vec3 fromPTHOnXZ = new Vec3(fromProjectileToHand.x, 0, fromProjectileToHand.z); //fromProjectileToHandOnXZ
             Vec3 ropeThickness = new Vec3(getSegmentThickness(projectilePos, vec3).toVector3f());
 
-            double maxLength = projectileEntity.maxRopeLength;
+            double maxLength = projectileEntity.getRenderMaxRopeLength();
 
-            if (fromProjectileToHand.length() >= projectileEntity.maxRopeLength || projectileEntity.maxRopeLength > 50) { //if it's bigger than 50 it starts looking wierd because IDK what hyperbolic cosine and catenary equation is, and for my sanity I don't want to know.
+            double length = fromProjectileToHand.length();
+            if (length >= maxLength || maxLength > 50) { //if it's bigger than 50 it starts looking wierd because IDK what hyperbolic cosine and catenary equation is, and for my sanity I don't want to know.
                 vertex(vertexConsumer, pose, (float) -ropeThickness.x, (float) -ropeThickness.y, (float) -ropeThickness.z, 0f, 1f);
                 vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x - ropeThickness.x), (float) (fromProjectileToHand.y - ropeThickness.y), (float) (fromProjectileToHand.z - ropeThickness.z), 1f, 1f);
                 vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x + ropeThickness.x), (float) (fromProjectileToHand.y + ropeThickness.y), (float) (fromProjectileToHand.z + ropeThickness.z), 1f, 0f);
@@ -70,21 +71,21 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
                     pointList.add(new RopePoint(xi, yi, i, fromPTHOnXZ));
                 }
 
-                Vec3 p0Pos = new Vec3(pointList.get(0).getX() + projectilePos.x, pointList.get(0).getYP() + projectilePos.y, pointList.get(0).getZ() + projectilePos.z);
+                Vec3 p0Pos = new Vec3(pointList.getFirst().getX() + projectilePos.x, pointList.getFirst().yP() + projectilePos.y, pointList.getFirst().getZ() + projectilePos.z);
                 Vec3 projectileToP0Thickness = new Vec3(getSegmentThickness(projectilePos, p0Pos).toVector3f());
                 vertex(vertexConsumer, pose, (float) (0 - projectileToP0Thickness.x), (float) (0 - projectileToP0Thickness.y), (float) (0 - projectileToP0Thickness.z), 0f, 1f);
-                vertex(vertexConsumer, pose, (float) (pointList.get(0).getX() - projectileToP0Thickness.x), (float) (pointList.get(0).getYP() - projectileToP0Thickness.y), (float) (pointList.get(0).getZ() - projectileToP0Thickness.z), 1f, 1f);
-                vertex(vertexConsumer, pose, (float) (pointList.get(0).getX() + projectileToP0Thickness.x), (float) (pointList.get(0).getYP() + projectileToP0Thickness.y), (float) (pointList.get(0).getZ() + projectileToP0Thickness.z), 1f, 0f);
+                vertex(vertexConsumer, pose, (float) (pointList.getFirst().getX() - projectileToP0Thickness.x), (float) (pointList.getFirst().yP() - projectileToP0Thickness.y), (float) (pointList.getFirst().getZ() - projectileToP0Thickness.z), 1f, 1f);
+                vertex(vertexConsumer, pose, (float) (pointList.getFirst().getX() + projectileToP0Thickness.x), (float) (pointList.getFirst().yP() + projectileToP0Thickness.y), (float) (pointList.getFirst().getZ() + projectileToP0Thickness.z), 1f, 0f);
                 vertex(vertexConsumer, pose, (float) (0 + projectileToP0Thickness.x), (float) (0 + projectileToP0Thickness.y), (float) (0 + projectileToP0Thickness.z), 0f, 0f);
 
                 for (i = 0; i <= points - 2; i++) {
-                    Vec3 p1Pos = new Vec3(pointList.get(i).getX() + projectilePos.x, pointList.get(i).getYP() + projectilePos.y, pointList.get(i).getZ() + projectilePos.z);
-                    Vec3 p2Pos = new Vec3(pointList.get(i + 1).getX() + projectilePos.x, pointList.get(i + 1).getYP() + projectilePos.y, pointList.get(i + 1).getZ() + projectilePos.z);
+                    Vec3 p1Pos = new Vec3(pointList.get(i).getX() + projectilePos.x, pointList.get(i).yP() + projectilePos.y, pointList.get(i).getZ() + projectilePos.z);
+                    Vec3 p2Pos = new Vec3(pointList.get(i + 1).getX() + projectilePos.x, pointList.get(i + 1).yP() + projectilePos.y, pointList.get(i + 1).getZ() + projectilePos.z);
                     Vec3 point1ToPoint2Thickness = new Vec3(getSegmentThickness(p1Pos, p2Pos).toVector3f());
-                    vertex(vertexConsumer, pose, (float) (pointList.get(i).getX() - point1ToPoint2Thickness.x), (float) (pointList.get(i).getYP() - point1ToPoint2Thickness.y), (float) (pointList.get(i).getZ() - point1ToPoint2Thickness.z), 0f, 1f);
-                    vertex(vertexConsumer, pose, (float) (pointList.get(i + 1).getX() - point1ToPoint2Thickness.x), (float) (pointList.get(i + 1).getYP() - point1ToPoint2Thickness.y), (float) (pointList.get(i + 1).getZ() - point1ToPoint2Thickness.z), 1f, 1f);
-                    vertex(vertexConsumer, pose, (float) (pointList.get(i + 1).getX() + point1ToPoint2Thickness.x), (float) (pointList.get(i + 1).getYP() + point1ToPoint2Thickness.y), (float) (pointList.get(i + 1).getZ() + point1ToPoint2Thickness.z), 1f, 0f);
-                    vertex(vertexConsumer, pose, (float) (pointList.get(i).getX() + point1ToPoint2Thickness.x), (float) (pointList.get(i).getYP() + point1ToPoint2Thickness.y), (float) (pointList.get(i).getZ() + point1ToPoint2Thickness.z), 0f, 0f);
+                    vertex(vertexConsumer, pose, (float) (pointList.get(i).getX() - point1ToPoint2Thickness.x), (float) (pointList.get(i).yP() - point1ToPoint2Thickness.y), (float) (pointList.get(i).getZ() - point1ToPoint2Thickness.z), 0f, 1f);
+                    vertex(vertexConsumer, pose, (float) (pointList.get(i + 1).getX() - point1ToPoint2Thickness.x), (float) (pointList.get(i + 1).yP() - point1ToPoint2Thickness.y), (float) (pointList.get(i + 1).getZ() - point1ToPoint2Thickness.z), 1f, 1f);
+                    vertex(vertexConsumer, pose, (float) (pointList.get(i + 1).getX() + point1ToPoint2Thickness.x), (float) (pointList.get(i + 1).yP() + point1ToPoint2Thickness.y), (float) (pointList.get(i + 1).getZ() + point1ToPoint2Thickness.z), 1f, 0f);
+                    vertex(vertexConsumer, pose, (float) (pointList.get(i).getX() + point1ToPoint2Thickness.x), (float) (pointList.get(i).yP() + point1ToPoint2Thickness.y), (float) (pointList.get(i).getZ() + point1ToPoint2Thickness.z), 0f, 0f);
                 }
 
                 /*Vec3 lastPointPos = new Vec3(pointList.get(points - 1).getX() + projectilePos.x, pointList.get(points - 1).getY() + projectilePos.y, pointList.get(points - 1).getZ() + projectilePos.z);

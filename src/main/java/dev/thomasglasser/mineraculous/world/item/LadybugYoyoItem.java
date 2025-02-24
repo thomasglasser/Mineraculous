@@ -184,14 +184,14 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                                     Minecraft.getInstance().player.input.down ||
                                     Minecraft.getInstance().player.input.left ||
                                     Minecraft.getInstance().player.input.right ||
-                                    MineraculousKeyMappings.UNWIND_YOYO.get().isDown() ||
-                                    MineraculousKeyMappings.WIND_YOYO.get().isDown())) {
+                                    MineraculousKeyMappings.WEAPON_DOWN_ARROW.get().isDown() ||
+                                    MineraculousKeyMappings.WEAPON_UP_ARROW.get().isDown())) {
                                         boolean front = Minecraft.getInstance().player.input.up;
                                         boolean back = Minecraft.getInstance().player.input.down;
                                         boolean left = Minecraft.getInstance().player.input.left;
                                         boolean right = Minecraft.getInstance().player.input.right;
-                                        boolean up = MineraculousKeyMappings.WIND_YOYO.get().isDown();
-                                        boolean down = MineraculousKeyMappings.UNWIND_YOYO.get().isDown();
+                                        boolean up = MineraculousKeyMappings.WEAPON_UP_ARROW.get().isDown();
+                                        boolean down = MineraculousKeyMappings.WEAPON_DOWN_ARROW.get().isDown();
                                         TommyLibServices.NETWORK.sendToServer(new ServerboundWalkMidSwingingPayload(front, back, left, right, up, down));
                                     }
                 }

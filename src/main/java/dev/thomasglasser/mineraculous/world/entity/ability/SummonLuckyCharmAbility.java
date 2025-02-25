@@ -49,7 +49,7 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
         if (context == Context.PASSIVE) {
             UUID tracked = ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData().getTrackedEntity(entity.getUUID());
             LivingEntity trackedEntity = tracked != null ? level.getEntity(tracked) instanceof LivingEntity livingEntity ? livingEntity : null : null;
-            LivingEntity target = trackedEntity != null ? trackedEntity : entity.getKillCredit() != null ? entity.getKillCredit() : entity.getLastHurtMob();
+            LivingEntity target = trackedEntity != null ? trackedEntity : entity.getKillCredit() != null ? entity.getKillCredit() : entity.getLastHurtByMob() != null ? entity.getLastHurtByMob() : entity.getLastHurtMob();
             if (target instanceof OwnableEntity ownable && ownable.getOwnerUUID() != null)
                 target = level.getEntity(ownable.getOwnerUUID()) instanceof LivingEntity livingEntity ? livingEntity : target;
             if (target != null)

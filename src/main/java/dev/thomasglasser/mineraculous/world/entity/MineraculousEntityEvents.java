@@ -1112,7 +1112,7 @@ public class MineraculousEntityEvents {
 
     public static void onBlockDrops(BlockDropsEvent event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
-            MiraculousRecoveryDataHolder recoveryDataHolder = (MiraculousRecoveryDataHolder) serverLevel;
+            MiraculousRecoveryDataHolder recoveryDataHolder = (MiraculousRecoveryDataHolder) serverLevel.getServer().overworld();
             UUID recoverer = recoveryDataHolder.mineraculous$getMiraculousRecoveryBlockData().getRecoverer(event.getPos());
             if (recoverer != null) {
                 for (ItemEntity item : event.getDrops()) {
@@ -1126,7 +1126,7 @@ public class MineraculousEntityEvents {
 
     public static void onLivingDrops(LivingDropsEvent event) {
         if (event.getEntity().level() instanceof ServerLevel serverLevel) {
-            MiraculousRecoveryDataHolder recoveryDataHolder = (MiraculousRecoveryDataHolder) serverLevel;
+            MiraculousRecoveryDataHolder recoveryDataHolder = (MiraculousRecoveryDataHolder) serverLevel.getServer().overworld();
             UUID recoverer = recoveryDataHolder.mineraculous$getMiraculousRecoveryEntityData().getRecoverer(event.getEntity(), serverLevel);
             if (recoverer != null) {
                 for (ItemEntity item : event.getDrops()) {

@@ -14,6 +14,7 @@ import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.neoforged.neoforge.entity.PartEntity;
 import org.jetbrains.annotations.Nullable;
 
 public class MiraculousRecoveryEntityData extends SavedData {
@@ -84,6 +85,10 @@ public class MiraculousRecoveryEntityData extends SavedData {
 
     public void putRecoverable(UUID owner, Entity entity) {
         putRelatedEntity(owner, entity.getUUID());
+        if (entity instanceof PartEntity<?> partEntity) {
+            putRecoverable(owner, partEntity.getParent());
+            return;
+        }
         if (!entity.getType().canSerialize())
             return;
         if (!recoverableEntities.containsKey(owner))

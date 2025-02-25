@@ -39,6 +39,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -164,7 +165,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
                     }
                     MineraculousClientEvents.openToolWheel(color, stack, option -> {
                         if (option instanceof Ability ability) {
-                            TommyLibServices.NETWORK.sendToServer(new ServerboundSetButterflyCaneAbilityPayload(hand, ability.name()));
+                            TommyLibServices.NETWORK.sendToServer(new ServerboundSetButterflyCaneAbilityPayload(hand, ability));
                             stack.set(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get(), ability);
                         }
                     }, Arrays.stream(Ability.values()).filter(ability -> {
@@ -319,25 +320,33 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
         return COVERED;
     }
 
-    public enum Ability implements RadialMenuOption {
+    public enum Ability implements RadialMenuOption, StringRepresentable {
         BLADE,
         BLOCK,
         KAMIKO_STORE,
         THROW;
 
-        public static final Codec<Ability> CODEC = Codec.STRING.xmap(Ability::valueOf, Ability::name);
-
-        public static final StreamCodec<ByteBuf, ButterflyCaneItem.Ability> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(ButterflyCaneItem.Ability::valueOf, ButterflyCaneItem.Ability::name);
+        public static final Codec<Ability> CODEC = StringRepresentable.fromEnum(Ability::values);
+        public static final StreamCodec<ByteBuf, ButterflyCaneItem.Ability> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(Ability::of, Ability::getSerializedName);
 
         private final String translationKey;
 
         Ability() {
-            this.translationKey = MineraculousItems.BUTTERFLY_CANE.getId().toLanguageKey("ability", name().toLowerCase());
+            this.translationKey = MineraculousItems.BUTTERFLY_CANE.getId().toLanguageKey("ability", getSerializedName());
         }
 
         @Override
         public String translationKey() {
             return translationKey;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return name().toLowerCase();
+        }
+
+        public static Ability of(String name) {
+            return valueOf(name.toUpperCase());
         }
     }
 }

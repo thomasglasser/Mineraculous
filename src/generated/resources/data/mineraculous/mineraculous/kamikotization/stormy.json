@@ -1,0 +1,19 @@
+{
+  "default_name": "Stormy Tester",
+  "item_predicate": {
+    "items": "#minecraft:banners"
+  },
+  "power_source": {
+    "components": {
+      "minecraft:enchantments": {
+        "levels": {
+          "minecraft:knockback": 10,
+          "minecraft:sharpness": 1,
+          "minecraft:smite": 1
+        }
+      }
+    },
+    "count": 1,
+    "id": "minecraft:diamond"
+  }
+}

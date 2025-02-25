@@ -29,6 +29,7 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilities;
 import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
+import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerProfessions;
@@ -55,6 +56,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         super(output, Mineraculous.MOD_ID);
     }
 
+    public MineraculousEnUsLanguageProvider(PackOutput output, String modId) {
+        super(output, modId);
+    }
+
     @Override
     protected void addTranslations() {
         add(MineraculousItems.LADYBUG_YOYO.get(), "Ladybug Yoyo");
@@ -69,8 +74,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addArmorTrim(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE.get(), "Cat");
         addArmorTrim(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE.get(), "Butterfly");
 
-        addCreativeTab(MineraculousCreativeModeTabs.MINERACULOUS, "Mineraculous");
-        addCreativeTab(MineraculousCreativeModeTabs.MIRACULOUS, "Miraculous");
+        add(MineraculousCreativeModeTabs.MIRACULOUS.get(), "Miraculous");
+        add(MineraculousCreativeModeTabs.KAMIKOTIZATION_TOOLS.get(), "Kamikotization Tools");
+        add(MineraculousCreativeModeTabs.KAMIKOTIZABLES.get(), "Kamikotizables");
+        add(MineraculousCreativeModeTabs.MINERACULOUS.get(), "Mineraculous");
 
         add(MineraculousArmors.MIRACULOUS.HEAD.get(), "Miraculous Mask");
         add(MineraculousArmors.MIRACULOUS.CHEST.get(), "Miraculous Chestplate");
@@ -170,6 +177,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         add(Kamiko.CANT_KAMIKOTIZE_TRANSFORMED, "Kamikotizing transformed players is not currently supported.");
 
+        add(Kamikotization.NO_KAMIKOTIZATIONS, "No Kamikotizations found in world, have you installed any addons?");
+
         add(MineraculousClientUtils.CHOOSE, "Choose");
         add(MineraculousClientUtils.NAME, "Name");
 
@@ -177,6 +186,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         add(KamikotizationSelectionScreen.TITLE, "Kamikotization");
         add(KamikotizationSelectionScreen.NO_KAMIKOTIZATIONS, "No valid kamikotizations found for %s");
+        add(KamikotizationSelectionScreen.TOOL, "Tool:");
         add(KamikotizationSelectionScreen.ACTIVE_ABILITY, "Active Ability:");
         add(KamikotizationSelectionScreen.PASSIVE_ABILITIES, "Passive Abilities:");
 

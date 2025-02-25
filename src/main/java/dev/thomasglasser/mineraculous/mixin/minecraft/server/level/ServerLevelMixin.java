@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.mixin.minecraft.server.level;
 
 import com.mojang.datafixers.util.Either;
+import dev.thomasglasser.mineraculous.network.ClientboundSyncArrowPickupStackPayload;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideData;
 import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideDataHolder;
@@ -16,6 +17,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEnti
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryItemData;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdData;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdDataHolder;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +28,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.world.RandomSequences;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.storage.DimensionDataStorage;
@@ -38,6 +42,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ServerLevel.class)
 public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmIdDataHolder, FlattenedLookDataHolder, ChargeOverrideDataHolder, MiraculousRecoveryDataHolder {
@@ -70,6 +75,9 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmId
 
     @Shadow
     public abstract DimensionDataStorage getDataStorage();
+
+    @Shadow
+    public abstract MinecraftServer getServer();
 
     @Inject(method = "<init>", at = @At("RETURN"))
     private void minejago_init(MinecraftServer minecraftServer, Executor executor, LevelStorageSource.LevelStorageAccess levelStorageAccess, ServerLevelData serverLevelData, ResourceKey<Level> resourceKey, LevelStem levelStem, ChunkProgressListener chunkProgressListener, boolean bl, long l, List list, boolean bl2, RandomSequences randomSequences, CallbackInfo ci) {
@@ -186,5 +194,11 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmId
     @Override
     public ChargeOverrideData mineraculous$getChargeOverrideData() {
         return mineraculous$chargeOverrideData;
+    }
+
+    @Inject(method = "addEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;onAddedToLevel()V"))
+    private void onAddedToLevel(Entity entity, CallbackInfoReturnable<Boolean> cir) {
+        if (entity instanceof AbstractArrow arrow)
+            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncArrowPickupStackPayload(arrow.getId(), arrow.getPickupItemStackOrigin()), getServer());
     }
 }

@@ -83,6 +83,9 @@ public class MiraculousRecoveryEntityData extends SavedData {
     }
 
     public void putRecoverable(UUID owner, Entity entity) {
+        putRelatedEntity(owner, entity.getUUID());
+        if (!entity.getType().canSerialize())
+            return;
         if (!recoverableEntities.containsKey(owner))
             recoverableEntities.put(owner, new ArrayList<>());
         CompoundTag entityData = new CompoundTag();

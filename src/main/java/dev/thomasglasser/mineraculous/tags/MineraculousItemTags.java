@@ -3,8 +3,8 @@ package dev.thomasglasser.mineraculous.tags;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.tommylib.api.tags.TagUtils;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 
@@ -34,7 +34,6 @@ public class MineraculousItemTags {
 
     // Lucky Charms
     public static final TagKey<Item> GENERIC_LUCKY_CHARMS = create("lucky_charms/generic");
-    public static final TagKey<Item> GUARDIAN_LUCKY_CHARMS = create("lucky_charms/guardian");
     public static final TagKey<Item> WARDEN_DISTRACTORS = create("warden_distractors");
 
     private static TagKey<Item> create(String name) {
@@ -42,6 +41,6 @@ public class MineraculousItemTags {
     }
 
     private static TagKey<Item> createC(String name) {
-        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", name));
+        return TagUtils.createConventional(Registries.ITEM, name);
     }
 }

@@ -50,6 +50,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -166,7 +167,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                             MineraculousClientEvents.openToolWheel(color, stack, option -> {
                                 if (option instanceof Ability ability) {
                                     stack.set(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get(), ability);
-                                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetLadybugYoyoAbilityPayload(hand, ability.name()));
+                                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetLadybugYoyoAbilityPayload(hand, ability));
                                 }
                             }, Arrays.stream(Ability.values()).filter(ability -> {
                                 if (ability == Ability.PURIFY)
@@ -405,24 +406,33 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         return List.of();
     }
 
-    public enum Ability implements RadialMenuOption {
+    public enum Ability implements RadialMenuOption, StringRepresentable {
         BLOCK,
         LASSO,
         PURIFY,
         TRAVEL;
 
-        public static final Codec<Ability> CODEC = Codec.STRING.xmap(Ability::valueOf, Ability::name);
-        public static final StreamCodec<ByteBuf, Ability> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(Ability::valueOf, Ability::name);
+        public static final Codec<Ability> CODEC = StringRepresentable.fromEnum(Ability::values);
+        public static final StreamCodec<ByteBuf, Ability> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(Ability::of, Ability::getSerializedName);
 
         private final String translationKey;
 
         Ability() {
-            this.translationKey = MineraculousItems.LADYBUG_YOYO.getId().toLanguageKey("ability", name().toLowerCase());
+            this.translationKey = MineraculousItems.LADYBUG_YOYO.getId().toLanguageKey("ability", getSerializedName());
         }
 
         @Override
         public String translationKey() {
             return translationKey;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return name().toLowerCase();
+        }
+
+        public static Ability of(String name) {
+            return valueOf(name.toUpperCase());
         }
     }
 }

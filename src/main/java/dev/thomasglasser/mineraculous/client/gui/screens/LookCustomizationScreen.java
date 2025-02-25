@@ -5,14 +5,15 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
+import dev.thomasglasser.mineraculous.core.MineraculousCoreEvents;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundSyncCustomizationPayload;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
@@ -84,6 +85,7 @@ public class LookCustomizationScreen extends Screen {
         this.previewSuit.setItemSlot(EquipmentSlot.CHEST, Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.CHEST.get(), miraculous));
         this.previewSuit.setItemSlot(EquipmentSlot.LEGS, Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.LEGS.get(), miraculous));
         this.previewSuit.setItemSlot(EquipmentSlot.FEET, Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.FEET.get(), miraculous));
+        CuriosUtils.setStackInFirstValidSlot(this.previewSuit, Miraculous.createMiraculousStack(miraculous), false);
         HashBasedTable<ResourceKey<Miraculous>, String, SuitLookData> previewSuitLooks = HashBasedTable.create();
         for (Map.Entry<String, SuitLookData> entry : suitLooks) {
             previewSuitLooks.put(miraculous, entry.getKey(), entry.getValue());
@@ -105,7 +107,7 @@ public class LookCustomizationScreen extends Screen {
     protected Map<String, FlattenedSuitLookData> getFlattenedSuitLooks(Map<String, FlattenedSuitLookData> serverSuits) {
         Map<String, FlattenedSuitLookData> suitLooks = new HashMap<>(serverSuits);
         if (MineraculousServerConfig.get().enableCustomization.get()) {
-            for (Map.Entry<String, FlattenedSuitLookData> entry : MineraculousClientEvents.fetchSuitLooks(miraculous).entrySet()) {
+            for (Map.Entry<String, FlattenedSuitLookData> entry : MineraculousCoreEvents.fetchSuitLooks(Minecraft.getInstance().gameDirectory.toPath(), Minecraft.getInstance().level.holderOrThrow(miraculous)).entrySet()) {
                 suitLooks.putIfAbsent(entry.getKey(), entry.getValue());
             }
         }
@@ -114,7 +116,7 @@ public class LookCustomizationScreen extends Screen {
 
     protected List<Map.Entry<String, SuitLookData>> getSuitLooks(Map<String, FlattenedSuitLookData> flattenedSuitLooks) {
         Map<String, SuitLookData> suitLooks = new HashMap<>();
-        suitLooks.put("", new SuitLookData(Optional.empty(), ResourceLocation.withDefaultNamespace(""), Optional.empty(), List.of(), List.of()));
+        suitLooks.put("", new SuitLookData(Optional.empty(), ResourceLocation.withDefaultNamespace(""), Optional.empty(), List.of(), List.of(), Optional.empty()));
         for (Map.Entry<String, FlattenedSuitLookData> entry : flattenedSuitLooks.entrySet()) {
             SuitLookData data = entry.getValue() == null ? null : entry.getValue().unpack(miraculous, Minecraft.getInstance().player);
             if (data != null)
@@ -126,7 +128,7 @@ public class LookCustomizationScreen extends Screen {
     protected Map<String, FlattenedMiraculousLookData> getFlattenedMiraculousLooks(Map<String, FlattenedMiraculousLookData> serverMiraculous) {
         Map<String, FlattenedMiraculousLookData> miraculousLooks = new HashMap<>(serverMiraculous);
         if (MineraculousServerConfig.get().enableCustomization.get()) {
-            for (Map.Entry<String, FlattenedMiraculousLookData> entry : MineraculousClientEvents.fetchMiraculousLooks(miraculous).entrySet()) {
+            for (Map.Entry<String, FlattenedMiraculousLookData> entry : MineraculousCoreEvents.fetchMiraculousLooks(Minecraft.getInstance().gameDirectory.toPath(), miraculous).entrySet()) {
                 miraculousLooks.putIfAbsent(entry.getKey(), entry.getValue());
             }
         }

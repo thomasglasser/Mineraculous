@@ -3,7 +3,8 @@
   "active_ability": "mineraculous:lucky_charm",
   "color": "#DD1731",
   "passive_abilities": [
-    "mineraculous:miraculous_ladybug"
+    "mineraculous:miraculous_ladybug",
+    "mineraculous:passive_luck"
   ],
   "tool": {
     "id": "mineraculous:ladybug_yoyo"

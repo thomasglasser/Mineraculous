@@ -24,24 +24,25 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 
 public class MineraculousAbilities {
-    public static final ResourceKey<Ability> EMPTY = register("empty");
     public static final ResourceKey<Ability> KAMIKOTIZATION = register("kamikotization");
     public static final ResourceKey<Ability> KAMIKO_CONTROL = register("kamiko_control");
     public static final ResourceKey<Ability> KAMIKOTIZED_COMMUNICATION = register("kamikotized_communication");
     public static final ResourceKey<Ability> CATACLYSM = register("cataclysm");
     public static final ResourceKey<Ability> CAT_VISION = register("cat_vision");
+    public static final ResourceKey<Ability> PASSIVE_UNLUCK = register("passive_unluck");
     public static final ResourceKey<Ability> LUCKY_CHARM = register("lucky_charm");
     public static final ResourceKey<Ability> MIRACULOUS_LADYBUG = register("miraculous_ladybug");
+    public static final ResourceKey<Ability> PASSIVE_LUCK = register("passive_luck");
 
     private static ResourceKey<Ability> register(String id) {
         return ResourceKey.create(MineraculousRegistries.ABILITY, Mineraculous.modLoc(id));
     }
 
     public static void bootstrap(BootstrapContext<Ability> context) {
-        context.register(EMPTY, new EmptyAbility());
         context.register(KAMIKOTIZATION, new ContextAwareAbility(
                 Optional.empty(),
                 Optional.of(new SetOwnerAbility(
@@ -101,8 +102,16 @@ public class MineraculousAbilities {
                 Optional.of(MineraculousSoundEvents.CATACLYSM_ACTIVATE),
                 false));
         context.register(CAT_VISION, new NightVisionAbility(Optional.of(ResourceLocation.withDefaultNamespace("shaders/post/creeper.json"))));
+        context.register(PASSIVE_UNLUCK, new ApplyEffectsWhileTransformedAbility(
+                HolderSet.direct(MobEffects.UNLUCK),
+                1,
+                Optional.empty()));
 
         context.register(LUCKY_CHARM, new SummonLuckyCharmAbility(true, Optional.of(MineraculousSoundEvents.LUCKY_CHARM_ACTIVATE), false));
         context.register(MIRACULOUS_LADYBUG, new LuckyCharmWorldRecoveryAbility(true, Optional.of(MineraculousParticleTypes.SPREADING_LADYBUG.get()), Optional.of(MineraculousSoundEvents.MIRACULOUS_LADYBUG_ACTIVATE), true));
+        context.register(PASSIVE_LUCK, new ApplyEffectsWhileTransformedAbility(
+                HolderSet.direct(MobEffects.LUCK),
+                1,
+                Optional.empty()));
     }
 }

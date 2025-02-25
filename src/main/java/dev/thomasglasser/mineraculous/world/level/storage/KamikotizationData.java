@@ -37,6 +37,10 @@ public record KamikotizationData(ResourceKey<Kamikotization> kamikotization, int
             ByteBufCodecs.optional(ByteBufCodecs.either(ByteBufCodecs.INT, ByteBufCodecs.INT)), KamikotizationData::transformationFrames,
             ByteBufCodecs.STRING_UTF8, KamikotizationData::name,
             KamikotizationData::new);
+    public KamikotizationData withStackCount(int count) {
+        return new KamikotizationData(kamikotization, count, slotInfo, kamikoData, mainPowerActive, transformationFrames, name);
+    }
+
     public KamikotizationData decrementStackCount() {
         return new KamikotizationData(kamikotization, stackCount - 1, slotInfo, kamikoData, mainPowerActive, transformationFrames, name);
     }

@@ -19,6 +19,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.texture.AutoGlowingTexture;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
@@ -90,6 +91,15 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
             public ResourceLocation getTextureResource(KamikotizationArmorItem animatable) {
                 return textureLoc;
             }
+
+            @Override
+            public @Nullable Animation getAnimation(KamikotizationArmorItem animatable, String name) {
+                try {
+                    return super.getAnimation(animatable, name);
+                } catch (RuntimeException e) {
+                    return null;
+                }
+            }
         };
     }
 
@@ -99,7 +109,7 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
 
             @Override
             public ResourceLocation getModelResource(KamikotizationArmorItem animatable) {
-                return data.model().isPresent() ? null : defaultModels.get(kamikotization).getModelResource(animatable);
+                return defaultModels.get(kamikotization).getModelResource(animatable);
             }
 
             @Override
@@ -109,7 +119,7 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
 
             @Override
             public ResourceLocation getAnimationResource(KamikotizationArmorItem animatable) {
-                return null;
+                return defaultModels.get(kamikotization).getAnimationResource(animatable);
             }
 
             @Override
@@ -120,6 +130,18 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
                     getAnimationProcessor().setActiveModel(baked);
                 }
                 return currentModel;
+            }
+
+            @Override
+            public @Nullable Animation getAnimation(KamikotizationArmorItem animatable, String name) {
+                try {
+                    if (data.animations().isPresent()) {
+                        return data.animations().get().getAnimation(name);
+                    }
+                    return super.getAnimation(animatable, name);
+                } catch (RuntimeException e) {
+                    return null;
+                }
             }
         };
     }

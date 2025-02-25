@@ -10,6 +10,7 @@ public class MineraculousAbilitySerializers {
     public static final DeferredRegister<MapCodec<? extends Ability>> ABILITIES = DeferredRegister.create(MineraculousRegistries.ABILITY_SERIALIZER, Mineraculous.MOD_ID);
 
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<EmptyAbility>> EMPTY = ABILITIES.register("empty", () -> EmptyAbility.CODEC);
+    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ApplyEffectsWhileTransformedAbility>> APPLY_EFFECTS_WHILE_TRANSFORMED = ABILITIES.register("apply_effects_while_transformed", () -> ApplyEffectsWhileTransformedAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ApplyInfiniteEffectsOrDestroyAbility>> APPLY_INFINITE_EFFECTS_OR_DESTROY = ABILITIES.register("apply_infinite_effects_or_destroy", () -> ApplyInfiniteEffectsOrDestroyAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ContextAwareAbility>> CONTEXT_AWARE = ABILITIES.register("context_aware", () -> ContextAwareAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<DragAbility>> DRAG = ABILITIES.register("drag", () -> DragAbility.CODEC);

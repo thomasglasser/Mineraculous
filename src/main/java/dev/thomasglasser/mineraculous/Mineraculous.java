@@ -65,7 +65,6 @@ public class Mineraculous {
         MineraculousArmors.init();
         MineraculousCreativeModeTabs.init();
         MineraculousEntityTypes.init();
-        MineraculousPayloads.init();
         MineraculousParticleTypes.init();
         MineraculousBlocks.init();
         MineraculousArmorMaterials.init();
@@ -94,8 +93,9 @@ public class Mineraculous {
 
         bus.addListener(MineraculousDataGenerators::onGatherData);
 
+        bus.addListener(MineraculousPayloads::onRegisterPackets);
+
         bus.addListener(MineraculousEntityEvents::onEntityAttributeCreation);
-        bus.addListener(MineraculousCoreEvents::onRegisterPackets);
         bus.addListener(MineraculousCoreEvents::onNewDataPackRegistry);
         bus.addListener(MineraculousCoreEvents::onNewRegistry);
         bus.addListener(MineraculousCoreEvents::onRegisterDataMapTypes);
@@ -137,6 +137,7 @@ public class Mineraculous {
             bus.addListener(MineraculousClientEvents::onBuildCreativeModeTabContents);
             bus.addListener(MineraculousClientEvents::onClientConfigChanged);
             bus.addListener(MineraculousClientEvents::onRegisterRenderBuffers);
+            bus.addListener(MineraculousClientEvents::onRegisterClientReloadListeners);
 
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onGetPlayerHeartType);
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderHand);

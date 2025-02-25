@@ -20,6 +20,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.texture.AutoGlowingTexture;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
@@ -130,6 +131,15 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
             public ResourceLocation getTextureResource(MiraculousArmorItem animatable) {
                 return textureLoc;
             }
+
+            @Override
+            public @Nullable Animation getAnimation(MiraculousArmorItem animatable, String name) {
+                try {
+                    return super.getAnimation(animatable, name);
+                } catch (RuntimeException e) {
+                    return null;
+                }
+            }
         };
     }
 
@@ -139,7 +149,7 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
 
             @Override
             public ResourceLocation getModelResource(MiraculousArmorItem animatable) {
-                return data.model().isPresent() ? null : defaultModels.get(miraculous).getModelResource(animatable);
+                return defaultModels.get(miraculous).getModelResource(animatable);
             }
 
             @Override
@@ -149,17 +159,29 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
 
             @Override
             public ResourceLocation getAnimationResource(MiraculousArmorItem animatable) {
-                return null;
+                return defaultModels.get(miraculous).getAnimationResource(animatable);
             }
 
             @Override
             public BakedGeoModel getBakedModel(ResourceLocation location) {
-                BakedGeoModel baked = data.model().orElseGet(() -> defaultModels.get(miraculous).getBakedModel(location));
+                BakedGeoModel baked = data.model().orElseGet(() -> super.getBakedModel(location));
                 if (currentModel != baked) {
                     currentModel = baked;
                     getAnimationProcessor().setActiveModel(baked);
                 }
                 return currentModel;
+            }
+
+            @Override
+            public @Nullable Animation getAnimation(MiraculousArmorItem animatable, String name) {
+                try {
+                    if (data.animations().isPresent()) {
+                        return data.animations().get().getAnimation(name);
+                    }
+                    return super.getAnimation(animatable, name);
+                } catch (RuntimeException e) {
+                    return null;
+                }
             }
         };
     }

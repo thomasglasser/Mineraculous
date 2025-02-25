@@ -8,8 +8,8 @@ import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,37 +33,42 @@ public record ClientboundRequestSyncSuitLookPayload(ResourceKey<Miraculous> mira
     public void handle(Player player) {
         String namespace = miraculous.location().getNamespace();
         String type = miraculous.location().getPath();
-        File folder = new File(Minecraft.getInstance().gameDirectory, "miraculouslooks" + File.separator + "suits" + File.separator + namespace + File.separator + type);
-        if (!folder.exists()) {
+        Path folder = Minecraft.getInstance().gameDirectory.toPath().resolve("miraculouslooks").resolve("suits").resolve(namespace).resolve(type);
+        if (!Files.exists(folder)) {
             return;
         }
-        File texture = new File(folder, look + ".png");
-        if (texture.exists()) {
+        Path texture = folder.resolve(look + ".png");
+        if (Files.exists(texture)) {
             try {
-                File model = new File(folder, look + ".geo.json");
+                Path model = texture.resolveSibling(look + ".geo.json");
                 String convertedModel = null;
-                if (model.exists()) {
-                    convertedModel = Files.readString(model.toPath());
+                if (Files.exists(model)) {
+                    convertedModel = Files.readString(model);
                 }
-                byte[] convertedImage = NativeImage.read(texture.toPath().toUri().toURL().openStream()).asByteArray();
-                File glowmask = new File(folder, look + "_glowmask.png");
+                byte[] convertedImage = NativeImage.read(texture.toUri().toURL().openStream()).asByteArray();
+                Path glowmask = texture.resolveSibling(look + "_glowmask.png");
                 byte[] convertedGlowmask = null;
-                if (glowmask.exists()) {
-                    convertedGlowmask = NativeImage.read(glowmask.toPath().toUri().toURL().openStream()).asByteArray();
+                if (Files.exists(glowmask)) {
+                    convertedGlowmask = NativeImage.read(glowmask.toUri().toURL().openStream()).asByteArray();
                 }
                 List<byte[]> convertedFrames = new ArrayList<>();
                 List<byte[]> convertedGlowmaskFrames = new ArrayList<>();
                 for (int i = 1; i <= ClientUtils.getLevel().holderOrThrow(miraculous).value().transformationFrames(); i++) {
-                    File frame = new File(folder, look + "_" + i + ".png");
-                    if (frame.exists()) {
-                        convertedFrames.add(NativeImage.read(frame.toPath().toUri().toURL().openStream()).asByteArray());
+                    Path frame = texture.resolveSibling(look + "_" + i + ".png");
+                    if (Files.exists(frame)) {
+                        convertedFrames.add(NativeImage.read(frame.toUri().toURL().openStream()).asByteArray());
                     }
-                    File glowmaskFrame = new File(folder, look + "_" + i + "_glowmask.png");
-                    if (glowmaskFrame.exists()) {
-                        convertedGlowmaskFrames.add(NativeImage.read(glowmaskFrame.toPath().toUri().toURL().openStream()).asByteArray());
+                    Path glowmaskFrame = texture.resolveSibling(look + "_" + i + "_glowmask.png");
+                    if (Files.exists(glowmaskFrame)) {
+                        convertedGlowmaskFrames.add(NativeImage.read(glowmaskFrame.toUri().toURL().openStream()).asByteArray());
                     }
                 }
-                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncSuitLookPayload(miraculous, new FlattenedSuitLookData(look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames)));
+                Path animations = texture.resolveSibling(look + ".animation.json");
+                String convertedAnimations = null;
+                if (Files.exists(animations)) {
+                    convertedAnimations = Files.readString(animations);
+                }
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncSuitLookPayload(miraculous, new FlattenedSuitLookData(look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames, Optional.ofNullable(convertedAnimations))));
             } catch (Exception exception) {
                 Mineraculous.LOGGER.error("Failed to handle clientbound request sync suit look payload", exception);
             }

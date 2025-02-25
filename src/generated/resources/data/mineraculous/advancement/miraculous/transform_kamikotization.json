@@ -2,6 +2,9 @@
   "parent": "mineraculous:miraculous/root",
   "criteria": {
     "transform_kamikotization": {
+      "conditions": {
+        "self": false
+      },
       "trigger": "mineraculous:transformed_kamikotization"
     }
   },

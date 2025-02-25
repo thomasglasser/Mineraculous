@@ -4,7 +4,10 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.categories.KamikoPage;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.categories.TargetPlayerMenuCategory;
+import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import java.util.List;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -84,7 +87,9 @@ public class KamikoMenu {
 
     public void selectSlot(int slot) {
         KamikoMenuItem kamikomenuitem = this.getItem(slot);
-        if (kamikomenuitem != EMPTY_SLOT) {
+        if (kamikomenuitem != KamikoMenu.CLOSE_ITEM && Minecraft.getInstance().level.registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).size() == 0) {
+            Minecraft.getInstance().player.displayClientMessage(Component.translatable(Kamikotization.NO_KAMIKOTIZATIONS), true);
+        } else if (kamikomenuitem != EMPTY_SLOT) {
             if (this.selectedSlot == slot && kamikomenuitem.isEnabled()) {
                 kamikomenuitem.selectItem(this);
             } else {

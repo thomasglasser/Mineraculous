@@ -37,20 +37,17 @@ import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.world.item.armor.KamikotizationArmorItem;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.world.item.armor.MiraculousArmorItem;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.io.File;
 import java.nio.file.Files;
-import java.util.ArrayList;
+import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -58,6 +55,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.FlyStraightTowardsParticle;
@@ -77,6 +75,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
@@ -95,6 +94,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterEntitySpectatorShadersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
@@ -303,16 +303,26 @@ public class MineraculousClientEvents {
         }
 
         if (!ClientUtils.getMainClientPlayer().isSpectator() && ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed() && (MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko && ClientUtils.getMainClientPlayer().getUUID().equals(kamiko.getOwnerUUID())) || (MineraculousClientUtils.getCameraEntity() instanceof Player player && player != ClientUtils.getMainClientPlayer() && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent())) {
+            if (MineraculousClientUtils.hasNoScreenOpen()) {
+                revokeButton.setPosition(revokeButton.getX(), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 60);
+                revokeButton.active = true;
+            } else if (Minecraft.getInstance().screen instanceof ChatScreen) {
+                revokeButton.setPosition(revokeButton.getX(), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 35);
+                revokeButton.active = true;
+            } else
+                revokeButton.active = false;
+        } else
+            revokeButton.active = false;
+
+        if (revokeButton.active) {
             int mouseX = (int) (Minecraft.getInstance().mouseHandler.xpos()
                     * (double) Minecraft.getInstance().getWindow().getGuiScaledWidth()
                     / (double) Minecraft.getInstance().getWindow().getScreenWidth());
             int mouseY = (int) (Minecraft.getInstance().mouseHandler.ypos()
                     * (double) Minecraft.getInstance().getWindow().getGuiScaledHeight()
                     / (double) Minecraft.getInstance().getWindow().getScreenHeight());
-            revokeButton.active = true;
             revokeButton.render(guiGraphics, mouseX, mouseY, 0);
-        } else
-            revokeButton.active = false;
+        }
     }
 
     public static void onGetPlayerHeartType(PlayerHeartTypeEvent event) {
@@ -502,122 +512,41 @@ public class MineraculousClientEvents {
     }
 
     public static FlattenedKamikotizationLookData flattenKamikotizationLook(ResourceKey<Kamikotization> kamikotization) {
-        File folder = new File(Minecraft.getInstance().gameDirectory, "miraculouslooks" + File.separator + "kamikotizations");
-        if (!folder.exists()) {
+        Path folder = Minecraft.getInstance().gameDirectory.toPath().resolve("miraculouslooks").resolve("kamikotizations");
+        if (!Files.exists(folder)) {
             return null;
         }
         String namespace = kamikotization.location().getNamespace();
-        File nameFolder = new File(folder, namespace);
-        if (!nameFolder.exists()) {
+        Path nameFolder = folder.resolve(namespace);
+        if (!Files.exists(nameFolder)) {
             return null;
         }
         String type = kamikotization.location().getPath();
-        File texture = new File(nameFolder, type + ".png");
-        if (texture.exists()) {
+        Path texture = nameFolder.resolve(type + ".png");
+        if (Files.exists(texture)) {
             try {
-                File model = new File(nameFolder, type + ".geo.json");
+                Path model = texture.resolveSibling(type + ".geo.json");
                 String convertedModel = null;
-                if (model.exists()) {
-                    convertedModel = Files.readString(model.toPath());
+                if (Files.exists(model)) {
+                    convertedModel = Files.readString(model);
                 }
-                byte[] convertedImage = NativeImage.read(texture.toPath().toUri().toURL().openStream()).asByteArray();
-                File glowmask = new File(nameFolder, type + "_glowmask.png");
+                byte[] convertedImage = NativeImage.read(texture.toUri().toURL().openStream()).asByteArray();
+                Path glowmask = texture.resolveSibling(type + "_glowmask.png");
                 byte[] convertedGlowmask = null;
-                if (glowmask.exists()) {
-                    convertedGlowmask = NativeImage.read(glowmask.toPath().toUri().toURL().openStream()).asByteArray();
+                if (Files.exists(glowmask)) {
+                    convertedGlowmask = NativeImage.read(glowmask.toUri().toURL().openStream()).asByteArray();
                 }
-                return new FlattenedKamikotizationLookData(kamikotization, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask));
+                Path animations = texture.resolveSibling(type + ".animation.json");
+                String convertedAnimations = null;
+                if (Files.exists(animations)) {
+                    convertedAnimations = Files.readString(animations);
+                }
+                return new FlattenedKamikotizationLookData(kamikotization, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), Optional.ofNullable(convertedAnimations));
             } catch (Exception exception) {
                 Mineraculous.LOGGER.error("Failed to handle clientbound request sync kamikotization look payload", exception);
             }
         }
         return null;
-    }
-
-    public static Map<String, FlattenedSuitLookData> fetchSuitLooks(ResourceKey<Miraculous> miraculousKey) {
-        Miraculous miraculous = Minecraft.getInstance().level.holderOrThrow(miraculousKey).value();
-        String namespace = miraculousKey.location().getNamespace();
-        String type = miraculousKey.location().getPath();
-        File folder = new File(Minecraft.getInstance().gameDirectory, "miraculouslooks" + File.separator + "suits" + File.separator + namespace + File.separator + type);
-        Map<String, FlattenedSuitLookData> suitLooks = new HashMap<>();
-        if (folder.exists() && folder.isDirectory()) {
-            File[] files = folder.listFiles();
-            if (files != null) {
-                for (File texture : files) {
-                    if (texture.getName().endsWith(".png") && texture.getName().chars().noneMatch(Character::isDigit) && !texture.getName().contains("glowmask")) {
-                        String look = texture.getName().replace(".png", "");
-                        try {
-                            File model = new File(folder, look + ".geo.json");
-                            String convertedModel = null;
-                            if (model.exists()) {
-                                convertedModel = Files.readString(model.toPath());
-                            }
-                            byte[] convertedImage = NativeImage.read(texture.toPath().toUri().toURL().openStream()).asByteArray();
-                            File glowmask = new File(folder, look + "_glowmask.png");
-                            byte[] convertedGlowmask = null;
-                            if (glowmask.exists()) {
-                                convertedGlowmask = NativeImage.read(glowmask.toPath().toUri().toURL().openStream()).asByteArray();
-                            }
-                            List<byte[]> convertedFrames = new ArrayList<>();
-                            List<byte[]> convertedGlowmaskFrames = new ArrayList<>();
-                            for (int i = 1; i <= miraculous.transformationFrames(); i++) {
-                                File frame = new File(folder, look + "_" + i + ".png");
-                                if (frame.exists()) {
-                                    convertedFrames.add(NativeImage.read(frame.toPath().toUri().toURL().openStream()).asByteArray());
-                                }
-                                File glowmaskFrame = new File(folder, look + "_" + i + "_glowmask.png");
-                                if (glowmaskFrame.exists()) {
-                                    convertedGlowmaskFrames.add(NativeImage.read(glowmaskFrame.toPath().toUri().toURL().openStream()).asByteArray());
-                                }
-                            }
-                            suitLooks.put(look, new FlattenedSuitLookData(look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames));
-                        } catch (Exception exception) {
-                            Mineraculous.LOGGER.error("Failed to handle common suit look syncing", exception);
-                        }
-                    }
-                }
-            }
-        }
-        return suitLooks;
-    }
-
-    public static Map<String, FlattenedMiraculousLookData> fetchMiraculousLooks(ResourceKey<Miraculous> miraculousKey) {
-        String namespace = miraculousKey.location().getNamespace();
-        String type = miraculousKey.location().getPath();
-        File folder = new File(Minecraft.getInstance().gameDirectory, "miraculouslooks" + File.separator + "miraculous" + File.separator + namespace + File.separator + type);
-        Map<String, FlattenedMiraculousLookData> miraculousLooks = new HashMap<>();
-        if (folder.exists() && folder.isDirectory()) {
-            File[] files = folder.listFiles();
-            if (files != null) {
-                for (File texture : files) {
-                    if (texture.getName().endsWith(".png") && texture.getName().chars().noneMatch(Character::isDigit) && !texture.getName().contains("glowmask")) {
-                        String look = texture.getName().replace(".png", "");
-                        try {
-                            File model = new File(folder, look + ".geo.json");
-                            String convertedModel = null;
-                            if (model.exists()) {
-                                convertedModel = Files.readString(model.toPath());
-                            }
-                            byte[] convertedImage = NativeImage.read(texture.toPath().toUri().toURL().openStream()).asByteArray();
-                            File glowmask = new File(folder, look + "_glowmask.png");
-                            byte[] convertedGlowmask = null;
-                            if (glowmask.exists()) {
-                                convertedGlowmask = NativeImage.read(glowmask.toPath().toUri().toURL().openStream()).asByteArray();
-                            }
-                            File transforms = new File(folder, look + ".json");
-                            String convertedDisplay = null;
-                            if (transforms.exists()) {
-                                convertedDisplay = Files.readString(transforms.toPath());
-                            }
-                            miraculousLooks.put(look, new FlattenedMiraculousLookData(look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), Optional.ofNullable(convertedDisplay)));
-                        } catch (Exception exception) {
-                            Mineraculous.LOGGER.error("Failed to handle common miraculous look syncing", exception);
-                        }
-                    }
-                }
-            }
-        }
-        return miraculousLooks;
     }
 
     public static void onInteractionKeyMappingTriggered(InputEvent.InteractionKeyMappingTriggered event) {
@@ -631,5 +560,13 @@ public class MineraculousClientEvents {
 
     public static void onRegisterRenderBuffers(RegisterRenderBuffersEvent event) {
         event.registerRenderBuffer(MineraculousRenderTypes.luckyCharm());
+        event.registerRenderBuffer(MineraculousRenderTypes.armorLuckyCharm());
+    }
+
+    public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
+            MiraculousArmorItem.clearAnimationData();
+            KamikotizationArmorItem.clearAnimationData();
+        });
     }
 }

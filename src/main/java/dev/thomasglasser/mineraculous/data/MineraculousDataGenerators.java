@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.data;
 
+import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.data.advancements.MineraculousAdvancementProvider;
@@ -32,7 +33,6 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiracu
 import dev.thomasglasser.tommylib.api.data.info.ModRegistryDumpReport;
 import dev.worldgen.lithostitched.registry.LithostitchedRegistryKeys;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -43,6 +43,11 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -57,24 +62,29 @@ public class MineraculousDataGenerators {
             .add(MineraculousRegistries.KAMIKOTIZATION, context -> {
                 // TODO: Remove when testing is done (don't forget to remove the assets)
                 HolderGetter<Ability> abilities = context.lookup(MineraculousRegistries.ABILITY);
+                HolderGetter<Enchantment> enchantments = context.lookup(Registries.ENCHANTMENT);
 
                 context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, Mineraculous.modLoc("cat")),
                         new Kamikotization(
                                 "Kitty",
                                 ItemPredicate.Builder.item().build(),
-                                Optional.of(abilities.getOrThrow(MineraculousAbilities.CATACLYSM)),
+                                Either.right(abilities.getOrThrow(MineraculousAbilities.CATACLYSM)),
                                 List.of(abilities.getOrThrow(MineraculousAbilities.CAT_VISION))));
                 context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, Mineraculous.modLoc("ladybug")),
                         new Kamikotization(
                                 "Bugaboo",
                                 ItemPredicate.Builder.item().build(),
-                                Optional.empty(),
+                                Either.left(Items.DIAMOND_SWORD.getDefaultInstance()),
                                 List.of(abilities.getOrThrow(MineraculousAbilities.CAT_VISION), abilities.getOrThrow(MineraculousAbilities.KAMIKOTIZED_COMMUNICATION))));
-                context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, Mineraculous.modLoc("butterfly")),
+                ItemStack stormyTool = Items.DIAMOND.getDefaultInstance();
+                stormyTool.enchant(enchantments.getOrThrow(Enchantments.SHARPNESS), 1);
+                stormyTool.enchant(enchantments.getOrThrow(Enchantments.SMITE), 1);
+                stormyTool.enchant(enchantments.getOrThrow(Enchantments.KNOCKBACK), 10);
+                context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, Mineraculous.modLoc("stormy")),
                         new Kamikotization(
-                                "Betterfly",
-                                ItemPredicate.Builder.item().build(),
-                                Optional.empty(),
+                                "Stormy Tester",
+                                ItemPredicate.Builder.item().of(ItemTags.BANNERS).build(),
+                                Either.left(stormyTool),
                                 List.of()));
             });
 

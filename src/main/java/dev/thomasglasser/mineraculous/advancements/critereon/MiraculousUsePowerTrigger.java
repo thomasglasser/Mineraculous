@@ -32,7 +32,7 @@ public class MiraculousUsePowerTrigger extends SimpleCriterionTrigger<Miraculous
                 p_337367_ -> p_337367_.group(
                         EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(MiraculousUsePowerTrigger.TriggerInstance::player),
                         ResourceKey.codec(MineraculousRegistries.MIRACULOUS).fieldOf("type").forGetter(MiraculousUsePowerTrigger.TriggerInstance::type),
-                        StringRepresentable.fromEnum(Context::values).listOf().optionalFieldOf("contexts", Context.any()).forGetter(MiraculousUsePowerTrigger.TriggerInstance::contexts))
+                        Context.CODEC.listOf().optionalFieldOf("contexts", Context.any()).forGetter(MiraculousUsePowerTrigger.TriggerInstance::contexts))
                         .apply(p_337367_, MiraculousUsePowerTrigger.TriggerInstance::new));
         public static Criterion<MiraculousUsePowerTrigger.TriggerInstance> usedPower(ResourceKey<Miraculous> type) {
             return usedPower(type, Context.any());
@@ -57,6 +57,8 @@ public class MiraculousUsePowerTrigger extends SimpleCriterionTrigger<Miraculous
         ENTITY,
         LIVING_ENTITY,
         ITEM;
+
+        private static final Codec<Context> CODEC = StringRepresentable.fromEnum(Context::values);
 
         public static List<Context> any() {
             return List.of(values());

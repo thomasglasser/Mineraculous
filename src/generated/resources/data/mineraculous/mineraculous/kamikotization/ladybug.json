@@ -3,5 +3,9 @@
   "passive_abilities": [
     "mineraculous:cat_vision",
     "mineraculous:kamikotized_communication"
-  ]
+  ],
+  "power_source": {
+    "count": 1,
+    "id": "minecraft:diamond_sword"
+  }
 }

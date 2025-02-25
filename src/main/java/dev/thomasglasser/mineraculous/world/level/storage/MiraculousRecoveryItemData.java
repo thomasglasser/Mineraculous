@@ -1,5 +1,7 @@
 package dev.thomasglasser.mineraculous.world.level.storage;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +17,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 
 public class MiraculousRecoveryItemData extends SavedData {
     public static final String FILE_ID = "miraculous_recovery_item";
-    private final Map<UUID, Map<UUID, ItemStack>> recoverableItems = new HashMap<>();
+    private final Table<UUID, UUID, ItemStack> recoverableItems = HashBasedTable.create();
     private final Map<UUID, ItemStack> recoveredItems = new HashMap<>();
     private final Map<UUID, ItemStack> kamikotizedItems = new HashMap<>();
 
@@ -37,13 +39,15 @@ public class MiraculousRecoveryItemData extends SavedData {
     }
 
     public void markRecovered(UUID owner) {
-        if (recoverableItems.containsKey(owner))
-            recoveredItems.putAll(recoverableItems.get(owner));
+        if (recoverableItems.containsRow(owner)) {
+            recoveredItems.putAll(recoverableItems.row(owner));
+            recoverableItems.row(owner).clear();
+        }
         setDirty();
     }
 
     public void putRecoverable(UUID owner, UUID item, ItemStack stack) {
-        recoverableItems.computeIfAbsent(owner, p -> new HashMap<>()).put(item, stack.copy());
+        recoverableItems.put(owner, item, stack.copy());
         setDirty();
     }
 
@@ -70,11 +74,11 @@ public class MiraculousRecoveryItemData extends SavedData {
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
         ListTag recoverableItems = new ListTag();
-        for (Map.Entry<UUID, Map<UUID, ItemStack>> entry : this.recoverableItems.entrySet()) {
+        for (UUID uuid : this.recoverableItems.rowKeySet()) {
             CompoundTag compoundTag = new CompoundTag();
-            compoundTag.putUUID("UUID", entry.getKey());
+            compoundTag.putUUID("UUID", uuid);
             ListTag recoverable = new ListTag();
-            for (Map.Entry<UUID, ItemStack> entry1 : entry.getValue().entrySet()) {
+            for (Map.Entry<UUID, ItemStack> entry1 : this.recoverableItems.row(uuid).entrySet()) {
                 CompoundTag compoundTag1 = new CompoundTag();
                 compoundTag1.putUUID("UUID", entry1.getKey());
                 compoundTag1.put("ItemStack", entry1.getValue().saveOptional(registries));
@@ -106,18 +110,16 @@ public class MiraculousRecoveryItemData extends SavedData {
     public static MiraculousRecoveryItemData load(CompoundTag tag, HolderLookup.Provider registries) {
         MiraculousRecoveryItemData miraculousRecoveryEntityData = new MiraculousRecoveryItemData();
         ListTag recoverableItems = tag.getList("RecoverableItems", 10);
-        for (int i = 0; i < recoverableItems.size(); i++) {
+        for (int i = 0; i < recoverableItems.size(); ++i) {
             CompoundTag compoundTag = recoverableItems.getCompound(i);
             UUID owner = compoundTag.getUUID("UUID");
             ListTag recoverable = compoundTag.getList("Items", 10);
-            Map<UUID, ItemStack> recoverableMap = new HashMap<>();
-            for (int j = 0; j < recoverable.size(); j++) {
+            for (int j = 0; j < recoverable.size(); ++j) {
                 CompoundTag compoundTag1 = recoverable.getCompound(j);
                 UUID item = compoundTag1.getUUID("UUID");
                 ItemStack itemStack = ItemStack.parseOptional(registries, compoundTag1.getCompound("ItemStack"));
-                recoverableMap.put(item, itemStack);
+                miraculousRecoveryEntityData.recoverableItems.put(owner, item, itemStack);
             }
-            miraculousRecoveryEntityData.recoverableItems.put(owner, recoverableMap);
         }
         ListTag recoveredItems = tag.getList("RecoveredItems", 10);
         for (int i = 0; i < recoveredItems.size(); i++) {

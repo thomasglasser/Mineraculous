@@ -29,15 +29,15 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
     @Override
     protected void registerModels() {
         miraculous(MineraculousMiraculous.LADYBUG)
-                .transform(MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue()).rotation(0, 0, 90).translation(-4, -2.65F, -0.5F).scale(0.3f).end()
+                .transform(MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue()).rotation(90, 0, 90).translation(-4, -2.65F, -0.5F).scale(0.3f).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0.5F, 0, 1.75F).scale(0.5F).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).translation(-0.5F, 0, 1.75F).scale(0.5F).end()
                 .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(0.5F, 1, 1.75F).scale(0.5F).end()
                 .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).translation(0.5F, 1, 1.75F).scale(0.5F).end()
+                .transform(ItemDisplayContext.HEAD).rotation(-90, 0, 0).translation(0.5F, -1, -6.5F).scale(0.5F).end()
                 .transform(ItemDisplayContext.GROUND).translation(1.25F, -1.5F, 1).scale(0.86F).end()
-                .transform(ItemDisplayContext.GUI).rotation(90, 0, 0).translation(2.75F, -2.75F, 0).scale(2.5F).end()
-                .transform(ItemDisplayContext.HEAD).rotation(-90, 0, 0).translation(1, 0, -6.5F).end()
                 .transform(ItemDisplayContext.FIXED).rotation(-90, 0, 0).translation(1, 1, 0).end()
+                .transform(ItemDisplayContext.GUI).rotation(90, 180, 0).translation(-2.5F, 2.5F, 0).scale(2.5F).end()
                 .end();
         miraculous(MineraculousMiraculous.CAT)
                 .transform(MineraculousItemDisplayContexts.CURIOS_RING.getValue()).rotation(90, 0, 270).translation(-1.45F, 9.4F, 0.5F).scale(0.3F).end()

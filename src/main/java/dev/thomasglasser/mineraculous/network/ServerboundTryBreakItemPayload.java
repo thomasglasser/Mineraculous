@@ -121,6 +121,17 @@ public record ServerboundTryBreakItemPayload() implements ExtendedPacketPayload 
             int i = stack.getDamageValue() + damage;
             stack.setDamageValue(i);
             if (i >= stack.getMaxDamage()) {
+                if (stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.has(DataComponents.PROFILE)) {
+                    ServerPlayer target = (ServerPlayer) level.getPlayerByUUID(stack.get(DataComponents.PROFILE).gameProfile().getId());
+                    if (target != null) {
+                        KamikotizationData data = target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow();
+                        if (data.stackCount() <= 1)
+                            MineraculousEntityEvents.handleKamikotizationTransformation(target, data, false, false, (breaker != null ? breaker : target).position().add(0, 1, 0));
+                        else {
+                            data.decrementStackCount().save(target, true);
+                        }
+                    }
+                }
                 Item item = stack.getItem();
                 stack.shrink(1);
                 itemConsumer.accept(item);

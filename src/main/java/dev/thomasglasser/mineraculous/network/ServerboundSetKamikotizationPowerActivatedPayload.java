@@ -8,6 +8,7 @@ import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
+import net.minecraft.core.Holder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -25,8 +26,8 @@ public record ServerboundSetKamikotizationPowerActivatedPayload(ResourceKey<Kami
     @Override
     public void handle(Player player) {
         ServerLevel level = (ServerLevel) player.level();
-        Ability power = level.registryAccess().holderOrThrow(kamikotization).value().activeAbility().get().value();
-        if (power.canActivate(new AbilityData(0, Either.right(kamikotization)), level, player.blockPosition(), player)) {
+        Ability power = level.registryAccess().holderOrThrow(kamikotization).value().powerSource().right().map(Holder::value).orElse(null);
+        if (power != null && power.canActivate(new AbilityData(0, Either.right(kamikotization)), level, player.blockPosition(), player)) {
             power.playStartSound(level, player.blockPosition());
             player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow().withMainPowerActive(true).save(player, true);
         }

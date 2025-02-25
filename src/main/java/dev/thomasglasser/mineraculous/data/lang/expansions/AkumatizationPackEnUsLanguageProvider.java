@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilities;
+import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.tommylib.api.data.lang.ExtendedEnUsLanguageProvider;
@@ -36,12 +37,15 @@ public class AkumatizationPackEnUsLanguageProvider extends ExtendedEnUsLanguageP
 
         add(Kamiko.CANT_KAMIKOTIZE_TRANSFORMED, "Akumatizing transformed players is not currently supported.");
 
+        add(Kamikotization.NO_KAMIKOTIZATIONS, "No Akumatizations found in world, have you installed any addons?");
+
         add(KamikotizationSelectionScreen.TITLE, "Akumatization");
         add(KamikotizationSelectionScreen.NO_KAMIKOTIZATIONS, "No valid akumatizations found for %s");
 
         add(KamikotizationChatScreen.ACCEPT, "Accept Akumatization");
 
         add(MineraculousClientEvents.REVOKE, "Revoke Akumatization");
+        add(MineraculousClientEvents.REVOKE_WITH_SPACE, "Revoke Akumatization (Press Space)");
 
         add(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE.get(), "Akuma powers up");
         add(MineraculousSoundEvents.KAMIKOTIZATION_USE.get(), "Akumatization begins");

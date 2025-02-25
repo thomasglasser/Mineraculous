@@ -7,7 +7,8 @@ import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -30,8 +31,8 @@ public record ClientboundRequestSyncKamikotizationLooksPayload(UUID senderId, Li
     // ON CLIENT
     @Override
     public void handle(Player player) {
-        File folder = new File(Minecraft.getInstance().gameDirectory, "miraculouslooks" + File.separator + "kamikotizations");
-        if (!folder.exists()) {
+        Path folder = Minecraft.getInstance().gameDirectory.toPath().resolve("miraculouslooks").resolve("kamikotizations");
+        if (!Files.exists(folder)) {
             return;
         }
         List<FlattenedKamikotizationLookData> looks = new ArrayList<>();

@@ -1,0 +1,13 @@
+{
+  "values": {
+    "minecraft:absorption": 1,
+    "minecraft:haste": 1,
+    "minecraft:health_boost": 1,
+    "minecraft:jump_boost": 2,
+    "minecraft:regeneration": 1,
+    "minecraft:resistance": 1,
+    "minecraft:saturation": 1,
+    "minecraft:speed": 1,
+    "minecraft:strength": 1
+  }
+}

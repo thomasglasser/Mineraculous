@@ -47,7 +47,9 @@ public class MineraculousMiraculous {
                 Optional.of(MineraculousItems.CAT_STAFF.toStack()),
                 Optional.of("belt"),
                 Optional.of(abilities.getOrThrow(MineraculousAbilities.CATACLYSM)),
-                List.of(abilities.getOrThrow(MineraculousAbilities.CAT_VISION)),
+                List.of(
+                        abilities.getOrThrow(MineraculousAbilities.CAT_VISION),
+                        abilities.getOrThrow(MineraculousAbilities.PASSIVE_UNLUCK)),
                 MineraculousSoundEvents.CAT_TRANSFORM,
                 MineraculousSoundEvents.GENERIC_DETRANSFORM,
                 MineraculousSoundEvents.GENERIC_TIMER_BEEP,
@@ -59,7 +61,9 @@ public class MineraculousMiraculous {
                 Optional.of(MineraculousItems.LADYBUG_YOYO.toStack()),
                 Optional.of("belt"),
                 Optional.of(abilities.getOrThrow(MineraculousAbilities.LUCKY_CHARM)),
-                List.of(abilities.getOrThrow(MineraculousAbilities.MIRACULOUS_LADYBUG)),
+                List.of(
+                        abilities.getOrThrow(MineraculousAbilities.MIRACULOUS_LADYBUG),
+                        abilities.getOrThrow(MineraculousAbilities.PASSIVE_LUCK)),
                 MineraculousSoundEvents.LADYBUG_TRANSFORM,
                 MineraculousSoundEvents.GENERIC_DETRANSFORM,
                 MineraculousSoundEvents.GENERIC_TIMER_BEEP,

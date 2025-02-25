@@ -30,10 +30,6 @@ public class NightVisionAbility implements Ability {
         this.startSound = startSound;
     }
 
-    public NightVisionAbility() {
-        this(Optional.empty(), Optional.empty());
-    }
-
     public NightVisionAbility(Optional<ResourceLocation> shader) {
         this(shader, Optional.empty());
     }

@@ -3,7 +3,8 @@
   "active_ability": "mineraculous:cataclysm",
   "color": "#C6F800",
   "passive_abilities": [
-    "mineraculous:cat_vision"
+    "mineraculous:cat_vision",
+    "mineraculous:passive_unluck"
   ],
   "tool": {
     "id": "mineraculous:cat_staff"

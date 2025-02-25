@@ -29,13 +29,13 @@ public record PowerLevelMultiplierGenerator(NumberProvider base) implements Numb
     @Override
     public int getInt(LootContext lootContext) {
         Integer powerLevel = lootContext.getParamOrNull(MineraculousLootContextParams.POWER_LEVEL);
-        return powerLevel == null ? 0 : base.getInt(lootContext) * (powerLevel / 10);
+        return powerLevel == null ? 1 : Math.max(1, base.getInt(lootContext) * (powerLevel / 10));
     }
 
     @Override
     public float getFloat(LootContext lootContext) {
         Integer powerLevel = lootContext.getParamOrNull(MineraculousLootContextParams.POWER_LEVEL);
-        return powerLevel == null ? 0.0F : base.getFloat(lootContext) * (powerLevel / 10);
+        return powerLevel == null ? 1F : Math.max(1, base.getFloat(lootContext) * (powerLevel / 10F));
     }
 
     @Override

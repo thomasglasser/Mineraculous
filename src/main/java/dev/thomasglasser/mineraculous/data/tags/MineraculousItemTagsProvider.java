@@ -94,12 +94,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
                 .add(Items.APPLE)
                 .addTag(ConventionalItemTags.MELEE_WEAPON_TOOLS)
                 .add(Items.RABBIT_FOOT)
-                .addTag(ConventionalItemTags.GOLDEN_FOODS)
-                .add(Items.COMPASS);
-
-        tag(MineraculousItemTags.GUARDIAN_LUCKY_CHARMS)
-                .add(Items.CONDUIT)
-                .add(Items.TURTLE_HELMET);
+                .addTag(ConventionalItemTags.GOLDEN_FOODS);
 
         tag(MineraculousItemTags.WARDEN_DISTRACTORS)
                 .add(Items.SNOWBALL)

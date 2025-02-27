@@ -289,16 +289,4 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     protected void add(RadialMenuOption option, String name) {
         add(option.translationKey(), name);
     }
-
-    protected void addCuriosSlot(String name) {
-        add("curios.identifier." + name, capitalize(name));
-    }
-
-    protected String capitalize(String name) {
-        return WordUtils.capitalize(name.toLowerCase().replace('_', ' '));
-    }
-
-    protected void addCapitalized(ResourceKey<?> key) {
-        add(key, capitalize(key.location().getPath()));
-    }
 }

@@ -32,13 +32,19 @@ public class AbilitiesEntry extends IndexModeEntryProvider {
         add(context().pageText(), """
                 Abilities have a type that determines how they work and what fields the json should have.
                 Some examples include:
+                - mineraculous:empty
+                - mineraculous:apply_effects_while_transformed
+                - mineraculous:apply_infinite_effects_or_destroy
+                - mineraculous:context_aware
+                - mineraculous:drag
+                - mineraculous:lucky_charm_world_recovery
                 - mineraculous:night_vision
                 - mineraculous:random_spread
-                - mineraculous:context_aware
-                - mineraculous:apply_infinite_effects_or_destroy
                 - mineraculous:replace_items_in_hand
                 - mineraculous:right_hand_particles
-                - mineraculous:lucky_charm_world_recovery\\
+                - mineraculous:set_camera_entity
+                - mineraculous:set_owner
+                - mineraculous:summon_lucky_charm\\
                 The 'drag' and 'context_aware' abilities allow for more complex abilities.
                 """);
     }

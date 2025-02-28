@@ -54,6 +54,7 @@ public class LadybugEntry extends IndexModeEntryProvider {
         pageText("""
                 Because the tool is a Yoyo, you can't melee attack with it.
                 Instead, left clicking in any mode will launch a damaging projectile in the direction you are facing.
+                This will damage any entity or item you hit, releasing a [Kamiko](entry://flora_and_fauna/kamikos) if inside.
                 """);
 
         page("block", () -> BookTextPageModel.create()

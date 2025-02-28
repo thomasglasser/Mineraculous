@@ -53,7 +53,7 @@ public class ButterflyEntry extends IndexModeEntryProvider {
         pageTitle("Blade");
         pageText("""
                 Blade mode unsheathes a rapier-like blade that can be used to attack entities.
-                You can also right click to throw the blade.
+                You can also right click to throw the blade, damaging any entity or item you hit, and releasing a [Kamiko](entry://flora_and_fauna/kamikos) if inside.
                 """);
 
         page("block", () -> BookTextPageModel.create()
@@ -83,7 +83,8 @@ public class ButterflyEntry extends IndexModeEntryProvider {
 
         pageTitle("Throw");
         pageText("""
-                Throw mode allows you to right click to throw your butterfly cane at entities.
+                Throw mode allows you to right click to throw your butterfly cane.
+                This will damage any entity or item you hit, releasing a [Kamiko](entry://flora_and_fauna/kamikos) if inside.
                 """);
 
         page("abilities", () -> BookTextPageModel.create()

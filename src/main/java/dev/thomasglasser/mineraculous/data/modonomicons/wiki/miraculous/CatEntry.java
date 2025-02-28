@@ -73,6 +73,7 @@ public class CatEntry extends IndexModeEntryProvider {
         pageTitle("Throw");
         pageText("""
                 Throw mode allows you to right click to throw your staff at entities.
+                This will damage any entity or item you hit, releasing a [Kamiko](entry://flora_and_fauna/kamikos) if inside.
                 """);
 
         page("travel", () -> BookImagePageModel.create()

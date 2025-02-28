@@ -19,16 +19,15 @@ public class CustomizationEntry extends IndexModeEntryProvider {
 
     @Override
     protected void generatePages() {
-        page("name", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/customization/name.png"))
+        page("screen", () -> BookImagePageModel.create()
+                .withImages(WikiBookSubProvider.wikiTexture("miraculous/customization/screen.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
-        pageTitle("Name");
+        pageTitle("Customization Screen");
         pageText("""
-                By default, there is no set name for Miraculous users.
-                If a name is not set, it will simply obfuscate the player's name.
-                You can set a name with the '/miraculous <miraculous> name <name>' command.
+                The customization screen can be used to change the name and look of your miraculous persona.
+                It can be opened with the '/miraculous <miraculous> customize' command.
                 """);
 
         page("advanced", () -> BookTextPageModel.create()
@@ -38,6 +37,7 @@ public class CustomizationEntry extends IndexModeEntryProvider {
         pageTitle("Advanced Customization");
         pageText("""
                 NOTE: The following features are only available if the server manually enables it.\\
+                \\
                 The mod can be further customized by putting files in a subfolder of the 'miraculouslooks' folder in the client's minecraft directory.\\
                 A guide for customizing can be found [here](https://snapshot-jsons.thomasglasser.dev/guides/customization/).
                 """);

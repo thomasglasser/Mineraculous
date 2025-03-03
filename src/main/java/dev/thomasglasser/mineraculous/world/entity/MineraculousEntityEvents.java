@@ -503,7 +503,6 @@ public class MineraculousEntityEvents {
                     ((ChargeOverrideDataHolder) serverLevel.getServer().overworld()).mineraculous$getChargeOverrideData().put(kwami.getUUID(), false);
                 }
                 data = data.transform(false, miraculousStack, ((ToolIdDataHolder) serverLevel.getServer().overworld()).mineraculous$getToolIdData().getToolId(kwami.getUUID()));
-                ((LuckyCharmIdDataHolder) serverLevel).mineraculous$getLuckyCharmIdData().incrementLuckyCharmId(kwami.getUUID());
                 if (removed)
                     data = data.unEquip();
                 player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);

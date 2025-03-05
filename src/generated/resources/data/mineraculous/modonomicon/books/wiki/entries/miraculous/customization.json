@@ -20,10 +20,10 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/customization/name.png"
+        "mineraculous:textures/modonomicon/wiki/miraculous/customization/screen.png"
       ],
-      "text": "book.mineraculous.wiki.miraculous.customization.name.text",
-      "title": "book.mineraculous.wiki.miraculous.customization.name.title",
+      "text": "book.mineraculous.wiki.miraculous.customization.screen.text",
+      "title": "book.mineraculous.wiki.miraculous.customization.screen.title",
       "use_legacy_rendering": false
     },
     {

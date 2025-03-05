@@ -503,7 +503,6 @@ public class MineraculousEntityEvents {
                     ((ChargeOverrideDataHolder) serverLevel.getServer().overworld()).mineraculous$getChargeOverrideData().put(kwami.getUUID(), false);
                 }
                 data = data.transform(false, miraculousStack, ((ToolIdDataHolder) serverLevel.getServer().overworld()).mineraculous$getToolIdData().getToolId(kwami.getUUID()));
-                ((LuckyCharmIdDataHolder) serverLevel).mineraculous$getLuckyCharmIdData().incrementLuckyCharmId(kwami.getUUID());
                 if (removed)
                     data = data.unEquip();
                 player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);
@@ -1112,7 +1111,7 @@ public class MineraculousEntityEvents {
 
     public static void onBlockDrops(BlockDropsEvent event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
-            MiraculousRecoveryDataHolder recoveryDataHolder = (MiraculousRecoveryDataHolder) serverLevel;
+            MiraculousRecoveryDataHolder recoveryDataHolder = (MiraculousRecoveryDataHolder) serverLevel.getServer().overworld();
             UUID recoverer = recoveryDataHolder.mineraculous$getMiraculousRecoveryBlockData().getRecoverer(event.getPos());
             if (recoverer != null) {
                 for (ItemEntity item : event.getDrops()) {
@@ -1126,7 +1125,7 @@ public class MineraculousEntityEvents {
 
     public static void onLivingDrops(LivingDropsEvent event) {
         if (event.getEntity().level() instanceof ServerLevel serverLevel) {
-            MiraculousRecoveryDataHolder recoveryDataHolder = (MiraculousRecoveryDataHolder) serverLevel;
+            MiraculousRecoveryDataHolder recoveryDataHolder = (MiraculousRecoveryDataHolder) serverLevel.getServer().overworld();
             UUID recoverer = recoveryDataHolder.mineraculous$getMiraculousRecoveryEntityData().getRecoverer(event.getEntity(), serverLevel);
             if (recoverer != null) {
                 for (ItemEntity item : event.getDrops()) {

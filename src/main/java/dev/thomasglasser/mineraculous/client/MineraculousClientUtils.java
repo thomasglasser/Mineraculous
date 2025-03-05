@@ -185,7 +185,6 @@ public class MineraculousClientUtils {
     }
 
     public static VertexConsumer checkLuckyCharm(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack, boolean armor, boolean entity, boolean itemModel3d) {
-
         if (itemModel3d) {
             if (itemStack.is(Items.SHIELD) && itemStack.has(MineraculousDataComponents.LUCKY_CHARM))
                 return VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.shieldLuckyCharm()), buffer);

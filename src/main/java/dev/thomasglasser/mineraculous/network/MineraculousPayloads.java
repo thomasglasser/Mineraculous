@@ -11,7 +11,6 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 public class MineraculousPayloads {
     public static List<PayloadInfo<?>> PAYLOADS = List.<PayloadInfo<?>>of(
             // Serverbound
-            //new PayloadInfo<>(ServerboundSetDeltaMovementPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetDeltaMovementPayload.CODEC),
             new PayloadInfo<>(ServerboundWalkMidSwingingPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundWalkMidSwingingPayload.CODEC),
             new PayloadInfo<>(ServerboundJumpMidSwingingPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundJumpMidSwingingPayload.CODEC),
             new PayloadInfo<>(ServerboundMiraculousTransformPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundMiraculousTransformPayload.CODEC),
@@ -51,7 +50,6 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundSendOffhandSwingPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSendOffhandSwingPayload.CODEC),
 
             // Clientbound
-            //new PayloadInfo<>(ClientboundCatStaffPechLengthPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundCatStaffPechLengthPayload.CODEC),
             new PayloadInfo<>(ClientboundSyncCurioPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncCurioPayload.CODEC),
             new PayloadInfo<>(ClientboundSyncMiraculousDataSetPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncMiraculousDataSetPayload.CODEC),
             new PayloadInfo<>(ClientboundToggleNightVisionPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundToggleNightVisionPayload.CODEC),

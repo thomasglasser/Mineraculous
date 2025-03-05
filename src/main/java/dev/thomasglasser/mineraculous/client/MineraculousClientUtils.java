@@ -44,6 +44,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -183,8 +184,23 @@ public class MineraculousClientUtils {
         ClientUtils.setScreen(new MiraculousTransferScreen(kwamiId));
     }
 
-    public static VertexConsumer checkLuckyCharm(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack, boolean armor) {
-        return itemStack.has(MineraculousDataComponents.LUCKY_CHARM) ? VertexMultiConsumer.create(bufferSource.getBuffer(armor ? MineraculousRenderTypes.armorLuckyCharm() : MineraculousRenderTypes.luckyCharm()), buffer) : buffer;
+    public static VertexConsumer checkLuckyCharm(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack, boolean armor, boolean entity, boolean itemModel3d) {
+
+        if (itemModel3d) {
+            if (itemStack.is(Items.SHIELD) && itemStack.has(MineraculousDataComponents.LUCKY_CHARM))
+                return VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.shieldLuckyCharm()), buffer);
+
+            return itemStack.has(MineraculousDataComponents.LUCKY_CHARM)
+                    ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.entityLuckyCharm()), buffer)
+                    : buffer;
+        }
+        if (entity)
+            return itemStack.has(MineraculousDataComponents.LUCKY_CHARM)
+                    ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.entityLuckyCharm()), buffer)
+                    : buffer;
+        return itemStack.has(MineraculousDataComponents.LUCKY_CHARM)
+                ? VertexMultiConsumer.create(bufferSource.getBuffer(armor ? MineraculousRenderTypes.armorLuckyCharm() : MineraculousRenderTypes.luckyCharm()), buffer)
+                : buffer;
     }
 
     public static void registerDynamicTexture(ResourceLocation texture, byte[] pixels) throws IOException {

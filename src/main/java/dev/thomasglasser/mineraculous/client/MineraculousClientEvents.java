@@ -1,8 +1,6 @@
 package dev.thomasglasser.mineraculous.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.client.gui.components.kamiko.KamikoGui;
@@ -35,7 +33,6 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.KamikotizationArmorItem;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
@@ -62,10 +59,8 @@ import net.minecraft.client.particle.FlyStraightTowardsParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -101,7 +96,6 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
-import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
 import org.jetbrains.annotations.Nullable;
@@ -169,90 +163,6 @@ public class MineraculousClientEvents {
         event.registerAboveAll(Mineraculous.modLoc("kamiko_hotbar"), ((guiGraphics, deltaTracker) -> kamikoGui.renderHotbar(guiGraphics)));
         event.registerAboveAll(Mineraculous.modLoc("kamiko_tooltip"), ((guiGraphics, deltaTracker) -> kamikoGui.renderTooltip(guiGraphics)));
         event.registerAboveAll(Mineraculous.modLoc("revoke_button"), MineraculousClientEvents::renderRevokeButton);
-    }
-
-    public static void onPlayerRendererPre(RenderPlayerEvent.Post event) {
-        Player player = event.getEntity();
-        PoseStack poseStack = event.getPoseStack();
-        MultiBufferSource bufferSource = event.getMultiBufferSource();
-
-        ItemStack leftH = player.getOffhandItem();
-        ItemStack rightH = player.getMainHandItem();
-
-        boolean lH = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
-        boolean rH = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
-        if (lH || rH) {
-            float length = player.getData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH).isPresent() ? player.getData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH).get() : 0f;
-            poseStack.pushPose();
-            VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(Mineraculous.modLoc("textures/misc/cat_staff_perching.png")));
-            PoseStack.Pose pose = poseStack.last();
-
-            //SIDES:
-            int s = 0;
-            int d;
-            for (d = -1; d >= (int) length; d--) {
-                vertex(vertexConsumer, pose, -0.05f, s, +0.05f, 0f, 0f);
-                vertex(vertexConsumer, pose, -0.05f, d, +0.05f, 0f, 1f);
-                vertex(vertexConsumer, pose, -0.05f, d, -0.05f, 0.125f, 1f);
-                vertex(vertexConsumer, pose, -0.05f, s, -0.05f, 0.125f, 0f);
-
-                vertex(vertexConsumer, pose, -0.05f, s, -0.05f, 0.125f, 0f);
-                vertex(vertexConsumer, pose, -0.05f, d, -0.05f, 0.125f, 1f);
-                vertex(vertexConsumer, pose, +0.05f, d, -0.05f, 0.25f, 1f);
-                vertex(vertexConsumer, pose, +0.05f, s, -0.05f, 0.25f, 0f);
-
-                vertex(vertexConsumer, pose, +0.05f, s, -0.05f, 0.25f, 0f);
-                vertex(vertexConsumer, pose, +0.05f, d, -0.05f, 0.25f, 1f);
-                vertex(vertexConsumer, pose, +0.05f, d, +0.05f, 0.375f, 1f);
-                vertex(vertexConsumer, pose, +0.05f, s, +0.05f, 0.375f, 0f);
-
-                vertex(vertexConsumer, pose, +0.05f, s, +0.05f, 0.375f, 0f);
-                vertex(vertexConsumer, pose, +0.05f, d, +0.05f, 0.375f, 1f);
-                vertex(vertexConsumer, pose, -0.05f, d, +0.05f, 0.5f, 1f);
-                vertex(vertexConsumer, pose, -0.05f, s, +0.05f, 0.5f, 0f);
-
-                s = d;
-            }
-            float x = length - (int) (length);
-            x = Math.abs(x);
-            if (x != 0) {
-                vertex(vertexConsumer, pose, -0.05f, (int) (length), +0.05f, 0f, 0f);
-                vertex(vertexConsumer, pose, -0.05f, length, +0.05f, 0f, x);
-                vertex(vertexConsumer, pose, -0.05f, length, -0.05f, 0.125f, x);
-                vertex(vertexConsumer, pose, -0.05f, (int) (length), -0.05f, 0.125f, 0f);
-
-                vertex(vertexConsumer, pose, -0.05f, (int) (length), -0.05f, 0.125f, 0f);
-                vertex(vertexConsumer, pose, -0.05f, length, -0.05f, 0.125f, x);
-                vertex(vertexConsumer, pose, +0.05f, length, -0.05f, 0.25f, x);
-                vertex(vertexConsumer, pose, +0.05f, (int) (length), -0.05f, 0.25f, 0f);
-
-                vertex(vertexConsumer, pose, +0.05f, (int) (length), -0.05f, 0.25f, 0f);
-                vertex(vertexConsumer, pose, +0.05f, length, -0.05f, 0.25f, x);
-                vertex(vertexConsumer, pose, +0.05f, length, +0.05f, 0.375f, x);
-                vertex(vertexConsumer, pose, +0.05f, (int) (length), +0.05f, 0.375f, 0f);
-
-                vertex(vertexConsumer, pose, +0.05f, (int) (length), +0.05f, 0.375f, 0f);
-                vertex(vertexConsumer, pose, +0.05f, length, +0.05f, 0.375f, x);
-                vertex(vertexConsumer, pose, -0.05f, length, +0.05f, 0.5f, x);
-                vertex(vertexConsumer, pose, -0.05f, (int) (length), +0.05f, 0.5f, 0f);
-            }
-            //UP&DOWN:
-            vertex(vertexConsumer, pose, -0.05f, 0, -0.05f, 0.875f, 0f);
-            vertex(vertexConsumer, pose, +0.05f, 0, -0.05f, 0.875f, 0.125f);
-            vertex(vertexConsumer, pose, +0.05f, 0, +0.05f, 1f, 0.125f);
-            vertex(vertexConsumer, pose, -0.05f, 0, +0.05f, 1f, 0f);
-            vertex(vertexConsumer, pose, -0.05f, length, -0.05f, 0.875f, 0.125f);
-            vertex(vertexConsumer, pose, +0.05f, length, -0.05f, 0.875f, 0.25f);
-            vertex(vertexConsumer, pose, +0.05f, length, +0.05f, 1f, 0.25f);
-            vertex(vertexConsumer, pose, -0.05f, length, +0.05f, 1f, 0.125f);
-            //PAW:
-
-            poseStack.popPose();
-        }
-    }
-
-    private static void vertex(VertexConsumer vertexConsumer, PoseStack.Pose pose, float x, float y, float z, float i, float j) {
-        vertexConsumer.addVertex(pose, x, y, z).setColor(-1).setUv(i, j).setOverlay(OverlayTexture.NO_OVERLAY).setLight(15728880).setNormal(0.0F, 1.0F, 0.0F);
     }
 
     private static void renderStealingProgressBar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {

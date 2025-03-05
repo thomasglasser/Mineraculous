@@ -31,7 +31,6 @@ public class MineraculousAttachmentTypes {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<ResourceKey<Kamikotization>>>> OLD_KAMIKOTIZATION = ATTACHMENT_TYPES.register("old_kamikotization", () -> AttachmentType.builder(Optional::<ResourceKey<Kamikotization>>empty).serialize(ResourceKey.codec(MineraculousRegistries.KAMIKOTIZATION).optionalFieldOf("data").codec()).build());
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<HashMap<ResourceKey<Kamikotization>, KamikotizationLookData>>> KAMIKOTIZATION_LOOKS = ATTACHMENT_TYPES.register("kamikotization_looks", () -> AttachmentType.builder(() -> new HashMap<ResourceKey<Kamikotization>, KamikotizationLookData>()).build());
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<Integer>>> LADYBUG_YOYO = ATTACHMENT_TYPES.register("ladybug_yoyo", () -> AttachmentType.builder(Optional::<Integer>empty).serialize(Codec.INT.optionalFieldOf("data").codec()).build());
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<Float>>> CAT_STAFF_PERCH_LENGTH = ATTACHMENT_TYPES.register("cat_staff_perch_length", () -> AttachmentType.builder(Optional::<Float>empty).serialize(Codec.FLOAT.optionalFieldOf("data").codec()).build());
 
     public static void init() {}
 }

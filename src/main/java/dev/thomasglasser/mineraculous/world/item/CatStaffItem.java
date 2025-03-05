@@ -8,11 +8,9 @@ import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.network.ClientboundCatStaffPechLengthPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundActivateToolPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetCatStaffAbilityPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundSetDeltaMovementPayload;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
@@ -24,13 +22,9 @@ import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Consumer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.component.DataComponents;
@@ -41,7 +35,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -143,7 +136,6 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         if (entity instanceof Player player && !player.isUsingItem()) {
             if (level.isClientSide() && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
                 InteractionHand hand = player.getMainHandItem() == stack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-                CatStaffItem.Ability stackAbility = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
 
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
                 int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
@@ -181,81 +173,20 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     }
                 }
-
-                if (stackAbility == Ability.PERCH && stack.has(MineraculousDataComponents.ACTIVE)) {
-                    float d = 0;
-                    boolean k = false;
-                    float length = player.getData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH).get();
-                    catStaffPerchGroundRY.putIfAbsent(player.getUUID(), 0f);
-                    boolean shouldNotFall = (catStaffPerchGroundRY.get(player.getUUID()) == length);
-                    if (MineraculousKeyMappings.WEAPON_DOWN_ARROW.get().isDown()) {
-                        d -= 0.3f;
-                        k = true;
-                    }
-                    if (MineraculousKeyMappings.WEAPON_UP_ARROW.get().isDown() && Math.abs(catStaffPerchGroundRY.get(entity.getUUID())) < 64) {
-                        d += 0.3f;
-                        k = true;
-                    }
-                    if (k) {
-                        Vec3 vec3 = new Vec3(0, d, 0);
-                        player.setDeltaMovement(vec3);
-                        player.hurtMarked = true;
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetDeltaMovementPayload(vec3.toVector3f(), true));
-                    } else if (shouldNotFall) {
-                        player.setDeltaMovement(Vec3.ZERO);
-                        player.hurtMarked = true;
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetDeltaMovementPayload(Vec3.ZERO.toVector3f(), true));
-                    }
-                }
-
                 TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
             }
-
-            if (!level.isClientSide && entity instanceof ServerPlayer serverPlayer) {
-                float length = player.getData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH).isPresent() ? player.getData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH).get() : 0f;
-                CatStaffItem.Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
-                if (stack.has(MineraculousDataComponents.ACTIVE)) {
-                    if (ability == Ability.TRAVEL && player.getCooldowns().isOnCooldown(stack.getItem()))
-                        entity.resetFallDistance();
-                    if (ability == Ability.PERCH) {
-                        if (!catStaffPerchPerching.getOrDefault(entity.getUUID(), false)) {
-                            player.setData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH, Optional.of(0f));
-                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundCatStaffPechLengthPayload(0f, player.getUUID()), serverPlayer.server);
-                            catStaffPerchPerching.put(entity.getUUID(), true);
-                        }
-
-                        int y = entity.getBlockY();
-                        while (level.getBlockState(new BlockPos(entity.getBlockX(), y, entity.getBlockZ())).isEmpty() && Math.abs(entity.getBlockY() - y) <= 64) {
-                            y--;
-                        }
-                        y++;
-                        catStaffPerchGroundRY.put(entity.getUUID(), (float) y - (float) entity.getY());
-
-                        if (catStaffPerchGroundRY.get(entity.getUUID()) < length) {
-                            float newLength = length - 0.45f;
-                            player.setData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH, Optional.of(newLength));
-                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundCatStaffPechLengthPayload(newLength, player.getUUID()), serverPlayer.server);
-                        }
-                        if (catStaffPerchGroundRY.get(entity.getUUID()) > length) {
-                            float newLength = catStaffPerchGroundRY.get(entity.getUUID());
-                            player.setData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH, Optional.of(newLength));
-                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundCatStaffPechLengthPayload(newLength, player.getUUID()), serverPlayer.server);
-                        }
-                    }
-
-                    if (ability != Ability.PERCH || !(player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
-                        catStaffPerchPerching.put(entity.getUUID(), false);
-                        player.setData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH, Optional.of(0f));
-                        TommyLibServices.NETWORK.sendToAllClients(new ClientboundCatStaffPechLengthPayload(0f, player.getUUID()), serverPlayer.server);
-                    }
-                }
-            }
         }
+
+        if (stack.has(MineraculousDataComponents.ACTIVE)) {
+            if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.PERCH && entity.isCrouching()) {
+                entity.setDeltaMovement(Vec3.ZERO);
+                entity.resetFallDistance();
+            } else if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.TRAVEL && entity instanceof Player player && player.getCooldowns().isOnCooldown(stack.getItem()))
+                entity.resetFallDistance();
+        }
+
         super.inventoryTick(stack, level, entity, slotId, isSelected);
     }
-
-    private static HashMap<UUID, Float> catStaffPerchGroundRY = new HashMap<>();
-    public static HashMap<UUID, Boolean> catStaffPerchPerching = new HashMap<>();
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player pPlayer, InteractionHand pHand) {
@@ -271,6 +202,13 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                     pPlayer.setDeltaMovement(pPlayer.getLookAngle().scale(3));
                     pPlayer.hurtMarked = true;
                     pPlayer.getCooldowns().addCooldown(stack.getItem(), 10);
+                }
+            } else if (ability == Ability.PERCH) {
+                if (pPlayer.getNearestViewDirection() == Direction.UP)
+                    pPlayer.setDeltaMovement(new Vec3(0, 0.5, 0));
+                else if (pPlayer.getNearestViewDirection() == Direction.DOWN) {
+                    pPlayer.setDeltaMovement(new Vec3(0, -0.5, 0));
+                    pPlayer.resetFallDistance();
                 }
             }
             if (level instanceof ServerLevel serverLevel) {

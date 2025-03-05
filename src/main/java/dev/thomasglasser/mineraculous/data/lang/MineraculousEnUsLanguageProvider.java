@@ -110,8 +110,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousKeyMappings.ACTIVATE_TOOL.get(), "Activate Tool");
         add(MineraculousKeyMappings.OPEN_TOOL_WHEEL.get(), "Equip/Return Tool/Open Tool Wheel");
         add(MineraculousKeyMappings.TAKE_BREAK_ITEM.get(), "Take/Break Item");
-        add(MineraculousKeyMappings.WEAPON_DOWN_ARROW.get(), "Unwind YoYo/Decrease Cat Staff Length");
-        add(MineraculousKeyMappings.WEAPON_UP_ARROW.get(), "Wind YoYo/Increase Cat Staff Length");
+        add(MineraculousKeyMappings.UNWIND_YOYO.get(), "Unwind YoYo");
+        add(MineraculousKeyMappings.WIND_YOYO.get(), "Wind YoYo");
 
         add(MiraculousData.NAME_NOT_SET, "You haven't set your %s hero name yet! Use /miraculous %s name <name> to set.");
 

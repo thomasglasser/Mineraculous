@@ -141,22 +141,10 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.HEAD).rotation(-54, 0, 0).translation(0, 1.75f, -2.75f).end()
                 .end();
         ItemModelBuilder inventoryCatStaff = basicInventoryItem(MineraculousItems.CAT_STAFF);
-        ItemModelBuilder inHandPerchCatStaff = basicItem(MineraculousItems.CAT_STAFF.getId().withSuffix("_perch_in_hand"), "empty");
-        generatedModels.remove(inHandPerchCatStaff.getLocation());
-        ItemModelBuilder perchCatStaff = withSeparateTransforms(MineraculousItems.CAT_STAFF.getId().withSuffix("_perch"))
-                .base(inHandPerchCatStaff)
-                .perspective(ItemDisplayContext.GUI, inventoryCatStaff)
-                .perspective(ItemDisplayContext.FIXED, inventoryCatStaff)
-                .perspective(ItemDisplayContext.GROUND, inventoryCatStaff)
-                .end();
         withEntityModelInHand(MineraculousItems.CAT_STAFF, inHandCatStaff, inventoryCatStaff)
                 .override()
                 .predicate(CatStaffItem.EXTENDED_PROPERTY_ID, 1)
                 .model(withEntityModelInHand(MineraculousItems.CAT_STAFF.getId().withSuffix("_extended"), inHandCatStaff, basicItem(MineraculousItems.CAT_STAFF.getId().withSuffix("_extended"))))
-                .end()
-                .override()
-                .predicate(CatStaffItem.EXTENDED_PROPERTY_ID, 2)
-                .model(perchCatStaff)
                 .end();
         ItemModelBuilder inHandButterflyCane = withEntityModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_in_hand"))
                 .transforms()

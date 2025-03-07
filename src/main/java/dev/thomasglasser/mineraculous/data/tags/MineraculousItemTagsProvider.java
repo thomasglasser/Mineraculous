@@ -92,7 +92,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
 
         tag(MineraculousItemTags.GENERIC_LUCKY_CHARMS)
                 .add(Items.APPLE)
-                .addTag(ConventionalItemTags.MELEE_WEAPON_TOOLS)
+                .addTag(ConventionalItemTags.TOOLS)
                 .add(Items.RABBIT_FOOT)
                 .addTag(ConventionalItemTags.GOLDEN_FOODS);
 

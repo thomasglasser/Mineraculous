@@ -14,6 +14,7 @@ public class MineraculousLuckyCharmLootKeys {
     public static final ResourceKey<LootTable> ELDER_GUARDIAN = entity("elder_guardian");
     public static final ResourceKey<LootTable> WARDEN = entity("warden");
     public static final ResourceKey<LootTable> WITHER = entity("wither");
+    public static final ResourceKey<LootTable> RAID = entity("raid");
 
     private static ResourceKey<LootTable> miraculous(String name) {
         return modLoc("miraculous/" + name);

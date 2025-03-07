@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.loot.MineraculousLucky
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.neoforged.neoforge.common.data.DataMapProvider;
@@ -33,6 +34,7 @@ public class MineraculousDataMapProvider extends DataMapProvider {
                 .add(EntityType.ELDER_GUARDIAN.builtInRegistryHolder(), new LuckyCharms(MineraculousLuckyCharmLootKeys.ELDER_GUARDIAN), false)
                 .add(EntityType.WARDEN.builtInRegistryHolder(), new LuckyCharms(MineraculousLuckyCharmLootKeys.WARDEN), false)
                 .add(EntityType.WITHER.builtInRegistryHolder(), new LuckyCharms(MineraculousLuckyCharmLootKeys.WITHER), false)
+                .add(EntityTypeTags.RAIDERS, new LuckyCharms(MineraculousLuckyCharmLootKeys.RAID), false)
                 .build();
 
         // Mob Effects

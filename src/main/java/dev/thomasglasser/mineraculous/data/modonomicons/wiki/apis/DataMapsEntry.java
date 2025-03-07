@@ -30,7 +30,9 @@ public class DataMapsEntry extends IndexModeEntryProvider {
                 "data/<namespace>/mineraculous/miraculous/lucky_charms.json",
                 and "data/<namespace>/mineraculous/kamikotization/lucky_charms.json".
                 Generators for these can be found online [here](https://snapshot-jsons.thomasglasser.dev/partners/).
-                Generators for the loot table can be found [here](https://snapshot-jsons.thomasglasser.dev/mineraculous/lucky-charm-loot-table/).
+                Generators for the loot table can be found [here](https://snapshot-jsons.thomasglasser.dev/loot-table/).
+                (Note: At this time, to generate a lucky charm loot table, you must use a preset to set the "type" field to "mineraculous:lucky_charm".
+                Searching the presets for "lucky_charm" will yield valid results.)
                 """);
     }
 

@@ -1,14 +1,15 @@
 package dev.thomasglasser.mineraculous.data.modonomicons.wiki.support;
 
+import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
 import net.minecraft.world.item.Items;
 
-public class WikiEntry extends IndexModeEntryProvider {
-    private static final String ID = "wiki";
+public class WikiEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "wiki";
 
-    public WikiEntry(SupportCategoryProvider parent) {
+    public WikiEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

@@ -7,10 +7,10 @@ import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.WikiBookSubProvider;
 import net.minecraft.world.item.Items;
 
-public class BreakingEntry extends IndexModeEntryProvider {
-    private static final String ID = "breaking";
+public class BreakingEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "breaking";
 
-    public BreakingEntry(CategoryProviderBase parent) {
+    public BreakingEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

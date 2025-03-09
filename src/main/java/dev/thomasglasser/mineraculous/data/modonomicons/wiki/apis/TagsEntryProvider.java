@@ -7,10 +7,10 @@ import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 
-public class TagsEntry extends IndexModeEntryProvider {
-    private static final String ID = "tags";
+public class TagsEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "tags";
 
-    public TagsEntry(CategoryProviderBase parent) {
+    public TagsEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

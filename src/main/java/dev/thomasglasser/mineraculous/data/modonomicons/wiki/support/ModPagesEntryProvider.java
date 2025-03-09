@@ -7,12 +7,12 @@ import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.WikiBookSubProvider;
 import net.minecraft.resources.ResourceLocation;
 
-public class ModPagesEntry extends IndexModeEntryProvider {
-    private static final String ID = "mod_pages";
+public class ModPagesEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "mod_pages";
     public static final ResourceLocation MODRINTH_TEXTURE = WikiBookSubProvider.wikiTexture("support/mod_pages/modrinth.png");
     public static final ResourceLocation GITHUB_LOCATION = WikiBookSubProvider.wikiTexture("support/mod_pages/github.png");
 
-    public ModPagesEntry(CategoryProviderBase parent) {
+    public ModPagesEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

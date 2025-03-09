@@ -6,7 +6,7 @@ import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 
 public class FloraAndFaunaCategoryProvider extends IndexModeCategoryProvider {
-    private static final String ID = "flora_and_fauna";
+    public static final String ID = "flora_and_fauna";
 
     public FloraAndFaunaCategoryProvider(ModonomiconProviderBase parent) {
         super(parent);
@@ -14,8 +14,8 @@ public class FloraAndFaunaCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected void generateEntries() {
-        add(new FlowersEntry(this).generate());
-        add(new KamikosEntry(this).generate());
+        add(new FlowersEntryProvider(this).generate());
+        add(new KamikosEntryProvider(this).generate());
     }
 
     @Override

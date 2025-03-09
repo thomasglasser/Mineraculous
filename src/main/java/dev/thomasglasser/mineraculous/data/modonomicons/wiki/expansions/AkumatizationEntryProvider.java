@@ -7,10 +7,10 @@ import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.WikiBookSubProvider;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 
-public class AkumatizationEntry extends IndexModeEntryProvider {
-    private static final String ID = "akumatization";
+public class AkumatizationEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "akumatization";
 
-    public AkumatizationEntry(CategoryProviderBase parent) {
+    public AkumatizationEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

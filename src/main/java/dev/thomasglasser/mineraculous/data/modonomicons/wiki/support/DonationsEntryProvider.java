@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.data.modonomicons.wiki.support;
 
+import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
@@ -7,10 +8,10 @@ import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.WikiBookSubProvider;
 import net.minecraft.world.item.Items;
 
-public class DonationsEntry extends IndexModeEntryProvider {
-    private static final String ID = "donations";
+public class DonationsEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "donations";
 
-    public DonationsEntry(SupportCategoryProvider parent) {
+    public DonationsEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

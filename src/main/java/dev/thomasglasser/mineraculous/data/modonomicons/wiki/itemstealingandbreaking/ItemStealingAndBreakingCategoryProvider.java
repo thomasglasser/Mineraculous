@@ -6,7 +6,7 @@ import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import net.minecraft.world.item.Items;
 
 public class ItemStealingAndBreakingCategoryProvider extends IndexModeCategoryProvider {
-    private static final String ID = "item_stealing_and_breaking";
+    public static final String ID = "item_stealing_and_breaking";
 
     public ItemStealingAndBreakingCategoryProvider(ModonomiconProviderBase parent) {
         super(parent);
@@ -14,8 +14,8 @@ public class ItemStealingAndBreakingCategoryProvider extends IndexModeCategoryPr
 
     @Override
     protected void generateEntries() {
-        add(new StealingEntry(this).generate());
-        add(new BreakingEntry(this).generate());
+        add(new StealingEntryProvider(this).generate());
+        add(new BreakingEntryProvider(this).generate());
     }
 
     @Override

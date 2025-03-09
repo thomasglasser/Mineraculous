@@ -15,8 +15,8 @@ public class DependenciesCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected void generateEntries() {
-        add(new JeiEntry(this).generate());
-        add(new ModonomiconEntry(this).generate());
+        add(new JeiEntryProvider(this).generate());
+        add(new ModonomiconEntryProvider(this).generate());
     }
 
     @Override

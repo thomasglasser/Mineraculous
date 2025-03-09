@@ -10,10 +10,10 @@ import java.util.Optional;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
-public class DataMapsEntry extends IndexModeEntryProvider {
-    private static final String ID = "data_maps";
+public class DataMapsEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "data_maps";
 
-    public DataMapsEntry(CategoryProviderBase parent) {
+    public DataMapsEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

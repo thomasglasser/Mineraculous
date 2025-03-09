@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.data.modonomicons.wiki.support;
 
+import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
@@ -7,10 +8,10 @@ import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.WikiBookSubProvider;
 import net.minecraft.world.item.Items;
 
-public class ContactEntry extends IndexModeEntryProvider {
-    private static final String ID = "contact";
+public class ContactEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "contact";
 
-    public ContactEntry(SupportCategoryProvider parent) {
+    public ContactEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 
@@ -18,7 +19,7 @@ public class ContactEntry extends IndexModeEntryProvider {
     protected void generatePages() {
         page("github", () -> BookImagePageModel.create()
                 .withAnchor("github")
-                .withImages(ModPagesEntry.GITHUB_LOCATION))
+                .withImages(ModPagesEntryProvider.GITHUB_LOCATION))
                         .withTitle(context().pageTitle())
                         .withText(context().pageText());
 

@@ -7,10 +7,10 @@ import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 
-public class AdvancementTriggersEntry extends IndexModeEntryProvider {
-    private static final String ID = "advancement_triggers";
+public class AdvancementTriggersEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "advancement_triggers";
 
-    public AdvancementTriggersEntry(CategoryProviderBase parent) {
+    public AdvancementTriggersEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

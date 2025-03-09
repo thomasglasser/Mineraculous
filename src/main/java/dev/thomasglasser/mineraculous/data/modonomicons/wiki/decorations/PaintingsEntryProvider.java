@@ -10,10 +10,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.decoration.PaintingVariant;
 import net.minecraft.world.item.Items;
 
-public class PaintingsEntry extends IndexModeEntryProvider {
-    private static final String ID = "paintings";
+public class PaintingsEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "paintings";
 
-    public PaintingsEntry(CategoryProviderBase parent) {
+    public PaintingsEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

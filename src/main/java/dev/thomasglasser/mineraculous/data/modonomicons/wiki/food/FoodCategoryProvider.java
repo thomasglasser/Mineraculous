@@ -7,7 +7,7 @@ import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 
 public class FoodCategoryProvider extends IndexModeCategoryProvider {
-    private static final String ID = "food";
+    public static final String ID = "food";
 
     public FoodCategoryProvider(ModonomiconProviderBase parent) {
         super(parent);
@@ -15,7 +15,7 @@ public class FoodCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected void generateEntries() {
-        add(new CheeseEntry(this).generate());
+        add(new CheeseEntryProvider(this).generate());
     }
 
     @Override

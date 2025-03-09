@@ -1,0 +1,28 @@
+{
+  "background_u_index": 0,
+  "background_v_index": 0,
+  "category": "kamikotizations",
+  "description": "book.mineraculous.wiki.kamikotizations.customization.description",
+  "hide_while_locked": false,
+  "icon": {
+    "item": "mineraculous:kamikotization_mask"
+  },
+  "name": "book.mineraculous.wiki.kamikotizations.customization.name",
+  "pages": [
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.kamikotizations.customization.overriding.text",
+      "title": "book.mineraculous.wiki.kamikotizations.customization.overriding.title",
+      "use_markdown_in_title": false
+    }
+  ],
+  "show_when_any_parent_unlocked": false,
+  "sort_number": 1,
+  "x": 0,
+  "y": 0
+}

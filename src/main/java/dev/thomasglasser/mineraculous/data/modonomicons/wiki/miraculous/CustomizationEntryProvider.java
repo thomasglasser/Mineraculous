@@ -10,10 +10,10 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiracu
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 
-public class CustomizationEntry extends IndexModeEntryProvider {
-    private static final String ID = "customization";
+public class CustomizationEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "customization";
 
-    public CustomizationEntry(CategoryProviderBase parent) {
+    public CustomizationEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

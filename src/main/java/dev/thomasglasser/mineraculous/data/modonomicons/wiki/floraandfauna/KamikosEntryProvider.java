@@ -7,10 +7,10 @@ import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.WikiBookSubProvider;
 
-public class KamikosEntry extends IndexModeEntryProvider {
-    private static final String ID = "kamikos";
+public class KamikosEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "kamikos";
 
-    public KamikosEntry(CategoryProviderBase parent) {
+    public KamikosEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

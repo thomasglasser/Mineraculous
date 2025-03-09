@@ -14,12 +14,12 @@ public class ApisCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected void generateEntries() {
-        add(new AbilitiesEntry(this).generate());
-        add(new MiraculousEntry(this).generate());
-        add(new KamikotizationsEntry(this).generate());
-        add(new AdvancementTriggersEntry(this).generate());
-        add(new DataMapsEntry(this).generate());
-        add(new TagsEntry(this).generate());
+        add(new AbilitiesEntryProvider(this).generate());
+        add(new MiraculousEntryProvider(this).generate());
+        add(new KamikotizationsEntryProvider(this).generate());
+        add(new AdvancementTriggersEntryProvider(this).generate());
+        add(new DataMapsEntryProvider(this).generate());
+        add(new TagsEntryProvider(this).generate());
     }
 
     @Override

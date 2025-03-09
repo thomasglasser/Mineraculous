@@ -8,10 +8,10 @@ import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.WikiBookSubProvider;
 import net.minecraft.world.item.Items;
 
-public class StealingEntry extends IndexModeEntryProvider {
-    private static final String ID = "stealing";
+public class StealingEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "stealing";
 
-    public StealingEntry(CategoryProviderBase parent) {
+    public StealingEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

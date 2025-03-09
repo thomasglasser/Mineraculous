@@ -7,7 +7,7 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiracu
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 
 public class MiraculousCategoryProvider extends IndexModeCategoryProvider {
-    private static final String ID = "miraculous";
+    public static final String ID = "miraculous";
 
     public MiraculousCategoryProvider(ModonomiconProviderBase parent) {
         super(parent);
@@ -15,11 +15,11 @@ public class MiraculousCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected void generateEntries() {
-        add(new GeneralEntry(this).generate());
-        add(new LadybugEntry(this).generate());
-        add(new CatEntry(this).generate());
-        add(new ButterflyEntry(this).generate());
-        add(new CustomizationEntry(this).generate());
+        add(new GeneralEntryProvider(this).generate());
+        add(new LadybugEntryProvider(this).generate());
+        add(new CatEntryProvider(this).generate());
+        add(new ButterflyEntryProvider(this).generate());
+        add(new CustomizationEntryProvider(this).generate());
     }
 
     @Override

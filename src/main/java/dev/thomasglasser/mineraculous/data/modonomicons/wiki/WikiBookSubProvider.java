@@ -11,6 +11,7 @@ import dev.thomasglasser.mineraculous.data.modonomicons.wiki.expansions.Expansio
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.floraandfauna.FloraAndFaunaCategoryProvider;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.food.FoodCategoryProvider;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.itemstealingandbreaking.ItemStealingAndBreakingCategoryProvider;
+import dev.thomasglasser.mineraculous.data.modonomicons.wiki.kamikotizations.KamikotizationsCategoryProvider;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.miraculous.MiraculousCategoryProvider;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.support.SupportCategoryProvider;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
@@ -18,7 +19,7 @@ import java.util.function.BiConsumer;
 import net.minecraft.resources.ResourceLocation;
 
 public class WikiBookSubProvider extends SingleBookSubProvider {
-    private static final String ID = "wiki";
+    public static final String ID = "wiki";
 
     public WikiBookSubProvider(BiConsumer<String, String> lang) {
         super(ID, Mineraculous.MOD_ID, lang);
@@ -29,6 +30,7 @@ public class WikiBookSubProvider extends SingleBookSubProvider {
     @Override
     protected void generateCategories() {
         add(new MiraculousCategoryProvider(this).generate());
+        add(new KamikotizationsCategoryProvider(this).generate());
         add(new ItemStealingAndBreakingCategoryProvider(this).generate());
         add(new FloraAndFaunaCategoryProvider(this).generate());
         add(new FoodCategoryProvider(this).generate());

@@ -4,13 +4,12 @@ import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 
-public class MiraculousEntry extends IndexModeEntryProvider {
-    private static final String ID = "miraculous";
+public class KamikotizationsEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "kamikotizations";
 
-    public MiraculousEntry(CategoryProviderBase parent) {
+    public KamikotizationsEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 
@@ -22,7 +21,7 @@ public class MiraculousEntry extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Generator");
         add(context().pageText(), """
-                A generator for miraculous can be found online [here](https://snapshot-jsons.thomasglasser.dev/mineraculous/miraculous/).
+                A generator for kamikotizations can be found online [here](https://snapshot-jsons.thomasglasser.dev/mineraculous/kamikotization/).
                 """);
 
         page("guide", () -> BookTextPageModel.create()
@@ -37,17 +36,17 @@ public class MiraculousEntry extends IndexModeEntryProvider {
 
     @Override
     protected String entryName() {
-        return "Miraculous";
+        return "Kamikotizations";
     }
 
     @Override
     protected String entryDescription() {
-        return "Jewels that provide special abilities and fancy a super suit to the holder";
+        return "Transformations that the Butterfly Miraculous can give to players";
     }
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(Miraculous.createMiraculousStack(MineraculousMiraculous.CAT));
+        return BookIconModel.create(MineraculousArmors.KAMIKOTIZATION.HEAD);
     }
 
     @Override

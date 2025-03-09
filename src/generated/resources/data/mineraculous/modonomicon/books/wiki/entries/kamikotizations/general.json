@@ -1,0 +1,50 @@
+{
+  "background_u_index": 0,
+  "background_v_index": 0,
+  "category": "kamikotizations",
+  "description": "book.mineraculous.wiki.kamikotizations.general.description",
+  "hide_while_locked": false,
+  "icon": {
+    "item": "mineraculous:kamikotization_mask"
+  },
+  "name": "book.mineraculous.wiki.kamikotizations.general.name",
+  "pages": [
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.kamikotizations.general.receiving.text",
+      "title": "book.mineraculous.wiki.kamikotizations.general.receiving.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.kamikotizations.general.revoking.text",
+      "title": "book.mineraculous.wiki.kamikotizations.general.revoking.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.kamikotizations.general.using_tool.text",
+      "title": "book.mineraculous.wiki.kamikotizations.general.using_tool.title",
+      "use_markdown_in_title": false
+    }
+  ],
+  "show_when_any_parent_unlocked": false,
+  "sort_number": 0,
+  "x": 0,
+  "y": 0
+}

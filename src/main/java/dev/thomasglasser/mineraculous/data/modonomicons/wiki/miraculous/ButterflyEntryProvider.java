@@ -9,10 +9,10 @@ import dev.thomasglasser.mineraculous.data.modonomicons.wiki.WikiBookSubProvider
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 
-public class ButterflyEntry extends IndexModeEntryProvider {
-    private static final String ID = "butterfly";
+public class ButterflyEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "butterfly";
 
-    public ButterflyEntry(CategoryProviderBase parent) {
+    public ButterflyEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

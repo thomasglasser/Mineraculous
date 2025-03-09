@@ -7,10 +7,10 @@ import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.WikiBookSubProvider;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 
-public class FlowersEntry extends IndexModeEntryProvider {
-    private static final String ID = "flowers";
+public class FlowersEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "flowers";
 
-    public FlowersEntry(CategoryProviderBase parent) {
+    public FlowersEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

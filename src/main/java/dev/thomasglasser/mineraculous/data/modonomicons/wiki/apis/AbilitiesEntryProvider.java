@@ -6,10 +6,10 @@ import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 
-public class AbilitiesEntry extends IndexModeEntryProvider {
-    private static final String ID = "abilities";
+public class AbilitiesEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "abilities";
 
-    public AbilitiesEntry(CategoryProviderBase parent) {
+    public AbilitiesEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

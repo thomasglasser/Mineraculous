@@ -9,10 +9,10 @@ import dev.thomasglasser.mineraculous.data.modonomicons.wiki.WikiBookSubProvider
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 
-public class CatEntry extends IndexModeEntryProvider {
-    private static final String ID = "cat";
+public class CatEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "cat";
 
-    public CatEntry(CategoryProviderBase parent) {
+    public CatEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

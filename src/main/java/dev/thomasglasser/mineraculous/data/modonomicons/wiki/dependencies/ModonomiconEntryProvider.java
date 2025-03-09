@@ -7,10 +7,10 @@ import com.klikli_dev.modonomicon.api.datagen.book.page.BookSpotlightPageModel;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 
-public class ModonomiconEntry extends IndexModeEntryProvider {
-    private static final String ID = "modonomicon";
+public class ModonomiconEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "modonomicon";
 
-    public ModonomiconEntry(CategoryProviderBase parent) {
+    public ModonomiconEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

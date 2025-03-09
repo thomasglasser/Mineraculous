@@ -8,10 +8,10 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 
-public class CheeseEntry extends IndexModeEntryProvider {
-    private static final String ID = "cheese";
+public class CheeseEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "cheese";
 
-    public CheeseEntry(CategoryProviderBase parent) {
+    public CheeseEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

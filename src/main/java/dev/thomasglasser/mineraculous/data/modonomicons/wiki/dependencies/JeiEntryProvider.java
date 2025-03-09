@@ -1,15 +1,16 @@
 package dev.thomasglasser.mineraculous.data.modonomicons.wiki.dependencies;
 
+import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.WikiBookSubProvider;
 import net.minecraft.world.item.Items;
 
-public class JeiEntry extends IndexModeEntryProvider {
-    private static final String ID = "jei";
+public class JeiEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "jei";
 
-    public JeiEntry(DependenciesCategoryProvider parent) {
+    public JeiEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 

@@ -7,7 +7,7 @@ import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 
 public class GeneralEntryProvider extends IndexModeEntryProvider {
-    public static final String ID = "general";
+    public static final String ID = "kamikotizations_general";
 
     public GeneralEntryProvider(CategoryProviderBase parent) {
         super(parent);

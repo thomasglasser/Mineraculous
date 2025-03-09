@@ -2,12 +2,12 @@
   "background_u_index": 0,
   "background_v_index": 0,
   "category": "kamikotizations",
-  "description": "book.mineraculous.wiki.kamikotizations.general.description",
+  "description": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.description",
   "hide_while_locked": false,
   "icon": {
     "item": "mineraculous:kamikotization_mask"
   },
-  "name": "book.mineraculous.wiki.kamikotizations.general.name",
+  "name": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.name",
   "pages": [
     {
       "type": "modonomicon:text",
@@ -16,8 +16,8 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.kamikotizations.general.receiving.text",
-      "title": "book.mineraculous.wiki.kamikotizations.general.receiving.title",
+      "text": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.receiving.text",
+      "title": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.receiving.title",
       "use_markdown_in_title": false
     },
     {
@@ -27,8 +27,8 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.kamikotizations.general.revoking.text",
-      "title": "book.mineraculous.wiki.kamikotizations.general.revoking.title",
+      "text": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.revoking.text",
+      "title": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.revoking.title",
       "use_markdown_in_title": false
     },
     {
@@ -38,8 +38,8 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.kamikotizations.general.using_tool.text",
-      "title": "book.mineraculous.wiki.kamikotizations.general.using_tool.title",
+      "text": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.using_tool.text",
+      "title": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.using_tool.title",
       "use_markdown_in_title": false
     }
   ],

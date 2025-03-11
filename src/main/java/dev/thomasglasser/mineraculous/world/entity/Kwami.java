@@ -331,7 +331,7 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
                 stack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
                 stack.remove(MineraculousDataComponents.KWAMI_DATA.get());
             }
-            curios.forEach((data, stack) -> CuriosUtils.setStackInSlot(player, data, stack, true));
+            curios.forEach((data, stack) -> CuriosUtils.setStackInSlot(player, data, stack));
         }
         super.die(damageSource);
     }

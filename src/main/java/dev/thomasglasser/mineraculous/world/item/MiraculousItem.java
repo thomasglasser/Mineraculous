@@ -167,7 +167,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                             ItemStack tool = data.createTool(serverPlayer);
                             if (!tool.isEmpty()) {
                                 if (serverLevel.holderOrThrow(miraculousKey).value().toolSlot().isPresent()) {
-                                    boolean added = CuriosUtils.setStackInFirstValidSlot(player, serverLevel.holderOrThrow(miraculousKey).value().toolSlot().get(), tool, true);
+                                    boolean added = CuriosUtils.setStackInFirstValidSlot(player, serverLevel.holderOrThrow(miraculousKey).value().toolSlot().get(), tool);
                                     if (!added) {
                                         player.addItem(tool);
                                     }

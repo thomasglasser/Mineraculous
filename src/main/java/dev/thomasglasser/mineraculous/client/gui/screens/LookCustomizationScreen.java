@@ -85,7 +85,7 @@ public class LookCustomizationScreen extends Screen {
         this.previewSuit.setItemSlot(EquipmentSlot.CHEST, Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.CHEST.get(), miraculous));
         this.previewSuit.setItemSlot(EquipmentSlot.LEGS, Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.LEGS.get(), miraculous));
         this.previewSuit.setItemSlot(EquipmentSlot.FEET, Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.FEET.get(), miraculous));
-        CuriosUtils.setStackInFirstValidSlot(this.previewSuit, Miraculous.createMiraculousStack(miraculous), false);
+        CuriosUtils.setStackInFirstValidSlot(this.previewSuit, Miraculous.createMiraculousStack(miraculous));
         HashBasedTable<ResourceKey<Miraculous>, String, SuitLookData> previewSuitLooks = HashBasedTable.create();
         for (Map.Entry<String, SuitLookData> entry : suitLooks) {
             previewSuitLooks.put(miraculous, entry.getKey(), entry.getValue());

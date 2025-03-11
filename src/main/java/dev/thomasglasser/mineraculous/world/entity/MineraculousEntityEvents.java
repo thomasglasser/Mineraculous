@@ -445,7 +445,7 @@ public class MineraculousEntityEvents {
                             ItemStack tool = data.createTool(player);
                             if (!tool.isEmpty()) {
                                 if (serverLevel.holderOrThrow(miraculous).value().toolSlot().isPresent()) {
-                                    boolean added = CuriosUtils.setStackInFirstValidSlot(player, serverLevel.holderOrThrow(miraculous).value().toolSlot().get(), tool, true);
+                                    boolean added = CuriosUtils.setStackInFirstValidSlot(player, serverLevel.holderOrThrow(miraculous).value().toolSlot().get(), tool);
                                     if (!added) {
                                         player.addItem(tool);
                                     }
@@ -458,7 +458,7 @@ public class MineraculousEntityEvents {
                         player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);
                         serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), serverLevel.holderOrThrow(miraculous).value().transformSound(), SoundSource.PLAYERS, 1, 1);
                         if (data.curiosData() != CuriosData.EMPTY)
-                            CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack, true);
+                            CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack);
                         if (data.name().isEmpty())
                             player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(Miraculous.toLanguageKey(miraculous)), miraculous.location().getPath()), true);
                         int powerLevel = data.powerLevel();
@@ -472,7 +472,7 @@ public class MineraculousEntityEvents {
                     }
                 } else {
                     miraculousStack.remove(MineraculousDataComponents.KWAMI_DATA.get());
-                    CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack, true);
+                    CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack);
                 }
             } else {
                 // De-transform
@@ -497,7 +497,7 @@ public class MineraculousEntityEvents {
                 miraculousStack.remove(MineraculousDataComponents.REMAINING_TICKS.get());
                 miraculousStack.remove(MineraculousDataComponents.POWERED.get());
                 if (data.curiosData() != CuriosData.EMPTY)
-                    CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack, true);
+                    CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack);
                 if (removed) {
                     renounceMiraculous(miraculousStack, serverLevel);
                     ((ChargeOverrideDataHolder) serverLevel.getServer().overworld()).mineraculous$getChargeOverrideData().put(kwami.getUUID(), false);
@@ -564,7 +564,7 @@ public class MineraculousEntityEvents {
 
                 miraculousData.miraculousItem().set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
                 if (miraculousData.curiosData() != CuriosData.EMPTY)
-                    CuriosUtils.setStackInSlot(player, miraculousData.curiosData(), miraculousData.miraculousItem(), true);
+                    CuriosUtils.setStackInSlot(player, miraculousData.curiosData(), miraculousData.miraculousItem());
                 player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, miraculousData.withItem(miraculousData.miraculousItem()), true);
                 return kwami;
             }
@@ -1007,7 +1007,7 @@ public class MineraculousEntityEvents {
                 if (data.slotInfo().left().isPresent()) {
                     player.getInventory().setItem(data.slotInfo().left().get(), kamikotizationStack);
                 } else {
-                    CuriosUtils.setStackInSlot(player, data.slotInfo().right().get(), kamikotizationStack, true);
+                    CuriosUtils.setStackInSlot(player, data.slotInfo().right().get(), kamikotizationStack);
                 }
                 serverLevel.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, startLevel) -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(serverLevel.holderOrThrow(effect), startLevel)));
                 KamikotizationData finalData = data;
@@ -1042,7 +1042,7 @@ public class MineraculousEntityEvents {
                 if (data.slotInfo().left().isPresent()) {
                     player.getInventory().setItem(data.slotInfo().left().get(), kamikotizationStack);
                 } else {
-                    CuriosUtils.setStackInSlot(player, data.slotInfo().right().get(), kamikotizationStack, true);
+                    CuriosUtils.setStackInSlot(player, data.slotInfo().right().get(), kamikotizationStack);
                 }
                 if (instant)
                     KamikotizationData.remove(player, true);

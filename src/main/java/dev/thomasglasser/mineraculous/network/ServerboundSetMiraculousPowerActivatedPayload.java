@@ -39,7 +39,7 @@ public record ServerboundSetMiraculousPowerActivatedPayload(ResourceKey<Miraculo
             if (data.shouldCountDown())
                 data.miraculousItem().set(MineraculousDataComponents.REMAINING_TICKS.get(), MiraculousItem.FIVE_MINUTES);
             miraculousDataSet.put(player, miraculousType, data, true);
-            CuriosUtils.setStackInSlot(player, data.curiosData(), data.miraculousItem(), true);
+            CuriosUtils.setStackInSlot(player, data.curiosData(), data.miraculousItem());
         }
     }
 

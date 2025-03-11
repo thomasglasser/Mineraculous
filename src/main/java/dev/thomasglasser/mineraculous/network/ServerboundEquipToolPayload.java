@@ -22,13 +22,13 @@ public record ServerboundEquipToolPayload(InteractionHand hand) implements Exten
     // ON SERVER
     @Override
     public void handle(Player player) {
-        if (CuriosUtils.setStackInFirstValidSlot(player, player.getItemInHand(hand), true))
+        if (CuriosUtils.setStackInFirstValidSlot(player, player.getItemInHand(hand)))
             player.setItemInHand(hand, ItemStack.EMPTY);
         else {
             CuriosUtils.getAllItems(player).forEach((curiosData, stack) -> {
                 if (CuriosApi.isStackValid(new SlotContext(curiosData.identifier(), player, curiosData.slot(), false, true), player.getItemInHand(hand))) {
                     ItemStack inHand = player.getItemInHand(hand);
-                    CuriosUtils.setStackInSlot(player, curiosData, inHand, true);
+                    CuriosUtils.setStackInSlot(player, curiosData, inHand);
                     player.setItemInHand(hand, stack);
                 }
             });

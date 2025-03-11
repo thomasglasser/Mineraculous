@@ -41,7 +41,7 @@ public record ServerboundPutToolInHandPayload(ResourceKey<Miraculous> miraculous
                 CuriosUtils.getAllItems(player).forEach(((curiosData, itemStack) -> {
                     if (itemStack.is(defaultTool.getItem()) && itemStack.has(MineraculousDataComponents.KWAMI_DATA.get()) && itemStack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(uuid)) {
                         player.getInventory().setPickedItem(itemStack);
-                        CuriosUtils.setStackInSlot(player, curiosData, ItemStack.EMPTY, true);
+                        CuriosUtils.setStackInSlot(player, curiosData, ItemStack.EMPTY);
                     }
                 }));
             }

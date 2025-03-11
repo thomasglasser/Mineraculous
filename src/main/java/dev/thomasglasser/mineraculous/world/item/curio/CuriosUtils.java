@@ -1,7 +1,5 @@
 package dev.thomasglasser.mineraculous.world.item.curio;
 
-import dev.thomasglasser.mineraculous.network.ClientboundSyncCurioPayload;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -12,31 +10,29 @@ import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 import top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler;
 
 public class CuriosUtils {
-    public static boolean setStackInFirstValidSlot(LivingEntity entity, String identifier, ItemStack stack, boolean syncToClient) {
+    public static boolean setStackInFirstValidSlot(LivingEntity entity, String identifier, ItemStack stack) {
         IDynamicStackHandler stacks = CuriosApi.getCuriosInventory(entity).orElseThrow().getCurios().get(identifier).getStacks();
         for (int i = 0; i < stacks.getSlots(); i++) {
             ItemStack remainder = stacks.insertItem(i, stack, true);
             if (remainder.isEmpty()) {
                 stacks.insertItem(i, stack, false);
-                if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncCurioPayload(entity.getId(), new CuriosData(i, identifier), stack), entity.level().getServer());
                 return true;
             }
         }
         return false;
     }
 
-    public static boolean setStackInFirstValidSlot(LivingEntity entity, ItemStack stack, boolean syncToClient) {
+    public static boolean setStackInFirstValidSlot(LivingEntity entity, ItemStack stack) {
         AtomicBoolean set = new AtomicBoolean(false);
         CuriosApi.getCuriosInventory(entity).orElseThrow().getCurios().forEach((identifier, handler) -> {
-            if (setStackInFirstValidSlot(entity, identifier, stack, syncToClient))
+            if (setStackInFirstValidSlot(entity, identifier, stack))
                 set.set(true);
         });
         return set.get();
     }
 
-    public static void setStackInSlot(LivingEntity entity, CuriosData curiosData, ItemStack stack, boolean syncToClient) {
+    public static void setStackInSlot(LivingEntity entity, CuriosData curiosData, ItemStack stack) {
         CuriosApi.getCuriosInventory(entity).orElseThrow().getCurios().get(curiosData.identifier()).getStacks().setStackInSlot(curiosData.slot(), stack);
-        if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncCurioPayload(entity.getId(), curiosData, stack), entity.level().getServer());
     }
 
     public static ItemStack getStackInSlot(LivingEntity entity, CuriosData curiosData) {

@@ -1,7 +1,7 @@
 {
   "values": [
     "minecraft:apple",
-    "#c:tools/melee_weapon",
+    "#c:tools",
     "minecraft:rabbit_foot",
     "#c:foods/golden"
   ]

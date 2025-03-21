@@ -1,0 +1,135 @@
+{
+  "type": "mineraculous:lucky_charm",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:tag",
+          "expand": true,
+          "functions": [
+            {
+              "function": "minecraft:enchant_randomly",
+              "options": [
+                "minecraft:knockback",
+                "minecraft:sharpness",
+                "minecraft:fire_aspect"
+              ]
+            }
+          ],
+          "name": "c:tools/melee_weapon"
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "mineraculous:power_level_multiplier",
+                "base": {
+                  "type": "minecraft:uniform",
+                  "max": 3.0,
+                  "min": 1.0
+                }
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:bell"
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:enchant_with_levels",
+              "levels": {
+                "type": "mineraculous:power_level_multiplier",
+                "base": {
+                  "type": "minecraft:uniform",
+                  "max": 3.0,
+                  "min": 0.0
+                }
+              },
+              "options": "#minecraft:on_random_loot"
+            }
+          ],
+          "name": "minecraft:shield"
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "mineraculous:power_level_multiplier",
+                "base": {
+                  "type": "minecraft:uniform",
+                  "max": 3.0,
+                  "min": 1.0
+                }
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:iron_golem_spawn_egg"
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "function": "minecraft:enchant_randomly",
+              "options": "minecraft:flame"
+            },
+            {
+              "function": "minecraft:enchant_randomly",
+              "options": "minecraft:quick_charge"
+            },
+            {
+              "function": "minecraft:enchant_randomly",
+              "options": "minecraft:infinity"
+            }
+          ],
+          "name": "minecraft:crossbow"
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "mineraculous:power_level_multiplier",
+                "base": {
+                  "type": "minecraft:uniform",
+                  "max": 16.0,
+                  "min": 4.0
+                }
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:iron_block"
+        },
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "mineraculous:power_level_multiplier",
+                "base": {
+                  "type": "minecraft:uniform",
+                  "max": 16.0,
+                  "min": 1.0
+                }
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:villager_spawn_egg"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "mineraculous:gameplay/lucky_charm/entity/raid"
+}

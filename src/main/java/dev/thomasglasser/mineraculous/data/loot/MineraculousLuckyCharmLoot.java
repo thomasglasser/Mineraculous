@@ -87,6 +87,25 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                                         .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1))))
                                         .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, EntityPredicate.Builder.entity().effects(MobEffectsPredicate.Builder.effects().and(MobEffects.DIG_SLOWDOWN))))));
         biConsumer.accept(
+                MineraculousLuckyCharmLootKeys.RAID,
+                LootTable.lootTable()
+                        .withPool(
+                                LootPool.lootPool()
+                                        .setRolls(ConstantValue.exactly(1.0F))
+                                        .add(
+                                                TagEntry.expandTag(ConventionalItemTags.MELEE_WEAPON_TOOLS)
+                                                        .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(0, 3)))))
+                                        .add(
+                                                LootItem.lootTableItem(Items.SHIELD)
+                                                        .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(0, 3)))))
+                                        .add(
+                                                LootItem.lootTableItem(Items.IRON_GOLEM_SPAWN_EGG)
+                                                        .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 3)))))
+                                        .add(
+                                                LootItem.lootTableItem(Items.CROSSBOW)
+                                                        .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(0, 3)))))
+                                        ));
+        biConsumer.accept(
                 MineraculousLuckyCharmLootKeys.WARDEN,
                 LootTable.lootTable()
                         .withPool(
@@ -115,9 +134,6 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                         .withPool(
                                 LootPool.lootPool()
                                         .setRolls(ConstantValue.exactly(1.0F))
-                                        .add(
-                                                LootItem.lootTableItem(Blocks.OBSIDIAN)
-                                                        .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 16)))))
                                         .add(
                                                 LootItem.lootTableItem(Items.SHEEP_SPAWN_EGG)
                                                         .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 16)))))));

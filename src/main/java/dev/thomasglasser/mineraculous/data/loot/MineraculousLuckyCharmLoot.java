@@ -103,8 +103,7 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                                         .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 3)))))
                                         .add(
                                                 LootItem.lootTableItem(Items.CROSSBOW)
-                                                        .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(0, 3)))))
-                                        ));
+                                                        .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(0, 3)))))));
         biConsumer.accept(
                 MineraculousLuckyCharmLootKeys.WARDEN,
                 LootTable.lootTable()

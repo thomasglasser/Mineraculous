@@ -36,8 +36,6 @@ public class MineraculousRenderTypes {
         RenderSystem.setTextureMatrix(matrix4f);
     }
 
-    // RenderStateShard test = new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeGlintShader);
-
     private static final RenderType LUCKY_CHARM = RenderType.create(
             "mineraculous:lucky_charm",
             DefaultVertexFormat.POSITION_TEX_LIGHTMAP_COLOR,

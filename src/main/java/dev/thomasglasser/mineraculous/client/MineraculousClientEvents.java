@@ -477,6 +477,7 @@ public class MineraculousClientEvents {
 
     public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
+            MineraculousClientUtils.refreshVip();
             MiraculousArmorItem.clearAnimationData();
             KamikotizationArmorItem.clearAnimationData();
         });

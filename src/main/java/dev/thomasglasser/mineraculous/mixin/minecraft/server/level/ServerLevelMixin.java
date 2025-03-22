@@ -80,7 +80,7 @@ public abstract class ServerLevelMixin implements ToolIdDataHolder, LuckyCharmId
     public abstract MinecraftServer getServer();
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void minejago_init(MinecraftServer minecraftServer, Executor executor, LevelStorageSource.LevelStorageAccess levelStorageAccess, ServerLevelData serverLevelData, ResourceKey<Level> resourceKey, LevelStem levelStem, ChunkProgressListener chunkProgressListener, boolean bl, long l, List list, boolean bl2, RandomSequences randomSequences, CallbackInfo ci) {
+    private void init(MinecraftServer minecraftServer, Executor executor, LevelStorageSource.LevelStorageAccess levelStorageAccess, ServerLevelData serverLevelData, ResourceKey<Level> resourceKey, LevelStem levelStem, ChunkProgressListener chunkProgressListener, boolean bl, long l, List list, boolean bl2, RandomSequences randomSequences, CallbackInfo ci) {
         if (resourceKey == Level.OVERWORLD) {
             mineraculous$toolIdData = this.getDataStorage().computeIfAbsent(ToolIdData.factory(), ToolIdData.FILE_ID);
             mineraculous$luckyCharmIdData = this.getDataStorage().computeIfAbsent(LuckyCharmIdData.factory(), LuckyCharmIdData.FILE_ID);

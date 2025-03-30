@@ -1,5 +1,6 @@
 {
   "values": {
+    "#minecraft:raiders": "mineraculous:gameplay/lucky_charm/event/raid",
     "minecraft:elder_guardian": "mineraculous:gameplay/lucky_charm/entity/elder_guardian",
     "minecraft:ender_dragon": "mineraculous:gameplay/lucky_charm/entity/ender_dragon",
     "minecraft:warden": "mineraculous:gameplay/lucky_charm/entity/warden",

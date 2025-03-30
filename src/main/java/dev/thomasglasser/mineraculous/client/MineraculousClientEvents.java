@@ -471,10 +471,13 @@ public class MineraculousClientEvents {
     public static void onRegisterRenderBuffers(RegisterRenderBuffersEvent event) {
         event.registerRenderBuffer(MineraculousRenderTypes.luckyCharm());
         event.registerRenderBuffer(MineraculousRenderTypes.armorLuckyCharm());
+        event.registerRenderBuffer(MineraculousRenderTypes.entityLuckyCharm());
+        event.registerRenderBuffer(MineraculousRenderTypes.shieldLuckyCharm());
     }
 
     public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
+            MineraculousClientUtils.refreshVip();
             MiraculousArmorItem.clearAnimationData();
             KamikotizationArmorItem.clearAnimationData();
         });

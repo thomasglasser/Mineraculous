@@ -12,6 +12,7 @@ public class MineraculousLuckyCharmLootKeys {
     // Entities
     public static final ResourceKey<LootTable> ENDER_DRAGON = entity("ender_dragon");
     public static final ResourceKey<LootTable> ELDER_GUARDIAN = entity("elder_guardian");
+    public static final ResourceKey<LootTable> RAID = event("raid");
     public static final ResourceKey<LootTable> WARDEN = entity("warden");
     public static final ResourceKey<LootTable> WITHER = entity("wither");
 
@@ -21,6 +22,10 @@ public class MineraculousLuckyCharmLootKeys {
 
     private static ResourceKey<LootTable> entity(String name) {
         return modLoc("entity/" + name);
+    }
+
+    private static ResourceKey<LootTable> event(String name) {
+        return modLoc("event/" + name);
     }
 
     private static ResourceKey<LootTable> modLoc(String name) {

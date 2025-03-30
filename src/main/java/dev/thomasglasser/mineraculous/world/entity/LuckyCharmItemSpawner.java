@@ -1,13 +1,16 @@
 package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
+import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
@@ -23,22 +26,20 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.Vec3;
 
 public class LuckyCharmItemSpawner extends Entity {
-    private static final int SPAWN_ITEM_DELAY_MIN = 60;
-    private static final int SPAWN_ITEM_DELAY_MAX = 120;
     private static final String TAG_SPAWN_ITEM_AFTER_TICKS = "spawn_item_after_ticks";
     private static final String TAG_ITEM = "item";
     private static final EntityDataAccessor<ItemStack> DATA_ITEM = SynchedEntityData.defineId(LuckyCharmItemSpawner.class, EntityDataSerializers.ITEM_STACK);
     public static final int TICKS_BEFORE_ABOUT_TO_SPAWN_SOUND = 36;
-    private long spawnItemAfterTicks;
+    private int spawnItemAfterTicks;
 
     public LuckyCharmItemSpawner(EntityType<? extends LuckyCharmItemSpawner> entityType, Level level) {
         super(entityType, level);
         this.noPhysics = true;
     }
 
-    public static LuckyCharmItemSpawner create(Level level, ItemStack item) {
+    public static LuckyCharmItemSpawner create(ServerLevel level, ItemStack item) {
         LuckyCharmItemSpawner spawner = new LuckyCharmItemSpawner(MineraculousEntityTypes.LUCKY_CHARM_ITEM_SPAWNER.get(), level);
-        spawner.spawnItemAfterTicks = level.random.nextIntBetweenInclusive(SPAWN_ITEM_DELAY_MIN, SPAWN_ITEM_DELAY_MAX);
+        spawner.spawnItemAfterTicks = level.random.nextIntBetweenInclusive(MineraculousServerConfig.get().luckyCharmSummonTimeMin.get() * SharedConstants.TICKS_PER_SECOND, MineraculousServerConfig.get().luckyCharmSummonTimeMax.get() * SharedConstants.TICKS_PER_SECOND);
         spawner.setItem(item);
         return spawner;
     }
@@ -54,11 +55,11 @@ public class LuckyCharmItemSpawner extends Entity {
     }
 
     private void tickServer() {
-        if ((long) this.tickCount == this.spawnItemAfterTicks - TICKS_BEFORE_ABOUT_TO_SPAWN_SOUND) {
+        if (this.tickCount == this.spawnItemAfterTicks - TICKS_BEFORE_ABOUT_TO_SPAWN_SOUND) {
             this.level().playSound(null, this.blockPosition(), SoundEvents.TRIAL_SPAWNER_ABOUT_TO_SPAWN_ITEM, SoundSource.PLAYERS);
         }
 
-        if ((long) this.tickCount >= this.spawnItemAfterTicks) {
+        if (this.tickCount >= this.spawnItemAfterTicks) {
             this.spawnItem();
             this.kill();
         }
@@ -115,7 +116,7 @@ public class LuckyCharmItemSpawner extends Entity {
                 ? ItemStack.parse(this.registryAccess(), compound.getCompound(TAG_ITEM)).orElse(ItemStack.EMPTY)
                 : ItemStack.EMPTY;
         this.setItem(itemstack);
-        this.spawnItemAfterTicks = compound.getLong(TAG_SPAWN_ITEM_AFTER_TICKS);
+        this.spawnItemAfterTicks = compound.getInt(TAG_SPAWN_ITEM_AFTER_TICKS);
     }
 
     @Override
@@ -124,7 +125,7 @@ public class LuckyCharmItemSpawner extends Entity {
             compound.put(TAG_ITEM, this.getItem().save(this.registryAccess()).copy());
         }
 
-        compound.putLong(TAG_SPAWN_ITEM_AFTER_TICKS, this.spawnItemAfterTicks);
+        compound.putInt(TAG_SPAWN_ITEM_AFTER_TICKS, this.spawnItemAfterTicks);
     }
 
     @Override

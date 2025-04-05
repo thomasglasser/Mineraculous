@@ -405,6 +405,11 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         return List.of();
     }
 
+    @Override
+    public double getBoneResetTime() {
+        return 0;
+    }
+
     public enum Ability implements RadialMenuOption, StringRepresentable {
         BLOCK,
         LASSO,

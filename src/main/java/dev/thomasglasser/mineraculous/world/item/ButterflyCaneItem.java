@@ -81,7 +81,6 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
     public static final String ANIMATION_CLOSE = "close";
     public static final String ANIMATION_SHEATHE = "sheathe";
     public static final String ANIMATION_UNSHEATHE = "unsheathe";
-    public static final String ANIMATION_BLOCK = "block";
     public static final String TAG_STORED_KAMIKO = "StoredKamiko";
 
     public static final RawAnimation BLADE_IDLE = RawAnimation.begin().thenPlay("misc.blade_idle");
@@ -111,15 +110,17 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, CONTROLLER_USE, state -> {
-            if (state.getData(DataTickets.ITEMSTACK).get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == Ability.BLADE && !state.isCurrentAnimation(UNSHEATHE))
+            ItemStack stack = state.getData(DataTickets.ITEMSTACK);
+            if (stack.has(MineraculousDataComponents.BLOCKING))
+                return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
+            else if (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == Ability.BLADE && !state.isCurrentAnimation(UNSHEATHE))
                 return state.setAndContinue(BLADE_IDLE);
             return PlayState.STOP;
         })
                 .triggerableAnim(ANIMATION_OPEN, OPEN)
                 .triggerableAnim(ANIMATION_CLOSE, CLOSE)
                 .triggerableAnim(ANIMATION_SHEATHE, SHEATH)
-                .triggerableAnim(ANIMATION_UNSHEATHE, UNSHEATHE)
-                .triggerableAnim(ANIMATION_BLOCK, DefaultAnimations.ATTACK_BLOCK));
+                .triggerableAnim(ANIMATION_UNSHEATHE, UNSHEATHE));
     }
 
     @Override
@@ -178,6 +179,8 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
                 }
             }
         }
+
+        LadybugYoyoItem.checkBlocking(stack, entity, stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == Ability.BLOCK);
     }
 
     @Override
@@ -233,13 +236,6 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
                 } else
                     return InteractionResultHolder.fail(stack);
             }
-            if (level instanceof ServerLevel serverLevel) {
-                long animId = GeoItem.getOrAssignId(stack, serverLevel);
-                switch (ability) {
-                    case BLOCK -> triggerAnim(player, animId, CONTROLLER_USE, ANIMATION_BLOCK);
-                    case null, default -> {}
-                }
-            }
             return InteractionResultHolder.consume(stack);
         }
         return super.use(level, player, hand);
@@ -248,18 +244,8 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
     @Override
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         super.onUseTick(level, livingEntity, stack, remainingUseDuration);
-        if (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()) == Ability.BLOCK && remainingUseDuration % 10 == 0) {
+        if (stack.has(MineraculousDataComponents.BLOCKING) && remainingUseDuration % 10 == 0) {
             livingEntity.playSound(MineraculousSoundEvents.GENERIC_SHIELD.get());
-        }
-    }
-
-    @Override
-    public void onStopUsing(ItemStack stack, LivingEntity entity, int count) {
-        if (entity.level() instanceof ServerLevel serverLevel && stack.has(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get())) {
-            long animId = GeoItem.getOrAssignId(stack, serverLevel);
-            if (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()) == Ability.BLOCK) {
-                stopTriggeredAnim(entity, animId, CONTROLLER_USE, ANIMATION_BLOCK);
-            }
         }
     }
 
@@ -297,11 +283,12 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return switch (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get())) {
-            case BLOCK -> UseAnim.BLOCK;
-            case THROW, BLADE -> UseAnim.SPEAR;
-            case null, default -> UseAnim.NONE;
-        };
+        if (stack.has(MineraculousDataComponents.BLOCKING))
+            return UseAnim.BLOCK;
+        Ability ability = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY);
+        if (ability == Ability.BLADE || ability == Ability.THROW)
+            return UseAnim.SPEAR;
+        return UseAnim.NONE;
     }
 
     @Override

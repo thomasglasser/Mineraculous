@@ -156,6 +156,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .predicate(LadybugYoyoItem.EXTENDED_PROPERTY_ID, 1)
                 .model(withEntityModelInHand(MineraculousItems.CAT_STAFF.getId().withSuffix("_extended"), inHandCatStaff, basicItem(MineraculousItems.CAT_STAFF.getId().withSuffix("_extended"))))
                 .end();
+
         ItemModelBuilder inHandButterflyCane = withEntityModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_in_hand"))
                 .transforms()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0, -18, 2).end()

@@ -77,7 +77,7 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, ProjectileItem, ICurioItem {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final String CONTROLLER_USE = "use_controller";
-    public static final String ANIMATION_BLOCK = "block";
+    public static final String CONTROLLER_EXTEND = "extend_controller";
     public static final String ANIMATION_EXTEND = "extend";
     public static final String ANIMATION_RETRACT = "retract";
 
@@ -102,11 +102,20 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, CONTROLLER_USE, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
-            if (!stack.has(MineraculousDataComponents.ACTIVE) && !state.isCurrentAnimation(RETRACT))
-                return state.setAndContinue(DefaultAnimations.IDLE);
+            if (stack != null) {
+                if (stack.has(MineraculousDataComponents.BLOCKING))
+                    return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
+            }
+            return PlayState.STOP;
+        }));
+        controllers.add(new AnimationController<>(this, CONTROLLER_EXTEND, state -> {
+            ItemStack stack = state.getData(DataTickets.ITEMSTACK);
+            if (stack != null) {
+                if (!stack.has(MineraculousDataComponents.ACTIVE) && !state.isCurrentAnimation(RETRACT))
+                    return state.setAndContinue(DefaultAnimations.IDLE);
+            }
             return PlayState.STOP;
         })
-                .triggerableAnim(ANIMATION_BLOCK, DefaultAnimations.ATTACK_BLOCK)
                 .triggerableAnim(ANIMATION_EXTEND, EXTEND)
                 .triggerableAnim(ANIMATION_RETRACT, RETRACT));
     }
@@ -145,7 +154,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         } else {
                             stack.remove(MineraculousDataComponents.ACTIVE);
                         }
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, hand, CONTROLLER_USE, activate ? ANIMATION_EXTEND : ANIMATION_RETRACT, activate ? MineraculousSoundEvents.CAT_STAFF_EXTEND : MineraculousSoundEvents.CAT_STAFF_RETRACT));
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, hand, CONTROLLER_EXTEND, activate ? ANIMATION_EXTEND : ANIMATION_RETRACT, activate ? MineraculousSoundEvents.CAT_STAFF_EXTEND : MineraculousSoundEvents.CAT_STAFF_RETRACT));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown()) {
                         if (stack.has(MineraculousDataComponents.ACTIVE)) {
@@ -183,6 +192,8 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                 entity.resetFallDistance();
         }
 
+        LadybugYoyoItem.checkBlocking(stack, entity, stack.has(MineraculousDataComponents.ACTIVE) && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == Ability.BLOCK);
+
         super.inventoryTick(stack, level, entity, slotId, isSelected);
     }
 
@@ -209,13 +220,6 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                     pPlayer.resetFallDistance();
                 }
             }
-            if (level instanceof ServerLevel serverLevel) {
-                long animId = GeoItem.getOrAssignId(stack, serverLevel);
-                switch (ability) {
-                    case BLOCK -> triggerAnim(pPlayer, animId, CONTROLLER_USE, ANIMATION_BLOCK);
-                    case null, default -> {}
-                }
-            }
             return InteractionResultHolder.consume(stack);
         }
         return super.use(level, pPlayer, pHand);
@@ -224,18 +228,8 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     @Override
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         super.onUseTick(level, livingEntity, stack, remainingUseDuration);
-        if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.BLOCK && remainingUseDuration % 10 == 0) {
+        if (stack.has(MineraculousDataComponents.BLOCKING) && remainingUseDuration % 10 == 0) {
             livingEntity.playSound(MineraculousSoundEvents.GENERIC_SHIELD.get());
-        }
-    }
-
-    @Override
-    public void onStopUsing(ItemStack stack, LivingEntity entity, int count) {
-        if (entity.level() instanceof ServerLevel serverLevel) {
-            long animId = GeoItem.getOrAssignId(stack, serverLevel);
-            if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.BLOCK) {
-                stopTriggeredAnim(entity, animId, CONTROLLER_USE, ANIMATION_BLOCK);
-            }
         }
     }
 
@@ -266,12 +260,11 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
-        return switch (ability) {
-            case BLOCK -> UseAnim.BLOCK;
-            case THROW -> UseAnim.SPEAR;
-            case null, default -> UseAnim.NONE;
-        };
+        if (stack.has(MineraculousDataComponents.BLOCKING))
+            return UseAnim.BLOCK;
+        else if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == Ability.THROW)
+            return UseAnim.SPEAR;
+        return UseAnim.NONE;
     }
 
     @Override

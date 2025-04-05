@@ -200,8 +200,13 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
             }
         }
 
+        checkBlocking(stack, entity, stack.has(MineraculousDataComponents.ACTIVE) && stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.BLOCK);
+
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
+    }
+
+    public static void checkBlocking(ItemStack stack, Entity entity, boolean canBlock) {
         if (entity instanceof LivingEntity livingEntity) {
-            boolean canBlock = stack.has(MineraculousDataComponents.ACTIVE) && stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.BLOCK;
             boolean blocking = livingEntity.isBlocking() && livingEntity.getUseItem() == stack;
             if (!(canBlock && blocking) && stack.has(MineraculousDataComponents.BLOCKING))
                 stack.remove(MineraculousDataComponents.BLOCKING);
@@ -209,8 +214,6 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                 stack.set(MineraculousDataComponents.BLOCKING, Unit.INSTANCE);
         } else if (stack.has(MineraculousDataComponents.BLOCKING))
             stack.remove(MineraculousDataComponents.BLOCKING);
-
-        super.inventoryTick(stack, level, entity, slotId, isSelected);
     }
 
     @Override
@@ -282,7 +285,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     @Override
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         super.onUseTick(level, livingEntity, stack, remainingUseDuration);
-        if (stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()) == Ability.BLOCK && remainingUseDuration % 7 == 0) {
+        if (stack.has(MineraculousDataComponents.BLOCKING) && remainingUseDuration % 7 == 0) {
             livingEntity.playSound(MineraculousSoundEvents.LADYBUG_YOYO_SHIELD.get());
         }
     }
@@ -361,11 +364,9 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get());
-        return switch (ability) {
-            case BLOCK -> UseAnim.BLOCK;
-            case null, default -> UseAnim.NONE;
-        };
+        if (stack.has(MineraculousDataComponents.BLOCKING))
+            return UseAnim.BLOCK;
+        return UseAnim.NONE;
     }
 
     @Override

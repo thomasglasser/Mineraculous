@@ -30,7 +30,9 @@ public class MineraculousItemProperties {
             }
             return 0;
         });
+        ItemProperties.register(MineraculousItems.CAT_STAFF.get(), LadybugYoyoItem.BLOCKING_PROPERTY_ID, blocking);
         ItemProperties.register(MineraculousItems.CAT_STAFF.get(), LadybugYoyoItem.EXTENDED_PROPERTY_ID, (stack, level, entity, seed) -> stack.has(MineraculousDataComponents.ACTIVE) ? 1 : 0);
+        ItemProperties.register(MineraculousItems.BUTTERFLY_CANE.get(), LadybugYoyoItem.BLOCKING_PROPERTY_ID, blocking);
         ItemProperties.register(MineraculousItems.BUTTERFLY_CANE.get(), ButterflyCaneItem.BLADE_PROPERTY_ID, (stack, level, entity, seed) -> stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == ButterflyCaneItem.Ability.BLADE ? 1 : 0);
         MineraculousBlocks.CHEESE_BLOCKS.values().forEach(block -> ItemProperties.register(block.asItem(), CheeseBlock.BITES_PROPERTY_ID, (stack, level, entity, seed) -> {
             BlockItemStateProperties blockItemStateProperties = stack.get(DataComponents.BLOCK_STATE);

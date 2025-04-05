@@ -59,6 +59,7 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
@@ -554,8 +555,8 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 0, state -> {
             if (getAbility() == LadybugYoyoItem.Ability.PURIFY)
-                return state.setAndContinue(LadybugYoyoItem.OPEN_IDLE);
-            return state.setAndContinue(DefaultAnimations.IDLE);
+                return state.setAndContinue(DefaultAnimations.IDLE);
+            return PlayState.STOP;
         }));
     }
 

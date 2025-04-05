@@ -50,6 +50,7 @@
   ],
   "minecraft:data_component_type": [
     "mineraculous:active",
+    "mineraculous:blocking",
     "mineraculous:butterfly_cane_ability",
     "mineraculous:cat_staff_ability",
     "mineraculous:detransformation_frames",

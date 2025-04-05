@@ -45,6 +45,7 @@ public class MineraculousDataComponents {
 
     // Miraculous Tools
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> ACTIVE = register("active", Codec.unit(Unit.INSTANCE), StreamCodec.unit(Unit.INSTANCE), false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> BLOCKING = register("blocking", Codec.unit(Unit.INSTANCE), StreamCodec.unit(Unit.INSTANCE), false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<LadybugYoyoItem.Ability>> LADYBUG_YOYO_ABILITY = register("ladybug_yoyo_ability", LadybugYoyoItem.Ability.CODEC, LadybugYoyoItem.Ability.STREAM_CODEC, true);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<CatStaffItem.Ability>> CAT_STAFF_ABILITY = register("cat_staff_ability", CatStaffItem.Ability.CODEC, CatStaffItem.Ability.STREAM_CODEC, true);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ButterflyCaneItem.Ability>> BUTTERFLY_CANE_ABILITY = register("butterfly_cane_ability", ButterflyCaneItem.Ability.CODEC, ButterflyCaneItem.Ability.STREAM_CODEC, true);

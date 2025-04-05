@@ -96,6 +96,12 @@
       "predicate": {
         "mineraculous:extended": 3.0
       }
+    },
+    {
+      "model": "mineraculous:item/ladybug_yoyo_blocking",
+      "predicate": {
+        "mineraculous:blocking": 1.0
+      }
     }
   ],
   "perspectives": {

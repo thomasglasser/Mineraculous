@@ -82,11 +82,10 @@ import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICurioItem {
+    public static final ResourceLocation BLOCKING_PROPERTY_ID = Mineraculous.modLoc("blocking");
     public static final ResourceLocation EXTENDED_PROPERTY_ID = Mineraculous.modLoc("extended");
-    public static final RawAnimation OPEN_IDLE = RawAnimation.begin().thenPlay("misc.open_idle");
     public static final String TAG_STORED_KAMIKOS = "StoredKamikos";
     public static final String CONTROLLER_USE = "use_controller";
-    public static final String ANIMATION_BLOCK = "block";
     public static final String CONTROLLER_OPEN = "open_controller";
     public static final String ANIMATION_OPEN = "open";
     public static final String ANIMATION_CLOSE = "close";
@@ -107,10 +106,11 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         controllers.add(new AnimationController<>(this, CONTROLLER_USE, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
             if (stack.has(MineraculousDataComponents.ACTIVE) && stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.PURIFY && !state.isCurrentAnimation(OPEN))
-                return state.setAndContinue(OPEN_IDLE);
-            return state.setAndContinue(DefaultAnimations.IDLE);
-        })
-                .triggerableAnim(ANIMATION_BLOCK, DefaultAnimations.ATTACK_BLOCK));
+                return state.setAndContinue(DefaultAnimations.IDLE);
+            else if (stack.has(MineraculousDataComponents.BLOCKING))
+                return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
+            return PlayState.STOP;
+        }));
         controllers.add(new AnimationController<>(this, CONTROLLER_OPEN, state -> PlayState.CONTINUE)
                 .triggerableAnim(ANIMATION_OPEN, OPEN)
                 .triggerableAnim(ANIMATION_CLOSE, CLOSE));
@@ -200,6 +200,16 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
             }
         }
 
+        if (entity instanceof LivingEntity livingEntity) {
+            boolean canBlock = stack.has(MineraculousDataComponents.ACTIVE) && stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.BLOCK;
+            boolean blocking = livingEntity.isBlocking() && livingEntity.getUseItem() == stack;
+            if (!(canBlock && blocking) && stack.has(MineraculousDataComponents.BLOCKING))
+                stack.remove(MineraculousDataComponents.BLOCKING);
+            else if (canBlock && blocking && !stack.has(MineraculousDataComponents.BLOCKING))
+                stack.set(MineraculousDataComponents.BLOCKING, Unit.INSTANCE);
+        } else if (stack.has(MineraculousDataComponents.BLOCKING))
+            stack.remove(MineraculousDataComponents.BLOCKING);
+
         super.inventoryTick(stack, level, entity, slotId, isSelected);
     }
 
@@ -234,8 +244,6 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                         }
                     } else if (ability == Ability.BLOCK) {
                         pPlayer.startUsingItem(pHand);
-                        long animId = GeoItem.getOrAssignId(stack, serverLevel);
-                        triggerAnim(pPlayer, animId, CONTROLLER_USE, ANIMATION_BLOCK);
                     } else if (ability == Ability.PURIFY) {
                         triggerAnim(pPlayer, GeoItem.getOrAssignId(stack, serverLevel), CONTROLLER_USE, ANIMATION_OPEN);
                         MiraculousDataSet miraculousDataSet = pPlayer.getData(MineraculousAttachmentTypes.MIRACULOUS);
@@ -276,16 +284,6 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         super.onUseTick(level, livingEntity, stack, remainingUseDuration);
         if (stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()) == Ability.BLOCK && remainingUseDuration % 7 == 0) {
             livingEntity.playSound(MineraculousSoundEvents.LADYBUG_YOYO_SHIELD.get());
-        }
-    }
-
-    @Override
-    public void onStopUsing(ItemStack stack, LivingEntity entity, int count) {
-        if (entity.level() instanceof ServerLevel serverLevel) {
-            long animId = GeoItem.getOrAssignId(stack, serverLevel);
-            if (stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()) == Ability.BLOCK) {
-                stopTriggeredAnim(entity, animId, CONTROLLER_USE, ANIMATION_BLOCK);
-            }
         }
     }
 

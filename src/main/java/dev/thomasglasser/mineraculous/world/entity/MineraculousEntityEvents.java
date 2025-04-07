@@ -17,6 +17,7 @@ import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncSuitLookPayl
 import dev.thomasglasser.mineraculous.network.ClientboundSyncKamikotizationLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncMiraculousLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncSuitLookPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundPutKamikotizationToolInHandPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestMiraculousDataSetSyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSendEmptyLeftClickPayload;
@@ -337,8 +338,8 @@ public class MineraculousEntityEvents {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundSetKamikotizationPowerActivatedPayload(kamikotizationKey));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown() && player.getMainHandItem().isEmpty()) {
-//                            TommyLibServices.NETWORK.sendToServer(new ServerboundPutToolInHandPayload(miraculous));
-//                            playerData.putInt(MineraculousEntityEvents.TAG_WAITTICKS, 10);
+                        TommyLibServices.NETWORK.sendToServer(ServerboundPutKamikotizationToolInHandPayload.INSTANCE);
+                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     }
                 }
                 TommyLibServices.ENTITY.setPersistentData(player, playerData, false);

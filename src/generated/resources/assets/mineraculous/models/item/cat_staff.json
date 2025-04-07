@@ -109,6 +109,12 @@
       "predicate": {
         "mineraculous:extended": 1.0
       }
+    },
+    {
+      "model": "mineraculous:item/cat_staff_perch",
+      "predicate": {
+        "mineraculous:extended": 2.0
+      }
     }
   ],
   "perspectives": {

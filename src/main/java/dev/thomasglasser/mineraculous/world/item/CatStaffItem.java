@@ -5,12 +5,15 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
+import dev.thomasglasser.mineraculous.client.animations.PlayerAnimationUtil;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.network.ClientboundCatStaffPerchPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundActivateToolPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetCatStaffAbilityPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundSetDeltaMovementPayload;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
@@ -22,9 +25,13 @@ import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.component.DataComponents;
@@ -35,6 +42,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -136,7 +144,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         if (entity instanceof Player player && !player.isUsingItem()) {
             if (level.isClientSide() && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
                 InteractionHand hand = player.getMainHandItem() == stack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-
+                CatStaffItem.Ability stackAbility = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
                 int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
                 if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen()) {
@@ -173,19 +181,168 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     }
                 }
+                if (stackAbility == Ability.PERCH && stack.has(MineraculousDataComponents.ACTIVE) && player.getMainHandItem().is(MineraculousItems.CAT_STAFF)) {
+                    float d = 0;
+                    boolean k = false;
+                    float length = player.getData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH).get();
+                    boolean shouldNotFall = (groundRYClient == length);
+                    if (MineraculousKeyMappings.WEAPON_DOWN_ARROW.get().isDown()) {
+                        d -= 0.3f;
+                        k = true;
+                    }
+                    if (MineraculousKeyMappings.WEAPON_UP_ARROW.get().isDown() && Math.abs(groundRYClient) < 64) {
+                        d += 0.3f;
+                        k = true;
+                    }
+                    if (k) {
+                        Vec3 vec3 = new Vec3(0, d, 0);
+                        player.setDeltaMovement(vec3);
+                        player.hurtMarked = true;
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetDeltaMovementPayload(vec3.toVector3f(), true));
+                    } else if (shouldNotFall && perchTickClient > 30) {
+                        player.setDeltaMovement(Vec3.ZERO);
+                        player.hurtMarked = true;
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetDeltaMovementPayload(Vec3.ZERO.toVector3f(), true));
+                    }
+
+                    if (staffPosition == Vec3.ZERO) {
+                        float bodyAngle = -player.getYRot();
+                        if (bodyAngle < 0) //simplify:
+                            bodyAngle += 360.0f;
+                        if (bodyAngle >= 360.0f)
+                            bodyAngle -= 360.0f;
+                        double cos = Math.cos(Math.toRadians(bodyAngle)); //z
+                        double sin = Math.sin(Math.toRadians(bodyAngle)); //x
+                        staffPosition = new Vec3(sin, 0, cos);
+                        staffPosition = staffPosition.normalize();
+                        staffPosition = staffPosition.scale(7d / 16d);
+                        staffPosition = staffPosition.add(player.position()); //relative to 0 0 0
+                    }
+                    if (staffPosition != Vec3.ZERO) {
+                        staffPosition = new Vec3(staffPosition.x, player.getY(), staffPosition.z);
+                        Vec3 distance = new Vec3(staffPosition.x - player.getX(), staffPosition.y - player.getY(), staffPosition.z - player.getZ());
+                        double ln = distance.length();
+                        if (ln > 7d / 16d) {
+                            player.setPos(player.position().add(distance.scale(ln - 7d / 16d)));
+                        } else if (ln < 7d / 16d) {
+                            player.setPos(player.position().add(distance.scale(7d / 16d - ln)));
+                        }
+                    }
+                }
+                //TODO rewrite this condition for left handed (and above)
+                if (!(stackAbility == Ability.PERCH && stack.has(MineraculousDataComponents.ACTIVE)) || !player.getMainHandItem().is(MineraculousItems.CAT_STAFF)) {
+                    staffPosition = Vec3.ZERO;
+                }
                 TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
             }
-        }
+            if (!level.isClientSide && entity instanceof ServerPlayer serverPlayer) {
+                float length = player.getData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH).isPresent() ? player.getData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH).get() : 0f;
+                CatStaffItem.Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
+                if (stack.has(MineraculousDataComponents.ACTIVE)) {
+                    if (ability == Ability.TRAVEL && player.getCooldowns().isOnCooldown(stack.getItem()))
+                        entity.resetFallDistance();
+                    if (ability == Ability.PERCH) {
+                        if (!catStaffPerchPerching.getOrDefault(entity.getUUID(), false)) {
+                            player.setData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH, Optional.of(0f));
+                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundCatStaffPerchPayload(0, 0f, player.getUUID()), serverPlayer.server);
+                            catStaffPerchPerching.put(entity.getUUID(), true);
+                        }
+                        //TICKING LOGIC:
+                        int t = catStaffPerchTick.getOrDefault(entity.getUUID(), 0);
+                        if (catStaffPerchPerching.getOrDefault(entity.getUUID(), false) && t > 10 && t < 30) {
+                            if (player.getDeltaMovement().y >= -0.1)
+                                player.setDeltaMovement(0, 0.8, 0);
+                            else
+                                player.setDeltaMovement(0, -player.getDeltaMovement().y, 0);
+                            player.hurtMarked = true;
+                        }
+                        if (catStaffPerchPerching.getOrDefault(entity.getUUID(), false) && t <= 30) {
+                            catStaffPerchTick.put(entity.getUUID(), t + 1);
+                        }
+                        if (t == 1) PlayerAnimationUtil.playAnimationToAllClients(player, "perch_press_button");
+                        TommyLibServices.NETWORK.sendToClient(new ClientboundCatStaffPerchPayload(1, t, player.getUUID()), serverPlayer);
 
-        if (stack.has(MineraculousDataComponents.ACTIVE)) {
-            if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.PERCH && entity.isCrouching()) {
-                entity.setDeltaMovement(Vec3.ZERO);
-                entity.resetFallDistance();
-            } else if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.TRAVEL && entity instanceof Player player && player.getCooldowns().isOnCooldown(stack.getItem()))
-                entity.resetFallDistance();
-        }
+                        //JUST FOR THE RENDERER
+                        TommyLibServices.NETWORK.sendToAllClients(new ClientboundCatStaffPerchPayload(3, t > 10 ? 1 : 0, player.getUUID()), serverPlayer.server);
 
+                        //TODO work on this once kamilo does the rotating animations
+                        /*
+                        if (catStaffPerchInitialYAngle.getOrDefault(player.getUUID(), 1989f) == 1989) {
+                            float rot = player.getYRot();
+                            if (rot < 0) rot += 360;
+                            catStaffPerchInitialYAngle.put(player.getUUID(), rot);
+                        }
+                        
+                        float firstLimit = catStaffPerchInitialYAngle.get(player.getUUID()) + 47f;
+                        float secondLimit = catStaffPerchInitialYAngle.get(player.getUUID()) - 47f;
+                        
+                        boolean ok = true;
+                        if (firstLimit > 360 || secondLimit < 0) {
+                            ok = false;
+                            firstLimit -= firstLimit > 360 ? 360 : 0;
+                            secondLimit += secondLimit > 0 ? 360 : 0;
+                        }
+                        float angle = player.getYRot();
+                        if (angle < 0) angle += 360;
+                        boolean isInLimit = ok ? (angle <= firstLimit && angle >= secondLimit) : (angle <= firstLimit || angle >= secondLimit);
+                        if (!isInLimit) {
+                            float a = angle - firstLimit;
+                            float b = secondLimit - angle;
+                            float newRot = catStaffPerchInitialYAngle.get(player.getUUID());
+                            if (b > a) {
+                                newRot = secondLimit > 180 ? secondLimit - 360 : secondLimit;
+                            } else if (b <= a) {
+                                newRot = firstLimit > 180 ? firstLimit - 360 : firstLimit;
+                            }
+                            //TommyLibServices.NETWORK.sendToClient(new ClientboundSetPlayerRotationPayload(player.getXRot(), player.getYRot(), catStaffPerchInitialYAngle.get(player.getUUID()), player.getUUID()), serverPlayer);
+                        }*/
+
+                        int y = entity.getBlockY();
+                        while (level.getBlockState(new BlockPos(entity.getBlockX(), y, entity.getBlockZ())).isEmpty() && Math.abs(entity.getBlockY() - y) <= 64) {
+                            y--;
+                        }
+                        y++;
+                        catStaffPerchGroundRY.put(entity.getUUID(), (float) y - (float) entity.getY());
+                        TommyLibServices.NETWORK.sendToClient(new ClientboundCatStaffPerchPayload(2, catStaffPerchGroundRY.getOrDefault(entity.getUUID(), 0f), player.getUUID()), serverPlayer);
+                        //THIS MAKES THE STAFF EXTEND ITS LENGTH:
+                        if (catStaffPerchGroundRY.getOrDefault(entity.getUUID(), 0f) < length) {
+                            float newLength = length - 1f;
+                            player.setData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH, Optional.of(newLength));
+                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundCatStaffPerchPayload(0, newLength, player.getUUID()), serverPlayer.server);
+                        }
+                        if (catStaffPerchGroundRY.getOrDefault(entity.getUUID(), 0f) > length) {
+                            float newLength = catStaffPerchGroundRY.getOrDefault(entity.getUUID(), 0f);
+                            player.setData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH, Optional.of(newLength));
+                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundCatStaffPerchPayload(0, newLength, player.getUUID()), serverPlayer.server);
+                        }
+                    }
+
+                    if (ability != Ability.PERCH || !(player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
+                        catStaffPerchPerching.put(entity.getUUID(), false);
+                        catStaffPerchTick.put(entity.getUUID(), 0);
+                        catStaffPerchInitialYAngle.put(player.getUUID(), 1989f);
+                        player.setData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH, Optional.of(0f));
+                        TommyLibServices.NETWORK.sendToAllClients(new ClientboundCatStaffPerchPayload(0, 0f, player.getUUID()), serverPlayer.server);
+                        TommyLibServices.NETWORK.sendToClient(new ClientboundCatStaffPerchPayload(1, 0f, player.getUUID()), serverPlayer);
+                        TommyLibServices.NETWORK.sendToAllClients(new ClientboundCatStaffPerchPayload(3, 0, player.getUUID()), serverPlayer.server);
+                    }
+                }
+            }
+        }
         super.inventoryTick(stack, level, entity, slotId, isSelected);
+    }
+
+    private static HashMap<UUID, Float> catStaffPerchGroundRY = new HashMap<>();
+    private static HashMap<UUID, Float> catStaffPerchInitialYAngle = new HashMap<>();
+    private static HashMap<UUID, Boolean> catStaffPerchPerching = new HashMap<>();
+    private static HashMap<UUID, Integer> catStaffPerchTick = new HashMap<>();
+    public static HashMap<UUID, Boolean> catStaffPerchRender = new HashMap<>();
+    public static int perchTickClient = 0;
+    public static float groundRYClient = 0;
+    public static Vec3 staffPosition = Vec3.ZERO;
+
+    public static int getPerchTick(UUID key) {
+        return catStaffPerchTick.getOrDefault(key, 0);
     }
 
     @Override
@@ -202,13 +359,6 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                     pPlayer.setDeltaMovement(pPlayer.getLookAngle().scale(3));
                     pPlayer.hurtMarked = true;
                     pPlayer.getCooldowns().addCooldown(stack.getItem(), 10);
-                }
-            } else if (ability == Ability.PERCH) {
-                if (pPlayer.getNearestViewDirection() == Direction.UP)
-                    pPlayer.setDeltaMovement(new Vec3(0, 0.5, 0));
-                else if (pPlayer.getNearestViewDirection() == Direction.DOWN) {
-                    pPlayer.setDeltaMovement(new Vec3(0, -0.5, 0));
-                    pPlayer.resetFallDistance();
                 }
             }
             if (level instanceof ServerLevel serverLevel) {

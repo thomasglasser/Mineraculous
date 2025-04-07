@@ -82,6 +82,15 @@ repositories {
 		}
 		filter { includeGroupAndSubgroups "com.klikli_dev" }
 	}
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = "KosmX's maven"
+				url = "https://maven.kosmx.dev/"
+			}
+		}
+		filter { includeGroupAndSubgroups "dev.kosmx.player-anim" }
+	}
 	maven {
 		name = 'TommyLib'
 		url = 'https://dl.cloudsmith.io/public/thomasglasser/tommylib/maven/'
@@ -164,6 +173,7 @@ dependencies {
 	implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${smartbrainlib_version}"
 	implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 	implementation "maven.modrinth:lithostitched:${lithostitched_version}-neoforge"
+	implementation "dev.kosmx.player-anim:player-animation-lib-forge:${player_animator_version}"
 
 	implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 	implementation "com.klikli_dev:modonomicon-${minecraft_version}-neoforge:${modonomicon_version}"
@@ -197,6 +207,7 @@ processResources {
 			"curios_version": curios_version,
 			"trimmed_version": trimmed_version,
 			"lithostitched_version": lithostitched_version,
+			"player_animator_version": player_animator_version,
 			"jei_version": jei_version,
 			"modonomicon_version": modonomicon_version,
 	]

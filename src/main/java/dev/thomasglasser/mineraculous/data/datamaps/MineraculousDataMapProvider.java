@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.data.datamaps;
 
 import dev.thomasglasser.mineraculous.datamaps.LuckyCharms;
 import dev.thomasglasser.mineraculous.datamaps.MineraculousDataMaps;
+import dev.thomasglasser.mineraculous.datamaps.ModifierSettings;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerProfessions;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.MineraculousGiftLootKeys;
@@ -12,6 +13,8 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.neoforge.common.data.DataMapProvider;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 import net.neoforged.neoforge.registries.datamaps.builtin.RaidHeroGift;
@@ -37,7 +40,7 @@ public class MineraculousDataMapProvider extends DataMapProvider {
                 .add(EntityTypeTags.RAIDERS, new LuckyCharms(MineraculousLuckyCharmLootKeys.RAID), false)
                 .build();
 
-        // Mob Effects
+        // Miraculous Buffs
         builder(MineraculousDataMaps.MIRACULOUS_EFFECTS)
                 .add(MobEffects.DAMAGE_RESISTANCE, 1, false)
                 .add(MobEffects.DAMAGE_BOOST, 1, false)
@@ -48,6 +51,9 @@ public class MineraculousDataMapProvider extends DataMapProvider {
                 .add(MobEffects.HEALTH_BOOST, 1, false)
                 .add(MobEffects.SATURATION, 1, false)
                 .add(MobEffects.ABSORPTION, 1, false)
+                .build();
+        builder(MineraculousDataMaps.MIRACULOUS_ATTRIBUTES)
+                .add(Attributes.FALL_DAMAGE_MULTIPLIER, new ModifierSettings(-0.05, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), false)
                 .build();
 
         // Villager Professions

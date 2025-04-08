@@ -13,6 +13,7 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -59,8 +60,8 @@ public class MiraculousDataSet {
         return data;
     }
 
-    public List<ResourceKey<Miraculous>> keySet() {
-        return List.copyOf(map.keySet());
+    public Set<ResourceKey<Miraculous>> keySet() {
+        return Set.copyOf(map.keySet());
     }
 
     public List<MiraculousData> values() {

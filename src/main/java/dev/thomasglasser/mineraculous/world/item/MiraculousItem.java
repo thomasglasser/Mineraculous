@@ -265,7 +265,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                     } else if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown() && data.transformed() && !data.mainPowerActive() && !data.usedLimitedPower() && slotContext.entity().level().holderOrThrow(miraculousKey).value().activeAbility().isPresent()) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousPowerActivatedPayload(miraculousKey));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-                    } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown() && player.getMainHandItem().isEmpty()) {
+                    } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown() && player.getMainHandItem().isEmpty() && data.transformed()) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundPutMiraculousToolInHandPayload(miraculousKey));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     }

@@ -8,7 +8,7 @@ import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.renderer.item.MiraculousRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundMiraculousTransformPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundPutToolInHandPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundPutMiraculousToolInHandPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRenounceMiraculousPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetMiraculousPowerActivatedPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
@@ -155,7 +155,8 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
         LivingEntity entity = slotContext.entity();
         ResourceKey<Miraculous> miraculousKey = stack.get(MineraculousDataComponents.MIRACULOUS);
         if (entity instanceof Player player && miraculousKey != null && player.level().holderOrThrow(miraculousKey).value().acceptableSlot().equals(slotContext.identifier())) {
-            MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(miraculousKey);
+            MiraculousDataSet dataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
+            MiraculousData data = dataSet.get(miraculousKey);
             if (data.transformed()) {
                 if (player.level() instanceof ServerLevel serverLevel) {
                     ServerPlayer serverPlayer = (ServerPlayer) player;
@@ -258,15 +259,16 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                     if (MineraculousKeyMappings.TRANSFORM.get().isDown()) {
                         if (data.transformed()) {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculousKey, data, false, false));
-                        } else {
+                            playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
+                        } else if (!dataSet.isTransformed()) {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculousKey, data, true, false));
+                            playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                         }
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     } else if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown() && data.transformed() && !data.mainPowerActive() && !data.usedLimitedPower() && slotContext.entity().level().holderOrThrow(miraculousKey).value().activeAbility().isPresent()) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousPowerActivatedPayload(miraculousKey));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-                    } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown() && player.getMainHandItem().isEmpty()) {
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundPutToolInHandPayload(miraculousKey));
+                    } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown() && player.getMainHandItem().isEmpty() && data.transformed()) {
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundPutMiraculousToolInHandPayload(miraculousKey));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     }
                 }

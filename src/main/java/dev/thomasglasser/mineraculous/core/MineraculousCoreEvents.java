@@ -68,6 +68,7 @@ public class MineraculousCoreEvents {
         event.register(MineraculousDataMaps.ENTITY_LUCKY_CHARMS);
 
         event.register(MineraculousDataMaps.MIRACULOUS_EFFECTS);
+        event.register(MineraculousDataMaps.MIRACULOUS_ATTRIBUTES);
     }
 
     public static void onLoadLootTable(LootTableLoadEvent event) {

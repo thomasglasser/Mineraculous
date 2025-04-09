@@ -34,7 +34,7 @@ public class CataclysmMobEffect extends MobEffect {
 
     @Override
     public boolean applyEffectTick(LivingEntity livingEntity, int amplifier) {
-        livingEntity.hurt(livingEntity.damageSources().source(MineraculousDamageTypes.CATACLYSM), 1.0F);
+        livingEntity.hurt(livingEntity.damageSources().source(MineraculousDamageTypes.CATACLYSM), (amplifier + 1.0F));
         if (livingEntity instanceof Player player) {
             player.causeFoodExhaustion(0.005F * (amplifier + 1.0F));
         }

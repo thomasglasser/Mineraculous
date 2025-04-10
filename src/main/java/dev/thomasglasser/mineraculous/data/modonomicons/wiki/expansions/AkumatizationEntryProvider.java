@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.WikiBookSubProvider;
-import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 
 public class AkumatizationEntryProvider extends IndexModeEntryProvider {
     public static final String ID = "akumatization";
@@ -16,14 +16,14 @@ public class AkumatizationEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected void generatePages() {
-        page("akumatization", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("akumatization/akumatization.png"))
+        page("description", () -> BookImagePageModel.create()
+                .withImages(WikiBookSubProvider.wikiTexture("akumatization/description.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
-        pageTitle("Akumatization");
+        pageTitle("Description");
         pageText("""
-                The Akumatization pack replaces all references to "Kamiko" and "Kamikotization" with "Akuma" and "Akumatization".
+                The Akumatization Pack replaces all references to "Kamiko" and "Kamikotization" with "Akuma" and "Akumatization".
                 """);
     }
 
@@ -34,12 +34,12 @@ public class AkumatizationEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "Replaces \"Kamiko\" with \"Akuma\"";
+        return "Replaces \"Kamiko\" with \"Akuma\" in all cases";
     }
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(MineraculousArmors.KAMIKOTIZATION.HEAD);
+        return BookIconModel.create(MineraculousItems.KAMIKO_SPAWN_EGG);
     }
 
     @Override

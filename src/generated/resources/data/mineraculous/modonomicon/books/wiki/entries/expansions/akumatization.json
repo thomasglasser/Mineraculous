@@ -5,7 +5,7 @@
   "description": "book.mineraculous.wiki.expansions.akumatization.description",
   "hide_while_locked": false,
   "icon": {
-    "item": "mineraculous:kamikotization_mask"
+    "item": "mineraculous:kamiko_spawn_egg"
   },
   "name": "book.mineraculous.wiki.expansions.akumatization.name",
   "pages": [
@@ -17,10 +17,10 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/akumatization/akumatization.png"
+        "mineraculous:textures/modonomicon/wiki/akumatization/description.png"
       ],
-      "text": "book.mineraculous.wiki.expansions.akumatization.akumatization.text",
-      "title": "book.mineraculous.wiki.expansions.akumatization.akumatization.title",
+      "text": "book.mineraculous.wiki.expansions.akumatization.description.text",
+      "title": "book.mineraculous.wiki.expansions.akumatization.description.title",
       "use_legacy_rendering": false
     }
   ],

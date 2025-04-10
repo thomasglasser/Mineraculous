@@ -10,7 +10,6 @@ import dev.thomasglasser.mineraculous.client.model.KamikoMaskModel;
 import dev.thomasglasser.mineraculous.client.particle.HoveringOrbParticle;
 import dev.thomasglasser.mineraculous.client.particle.KamikotizationParticle;
 import dev.thomasglasser.mineraculous.client.particle.RiseAndSpreadParticle;
-import dev.thomasglasser.mineraculous.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KamikoRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.LuckyCharmItemSpawnerRenderer;
@@ -94,7 +93,6 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterEntitySpectatorShadersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
@@ -466,13 +464,6 @@ public class MineraculousClientEvents {
                 event.setCanceled(true);
             }
         }
-    }
-
-    public static void onRegisterRenderBuffers(RegisterRenderBuffersEvent event) {
-        event.registerRenderBuffer(MineraculousRenderTypes.luckyCharm());
-        event.registerRenderBuffer(MineraculousRenderTypes.armorLuckyCharm());
-        event.registerRenderBuffer(MineraculousRenderTypes.entityLuckyCharm());
-        event.registerRenderBuffer(MineraculousRenderTypes.shieldLuckyCharm());
     }
 
     public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {

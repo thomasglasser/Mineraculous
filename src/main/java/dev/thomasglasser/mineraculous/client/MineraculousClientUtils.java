@@ -184,22 +184,16 @@ public class MineraculousClientUtils {
         ClientUtils.setScreen(new MiraculousTransferScreen(kwamiId));
     }
 
-    public static VertexConsumer checkLuckyCharm(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack, boolean armor, boolean entity, boolean itemModel3d) {
-        if (itemModel3d) {
-            if (itemStack.is(Items.SHIELD) && itemStack.has(MineraculousDataComponents.LUCKY_CHARM))
-                return VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.shieldLuckyCharm()), buffer);
-
-            return itemStack.has(MineraculousDataComponents.LUCKY_CHARM)
-                    ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.entityLuckyCharm()), buffer)
-                    : buffer;
+    public static VertexConsumer checkLuckyCharm(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack, boolean armor, boolean entity) {
+        if (itemStack.has(MineraculousDataComponents.LUCKY_CHARM)) {
+            if (entity) {
+                return itemStack.is(Items.SHIELD)
+                        ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.shieldLuckyCharm()), buffer)
+                        : VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.entityLuckyCharm()), buffer);
+            }
+            return VertexMultiConsumer.create(bufferSource.getBuffer(armor ? MineraculousRenderTypes.armorLuckyCharm() : MineraculousRenderTypes.luckyCharm()), buffer);
         }
-        if (entity)
-            return itemStack.has(MineraculousDataComponents.LUCKY_CHARM)
-                    ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.entityLuckyCharm()), buffer)
-                    : buffer;
-        return itemStack.has(MineraculousDataComponents.LUCKY_CHARM)
-                ? VertexMultiConsumer.create(bufferSource.getBuffer(armor ? MineraculousRenderTypes.armorLuckyCharm() : MineraculousRenderTypes.luckyCharm()), buffer)
-                : buffer;
+        return buffer;
     }
 
     public static void registerDynamicTexture(ResourceLocation texture, byte[] pixels) throws IOException {

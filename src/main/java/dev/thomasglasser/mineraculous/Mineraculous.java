@@ -6,6 +6,7 @@ import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
+import dev.thomasglasser.mineraculous.client.renderer.MineraculousRenderTypeEvents;
 import dev.thomasglasser.mineraculous.commands.MineraculousCommandEvents;
 import dev.thomasglasser.mineraculous.core.MineraculousCoreEvents;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
@@ -136,8 +137,9 @@ public class Mineraculous {
             bus.addListener(MineraculousClientEvents::onRegisterItemColorHandlers);
             bus.addListener(MineraculousClientEvents::onBuildCreativeModeTabContents);
             bus.addListener(MineraculousClientEvents::onClientConfigChanged);
-            bus.addListener(MineraculousClientEvents::onRegisterRenderBuffers);
             bus.addListener(MineraculousClientEvents::onRegisterClientReloadListeners);
+            bus.addListener(MineraculousRenderTypeEvents::onRegisterRenderBuffers);
+            bus.addListener(MineraculousRenderTypeEvents::onRegisterShaders);
 
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onGetPlayerHeartType);
             NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderHand);

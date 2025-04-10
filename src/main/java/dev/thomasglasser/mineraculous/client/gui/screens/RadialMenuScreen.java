@@ -65,7 +65,7 @@ public class RadialMenuScreen extends Screen {
 
     protected int getSelectedOption(int pMouseX, int pMouseY, float circleSize) {
         double hypotenuse = Math.sqrt(pMouseX * pMouseX + pMouseY * pMouseY);
-        if (hypotenuse < (circleSize) / 3f || hypotenuse > circleSize * 91 / 90) {
+        if (hypotenuse < (circleSize) / 3f /*|| hypotenuse > circleSize * 91 / 90*/) {
             return -1;
         }
         double alpha = alpha(pMouseX, pMouseY);

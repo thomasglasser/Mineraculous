@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -69,6 +70,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     private static final EntityDataAccessor<Boolean> IS_RECALLING = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> SERVER_MAX_ROPE_LENGTH = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> RENDER_MAX_ROPE_LENGTH = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Direction> INITIAL_DIRECTION = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.DIRECTION);
     private static final EntityDataAccessor<Integer> RECALLING_TICKS = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -104,6 +106,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         builder.define(RECALLING_TICKS, 0);
         builder.define(SERVER_MAX_ROPE_LENGTH, 0f);
         builder.define(RENDER_MAX_ROPE_LENGTH, 0f);
+        builder.define(INITIAL_DIRECTION, Direction.UP);
     }
 
     public @Nullable LadybugYoyoItem.Ability getAbility() {
@@ -154,8 +157,16 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         return this.entityData.get(RENDER_MAX_ROPE_LENGTH);
     }
 
+    public Direction getInitialDirection() {
+        return this.entityData.get(INITIAL_DIRECTION);
+    }
+
     public void setRenderMaxRopeLength(float f) {
         this.entityData.set(RENDER_MAX_ROPE_LENGTH, f);
+    }
+
+    public void setInitialDirection(Direction dir) {
+        this.entityData.set(INITIAL_DIRECTION, dir);
     }
 
     @Nullable
@@ -498,7 +509,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         float f = p.getAttackAnim(0);
         float f1 = Mth.sin(Mth.sqrt(f) * 3.1415927F);
 
-        Vec3 vec3 = ThrownLadybugYoyoRenderer.getPlayerHandPos(p, f1, 0, Minecraft.getInstance().getEntityRenderDispatcher(), this);
+        Vec3 vec3 = ThrownLadybugYoyoRenderer.getPlayerHandPos(p, f1, 0, Minecraft.getInstance().getEntityRenderDispatcher());
         Vec3 fromProjectileToHand = new Vec3(vec3.x - this.getX(), vec3.y - this.getY(), vec3.z - this.getZ());
         setRenderMaxRopeLength((float) fromProjectileToHand.length());
     }

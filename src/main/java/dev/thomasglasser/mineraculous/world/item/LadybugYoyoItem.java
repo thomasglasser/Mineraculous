@@ -354,6 +354,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         if (!level.isClientSide) {
             ThrownLadybugYoyo thrown = new ThrownLadybugYoyo(player, level, stack, ability);
             thrown.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F, 1.0F);
+            thrown.setInitialDirection(player.getDirection());
             level.addFreshEntity(thrown);
             thrown.setNoGravity(true);
             level.playSound(null, thrown, SoundEvents.FISHING_BOBBER_THROW, SoundSource.PLAYERS, 1.0F, 1.0F);

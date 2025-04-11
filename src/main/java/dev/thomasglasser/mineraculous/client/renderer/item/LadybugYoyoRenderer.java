@@ -43,7 +43,9 @@ public class LadybugYoyoRenderer extends BlockingGeoItemRenderer<LadybugYoyoItem
                 } else if (player.getOffhandItem() == stack) {
                     arm = player.getMainArm() == HumanoidArm.RIGHT ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
                 }
-                renderHand(entityRenderDispatcher, player, arm, poseStack, multiBufferSource, packedLight);
+                if (transform.firstPerson())
+                    renderHand(entityRenderDispatcher, player, arm, poseStack, multiBufferSource, packedLight);
+                else poseStack.translate(0, 100, 0);
             }
         }
         super.renderByItem(stack, transform, poseStack, bufferSource, packedLight, packedOverlay);

@@ -1,9 +1,6 @@
 {
   "base": {
-    "parent": "minecraft:item/generated",
-    "textures": {
-      "layer0": "mineraculous:item/empty"
-    }
+    "parent": "minecraft:builtin/entity"
   },
   "gui_light": "front",
   "loader": "neoforge:separate_transforms",

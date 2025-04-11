@@ -41,7 +41,9 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
             float f = projectilePlayer.getAttackAnim(partialTick);
             float f1 = Mth.sin(Mth.sqrt(f) * 3.1415927F);
 
-            Vec3 vec3 = getPlayerHandPos(projectilePlayer, f1, partialTick, Minecraft.getInstance().getEntityRenderDispatcher());
+            double maxLength = projectileEntity.getRenderMaxRopeLength();
+
+            Vec3 vec3 = getPlayerHandPos(projectilePlayer, f1, partialTick, Minecraft.getInstance().getEntityRenderDispatcher(), projectileEntity);
             Vec3 projectilePos = projectileEntity.getPosition(partialTicks);
 
             VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
@@ -51,10 +53,8 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
             Vec3 fromPTHOnXZ = new Vec3(fromProjectileToHand.x, 0, fromProjectileToHand.z); //fromProjectileToHandOnXZ
             Vec3 ropeThickness = new Vec3(getSegmentThickness(projectilePos, vec3).toVector3f());
 
-            double maxLength = projectileEntity.getRenderMaxRopeLength();
-
             double length = fromProjectileToHand.length();
-            if (length >= maxLength || maxLength > 50) { //if it's bigger than 50 it starts looking wierd because IDK what hyperbolic cosine and catenary equation is, and for my sanity I don't want to know.
+            if (length >= maxLength || maxLength > 50) { //if it's bigger than 50 it starts looking wierd because IDK what hyperbolic cosine and catenary equations are.
                 vertex(vertexConsumer, pose, (float) -ropeThickness.x, (float) -ropeThickness.y, (float) -ropeThickness.z, 0f, 1f);
                 vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x - ropeThickness.x), (float) (fromProjectileToHand.y - ropeThickness.y), (float) (fromProjectileToHand.z - ropeThickness.z), 1f, 1f);
                 vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x + ropeThickness.x), (float) (fromProjectileToHand.y + ropeThickness.y), (float) (fromProjectileToHand.z + ropeThickness.z), 1f, 0f);
@@ -64,8 +64,16 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
                 int i;
                 int points = 100;
                 final double T = 2048;
+                double xLast = points * (fromPTHOnXZ.length()) / (points + 1);
+                double yLast = points * (vec3.y - projectilePos.y) / points - (2 * points * (maxLength - points * maxLength / (points + 1)) / (1 * T));
+                RopePoint lastP = new RopePoint(xLast, yLast, points, fromPTHOnXZ);
+
+                Vec3 offsetV = new Vec3(fromProjectileToHand.x - lastP.getX(),
+                        fromProjectileToHand.y - lastP.yP(),
+                        fromProjectileToHand.z - lastP.getZ());
+                double offsetL = offsetV.length();
                 for (i = 1; i <= points; i++) {
-                    double xi = i * (fromPTHOnXZ.length()) / (points + 1);
+                    double xi = i * (fromPTHOnXZ.length() + offsetL) / (points + 1);
                     double yi = i * (vec3.y - projectilePos.y) / points - (2 * i * (maxLength - i * maxLength / (points + 1)) / (1 * T));
                     //yi = fromProjectileToHand.y * ((double) (i + 1) / (points + 1) * (double) (i + 1) / (points + 1) + (double) (i + 1) / (points + 1)) * 0.5d;
                     pointList.add(new RopePoint(xi, yi, i, fromPTHOnXZ));
@@ -87,21 +95,22 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
                     vertex(vertexConsumer, pose, (float) (pointList.get(i + 1).getX() + point1ToPoint2Thickness.x), (float) (pointList.get(i + 1).yP() + point1ToPoint2Thickness.y), (float) (pointList.get(i + 1).getZ() + point1ToPoint2Thickness.z), 1f, 0f);
                     vertex(vertexConsumer, pose, (float) (pointList.get(i).getX() + point1ToPoint2Thickness.x), (float) (pointList.get(i).yP() + point1ToPoint2Thickness.y), (float) (pointList.get(i).getZ() + point1ToPoint2Thickness.z), 0f, 0f);
                 }
-
-                /*Vec3 lastPointPos = new Vec3(pointList.get(points - 1).getX() + projectilePos.x, pointList.get(points - 1).getY() + projectilePos.y, pointList.get(points - 1).getZ() + projectilePos.z);
+                /*
+                Vec3 lastPointPos = new Vec3(pointList.get(points - 1).getX() + projectilePos.x, pointList.get(points - 1).yP() + projectilePos.y, pointList.get(points - 1).getZ() + projectilePos.z);
                 Vec3 lastPointToHandThickness = new Vec3(getSegmentThickness(lastPointPos, vec3).toVector3f());
-                vertex(vertexConsumer, pose, (float) (pointList.get(points - 1).getX() - lastPointToHandThickness.x), (float) (pointList.get(points - 1).getY() - lastPointToHandThickness.y), (float) (pointList.get(points - 1).getZ() - lastPointToHandThickness.z), 0f, 1f);
+                vertex(vertexConsumer, pose, (float) (pointList.get(points - 1).getX() - lastPointToHandThickness.x), (float) (pointList.get(points - 1).yP() - lastPointToHandThickness.y), (float) (pointList.get(points - 1).getZ() - lastPointToHandThickness.z), 0f, 1f);
                 vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x - lastPointToHandThickness.x), (float) (fromProjectileToHand.y - lastPointToHandThickness.y), (float) (fromProjectileToHand.z - lastPointToHandThickness.z), 1f, 1f);
                 vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x + lastPointToHandThickness.x), (float) (fromProjectileToHand.y + lastPointToHandThickness.y), (float) (fromProjectileToHand.z + lastPointToHandThickness.z), 1f, 0f);
-                vertex(vertexConsumer, pose, (float) (pointList.get(points - 1).getX() + lastPointToHandThickness.x), (float) (pointList.get(points - 1).getY() + lastPointToHandThickness.y), (float) (pointList.get(points - 1).getZ() + lastPointToHandThickness.z), 0f, 0f);
+                vertex(vertexConsumer, pose, (float) (pointList.get(points - 1).getX() + lastPointToHandThickness.x), (float) (pointList.get(points - 1).yP() + lastPointToHandThickness.y), (float) (pointList.get(points - 1).getZ() + lastPointToHandThickness.z), 0f, 0f);
                 */}
 
             poseStack.popPose();
+            //poseStack.mulPose(Axis.ZN.rotationDegrees(90));
             super.render(projectileEntity, entityYaw, partialTick, poseStack, multiBufferSource, packedLight);
         }
     }
 
-    public static Vec3 getPlayerHandPos(Player player, float p_340872_, float partialTick, EntityRenderDispatcher entityRenderDispatcher) {
+    public static Vec3 getPlayerHandPos(Player player, float p_340872_, float partialTick, EntityRenderDispatcher entityRenderDispatcher, ThrownLadybugYoyo projectileEntity) {
         int i = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
         ItemStack itemstack = player.getMainHandItem();
         if (!itemstack.is(MineraculousItems.LADYBUG_YOYO)) {
@@ -109,9 +118,20 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
         }
 
         if (entityRenderDispatcher.options.getCameraType().isFirstPerson() && player == Minecraft.getInstance().player && entityRenderDispatcher.camera != null) { //ik the null check seems useless but i get crashes abt it
+            Vec3 projectilePos = projectileEntity.getPosition(partialTick);
             double d4 = 960.0 / (double) entityRenderDispatcher.options.fov().get();
-            Vec3 vec3 = entityRenderDispatcher.camera.getNearPlane().getPointOnPlane((float) i * 0.525F, -0.1F).scale(d4).yRot(p_340872_ * 0.5F).xRot(-p_340872_ * 0.7F);
+            Vec3 vec3 = entityRenderDispatcher.camera.getNearPlane().getPointOnPlane((float) i * 0.6f, -0.6f).scale(d4).yRot(p_340872_ * 0.5F).xRot(-p_340872_ * 0.7F);
+            Vec3 vec2 = player.getEyePosition(partialTick).add(vec3);
+            Vec3 fromProjectileToHand = new Vec3(vec2.x - projectilePos.x, vec2.y - projectilePos.y, vec2.z - projectilePos.z); //relative to projectile
+            double length = fromProjectileToHand.length();
+            double maxLength = projectileEntity.getRenderMaxRopeLength();
+            //if (length >= maxLength || maxLength > 50) { //tensioned
             return player.getEyePosition(partialTick).add(vec3);
+            /*} else {
+                //entityRenderDispatcher.camera.getNearPlane().getPointOnPlane()
+                Vec3 vec3Second = entityRenderDispatcher.camera.getNearPlane().getPointOnPlane((float) i * 0f, 0f).scale(d4).yRot(p_340872_ * 0.5F).xRot(-p_340872_ * 0.7F);
+                return player.getEyePosition(partialTick).add(vec3Second);
+            }*/
         } else {
             float f = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot) * 0.017453292F;
             double d0 = Mth.sin(f);

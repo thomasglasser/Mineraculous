@@ -108,8 +108,7 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
             if (projectileEntity.getInitialDirection() == Direction.SOUTH || projectileEntity.getInitialDirection() == Direction.NORTH) {
                 poseStack.mulPose(Axis.ZN.rotationDegrees(90));
                 poseStack.translate(-0.15, 0, 0);
-            }
-            else {
+            } else {
                 poseStack.mulPose(Axis.XN.rotationDegrees(90));
                 poseStack.translate(0, 0, 0.15);
             }

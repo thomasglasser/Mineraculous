@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.network;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
+import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
@@ -31,6 +32,7 @@ public record ServerboundJumpMidSwingingPayload() implements ExtendedPacketPaylo
                     if (!level.getBlockState(new BlockPos((int) player.getX(), (int) player.getY() - 1, (int) player.getZ())).isSolid()) {
                         player.addDeltaMovement(new Vec3(0, 1.2, 0));
                         player.hurtMarked = true;
+                        LadybugYoyoItem.yoyoReleaseTick.put(player.getUUID(), 60);
                         thrownLadybugYoyo.recall();
                     }
                 }

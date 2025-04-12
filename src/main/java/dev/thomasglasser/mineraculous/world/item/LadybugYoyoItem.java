@@ -30,8 +30,10 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -137,6 +139,13 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (entity instanceof Player player && !player.isUsingItem()) {
+            if (!level.isClientSide()) {
+                yoyoReleaseTick.putIfAbsent(player.getUUID(), 0);
+                if (yoyoReleaseTick.getOrDefault(player.getUUID(), 0) > 0) {
+                    player.resetFallDistance();
+                    yoyoReleaseTick.put(player.getUUID(), yoyoReleaseTick.get(player.getUUID()) - 1);
+                }
+            }
             if (level.isClientSide() && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
                 InteractionHand hand = player.getMainHandItem() == stack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
 
@@ -178,23 +187,25 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                             TommyLibServices.NETWORK.sendToServer(new ServerboundEquipToolPayload(hand));
                         }
                         playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-                    } else if (Minecraft.getInstance().player.input.jumping && stack.has(MineraculousDataComponents.ACTIVE)) {
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundJumpMidSwingingPayload());
                     } else if (Minecraft.getInstance().player != null &&
-                            (Minecraft.getInstance().player.input.up ||
-                                    Minecraft.getInstance().player.input.down ||
-                                    Minecraft.getInstance().player.input.left ||
-                                    Minecraft.getInstance().player.input.right ||
-                                    MineraculousKeyMappings.UNWIND_YOYO.get().isDown() ||
-                                    MineraculousKeyMappings.WIND_YOYO.get().isDown())) {
-                                        boolean front = Minecraft.getInstance().player.input.up;
-                                        boolean back = Minecraft.getInstance().player.input.down;
-                                        boolean left = Minecraft.getInstance().player.input.left;
-                                        boolean right = Minecraft.getInstance().player.input.right;
-                                        boolean up = MineraculousKeyMappings.WIND_YOYO.get().isDown();
-                                        boolean down = MineraculousKeyMappings.UNWIND_YOYO.get().isDown();
-                                        TommyLibServices.NETWORK.sendToServer(new ServerboundWalkMidSwingingPayload(front, back, left, right, up, down));
-                                    }
+                            Minecraft.getInstance().player.input.jumping && stack.has(MineraculousDataComponents.ACTIVE)) {
+                                TommyLibServices.NETWORK.sendToServer(new ServerboundJumpMidSwingingPayload());
+                            } else
+                        if (Minecraft.getInstance().player != null &&
+                                (Minecraft.getInstance().player.input.up ||
+                                        Minecraft.getInstance().player.input.down ||
+                                        Minecraft.getInstance().player.input.left ||
+                                        Minecraft.getInstance().player.input.right ||
+                                        MineraculousKeyMappings.UNWIND_YOYO.get().isDown() ||
+                                        MineraculousKeyMappings.WIND_YOYO.get().isDown())) {
+                                            boolean front = Minecraft.getInstance().player.input.up;
+                                            boolean back = Minecraft.getInstance().player.input.down;
+                                            boolean left = Minecraft.getInstance().player.input.left;
+                                            boolean right = Minecraft.getInstance().player.input.right;
+                                            boolean up = MineraculousKeyMappings.WIND_YOYO.get().isDown();
+                                            boolean down = MineraculousKeyMappings.UNWIND_YOYO.get().isDown();
+                                            TommyLibServices.NETWORK.sendToServer(new ServerboundWalkMidSwingingPayload(front, back, left, right, up, down));
+                                        }
                 }
                 TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
             }
@@ -204,6 +215,8 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
 
         super.inventoryTick(stack, level, entity, slotId, isSelected);
     }
+
+    public static HashMap<UUID, Integer> yoyoReleaseTick = new HashMap<UUID, Integer>();
 
     public static void checkBlocking(ItemStack stack, Entity entity, boolean canBlock) {
         if (entity instanceof LivingEntity livingEntity) {
@@ -302,6 +315,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                                 Vec3 fromPlayerToYoyo = new Vec3(thrownLadybugYoyo.getX() - player.getX(), thrownLadybugYoyo.getY() - player.getY() + 2, thrownLadybugYoyo.getZ() - player.getZ());
                                 player.setDeltaMovement(fromPlayerToYoyo.scale(0.2).add(player.getDeltaMovement()));
                                 player.hurtMarked = true;
+                                yoyoReleaseTick.put(player.getUUID(), 60);
                             }
                         } else if (thrownLadybugYoyo.getAbility() == LadybugYoyoItem.Ability.LASSO) {
                             List<Entity> entities = serverLevel.getEntities(thrownLadybugYoyo.getOwner(), thrownLadybugYoyo.getBoundingBox().inflate(2, 1, 2), e -> e != thrownLadybugYoyo);
@@ -343,6 +357,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
             Level level = player.level();
             if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(id.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
                 thrownLadybugYoyo.recall();
+                yoyoReleaseTick.put(player.getUUID(), 60);
             }
             level.playSound(null, player, SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.PLAYERS, 1.0F, 1.0F);
             player.gameEvent(GameEvent.ITEM_INTERACT_FINISH);

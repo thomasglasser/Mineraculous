@@ -99,6 +99,7 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
@@ -395,6 +396,17 @@ public class MineraculousEntityEvents {
         Player player = event.getEntity();
         for (ServerPlayer serverPlayer : ((ServerLevel) player.level()).getPlayers(serverPlayer -> true)) {
             TommyLibServices.NETWORK.sendToAllClients(ClientboundRefreshVipDataPayload.INSTANCE, serverPlayer.getServer());
+        }
+    }
+
+    public static void onEntityLeaveLevelEvent(EntityLeaveLevelEvent event) {
+        Entity entity = event.getEntity();
+        if (entity instanceof Player player) {
+            if (player.getData(MineraculousAttachmentTypes.LADYBUG_YOYO).isPresent()) {
+                Entity yoyo = event.getLevel().getEntity(player.getData(MineraculousAttachmentTypes.LADYBUG_YOYO).get());
+                if (yoyo != null)
+                    yoyo.discard();
+            }
         }
     }
 

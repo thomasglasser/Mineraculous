@@ -257,6 +257,8 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                             } else {
                                 recallYoyo(pPlayer);
                             }
+                        } else {
+                            pPlayer.setData(MineraculousAttachmentTypes.LADYBUG_YOYO, Optional.empty());
                         }
                     } else if (ability == Ability.BLOCK) {
                         pPlayer.startUsingItem(pHand);

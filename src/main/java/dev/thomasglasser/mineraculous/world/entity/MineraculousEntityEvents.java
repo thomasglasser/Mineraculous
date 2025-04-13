@@ -37,7 +37,6 @@ import dev.thomasglasser.mineraculous.world.entity.ability.NightVisionAbility;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerTrades;
-import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
@@ -399,15 +398,13 @@ public class MineraculousEntityEvents {
         }
     }
 
-    public static void onEntityLeaveLevelEvent(EntityLeaveLevelEvent event) {
+    public static void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
         Entity entity = event.getEntity();
-        if (entity instanceof Player player) {
-            if (player.getData(MineraculousAttachmentTypes.LADYBUG_YOYO).isPresent()) {
-                Entity yoyo = event.getLevel().getEntity(player.getData(MineraculousAttachmentTypes.LADYBUG_YOYO).get());
-                if (yoyo != null)
-                    yoyo.discard();
-            }
-        }
+        entity.getData(MineraculousAttachmentTypes.LADYBUG_YOYO).ifPresent(id -> {
+            Entity yoyo = event.getLevel().getEntity(id);
+            if (yoyo != null)
+                yoyo.discard();
+        });
     }
 
     public static void onLivingDeath(LivingDeathEvent event) {
@@ -977,14 +974,12 @@ public class MineraculousEntityEvents {
         flattenedLookDataHolder.mineraculous$getSuitLookData().remove(serverPlayer.getUUID());
         flattenedLookDataHolder.mineraculous$getMiraculousLookData().remove(serverPlayer.getUUID());
         flattenedLookDataHolder.mineraculous$getKamikotizationLookData().remove(serverPlayer.getUUID());
-        Optional<Integer> id = serverPlayer.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
-        if (id.isPresent()) {
-            Level level = serverPlayer.level();
-            if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(id.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
-                thrownLadybugYoyo.discard();
-                serverPlayer.setData(MineraculousAttachmentTypes.LADYBUG_YOYO, Optional.empty());
-            }
-        }
+        serverPlayer.getData(MineraculousAttachmentTypes.LADYBUG_YOYO).ifPresent(id -> {
+            Entity yoyo = serverPlayer.level().getEntity(id);
+            if (yoyo != null)
+                yoyo.discard();
+            serverPlayer.setData(MineraculousAttachmentTypes.LADYBUG_YOYO, Optional.empty());
+        });
     }
 
     public static void handleKamikotizationTransformation(ServerPlayer player, KamikotizationData data, boolean transform, boolean instant, Vec3 kamikoSpawnPos) {

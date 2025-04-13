@@ -4,7 +4,6 @@ import static dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayl
 
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownLadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.network.ClientboundSyncLadybugYoyoPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
@@ -19,6 +18,7 @@ import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
 import java.util.Optional;
@@ -81,10 +81,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         super(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), owner, level, pickupItemStack, null);
         setPos(owner.getX(), owner.getEyeY() - 0.2, owner.getZ());
         setAbility(ability);
-        owner.setData(MineraculousAttachmentTypes.LADYBUG_YOYO, Optional.of(this.getId()));
-        if (level instanceof ServerLevel serverLevel) {
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncLadybugYoyoPayload(Optional.of(this.getId())), serverLevel.getServer());
-        }
+        new ThrownLadybugYoyoData(this.getId()).save(owner, !level.isClientSide);
     }
 
     public ThrownLadybugYoyo(double x, double y, double z, Level level, ItemStack pickupItemStack, @Nullable LadybugYoyoItem.Ability ability) {
@@ -586,10 +583,8 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     @Override
     public void remove(RemovalReason reason) {
         if (getOwner() != null) {
-            getOwner().setData(MineraculousAttachmentTypes.LADYBUG_YOYO, Optional.empty());
-            if (level() instanceof ServerLevel serverLevel) {
-                TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncLadybugYoyoPayload(Optional.empty()), serverLevel.getServer());
-            }
+            if (!level().isClientSide)
+                getOwner().getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).clearId().save(getOwner(), true);
         }
         super.remove(reason);
     }

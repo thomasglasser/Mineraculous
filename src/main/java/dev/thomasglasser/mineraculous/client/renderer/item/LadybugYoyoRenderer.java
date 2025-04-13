@@ -38,7 +38,7 @@ public class LadybugYoyoRenderer extends BlockingGeoItemRenderer<LadybugYoyoItem
     @Override
     public void defaultRender(PoseStack poseStack, LadybugYoyoItem animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
         AbstractClientPlayer player = Minecraft.getInstance().player;
-        if (this.renderPerspective.firstPerson() && player != null && player.getData(MineraculousAttachmentTypes.LADYBUG_YOYO).isPresent())
+        if (this.renderPerspective.firstPerson() && player != null && player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).id().isPresent())
             renderHand(player, this.renderPerspective, poseStack, bufferSource, packedLight);
         super.defaultRender(poseStack, animatable, bufferSource, renderType, buffer, yaw, partialTick, packedLight);
     }

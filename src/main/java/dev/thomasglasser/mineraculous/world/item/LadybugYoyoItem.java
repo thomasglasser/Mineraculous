@@ -25,15 +25,13 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Consumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -140,10 +138,10 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (entity instanceof Player player && !player.isUsingItem()) {
             if (!level.isClientSide()) {
-                yoyoReleaseTick.putIfAbsent(player.getUUID(), 0);
-                if (yoyoReleaseTick.getOrDefault(player.getUUID(), 0) > 0) {
+                ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
+                if (data.safeFallTicks() > 0) {
                     player.resetFallDistance();
-                    yoyoReleaseTick.put(player.getUUID(), yoyoReleaseTick.get(player.getUUID()) - 1);
+                    data.decrementSafeFallTicks().save(player, true);
                 }
             }
             if (level.isClientSide() && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
@@ -216,8 +214,6 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         super.inventoryTick(stack, level, entity, slotId, isSelected);
     }
 
-    public static HashMap<UUID, Integer> yoyoReleaseTick = new HashMap<UUID, Integer>();
-
     public static void checkBlocking(ItemStack stack, Entity entity, boolean canBlock) {
         if (entity instanceof LivingEntity livingEntity) {
             boolean blocking = livingEntity.isBlocking() && livingEntity.getUseItem() == stack;
@@ -238,27 +234,28 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         if (ability != null) {
             if (!pPlayer.getCooldowns().isOnCooldown(this)) {
                 if (level instanceof ServerLevel serverLevel) {
-                    Optional<Integer> id = pPlayer.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
-                    if (id.isPresent()) {
-                        if (serverLevel.getEntity(id.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
-                            if (thrownLadybugYoyo.isRecalling() && ability == thrownLadybugYoyo.getAbility()) {
-                                thrownLadybugYoyo.discard();
+                    ThrownLadybugYoyoData data = pPlayer.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
+                    if (data.id().isPresent()) {
+                        ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(serverLevel);
+                        if (thrownYoyo != null) {
+                            if (thrownYoyo.isRecalling() && ability == thrownYoyo.getAbility()) {
+                                thrownYoyo.discard();
                                 throwYoyo(stack, pPlayer, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY));
                                 pPlayer.getCooldowns().addCooldown(this, 5);
                             } else if (ability == LadybugYoyoItem.Ability.LASSO) {
-                                List<Entity> entities = serverLevel.getEntities(thrownLadybugYoyo.getOwner(), thrownLadybugYoyo.getBoundingBox().inflate(2, 1, 2), entity -> entity != thrownLadybugYoyo);
+                                List<Entity> entities = serverLevel.getEntities(thrownYoyo.getOwner(), thrownYoyo.getBoundingBox().inflate(2, 1, 2), entity -> entity != thrownYoyo);
                                 for (Entity entity : entities) {
                                     CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(entity);
                                     entityData.remove(MineraculousEntityEvents.TAG_YOYO_BOUND_POS);
                                     TommyLibServices.ENTITY.setPersistentData(entity, entityData, true);
                                 }
-                                thrownLadybugYoyo.clearBoundPos();
+                                thrownYoyo.clearBoundPos();
                                 recallYoyo(pPlayer);
                             } else {
                                 recallYoyo(pPlayer);
                             }
                         } else {
-                            pPlayer.setData(MineraculousAttachmentTypes.LADYBUG_YOYO, Optional.empty());
+                            data.clearId().save(pPlayer, true);
                         }
                     } else if (ability == Ability.BLOCK) {
                         pPlayer.startUsingItem(pHand);
@@ -309,18 +306,19 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     public boolean onEntitySwing(ItemStack stack, LivingEntity entity, InteractionHand hand) {
         if (stack.has(MineraculousDataComponents.ACTIVE) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
             if (entity.level() instanceof ServerLevel serverLevel) {
-                Optional<Integer> id = entity.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
-                if (id.isPresent()) {
-                    if (serverLevel.getEntity(id.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
-                        if (thrownLadybugYoyo.getAbility() == Ability.TRAVEL) {
-                            if (thrownLadybugYoyo.inGround()) {
-                                Vec3 fromPlayerToYoyo = new Vec3(thrownLadybugYoyo.getX() - player.getX(), thrownLadybugYoyo.getY() - player.getY() + 2, thrownLadybugYoyo.getZ() - player.getZ());
+                ThrownLadybugYoyoData data = entity.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
+                if (data.id().isPresent()) {
+                    ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(serverLevel);
+                    if (thrownYoyo != null) {
+                        if (thrownYoyo.getAbility() == Ability.TRAVEL) {
+                            if (thrownYoyo.inGround()) {
+                                Vec3 fromPlayerToYoyo = new Vec3(thrownYoyo.getX() - player.getX(), thrownYoyo.getY() - player.getY() + 2, thrownYoyo.getZ() - player.getZ());
                                 player.setDeltaMovement(fromPlayerToYoyo.scale(0.2).add(player.getDeltaMovement()));
                                 player.hurtMarked = true;
-                                yoyoReleaseTick.put(player.getUUID(), 60);
+                                data.startSafeFall().save(player, true);
                             }
-                        } else if (thrownLadybugYoyo.getAbility() == LadybugYoyoItem.Ability.LASSO) {
-                            List<Entity> entities = serverLevel.getEntities(thrownLadybugYoyo.getOwner(), thrownLadybugYoyo.getBoundingBox().inflate(2, 1, 2), e -> e != thrownLadybugYoyo);
+                        } else if (thrownYoyo.getAbility() == LadybugYoyoItem.Ability.LASSO) {
+                            List<Entity> entities = serverLevel.getEntities(thrownYoyo.getOwner(), thrownYoyo.getBoundingBox().inflate(2, 1, 2), e -> e != thrownYoyo);
                             for (Entity e : entities) {
                                 CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(e);
                                 entityData.remove(MineraculousEntityEvents.TAG_YOYO_BOUND_POS);
@@ -329,7 +327,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                                 e.setDeltaMovement(fromEntityToPlayer.scale(0.2));
                                 e.hurtMarked = true;
                             }
-                            thrownLadybugYoyo.clearBoundPos();
+                            thrownYoyo.clearBoundPos();
                         }
                         recallYoyo(player);
                     }
@@ -354,12 +352,15 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     }
 
     public void recallYoyo(Player player) {
-        Optional<Integer> id = player.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
-        if (id.isPresent()) {
+        ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
+        if (data.id().isPresent()) {
             Level level = player.level();
-            if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(id.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
-                thrownLadybugYoyo.recall();
-                yoyoReleaseTick.put(player.getUUID(), 60);
+            if (!level.isClientSide) {
+                ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(level);
+                if (thrownYoyo != null) {
+                    thrownYoyo.recall();
+                    data.startSafeFall().save(player, true);
+                }
             }
             level.playSound(null, player, SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.PLAYERS, 1.0F, 1.0F);
             player.gameEvent(GameEvent.ITEM_INTERACT_FINISH);

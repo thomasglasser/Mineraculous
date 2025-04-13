@@ -245,12 +245,12 @@
   "neoforge:attachment_types": [
     "mineraculous:kamikotization",
     "mineraculous:kamikotization_looks",
-    "mineraculous:ladybug_yoyo",
     "mineraculous:miraculous",
     "mineraculous:miraculous_miraculous_looks",
     "mineraculous:miraculous_suit_looks",
     "mineraculous:old_kamikotization",
-    "mineraculous:stored_armor"
+    "mineraculous:stored_armor",
+    "mineraculous:thrown_ladybug_yoyo"
   ],
   "neoforge:entity_data_serializers": [
     "mineraculous:ladybug_yoyo_ability",

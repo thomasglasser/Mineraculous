@@ -3,10 +3,9 @@ package dev.thomasglasser.mineraculous.network;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
-import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
+import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
-import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -20,21 +19,21 @@ public record ServerboundJumpMidSwingingPayload() implements ExtendedPacketPaylo
     public static final ServerboundJumpMidSwingingPayload INSTANCE = new ServerboundJumpMidSwingingPayload();
     public static final StreamCodec<ByteBuf, ServerboundJumpMidSwingingPayload> CODEC = StreamCodec.unit(INSTANCE);
 
+    // ON SERVER
     @Override
     public void handle(Player player) {
-        Optional<Integer> id = player.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
-        if (id.isPresent()) {
-            Level level = player.level();
-            if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(id.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
-                Vec3 fromProjectileToPlayer = new Vec3(player.getX() - thrownLadybugYoyo.getX(), player.getY() - thrownLadybugYoyo.getY(), player.getZ() - thrownLadybugYoyo.getZ());
-                double distance = fromProjectileToPlayer.length();
-                if (thrownLadybugYoyo.inGround() && !player.isNoGravity() && !player.onGround() && !player.getAbilities().flying && distance >= thrownLadybugYoyo.getServerMaxRopeLength() - 0.2) {
-                    if (!level.getBlockState(new BlockPos((int) player.getX(), (int) player.getY() - 1, (int) player.getZ())).isSolid()) {
-                        player.addDeltaMovement(new Vec3(0, 1.2, 0));
-                        player.hurtMarked = true;
-                        LadybugYoyoItem.yoyoReleaseTick.put(player.getUUID(), 60);
-                        thrownLadybugYoyo.recall();
-                    }
+        Level level = player.level();
+        ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
+        ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(level);
+        if (thrownYoyo != null && level instanceof ServerLevel serverLevel) {
+            Vec3 fromProjectileToPlayer = new Vec3(player.getX() - thrownYoyo.getX(), player.getY() - thrownYoyo.getY(), player.getZ() - thrownYoyo.getZ());
+            double distance = fromProjectileToPlayer.length();
+            if (thrownYoyo.inGround() && !player.isNoGravity() && !player.onGround() && !player.getAbilities().flying && distance >= thrownYoyo.getServerMaxRopeLength() - 0.2) {
+                if (!level.getBlockState(new BlockPos((int) player.getX(), (int) player.getY() - 1, (int) player.getZ())).isSolid()) {
+                    player.addDeltaMovement(new Vec3(0, 1.2, 0));
+                    player.hurtMarked = true;
+                    data.startSafeFall().save(player, true);
+                    thrownYoyo.recall();
                 }
             }
         }

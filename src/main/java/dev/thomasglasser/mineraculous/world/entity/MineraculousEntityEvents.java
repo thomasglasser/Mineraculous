@@ -55,6 +55,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
+import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdDataHolder;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -102,6 +103,7 @@ import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
@@ -399,12 +401,16 @@ public class MineraculousEntityEvents {
     }
 
     public static void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
+        Level level = event.getLevel();
         Entity entity = event.getEntity();
-        entity.getData(MineraculousAttachmentTypes.LADYBUG_YOYO).ifPresent(id -> {
-            Entity yoyo = event.getLevel().getEntity(id);
-            if (yoyo != null)
-                yoyo.discard();
-        });
+        if (!level.isClientSide) {
+            entity.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).id().ifPresent(id -> {
+                Entity yoyo = event.getLevel().getEntity(id);
+                if (yoyo != null)
+                    yoyo.discard();
+                ThrownLadybugYoyoData.remove(entity, true);
+            });
+        }
     }
 
     public static void onLivingDeath(LivingDeathEvent event) {
@@ -974,11 +980,11 @@ public class MineraculousEntityEvents {
         flattenedLookDataHolder.mineraculous$getSuitLookData().remove(serverPlayer.getUUID());
         flattenedLookDataHolder.mineraculous$getMiraculousLookData().remove(serverPlayer.getUUID());
         flattenedLookDataHolder.mineraculous$getKamikotizationLookData().remove(serverPlayer.getUUID());
-        serverPlayer.getData(MineraculousAttachmentTypes.LADYBUG_YOYO).ifPresent(id -> {
+        serverPlayer.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).id().ifPresent(id -> {
             Entity yoyo = serverPlayer.level().getEntity(id);
             if (yoyo != null)
                 yoyo.discard();
-            serverPlayer.setData(MineraculousAttachmentTypes.LADYBUG_YOYO, Optional.empty());
+            ThrownLadybugYoyoData.remove(serverPlayer, true);
         });
     }
 
@@ -1155,6 +1161,16 @@ public class MineraculousEntityEvents {
                     recoveryDataHolder.mineraculous$getMiraculousRecoveryItemData().putRemovable(recoverer, id);
                     item.getItem().set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
                 }
+            }
+        }
+    }
+
+    public static void onLivingFall(LivingFallEvent event) {
+        LivingEntity entity = event.getEntity();
+        if (entity instanceof Player) {
+            int i = entity.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).safeFallTicks();
+            if (i > 0) {
+                event.setDamageMultiplier(0);
             }
         }
     }

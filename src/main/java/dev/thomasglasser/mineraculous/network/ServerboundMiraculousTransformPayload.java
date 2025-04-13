@@ -13,7 +13,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.Nullable;
 
 public record ServerboundMiraculousTransformPayload(ResourceKey<Miraculous> miraculousType, MiraculousData data, boolean transform, boolean instant) implements ExtendedPacketPayload {
 
@@ -27,7 +26,7 @@ public record ServerboundMiraculousTransformPayload(ResourceKey<Miraculous> mira
 
     // ON SERVER
     @Override
-    public void handle(@Nullable Player player) {
+    public void handle(Player player) {
         MineraculousEntityEvents.handleMiraculousTransformation((ServerPlayer) player, miraculousType, data, transform, instant, false);
     }
 

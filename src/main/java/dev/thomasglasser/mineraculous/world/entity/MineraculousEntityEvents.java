@@ -416,118 +416,116 @@ public class MineraculousEntityEvents {
     }
 
     public static void handleMiraculousTransformation(ServerPlayer player, ResourceKey<Miraculous> miraculous, MiraculousData data, boolean transform, boolean instant, boolean removed) {
-        if (player != null) {
-            player.removeEntitiesOnShoulder();
-            ServerLevel serverLevel = player.serverLevel();
-            ItemStack miraculousStack = data.miraculousItem();
-            int transformationFrames = instant ? 0 : player.serverLevel().holderOrThrow(miraculous).value().transformationFrames();
-            if (transform) {
-                // Transform
-                if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || player.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed()) {
-                    return;
-                }
-                KwamiData kwamiData = miraculousStack.get(MineraculousDataComponents.KWAMI_DATA.get());
-                Entity entity = serverLevel.getEntity(kwamiData.uuid());
-                if (entity instanceof Kwami kwami) {
-                    if (kwami.isCharged()) {
-                        ArmorData armor = new ArmorData(player.getItemBySlot(EquipmentSlot.HEAD), player.getItemBySlot(EquipmentSlot.CHEST), player.getItemBySlot(EquipmentSlot.LEGS), player.getItemBySlot(EquipmentSlot.FEET));
-                        player.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
-                        for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
-                            ItemStack stack = Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.getForSlot(slot).get(), miraculous);
-                            stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
-                            if (transformationFrames > 0)
-                                stack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, transformationFrames);
-                            player.setItemSlot(slot, stack);
-                        }
-
-                        int newToolId = ((ToolIdDataHolder) serverLevel.getServer().overworld()).mineraculous$getToolIdData().incrementToolId(kwamiData);
-                        data = data.transform(true, miraculousStack, newToolId);
-
-                        miraculousStack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
-                        miraculousStack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
+        player.removeEntitiesOnShoulder();
+        ServerLevel serverLevel = player.serverLevel();
+        ItemStack miraculousStack = data.miraculousItem();
+        int transformationFrames = instant ? 0 : player.serverLevel().holderOrThrow(miraculous).value().transformationFrames();
+        if (transform) {
+            // Transform
+            if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || player.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed()) {
+                return;
+            }
+            KwamiData kwamiData = miraculousStack.get(MineraculousDataComponents.KWAMI_DATA.get());
+            Entity entity = serverLevel.getEntity(kwamiData.uuid());
+            if (entity instanceof Kwami kwami) {
+                if (kwami.isCharged()) {
+                    ArmorData armor = new ArmorData(player.getItemBySlot(EquipmentSlot.HEAD), player.getItemBySlot(EquipmentSlot.CHEST), player.getItemBySlot(EquipmentSlot.LEGS), player.getItemBySlot(EquipmentSlot.FEET));
+                    player.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
+                    for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
+                        ItemStack stack = Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.getForSlot(slot).get(), miraculous);
+                        stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
                         if (transformationFrames > 0)
-                            miraculousStack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, transformationFrames);
-                        else {
-                            ItemStack tool = data.createTool(player);
-                            if (!tool.isEmpty()) {
-                                if (serverLevel.holderOrThrow(miraculous).value().toolSlot().isPresent()) {
-                                    boolean added = CuriosUtils.setStackInFirstValidSlot(player, serverLevel.holderOrThrow(miraculous).value().toolSlot().get(), tool);
-                                    if (!added) {
-                                        player.addItem(tool);
-                                    }
-                                } else {
+                            stack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, transformationFrames);
+                        player.setItemSlot(slot, stack);
+                    }
+
+                    int newToolId = ((ToolIdDataHolder) serverLevel.getServer().overworld()).mineraculous$getToolIdData().incrementToolId(kwamiData);
+                    data = data.transform(true, miraculousStack, newToolId);
+
+                    miraculousStack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
+                    miraculousStack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
+                    if (transformationFrames > 0)
+                        miraculousStack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, transformationFrames);
+                    else {
+                        ItemStack tool = data.createTool(player);
+                        if (!tool.isEmpty()) {
+                            if (serverLevel.holderOrThrow(miraculous).value().toolSlot().isPresent()) {
+                                boolean added = CuriosUtils.setStackInFirstValidSlot(player, serverLevel.holderOrThrow(miraculous).value().toolSlot().get(), tool);
+                                if (!added) {
                                     player.addItem(tool);
                                 }
+                            } else {
+                                player.addItem(tool);
                             }
                         }
-
-                        player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);
-                        serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), serverLevel.holderOrThrow(miraculous).value().transformSound(), SoundSource.PLAYERS, 1, 1);
-                        if (data.curiosData() != CuriosData.EMPTY)
-                            CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack);
-                        if (data.name().isEmpty())
-                            player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(Miraculous.toLanguageKey(miraculous)), miraculous.location().getPath()), true);
-                        int powerLevel = data.powerLevel();
-                        serverLevel.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, startLevel) -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(serverLevel.holderOrThrow(effect), startLevel + (powerLevel / 10))));
-                        player.getAttributes().addTransientAttributeModifiers(getMiraculousAttributes(serverLevel, powerLevel));
-                        kwami.discard();
-                        MiraculousData finalData = data;
-                        serverLevel.holderOrThrow(miraculous).value().activeAbility().ifPresent(ability -> ability.value().transform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
-                        serverLevel.holderOrThrow(miraculous).value().passiveAbilities().forEach(ability -> ability.value().transform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
-                    } else {
-                        kwami.playHurtSound(serverLevel.damageSources().starve());
                     }
+
+                    player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);
+                    serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), serverLevel.holderOrThrow(miraculous).value().transformSound(), SoundSource.PLAYERS, 1, 1);
+                    if (data.curiosData() != CuriosData.EMPTY)
+                        CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack);
+                    if (data.name().isEmpty())
+                        player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(Miraculous.toLanguageKey(miraculous)), miraculous.location().getPath()), true);
+                    int powerLevel = data.powerLevel();
+                    serverLevel.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, startLevel) -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(serverLevel.holderOrThrow(effect), startLevel + (powerLevel / 10))));
+                    player.getAttributes().addTransientAttributeModifiers(getMiraculousAttributes(serverLevel, powerLevel));
+                    kwami.discard();
+                    MiraculousData finalData = data;
+                    serverLevel.holderOrThrow(miraculous).value().activeAbility().ifPresent(ability -> ability.value().transform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
+                    serverLevel.holderOrThrow(miraculous).value().passiveAbilities().forEach(ability -> ability.value().transform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
                 } else {
-                    miraculousStack.remove(MineraculousDataComponents.KWAMI_DATA.get());
-                    CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack);
+                    kwami.playHurtSound(serverLevel.damageSources().starve());
                 }
             } else {
-                // De-transform
-                Kwami kwami = summonKwami(serverLevel, miraculous, data, player);
-                if (kwami != null) {
-                    kwami.setCharged(false);
-                } else {
-                    Mineraculous.LOGGER.error("Kwami could not be created for player " + player.getName().plainCopy().getString());
-                    return;
-                }
-
-                if (transformationFrames > 0)
-                    miraculousStack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, transformationFrames);
-                else {
-                    miraculousStack.remove(DataComponents.ENCHANTMENTS);
-                    player.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(armorData -> {
-                        for (EquipmentSlot slot : Arrays.stream(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR).toArray(EquipmentSlot[]::new)) {
-                            player.setItemSlot(slot, armorData.forSlot(slot));
-                        }
-                    });
-                }
-                miraculousStack.remove(MineraculousDataComponents.REMAINING_TICKS.get());
-                miraculousStack.remove(MineraculousDataComponents.POWERED.get());
-                if (data.curiosData() != CuriosData.EMPTY)
-                    CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack);
-                if (removed) {
-                    renounceMiraculous(miraculousStack, serverLevel);
-                    ((ChargeOverrideDataHolder) serverLevel.getServer().overworld()).mineraculous$getChargeOverrideData().put(kwami.getUUID(), false);
-                }
-                data = data.transform(false, miraculousStack, ((ToolIdDataHolder) serverLevel.getServer().overworld()).mineraculous$getToolIdData().getToolId(kwami.getUUID()));
-                if (removed)
-                    data = data.unEquip();
-                player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);
-                player.getInventory().clearOrCountMatchingItems(itemStack -> itemStack.has(MineraculousDataComponents.TOOL_ID) && itemStack.has(MineraculousDataComponents.KWAMI_DATA) && itemStack.get(MineraculousDataComponents.KWAMI_DATA).uuid().equals(kwami.getUUID()), Integer.MAX_VALUE, new SimpleContainer());
-                CuriosUtils.getAllItems(player).forEach(((curiosData, itemStack) -> {
-                    if (itemStack.has(MineraculousDataComponents.TOOL_ID) && itemStack.has(MineraculousDataComponents.KWAMI_DATA) && itemStack.get(MineraculousDataComponents.KWAMI_DATA).uuid().equals(kwami.getUUID())) {
-                        itemStack.shrink(1);
-                    }
-                }));
-                serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), serverLevel.holderOrThrow(miraculous).value().detransformSound(), SoundSource.PLAYERS, 1, 1);
-                serverLevel.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).keySet().stream().map(serverLevel::holderOrThrow).forEach(player::removeEffect);
-                player.getAttributes().removeAttributeModifiers(getMiraculousAttributes(serverLevel, data.powerLevel()));
-                MiraculousData finalData = data;
-                serverLevel.holderOrThrow(miraculous).value().activeAbility().ifPresent(ability -> ability.value().detransform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
-                serverLevel.holderOrThrow(miraculous).value().passiveAbilities().forEach(ability -> ability.value().detransform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
+                miraculousStack.remove(MineraculousDataComponents.KWAMI_DATA.get());
+                CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack);
             }
-            player.refreshDisplayName();
+        } else {
+            // De-transform
+            Kwami kwami = summonKwami(serverLevel, miraculous, data, player);
+            if (kwami != null) {
+                kwami.setCharged(false);
+            } else {
+                Mineraculous.LOGGER.error("Kwami could not be created for player " + player.getName().plainCopy().getString());
+                return;
+            }
+
+            if (transformationFrames > 0)
+                miraculousStack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, transformationFrames);
+            else {
+                miraculousStack.remove(DataComponents.ENCHANTMENTS);
+                player.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(armorData -> {
+                    for (EquipmentSlot slot : Arrays.stream(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR).toArray(EquipmentSlot[]::new)) {
+                        player.setItemSlot(slot, armorData.forSlot(slot));
+                    }
+                });
+            }
+            miraculousStack.remove(MineraculousDataComponents.REMAINING_TICKS.get());
+            miraculousStack.remove(MineraculousDataComponents.POWERED.get());
+            if (data.curiosData() != CuriosData.EMPTY)
+                CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack);
+            if (removed) {
+                renounceMiraculous(miraculousStack, serverLevel);
+                ((ChargeOverrideDataHolder) serverLevel.getServer().overworld()).mineraculous$getChargeOverrideData().put(kwami.getUUID(), false);
+            }
+            data = data.transform(false, miraculousStack, ((ToolIdDataHolder) serverLevel.getServer().overworld()).mineraculous$getToolIdData().getToolId(kwami.getUUID()));
+            if (removed)
+                data = data.unEquip();
+            player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);
+            player.getInventory().clearOrCountMatchingItems(itemStack -> itemStack.has(MineraculousDataComponents.TOOL_ID) && itemStack.has(MineraculousDataComponents.KWAMI_DATA) && itemStack.get(MineraculousDataComponents.KWAMI_DATA).uuid().equals(kwami.getUUID()), Integer.MAX_VALUE, new SimpleContainer());
+            CuriosUtils.getAllItems(player).forEach(((curiosData, itemStack) -> {
+                if (itemStack.has(MineraculousDataComponents.TOOL_ID) && itemStack.has(MineraculousDataComponents.KWAMI_DATA) && itemStack.get(MineraculousDataComponents.KWAMI_DATA).uuid().equals(kwami.getUUID())) {
+                    itemStack.shrink(1);
+                }
+            }));
+            serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), serverLevel.holderOrThrow(miraculous).value().detransformSound(), SoundSource.PLAYERS, 1, 1);
+            serverLevel.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).keySet().stream().map(serverLevel::holderOrThrow).forEach(player::removeEffect);
+            player.getAttributes().removeAttributeModifiers(getMiraculousAttributes(serverLevel, data.powerLevel()));
+            MiraculousData finalData = data;
+            serverLevel.holderOrThrow(miraculous).value().activeAbility().ifPresent(ability -> ability.value().detransform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
+            serverLevel.holderOrThrow(miraculous).value().passiveAbilities().forEach(ability -> ability.value().detransform(new AbilityData(finalData.powerLevel(), Either.left(miraculous)), serverLevel, player.blockPosition(), player));
         }
+        player.refreshDisplayName();
     }
 
     private static Multimap<Holder<Attribute>, AttributeModifier> getMiraculousAttributes(ServerLevel serverLevel, int powerLevel) {
@@ -976,104 +974,102 @@ public class MineraculousEntityEvents {
     }
 
     public static void handleKamikotizationTransformation(ServerPlayer player, KamikotizationData data, boolean transform, boolean instant, Vec3 kamikoSpawnPos) {
-        if (player != null) {
-            ServerLevel serverLevel = player.serverLevel();
-            ItemStack originalStack = data.slotInfo().left().isPresent() ? player.getInventory().getItem(data.slotInfo().left().get()) : CuriosUtils.getStackInSlot(player, data.slotInfo().right().get());
-            Kamikotization kamikotization = serverLevel.holderOrThrow(data.kamikotization()).value();
-            ItemStack kamikotizationStack = originalStack.copy();
-            int transformationFrames = 10;
-            if (transform) {
-                // Transform
-                if (player.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed()) {
-                    return;
-                }
-
-                if (kamikotization.powerSource().left().isPresent())
-                    kamikotizationStack = kamikotization.powerSource().left().get().copyWithCount(Math.min(kamikotizationStack.getCount(), kamikotization.powerSource().left().get().getMaxStackSize()));
-
-                data = data.withStackCount(kamikotizationStack.getCount());
-
-                kamikotizationStack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
-                kamikotizationStack.set(MineraculousDataComponents.KAMIKO_DATA.get(), data.kamikoData());
-                kamikotizationStack.set(MineraculousDataComponents.KAMIKOTIZATION, data.kamikotization());
-                kamikotizationStack.set(DataComponents.PROFILE, new ResolvableProfile(player.getGameProfile()));
-
-                ((MiraculousRecoveryDataHolder) serverLevel.getServer().overworld()).mineraculous$getMiraculousRecoveryItemData().putKamikotized(player.getUUID(), originalStack);
-
-                if (!instant) {
-                    data = data.withTransformationFrames(transformationFrames);
-                } else {
-                    data = data.withTransformationFrames(-1);
-                    ArmorData armor = new ArmorData(player.getItemBySlot(EquipmentSlot.HEAD), player.getItemBySlot(EquipmentSlot.CHEST), player.getItemBySlot(EquipmentSlot.LEGS), player.getItemBySlot(EquipmentSlot.FEET));
-                    player.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
-                    for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
-                        ItemStack stack = Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.getForSlot(slot).get(), data.kamikotization());
-                        stack.enchant(serverLevel.holderOrThrow(Enchantments.BINDING_CURSE), 1);
-                        stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
-                        player.setItemSlot(slot, stack);
-                    }
-                    for (int i = 0; i <= 10; i++) {
-                        player.serverLevel().sendParticles(MineraculousParticleTypes.KAMIKOTIZATION.get(), player.getX(), player.getY() + 2 - (11 - transformationFrames) / 5.0, player.getZ(), 100, Math.random() / 3.0, Math.random() / 3.0, Math.random() / 3.0, 0);
-                    }
-                }
-
-                data.save(player, true);
-                serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM, SoundSource.PLAYERS, 1, 1);
-                if (data.slotInfo().left().isPresent()) {
-                    player.getInventory().setItem(data.slotInfo().left().get(), kamikotizationStack);
-                } else {
-                    CuriosUtils.setStackInSlot(player, data.slotInfo().right().get(), kamikotizationStack);
-                }
-                serverLevel.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, startLevel) -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(serverLevel.holderOrThrow(effect), startLevel)));
-                KamikotizationData finalData = data;
-                kamikotization.powerSource().right().ifPresent(ability -> ability.value().transform(new AbilityData(0, Either.right(finalData.kamikotization())), serverLevel, player.blockPosition(), player));
-                kamikotization.passiveAbilities().forEach(ability -> ability.value().transform(new AbilityData(0, Either.right(finalData.kamikotization())), serverLevel, player.blockPosition(), player));
-                ((MiraculousRecoveryDataHolder) serverLevel.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData().startTracking(player.getUUID());
-            } else {
-                // De-transform
-                Kamiko kamiko = summonKamiko(player.level(), data, kamikoSpawnPos);
-                if (kamiko != null) {
-                    kamiko.setOwnerUUID(data.kamikoData().owner());
-                } else {
-                    Mineraculous.LOGGER.error("Kamiko could not be created for player " + player.getName().plainCopy().getString());
-                    return;
-                }
-                kamikotizationStack.remove(DataComponents.ENCHANTMENTS);
-                kamikotizationStack.remove(MineraculousDataComponents.KAMIKOTIZATION.get());
-                kamikotizationStack.remove(DataComponents.PROFILE);
-
-                if (!instant) {
-                    data = data.withDetransformationFrames(transformationFrames);
-                } else {
-                    data = data.withDetransformationFrames(-1);
-                    KamikotizationData.remove(player, true);
-                    player.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(armorData -> {
-                        for (EquipmentSlot slot : Arrays.stream(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR).toArray(EquipmentSlot[]::new)) {
-                            player.setItemSlot(slot, armorData.forSlot(slot));
-                        }
-                    });
-                }
-
-                if (data.slotInfo().left().isPresent()) {
-                    player.getInventory().setItem(data.slotInfo().left().get(), kamikotizationStack);
-                } else {
-                    CuriosUtils.setStackInSlot(player, data.slotInfo().right().get(), kamikotizationStack);
-                }
-                if (instant)
-                    KamikotizationData.remove(player, true);
-                else
-                    data.save(player, true);
-                serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM, SoundSource.PLAYERS, 1, 1);
-                serverLevel.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).keySet().stream().map(serverLevel::holderOrThrow).forEach(player::removeEffect);
-                KamikotizationData finalData1 = data;
-                kamikotization.powerSource().right().ifPresent(ability -> ability.value().detransform(new AbilityData(0, Either.right(finalData1.kamikotization())), serverLevel, player.blockPosition(), player));
-                kamikotization.passiveAbilities().forEach(ability -> ability.value().detransform(new AbilityData(0, Either.right(finalData1.kamikotization())), serverLevel, player.blockPosition(), player));
-                CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
-                entityData.putBoolean(TAG_SHOW_KAMIKO_MASK, false);
-                TommyLibServices.ENTITY.setPersistentData(player, entityData, true);
+        ServerLevel serverLevel = player.serverLevel();
+        ItemStack originalStack = data.slotInfo().left().isPresent() ? player.getInventory().getItem(data.slotInfo().left().get()) : CuriosUtils.getStackInSlot(player, data.slotInfo().right().get());
+        Kamikotization kamikotization = serverLevel.holderOrThrow(data.kamikotization()).value();
+        ItemStack kamikotizationStack = originalStack.copy();
+        int transformationFrames = 10;
+        if (transform) {
+            // Transform
+            if (player.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed()) {
+                return;
             }
-            player.refreshDisplayName();
+
+            if (kamikotization.powerSource().left().isPresent())
+                kamikotizationStack = kamikotization.powerSource().left().get().copyWithCount(Math.min(kamikotizationStack.getCount(), kamikotization.powerSource().left().get().getMaxStackSize()));
+
+            data = data.withStackCount(kamikotizationStack.getCount());
+
+            kamikotizationStack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
+            kamikotizationStack.set(MineraculousDataComponents.KAMIKO_DATA.get(), data.kamikoData());
+            kamikotizationStack.set(MineraculousDataComponents.KAMIKOTIZATION, data.kamikotization());
+            kamikotizationStack.set(DataComponents.PROFILE, new ResolvableProfile(player.getGameProfile()));
+
+            ((MiraculousRecoveryDataHolder) serverLevel.getServer().overworld()).mineraculous$getMiraculousRecoveryItemData().putKamikotized(player.getUUID(), originalStack);
+
+            if (!instant) {
+                data = data.withTransformationFrames(transformationFrames);
+            } else {
+                data = data.withTransformationFrames(-1);
+                ArmorData armor = new ArmorData(player.getItemBySlot(EquipmentSlot.HEAD), player.getItemBySlot(EquipmentSlot.CHEST), player.getItemBySlot(EquipmentSlot.LEGS), player.getItemBySlot(EquipmentSlot.FEET));
+                player.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
+                for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
+                    ItemStack stack = Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.getForSlot(slot).get(), data.kamikotization());
+                    stack.enchant(serverLevel.holderOrThrow(Enchantments.BINDING_CURSE), 1);
+                    stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
+                    player.setItemSlot(slot, stack);
+                }
+                for (int i = 0; i <= 10; i++) {
+                    player.serverLevel().sendParticles(MineraculousParticleTypes.KAMIKOTIZATION.get(), player.getX(), player.getY() + 2 - (11 - transformationFrames) / 5.0, player.getZ(), 100, Math.random() / 3.0, Math.random() / 3.0, Math.random() / 3.0, 0);
+                }
+            }
+
+            data.save(player, true);
+            serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM, SoundSource.PLAYERS, 1, 1);
+            if (data.slotInfo().left().isPresent()) {
+                player.getInventory().setItem(data.slotInfo().left().get(), kamikotizationStack);
+            } else {
+                CuriosUtils.setStackInSlot(player, data.slotInfo().right().get(), kamikotizationStack);
+            }
+            serverLevel.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, startLevel) -> player.addEffect(INFINITE_HIDDEN_EFFECT.apply(serverLevel.holderOrThrow(effect), startLevel)));
+            KamikotizationData finalData = data;
+            kamikotization.powerSource().right().ifPresent(ability -> ability.value().transform(new AbilityData(0, Either.right(finalData.kamikotization())), serverLevel, player.blockPosition(), player));
+            kamikotization.passiveAbilities().forEach(ability -> ability.value().transform(new AbilityData(0, Either.right(finalData.kamikotization())), serverLevel, player.blockPosition(), player));
+            ((MiraculousRecoveryDataHolder) serverLevel.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData().startTracking(player.getUUID());
+        } else {
+            // De-transform
+            Kamiko kamiko = summonKamiko(player.level(), data, kamikoSpawnPos);
+            if (kamiko != null) {
+                kamiko.setOwnerUUID(data.kamikoData().owner());
+            } else {
+                Mineraculous.LOGGER.error("Kamiko could not be created for player " + player.getName().plainCopy().getString());
+                return;
+            }
+            kamikotizationStack.remove(DataComponents.ENCHANTMENTS);
+            kamikotizationStack.remove(MineraculousDataComponents.KAMIKOTIZATION.get());
+            kamikotizationStack.remove(DataComponents.PROFILE);
+
+            if (!instant) {
+                data = data.withDetransformationFrames(transformationFrames);
+            } else {
+                data = data.withDetransformationFrames(-1);
+                KamikotizationData.remove(player, true);
+                player.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(armorData -> {
+                    for (EquipmentSlot slot : Arrays.stream(EquipmentSlot.values()).filter(slot -> slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR).toArray(EquipmentSlot[]::new)) {
+                        player.setItemSlot(slot, armorData.forSlot(slot));
+                    }
+                });
+            }
+
+            if (data.slotInfo().left().isPresent()) {
+                player.getInventory().setItem(data.slotInfo().left().get(), kamikotizationStack);
+            } else {
+                CuriosUtils.setStackInSlot(player, data.slotInfo().right().get(), kamikotizationStack);
+            }
+            if (instant)
+                KamikotizationData.remove(player, true);
+            else
+                data.save(player, true);
+            serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM, SoundSource.PLAYERS, 1, 1);
+            serverLevel.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).keySet().stream().map(serverLevel::holderOrThrow).forEach(player::removeEffect);
+            KamikotizationData finalData1 = data;
+            kamikotization.powerSource().right().ifPresent(ability -> ability.value().detransform(new AbilityData(0, Either.right(finalData1.kamikotization())), serverLevel, player.blockPosition(), player));
+            kamikotization.passiveAbilities().forEach(ability -> ability.value().detransform(new AbilityData(0, Either.right(finalData1.kamikotization())), serverLevel, player.blockPosition(), player));
+            CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
+            entityData.putBoolean(TAG_SHOW_KAMIKO_MASK, false);
+            TommyLibServices.ENTITY.setPersistentData(player, entityData, true);
         }
+        player.refreshDisplayName();
     }
 
     public static Kamiko summonKamiko(Level level, KamikotizationData data, Vec3 kamikoSpawnPos) {

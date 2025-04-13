@@ -158,8 +158,8 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
             MiraculousDataSet dataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
             MiraculousData data = dataSet.get(miraculousKey);
             if (data.transformed()) {
-                if (player.level() instanceof ServerLevel serverLevel) {
-                    ServerPlayer serverPlayer = (ServerPlayer) player;
+                if (player instanceof ServerPlayer serverPlayer) {
+                    ServerLevel serverLevel = serverPlayer.serverLevel();
                     Integer transformationFrames = stack.get(MineraculousDataComponents.TRANSFORMATION_FRAMES);
                     if (transformationFrames != null && transformationFrames >= 1 && player.tickCount % 2 == 0) {
                         if (transformationFrames <= 1) {
@@ -183,7 +183,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                         }
                     }
                     if (data.shouldCountDown() && stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0) <= 0) {
-                        MineraculousEntityEvents.handleMiraculousTransformation((ServerPlayer) player, miraculousKey, data, false, false, false);
+                        MineraculousEntityEvents.handleMiraculousTransformation(serverPlayer, miraculousKey, data, false, false, false);
                         serverLevel.playSound(null, player, serverLevel.holderOrThrow(miraculousKey).value().timerEndSound().value(), SoundSource.PLAYERS, 1.0F, 1.0F);
                     }
                     AtomicBoolean overrideActive = new AtomicBoolean(false);

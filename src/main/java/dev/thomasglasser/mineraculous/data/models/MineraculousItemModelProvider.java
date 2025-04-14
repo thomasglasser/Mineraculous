@@ -105,7 +105,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(2, -1, 0).scale(0.6f).end()
                 .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).translation(2, -1, 0).scale(0.6f).end()
                 .end();
-        ItemModelBuilder inHandThrownLadybugYoyo = basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_thrown_in_hand"), "empty");
+        ItemModelBuilder inHandThrownLadybugYoyo = withEntityModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_thrown_in_hand"));
         ItemModelBuilder inventoryThrownLadybugYoyo = basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_thrown_inventory"), MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_thrown").getPath());
         ItemModelBuilder inventoryLandedLadybugYoyo = basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_landed_inventory"), MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_landed").getPath());
         generatedModels.remove(inHandThrownLadybugYoyo.getLocation());

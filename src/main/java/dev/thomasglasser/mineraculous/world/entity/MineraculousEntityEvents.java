@@ -37,7 +37,6 @@ import dev.thomasglasser.mineraculous.world.entity.ability.NightVisionAbility;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerTrades;
-import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
@@ -56,6 +55,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
+import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdDataHolder;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -99,9 +99,11 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
@@ -395,6 +397,19 @@ public class MineraculousEntityEvents {
         Player player = event.getEntity();
         for (ServerPlayer serverPlayer : ((ServerLevel) player.level()).getPlayers(serverPlayer -> true)) {
             TommyLibServices.NETWORK.sendToAllClients(ClientboundRefreshVipDataPayload.INSTANCE, serverPlayer.getServer());
+        }
+    }
+
+    public static void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
+        Level level = event.getLevel();
+        Entity entity = event.getEntity();
+        if (!level.isClientSide) {
+            entity.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).id().ifPresent(id -> {
+                Entity yoyo = event.getLevel().getEntity(id);
+                if (yoyo != null)
+                    yoyo.discard();
+                ThrownLadybugYoyoData.remove(entity, true);
+            });
         }
     }
 
@@ -963,14 +978,12 @@ public class MineraculousEntityEvents {
         flattenedLookDataHolder.mineraculous$getSuitLookData().remove(serverPlayer.getUUID());
         flattenedLookDataHolder.mineraculous$getMiraculousLookData().remove(serverPlayer.getUUID());
         flattenedLookDataHolder.mineraculous$getKamikotizationLookData().remove(serverPlayer.getUUID());
-        Optional<Integer> id = serverPlayer.getData(MineraculousAttachmentTypes.LADYBUG_YOYO);
-        if (id.isPresent()) {
-            Level level = serverPlayer.level();
-            if (level instanceof ServerLevel serverLevel && serverLevel.getEntity(id.get()) instanceof ThrownLadybugYoyo thrownLadybugYoyo) {
-                thrownLadybugYoyo.discard();
-                serverPlayer.setData(MineraculousAttachmentTypes.LADYBUG_YOYO, Optional.empty());
-            }
-        }
+        serverPlayer.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).id().ifPresent(id -> {
+            Entity yoyo = serverPlayer.level().getEntity(id);
+            if (yoyo != null)
+                yoyo.discard();
+            ThrownLadybugYoyoData.remove(serverPlayer, true);
+        });
     }
 
     public static void handleKamikotizationTransformation(ServerPlayer player, KamikotizationData data, boolean transform, boolean instant, Vec3 kamikoSpawnPos) {
@@ -1144,6 +1157,16 @@ public class MineraculousEntityEvents {
                     recoveryDataHolder.mineraculous$getMiraculousRecoveryItemData().putRemovable(recoverer, id);
                     item.getItem().set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
                 }
+            }
+        }
+    }
+
+    public static void onLivingFall(LivingFallEvent event) {
+        LivingEntity entity = event.getEntity();
+        if (entity instanceof Player) {
+            int i = entity.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).safeFallTicks();
+            if (i > 0) {
+                event.setDamageMultiplier(0);
             }
         }
     }

@@ -20,7 +20,6 @@ public record ClientboundSyncThrownLadybugYoyoDataPayload(int targetId, ThrownLa
     // ON CLIENT
     @Override
     public void handle(Player player) {
-        System.out.println(data.safeFallTicks());
         player.setData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO, data);
     }
 

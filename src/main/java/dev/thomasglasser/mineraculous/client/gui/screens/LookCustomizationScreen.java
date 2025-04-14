@@ -80,7 +80,7 @@ public class LookCustomizationScreen extends Screen {
         this.flattenedMiraculousLooks = getFlattenedMiraculousLooks(serverMiraculous);
         this.suitLooks = getSuitLooks(flattenedSuitLooks);
         this.miraculousLooks = getMiraculousLooks(flattenedMiraculousLooks);
-        this.previewSuit = new RemotePlayer(Minecraft.getInstance().player.clientLevel, Minecraft.getInstance().getGameProfile());
+        this.previewSuit = new RemotePlayer(Minecraft.getInstance().level, Minecraft.getInstance().getGameProfile());
         this.previewSuit.setItemSlot(EquipmentSlot.HEAD, Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.HEAD.get(), miraculous));
         this.previewSuit.setItemSlot(EquipmentSlot.CHEST, Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.CHEST.get(), miraculous));
         this.previewSuit.setItemSlot(EquipmentSlot.LEGS, Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.LEGS.get(), miraculous));
@@ -92,7 +92,12 @@ public class LookCustomizationScreen extends Screen {
         }
         this.previewSuit.setData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS, previewSuitLooks);
         GameProfile profile = new GameProfile(UUID.randomUUID(), "");
-        this.previewMiraculousPlayer = new RemotePlayer(Minecraft.getInstance().player.clientLevel, profile);
+        this.previewMiraculousPlayer = new RemotePlayer(Minecraft.getInstance().level, profile) {
+            @Override
+            public boolean shouldRender(double x, double y, double z) {
+                return false;
+            }
+        };
         HashBasedTable<ResourceKey<Miraculous>, String, MiraculousLookData> previewMiraculousLooks = HashBasedTable.create();
         for (Map.Entry<String, MiraculousLookData> entry : miraculousLooks) {
             previewMiraculousLooks.put(miraculous, entry.getKey(), entry.getValue());

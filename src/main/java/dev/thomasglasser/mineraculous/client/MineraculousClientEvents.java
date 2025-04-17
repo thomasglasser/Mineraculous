@@ -46,15 +46,14 @@ import dev.thomasglasser.mineraculous.world.item.armor.MiraculousArmorItem;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
+import dev.thomasglasser.mineraculous.world.level.storage.PerchCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Consumer;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -91,7 +90,6 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
@@ -259,8 +257,6 @@ public class MineraculousClientEvents {
         }
     }
 
-    private static HashMap<UUID, Float> catStaffPerchInitialDirection = new HashMap<>();
-
     public static void onPlayerRendererPre(RenderPlayerEvent.Post event) {
         Player player = event.getEntity();
         PoseStack poseStack = event.getPoseStack();
@@ -274,50 +270,29 @@ public class MineraculousClientEvents {
         boolean lH = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
         boolean rH = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
         if (lH || rH) {
-            //TODO FIX LENGTH
             player.noCulling = true;
-            float length = player.getData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH).isPresent() ? player.getData(MineraculousAttachmentTypes.CAT_STAFF_PERCH_LENGTH).get() : 0f;
+            PerchCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF);
+            float length = perchData.length();
+            boolean catStaffPerchRender = perchData.canRender();
             poseStack.pushPose();
             VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(Mineraculous.modLoc("textures/misc/cat_staff_perching.png")));
             PoseStack.Pose pose = poseStack.last();
 
-            catStaffPerchInitialDirection.putIfAbsent(player.getUUID(), -1f);
-            float bodyAngle = catStaffPerchInitialDirection.getOrDefault(player.getUUID(), -1f);
-            if (bodyAngle == -1) {
-                // bodyAngle = -player.getPreciseBodyRotation(0);
-                bodyAngle = -player.getYRot();
-                if (bodyAngle < 0) //simplify:
-                    bodyAngle += 360.0f;
-                if (bodyAngle >= 360.0f)
-                    bodyAngle -= 360.0f;
-                catStaffPerchInitialDirection.put(player.getUUID(), bodyAngle);
-            }
-            bodyAngle = catStaffPerchInitialDirection.get(player.getUUID());
-            if (bodyAngle < 0) //simplify:
-                bodyAngle += 360.0f;
-            if (bodyAngle >= 360.0f)
-                bodyAngle -= 360.0f;
-            catStaffPerchInitialDirection.put(player.getUUID(), bodyAngle);
-            double cos = Math.cos(Math.toRadians(bodyAngle)); //z
-            double sin = Math.sin(Math.toRadians(bodyAngle)); //x
-            Vec3 bodyDirection = new Vec3(sin, 0, cos);
-            bodyDirection = bodyDirection.normalize();
-            bodyDirection = bodyDirection.scale(7f / 16f);
-            Vector3f bodyDirectionF = bodyDirection.toVector3f();
-
-            Mineraculous.LOGGER.info(String.valueOf(bodyAngle));
+            //STAFF - PLAYER NEW
+            float bodyAngle = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF).initPos().y;
+            Vector3f bodyDirectionF = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF).initPos();
+            bodyDirectionF = new Vector3f((float) (bodyDirectionF.x - player.getX()), 0f, (float) (bodyDirectionF.z - player.getZ()));
 
             int direction = -1;
             if (bodyAngle <= 45 || bodyAngle > 270 + 45) //south
                 direction = 1; //+z
             else if (bodyAngle > 45 && bodyAngle <= 90 + 45)//east
-                direction = 2; //+x
+                direction = 4; //-x
             else if (bodyAngle > 90 + 45 && bodyAngle <= 180 + 45)//north
                 direction = 3; //-z
             else if (bodyAngle > 180 + 45 && bodyAngle <= 270 + 45)//west
-                direction = 4; //-x
-
-            if (CatStaffItem.catStaffPerchRender.getOrDefault(player.getUUID(), false)) {
+                direction = 2; //+x
+            if (catStaffPerchRender) {
                 //SIDES:
                 int s = (int) (player.getBbHeight() + 0.5);
                 int d;
@@ -488,8 +463,6 @@ public class MineraculousClientEvents {
                 vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 0.5f + length, +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
             }
             poseStack.popPose();
-        } else {
-            catStaffPerchInitialDirection.put(player.getUUID(), -1f);
         }
     }
 

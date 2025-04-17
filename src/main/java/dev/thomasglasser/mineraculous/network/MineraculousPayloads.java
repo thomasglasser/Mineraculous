@@ -52,7 +52,7 @@ public class MineraculousPayloads {
 
             // Clientbound
             new PayloadInfo<>(ClientboundSetPlayerRotationPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSetPlayerRotationPayload.CODEC),
-            new PayloadInfo<>(ClientboundPlayPlayerAnimationPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundPlayPlayerAnimationPayload.CODEC),
+            new PayloadInfo<>(ClientboundPlayerAnimationPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundPlayerAnimationPayload.CODEC),
             new PayloadInfo<>(ClientboundCatStaffPerchPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundCatStaffPerchPayload.CODEC),
             new PayloadInfo<>(ClientboundSyncMiraculousDataSetPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncMiraculousDataSetPayload.CODEC),
             new PayloadInfo<>(ClientboundToggleNightVisionPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundToggleNightVisionPayload.CODEC),

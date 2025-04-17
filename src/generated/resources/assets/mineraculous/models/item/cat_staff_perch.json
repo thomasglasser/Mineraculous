@@ -1,0 +1,30 @@
+{
+  "base": {
+    "parent": "minecraft:item/generated",
+    "textures": {
+      "layer0": "mineraculous:item/empty"
+    }
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "fixed": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/cat_staff_extended"
+      }
+    },
+    "ground": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/cat_staff_extended"
+      }
+    },
+    "gui": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/cat_staff_extended"
+      }
+    }
+  }
+}

@@ -28,6 +28,7 @@ import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
 import java.util.List;
 import java.util.function.Consumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -144,7 +145,6 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         if (entity instanceof Player player && !player.isUsingItem()) {
             if (level.isClientSide() && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
                 InteractionHand hand = player.getMainHandItem() == stack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-                CatStaffItem.Ability stackAbility = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
                 CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
                 int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
                 if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen()) {
@@ -181,7 +181,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     }
                 }
-                if (player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF).startEdge() && stack.has(MineraculousDataComponents.ACTIVE) && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == Ability.PERCH && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
+                if (stack.has(MineraculousDataComponents.ACTIVE) && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == Ability.PERCH && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
                     float d = 0;
                     boolean k = false;
                     float length = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF).length();
@@ -196,39 +196,24 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         d += 0.3f;
                         k = true;
                     }
-                    if (k) {
-                        Vec3 vec3 = new Vec3(0, d, 0);
+                    if (perchTickClient > 30) {
+                        if (k) {
+                            Vec3 vec3 = new Vec3(0, d, 0);
+                            player.setDeltaMovement(vec3);
+                            player.hurtMarked = true;
+                            TommyLibServices.NETWORK.sendToServer(new ServerboundSetDeltaMovementPayload(vec3.toVector3f(), true));
+                        } else if (shouldNotFall) {
+                            player.setDeltaMovement(Vec3.ZERO);
+                            player.hurtMarked = true;
+                            TommyLibServices.NETWORK.sendToServer(new ServerboundSetDeltaMovementPayload(Vec3.ZERO.toVector3f(), true));
+                        }
+                    } else {
+                        Vec3 vec3 = new Vec3(0, player.getDeltaMovement().y, 0);
                         player.setDeltaMovement(vec3);
-                        player.hurtMarked = true;
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetDeltaMovementPayload(vec3.toVector3f(), true));
-                    } else if (shouldNotFall && perchTickClient > 30) {
-                        player.setDeltaMovement(Vec3.ZERO);
-                        player.hurtMarked = true;
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetDeltaMovementPayload(Vec3.ZERO.toVector3f(), true));
                     }
-                    Vector3f staffPosition = new Vector3f(player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF).initPos());
-                    staffPosition = new Vector3f(staffPosition.x, 0, staffPosition.z);
-                    Mineraculous.LOGGER.info(String.valueOf(staffPosition));
-                    Vec3 fromPlayerToStaff = new Vec3((double) staffPosition.x - player.getX(), 0, (double) staffPosition.z - player.getZ());
-                    if (fromPlayerToStaff.length() > PERCH_STAFF_DISTANCE) {
-                        Vec3 constrain = new Vec3((double) staffPosition.x - player.getX(), 0, (double) staffPosition.z - player.getZ());
-                        constrain = constrain.normalize();
-                        constrain = constrain.scale(fromPlayerToStaff.length() - PERCH_STAFF_DISTANCE);
-                        constrain = constrain.add(player.getX(), player.getY(), player.getZ());
-                        player.setPos(constrain);
-                    }
-                    if (fromPlayerToStaff.length() < PERCH_STAFF_DISTANCE) {
-                        Vec3 constrain = new Vec3((double) staffPosition.x - player.getX(), 0, (double) staffPosition.z - player.getZ());
-                        constrain = constrain.normalize();
-                        constrain = constrain.scale(fromPlayerToStaff.length() - PERCH_STAFF_DISTANCE);
-                        constrain = constrain.add(player.getX(), player.getY(), player.getZ());
-                        player.setPos(constrain);
-                    }
+                    constrainPerchMovement(player);
                 }
-                //TODO rewrite this condition for left handed (and above)
-                //if (!(stackAbility == Ability.PERCH && stack.has(MineraculousDataComponents.ACTIVE)) || !player.getMainHandItem().is(MineraculousItems.CAT_STAFF)) {
-                //    staffPosition = Vec3.ZERO;
-                //}
+                //TODO add support for left hand
                 TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
             }
             if (!level.isClientSide) {
@@ -241,7 +226,6 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         float length = perchData.length();
                         float catStaffPerchGroundRY;
                         Vector3f initPos = perchData.initPos();
-                        Vector3f originalPP = perchData.originalPlayerPos();
                         float initRot;
                         boolean catStaffPerchPerching = perchData.startEdge();
 
@@ -255,13 +239,12 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                                 initRot -= 360.0f;
                             double cos = Math.cos(Math.toRadians(initRot)); //z
                             double sin = -Math.sin(Math.toRadians(initRot)); //x
-                            Vec3 playerPos = new Vec3(player.getX(), 0, player.getZ());
                             Vec3 direction = new Vec3(sin, 0, cos);
+                            Vec3 playerPos = new Vec3(player.getX(), 0, player.getZ());
                             direction = direction.normalize();
                             direction = direction.scale(PERCH_STAFF_DISTANCE);
                             direction = direction.add(playerPos);
                             initPos = new Vector3f((float) direction.x, initRot, (float) direction.z);
-                            originalPP = new Vector3f((float) player.getX(), (float) player.getY(), (float) player.getZ());
                         }
 
                         //TICKING LOGIC:
@@ -283,54 +266,8 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                                     MineraculousPlayerAnimationUtil.PlayerAnimationActions.PLAY);
                         }
 
-                        //Constraining Position
-                        /*
-                        Vector3f staffPosition = perchData.initPos();
-                        staffPosition = new Vector3f(staffPosition.x, 0, staffPosition.z);
-                        Mineraculous.LOGGER.info(String.valueOf(staffPosition));
-                        Vec3 fromPlayerToStaff = new Vec3((double) staffPosition.x - player.getX(), 0, (double) staffPosition.z - player.getZ());
-                        if (fromPlayerToStaff.length() > PERCH_STAFF_DISTANCE) {
-                            Vec3 constrain = new Vec3((double) staffPosition.x - player.getX(), 0, (double) staffPosition.z - player.getZ());
-                            constrain = constrain.normalize();
-                            constrain = constrain.scale(fromPlayerToStaff.length() - PERCH_STAFF_DISTANCE);
-                            constrain = constrain.add(player.getX(), player.getY(), player.getZ());
-                            player.setPos(constrain);
-                        }*/
-
                         //JUST FOR THE RENDERER
                         boolean nRender = t > 10;
-
-                        //TODO work on this once kamilo does the rotating animations
-                        /*
-                        if (catStaffPerchInitialYAngle.getOrDefault(player.getUUID(), 1989f) == 1989) {
-                            float rot = player.getYRot();
-                            if (rot < 0) rot += 360;
-                            catStaffPerchInitialYAngle.put(player.getUUID(), rot);
-                        }
-                        
-                        float firstLimit = catStaffPerchInitialYAngle.get(player.getUUID()) + 47f;
-                        float secondLimit = catStaffPerchInitialYAngle.get(player.getUUID()) - 47f;
-                        
-                        boolean ok = true;
-                        if (firstLimit > 360 || secondLimit < 0) {
-                            ok = false;
-                            firstLimit -= firstLimit > 360 ? 360 : 0;
-                            secondLimit += secondLimit > 0 ? 360 : 0;
-                        }
-                        float angle = player.getYRot();
-                        if (angle < 0) angle += 360;
-                        boolean isInLimit = ok ? (angle <= firstLimit && angle >= secondLimit) : (angle <= firstLimit || angle >= secondLimit);
-                        if (!isInLimit) {
-                            float a = angle - firstLimit;
-                            float b = secondLimit - angle;
-                            float newRot = catStaffPerchInitialYAngle.get(player.getUUID());
-                            if (b > a) {
-                                newRot = secondLimit > 180 ? secondLimit - 360 : secondLimit;
-                            } else if (b <= a) {
-                                newRot = firstLimit > 180 ? firstLimit - 360 : firstLimit;
-                            }
-                            //TommyLibServices.NETWORK.sendToClient(new ClientboundSetPlayerRotationPayload(player.getXRot(), player.getYRot(), catStaffPerchInitialYAngle.get(player.getUUID()), player.getUUID()), serverPlayer);
-                        }*/
 
                         int y = entity.getBlockY();
                         while (level.getBlockState(new BlockPos(entity.getBlockX(), y, entity.getBlockZ())).isEmpty() && Math.abs(entity.getBlockY() - y) <= 64) {
@@ -346,7 +283,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         if (catStaffPerchGroundRY > length) {
                             length = catStaffPerchGroundRY;
                         }
-                        PerchCatStaffData newPerchData = new PerchCatStaffData(length, catStaffPerchGroundRY, catStaffPerchPerching, t, nRender, initPos, originalPP);
+                        PerchCatStaffData newPerchData = new PerchCatStaffData(length, catStaffPerchGroundRY, catStaffPerchPerching, t, nRender, initPos);
                         player.setData(MineraculousAttachmentTypes.PERCH_CAT_STAFF, newPerchData);
                         newPerchData.save(player, true);
                     } else {
@@ -361,6 +298,91 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
             }
         }
         super.inventoryTick(stack, level, entity, slotId, isSelected);
+    }
+
+    private void constrainPerchMovement(Player player) {
+        Vector3f staffPosition = new Vector3f(player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF).initPos());
+        staffPosition = new Vector3f(staffPosition.x, 0, staffPosition.z);
+        Vec3 fromPlayerToStaff = new Vec3((double) staffPosition.x - player.getX(), 0, (double) staffPosition.z - player.getZ());
+        if (player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF).startEdge()) {
+            if (fromPlayerToStaff.length() > PERCH_STAFF_DISTANCE) {
+                Vec3 constrain = new Vec3((double) staffPosition.x - player.getX(), 0, (double) staffPosition.z - player.getZ());
+                constrain = constrain.normalize();
+                constrain = constrain.scale(fromPlayerToStaff.length() - PERCH_STAFF_DISTANCE);
+                constrain = constrain.add(player.getX(), player.getY(), player.getZ());
+                player.setPos(constrain);
+            }
+            if (fromPlayerToStaff.length() < PERCH_STAFF_DISTANCE) {
+                Vec3 constrain = new Vec3((double) staffPosition.x - player.getX(), 0, (double) staffPosition.z - player.getZ());
+                constrain = constrain.normalize();
+                constrain = constrain.scale(fromPlayerToStaff.length() - PERCH_STAFF_DISTANCE);
+                constrain = constrain.add(player.getX(), player.getY(), player.getZ());
+                player.setPos(constrain);
+            }
+        }
+        int tick = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF).tick();
+        if (tick > 30 && Minecraft.getInstance().player != null && (Minecraft.getInstance().player.input.up || Minecraft.getInstance().player.input.down || Minecraft.getInstance().player.input.left || Minecraft.getInstance().player.input.right)) {
+            boolean front = Minecraft.getInstance().player.input.up;
+            boolean back = Minecraft.getInstance().player.input.down;
+            boolean left = Minecraft.getInstance().player.input.left;
+            boolean right = Minecraft.getInstance().player.input.right;
+            Vec3 staffPositionRelativeToThePlayer = new Vec3(staffPosition.x - player.getX(), 0, staffPosition.z - player.getZ());
+            Vec3 movement = new Vec3(0f, 0f, 0f);
+            double rot = player.getYRot();
+            if (rot < 0) //simplify:
+                rot += 360.0f;
+            if (rot >= 360.0f)
+                rot -= 360.0f;
+            double cos = Math.cos(Math.toRadians(rot)); //z
+            double sin = -Math.sin(Math.toRadians(rot)); //x
+            Vec3 direction = new Vec3(sin, 0, cos);
+            if (front) {
+                Vec3 up = direction;
+                up = up.normalize();
+                movement = movement.add(up);
+            }
+            if (back) {
+                Vec3 down = direction;
+                down = down.scale(-1d);
+                down = down.normalize();
+                movement = movement.add(down);
+            }
+            if (left) {
+                Vec3 vertical = new Vec3(0, 1, 0);
+                Vec3 up = new Vec3(player.getLookAngle().normalize().x, 0, player.getLookAngle().normalize().z);
+                up.normalize();
+                Vec3 Left = new Vec3(vertical.cross(up).toVector3f());
+                Left = Left.normalize();
+                movement = movement.add(Left);
+            }
+            if (right) {
+                Vec3 vertical = new Vec3(0, 1, 0);
+                Vec3 up = new Vec3(player.getLookAngle().normalize().x, 0, player.getLookAngle().normalize().z);
+                up = up.normalize();
+                Vec3 Right = new Vec3(up.cross(vertical).toVector3f());
+                Right = Right.normalize();
+                movement = movement.add(Right);
+            }
+            movement = projectOnCircle(staffPositionRelativeToThePlayer, movement);
+            if (movement.length() > 0.15d) {
+                movement = movement.normalize();
+                movement = movement.scale(0.1d);
+                player.setDeltaMovement(movement);
+                player.hurtMarked = true;
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSetDeltaMovementPayload(movement.toVector3f(), true));
+            }
+        }
+    }
+
+    private Vec3 projectOnCircle(Vec3 fromPointToCenter, Vec3 vec3) {
+        Vec3 crossProd = fromPointToCenter.cross(vec3);
+        Vec3 t = crossProd.cross(fromPointToCenter);
+
+        double cosTheta = t.dot(vec3) / (t.length() * vec3.length());
+        double tln = cosTheta * vec3.length();
+        t = t.normalize().scale(tln);
+
+        return t;
     }
 
     @Override

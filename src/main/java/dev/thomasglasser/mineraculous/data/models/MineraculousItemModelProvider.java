@@ -156,7 +156,6 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .end()
                 .override()
                 .predicate(CatStaffItem.EXTENDED_PROPERTY_ID, 2)
-                //.model(withEntityModelInHand(MineraculousItems.CAT_STAFF.getId().withSuffix("_extended"), perchCatStaff, basicItem(MineraculousItems.CAT_STAFF.getId().withSuffix("_extended"))))
                 .model(perchCatStaff)
                 .end();
         ItemModelBuilder inHandButterflyCane = withEntityModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_in_hand"))

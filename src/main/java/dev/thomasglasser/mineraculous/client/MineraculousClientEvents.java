@@ -69,6 +69,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.PlayerSkin;
@@ -82,6 +83,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -106,6 +108,7 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
@@ -257,213 +260,235 @@ public class MineraculousClientEvents {
         }
     }
 
-    public static void onPlayerRendererPre(RenderPlayerEvent.Post event) {
+    public static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
         Player player = event.getEntity();
         PoseStack poseStack = event.getPoseStack();
         MultiBufferSource bufferSource = event.getMultiBufferSource();
         int light = event.getPackedLight();
-        float PIXEL = 1 / 16f;
 
         ItemStack leftH = player.getOffhandItem();
         ItemStack rightH = player.getMainHandItem();
 
-        boolean lH = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
-        boolean rH = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
-        if (lH || rH) {
+        boolean lHCatStaff = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+        boolean rHCatStaff = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+        if (lHCatStaff || rHCatStaff) {
             player.noCulling = true;
-            PerchCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF);
-            float length = perchData.length();
-            boolean catStaffPerchRender = perchData.canRender();
-            poseStack.pushPose();
-            VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(Mineraculous.modLoc("textures/misc/cat_staff_perching.png")));
-            PoseStack.Pose pose = poseStack.last();
-
-            //STAFF - PLAYER NEW
-            float bodyAngle = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF).initPos().y;
-            Vector3f bodyDirectionF = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF).initPos();
-            bodyDirectionF = new Vector3f((float) (bodyDirectionF.x - player.getX()), 0f, (float) (bodyDirectionF.z - player.getZ()));
-
-            int direction = -1;
-            if (bodyAngle <= 45 || bodyAngle > 270 + 45) //south
-                direction = 1; //+z
-            else if (bodyAngle > 45 && bodyAngle <= 90 + 45)//east
-                direction = 4; //-x
-            else if (bodyAngle > 90 + 45 && bodyAngle <= 180 + 45)//north
-                direction = 3; //-z
-            else if (bodyAngle > 180 + 45 && bodyAngle <= 270 + 45)//west
-                direction = 2; //+x
-            if (catStaffPerchRender) {
-                //SIDES:
-                int s = (int) (player.getBbHeight() + 0.5);
-                int d;
-                for (d = s - 1; d >= (int) length; d--) {
-                    vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), s, +PIXEL + bodyDirectionF.z(), 0f, 0f, light);
-                    vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), d, +PIXEL + bodyDirectionF.z(), 0f, 1f, light);
-                    vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), d, -PIXEL + bodyDirectionF.z(), PIXEL * 2, 1f, light);
-                    vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), s, -PIXEL + bodyDirectionF.z(), PIXEL * 2, 0f, light);
-
-                    vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), s, -PIXEL + bodyDirectionF.z(), PIXEL * 2, 0f, light);
-                    vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), d, -PIXEL + bodyDirectionF.z(), PIXEL * 2, 1f, light);
-                    vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), d, -PIXEL + bodyDirectionF.z(), PIXEL * 4, 1f, light);
-                    vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), s, -PIXEL + bodyDirectionF.z(), PIXEL * 4, 0f, light);
-
-                    vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), s, -PIXEL + bodyDirectionF.z(), PIXEL * 4, 0f, light);
-                    vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), d, -PIXEL + bodyDirectionF.z(), PIXEL * 4, 1f, light);
-                    vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), d, +PIXEL + bodyDirectionF.z(), PIXEL * 6, 1f, light);
-                    vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), s, +PIXEL + bodyDirectionF.z(), PIXEL * 6, 0f, light);
-
-                    vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), s, +PIXEL + bodyDirectionF.z(), PIXEL * 6, 0f, light);
-                    vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), d, +PIXEL + bodyDirectionF.z(), PIXEL * 6, 1f, light);
-                    vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), d, +PIXEL + bodyDirectionF.z(), PIXEL * 8, 1f, light);
-                    vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), s, +PIXEL + bodyDirectionF.z(), PIXEL * 8, 0f, light);
-
-                    s = d;
-                }
-                float x = length - (int) (length);
-                x = Math.abs(x);
-                if (x != 0) {
-                    vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), (int) (length), +PIXEL + bodyDirectionF.z(), 0f, 0f, light);
-                    vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), length, +PIXEL + bodyDirectionF.z(), 0f, x, light);
-                    vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), length, -PIXEL + bodyDirectionF.z(), PIXEL * 2, x, light);
-                    vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), (int) (length), -PIXEL + bodyDirectionF.z(), PIXEL * 2, 0f, light);
-
-                    vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), (int) (length), -PIXEL + bodyDirectionF.z(), PIXEL * 2, 0f, light);
-                    vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), length, -PIXEL + bodyDirectionF.z(), PIXEL * 2, x, light);
-                    vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), length, -PIXEL + bodyDirectionF.z(), PIXEL * 4, x, light);
-                    vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), (int) (length), -PIXEL + bodyDirectionF.z(), PIXEL * 4, 0f, light);
-
-                    vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), (int) (length), -PIXEL + bodyDirectionF.z(), PIXEL * 4, 0f, light);
-                    vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), length, -PIXEL + bodyDirectionF.z(), PIXEL * 4, x, light);
-                    vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), length, +PIXEL + bodyDirectionF.z(), PIXEL * 6, x, light);
-                    vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), (int) (length), +PIXEL + bodyDirectionF.z(), PIXEL * 6, 0f, light);
-
-                    vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), (int) (length), +PIXEL + bodyDirectionF.z(), PIXEL * 6, 0f, light);
-                    vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), length, +PIXEL + bodyDirectionF.z(), PIXEL * 6, x, light);
-                    vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), length, +PIXEL + bodyDirectionF.z(), PIXEL * 8, x, light);
-                    vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), (int) (length), +PIXEL + bodyDirectionF.z(), PIXEL * 8, 0f, light);
-                }
-                //UP&DOWN:
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), 0, -PIXEL + bodyDirectionF.z(), PIXEL * 14, 0f, light);
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), 0, -PIXEL + bodyDirectionF.z(), PIXEL * 14, PIXEL * 2, light);
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), 0, +PIXEL + bodyDirectionF.z(), 1f, PIXEL * 2, light);
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), 0, +PIXEL + bodyDirectionF.z(), 1f, 0f, light);
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), length, -PIXEL + bodyDirectionF.z(), PIXEL * 14, PIXEL * 2, light);
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), length, -PIXEL + bodyDirectionF.z(), PIXEL * 14, PIXEL * 4, light);
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), length, +PIXEL + bodyDirectionF.z(), 1f, PIXEL * 4, light);
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), length, +PIXEL + bodyDirectionF.z(), 1f, PIXEL * 2, light);
-                //PAW:
-                int a1 = 1, a2 = 1, a3 = 1, a4 = 1;
-                switch (direction) {
-                    case 1:
-                        a1 = -1;
-                        a3 = -1;
-                        a4 = -1;
-                        break;
-                    case 2:
-                        a1 = -1;
-                        a2 = -1;
-                        a4 = -1;
-                        break;
-                    case 3:
-                        a1 = -1;
-                        break;
-                    case 4:
-                        a4 = -1;
-                        break;
-                }
-                vertex(vertexConsumer, pose, a1 * (PIXEL + 0.001f) + bodyDirectionF.x(), player.getEyeHeight(), a3 * (PIXEL + 0.001f) + bodyDirectionF.z(), PIXEL * 9, PIXEL * 8, 15728880);
-                vertex(vertexConsumer, pose, a1 * (PIXEL + 0.001f) + bodyDirectionF.x(), -PIXEL * 2f + player.getEyeHeight(), a3 * (PIXEL + 0.001f) + bodyDirectionF.z(), PIXEL * 9, PIXEL * 15, 15728880);
-                vertex(vertexConsumer, pose, a2 * (PIXEL + 0.001f) + bodyDirectionF.x(), -PIXEL * 2f + player.getEyeHeight(), a4 * (PIXEL + 0.001f) + bodyDirectionF.z(), PIXEL * 16, PIXEL * 15, 15728880);
-                vertex(vertexConsumer, pose, a2 * (PIXEL + 0.001f) + bodyDirectionF.x(), player.getEyeHeight(), a4 * (PIXEL + 0.001f) + bodyDirectionF.z(), PIXEL * 16, PIXEL * 8, 15728880);
-                //aabb ccdd
-                // -z : --++  ----
-                // +z : ++--  ++++
-                // +x : ++++  ++--
-                // -x : ----  ++--
-
-                //LINES:
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), -PIXEL * 3f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), -PIXEL * 3.5f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), -PIXEL * 3.5f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), -PIXEL * 3f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
-
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), -PIXEL * 3f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), -PIXEL * 3.5f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), -PIXEL * 3.5f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), -PIXEL * 3f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
-
-                vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), -PIXEL * 3f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), -PIXEL * 3.5f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), -PIXEL * 3.5f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), -PIXEL * 3f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
-
-                vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), -PIXEL * 3f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), -PIXEL * 3.5f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), -PIXEL * 3.5f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), -PIXEL * 3f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
-
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL * 1.5f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL * 1.5f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
-
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL * 1.5f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL * 1.5f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
-
-                vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL * 1.5f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL * 1.5f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
-
-                vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 1.5f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 1.5f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
-
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL * 4.5f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL * 5f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL * 5f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL * 4.5f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
-
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL * 4.5f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL * 5f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL * 5f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL * 4.5f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
-
-                vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL * 4.5f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL * 5 + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL * 5 + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL * 4.5f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
-
-                vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 4.5f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 5f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 5f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 4.5f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
-
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL * 0.5f + length, -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL + length, -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL + length, -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL * 0.5f + length, -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
-
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL * 0.5f + length, +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL + length, +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL + length, +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL * 0.5f + length, +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
-
-                vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL * 0.5f + length, +PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL + length, +PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL + length, -PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL * 0.5f + length, -PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
-
-                vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 0.5f + length, -PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL + length, -PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL + length, +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
-                vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 0.5f + length, +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
-            }
-            poseStack.popPose();
+            renderCatStaffPerch(player, poseStack, bufferSource, light, event.getPartialTick());
         }
+    }
+
+    public static void onRenderLevelStage(RenderLevelStageEvent event) {
+        AbstractClientPlayer player = Minecraft.getInstance().player;
+        RenderLevelStageEvent.Stage stage = event.getStage();
+        EntityRenderDispatcher renderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+        PoseStack poseStack = event.getPoseStack();
+        MultiBufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+        float partialTicks = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPartialTickTime();
+
+        ItemStack leftH = player.getOffhandItem();
+        ItemStack rightH = player.getMainHandItem();
+
+        boolean lHCatStaff = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+        boolean rHCatStaff = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+        if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson() && (lHCatStaff || rHCatStaff)) {
+            int light = renderDispatcher.getPackedLightCoords(player, partialTicks);
+            poseStack.translate(0, -1.6d, 0);
+            renderCatStaffPerch(player, poseStack, bufferSource, light, partialTicks);
+        }
+    }
+
+    public static void renderCatStaffPerch(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTicks) {
+        float PIXEL = 1 / 16f;
+        PerchCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF);
+        float length = perchData.length();
+        boolean catStaffPerchRender = perchData.canRender();
+        poseStack.pushPose();
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(Mineraculous.modLoc("textures/misc/cat_staff_perching.png")));
+        PoseStack.Pose pose = poseStack.last();
+
+        //STAFF - PLAYER NEW
+        float bodyAngle = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF).initPos().y;
+        Vector3f bodyDirectionF = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF).initPos();
+        double d0, d1;
+        d0 = Mth.lerp(partialTicks, player.xo, player.getX());
+        d1 = Mth.lerp(partialTicks, player.zo, player.getZ());
+        bodyDirectionF = new Vector3f((float) (bodyDirectionF.x - d0), 0f, (float) (bodyDirectionF.z - d1));
+
+        int direction = -1;
+        if (bodyAngle <= 45 || bodyAngle > 270 + 45) //south
+            direction = 1; //+z
+        else if (bodyAngle > 45 && bodyAngle <= 90 + 45)//east
+            direction = 4; //-x
+        else if (bodyAngle > 90 + 45 && bodyAngle <= 180 + 45)//north
+            direction = 3; //-z
+        else if (bodyAngle > 180 + 45 && bodyAngle <= 270 + 45)//west
+            direction = 2; //+x
+        if (catStaffPerchRender) {
+            //SIDES:
+            int s = (int) (player.getBbHeight() + 0.5);
+            int d;
+            for (d = s - 1; d >= (int) length; d--) {
+                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), s, +PIXEL + bodyDirectionF.z(), 0f, 0f, light);
+                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), d, +PIXEL + bodyDirectionF.z(), 0f, 1f, light);
+                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), d, -PIXEL + bodyDirectionF.z(), PIXEL * 2, 1f, light);
+                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), s, -PIXEL + bodyDirectionF.z(), PIXEL * 2, 0f, light);
+
+                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), s, -PIXEL + bodyDirectionF.z(), PIXEL * 2, 0f, light);
+                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), d, -PIXEL + bodyDirectionF.z(), PIXEL * 2, 1f, light);
+                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), d, -PIXEL + bodyDirectionF.z(), PIXEL * 4, 1f, light);
+                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), s, -PIXEL + bodyDirectionF.z(), PIXEL * 4, 0f, light);
+
+                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), s, -PIXEL + bodyDirectionF.z(), PIXEL * 4, 0f, light);
+                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), d, -PIXEL + bodyDirectionF.z(), PIXEL * 4, 1f, light);
+                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), d, +PIXEL + bodyDirectionF.z(), PIXEL * 6, 1f, light);
+                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), s, +PIXEL + bodyDirectionF.z(), PIXEL * 6, 0f, light);
+
+                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), s, +PIXEL + bodyDirectionF.z(), PIXEL * 6, 0f, light);
+                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), d, +PIXEL + bodyDirectionF.z(), PIXEL * 6, 1f, light);
+                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), d, +PIXEL + bodyDirectionF.z(), PIXEL * 8, 1f, light);
+                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), s, +PIXEL + bodyDirectionF.z(), PIXEL * 8, 0f, light);
+
+                s = d;
+            }
+            float x = length - (int) (length);
+            x = Math.abs(x);
+            if (x != 0) {
+                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), (int) (length), +PIXEL + bodyDirectionF.z(), 0f, 0f, light);
+                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), length, +PIXEL + bodyDirectionF.z(), 0f, x, light);
+                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), length, -PIXEL + bodyDirectionF.z(), PIXEL * 2, x, light);
+                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), (int) (length), -PIXEL + bodyDirectionF.z(), PIXEL * 2, 0f, light);
+
+                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), (int) (length), -PIXEL + bodyDirectionF.z(), PIXEL * 2, 0f, light);
+                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), length, -PIXEL + bodyDirectionF.z(), PIXEL * 2, x, light);
+                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), length, -PIXEL + bodyDirectionF.z(), PIXEL * 4, x, light);
+                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), (int) (length), -PIXEL + bodyDirectionF.z(), PIXEL * 4, 0f, light);
+
+                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), (int) (length), -PIXEL + bodyDirectionF.z(), PIXEL * 4, 0f, light);
+                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), length, -PIXEL + bodyDirectionF.z(), PIXEL * 4, x, light);
+                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), length, +PIXEL + bodyDirectionF.z(), PIXEL * 6, x, light);
+                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), (int) (length), +PIXEL + bodyDirectionF.z(), PIXEL * 6, 0f, light);
+
+                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), (int) (length), +PIXEL + bodyDirectionF.z(), PIXEL * 6, 0f, light);
+                vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), length, +PIXEL + bodyDirectionF.z(), PIXEL * 6, x, light);
+                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), length, +PIXEL + bodyDirectionF.z(), PIXEL * 8, x, light);
+                vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), (int) (length), +PIXEL + bodyDirectionF.z(), PIXEL * 8, 0f, light);
+            }
+            //UP&DOWN:
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), 0, -PIXEL + bodyDirectionF.z(), PIXEL * 14, 0f, light);
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), 0, -PIXEL + bodyDirectionF.z(), PIXEL * 14, PIXEL * 2, light);
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), 0, +PIXEL + bodyDirectionF.z(), 1f, PIXEL * 2, light);
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), 0, +PIXEL + bodyDirectionF.z(), 1f, 0f, light);
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), length, -PIXEL + bodyDirectionF.z(), PIXEL * 14, PIXEL * 2, light);
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), length, -PIXEL + bodyDirectionF.z(), PIXEL * 14, PIXEL * 4, light);
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), length, +PIXEL + bodyDirectionF.z(), 1f, PIXEL * 4, light);
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), length, +PIXEL + bodyDirectionF.z(), 1f, PIXEL * 2, light);
+            //PAW:
+            int a1 = 1, a2 = 1, a3 = 1, a4 = 1;
+            switch (direction) {
+                case 1:
+                    a1 = -1;
+                    a3 = -1;
+                    a4 = -1;
+                    break;
+                case 2:
+                    a1 = -1;
+                    a2 = -1;
+                    a4 = -1;
+                    break;
+                case 3:
+                    a1 = -1;
+                    break;
+                case 4:
+                    a4 = -1;
+                    break;
+            }
+            vertex(vertexConsumer, pose, a1 * (PIXEL + 0.001f) + bodyDirectionF.x(), player.getEyeHeight(), a3 * (PIXEL + 0.001f) + bodyDirectionF.z(), PIXEL * 9, PIXEL * 8, 15728880);
+            vertex(vertexConsumer, pose, a1 * (PIXEL + 0.001f) + bodyDirectionF.x(), -PIXEL * 2f + player.getEyeHeight(), a3 * (PIXEL + 0.001f) + bodyDirectionF.z(), PIXEL * 9, PIXEL * 15, 15728880);
+            vertex(vertexConsumer, pose, a2 * (PIXEL + 0.001f) + bodyDirectionF.x(), -PIXEL * 2f + player.getEyeHeight(), a4 * (PIXEL + 0.001f) + bodyDirectionF.z(), PIXEL * 16, PIXEL * 15, 15728880);
+            vertex(vertexConsumer, pose, a2 * (PIXEL + 0.001f) + bodyDirectionF.x(), player.getEyeHeight(), a4 * (PIXEL + 0.001f) + bodyDirectionF.z(), PIXEL * 16, PIXEL * 8, 15728880);
+
+            //LINES:
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), -PIXEL * 3f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), -PIXEL * 3.5f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), -PIXEL * 3.5f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), -PIXEL * 3f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
+
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), -PIXEL * 3f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), -PIXEL * 3.5f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), -PIXEL * 3.5f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), -PIXEL * 3f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
+
+            vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), -PIXEL * 3f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), -PIXEL * 3.5f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), -PIXEL * 3.5f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), -PIXEL * 3f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
+
+            vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), -PIXEL * 3f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), -PIXEL * 3.5f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), -PIXEL * 3.5f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), -PIXEL * 3f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
+
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL * 1.5f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL * 1.5f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
+
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL * 1.5f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL * 1.5f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
+
+            vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL * 1.5f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL * 1.5f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
+
+            vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 1.5f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 1.5f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
+
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL * 4.5f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL * 5f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL * 5f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL * 4.5f + player.getEyeHeight(), -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
+
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL * 4.5f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL * 5f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL * 5f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL * 4.5f + player.getEyeHeight(), +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
+
+            vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL * 4.5f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL * 5 + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL * 5 + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL * 4.5f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
+
+            vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 4.5f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 5f + player.getEyeHeight(), -PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 5f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 4.5f + player.getEyeHeight(), +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
+
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL * 0.5f + length, -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL + length, -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL + length, -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL * 0.5f + length, -PIXEL - 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
+
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL * 0.5f + length, +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + bodyDirectionF.x(), PIXEL + length, +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL + length, +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL + bodyDirectionF.x(), PIXEL * 0.5f + length, +PIXEL + 0.0001f + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
+
+            vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL * 0.5f + length, +PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL + length, +PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL + length, -PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, +PIXEL + 0.0001f + bodyDirectionF.x(), PIXEL * 0.5f + length, -PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
+
+            vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 0.5f + length, -PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 4, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL + length, -PIXEL + bodyDirectionF.z(), PIXEL * 8, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL + length, +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 5, 15728880);
+            vertex(vertexConsumer, pose, -PIXEL - 0.0001f + bodyDirectionF.x(), PIXEL * 0.5f + length, +PIXEL + bodyDirectionF.z(), PIXEL * 12, PIXEL * 4, 15728880);
+        }
+        poseStack.popPose();
     }
 
     private static void vertex(VertexConsumer vertexConsumer, PoseStack.Pose pose, float x, float y, float z, float i, float j, int light) {

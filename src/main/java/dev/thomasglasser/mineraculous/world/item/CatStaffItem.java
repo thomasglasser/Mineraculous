@@ -24,6 +24,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.component.DataComponents;
@@ -207,10 +208,26 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
             if (ability == Ability.BLOCK || ability == Ability.THROW)
                 pPlayer.startUsingItem(pHand);
             else if (ability == Ability.TRAVEL) {
-                if (level instanceof ServerLevel) {
-                    pPlayer.setDeltaMovement(pPlayer.getLookAngle().scale(3));
-                    pPlayer.hurtMarked = true;
-                    pPlayer.getCooldowns().addCooldown(stack.getItem(), 10);
+                if (level instanceof ServerLevel serverLevel) {
+                    BlockPos playerPos = pPlayer.blockPosition();
+                    int x = playerPos.getX();
+                    int z = playerPos.getZ();
+
+                    int y = playerPos.getY();
+                    int lowestSolidY = -1;
+                    for (int i = y; i >= serverLevel.getMinBuildHeight(); i--) {
+                        BlockPos checkPos = new BlockPos(x, i, z);
+                        if (!serverLevel.getBlockState(checkPos).isAir()) {
+                            lowestSolidY = i;
+                            break;
+                        }
+                    }
+
+                    if (lowestSolidY != -1 && (y - lowestSolidY) < 100) {
+                        pPlayer.setDeltaMovement(pPlayer.getLookAngle().scale(3));
+                        pPlayer.hurtMarked = true;
+                        pPlayer.getCooldowns().addCooldown(stack.getItem(), 10);
+                    }
                 }
             } else if (ability == Ability.PERCH) {
                 if (pPlayer.getNearestViewDirection() == Direction.UP)

@@ -212,18 +212,20 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                     BlockPos playerPos = pPlayer.blockPosition();
                     int x = playerPos.getX();
                     int z = playerPos.getZ();
-
                     int y = playerPos.getY();
-                    int lowestSolidY = -1;
+
+                    Integer lowestSolidY = null;
+                    BlockPos.MutableBlockPos checkPos = new BlockPos.MutableBlockPos(x, y, z);
+
                     for (int i = y; i >= serverLevel.getMinBuildHeight(); i--) {
-                        BlockPos checkPos = new BlockPos(x, i, z);
+                        checkPos.setY(i);
                         if (!serverLevel.getBlockState(checkPos).isAir()) {
                             lowestSolidY = i;
                             break;
                         }
                     }
 
-                    if (lowestSolidY != -1 && (y - lowestSolidY) < 100) {
+                    if (lowestSolidY != null && (y - lowestSolidY) < 100) {
                         pPlayer.setDeltaMovement(pPlayer.getLookAngle().scale(3));
                         pPlayer.hurtMarked = true;
                         pPlayer.getCooldowns().addCooldown(stack.getItem(), 10);

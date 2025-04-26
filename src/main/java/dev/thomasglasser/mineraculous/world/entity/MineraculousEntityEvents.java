@@ -7,6 +7,8 @@ import dev.thomasglasser.mineraculous.advancements.critereon.KamikotizationUsePo
 import dev.thomasglasser.mineraculous.advancements.critereon.MiraculousUsePowerTrigger;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
+import dev.thomasglasser.mineraculous.client.animations.MineraculousPlayerAnimationUtil;
+import dev.thomasglasser.mineraculous.client.animations.MineraculousPlayerAnimations;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.datamaps.MineraculousDataMaps;
@@ -20,6 +22,7 @@ import dev.thomasglasser.mineraculous.network.ClientboundSyncSuitLookPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestMiraculousDataSetSyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSendEmptyLeftClickPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundSetCatStaffAbilityPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetKamikotizationPowerActivatedPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
@@ -35,6 +38,7 @@ import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerTrades;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
+import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
@@ -53,6 +57,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
+import dev.thomasglasser.mineraculous.world.level.storage.PerchCatStaffData;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdDataHolder;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -76,6 +81,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Unit;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -96,6 +102,7 @@ import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
+import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
@@ -256,6 +263,15 @@ public class MineraculousEntityEvents {
                     }
                 }
             }));
+
+            if (!(serverPlayer.getOffhandItem().is(MineraculousItems.CAT_STAFF) || serverPlayer.getMainHandItem().is(MineraculousItems.CAT_STAFF))) {
+                player.setData(MineraculousAttachmentTypes.PERCH_CAT_STAFF, new PerchCatStaffData());
+                PerchCatStaffData.remove(player, true);
+                MineraculousPlayerAnimationUtil.sendAnimationToAllClients(
+                        player,
+                        MineraculousPlayerAnimations.NULL,
+                        MineraculousPlayerAnimationUtil.PlayerAnimationActions.STOP);
+            }
 
             if (serverPlayer.tickCount == 15) {
                 FlattenedLookDataHolder flattenedLookDataHolder = (FlattenedLookDataHolder) player.getServer().overworld();
@@ -1133,6 +1149,30 @@ public class MineraculousEntityEvents {
                     recoveryDataHolder.mineraculous$getMiraculousRecoveryItemData().putRemovable(recoverer, id);
                     item.getItem().set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
                 }
+            }
+        }
+    }
+
+    public static void onLivingFall(LivingFallEvent event) {
+        LivingEntity entity = event.getEntity();
+        if (entity instanceof Player player) {
+            PerchCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF);
+            if (perchData.isFalling()) {
+                ItemStack catStaffItemStack = player.getMainHandItem();
+                InteractionHand hand = InteractionHand.MAIN_HAND;
+                ;
+                if (player.getMainHandItem().is(MineraculousItems.CAT_STAFF)) {
+                    catStaffItemStack = player.getMainHandItem();
+                    hand = InteractionHand.MAIN_HAND;
+                } else if (player.getOffhandItem().is(MineraculousItems.CAT_STAFF)) {
+                    catStaffItemStack = player.getOffhandItem();
+                    hand = InteractionHand.MAIN_HAND;
+                } else {
+                    Mineraculous.LOGGER.error("Impossible to reach else inside MineraculousEntityEvents line 1163 if (perchData.isFalling()), the player must hold the cat staff for perchData.isFalling() to be true");
+                }
+                catStaffItemStack.set(MineraculousDataComponents.CAT_STAFF_ABILITY.get(), CatStaffItem.Ability.BLOCK);
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSetCatStaffAbilityPayload(hand, CatStaffItem.Ability.BLOCK));
+                event.setDamageMultiplier(0);
             }
         }
     }

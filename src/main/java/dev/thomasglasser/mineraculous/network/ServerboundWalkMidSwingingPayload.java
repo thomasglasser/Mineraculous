@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
@@ -72,7 +73,7 @@ public record ServerboundWalkMidSwingingPayload(boolean front, boolean back, boo
                             movement = movement.normalize();
                             movement.scale(0.2);
 
-                            movement = projectOnCircle(fromPlayerToProjectile, movement);
+                            movement = MineraculousMathUtils.projectOnCircle(fromPlayerToProjectile, movement);
                             if (movement.y + player.getY() > Y.y + thrownLadybugYoyo.getY()) {
                                 double newY = movement.y - (Y.y + thrownLadybugYoyo.getY());
                                 newY = newY < 0 ? 0 : newY;
@@ -92,17 +93,6 @@ public record ServerboundWalkMidSwingingPayload(boolean front, boolean back, boo
                 }
             }
         }
-    }
-
-    private Vec3 projectOnCircle(Vec3 fromPointToCenter, Vec3 vec3) {
-        Vec3 crossProd = fromPointToCenter.cross(vec3);
-        Vec3 t = crossProd.cross(fromPointToCenter);
-
-        double cosTheta = t.dot(vec3) / (t.length() * vec3.length());
-        double tln = cosTheta * vec3.length();
-        t = t.normalize().scale(tln);
-
-        return t;
     }
 
     @Override

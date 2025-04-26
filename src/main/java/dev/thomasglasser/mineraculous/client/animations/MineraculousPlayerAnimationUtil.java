@@ -12,7 +12,9 @@ import net.minecraft.world.entity.player.Player;
 
 public class MineraculousPlayerAnimationUtil {
     public enum PlayerAnimationActions implements StringRepresentable {
-        PLAY,
+        PLAY_ONCE, //if played each tick it will loop
+        PLAY_HOLD_ON_FIRST_FRAME, //maintains the first frame as long as its played each tick
+        PLAY_HOLD_ON_LAST_FRAME, //ticks incrementally towards the last frame and then maintains it as long as its played each tick
         STOP;
 
         public static final Codec<PlayerAnimationActions> CODEC = StringRepresentable.fromEnum(PlayerAnimationActions::values);

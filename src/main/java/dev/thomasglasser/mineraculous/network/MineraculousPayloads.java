@@ -51,7 +51,6 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundSendOffhandSwingPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSendOffhandSwingPayload.CODEC),
 
             // Clientbound
-            new PayloadInfo<>(ClientboundSetPlayerRotationPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSetPlayerRotationPayload.CODEC),
             new PayloadInfo<>(ClientboundPlayerAnimationPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundPlayerAnimationPayload.CODEC),
             new PayloadInfo<>(ClientboundCatStaffPerchPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundCatStaffPerchPayload.CODEC),
             new PayloadInfo<>(ClientboundSyncMiraculousDataSetPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncMiraculousDataSetPayload.CODEC),

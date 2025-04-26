@@ -5,11 +5,14 @@ import static dev.thomasglasser.mineraculous.Mineraculous.MOD_ID;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.KeyframeAnimationPlayer;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
+import dev.kosmx.playerAnim.api.layered.modifier.AbstractFadeModifier;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
+import dev.kosmx.playerAnim.core.util.Ease;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.animations.MineraculousPlayerAnimationUtil;
+import dev.thomasglasser.mineraculous.client.animations.MineraculousPlayerAnimations;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
@@ -36,8 +39,37 @@ public record ClientboundPlayerAnimationPayload(UUID senderID, String animation,
             var animationP = (ModifierLayer<IAnimation>) PlayerAnimationAccess.getPlayerAssociatedData((AbstractClientPlayer) sender).get(ResourceLocation.fromNamespaceAndPath(MOD_ID, "animation"));
             if (animationP != null) {
                 KeyframeAnimationPlayer newAnimation = new KeyframeAnimationPlayer((KeyframeAnimation) PlayerAnimationRegistry.getAnimation(ResourceLocation.fromNamespaceAndPath(MOD_ID, animation)));
+                KeyframeAnimationPlayer oldAnimation;
+                String oldAnimationName;
+                int cTick, lTick;
+                if (animationP.getAnimation() != null) {
+                    oldAnimation = ((KeyframeAnimationPlayer) animationP.getAnimation());
+                    oldAnimationName = oldAnimation.getData().getName();
+                    cTick = oldAnimation.getCurrentTick();
+                    lTick = oldAnimation.getStopTick();
+                } else {
+                    oldAnimationName = "null";
+                    cTick = 0;
+                    lTick = 0;
+                }
+                boolean same = animation.equals(oldAnimationName);
                 switch (action) {
-                    case PLAY -> animationP.setAnimation(newAnimation);
+                    case PLAY_ONCE -> {
+                        if (!same || cTick == lTick)
+                            animationP.setAnimation(newAnimation);
+                    }
+                    case PLAY_HOLD_ON_FIRST_FRAME -> {
+                        newAnimation = new KeyframeAnimationPlayer((KeyframeAnimation) PlayerAnimationRegistry.getAnimation(ResourceLocation.fromNamespaceAndPath(MOD_ID, animation)), 0);
+                        if (!same)
+                            animationP.replaceAnimationWithFade(AbstractFadeModifier.standardFadeIn(6, Ease.CONSTANT), newAnimation, false);
+                        else animationP.setAnimation(newAnimation);
+                    }
+                    case PLAY_HOLD_ON_LAST_FRAME -> {
+                        if (cTick >= newAnimation.getStopTick() - MineraculousPlayerAnimations.lastFrame(animation))
+                            newAnimation = new KeyframeAnimationPlayer((KeyframeAnimation) PlayerAnimationRegistry.getAnimation(ResourceLocation.fromNamespaceAndPath(MOD_ID, animation)), newAnimation.getStopTick() - 5);
+                        if (!same || cTick >= newAnimation.getStopTick() - MineraculousPlayerAnimations.lastFrame(animation) + 1)
+                            animationP.setAnimation(newAnimation);
+                    }
                     case STOP -> {
                         newAnimation.stop();
                         animationP.setAnimation(newAnimation);

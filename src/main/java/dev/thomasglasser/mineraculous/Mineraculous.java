@@ -123,6 +123,7 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onMobEffectRemoved);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onBlockDrops);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingDrops);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingFall);
 
         if (TommyLibServices.PLATFORM.isClientSide()) {
             bus.addListener(MineraculousClientEvents::onRegisterAdditionalModels);

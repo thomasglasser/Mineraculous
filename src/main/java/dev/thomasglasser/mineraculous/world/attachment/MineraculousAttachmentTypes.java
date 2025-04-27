@@ -13,6 +13,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.PerchCatStaffData;
 import dev.thomasglasser.mineraculous.world.level.storage.SuitLookData;
+import dev.thomasglasser.mineraculous.world.level.storage.TravelCatStaffData;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ public class MineraculousAttachmentTypes {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<HashMap<ResourceKey<Kamikotization>, KamikotizationLookData>>> KAMIKOTIZATION_LOOKS = ATTACHMENT_TYPES.register("kamikotization_looks", () -> AttachmentType.builder(() -> new HashMap<ResourceKey<Kamikotization>, KamikotizationLookData>()).build());
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<Integer>>> LADYBUG_YOYO = ATTACHMENT_TYPES.register("ladybug_yoyo", () -> AttachmentType.builder(Optional::<Integer>empty).serialize(Codec.INT.optionalFieldOf("data").codec()).build());
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<PerchCatStaffData>> PERCH_CAT_STAFF = ATTACHMENT_TYPES.register("cat_staff_perch", () -> AttachmentType.builder(() -> new PerchCatStaffData()).build());
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<TravelCatStaffData>> TRAVEL_CAT_STAFF = ATTACHMENT_TYPES.register("cat_staff_travel", () -> AttachmentType.builder(() -> new TravelCatStaffData()).build());
 
     public static void init() {}
 }

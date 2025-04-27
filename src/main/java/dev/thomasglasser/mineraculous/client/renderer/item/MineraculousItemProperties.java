@@ -30,7 +30,7 @@ public class MineraculousItemProperties {
         });
         ItemProperties.register(MineraculousItems.CAT_STAFF.get(), CatStaffItem.EXTENDED_PROPERTY_ID, (stack, level, entity, seed) -> {
             if (stack.has(MineraculousDataComponents.ACTIVE)) {
-                if (entity != null && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH && entity.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF).tick() > 10) {
+                if (entity != null && (entity.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF).tick() > 10 || entity.getData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF).traveling())) {
                     return 2;
                 }
                 return 1;

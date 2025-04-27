@@ -418,6 +418,8 @@
   "key.mineraculous.weapon_up_arrow": "Wind YoYo/Increase Cat Staff Length",
   "mineraculous.configuration.animation_speed": "Animation Speed",
   "mineraculous.configuration.animation_speed.tooltip": "The speed at which the tool wheel opens",
+  "mineraculous.configuration.cat_staff_max_length": "Cat Staff Max. Length",
+  "mineraculous.configuration.cat_staff_max_length.tooltip": "Amount of blocks the cat staff can extend while using perch and travel mode",
   "mineraculous.configuration.cosmetics": "Player Cosmetics",
   "mineraculous.configuration.cosmetics.tooltip": "Settings for player cosmetics",
   "mineraculous.configuration.customization_permission_mode": "Customization Permissions Mode",

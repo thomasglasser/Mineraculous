@@ -14,6 +14,7 @@ import dev.thomasglasser.mineraculous.network.ServerboundActivateToolPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetCatStaffAbilityPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetDeltaMovementPayload;
+import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
 import dev.thomasglasser.mineraculous.util.MineraculousMathUtils;
@@ -23,6 +24,7 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiracu
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.world.level.storage.PerchCatStaffData;
+import dev.thomasglasser.mineraculous.world.level.storage.TravelCatStaffData;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
@@ -65,7 +67,10 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.component.Unbreakable;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
@@ -196,7 +201,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                             d -= 0.3f;
                             k = true;
                         }
-                        if (MineraculousKeyMappings.WEAPON_UP_ARROW.get().isDown() && Math.abs(groundRYClient) < 64) {
+                        if (MineraculousKeyMappings.WEAPON_UP_ARROW.get().isDown() && Math.abs(groundRYClient) < MineraculousServerConfig.get().catStaffMaxLength.get()) {
                             d += 0.3f;
                             k = true;
                         }
@@ -223,8 +228,41 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
             if (!level.isClientSide) {
                 CatStaffItem.Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
                 if (stack.has(MineraculousDataComponents.ACTIVE)) {
-                    if (ability == Ability.TRAVEL && player.getCooldowns().isOnCooldown(stack.getItem()))
-                        entity.resetFallDistance();
+                    if (ability == Ability.TRAVEL) {
+                        if (player.getCooldowns().isOnCooldown(stack.getItem()))
+                            entity.resetFallDistance();
+                        TravelCatStaffData travelCatStaffData = player.getData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF);
+                        if ((player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
+                            if (travelCatStaffData.traveling()) {
+                                float length = travelCatStaffData.length();
+                                boolean didLaunch = travelCatStaffData.launch();
+                                BlockPos targetPos = travelCatStaffData.blockPos();
+                                float targetDistance = new Vector3f((float) (player.getX() - targetPos.getX()),
+                                        (float) (player.getY() - targetPos.getY()),
+                                        (float) (player.getZ() - targetPos.getZ())).length();
+                                if (length < targetDistance && length <= MineraculousServerConfig.get().catStaffMaxLength.get()) length += 8;
+                                if (length > targetDistance) length = targetDistance;
+                                if (length == targetDistance && !didLaunch) {
+                                    player.setDeltaMovement(new Vec3(travelCatStaffData.initialLookingAngle()).normalize().scale(4));
+                                    player.hurtMarked = true;
+                                    player.getCooldowns().addCooldown(stack.getItem(), 40);
+                                    didLaunch = true;
+                                }
+                                if (didLaunch && player.getDeltaMovement().y < 0.5) {
+                                    player.setData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF, new TravelCatStaffData());
+                                    TravelCatStaffData.remove(player, true);
+                                } else {
+                                    //SAVE DATA
+                                    TravelCatStaffData newTravelData = new TravelCatStaffData(length, targetPos, true, travelCatStaffData.initialLookingAngle(), travelCatStaffData.y(), travelCatStaffData.initBodAngle(), didLaunch);
+                                    player.setData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF, newTravelData);
+                                    newTravelData.save(player, true);
+                                }
+                            }
+                        } else {
+                            player.setData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF, new TravelCatStaffData());
+                            TravelCatStaffData.remove(player, true);
+                        }
+                    }
                     if (ability == Ability.PERCH && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
                         PerchCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF);
                         float length = perchData.length();
@@ -272,7 +310,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         if (!isFalling) {
                             //GROUND DETECTION
                             int y = entity.getBlockY();
-                            while (level.getBlockState(new BlockPos(entity.getBlockX(), y, entity.getBlockZ())).isEmpty() && Math.abs(entity.getBlockY() - y) <= 64) {
+                            while (level.getBlockState(new BlockPos(entity.getBlockX(), y, entity.getBlockZ())).isEmpty() && Math.abs(entity.getBlockY() - y) <= MineraculousServerConfig.get().catStaffMaxLength.get()) {
                                 y--;
                             }
                             y++;
@@ -338,6 +376,56 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                     MineraculousPlayerAnimations.CAT_STAFF_PERCH_START,
                     MineraculousPlayerAnimationUtil.PlayerAnimationActions.PLAY_ONCE);
         }
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand pHand) {
+        ItemStack stack = player.getItemInHand(pHand);
+        if (!stack.has(MineraculousDataComponents.ACTIVE))
+            return InteractionResultHolder.fail(stack);
+        if (stack.has(MineraculousDataComponents.CAT_STAFF_ABILITY)) {
+            Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
+            if (ability == Ability.BLOCK || ability == Ability.THROW || ability == Ability.PERCH)
+                player.startUsingItem(pHand);
+            else if (ability == Ability.TRAVEL) {
+                TravelCatStaffData travelCatStaffData = player.getData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF);
+                if (!travelCatStaffData.traveling()) {
+                    Vec3 lookAngle = player.getLookAngle().normalize();
+                    BlockHitResult result = level.clip(new ClipContext(player.getEyePosition(),
+                            player.getEyePosition().add(lookAngle.scale(-MineraculousServerConfig.get().catStaffMaxLength.get())),
+                            ClipContext.Block.OUTLINE,
+                            ClipContext.Fluid.ANY,
+                            player));
+                    BlockPos hitPos = travelCatStaffData.blockPos();
+                    float length = 0;
+                    boolean traveling;
+                    if (result.getType() == HitResult.Type.BLOCK) {
+                        hitPos = result.getBlockPos();
+                        traveling = true;
+                    } else traveling = false;
+
+                    double initRot = player.getYRot();
+                    if (initRot < 0) //simplify:
+                        initRot += 360.0f;
+                    if (initRot >= 360.0f)
+                        initRot -= 360.0f;
+
+                    //SAVE DATA
+                    TravelCatStaffData newTravelData = new TravelCatStaffData(length, hitPos, traveling, lookAngle.toVector3f(), (float) player.getY(), (float) initRot, travelCatStaffData.launch());
+                    player.setData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF, newTravelData);
+                    newTravelData.save(player, true);
+                }
+            }
+            if (level instanceof ServerLevel serverLevel) {
+                long animId = GeoItem.getOrAssignId(stack, serverLevel);
+                switch (ability) {
+                    case BLOCK -> triggerAnim(player, animId, CONTROLLER_USE, ANIMATION_BLOCK);
+                    case null, default -> {}
+                }
+            }
+            return InteractionResultHolder.consume(stack);
+        }
+        return super.use(level, player, pHand);
     }
 
     private static void constrainPerchMovement(Player player, ItemStack stack) {
@@ -447,34 +535,6 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         if (z > 0 && Math.abs(z) > Math.abs(x)) return Direction.SOUTH;
         if (x <= 0 && Math.abs(x) > Math.abs(z)) return Direction.WEST;
         return null;
-    }
-
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player pPlayer, InteractionHand pHand) {
-        ItemStack stack = pPlayer.getItemInHand(pHand);
-        if (!stack.has(MineraculousDataComponents.ACTIVE))
-            return InteractionResultHolder.fail(stack);
-        if (stack.has(MineraculousDataComponents.CAT_STAFF_ABILITY)) {
-            Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
-            if (ability == Ability.BLOCK || ability == Ability.THROW || ability == Ability.PERCH)
-                pPlayer.startUsingItem(pHand);
-            else if (ability == Ability.TRAVEL) {
-                if (level instanceof ServerLevel) {
-                    pPlayer.setDeltaMovement(pPlayer.getLookAngle().scale(3));
-                    pPlayer.hurtMarked = true;
-                    pPlayer.getCooldowns().addCooldown(stack.getItem(), 10);
-                }
-            }
-            if (level instanceof ServerLevel serverLevel) {
-                long animId = GeoItem.getOrAssignId(stack, serverLevel);
-                switch (ability) {
-                    case BLOCK -> triggerAnim(pPlayer, animId, CONTROLLER_USE, ANIMATION_BLOCK);
-                    case null, default -> {}
-                }
-            }
-            return InteractionResultHolder.consume(stack);
-        }
-        return super.use(level, pPlayer, pHand);
     }
 
     @Override

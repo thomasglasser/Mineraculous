@@ -271,6 +271,12 @@ public class MineraculousClientEvents {
             player.noCulling = true;
             CatStaffRenderer.renderCatStaffPerch(player, poseStack, bufferSource, light, event.getPartialTick());
         }
+        boolean lHCatStaffTravel = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
+        boolean rHCatStaffTravel = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
+        if (lHCatStaffTravel || rHCatStaffTravel) {
+            player.noCulling = true;
+            CatStaffRenderer.renderCatStaffTravel(player, poseStack, bufferSource, light, event.getPartialTick());
+        }
     }
 
     public static void onRenderLevelStage(RenderLevelStageEvent event) {
@@ -284,12 +290,18 @@ public class MineraculousClientEvents {
         ItemStack leftH = player.getOffhandItem();
         ItemStack rightH = player.getMainHandItem();
 
-        boolean lHCatStaff = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
-        boolean rHCatStaff = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
-        if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson() && (lHCatStaff || rHCatStaff)) {
-            int light = renderDispatcher.getPackedLightCoords(player, partialTicks);
+        int light = renderDispatcher.getPackedLightCoords(player, partialTicks);
+        boolean lHCatStaffPerch = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+        boolean rHCatStaffPerch = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+        if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson() && (lHCatStaffPerch || rHCatStaffPerch)) {
             poseStack.translate(0, -1.6d, 0);
             CatStaffRenderer.renderCatStaffPerch(player, poseStack, bufferSource, light, partialTicks);
+        }
+        boolean lHCatStaffTravel = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
+        boolean rHCatStaffTravel = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
+        if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson() && (lHCatStaffTravel || rHCatStaffTravel)) {
+            poseStack.translate(0, -1.6d, 0);
+            CatStaffRenderer.renderCatStaffTravel(player, poseStack, bufferSource, light, partialTicks);
         }
     }
 

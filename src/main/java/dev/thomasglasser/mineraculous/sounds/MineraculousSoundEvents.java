@@ -40,7 +40,7 @@ public class MineraculousSoundEvents {
     public static final DeferredHolder<SoundEvent, SoundEvent> KAMIKOTIZATION_DETRANSFORM = register("kamikotization", "detransform");
 
     // Entities
-    public static final DeferredHolder<SoundEvent, SoundEvent> KWAMI_HUNGRY = register("kwami", "entity", "hungry");
+    public static final DeferredHolder<SoundEvent, SoundEvent> KWAMI_HURT = register("kwami", "entity", "hurt");
     public static final DeferredHolder<SoundEvent, SoundEvent> KWAMI_SUMMON = register("kwami", "entity", "summon");
 
     private static DeferredHolder<SoundEvent, SoundEvent> register(String subject, String type, String name) {

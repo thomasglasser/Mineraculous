@@ -67,6 +67,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiFunction;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -567,6 +568,7 @@ public class MineraculousEntityEvents {
             Kwami kwami = MineraculousEntityTypes.KWAMI.get().create(level);
             if (kwami != null) {
                 kwami.setMiraculous(miraculous);
+                kwami.setSummonTicks(level.random.nextIntBetweenInclusive(MineraculousServerConfig.get().kwamiSummonTimeMin.get() * SharedConstants.TICKS_PER_SECOND, MineraculousServerConfig.get().kwamiSummonTimeMax.getAsInt() * SharedConstants.TICKS_PER_SECOND));
                 KwamiData kwamiData = miraculousData.miraculousItem().get(MineraculousDataComponents.KWAMI_DATA.get());
                 if (kwamiData != null) {
                     kwami.setUUID(kwamiData.uuid());

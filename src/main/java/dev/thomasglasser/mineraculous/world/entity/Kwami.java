@@ -22,6 +22,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -34,7 +35,6 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -90,10 +90,12 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
 
     private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<ResourceKey<Miraculous>> DATA_MIRACULOUS = SynchedEntityData.defineId(Kwami.class, MineraculousEntityDataSerializers.MIRACULOUS.get());
+    private static final EntityDataAccessor<Integer> DATA_SUMMON_TICKS = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     private Component name;
+    private TextColor color;
     private TagKey<Item> foodTag;
     private TagKey<Item> treatTag;
 
@@ -122,6 +124,7 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
         super.defineSynchedData(builder);
         builder.define(DATA_CHARGED, true);
         builder.define(DATA_MIRACULOUS, MineraculousMiraculous.LADYBUG);
+        builder.define(DATA_SUMMON_TICKS, 0);
     }
 
     @Override
@@ -140,6 +143,23 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
 
     public ResourceKey<Miraculous> getMiraculous() {
         return entityData.get(DATA_MIRACULOUS);
+    }
+
+    public int getSummonTicks() {
+        return entityData.get(DATA_SUMMON_TICKS);
+    }
+
+    public void setSummonTicks(int ticks) {
+        entityData.set(DATA_SUMMON_TICKS, ticks);
+    }
+
+    public @Nullable TextColor getColor() {
+        if (getMiraculous() != null) {
+            if (color == null)
+                color = level().holderOrThrow(getMiraculous()).value().color();
+            return color;
+        }
+        return null;
     }
 
     @Nullable
@@ -164,6 +184,14 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
                 setCharged(true);
             }
         }
+        boolean noPhysics = true;
+        for (ItemStack stack : getAllSlots()) {
+            if (!stack.isEmpty()) {
+                noPhysics = false;
+                break;
+            }
+        }
+        this.noPhysics = noPhysics && (tickCount > getSummonTicks());
     }
 
     @Override
@@ -196,8 +224,8 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
                         new SetPlayerLookTarget<>(),
                         new SetRandomLookTarget<>()),
                 new FirstApplicableBehaviour<>(
-                        new FollowOwner<Kwami>().speedMod(10f).stopFollowingWithin(2).teleportToTargetAfter(8).startCondition(kwami -> kwami.getOwner() != null),
-                        new FollowTemptation<>(),
+                        new FollowOwner<Kwami>().speedMod(10f).stopFollowingWithin(4).teleportToTargetAfter(12).startCondition(kwami -> kwami.getOwner() != null),
+                        new FollowTemptation<>().closeEnoughDist((kwami, owner) -> 1F),
                         new OneRandomBehaviour<>(
                                 new SetRandomFlyingTarget<>().flightTargetPredicate((entity, pos) -> entity.level().getBlockState(BlockPos.containing(pos)).isAir()),
                                 new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)))));
@@ -259,6 +287,8 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "move_controller", state -> {
+            if (tickCount < getSummonTicks())
+                return state.setAndContinue(DefaultAnimations.IDLE);
             if (state.isMoving())
                 return state.setAndContinue(DefaultAnimations.FLY);
             return onShoulder ? state.setAndContinue(SIT) : state.setAndContinue(DefaultAnimations.IDLE);
@@ -309,9 +339,7 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
 
     @Override
     protected @Nullable SoundEvent getHurtSound(DamageSource damageSource) {
-        if (damageSource.is(DamageTypes.STARVE))
-            return MineraculousSoundEvents.KWAMI_HUNGRY.get();
-        return super.getHurtSound(damageSource);
+        return MineraculousSoundEvents.KWAMI_HURT.get();
     }
 
     @Override

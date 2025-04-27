@@ -230,7 +230,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousSoundEvents.BUTTERFLY_TRANSFORM.get(), "Butterfly Miraculous holder raises wings");
         add(MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM.get(), "Kamikotized player transforms");
         add(MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM.get(), "Kamikotized player detransforms");
-        add(MineraculousSoundEvents.KWAMI_HUNGRY.get(), "Kwami hungers");
+        add(MineraculousSoundEvents.KWAMI_HURT.get(), "Kwami hurts");
         add(MineraculousSoundEvents.KWAMI_SUMMON.get(), "Kwami appears");
 
         addPaintingVariant(MineraculousPaintingVariants.LADYBUG, "Ladybug", "NastyaGalaxy");
@@ -252,6 +252,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfig(MineraculousServerConfig.get().customizationPermissionsMode, "Customization Permissions Mode", "Permissions mode for customization. Whitelist: Only whitelisted players can customize. Blacklist: Only non-blacklisted players can customize.");
         addConfig(MineraculousServerConfig.get().enableMiraculousTimer, "Enable Miraculous Timer", "Enable the detransformation timer for miraculous holders before they reach adulthood");
         addConfig(MineraculousServerConfig.get().enableLimitedPower, "Enable Limited Power", "Enable limited power for miraculous holders before they reach adulthood");
+        addConfig(MineraculousServerConfig.get().kwamiSummonTimeMin, "Minimum Kwami Summon Time", "The minimum amount of time (in seconds) that it takes for a kwami to be summoned");
+        addConfig(MineraculousServerConfig.get().kwamiSummonTimeMax, "Maximum Kwami Summon Time", "The maximum amount of time (in seconds) that it takes for a kwami to be summoned");
         addConfig(MineraculousServerConfig.get().enableKamikotizationRejection, "Enable Kamikotization Rejection", "Enable rejection of kamikotization by the victim");
         addConfig(MineraculousServerConfig.get().luckyCharmSummonTimeMin, "Minimum Lucky Charm Summon Time", "The minimum amount of time (in seconds) that it takes for a lucky charm to be summoned");
         addConfig(MineraculousServerConfig.get().luckyCharmSummonTimeMax, "Maximum Lucky Charm Summon Time", "The maximum amount of time (in seconds) that it takes for a lucky charm to be summoned");

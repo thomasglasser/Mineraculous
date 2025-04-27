@@ -36,7 +36,7 @@ public class MineraculousSoundDefinitionsProvider extends ExtendedSoundDefinitio
         add(MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM);
         add(MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM);
 
-        add(MineraculousSoundEvents.KWAMI_HUNGRY);
+        add(MineraculousSoundEvents.KWAMI_HURT);
         add(MineraculousSoundEvents.KWAMI_SUMMON);
     }
 }

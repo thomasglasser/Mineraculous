@@ -15,6 +15,8 @@ public class MineraculousServerConfig {
     public final ModConfigSpec.EnumValue<PermissionMode> customizationPermissionsMode;
     public final ModConfigSpec.BooleanValue enableMiraculousTimer;
     public final ModConfigSpec.BooleanValue enableLimitedPower;
+    public final ModConfigSpec.IntValue kwamiSummonTimeMin;
+    public final ModConfigSpec.IntValue kwamiSummonTimeMax;
     public final ModConfigSpec.BooleanValue enableKamikotizationRejection;
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMin;
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMax;
@@ -38,6 +40,10 @@ public class MineraculousServerConfig {
                 .define("enable_miraculous_timer", true);
         enableLimitedPower = builder
                 .define("enable_limited_power", true);
+        kwamiSummonTimeMin = builder
+                .defineInRange("kwami_summon_time_min", 2, 0, Integer.MAX_VALUE);
+        kwamiSummonTimeMax = builder
+                .defineInRange("kwami_summon_time_max", 4, 0, Integer.MAX_VALUE);
         enableKamikotizationRejection = builder
                 .define("enable_kamikotization_rejection", true);
         luckyCharmSummonTimeMin = builder

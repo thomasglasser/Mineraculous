@@ -1,13 +1,17 @@
 package dev.thomasglasser.mineraculous.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -17,16 +21,24 @@ import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 import software.bernie.geckolib.renderer.specialty.DynamicGeoEntityRenderer;
+import software.bernie.geckolib.util.Color;
 
 public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> {
     private static final String HEAD = "head";
     private static final String LEFT_HAND = "left_hand";
     private static final String RIGHT_HAND = "right_hand";
 
+    private static final Map<TextColor, Color> COLORS = new HashMap<>();
+
     private final Map<ResourceKey<Miraculous>, GeoModel<T>> models = new HashMap<>();
 
     public KwamiRenderer(EntityRendererProvider.Context renderManager) {
-        super(renderManager, null);
+        super(renderManager, new DefaultedEntityGeoModel<>(Mineraculous.modLoc("miraculous/kwami_summoning")) {
+            @Override
+            public RenderType getRenderType(T animatable, ResourceLocation texture) {
+                return RenderType.entityTranslucentEmissive(texture);
+            }
+        });
         withScale(0.5f);
         addRenderLayer(new BlockAndItemGeoLayer<>(this, (bone, entity) -> switch (bone.getName()) {
             case LEFT_HAND -> animatable.isLeftHanded() ? animatable.getMainHandItem() : animatable.getOffhandItem();
@@ -55,15 +67,31 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
 
     @Override
     public GeoModel<T> getGeoModel() {
-        if (getAnimatable() != null) {
-            ResourceKey<Miraculous> miraculous = getAnimatable().getMiraculous();
-            if (miraculous != null) {
-                if (!models.containsKey(miraculous))
-                    models.put(miraculous, createGeoModel(miraculous));
-                return models.get(miraculous);
+        T kwami = getAnimatable();
+        if (kwami != null) {
+            if (kwami.tickCount < kwami.getSummonTicks()) {
+                return super.getGeoModel();
+            } else {
+                ResourceKey<Miraculous> miraculous = kwami.getMiraculous();
+                if (miraculous != null) {
+                    if (!models.containsKey(miraculous))
+                        models.put(miraculous, createGeoModel(miraculous));
+                    return models.get(miraculous);
+                }
             }
         }
-        return super.getGeoModel();
+        return null;
+    }
+
+    @Override
+    public Color getRenderColor(T animatable, float partialTick, int packedLight) {
+        if (animatable.tickCount < animatable.getSummonTicks()) {
+            TextColor color = animatable.getColor();
+            if (color != null) {
+                return COLORS.computeIfAbsent(color, c -> Color.ofOpaque(c.getValue()));
+            }
+        }
+        return super.getRenderColor(animatable, partialTick, packedLight);
     }
 
     private GeoModel<T> createGeoModel(ResourceKey<Miraculous> miraculous) {
@@ -73,12 +101,16 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
             @Override
             public ResourceLocation getTextureResource(T animatable) {
                 if (hungryTexture == null) {
-                    ResourceLocation original = super.getTextureResource(animatable);
-                    hungryTexture = ResourceLocation.fromNamespaceAndPath(original.getNamespace(), original.getPath().replace(".png", "_hungry.png"));
+                    hungryTexture = super.getTextureResource(animatable).withPath(path -> path.replace(".png", "_hungry.png"));
                 }
                 if (!animatable.isCharged())
                     return hungryTexture;
                 return super.getTextureResource(animatable);
+            }
+
+            @Override
+            public RenderType getRenderType(T animatable, ResourceLocation texture) {
+                return RenderType.entityTranslucent(texture);
             }
         };
     }

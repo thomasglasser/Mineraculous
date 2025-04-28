@@ -253,7 +253,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfig(MineraculousServerConfig.get().enableMiraculousTimer, "Enable Miraculous Timer", "Enable the detransformation timer for miraculous holders before they reach adulthood");
         addConfig(MineraculousServerConfig.get().enableLimitedPower, "Enable Limited Power", "Enable limited power for miraculous holders before they reach adulthood");
         addConfig(MineraculousServerConfig.get().enableKamikotizationRejection, "Enable Kamikotization Rejection", "Enable rejection of kamikotization by the victim");
-        addConfig(MineraculousServerConfig.get().catStaffMaxLength, "Cat Staff Max. Length", "Amount of blocks the cat staff can extend while using perch and travel mode");
+        addConfig(MineraculousServerConfig.get().maxCatStaffLength, "Maximum Cat Staff Length", "Amount of blocks the cat staff can extend while using perch and travel mode");
 
         addConfigSection(MineraculousServerConfig.STEALING, "Stealing", "Settings for item stealing");
         addConfig(MineraculousServerConfig.get().stealingDuration, "Stealing Duration", "Duration in seconds that the key must be held to steal an item");

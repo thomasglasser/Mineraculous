@@ -201,7 +201,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                             d -= 0.3f;
                             k = true;
                         }
-                        if (MineraculousKeyMappings.WEAPON_UP_ARROW.get().isDown() && Math.abs(groundRYClient) < MineraculousServerConfig.get().catStaffMaxLength.get()) {
+                        if (MineraculousKeyMappings.WEAPON_UP_ARROW.get().isDown() && Math.abs(groundRYClient) < MineraculousServerConfig.get().maxCatStaffLength.get()) {
                             d += 0.3f;
                             k = true;
                         }
@@ -240,7 +240,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                                 float targetDistance = new Vector3f((float) (player.getX() - targetPos.getX()),
                                         (float) (player.getY() - targetPos.getY()),
                                         (float) (player.getZ() - targetPos.getZ())).length();
-                                if (length < targetDistance && length <= MineraculousServerConfig.get().catStaffMaxLength.get()) length += 8;
+                                if (length < targetDistance && length <= MineraculousServerConfig.get().maxCatStaffLength.get()) length += 8;
                                 if (length > targetDistance) length = targetDistance;
                                 if (length == targetDistance && !didLaunch) {
                                     player.setDeltaMovement(new Vec3(travelCatStaffData.initialLookingAngle()).normalize().scale(4));
@@ -310,7 +310,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         if (!isFalling) {
                             //GROUND DETECTION
                             int y = entity.getBlockY();
-                            while (level.getBlockState(new BlockPos(entity.getBlockX(), y, entity.getBlockZ())).isEmpty() && Math.abs(entity.getBlockY() - y) <= MineraculousServerConfig.get().catStaffMaxLength.get()) {
+                            while (level.getBlockState(new BlockPos(entity.getBlockX(), y, entity.getBlockZ())).isEmpty() && Math.abs(entity.getBlockY() - y) <= MineraculousServerConfig.get().maxCatStaffLength.get()) {
                                 y--;
                             }
                             y++;
@@ -392,7 +392,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                 if (!travelCatStaffData.traveling()) {
                     Vec3 lookAngle = player.getLookAngle().normalize();
                     BlockHitResult result = level.clip(new ClipContext(player.getEyePosition(),
-                            player.getEyePosition().add(lookAngle.scale(-MineraculousServerConfig.get().catStaffMaxLength.get())),
+                            player.getEyePosition().add(lookAngle.scale(-MineraculousServerConfig.get().maxCatStaffLength.get())),
                             ClipContext.Block.OUTLINE,
                             ClipContext.Fluid.ANY,
                             player));

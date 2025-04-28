@@ -16,7 +16,7 @@ public class MineraculousServerConfig {
     public final ModConfigSpec.BooleanValue enableMiraculousTimer;
     public final ModConfigSpec.BooleanValue enableLimitedPower;
     public final ModConfigSpec.BooleanValue enableKamikotizationRejection;
-    public final ModConfigSpec.IntValue catStaffMaxLength;
+    public final ModConfigSpec.IntValue maxCatStaffLength;
 
     // Stealing
     public static final String STEALING = "stealing";
@@ -39,8 +39,8 @@ public class MineraculousServerConfig {
                 .define("enable_limited_power", true);
         enableKamikotizationRejection = builder
                 .define("enable_kamikotization_rejection", true);
-        catStaffMaxLength = builder
-                .defineInRange("cat_staff_max_length", 64, 32, 128);
+        maxCatStaffLength = builder
+                .defineInRange("max_cat_staff_length", 64, 32, 128);
         builder.pop();
 
         builder.push(STEALING);

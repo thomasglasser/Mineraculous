@@ -211,6 +211,8 @@ sourceSets.main.resources.srcDir generateModMetadata
 // To avoid having to run "generateModMetadata" manually, make it run on every project reload
 tasks.processResources.dependsOn generateModMetadata
 
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
 build.dependsOn immaculateCheck
 
 immaculate {

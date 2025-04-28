@@ -5,7 +5,7 @@ plugins {
 	id 'java-library'
 	id 'maven-publish'
 	id 'signing'
-	id 'dev.lukebemish.immaculate' version '0.1.6'
+	id 'dev.lukebemish.immaculate' version '0.1.8'
 	id 'idea'
 	id 'net.neoforged.moddev' version "${mdg_version}"
 }
@@ -101,8 +101,6 @@ repositories {
 	mavenLocal()
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
-
 neoForge {
 	version = "${neoforge_version}"
 
@@ -172,40 +170,48 @@ dependencies {
 	localRuntime "maven.modrinth:jade:${jade_version}+neoforge"
 }
 
-processResources {
-	def expandProps = [
-			"version": version,
-			"group": project.group,
-			"minecraft_version": minecraft_version,
-			"next_minecraft_version": next_minecraft_version,
-			"mod_name": mod_name,
-			"mod_author": mod_author,
-			"mod_id": mod_id,
-			"license": license,
-			"description": project.description,
-			"neoforge_version": neoforge_version,
-			"major_fml_version": major_fml_version,
-			"contributors": contributors,
-			"java_version": java_version,
-			"icon": icon,
-			"github_name": github_name,
-			"resource_pack_version": resource_pack_version,
-			"data_pack_version": data_pack_version,
-			"tommylib_version": tommylib_version,
-			"geckolib_version": geckolib_version,
-			"smartbrainlib_version": smartbrainlib_version,
-			"curios_version": curios_version,
-			"trimmed_version": trimmed_version,
-			"lithostitched_version": lithostitched_version,
-			"jei_version": jei_version,
-			"modonomicon_version": modonomicon_version,
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+	var replaceProperties = [
+			version: project.version,
+			group: project.group,
+			minecraft_version: minecraft_version,
+			next_minecraft_version: next_minecraft_version,
+			mod_name: mod_name,
+			mod_author: mod_author,
+			mod_id: mod_id,
+			license: license,
+			description: project.description,
+			neoforge_version: neoforge_version,
+			major_fml_version: major_fml_version,
+			contributors: contributors,
+			java_version: java_version,
+			icon: icon,
+			github_name: github_name,
+			resource_pack_version: resource_pack_version,
+			data_pack_version: data_pack_version,
+			tommylib_version: tommylib_version,
+			geckolib_version: geckolib_version,
+			smartbrainlib_version: smartbrainlib_version,
+			curios_version: curios_version,
+			trimmed_version: trimmed_version,
+			lithostitched_version: lithostitched_version,
+			jei_version: jei_version,
+			modonomicon_version: modonomicon_version,
 	]
 
-	filesMatching(['META-INF/neoforge.mods.toml', '*.mixins.json', '**/pack.mcmeta']) {
-		expand expandProps
-	}
-	inputs.properties(expandProps)
+	inputs.properties replaceProperties
+	expand replaceProperties
+	from "src/main/templates"
+	into "build/generated/sources/modMetadata"
 }
+
+// Include the output of "generateModMetadata" as an input directory for the build
+// this works with both building through Gradle and the IDE.
+sourceSets.main.resources.srcDir generateModMetadata
+// To avoid having to run "generateModMetadata" manually, make it run on every project reload
+tasks.processResources.dependsOn generateModMetadata
+
+build.dependsOn immaculateCheck
 
 immaculate {
 	workflows.register('java') {
@@ -253,10 +259,6 @@ immaculate {
 			fileContents.replace('javax.annotation.Nullable', 'org.jetbrains.annotations.Nullable')
 		}
 	}
-}
-
-tasks.named('compileJava') {
-	dependsOn 'immaculateApply'
 }
 
 javadoc {

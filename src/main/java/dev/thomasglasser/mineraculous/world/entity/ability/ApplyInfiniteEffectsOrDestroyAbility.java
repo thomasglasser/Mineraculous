@@ -6,7 +6,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -15,7 +14,6 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -56,9 +54,10 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
                 if (entity instanceof Player player) {
                     livingEntity.setLastHurtByPlayer(player);
                     blameTag.ifPresent(s -> {
-                        CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(livingEntity);
-                        tag.putUUID(s, player.getUUID());
-                        TommyLibServices.ENTITY.setPersistentData(livingEntity, tag, true);
+                        // TODO: Fix
+//                        CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(livingEntity);
+//                        tag.putUUID(s, player.getUUID());
+//                        TommyLibServices.ENTITY.setPersistentData(livingEntity, tag, true);
                     });
                 }
             } else if (target instanceof VehicleEntity vehicle && dropItem.isPresent()) {

@@ -8,7 +8,7 @@ public interface KamikoMenuItem {
 
     Component getName();
 
-    void renderIcon(GuiGraphics p_282591_, float p_101840_, float p_361027_);
+    void renderIcon(GuiGraphics guiGraphics, float alpha);
 
     boolean isEnabled();
 }

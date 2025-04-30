@@ -4,14 +4,12 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.network.ClientboundSetCameraEntityPayload;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -62,12 +60,13 @@ public class SetCameraEntityAbility implements Ability {
         return false;
     }
 
+    // TODO: Fix
     @Override
     public void detransform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity performer) {
         if (performer instanceof ServerPlayer serverPlayer) {
-            CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(performer);
-            tag.putBoolean(MineraculousEntityEvents.TAG_CAMERA_CONTROL_INTERRUPTED, true);
-            TommyLibServices.ENTITY.setPersistentData(performer, tag, true);
+//            CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(performer);
+//            tag.putBoolean(MineraculousEntityEvents.TAG_CAMERA_CONTROL_INTERRUPTED, true);
+//            TommyLibServices.ENTITY.setPersistentData(performer, tag, true);
             Entity target = null;
             for (Entity e : serverPlayer.serverLevel().getEntities().getAll()) {
                 if ((!mustBeTamed || (e instanceof TamableAnimal tamable && tamable.isOwnedBy(performer))) && entity.matches(serverPlayer.serverLevel(), e.position(), e)) {
@@ -78,9 +77,9 @@ public class SetCameraEntityAbility implements Ability {
             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target != null ? target.getId() : -1, Optional.empty(), toggleTag, true, overrideOwner), serverPlayer);
         }
         toggleTag.ifPresent(tag -> {
-            CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(performer);
-            entityData.putBoolean(tag, false);
-            TommyLibServices.ENTITY.setPersistentData(performer, entityData, true);
+//            CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(performer);
+//            entityData.putBoolean(tag, false);
+//            TommyLibServices.ENTITY.setPersistentData(performer, entityData, true);
         });
     }
 

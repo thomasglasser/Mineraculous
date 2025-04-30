@@ -9,7 +9,6 @@ import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 public class MineraculousAbilitySerializers {
     public static final DeferredRegister<MapCodec<? extends Ability>> ABILITIES = DeferredRegister.create(MineraculousRegistries.ABILITY_SERIALIZER, Mineraculous.MOD_ID);
 
-    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<EmptyAbility>> EMPTY = ABILITIES.register("empty", () -> EmptyAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ApplyEffectsWhileTransformedAbility>> APPLY_EFFECTS_WHILE_TRANSFORMED = ABILITIES.register("apply_effects_while_transformed", () -> ApplyEffectsWhileTransformedAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ApplyInfiniteEffectsOrDestroyAbility>> APPLY_INFINITE_EFFECTS_OR_DESTROY = ABILITIES.register("apply_infinite_effects_or_destroy", () -> ApplyInfiniteEffectsOrDestroyAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ContextAwareAbility>> CONTEXT_AWARE = ABILITIES.register("context_aware", () -> ContextAwareAbility.CODEC);
@@ -22,6 +21,7 @@ public class MineraculousAbilitySerializers {
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<SetCameraEntityAbility>> SET_CAMERA_ENTITY = ABILITIES.register("set_camera_entity", () -> SetCameraEntityAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<SetOwnerAbility>> SET_OWNER = ABILITIES.register("set_owner", () -> SetOwnerAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<SummonLuckyCharmAbility>> SUMMON_LUCKY_CHARM = ABILITIES.register("summon_lucky_charm", () -> SummonLuckyCharmAbility.CODEC);
+    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<UnitAbility>> UNIT = ABILITIES.register("unit", () -> UnitAbility.CODEC);
 
     public static void init() {}
 }

@@ -4,10 +4,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
-import dev.thomasglasser.mineraculous.advancements.critereon.KamikotizationUsePowerTrigger;
-import dev.thomasglasser.mineraculous.advancements.critereon.MiraculousUsePowerTrigger;
+import dev.thomasglasser.mineraculous.advancements.critereon.UseKamikotizationPowerTrigger;
+import dev.thomasglasser.mineraculous.advancements.critereon.UseMiraculousPowerTrigger;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -30,19 +29,20 @@ public record DragAbility(Ability ability, int dragTicks, Optional<Holder<SoundE
             Codec.BOOL.optionalFieldOf("override_active", false).forGetter(DragAbility::overrideActive)).apply(instance, DragAbility::new));
     @Override
     public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
-        CompoundTag performerData = TommyLibServices.ENTITY.getPersistentData(entity);
+        CompoundTag performerData = /*TommyLibServices.ENTITY.getPersistentData(entity)*/new CompoundTag();
         int remainingDragTicks = performerData.getInt(DRAG_TICKS);
         boolean consume = ability.perform(data, level, pos, entity, context);
         if (context == Context.PASSIVE) {
             if (remainingDragTicks != 0) {
-                int nowRemaining = remainingDragTicks - 1;
-                if (nowRemaining <= 0) {
-                    performerData.remove(DRAG_TICKS);
-                    TommyLibServices.ENTITY.setPersistentData(entity, performerData, true);
-                    return true;
-                }
-                performerData.putInt(DRAG_TICKS, nowRemaining);
-                TommyLibServices.ENTITY.setPersistentData(entity, performerData, true);
+                // TODO: Fix
+//                int nowRemaining = remainingDragTicks - 1;
+//                if (nowRemaining <= 0) {
+//                    performerData.remove(DRAG_TICKS);
+//                    TommyLibServices.ENTITY.setPersistentData(entity, performerData, true);
+//                    return true;
+//                }
+//                performerData.putInt(DRAG_TICKS, nowRemaining);
+//                TommyLibServices.ENTITY.setPersistentData(entity, performerData, true);
             }
             return false;
         }
@@ -55,7 +55,7 @@ public record DragAbility(Ability ability, int dragTicks, Optional<Holder<SoundE
             }
             if (remainingDragTicks == 0) {
                 performerData.putInt(DRAG_TICKS, dragTicks);
-                TommyLibServices.ENTITY.setPersistentData(entity, performerData, true);
+//                TommyLibServices.ENTITY.setPersistentData(entity, performerData, true);
                 return false;
             }
         }
@@ -72,21 +72,21 @@ public record DragAbility(Ability ability, int dragTicks, Optional<Holder<SoundE
         ability.restore(data, level, pos, entity);
     }
 
-    MiraculousUsePowerTrigger.Context miraculousContextFrom(Ability.Context context) {
+    UseMiraculousPowerTrigger.Context miraculousContextFrom(Ability.Context context) {
         return switch (context) {
-            case PASSIVE, INTERACT_AIR -> MiraculousUsePowerTrigger.Context.EMPTY;
-            case INTERACT_BLOCK -> MiraculousUsePowerTrigger.Context.BLOCK;
-            case INTERACT_ENTITY -> context.entity() instanceof LivingEntity ? MiraculousUsePowerTrigger.Context.LIVING_ENTITY : MiraculousUsePowerTrigger.Context.ENTITY;
-            case INTERACT_ITEM -> MiraculousUsePowerTrigger.Context.ITEM;
+            case PASSIVE, INTERACT_AIR -> UseMiraculousPowerTrigger.Context.EMPTY;
+            case INTERACT_BLOCK -> UseMiraculousPowerTrigger.Context.BLOCK;
+            case INTERACT_ENTITY -> context.entity() instanceof LivingEntity ? UseMiraculousPowerTrigger.Context.LIVING_ENTITY : UseMiraculousPowerTrigger.Context.ENTITY;
+            case INTERACT_ITEM -> UseMiraculousPowerTrigger.Context.ITEM;
         };
     }
 
-    KamikotizationUsePowerTrigger.Context kamikotizationContextFrom(Ability.Context context) {
+    UseKamikotizationPowerTrigger.Context kamikotizationContextFrom(Ability.Context context) {
         return switch (context) {
-            case PASSIVE, INTERACT_AIR -> KamikotizationUsePowerTrigger.Context.EMPTY;
-            case INTERACT_BLOCK -> KamikotizationUsePowerTrigger.Context.BLOCK;
-            case INTERACT_ENTITY -> context.entity() instanceof LivingEntity ? KamikotizationUsePowerTrigger.Context.LIVING_ENTITY : KamikotizationUsePowerTrigger.Context.ENTITY;
-            case INTERACT_ITEM -> KamikotizationUsePowerTrigger.Context.ITEM;
+            case PASSIVE, INTERACT_AIR -> UseKamikotizationPowerTrigger.Context.EMPTY;
+            case INTERACT_BLOCK -> UseKamikotizationPowerTrigger.Context.BLOCK;
+            case INTERACT_ENTITY -> context.entity() instanceof LivingEntity ? UseKamikotizationPowerTrigger.Context.LIVING_ENTITY : UseKamikotizationPowerTrigger.Context.ENTITY;
+            case INTERACT_ITEM -> UseKamikotizationPowerTrigger.Context.ITEM;
         };
     }
 

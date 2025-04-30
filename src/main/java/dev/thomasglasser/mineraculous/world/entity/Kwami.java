@@ -245,8 +245,7 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
                         }
                     }
                     if (isTreat(stack) || isFood(stack)) {
-                        ItemStack remainder = ItemUtils.safeShrink(1, stack, player);
-                        if (!remainder.isEmpty()) player.addItem(remainder);
+                        ItemUtils.safeShrink(1, stack, player);
                         return InteractionResult.SUCCESS;
                     }
                 }

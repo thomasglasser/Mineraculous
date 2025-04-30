@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.data.lang.expansions;
 
 import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
-import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationChatScreen;
-import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationSelectionScreen;
+import dev.thomasglasser.mineraculous.client.gui.screens.kamikotization.AbstractKamikotizationChatScreen;
+import dev.thomasglasser.mineraculous.client.gui.screens.kamikotization.KamikotizationSelectionScreen;
 import dev.thomasglasser.mineraculous.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
@@ -42,7 +42,7 @@ public class AkumatizationPackEnUsLanguageProvider extends ExtendedEnUsLanguageP
         add(KamikotizationSelectionScreen.TITLE, "Akumatization");
         add(KamikotizationSelectionScreen.NO_KAMIKOTIZATIONS, "No valid akumatizations found for %s");
 
-        add(KamikotizationChatScreen.ACCEPT, "Accept Akumatization");
+        add(AbstractKamikotizationChatScreen.ACCEPT, "Accept Akumatization");
 
         add(MineraculousClientEvents.REVOKE, "Revoke Akumatization");
         add(MineraculousClientEvents.REVOKE_WITH_SPACE, "Revoke Akumatization (Press Space)");

@@ -3,8 +3,6 @@ package dev.thomasglasser.mineraculous.client.renderer.entity.layers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.client.model.KamikoMaskModel;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -25,7 +23,7 @@ public class KamikoMaskLayer<T extends LivingEntity, M extends PlayerModel<T>> e
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight, T livingEntity, float v, float v1, float v2, float v3, float v4, float v5) {
-        if (TommyLibServices.ENTITY.getPersistentData(livingEntity).getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK)) {
+        if (/*TommyLibServices.ENTITY.getPersistentData(livingEntity).getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK)*/false) {
             VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entityTranslucent(KamikoMaskModel.TEXTURE));
             poseStack.scale(0.625F, 0.625F, 0.625F);
             getParentModel().getHead().translateAndRotate(poseStack);

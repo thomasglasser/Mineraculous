@@ -3,13 +3,14 @@ package dev.thomasglasser.mineraculous.client.gui.kamiko.categories;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.KamikoMenuCategory;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.KamikoMenuItem;
-import dev.thomasglasser.mineraculous.client.gui.kamiko.PlayerKamikoMenuItem;
+import dev.thomasglasser.mineraculous.client.gui.kamiko.PlayerMenuItem;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.spectator.categories.TeleportToPlayerMenuCategory;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -17,7 +18,6 @@ import net.minecraft.world.level.GameType;
 
 public class TargetPlayerMenuCategory implements KamikoMenuCategory {
     public static final Component TARGET_PROMPT = Component.translatable("kamiko_menu.teleport.prompt");
-    private static final Comparator<PlayerInfo> PROFILE_ORDER = Comparator.comparing(p_253335_ -> p_253335_.getProfile().getId());
     private final List<KamikoMenuItem> items;
 
     public TargetPlayerMenuCategory() {
@@ -25,17 +25,18 @@ public class TargetPlayerMenuCategory implements KamikoMenuCategory {
     }
 
     public TargetPlayerMenuCategory(Collection<PlayerInfo> players) {
-        this.items = players.stream()
-                .filter(p_253336_ -> {
-                    if (p_253336_.getGameMode() == GameType.SPECTATOR)
-                        return false;
-                    Player player = Minecraft.getInstance().level.getPlayerByUUID(p_253336_.getProfile().getId());
-                    Kamiko kamiko = MineraculousClientUtils.getCameraEntity() instanceof Kamiko k ? k : null;
-                    return player != null && kamiko != null && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isEmpty() && !Kamiko.TARGET_TOO_FAR.test(kamiko, player);
-                })
-                .sorted(PROFILE_ORDER)
-                .map(p_253334_ -> (KamikoMenuItem) new PlayerKamikoMenuItem(p_253334_.getProfile()))
-                .toList();
+        this.items = new ReferenceArrayList<>();
+        List<PlayerInfo> sorted = new ReferenceArrayList<>(players);
+        sorted.sort(TeleportToPlayerMenuCategory.PROFILE_ORDER);
+        for (PlayerInfo playerInfo : sorted) {
+            if (playerInfo.getGameMode() == GameType.SPECTATOR)
+                continue;
+            Player player = Minecraft.getInstance().level.getPlayerByUUID(playerInfo.getProfile().getId());
+            Kamiko kamiko = MineraculousClientUtils.getCameraEntity() instanceof Kamiko k ? k : null;
+            if (player != null && kamiko != null && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isEmpty() && !Kamiko.TARGET_TOO_FAR.test(kamiko, player)) {
+                this.items.add(new PlayerMenuItem(playerInfo.getProfile()));
+            }
+        }
     }
 
     @Override

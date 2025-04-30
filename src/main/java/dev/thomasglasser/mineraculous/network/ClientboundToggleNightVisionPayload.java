@@ -4,10 +4,8 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -33,9 +31,10 @@ public record ClientboundToggleNightVisionPayload(boolean nightVision, Optional<
                 MineraculousClientUtils.setShader(null);
             player.removeEffect(MobEffects.NIGHT_VISION);
         }
-        CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(player);
-        tag.putBoolean(MineraculousEntityEvents.TAG_HAS_NIGHT_VISION, nightVision);
-        TommyLibServices.ENTITY.setPersistentData(player, tag, false);
+        // TODO: Fix
+//        CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(player);
+//        tag.putBoolean(MineraculousEntityEvents.TAG_HAS_NIGHT_VISION, nightVision);
+//        TommyLibServices.ENTITY.setPersistentData(player, tag, false);
     }
 
     @Override

@@ -7,26 +7,20 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemStack;
 
-public class RadialMenuScreen extends Screen {
+public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
     private static final float MAX_CIRCLE_SIZE = 180f;
     private static final float PRECISION = 2.5f / 360.0f;
 
-    protected final List<RadialMenuOption> options;
-    protected final ItemStack stack;
-    protected final Consumer<RadialMenuOption> onSelected;
+    protected final List<T> options;
+    protected final Consumer<T> onSelected;
     protected final int heldKey;
     protected final int selectedColor;
 
@@ -38,10 +32,9 @@ public class RadialMenuScreen extends Screen {
 
     private float animationTime = 0;
 
-    public RadialMenuScreen(List<RadialMenuOption> options, ItemStack stack, Consumer<RadialMenuOption> onSelected, int heldKey, int selectedColor) {
+    public RadialMenuScreen(List<T> options, Consumer<T> onSelected, int heldKey, int selectedColor) {
         super(Component.empty());
         this.options = options;
-        this.stack = stack;
         this.onSelected = onSelected;
         this.heldKey = heldKey;
         this.selectedColor = selectedColor;
@@ -63,6 +56,7 @@ public class RadialMenuScreen extends Screen {
         }
     }
 
+    // TODO: Ensure this always returns the same value
     protected int getSelectedOption(int pMouseX, int pMouseY, float circleSize) {
         double hypotenuse = Math.sqrt(pMouseX * pMouseX + pMouseY * pMouseY);
         if (hypotenuse < (circleSize) / 3f /*|| hypotenuse > circleSize * 91 / 90*/) {
@@ -107,9 +101,6 @@ public class RadialMenuScreen extends Screen {
         int selectedOption = this.getSelectedOption((int) (currentMouseX - (double) width / 2), (int) (-1 * (currentMouseY - (double) height / 2)), circleSize);
         if (selectedOption != -1) {
             onSelected.accept(options.get(selectedOption));
-            CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer());
-            playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 20);
-            TommyLibServices.ENTITY.setPersistentData(ClientUtils.getMainClientPlayer(), playerData, false);
         }
         super.onClose();
     }

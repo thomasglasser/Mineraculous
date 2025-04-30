@@ -10,7 +10,6 @@ import dev.thomasglasser.mineraculous.world.entity.ability.NightVisionAbility;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.nbt.CompoundTag;
@@ -37,23 +36,24 @@ public abstract class MinecraftMixin {
     @Inject(method = "handleKeybinds", at = @At("TAIL"))
     private void handleKeybinds(CallbackInfo ci) {
         if (Minecraft.getInstance().gameRenderer.postEffect == null) {
-            CompoundTag data = TommyLibServices.ENTITY.getPersistentData(ClientUtils.getMainClientPlayer());
+            // TODO: Fix
+            CompoundTag data = /*TommyLibServices.ENTITY.getPersistentData(Minecraft.getInstance().player)*/new CompoundTag();
             if (data.getBoolean(MineraculousEntityEvents.TAG_HAS_NIGHT_VISION)) {
-                MiraculousDataSet miraculousDataSet = ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.MIRACULOUS);
+                MiraculousDataSet miraculousDataSet = Minecraft.getInstance().player.getData(MineraculousAttachmentTypes.MIRACULOUS);
                 miraculousDataSet.getTransformedHolders(ClientUtils.getLevel().registryAccess()).forEach(miraculous -> {
                     NightVisionAbility nightVisionAbility = Ability.getFirstMatching(ability -> ability instanceof NightVisionAbility n && n.shader().isPresent(), miraculous.value(), miraculousDataSet.get(miraculous.getKey()).mainPowerActive()) instanceof NightVisionAbility n ? n : null;
                     if (nightVisionAbility != null) {
                         MineraculousClientUtils.setShader(nightVisionAbility.shader().get());
                     }
                 });
-                if (ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
-                    KamikotizationData kamikotizationData = ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
+                if (Minecraft.getInstance().player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
+                    KamikotizationData kamikotizationData = Minecraft.getInstance().player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
                     NightVisionAbility nightVisionAbility = Ability.getFirstMatching(ability -> ability instanceof NightVisionAbility n && n.shader().isPresent(), ClientUtils.getLevel().holderOrThrow(kamikotizationData.kamikotization()).value(), kamikotizationData.mainPowerActive()) instanceof NightVisionAbility n ? n : null;
                     if (nightVisionAbility != null) {
                         MineraculousClientUtils.setShader(nightVisionAbility.shader().get());
                     }
                 }
-            } else if (data.getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK) && getCameraEntity() != ClientUtils.getMainClientPlayer()) {
+            } else if (data.getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK) && getCameraEntity() != Minecraft.getInstance().player) {
                 MineraculousClientUtils.setShader(Kamiko.SPECTATOR_SHADER);
             } else {
                 gameRenderer.checkEntityPostEffect(getCameraEntity());

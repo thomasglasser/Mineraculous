@@ -14,7 +14,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.RegistryFixedCodec;
+import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 public interface Ability {
     Codec<Ability> DIRECT_CODEC = MineraculousBuiltInRegistries.ABILITY_SERIALIZER.byNameCodec()
             .dispatch(Ability::codec, Function.identity());
-    Codec<Holder<Ability>> CODEC = RegistryFixedCodec.create(MineraculousRegistries.ABILITY);
+    Codec<Holder<Ability>> CODEC = RegistryFileCodec.create(MineraculousRegistries.ABILITY, DIRECT_CODEC);
 
     boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context);
 

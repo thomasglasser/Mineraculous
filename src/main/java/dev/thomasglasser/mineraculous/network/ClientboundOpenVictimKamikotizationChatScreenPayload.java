@@ -20,7 +20,7 @@ public record ClientboundOpenVictimKamikotizationChatScreenPayload(UUID performe
     // ON CLIENT
     @Override
     public void handle(Player player) {
-        MineraculousClientUtils.openKamikotizationChatScreen(player.level().getPlayerByUUID(performer), kamikotizationData);
+        MineraculousClientUtils.openReceiverKamikotizationChatScreen(player.level().getPlayerByUUID(performer), kamikotizationData);
     }
 
     @Override

@@ -19,7 +19,6 @@ import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.client.Minecraft;
@@ -434,13 +433,14 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 List<Entity> list = this.level().getEntities(getOwner(), main.getBoundingBox().inflate(2, 1, 2), entity -> entity != this);
                 for (Entity entity : list) {
                     entity.teleportTo(main.getX(), main.getY(), main.getZ());
-                    CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(entity);
+                    // TODO: Fix
+                    /*CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(entity);*/
                     CompoundTag pos = new CompoundTag();
                     pos.putDouble("X", main.getX());
                     pos.putDouble("Y", main.getY());
                     pos.putDouble("Z", main.getZ());
-                    entityData.put(MineraculousEntityEvents.TAG_YOYO_BOUND_POS, pos);
-                    TommyLibServices.ENTITY.setPersistentData(entity, entityData, true);
+                    /*entityData.put(MineraculousEntityEvents.TAG_YOYO_BOUND_POS, pos);
+                    TommyLibServices.ENTITY.setPersistentData(entity, entityData, true);*/
                 }
             } else if (getAbility() == LadybugYoyoItem.Ability.PURIFY && getOwner() != null && result.getEntity() instanceof Kamiko kamiko && kamiko.isPowered()) {
                 MiraculousDataSet miraculousDataSet = getOwner().getData(MineraculousAttachmentTypes.MIRACULOUS);

@@ -5,8 +5,8 @@ import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
-import dev.thomasglasser.mineraculous.advancements.critereon.KamikotizationUsePowerTrigger;
-import dev.thomasglasser.mineraculous.advancements.critereon.MiraculousUsePowerTrigger;
+import dev.thomasglasser.mineraculous.advancements.critereon.UseKamikotizationPowerTrigger;
+import dev.thomasglasser.mineraculous.advancements.critereon.UseMiraculousPowerTrigger;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
@@ -19,11 +19,9 @@ import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncSuitLookPayl
 import dev.thomasglasser.mineraculous.network.ClientboundSyncKamikotizationLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncMiraculousLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncSuitLookPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundPutKamikotizationToolInHandPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestMiraculousDataSetSyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSendEmptyLeftClickPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundSetKamikotizationPowerActivatedPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
@@ -129,7 +127,7 @@ public class MineraculousEntityEvents {
 
     public static void onEntityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
-        CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(entity);
+        CompoundTag entityData = /*TommyLibServices.ENTITY.getPersistentData(entity)*/new CompoundTag();
         int waitTicks = entityData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
         if (waitTicks > 0) {
             entityData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, --waitTicks);
@@ -159,17 +157,18 @@ public class MineraculousEntityEvents {
                 }
             }
         }
-        TommyLibServices.ENTITY.setPersistentData(entity, entityData, false);
+//        TommyLibServices.ENTITY.setPersistentData(entity, entityData, false);
     }
 
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
-        CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
+        // TODO: Fix
+        CompoundTag entityData = /*TommyLibServices.ENTITY.getPersistentData(player)*/new CompoundTag();
 
         Level level = player.level();
-        if (level.isClientSide && entityData.getInt(TAG_WAIT_TICKS) == 0 && ClientUtils.getMainClientPlayer() == player) {
+        if (level.isClientSide && entityData.getInt(TAG_WAIT_TICKS) == 0 && ClientUtils.getLocalPlayer() == player) {
             int takeTicks = entityData.getInt(MineraculousEntityEvents.TAG_TAKE_TICKS);
-            if (MineraculousKeyMappings.TAKE_BREAK_ITEM.get().isDown()) {
+            if (MineraculousKeyMappings.TAKE_BREAK_ITEM.isDown()) {
                 ItemStack mainHandItem = player.getMainHandItem();
                 if (mainHandItem.isEmpty()) {
                     if (MineraculousClientUtils.getLookEntity() instanceof Player target && (MineraculousServerConfig.get().enableUniversalStealing.get() || player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).isTransformed()) && (MineraculousServerConfig.get().enableSleepStealing.get() || !target.isSleeping())) {
@@ -177,21 +176,22 @@ public class MineraculousEntityEvents {
                         if (target.isSleeping() && MineraculousServerConfig.get().wakeUpChance.get() > 0 && (MineraculousServerConfig.get().wakeUpChance.get() >= 100 || player.getRandom().nextFloat() < MineraculousServerConfig.get().wakeUpChance.get() / (20f * 5 * 100))) {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundWakeUpPayload(target.getUUID(), true));
                         }
+                        takeTicks = 100000;
                         if (takeTicks > (20 * MineraculousServerConfig.get().stealingDuration.get())) {
                             TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
                             MineraculousClientUtils.openExternalCuriosInventoryScreen(target, player);
                             entityData.putInt(MineraculousEntityEvents.TAG_TAKE_TICKS, 0);
                         }
-                        TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
+//                        TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
                     }
                 } else {
                     TommyLibServices.NETWORK.sendToServer(ServerboundTryBreakItemPayload.INSTANCE);
                     entityData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-                    TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
+//                    TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
                 }
             } else if (takeTicks > 0) {
                 entityData.putInt(MineraculousEntityEvents.TAG_TAKE_TICKS, 0);
-                TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
+//                TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
             }
         }
 
@@ -337,19 +337,19 @@ public class MineraculousEntityEvents {
                     }
                     serverPlayer.serverLevel().sendParticles(MineraculousParticleTypes.KAMIKOTIZATION.get(), player.getX(), player.getY() + 2 - (11 - detransformationFrames.get()) / 5.0, player.getZ(), 100, Math.random() / 3.0, Math.random() / 3.0, Math.random() / 3.0, 0);
                 }
-            } else if (ClientUtils.getMainClientPlayer() == player) {
-                CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(player);
-                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
-                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && !MineraculousClientUtils.isCameraEntityOther()) {
-                    if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown() && !kamikotizationData.mainPowerActive() && level.holderOrThrow(kamikotizationKey).value().powerSource().right().isPresent()) {
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetKamikotizationPowerActivatedPayload(kamikotizationKey));
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-                    } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown() && player.getMainHandItem().isEmpty()) {
-                        TommyLibServices.NETWORK.sendToServer(ServerboundPutKamikotizationToolInHandPayload.INSTANCE);
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-                    }
-                }
-                TommyLibServices.ENTITY.setPersistentData(player, playerData, false);
+            } else if (ClientUtils.getLocalPlayer() == player) {
+//                CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(player);
+//                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
+//                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && !MineraculousClientUtils.isCameraEntityOther()) {
+//                    if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown() && !kamikotizationData.mainPowerActive() && level.holderOrThrow(kamikotizationKey).value().powerSource().right().isPresent()) {
+//                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetKamikotizationPowerActivatedPayload(kamikotizationKey));
+//                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
+//                    } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown() && player.getMainHandItem().isEmpty()) {
+//                        TommyLibServices.NETWORK.sendToServer(ServerboundPutKamikotizationToolInHandPayload.INSTANCE);
+//                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
+//                    }
+//                }
+//                TommyLibServices.ENTITY.setPersistentData(player, playerData, false);
             }
             if (level instanceof ServerLevel serverLevel && transformationFrames.isEmpty() && detransformationFrames.isEmpty()) {
                 AtomicBoolean overrideActive = new AtomicBoolean(false);
@@ -369,7 +369,7 @@ public class MineraculousEntityEvents {
                             if (usedPower) {
                                 if (player instanceof ServerPlayer serverPlayer) {
                                     kamikotizationData.withMainPowerActive(false).save(event.getEntity(), true);
-                                    MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, kamikotizationKey, KamikotizationUsePowerTrigger.Context.ITEM);
+                                    MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, kamikotizationKey, UseKamikotizationPowerTrigger.Context.ITEM);
                                 }
                             }
                         } else
@@ -384,7 +384,7 @@ public class MineraculousEntityEvents {
                         if (usedPower) {
                             kamikotizationData.withMainPowerActive(false).save(player, true);
                             if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-                                MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, kamikotizationKey, KamikotizationUsePowerTrigger.Context.EMPTY);
+                                MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, kamikotizationKey, UseKamikotizationPowerTrigger.Context.EMPTY);
                             }
                         }
                     }
@@ -425,9 +425,9 @@ public class MineraculousEntityEvents {
             });
             player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> handleKamikotizationTransformation(player, data, false, true, player.position().add(0, 1, 0)));
         }
-        if (entity.hasEffect(MineraculousMobEffects.CATACLYSMED) && TommyLibServices.ENTITY.getPersistentData(entity).hasUUID(TAG_CATACLYSMED)) {
-            entity.setLastHurtByPlayer(entity.level().getPlayerByUUID(TommyLibServices.ENTITY.getPersistentData(entity).getUUID(TAG_CATACLYSMED)));
-        }
+//        if (entity.hasEffect(MineraculousMobEffects.CATACLYSMED) && TommyLibServices.ENTITY.getPersistentData(entity).hasUUID(TAG_CATACLYSMED)) {
+//            entity.setLastHurtByPlayer(entity.level().getPlayerByUUID(TommyLibServices.ENTITY.getPersistentData(entity).getUUID(TAG_CATACLYSMED)));
+//        }
     }
 
     public static void handleMiraculousTransformation(ServerPlayer player, ResourceKey<Miraculous> miraculous, MiraculousData data, boolean transform, boolean instant, boolean removed) {
@@ -627,7 +627,7 @@ public class MineraculousEntityEvents {
                         boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(abilityData, level, event.getPos(), player, blocked ? Ability.Context.from(livingTarget.getUseItem(), livingTarget) : Ability.Context.from(target));
                         if (usedPower) {
                             player.getData(MineraculousAttachmentTypes.MIRACULOUS).put(player, key, data.withUsedPower(), true);
-                            MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger((ServerPlayer) player, key, target instanceof LivingEntity ? MiraculousUsePowerTrigger.Context.LIVING_ENTITY : MiraculousUsePowerTrigger.Context.ENTITY);
+                            MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger((ServerPlayer) player, key, target instanceof LivingEntity ? UseMiraculousPowerTrigger.Context.LIVING_ENTITY : UseMiraculousPowerTrigger.Context.ENTITY);
                         }
                     }
                 }
@@ -647,7 +647,7 @@ public class MineraculousEntityEvents {
                         if (usedPower) {
                             data.withMainPowerActive(false).save(player, true);
                             if (player instanceof ServerPlayer serverPlayer) {
-                                MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, key, target instanceof LivingEntity ? KamikotizationUsePowerTrigger.Context.LIVING_ENTITY : KamikotizationUsePowerTrigger.Context.ENTITY);
+                                MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, key, target instanceof LivingEntity ? UseKamikotizationPowerTrigger.Context.LIVING_ENTITY : UseKamikotizationPowerTrigger.Context.ENTITY);
                             }
                         }
                     } else
@@ -684,7 +684,7 @@ public class MineraculousEntityEvents {
                         boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(abilityData, level, player.blockPosition(), player, blocked ? Ability.Context.from(livingTarget.getUseItem(), livingTarget) : Ability.Context.from(target));
                         if (usedPower) {
                             player.getData(MineraculousAttachmentTypes.MIRACULOUS).put(player, key, data.withUsedPower(), true);
-                            MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger((ServerPlayer) player, key, target instanceof LivingEntity ? MiraculousUsePowerTrigger.Context.LIVING_ENTITY : MiraculousUsePowerTrigger.Context.ENTITY);
+                            MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger((ServerPlayer) player, key, target instanceof LivingEntity ? UseMiraculousPowerTrigger.Context.LIVING_ENTITY : UseMiraculousPowerTrigger.Context.ENTITY);
                         }
                     }
                 }
@@ -703,7 +703,7 @@ public class MineraculousEntityEvents {
                         boolean usedPower = kamikotization.powerSource().right().isPresent() && kamikotization.powerSource().right().get().value().perform(abilityData, level, player.blockPosition(), player, blocked ? Ability.Context.from(livingTarget.getUseItem(), livingTarget) : Ability.Context.from(target));
                         if (usedPower) {
                             data.withMainPowerActive(false).save(player, true);
-                            MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger((ServerPlayer) player, key, target instanceof LivingEntity ? KamikotizationUsePowerTrigger.Context.LIVING_ENTITY : KamikotizationUsePowerTrigger.Context.ENTITY);
+                            MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger((ServerPlayer) player, key, target instanceof LivingEntity ? UseKamikotizationPowerTrigger.Context.LIVING_ENTITY : UseKamikotizationPowerTrigger.Context.ENTITY);
                         }
                     } else
                         data.withMainPowerActive(false).save(player, true);
@@ -735,7 +735,7 @@ public class MineraculousEntityEvents {
                             if (usedPower) {
                                 event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withUsedPower(), true);
                                 if (event.getEntity() instanceof ServerPlayer player) {
-                                    MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(player, key, MiraculousUsePowerTrigger.Context.LIVING_ENTITY);
+                                    MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(player, key, UseMiraculousPowerTrigger.Context.LIVING_ENTITY);
                                 }
                             }
                         }
@@ -756,7 +756,7 @@ public class MineraculousEntityEvents {
                             if (usedPower) {
                                 data.withMainPowerActive(false).save(livingEntity, true);
                                 if (event.getEntity() instanceof ServerPlayer player) {
-                                    MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(player, key, KamikotizationUsePowerTrigger.Context.LIVING_ENTITY);
+                                    MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(player, key, UseKamikotizationPowerTrigger.Context.LIVING_ENTITY);
                                 }
                             }
                         } else
@@ -764,11 +764,11 @@ public class MineraculousEntityEvents {
                     }
                 });
             }
-            CompoundTag data = TommyLibServices.ENTITY.getPersistentData(victim);
-            if (data.getBoolean(TAG_SHOW_KAMIKO_MASK)) {
-                data.putBoolean(TAG_CAMERA_CONTROL_INTERRUPTED, true);
-                TommyLibServices.ENTITY.setPersistentData(victim, data, true);
-            }
+//            CompoundTag data = TommyLibServices.ENTITY.getPersistentData(victim);
+//            if (data.getBoolean(TAG_SHOW_KAMIKO_MASK)) {
+//                data.putBoolean(TAG_CAMERA_CONTROL_INTERRUPTED, true);
+//                TommyLibServices.ENTITY.setPersistentData(victim, data, true);
+//            }
         }
     }
 
@@ -791,7 +791,7 @@ public class MineraculousEntityEvents {
                         boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(abilityData, level, event.getPos(), player, Ability.Context.from(level.getBlockState(event.getPos()), event.getPos()));
                         if (usedPower) {
                             player.getData(MineraculousAttachmentTypes.MIRACULOUS).put(player, key, data.withUsedPower(), true);
-                            MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger((ServerPlayer) player, key, MiraculousUsePowerTrigger.Context.BLOCK);
+                            MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger((ServerPlayer) player, key, UseMiraculousPowerTrigger.Context.BLOCK);
                         }
                     }
                 }
@@ -810,7 +810,7 @@ public class MineraculousEntityEvents {
                         boolean usedPower = kamikotization.powerSource().right().isPresent() && kamikotization.powerSource().right().get().value().perform(abilityData, level, event.getPos(), player, Ability.Context.from(level.getBlockState(event.getPos()), event.getPos()));
                         if (usedPower) {
                             data.withMainPowerActive(false).save(player, true);
-                            MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger((ServerPlayer) player, key, KamikotizationUsePowerTrigger.Context.BLOCK);
+                            MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger((ServerPlayer) player, key, UseKamikotizationPowerTrigger.Context.BLOCK);
                         }
                     } else
                         data.withMainPowerActive(false).save(player, true);
@@ -838,7 +838,7 @@ public class MineraculousEntityEvents {
                         boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(abilityData, level, event.getPos(), player, Ability.Context.from(level.getBlockState(event.getPos()), event.getPos()));
                         if (usedPower) {
                             player.getData(MineraculousAttachmentTypes.MIRACULOUS).put(player, key, data.withUsedPower(), true);
-                            MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger((ServerPlayer) player, key, MiraculousUsePowerTrigger.Context.BLOCK);
+                            MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger((ServerPlayer) player, key, UseMiraculousPowerTrigger.Context.BLOCK);
                         }
                     }
                 }
@@ -857,7 +857,7 @@ public class MineraculousEntityEvents {
                         boolean usedPower = kamikotization.powerSource().right().isPresent() && kamikotization.powerSource().right().get().value().perform(abilityData, level, event.getPos(), player, Ability.Context.from(level.getBlockState(event.getPos()), event.getPos()));
                         if (usedPower) {
                             data.withMainPowerActive(false).save(player, true);
-                            MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger((ServerPlayer) player, key, KamikotizationUsePowerTrigger.Context.BLOCK);
+                            MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger((ServerPlayer) player, key, UseKamikotizationPowerTrigger.Context.BLOCK);
                         }
                     } else
                         data.withMainPowerActive(false).save(player, true);
@@ -1078,9 +1078,9 @@ public class MineraculousEntityEvents {
             KamikotizationData finalData1 = data;
             kamikotization.powerSource().right().ifPresent(ability -> ability.value().detransform(new AbilityData(0, Either.right(finalData1.kamikotization())), serverLevel, player.blockPosition(), player));
             kamikotization.passiveAbilities().forEach(ability -> ability.value().detransform(new AbilityData(0, Either.right(finalData1.kamikotization())), serverLevel, player.blockPosition(), player));
-            CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
-            entityData.putBoolean(TAG_SHOW_KAMIKO_MASK, false);
-            TommyLibServices.ENTITY.setPersistentData(player, entityData, true);
+//            CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(player);
+//            entityData.putBoolean(TAG_SHOW_KAMIKO_MASK, false);
+//            TommyLibServices.ENTITY.setPersistentData(player, entityData, true);
         }
         player.refreshDisplayName();
     }

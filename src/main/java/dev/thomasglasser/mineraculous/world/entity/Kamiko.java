@@ -27,7 +27,6 @@ import java.util.function.BiPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -259,9 +258,10 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
             }
             TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncKamikotizationLooksPayload(owner.getUUID(), Kamikotization.getFor(player).stream().map(Holder::getKey).toList()), (ServerPlayer) player);
             TommyLibServices.NETWORK.sendToClient(new ClientboundSyncInventoryPayload(player), owner);
-            CompoundTag ownerData = TommyLibServices.ENTITY.getPersistentData(owner);
-            ownerData.putBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, true);
-            TommyLibServices.ENTITY.setPersistentData(getOwner(), ownerData, true);
+            // TODO: Fix
+//            CompoundTag ownerData = TommyLibServices.ENTITY.getPersistentData(owner);
+//            ownerData.putBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, true);
+//            TommyLibServices.ENTITY.setPersistentData(getOwner(), ownerData, true);
             remove(RemovalReason.DISCARDED);
             TommyLibServices.NETWORK.sendToClient(new ClientboundOpenKamikotizationSelectionScreenPayload(player.getUUID(), new KamikoData(getUUID(), getOwnerUUID(), getNameColor())), owner);
         }

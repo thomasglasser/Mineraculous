@@ -6,13 +6,13 @@ import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.categories.TargetPlayerMenuCategory;
-import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationChatScreen;
-import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationSelectionScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.LookCustomizationScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.MiraculousEligiblePlayerEntry;
 import dev.thomasglasser.mineraculous.client.gui.screens.MiraculousTransferScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalInventoryScreen;
+import dev.thomasglasser.mineraculous.client.gui.screens.kamikotization.AbstractKamikotizationChatScreen;
+import dev.thomasglasser.mineraculous.client.gui.screens.kamikotization.KamikotizationSelectionScreen;
 import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
@@ -69,9 +69,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
         add(MineraculousBlocks.HIBISCUS_BUSH.asItem(), "Hibiscus");
 
-        addArmorTrim(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE.get(), "Ladybug");
-        addArmorTrim(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE.get(), "Cat");
-        addArmorTrim(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE.get(), "Butterfly");
+        addArmorTrim(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE.get());
+        addArmorTrim(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE.get());
+        addArmorTrim(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE.get());
 
         add(MineraculousCreativeModeTabs.MIRACULOUS.get(), "Miraculous");
         add(MineraculousCreativeModeTabs.KAMIKOTIZATION_TOOLS.get(), "Kamikotization Tools");
@@ -104,13 +104,13 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), "Butterfly Cane");
 
         add(MineraculousKeyMappings.MIRACULOUS_CATEGORY, "Miraculous");
-        add(MineraculousKeyMappings.TRANSFORM.get(), "Transform");
-        add(MineraculousKeyMappings.ACTIVATE_POWER.get(), "Activate Power/Renounce Miraculous");
-        add(MineraculousKeyMappings.ACTIVATE_TOOL.get(), "Activate Tool");
-        add(MineraculousKeyMappings.OPEN_TOOL_WHEEL.get(), "Equip/Return Tool/Open Tool Wheel");
-        add(MineraculousKeyMappings.TAKE_BREAK_ITEM.get(), "Take/Break Item");
-        add(MineraculousKeyMappings.UNWIND_YOYO.get(), "Unwind YoYo");
-        add(MineraculousKeyMappings.WIND_YOYO.get(), "Wind YoYo");
+        add(MineraculousKeyMappings.TRANSFORM, "Transform");
+        add(MineraculousKeyMappings.ACTIVATE_POWER, "Activate Power/Renounce Miraculous");
+        add(MineraculousKeyMappings.TOGGLE_ACTIVE, "Activate Tool");
+        add(MineraculousKeyMappings.CONFIGURE_TOOL, "Equip/Return Tool/Open Tool Wheel");
+        add(MineraculousKeyMappings.TAKE_BREAK_ITEM, "Take/Break Item");
+        add(MineraculousKeyMappings.UNWIND_YOYO, "Unwind YoYo");
+        add(MineraculousKeyMappings.WIND_YOYO, "Wind YoYo");
 
         add(MiraculousData.NAME_NOT_SET, "You haven't set your %s hero name yet! Use /miraculous %s name <name> to set.");
 
@@ -189,9 +189,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(KamikotizationSelectionScreen.ACTIVE_ABILITY, "Active Ability:");
         add(KamikotizationSelectionScreen.PASSIVE_ABILITIES, "Passive Abilities:");
 
-        add(KamikotizationChatScreen.INTRO_NAME, "%s, I am %s.");
-        add(KamikotizationChatScreen.INTRO_NAMELESS, "%s.");
-        add(KamikotizationChatScreen.ACCEPT, "Accept Kamikotization");
+        add(AbstractKamikotizationChatScreen.INTRO_NAME, "%s, I am %s.");
+        add(AbstractKamikotizationChatScreen.INTRO_NAMELESS, "%s.");
+        add(AbstractKamikotizationChatScreen.ACCEPT, "Accept Kamikotization");
 
         add(MineraculousClientEvents.REVOKE, "Revoke Kamikotization");
         add(MineraculousClientEvents.REVOKE_WITH_SPACE, "Revoke Kamikotization (Press Space)");

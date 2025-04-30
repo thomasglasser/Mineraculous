@@ -37,6 +37,8 @@ public class MineraculousDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceKey<Kamikotization>>> KAMIKOTIZATION = register("kamikotization", ResourceKey.codec(MineraculousRegistries.KAMIKOTIZATION), ResourceKey.streamCodec(MineraculousRegistries.KAMIKOTIZATION), false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<LuckyCharm>> LUCKY_CHARM = register("lucky_charm", LuckyCharm.CODEC, LuckyCharm.STREAM_CODEC, false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> RECOVERABLE_ITEM_ID = register("recoverable_item_id", UUIDUtil.CODEC, UUIDUtil.STREAM_CODEC, false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> OPEN = register("open", Codec.BOOL, ByteBufCodecs.BOOL, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> ACTIVE = register("active", Codec.BOOL, ByteBufCodecs.BOOL, true);
 
     // Miraculous Item
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TRANSFORMATION_FRAMES = register("transformation_frames", Codec.INT, null, false);
@@ -44,7 +46,6 @@ public class MineraculousDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> REMAINING_TICKS = register("remaining_ticks", Codec.INT, ByteBufCodecs.INT, false);
 
     // Miraculous Tools
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> ACTIVE = register("active", Codec.unit(Unit.INSTANCE), StreamCodec.unit(Unit.INSTANCE), false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> BLOCKING = register("blocking", Codec.unit(Unit.INSTANCE), StreamCodec.unit(Unit.INSTANCE), false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<LadybugYoyoItem.Ability>> LADYBUG_YOYO_ABILITY = register("ladybug_yoyo_ability", LadybugYoyoItem.Ability.CODEC, LadybugYoyoItem.Ability.STREAM_CODEC, true);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<CatStaffItem.Ability>> CAT_STAFF_ABILITY = register("cat_staff_ability", CatStaffItem.Ability.CODEC, CatStaffItem.Ability.STREAM_CODEC, true);

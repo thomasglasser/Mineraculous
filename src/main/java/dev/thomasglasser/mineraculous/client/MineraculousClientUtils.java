@@ -3,11 +3,13 @@ package dev.thomasglasser.mineraculous.client;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
-import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationChatScreen;
-import dev.thomasglasser.mineraculous.client.gui.screens.KamikotizationSelectionScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.LookCustomizationScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.MiraculousTransferScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
+import dev.thomasglasser.mineraculous.client.gui.screens.kamikotization.AbstractKamikotizationChatScreen;
+import dev.thomasglasser.mineraculous.client.gui.screens.kamikotization.KamikotizationSelectionScreen;
+import dev.thomasglasser.mineraculous.client.gui.screens.kamikotization.PerformerKamikotizationChatScreen;
+import dev.thomasglasser.mineraculous.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.SnapshotTesterCosmeticOptions;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.VipData;
@@ -36,7 +38,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -89,16 +90,16 @@ public class MineraculousClientUtils {
             boolean displayDev;
             boolean displayLegacyDev;
 
-            displaySnapshot = MineraculousClientConfig.get().displaySnapshotTesterCosmetic.get() && ClientUtils.checkSnapshotTester(GIST, uuid);
-            displayDev = MineraculousClientConfig.get().displayDevTeamCosmetic.get() && ClientUtils.checkDevTeam(GIST, uuid);
-            displayLegacyDev = MineraculousClientConfig.get().displayLegacyDevTeamCosmetic.get() && ClientUtils.checkLegacyDevTeam(GIST, uuid);
+            displaySnapshot = MineraculousClientConfig.get().displaySnapshotTesterCosmetic.get() && ClientUtils.checkSnapshot(GIST, uuid);
+            displayDev = MineraculousClientConfig.get().displayDevTeamCosmetic.get() && ClientUtils.checkDev(GIST, uuid);
+            displayLegacyDev = MineraculousClientConfig.get().displayLegacyDevTeamCosmetic.get() && ClientUtils.checkLegacyDev(GIST, uuid);
 
             TommyLibServices.NETWORK.sendToServer(new ServerboundChangeVipDataPayload(uuid, new VipData(/*MineraculousClientConfig.get().snapshotTesterCosmeticChoice.get(),*/ displaySnapshot, /*displayDev*/false, displayLegacyDev)));
         }
     }
 
     public static boolean verifySnapshotTester(UUID uuid) {
-        return ClientUtils.checkSnapshotTester(GIST, uuid);
+        return ClientUtils.checkSnapshot(GIST, uuid);
     }
 
     public static void setVipData(Player player, VipData data) {
@@ -164,24 +165,24 @@ public class MineraculousClientUtils {
     }
 
     public static void openKamikotizationSelectionScreen(Player target, KamikoData kamikoData) {
-        ClientUtils.setScreen(new KamikotizationSelectionScreen(Component.translatable(KamikotizationSelectionScreen.TITLE), target, kamikoData));
+        Minecraft.getInstance().setScreen(new KamikotizationSelectionScreen(target, kamikoData));
     }
 
-    public static void openKamikotizationChatScreen(Player other, KamikotizationData kamikotizationData) {
-        ClientUtils.setScreen(new KamikotizationChatScreen(other, kamikotizationData));
+    public static void openReceiverKamikotizationChatScreen(UUID other, KamikotizationData kamikotizationData) {
+        Minecraft.getInstance().setScreen(new ReceiverKamikotizationChatScreen(other, kamikotizationData));
     }
 
-    public static void openKamikotizationChatScreen(String targetName, String performerName, Player target) {
-        ClientUtils.setScreen(new KamikotizationChatScreen(targetName, performerName, target));
+    public static void openPerformerKamikotizationChatScreen(String performerName, String targetName, Player target) {
+        Minecraft.getInstance().setScreen(new PerformerKamikotizationChatScreen(performerName, targetName, target));
     }
 
     public static void closeKamikotizationChatScreen(boolean cancel) {
-        if (Minecraft.getInstance().screen instanceof KamikotizationChatScreen screen)
+        if (Minecraft.getInstance().screen instanceof AbstractKamikotizationChatScreen screen)
             screen.onClose(cancel, false);
     }
 
     public static void openMiraculousTransferScreen(int kwamiId) {
-        ClientUtils.setScreen(new MiraculousTransferScreen(kwamiId));
+        Minecraft.getInstance().setScreen(new MiraculousTransferScreen(kwamiId));
     }
 
     public static VertexConsumer checkLuckyCharm(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack, boolean armor, boolean entity) {
@@ -201,7 +202,7 @@ public class MineraculousClientUtils {
     }
 
     public static void openExternalCuriosInventoryScreen(Player target, Player player) {
-        ClientUtils.setScreen(new ExternalCuriosInventoryScreen(target, true, ((slot, target1, menu) -> {
+        Minecraft.getInstance().setScreen(new ExternalCuriosInventoryScreen(target, true, ((slot, target1, menu) -> {
             if (slot instanceof CurioSlot curioSlot)
                 TommyLibServices.NETWORK.sendToServer(new ServerboundStealCuriosPayload(target1.getUUID(), new CuriosData(curioSlot.getSlotIndex(), curioSlot.getIdentifier())));
             else
@@ -214,7 +215,7 @@ public class MineraculousClientUtils {
     }
 
     public static void openLookCustomizationScreen(ResourceKey<Miraculous> miraculous, Map<String, FlattenedSuitLookData> serverSuits, Map<String, FlattenedMiraculousLookData> serverMiraculous) {
-        ClientUtils.setScreen(new LookCustomizationScreen(miraculous, serverSuits, serverMiraculous));
+        Minecraft.getInstance().setScreen(new LookCustomizationScreen(miraculous, serverSuits, serverMiraculous));
     }
 
     public static void renderEntityInInventorySpinning(
@@ -253,6 +254,4 @@ public class MineraculousClientUtils {
         entity.yHeadRot = f8;
         guiGraphics.disableScissor();
     }
-
-    public static void init() {}
 }

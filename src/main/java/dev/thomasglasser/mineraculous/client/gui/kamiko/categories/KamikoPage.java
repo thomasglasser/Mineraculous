@@ -6,7 +6,6 @@ import dev.thomasglasser.mineraculous.client.gui.kamiko.KamikoMenuItem;
 import java.util.List;
 
 public class KamikoPage {
-    public static final int NO_SELECTION = -1;
     private final List<KamikoMenuItem> items;
     private final int selection;
 

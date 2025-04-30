@@ -1,14 +1,13 @@
 package dev.thomasglasser.mineraculous.data.models;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.renderer.item.MineraculousItemProperties;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
-import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
-import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.models.ExtendedItemModelProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
@@ -123,22 +122,22 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .perspective(ItemDisplayContext.FIXED, inventoryLandedLadybugYoyo)
                 .perspective(ItemDisplayContext.GROUND, inventoryLandedLadybugYoyo)
                 .end();
-        withEntityModelInHand(MineraculousItems.LADYBUG_YOYO, inHandLadybugYoyo, inventoryLadybugYoyo)
+        withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO, inHandLadybugYoyo, inventoryLadybugYoyo)
                 .override()
-                .predicate(LadybugYoyoItem.EXTENDED_PROPERTY_ID, 1)
-                .model(withEntityModelInHand(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_extended"), inHandLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_extended"))))
+                .predicate(MineraculousItemProperties.EXTENDED, 1)
+                .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_extended"), inHandLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_extended"))))
                 .end()
                 .override()
-                .predicate(LadybugYoyoItem.EXTENDED_PROPERTY_ID, 2)
+                .predicate(MineraculousItemProperties.EXTENDED, 2)
                 .model(thrownLadybugYoyo)
                 .end()
                 .override()
-                .predicate(LadybugYoyoItem.EXTENDED_PROPERTY_ID, 3)
+                .predicate(MineraculousItemProperties.EXTENDED, 3)
                 .model(landedLadybugYoyo)
                 .end()
                 .override()
-                .predicate(LadybugYoyoItem.BLOCKING_PROPERTY_ID, 1)
-                .model(withEntityModelInHand(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_blocking"), inHandBlockingLadybugYoyo, inventoryLandedLadybugYoyo))
+                .predicate(MineraculousItemProperties.BLOCKING, 1)
+                .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_blocking"), inHandBlockingLadybugYoyo, inventoryLandedLadybugYoyo))
                 .end();
 
         ItemModelBuilder inHandCatStaff = withEntityModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_in_hand"))
@@ -151,10 +150,10 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.HEAD).rotation(-54, 0, 0).translation(0, 1.75f, -2.75f).end()
                 .end();
         ItemModelBuilder inventoryCatStaff = basicInventoryItem(MineraculousItems.CAT_STAFF);
-        withEntityModelInHand(MineraculousItems.CAT_STAFF, inHandCatStaff, inventoryCatStaff)
+        withSeparateInventoryModel(MineraculousItems.CAT_STAFF, inHandCatStaff, inventoryCatStaff)
                 .override()
-                .predicate(LadybugYoyoItem.EXTENDED_PROPERTY_ID, 1)
-                .model(withEntityModelInHand(MineraculousItems.CAT_STAFF.getId().withSuffix("_extended"), inHandCatStaff, basicItem(MineraculousItems.CAT_STAFF.getId().withSuffix("_extended"))))
+                .predicate(MineraculousItemProperties.EXTENDED, 1)
+                .model(withSeparateInventoryModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_extended"), inHandCatStaff, basicItem(MineraculousItems.CAT_STAFF.getId().withSuffix("_extended"))))
                 .end();
 
         ItemModelBuilder inHandButterflyCane = withEntityModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_in_hand"))
@@ -168,10 +167,10 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         ItemModelBuilder inventoryButterflyCane = basicInventoryItem(MineraculousItems.BUTTERFLY_CANE);
         ItemModelBuilder inventoryButterflyCaneBlade = basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade"));
         generatedModels.remove(inventoryButterflyCaneBlade.getLocation());
-        withEntityModelInHand(MineraculousItems.BUTTERFLY_CANE, inHandButterflyCane, inventoryButterflyCane)
+        withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE, inHandButterflyCane, inventoryButterflyCane)
                 .override()
-                .predicate(ButterflyCaneItem.BLADE_PROPERTY_ID, 1)
-                .model(withEntityModelInHand(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade"), inHandButterflyCane, inventoryButterflyCaneBlade))
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.BLADE))
+                .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade"), inHandButterflyCane, inventoryButterflyCaneBlade))
                 .end();
     }
 
@@ -182,15 +181,15 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
     private ItemModelBuilder withBitesOverrides(DeferredBlock<?> block, ItemModelBuilder builder) {
         return builder
                 .override()
-                .predicate(CheeseBlock.BITES_PROPERTY_ID, 1)
+                .predicate(MineraculousItemProperties.BITES, 1)
                 .model(withExistingParent(block.getId().getPath() + "_slice1", block.getId().withPrefix("block/").withSuffix("_slice1")))
                 .end()
                 .override()
-                .predicate(CheeseBlock.BITES_PROPERTY_ID, 2)
+                .predicate(MineraculousItemProperties.BITES, 2)
                 .model(withExistingParent(block.getId().getPath() + "_slice2", block.getId().withPrefix("block/").withSuffix("_slice2")))
                 .end()
                 .override()
-                .predicate(CheeseBlock.BITES_PROPERTY_ID, 3)
+                .predicate(MineraculousItemProperties.BITES, 3)
                 .model(withExistingParent(block.getId().getPath() + "_slice3", block.getId().withPrefix("block/").withSuffix("_slice3")))
                 .end();
     }

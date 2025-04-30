@@ -2,12 +2,10 @@ package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.UUID;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -27,9 +25,10 @@ public record ServerboundOpenVictimKamikotizationChatScreenPayload(UUID target, 
     public void handle(Player player) {
         Player targetPlayer = player.level().getPlayerByUUID(target);
         if (targetPlayer instanceof ServerPlayer serverPlayer) {
-            CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(targetPlayer);
-            tag.putBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, true);
-            TommyLibServices.ENTITY.setPersistentData(targetPlayer, tag, true);
+            // TODO: Fix
+//            CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(targetPlayer);
+//            tag.putBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, true);
+//            TommyLibServices.ENTITY.setPersistentData(targetPlayer, tag, true);
             TommyLibServices.NETWORK.sendToClient(new ClientboundOpenVictimKamikotizationChatScreenPayload(player.getUUID(), kamikotizationData), serverPlayer);
             serverPlayer.level().playSound(null, serverPlayer.blockPosition(), MineraculousSoundEvents.KAMIKOTIZATION_USE.get(), SoundSource.PLAYERS, 1f, 1f);
         }

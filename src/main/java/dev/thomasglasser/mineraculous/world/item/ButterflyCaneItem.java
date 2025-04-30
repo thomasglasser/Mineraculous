@@ -1,14 +1,11 @@
 package dev.thomasglasser.mineraculous.world.item;
 
 import com.mojang.serialization.Codec;
-import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.renderer.item.ButterflyCaneRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.network.ServerboundSetButterflyCaneAbilityPayload;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
@@ -21,10 +18,8 @@ import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownButterflyCan
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
-import java.util.Arrays;
 import java.util.function.Consumer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.Direction;
@@ -74,7 +69,6 @@ import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem, ProjectileItem {
-    public static final ResourceLocation BLADE_PROPERTY_ID = Mineraculous.modLoc("blade");
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final String CONTROLLER_USE = "use_controller";
     public static final String ANIMATION_OPEN = "open";
@@ -151,9 +145,10 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
         if (entity instanceof Player player && !player.isUsingItem()) {
             if (level.isClientSide() && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
                 InteractionHand hand = player.getMainHandItem() == stack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-                CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
+                // TODO: Fix
+                CompoundTag playerData = /*TommyLibServices.ENTITY.getPersistentData(entity)*/new CompoundTag();
                 int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
-                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown()) {
+                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && MineraculousKeyMappings.CONFIGURE_TOOL.isDown()) {
                     int color = level.holderOrThrow(MineraculousMiraculous.BUTTERFLY).value().color().getValue();
                     ResolvableProfile resolvableProfile = stack.get(DataComponents.PROFILE);
                     if (resolvableProfile != null) {
@@ -164,18 +159,18 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
                                 color = level.holderOrThrow(colorKey).value().color().getValue();
                         }
                     }
-                    MineraculousClientEvents.openToolWheel(color, stack, option -> {
-                        if (option instanceof Ability ability) {
-                            TommyLibServices.NETWORK.sendToServer(new ServerboundSetButterflyCaneAbilityPayload(hand, ability));
-                            stack.set(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get(), ability);
-                        }
-                    }, Arrays.stream(Ability.values()).filter(ability -> {
-                        if (ability == Ability.KAMIKO_STORE)
-                            return stack.has(DataComponents.PROFILE);
-                        return true;
-                    }).toArray(Ability[]::new));
+//                    MineraculousClientEvents.openToolWheel(color, stack, option -> {
+//                        if (option instanceof Ability ability) {
+//                            TommyLibServices.NETWORK.sendToServer(new ServerboundSetButterflyCaneAbilityPayload(hand, ability));
+//                            stack.set(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get(), ability);
+//                        }
+//                    }, Arrays.stream(Ability.values()).filter(ability -> {
+//                        if (ability == Ability.KAMIKO_STORE)
+//                            return stack.has(DataComponents.PROFILE);
+//                        return true;
+//                    }).toArray(Ability[]::new));
                     playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-                    TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
+//                    TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
                 }
             }
         }

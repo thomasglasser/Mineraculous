@@ -3,13 +3,11 @@ package dev.thomasglasser.mineraculous.world.entity.ability;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.network.ClientboundToggleNightVisionPayload;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -71,21 +69,22 @@ public class NightVisionAbility implements Ability {
         }
     }
 
+    // TODO: Fix
     protected void enableNightVision(ServerPlayer serverPlayer) {
         nightVision = true;
         playStartSound(serverPlayer.serverLevel(), serverPlayer.blockPosition());
         TommyLibServices.NETWORK.sendToClient(new ClientboundToggleNightVisionPayload(true, shader), serverPlayer);
-        CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(serverPlayer);
-        tag.putBoolean(MineraculousEntityEvents.TAG_HAS_NIGHT_VISION, nightVision);
-        TommyLibServices.ENTITY.setPersistentData(serverPlayer, tag, false);
+//        CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(serverPlayer);
+//        tag.putBoolean(MineraculousEntityEvents.TAG_HAS_NIGHT_VISION, nightVision);
+//        TommyLibServices.ENTITY.setPersistentData(serverPlayer, tag, false);
     }
 
     protected void disableNightVision(ServerPlayer serverPlayer) {
         nightVision = false;
         TommyLibServices.NETWORK.sendToClient(new ClientboundToggleNightVisionPayload(false, shader), serverPlayer);
-        CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(serverPlayer);
-        tag.putBoolean(MineraculousEntityEvents.TAG_HAS_NIGHT_VISION, false);
-        TommyLibServices.ENTITY.setPersistentData(serverPlayer, tag, false);
+//        CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(serverPlayer);
+//        tag.putBoolean(MineraculousEntityEvents.TAG_HAS_NIGHT_VISION, false);
+//        TommyLibServices.ENTITY.setPersistentData(serverPlayer, tag, false);
     }
 
     public void resetNightVision(ServerPlayer serverPlayer) {

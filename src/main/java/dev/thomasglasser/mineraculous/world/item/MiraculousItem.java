@@ -2,15 +2,9 @@ package dev.thomasglasser.mineraculous.world.item;
 
 import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
-import dev.thomasglasser.mineraculous.advancements.critereon.MiraculousUsePowerTrigger;
-import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
-import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
+import dev.thomasglasser.mineraculous.advancements.critereon.UseMiraculousPowerTrigger;
 import dev.thomasglasser.mineraculous.client.renderer.item.MiraculousRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.network.ServerboundMiraculousTransformPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundPutMiraculousToolInHandPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundRenounceMiraculousPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundSetMiraculousPowerActivatedPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
@@ -24,8 +18,6 @@ import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideData;
 import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +28,6 @@ import net.minecraft.SharedConstants;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -46,7 +37,6 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -118,17 +108,18 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                 stack.remove(MineraculousDataComponents.REMAINING_TICKS);
             }
         } else {
-            if (ClientUtils.getMainClientPlayer() == entity && (isSelected || slotId == Inventory.SLOT_OFFHAND)) {
-                CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
-                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
-                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && !MineraculousClientUtils.isCameraEntityOther()) {
-                    if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown()) {
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(slotId));
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-                    }
-                }
-                TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
-            }
+            // TODO: Fix
+//            if (ClientUtils.getMainClientPlayer() == entity && (isSelected || slotId == Inventory.SLOT_OFFHAND)) {
+//                CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
+//                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
+//                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && !MineraculousClientUtils.isCameraEntityOther()) {
+//                    if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown()) {
+//                        TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(slotId));
+//                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
+//                    }
+//                }
+//                TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
+//            }
         }
     }
 
@@ -205,7 +196,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                                 boolean usedPower = miraculous.activeAbility().get().value().perform(abilityData, serverLevel, player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem()));
                                 if (usedPower) {
                                     entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculousKey, data.withUsedPower(), true);
-                                    MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, miraculousKey, MiraculousUsePowerTrigger.Context.ITEM);
+                                    MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, miraculousKey, UseMiraculousPowerTrigger.Context.ITEM);
                                 }
                             }
                         }
@@ -217,7 +208,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                             boolean usedPower = miraculous.activeAbility().get().value().perform(abilityData, serverLevel, player.blockPosition(), player, Ability.Context.PASSIVE);
                             if (usedPower) {
                                 entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculousKey, data.withUsedPower(), true);
-                                MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, miraculousKey, MiraculousUsePowerTrigger.Context.ITEM);
+                                MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, miraculousKey, UseMiraculousPowerTrigger.Context.ITEM);
                             }
                         }
                     }
@@ -252,28 +243,29 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                     }
                 }
             }
-            if (entity.level().isClientSide && ClientUtils.getMainClientPlayer() == player) {
-                CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
-                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
-                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && !MineraculousClientUtils.isCameraEntityOther()) {
-                    if (MineraculousKeyMappings.TRANSFORM.get().isDown()) {
-                        if (data.transformed()) {
-                            TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculousKey, data, false, false));
-                            playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-                        } else if (!dataSet.isTransformed()) {
-                            TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculousKey, data, true, false));
-                            playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-                        }
-                    } else if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown() && data.transformed() && !data.mainPowerActive() && !data.usedLimitedPower() && slotContext.entity().level().holderOrThrow(miraculousKey).value().activeAbility().isPresent()) {
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousPowerActivatedPayload(miraculousKey));
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-                    } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown() && player.getMainHandItem().isEmpty() && data.transformed()) {
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundPutMiraculousToolInHandPayload(miraculousKey));
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-                    }
-                }
-                TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
-            }
+            // TODO: Fix
+//            if (entity.level().isClientSide && ClientUtils.getMainClientPlayer() == player) {
+//                CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
+//                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
+//                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && !MineraculousClientUtils.isCameraEntityOther()) {
+//                    if (MineraculousKeyMappings.TRANSFORM.get().isDown()) {
+//                        if (data.transformed()) {
+//                            TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculousKey, data, false, false));
+//                            playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
+//                        } else if (!dataSet.isTransformed()) {
+//                            TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculousKey, data, true, false));
+//                            playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
+//                        }
+//                    } else if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown() && data.transformed() && !data.mainPowerActive() && !data.usedLimitedPower() && slotContext.entity().level().holderOrThrow(miraculousKey).value().activeAbility().isPresent()) {
+//                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousPowerActivatedPayload(miraculousKey));
+//                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
+//                    } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown() && player.getMainHandItem().isEmpty() && data.transformed()) {
+//                        TommyLibServices.NETWORK.sendToServer(new ServerboundPutMiraculousToolInHandPayload(miraculousKey));
+//                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
+//                    }
+//                }
+//                TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
+//            }
         }
     }
 

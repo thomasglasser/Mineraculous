@@ -66,11 +66,11 @@ public class MineraculousBlocks {
     }
 
     private static <T extends Block> DeferredBlock<T> registerWithItem(String name, Supplier<T> block) {
-        return BlockUtils.registerBlockAndItemAndWrap(BLOCKS, name, block, MineraculousItems::register);
+        return BlockUtils.registerBlockAndItemAndWrap(BLOCKS, name, block, MineraculousItems.ITEMS);
     }
 
     private static <T extends Block> DeferredBlock<T> registerWithItem(String name, Supplier<T> block, Item.Properties properties) {
-        return BlockUtils.registerBlockAndItemAndWrap(BLOCKS, name, block, MineraculousItems::register, properties);
+        return BlockUtils.registerBlockAndItemAndWrap(BLOCKS, name, block, MineraculousItems.ITEMS, properties);
     }
 
     private static <T extends Block> DeferredBlock<T> registerWithSeparatelyNamedItem(String blockName, String itemName, Supplier<T> block) {

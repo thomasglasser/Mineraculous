@@ -39,11 +39,10 @@ import dev.thomasglasser.mineraculous.world.item.armor.MiraculousArmorItem;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -63,7 +62,6 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -77,7 +75,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
@@ -114,9 +111,9 @@ public class MineraculousClientEvents {
         MineraculousItemProperties.init();
     }
 
-    public static void openToolWheel(int color, ItemStack stack, Consumer<RadialMenuOption> onSelected, RadialMenuOption... options) {
-        if (ClientUtils.getMinecraft().screen == null) {
-            ClientUtils.setScreen(new RadialMenuScreen(Arrays.asList(options), stack, onSelected, MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().getKey().getValue(), color));
+    public static <T extends RadialMenuOption> void openToolWheel(int color, Consumer<T> onSelected, List<T> options) {
+        if (Minecraft.getInstance().screen == null) {
+            Minecraft.getInstance().setScreen(new RadialMenuScreen<>(options, onSelected, MineraculousKeyMappings.CONFIGURE_TOOL.getKey().getValue(), color));
         }
     }
 
@@ -165,8 +162,9 @@ public class MineraculousClientEvents {
 
     private static void renderStealingProgressBar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         LocalPlayer player = Minecraft.getInstance().player;
-        CompoundTag data = TommyLibServices.ENTITY.getPersistentData(player);
-        int width = data.getInt(MineraculousEntityEvents.TAG_TAKE_TICKS);
+        // TODO: Fix
+//        CompoundTag data = TommyLibServices.ENTITY.getPersistentData(player);
+        int width = /*data.getInt(MineraculousEntityEvents.TAG_TAKE_TICKS)*/10;
         if (player != null && width > 0) {
             int x = (guiGraphics.guiWidth() - 18) / 2;
             int y = (guiGraphics.guiHeight() + 12) / 2;
@@ -187,7 +185,7 @@ public class MineraculousClientEvents {
                 } else if (cameraEntity instanceof Kamiko kamiko) {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundSetOwnerPayload(kamiko.getId(), Optional.empty()));
                 }
-                MineraculousClientUtils.setCameraEntity(ClientUtils.getMainClientPlayer());
+                MineraculousClientUtils.setCameraEntity(Minecraft.getInstance().player);
             }, Button.DEFAULT_NARRATION) {
                 @Override
                 public Component getMessage() {
@@ -210,7 +208,7 @@ public class MineraculousClientEvents {
             };
         }
 
-        if (!ClientUtils.getMainClientPlayer().isSpectator() && ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed() && (MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko && ClientUtils.getMainClientPlayer().getUUID().equals(kamiko.getOwnerUUID())) || (MineraculousClientUtils.getCameraEntity() instanceof Player player && player != ClientUtils.getMainClientPlayer() && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent())) {
+        if (!Minecraft.getInstance().player.isSpectator() && Minecraft.getInstance().player.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed() && (MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko && Minecraft.getInstance().player.getUUID().equals(kamiko.getOwnerUUID())) || (MineraculousClientUtils.getCameraEntity() instanceof Player player && player != Minecraft.getInstance().player && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent())) {
             if (MineraculousClientUtils.hasNoScreenOpen()) {
                 revokeButton.setPosition(revokeButton.getX(), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 60);
                 revokeButton.active = true;
@@ -260,7 +258,7 @@ public class MineraculousClientEvents {
     }
 
     public static void onRenderHand(RenderHandEvent event) {
-        if (MineraculousClientUtils.getCameraEntity() != ClientUtils.getMainClientPlayer()) {
+        if (MineraculousClientUtils.getCameraEntity() != Minecraft.getInstance().player) {
             event.setCanceled(true);
         }
     }
@@ -301,7 +299,7 @@ public class MineraculousClientEvents {
     }
 
     private static boolean canControlKamiko() {
-        return MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko && kamiko.isOwnedBy(ClientUtils.getMainClientPlayer()) && !ClientUtils.getMainClientPlayer().isSpectator() && kamikoGui != null;
+        return MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko && kamiko.isOwnedBy(Minecraft.getInstance().player) && !Minecraft.getInstance().player.isSpectator() && kamikoGui != null;
     }
 
     public static void onClientTick(ClientTickEvent.Post event) {
@@ -309,15 +307,16 @@ public class MineraculousClientEvents {
             MineraculousClientUtils.setCameraEntity(null);
     }
 
+    // TODO: Fix
     public static void onClientChatReceived(ClientChatReceivedEvent event) {
         if (Minecraft.getInstance().level != null && Minecraft.getInstance().player != null) {
-            boolean onlyButterflyChat = TommyLibServices.ENTITY.getPersistentData(Minecraft.getInstance().player).getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK);
+            boolean onlyButterflyChat = /*TommyLibServices.ENTITY.getPersistentData(Minecraft.getInstance().player).getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK)*/false;
             if (event.isSystem()) {
                 if (onlyButterflyChat && !(event instanceof ClientChatReceivedEvent.System system && system.isOverlay())) {
                     event.setCanceled(true);
                 }
             } else {
-                boolean senderHasKamikoMask = TommyLibServices.ENTITY.getPersistentData(Minecraft.getInstance().level.getPlayerByUUID(event.getSender())).getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK);
+                boolean senderHasKamikoMask = /*TommyLibServices.ENTITY.getPersistentData(Minecraft.getInstance().level.getPlayerByUUID(event.getSender())).getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK)*/false;
                 if ((onlyButterflyChat && !senderHasKamikoMask) || (senderHasKamikoMask && !onlyButterflyChat)) {
                     event.setCanceled(true);
                 }
@@ -458,9 +457,9 @@ public class MineraculousClientEvents {
     }
 
     public static void onInteractionKeyMappingTriggered(InputEvent.InteractionKeyMappingTriggered event) {
-        if (event.isAttack() && event.getHand() == InteractionHand.MAIN_HAND && ClientUtils.getMainClientPlayer().getOffhandItem().is(MineraculousItems.LADYBUG_YOYO)) {
+        if (event.isAttack() && event.getHand() == InteractionHand.MAIN_HAND && Minecraft.getInstance().player.getOffhandItem().is(MineraculousItems.LADYBUG_YOYO)) {
             TommyLibServices.NETWORK.sendToServer(ServerboundSendOffhandSwingPayload.INSTANCE);
-            if (ClientUtils.getMainClientPlayer().getOffhandItem().onEntitySwing(ClientUtils.getMainClientPlayer(), InteractionHand.OFF_HAND)) {
+            if (Minecraft.getInstance().player.getOffhandItem().onEntitySwing(Minecraft.getInstance().player, InteractionHand.OFF_HAND)) {
                 event.setCanceled(true);
             }
         }

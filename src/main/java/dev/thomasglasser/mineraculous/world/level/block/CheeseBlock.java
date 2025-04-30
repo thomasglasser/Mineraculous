@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.world.level.block;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
@@ -10,7 +9,6 @@ import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.RandomSource;
@@ -49,7 +47,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class CheeseBlock extends HorizontalDirectionalBlock implements ChangeOverTimeBlock<CheeseBlock.Age> {
     public static final MapCodec<CheeseBlock> CODEC = simpleCodec(CheeseBlock::new);
-    public static final ResourceLocation BITES_PROPERTY_ID = Mineraculous.modLoc("bites");
     public static final int MAX_BITES = 3;
     public static final IntegerProperty BITES = IntegerProperty.create("bites", 0, MAX_BITES);
     protected static final VoxelShape SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 3.0, 12.0);

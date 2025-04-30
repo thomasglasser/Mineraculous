@@ -3,8 +3,8 @@ package dev.thomasglasser.mineraculous.network;
 import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
-import dev.thomasglasser.mineraculous.advancements.critereon.KamikotizationUsePowerTrigger;
-import dev.thomasglasser.mineraculous.advancements.critereon.MiraculousUsePowerTrigger;
+import dev.thomasglasser.mineraculous.advancements.critereon.UseKamikotizationPowerTrigger;
+import dev.thomasglasser.mineraculous.advancements.critereon.UseMiraculousPowerTrigger;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
@@ -54,7 +54,7 @@ public record ServerboundSendEmptyLeftClickPayload(int entityId) implements Exte
                         if (usedPower) {
                             livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(livingEntity, key, data.withUsedPower(), true);
                             if (livingEntity instanceof ServerPlayer serverPlayer) {
-                                MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, key, MiraculousUsePowerTrigger.Context.EMPTY);
+                                MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, key, UseMiraculousPowerTrigger.Context.EMPTY);
                             }
                         }
                     }
@@ -75,7 +75,7 @@ public record ServerboundSendEmptyLeftClickPayload(int entityId) implements Exte
                         if (usedPower) {
                             data.withMainPowerActive(false).save(livingEntity, true);
                             if (livingEntity instanceof ServerPlayer serverPlayer) {
-                                MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, key, KamikotizationUsePowerTrigger.Context.EMPTY);
+                                MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, key, UseKamikotizationPowerTrigger.Context.EMPTY);
                             }
                         }
                     } else

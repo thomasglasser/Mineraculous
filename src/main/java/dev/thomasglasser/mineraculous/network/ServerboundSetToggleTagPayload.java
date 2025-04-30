@@ -1,12 +1,9 @@
 package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -29,11 +26,12 @@ public record ServerboundSetToggleTagPayload(Optional<Integer> target, String ta
     @Override
     public void handle(Player player) {
         Entity entity = target.isPresent() ? player.level().getEntity(target.get()) : player;
-        CompoundTag compoundTag = TommyLibServices.ENTITY.getPersistentData(entity);
-        compoundTag.putBoolean(tag, show);
-        compoundTag.putBoolean(MineraculousEntityEvents.TAG_CAMERA_CONTROL_INTERRUPTED, false);
-        compoundTag.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-        TommyLibServices.ENTITY.setPersistentData(entity, compoundTag, true);
+        // TODO: Fix
+//        CompoundTag compoundTag = TommyLibServices.ENTITY.getPersistentData(entity);
+//        compoundTag.putBoolean(tag, show);
+//        compoundTag.putBoolean(MineraculousEntityEvents.TAG_CAMERA_CONTROL_INTERRUPTED, false);
+//        compoundTag.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
+//        TommyLibServices.ENTITY.setPersistentData(entity, compoundTag, true);
     }
 
     @Override

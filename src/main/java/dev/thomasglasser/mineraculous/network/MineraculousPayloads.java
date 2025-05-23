@@ -1,6 +1,8 @@
 package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.network.NeoForgeNetworkUtils;
 import dev.thomasglasser.tommylib.api.network.PayloadInfo;
@@ -49,6 +51,8 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundSetOwnerPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetOwnerPayload.CODEC),
             new PayloadInfo<>(ServerboundSendEmptyLeftClickPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSendEmptyLeftClickPayload.CODEC),
             new PayloadInfo<>(ServerboundSendOffhandSwingPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSendOffhandSwingPayload.CODEC),
+            new PayloadInfo<>(ServerboundToggleActivePayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundToggleActivePayload.CODEC),
+            new PayloadInfo<>(ServerboundSetRadialMenuProviderOptionPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetRadialMenuProviderOptionPayload.CODEC),
 
             // Clientbound
             new PayloadInfo<>(ClientboundSyncMiraculousDataSetPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncMiraculousDataSetPayload.CODEC),
@@ -60,7 +64,6 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ClientboundOpenPerformerKamikotizationChatScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundOpenPerformerKamikotizationChatScreenPayload.CODEC),
             new PayloadInfo<>(ClientboundCloseKamikotizationChatScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundCloseKamikotizationChatScreenPayload.CODEC),
             new PayloadInfo<>(ClientboundSyncKamikotizationDataPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncKamikotizationDataPayload.CODEC),
-            new PayloadInfo<>(ClientboundSyncThrownLadybugYoyoDataPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncThrownLadybugYoyoDataPayload.CODEC),
             new PayloadInfo<>(ClientboundRequestSyncSuitLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestSyncSuitLookPayload.CODEC),
             new PayloadInfo<>(ClientboundSyncSuitLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncSuitLookPayload.CODEC),
             new PayloadInfo<>(ClientboundSyncMiraculousLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncMiraculousLookPayload.CODEC),
@@ -80,5 +83,8 @@ public class MineraculousPayloads {
     public static void onRegisterPackets(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(Mineraculous.MOD_ID);
         PAYLOADS.forEach((info) -> NeoForgeNetworkUtils.register(registrar, info));
+
+        // Attachment Syncing Registration
+        NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO.get(), ThrownLadybugYoyoData.STREAM_CODEC);
     }
 }

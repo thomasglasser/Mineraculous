@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
+import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalInventoryScreen;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundKamikotizationTransformPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundOpenPerformerKamikotizationChatScreenPayload;
@@ -42,6 +43,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
@@ -173,8 +176,7 @@ public class KamikotizationSelectionScreen extends Screen {
     }
 
     protected void renderScrollBar(GuiGraphics guiGraphics) {
-        ResourceLocation resourceLocation = this.canScroll ? CreativeModeInventoryScreen.SCROLLER_SPRITE : CreativeModeInventoryScreen.SCROLLER_DISABLED_SPRITE;
-        guiGraphics.blitSprite(resourceLocation, topLeftX + 228, topLeftY + 7 + this.descStart, 12, 15);
+        guiGraphics.blitSprite(this.canScroll ? CreativeModeInventoryScreen.SCROLLER_SPRITE : CreativeModeInventoryScreen.SCROLLER_DISABLED_SPRITE, topLeftX + 228, topLeftY + 7 + this.descStart, 12, 15);
     }
 
     protected void renderArrows(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -328,26 +330,31 @@ public class KamikotizationSelectionScreen extends Screen {
             TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(minecraft.player.getUUID(), target.blockPosition().above()));
             TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
         } else {
-            minecraft.setScreen(new ExternalCuriosInventoryScreen(target, false, (slot, target, menu) -> {
-                ItemStack stack = slot.getItem();
-                if (stack.has(MineraculousDataComponents.KAMIKOTIZATION) || !selectedKamikotization.value().itemPredicate().test(stack))
-                    return false;
-                Either<Integer, CuriosData> slotInfo;
-                if (slot instanceof CurioSlot curiosSlot)
-                    slotInfo = Either.right(new CuriosData(curiosSlot.getSlotIndex(), curiosSlot.getIdentifier()));
-                else
-                    slotInfo = Either.left(slot.getSlotIndex());
-                KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization.getKey(), slot.getItem().getCount(), slotInfo, kamikoData, false, Optional.of(Either.left(0)), name.getValue());
-                if (target == minecraft.player) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(kamikotizationData, true, false, false, minecraft.player.position().add(0, 1, 0)));
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(target.getUUID(), target.getUUID(), kamikotizationData.kamikotization()));
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
-                } else {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundOpenVictimKamikotizationChatScreenPayload(target.getUUID(), kamikotizationData));
-                    MiraculousDataSet playerMiraculousSet = minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundOpenPerformerKamikotizationChatScreenPayload(playerMiraculousSet.get(playerMiraculousSet.getTransformed().getFirst()).name(), name.getValue(), target.getUUID()));
+            minecraft.setScreen(new ExternalCuriosInventoryScreen(target, false, new ExternalInventoryScreen.ItemPickupHandler() {
+                @Override
+                public boolean canPickUp(Slot slot, Player target, AbstractContainerMenu menu) {
+                    ItemStack stack = slot.getItem();
+                    return selectedKamikotization.value().itemPredicate().test(stack) && !stack.has(MineraculousDataComponents.KAMIKOTIZATION);
                 }
-                return true;
+
+                @Override
+                public void pickUp(Slot slot, Player target, AbstractContainerMenu menu) {
+                    Either<Integer, CuriosData> slotInfo;
+                    if (slot instanceof CurioSlot curiosSlot)
+                        slotInfo = Either.right(new CuriosData(curiosSlot.getSlotIndex(), curiosSlot.getIdentifier()));
+                    else
+                        slotInfo = Either.left(slot.getSlotIndex());
+                    KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization.getKey(), slot.getItem().getCount(), slotInfo, kamikoData, false, Optional.of(Either.left(0)), name.getValue());
+                    if (target == minecraft.player) {
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(kamikotizationData, true, false, false, minecraft.player.position().add(0, 1, 0)));
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(target.getUUID(), target.getUUID(), kamikotizationData.kamikotization()));
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
+                    } else {
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundOpenVictimKamikotizationChatScreenPayload(target.getUUID(), kamikotizationData));
+                        MiraculousDataSet playerMiraculousSet = minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUS);
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundOpenPerformerKamikotizationChatScreenPayload(playerMiraculousSet.get(playerMiraculousSet.getTransformed().getFirst()).name(), name.getValue(), target.getUUID()));
+                    }
+                }
             }, exit -> {
                 if (exit) {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(minecraft.player.getUUID(), target.blockPosition().above()));

@@ -61,7 +61,6 @@
     "mineraculous:ladybug_yoyo_ability",
     "mineraculous:lucky_charm",
     "mineraculous:miraculous",
-    "mineraculous:open",
     "mineraculous:powered",
     "mineraculous:recoverable_item_id",
     "mineraculous:remaining_ticks",
@@ -223,7 +222,6 @@
     "mineraculous:apply_infinite_effects_or_destroy",
     "mineraculous:context_aware",
     "mineraculous:drag",
-    "mineraculous:empty",
     "mineraculous:lucky_charm_world_recovery",
     "mineraculous:night_vision",
     "mineraculous:random_spread",
@@ -244,6 +242,7 @@
     "mineraculous:ladybug"
   ],
   "neoforge:attachment_types": [
+    "mineraculous:ability_effects",
     "mineraculous:kamikotization",
     "mineraculous:kamikotization_looks",
     "mineraculous:miraculous",

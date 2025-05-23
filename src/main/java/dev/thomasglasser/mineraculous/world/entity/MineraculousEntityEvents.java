@@ -7,8 +7,6 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.advancements.critereon.UseKamikotizationPowerTrigger;
 import dev.thomasglasser.mineraculous.advancements.critereon.UseMiraculousPowerTrigger;
-import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
-import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.datamaps.MineraculousDataMaps;
@@ -19,12 +17,8 @@ import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncSuitLookPayl
 import dev.thomasglasser.mineraculous.network.ClientboundSyncKamikotizationLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncMiraculousLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncSuitLookPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestMiraculousDataSetSyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSendEmptyLeftClickPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
-import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
@@ -57,6 +51,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdDataHolder;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -133,6 +128,8 @@ public class MineraculousEntityEvents {
             entityData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, --waitTicks);
         }
         if (entity.level() instanceof ServerLevel serverLevel) {
+            checkBlockingComponent(entity);
+
             if (entityData.contains(TAG_YOYO_BOUND_POS)) {
                 entity.resetFallDistance();
                 CompoundTag pos = entityData.getCompound(TAG_YOYO_BOUND_POS);
@@ -162,38 +159,7 @@ public class MineraculousEntityEvents {
 
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         Player player = event.getEntity();
-        // TODO: Fix
-        CompoundTag entityData = /*TommyLibServices.ENTITY.getPersistentData(player)*/new CompoundTag();
-
         Level level = player.level();
-        if (level.isClientSide && entityData.getInt(TAG_WAIT_TICKS) == 0 && ClientUtils.getLocalPlayer() == player) {
-            int takeTicks = entityData.getInt(MineraculousEntityEvents.TAG_TAKE_TICKS);
-            if (MineraculousKeyMappings.TAKE_BREAK_ITEM.isDown()) {
-                ItemStack mainHandItem = player.getMainHandItem();
-                if (mainHandItem.isEmpty()) {
-                    if (MineraculousClientUtils.getLookEntity() instanceof Player target && (MineraculousServerConfig.get().enableUniversalStealing.get() || player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).isTransformed()) && (MineraculousServerConfig.get().enableSleepStealing.get() || !target.isSleeping())) {
-                        entityData.putInt(MineraculousEntityEvents.TAG_TAKE_TICKS, ++takeTicks);
-                        if (target.isSleeping() && MineraculousServerConfig.get().wakeUpChance.get() > 0 && (MineraculousServerConfig.get().wakeUpChance.get() >= 100 || player.getRandom().nextFloat() < MineraculousServerConfig.get().wakeUpChance.get() / (20f * 5 * 100))) {
-                            TommyLibServices.NETWORK.sendToServer(new ServerboundWakeUpPayload(target.getUUID(), true));
-                        }
-                        takeTicks = 100000;
-                        if (takeTicks > (20 * MineraculousServerConfig.get().stealingDuration.get())) {
-                            TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
-                            MineraculousClientUtils.openExternalCuriosInventoryScreen(target, player);
-                            entityData.putInt(MineraculousEntityEvents.TAG_TAKE_TICKS, 0);
-                        }
-//                        TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
-                    }
-                } else {
-                    TommyLibServices.NETWORK.sendToServer(ServerboundTryBreakItemPayload.INSTANCE);
-                    entityData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-//                    TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
-                }
-            } else if (takeTicks > 0) {
-                entityData.putInt(MineraculousEntityEvents.TAG_TAKE_TICKS, 0);
-//                TommyLibServices.ENTITY.setPersistentData(player, entityData, false);
-            }
-        }
 
         if (player instanceof ServerPlayer serverPlayer) {
             player.getInventory().clearOrCountMatchingItems(itemStack -> {
@@ -389,6 +355,20 @@ public class MineraculousEntityEvents {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    public static void checkBlockingComponent(Entity entity) {
+        for (ItemStack stack : EntityUtils.getInventory(entity)) {
+            if (entity instanceof LivingEntity livingEntity) {
+                boolean blocking = livingEntity.isBlocking() && livingEntity.getUseItem() == stack;
+                if (!blocking && stack.has(MineraculousDataComponents.BLOCKING))
+                    stack.remove(MineraculousDataComponents.BLOCKING);
+                else if (blocking && !stack.has(MineraculousDataComponents.BLOCKING))
+                    stack.set(MineraculousDataComponents.BLOCKING, Unit.INSTANCE);
+            } else if (stack.has(MineraculousDataComponents.BLOCKING)) {
+                stack.remove(MineraculousDataComponents.BLOCKING);
             }
         }
     }

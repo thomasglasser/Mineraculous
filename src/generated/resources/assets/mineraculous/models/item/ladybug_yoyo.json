@@ -100,7 +100,7 @@
     {
       "model": "mineraculous:item/ladybug_yoyo_blocking",
       "predicate": {
-        "mineraculous:blocking": 1.0
+        "minecraft:blocking": 1.0
       }
     }
   ],

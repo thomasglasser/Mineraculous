@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.client;
 
+import dev.thomasglasser.mineraculous.client.renderer.entity.layers.SnapshotTesterCosmeticOptions;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class MineraculousClientConfig {
@@ -10,7 +11,7 @@ public class MineraculousClientConfig {
     // Cosmetics
     public static final String COSMETICS = "cosmetics";
     public final ModConfigSpec.BooleanValue displaySnapshotTesterCosmetic;
-//    public final ModConfigSpec.EnumValue<SnapshotTesterCosmeticOptions> snapshotTesterCosmeticChoice;
+    public final ModConfigSpec.EnumValue<SnapshotTesterCosmeticOptions> snapshotTesterCosmeticChoice;
     public final ModConfigSpec.BooleanValue displayDevTeamCosmetic;
     public final ModConfigSpec.BooleanValue displayLegacyDevTeamCosmetic;
 
@@ -24,9 +25,8 @@ public class MineraculousClientConfig {
         builder.push(COSMETICS);
         displaySnapshotTesterCosmetic = builder
                 .define("display_snapshot_tester_cosmetic", true);
-        // TODO: Implement
-//        snapshotTesterCosmeticChoice = builder
-//                .defineEnum("snapshot_tester_cosmetic_choice", SnapshotTesterCosmeticOptions.BAMBOO_HAT);
+        snapshotTesterCosmeticChoice = builder
+                .defineEnum("snapshot_tester_cosmetic_choice", SnapshotTesterCosmeticOptions.DERBY_HAT);
         displayDevTeamCosmetic = builder
                 .define("display_dev_team_cosmetic", true);
         displayLegacyDevTeamCosmetic = builder

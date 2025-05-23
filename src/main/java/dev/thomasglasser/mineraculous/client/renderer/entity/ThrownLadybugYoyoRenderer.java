@@ -7,8 +7,10 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import java.util.List;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -21,129 +23,23 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYoyo> {
-    private final ResourceLocation TEXTURE = Mineraculous.modLoc("textures/item/ladybug_yoyo_rope.png");
+    private static final ResourceLocation TEXTURE = Mineraculous.modLoc("textures/item/ladybug_yoyo_rope.png");
+
+    private static final int POINTS = 100;
+    private static final double CATENARY_CURVE_FACTOR = 2048.0;
+
+    private final List<RopePoint> points = new ReferenceArrayList<>();
+    private Vec3 lastProjectilePos;
+    private Vec3 lastPlayerHandPos;
+    private double lastMaxLength;
 
     public ThrownLadybugYoyoRenderer(EntityRendererProvider.Context context) {
         super(context, new DefaultedItemGeoModel<>(Mineraculous.modLoc("ladybug_yoyo")));
-    }
-
-    float partialTicks = 0;
-
-    @Override
-    public void render(ThrownLadybugYoyo projectileEntity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight) {
-        this.partialTicks = partialTick;
-        if (projectileEntity.getOwner() instanceof Player) {
-            poseStack.pushPose();
-            Player projectilePlayer = projectileEntity.getPlayerOwner();
-
-            float f = projectilePlayer.getAttackAnim(partialTick);
-            float f1 = Mth.sin(Mth.sqrt(f) * 3.1415927F);
-
-            double maxLength = projectileEntity.getRenderMaxRopeLength();
-
-            Vec3 vec3 = getPlayerHandPos(projectilePlayer, f1, partialTick, Minecraft.getInstance().getEntityRenderDispatcher());
-            Vec3 projectilePos = projectileEntity.getPosition(partialTicks);
-
-            VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
-            PoseStack.Pose pose = poseStack.last();
-
-            Vec3 fromProjectileToHand = new Vec3(vec3.x - projectilePos.x, vec3.y - projectilePos.y, vec3.z - projectilePos.z); //relative to projectile
-            Vec3 fromPTHOnXZ = new Vec3(fromProjectileToHand.x, 0, fromProjectileToHand.z); //fromProjectileToHandOnXZ
-            Vec3 ropeThickness = new Vec3(getSegmentThickness(projectilePos, vec3).toVector3f());
-
-            double length = fromProjectileToHand.length();
-            if (length >= maxLength || maxLength > 50) { //if it's bigger than 50 it starts looking wierd because IDK what hyperbolic cosine and catenary equations are.
-                vertex(vertexConsumer, pose, (float) -ropeThickness.x, (float) -ropeThickness.y, (float) -ropeThickness.z, 0f, 1f);
-                vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x - ropeThickness.x), (float) (fromProjectileToHand.y - ropeThickness.y), (float) (fromProjectileToHand.z - ropeThickness.z), 1f, 1f);
-                vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x + ropeThickness.x), (float) (fromProjectileToHand.y + ropeThickness.y), (float) (fromProjectileToHand.z + ropeThickness.z), 1f, 0f);
-                vertex(vertexConsumer, pose, (float) ropeThickness.x, (float) +ropeThickness.y, (float) ropeThickness.z, 0f, 0f);
-            } else {
-                ArrayList<RopePoint> pointList = new ArrayList<>();
-                int i;
-                int points = 100;
-                final double T = 2048;
-                double xLast = points * (fromPTHOnXZ.length()) / (points + 1);
-                double yLast = points * (vec3.y - projectilePos.y) / points - (2 * points * (maxLength - points * maxLength / (points + 1)) / (1 * T));
-                RopePoint lastP = new RopePoint(xLast, yLast, points, fromPTHOnXZ);
-
-                Vec3 offsetV = new Vec3(fromProjectileToHand.x - lastP.getX(),
-                        fromProjectileToHand.y - lastP.yP(),
-                        fromProjectileToHand.z - lastP.getZ());
-                double offsetL = offsetV.length();
-                for (i = 1; i <= points; i++) {
-                    double xi = i * (fromPTHOnXZ.length() + offsetL) / (points + 1);
-                    double yi = i * (vec3.y - projectilePos.y) / points - (2 * i * (maxLength - i * maxLength / (points + 1)) / (1 * T));
-                    //yi = fromProjectileToHand.y * ((double) (i + 1) / (points + 1) * (double) (i + 1) / (points + 1) + (double) (i + 1) / (points + 1)) * 0.5d;
-                    pointList.add(new RopePoint(xi, yi, i, fromPTHOnXZ));
-                }
-
-                Vec3 p0Pos = new Vec3(pointList.getFirst().getX() + projectilePos.x, pointList.getFirst().yP() + projectilePos.y, pointList.getFirst().getZ() + projectilePos.z);
-                Vec3 projectileToP0Thickness = new Vec3(getSegmentThickness(projectilePos, p0Pos).toVector3f());
-                vertex(vertexConsumer, pose, (float) (0 - projectileToP0Thickness.x), (float) (0 - projectileToP0Thickness.y), (float) (0 - projectileToP0Thickness.z), 0f, 1f);
-                vertex(vertexConsumer, pose, (float) (pointList.getFirst().getX() - projectileToP0Thickness.x), (float) (pointList.getFirst().yP() - projectileToP0Thickness.y), (float) (pointList.getFirst().getZ() - projectileToP0Thickness.z), 1f, 1f);
-                vertex(vertexConsumer, pose, (float) (pointList.getFirst().getX() + projectileToP0Thickness.x), (float) (pointList.getFirst().yP() + projectileToP0Thickness.y), (float) (pointList.getFirst().getZ() + projectileToP0Thickness.z), 1f, 0f);
-                vertex(vertexConsumer, pose, (float) (0 + projectileToP0Thickness.x), (float) (0 + projectileToP0Thickness.y), (float) (0 + projectileToP0Thickness.z), 0f, 0f);
-
-                for (i = 0; i <= points - 2; i++) {
-                    Vec3 p1Pos = new Vec3(pointList.get(i).getX() + projectilePos.x, pointList.get(i).yP() + projectilePos.y, pointList.get(i).getZ() + projectilePos.z);
-                    Vec3 p2Pos = new Vec3(pointList.get(i + 1).getX() + projectilePos.x, pointList.get(i + 1).yP() + projectilePos.y, pointList.get(i + 1).getZ() + projectilePos.z);
-                    Vec3 point1ToPoint2Thickness = new Vec3(getSegmentThickness(p1Pos, p2Pos).toVector3f());
-                    vertex(vertexConsumer, pose, (float) (pointList.get(i).getX() - point1ToPoint2Thickness.x), (float) (pointList.get(i).yP() - point1ToPoint2Thickness.y), (float) (pointList.get(i).getZ() - point1ToPoint2Thickness.z), 0f, 1f);
-                    vertex(vertexConsumer, pose, (float) (pointList.get(i + 1).getX() - point1ToPoint2Thickness.x), (float) (pointList.get(i + 1).yP() - point1ToPoint2Thickness.y), (float) (pointList.get(i + 1).getZ() - point1ToPoint2Thickness.z), 1f, 1f);
-                    vertex(vertexConsumer, pose, (float) (pointList.get(i + 1).getX() + point1ToPoint2Thickness.x), (float) (pointList.get(i + 1).yP() + point1ToPoint2Thickness.y), (float) (pointList.get(i + 1).getZ() + point1ToPoint2Thickness.z), 1f, 0f);
-                    vertex(vertexConsumer, pose, (float) (pointList.get(i).getX() + point1ToPoint2Thickness.x), (float) (pointList.get(i).yP() + point1ToPoint2Thickness.y), (float) (pointList.get(i).getZ() + point1ToPoint2Thickness.z), 0f, 0f);
-                }
-                /*
-                Vec3 lastPointPos = new Vec3(pointList.get(points - 1).getX() + projectilePos.x, pointList.get(points - 1).yP() + projectilePos.y, pointList.get(points - 1).getZ() + projectilePos.z);
-                Vec3 lastPointToHandThickness = new Vec3(getSegmentThickness(lastPointPos, vec3).toVector3f());
-                vertex(vertexConsumer, pose, (float) (pointList.get(points - 1).getX() - lastPointToHandThickness.x), (float) (pointList.get(points - 1).yP() - lastPointToHandThickness.y), (float) (pointList.get(points - 1).getZ() - lastPointToHandThickness.z), 0f, 1f);
-                vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x - lastPointToHandThickness.x), (float) (fromProjectileToHand.y - lastPointToHandThickness.y), (float) (fromProjectileToHand.z - lastPointToHandThickness.z), 1f, 1f);
-                vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x + lastPointToHandThickness.x), (float) (fromProjectileToHand.y + lastPointToHandThickness.y), (float) (fromProjectileToHand.z + lastPointToHandThickness.z), 1f, 0f);
-                vertex(vertexConsumer, pose, (float) (pointList.get(points - 1).getX() + lastPointToHandThickness.x), (float) (pointList.get(points - 1).yP() + lastPointToHandThickness.y), (float) (pointList.get(points - 1).getZ() + lastPointToHandThickness.z), 0f, 0f);
-                */}
-            if (projectileEntity.getInitialDirection() == Direction.SOUTH || projectileEntity.getInitialDirection() == Direction.NORTH) {
-                poseStack.mulPose(Axis.ZN.rotationDegrees(90));
-                poseStack.translate(-0.15, 0, 0);
-            } else {
-                poseStack.mulPose(Axis.XN.rotationDegrees(90));
-                poseStack.translate(0, 0, 0.15);
-            }
-            poseStack.translate(0, -0.1, 0);
-            super.render(projectileEntity, entityYaw, partialTick, poseStack, multiBufferSource, packedLight);
-            poseStack.popPose();
-        }
-    }
-
-    public static Vec3 getPlayerHandPos(Player player, float p_340872_, float partialTick, EntityRenderDispatcher entityRenderDispatcher) {
-        int i = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
-        ItemStack itemstack = player.getMainHandItem();
-        if (!itemstack.is(MineraculousItems.LADYBUG_YOYO)) {
-            i = -i;
-        }
-
-        if (entityRenderDispatcher.options.getCameraType().isFirstPerson() && player == Minecraft.getInstance().player && entityRenderDispatcher.camera != null) { //ik the null check seems useless but i get crashes abt it
-            double d4 = 960.0 / (double) entityRenderDispatcher.options.fov().get();
-            Vec3 vec3 = entityRenderDispatcher.camera.getNearPlane().getPointOnPlane((float) i * 0.6f, -0.6f).scale(d4).yRot(p_340872_ * 0.5F).xRot(-p_340872_ * 0.7F);
-            return player.getEyePosition(partialTick).add(vec3);
-
-        } else {
-            float f = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot) * 0.017453292F;
-            double d0 = Mth.sin(f);
-            double d1 = Mth.cos(f);
-            float f1 = player.getScale();
-            double d2 = (double) i * 0.35 * (double) f1;
-            double d3 = 0.15 * (double) f1;
-            float f2 = player.isCrouching() ? -0.1875F : 0.0F;
-            return player.getEyePosition(partialTick).add(-d1 * d2 - d0 * d3, (double) f2 - 0.75 * (double) f1, -d0 * d2 + d1 * d3);
-        }
-    }
-
-    private static void vertex(VertexConsumer vertexConsumer, PoseStack.Pose pose, float x, float y, float z, float i, float j) {
-        vertexConsumer.addVertex(pose, x, y, z).setColor(-1).setUv(i, j).setOverlay(OverlayTexture.NO_OVERLAY).setLight(15728880).setNormal(0.0F, 1.0F, 0.0F);
     }
 
     @Override
@@ -151,29 +47,161 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
         return LadybugYoyoRenderer.TEXTURE;
     }
 
-    private Vec3 getSegmentThickness(Vec3 p1, Vec3 p2) { // p1 projectile; p2 hand
-        Vec3 fromP1P2 = new Vec3(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z); //relative to p1
-        Vec3 fromP1P2OnXZ = new Vec3(fromP1P2.x, 0, fromP1P2.z);
-        Vec3 watcherEyePos = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPosition();
-        Vec3 fromP1ToPOV = new Vec3(watcherEyePos.x - p1.x, watcherEyePos.y - p1.y, watcherEyePos.z - p1.z); //fromPoint1ToPointOfView
+    @Override
+    public void defaultRender(PoseStack poseStack, ThrownLadybugYoyo animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
+        if (animatable.getOwner() instanceof Player) {
+            poseStack.pushPose();
+            renderRope(poseStack, animatable, bufferSource, partialTick);
+            super.defaultRender(poseStack, animatable, bufferSource, renderType, buffer, yaw, partialTick, packedLight);
+            poseStack.popPose();
+        }
+    }
 
-        double XZGraphLineConst = fromP1P2OnXZ.z / fromP1P2OnXZ.x; // tan(alpha), alpha is the smallest angle between the fromP1P2OnXZ's support line and OX
-        double XZGraphPerpendicularConst = -1 * fromP1P2OnXZ.x / fromP1P2OnXZ.z; // - ctan(alpha), the perpendicular from POV to fromP1P2OnXZ's support line.
-        double offsetParallelLine = fromP1ToPOV.z - fromP1ToPOV.x * XZGraphPerpendicularConst;
-        double projectionX = offsetParallelLine / (XZGraphLineConst * XZGraphLineConst + 1);
-        double projectionZ = projectionX * XZGraphLineConst;
+    private List<RopePoint> calculateRopePoints(Vec3 projectilePos, Vec3 playerHandPos, double maxLength) {
+        if (shouldRecalculatePoints(projectilePos, playerHandPos, maxLength)) {
+            Vec3 fromProjectileToHand = new Vec3(playerHandPos.x - projectilePos.x,
+                    playerHandPos.y - projectilePos.y,
+                    playerHandPos.z - projectilePos.z);
+            Vec3 fromProjectileToHandOnXZ = new Vec3(fromProjectileToHand.x, 0, fromProjectileToHand.z);
 
-        Vec3 projXZ = new Vec3(projectionX, 0, projectionZ);
-        double projXZlength = projXZ.length(); // this SHOULD be negative, we need it to determine the projY
-        if (!((fromP1P2OnXZ.x >= 0) == (projXZ.x >= 0))) {
-            projXZlength = projXZlength * (-1); // here we are making it negative if needed 👆
+            points.clear();
+            double lastX = POINTS * (fromProjectileToHandOnXZ.length()) / (POINTS + 1);
+            double lastY = POINTS * (playerHandPos.y - projectilePos.y) / POINTS
+                    - (2 * POINTS * (maxLength - POINTS * maxLength / (POINTS + 1)) / CATENARY_CURVE_FACTOR);
+            RopePoint lastPoint = new RopePoint(lastX, lastY, fromProjectileToHandOnXZ);
+
+            Vec3 offset = new Vec3(fromProjectileToHand.x - lastPoint.worldX(),
+                    fromProjectileToHand.y - lastPoint.localY(),
+                    fromProjectileToHand.z - lastPoint.worldZ());
+            double offsetLength = offset.length();
+
+            for (int i = 1; i <= POINTS; i++) {
+                double x = i * (fromProjectileToHandOnXZ.length() + offsetLength) / (POINTS + 1);
+                double y = i * (playerHandPos.y - projectilePos.y) / POINTS
+                        - (2 * i * (maxLength - i * maxLength / (POINTS + 1)) / CATENARY_CURVE_FACTOR);
+                points.add(new RopePoint(x, y, fromProjectileToHandOnXZ));
+            }
+
+            lastProjectilePos = projectilePos;
+            lastPlayerHandPos = playerHandPos;
+            lastMaxLength = maxLength;
         }
 
-        double projectionY = fromP1P2.y * projXZlength / fromP1P2OnXZ.length();
+        return points;
+    }
 
-        Vec3 fromPOVToRope = new Vec3(projectionX - fromP1ToPOV.x, projectionY - fromP1ToPOV.y, projectionZ - fromP1ToPOV.z);
+    private boolean shouldRecalculatePoints(Vec3 projectilePos, Vec3 playerHandPos, double maxLength) {
+        return lastProjectilePos == null
+                || lastPlayerHandPos == null
+                || !lastProjectilePos.equals(projectilePos)
+                || !lastPlayerHandPos.equals(playerHandPos)
+                || lastMaxLength != maxLength;
+    }
 
-        Vec3 segmentThinkness = fromPOVToRope.cross(fromP1ToPOV);
+    private void renderRope(PoseStack poseStack, ThrownLadybugYoyo animatable, MultiBufferSource bufferSource, float partialTick) {
+        Player projectilePlayer = animatable.getPlayerOwner();
+
+        float attackAnim = projectilePlayer.getAttackAnim(partialTick);
+        float swingAngle = Mth.sin(Mth.sqrt(attackAnim) * Mth.PI);
+
+        double maxLength = animatable.getRenderMaxRopeLength();
+
+        Vec3 playerHandPos = getPlayerHandPos(projectilePlayer, swingAngle, partialTick, Minecraft.getInstance().getEntityRenderDispatcher());
+        Vec3 projectilePos = animatable.getPosition(partialTick);
+
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
+        PoseStack.Pose pose = poseStack.last();
+
+        Vec3 fromProjectileToHand = new Vec3(playerHandPos.x - projectilePos.x, playerHandPos.y - projectilePos.y, playerHandPos.z - projectilePos.z);
+        Vec3 ropeThickness = getSegmentThickness(projectilePos, playerHandPos);
+
+        double length = fromProjectileToHand.length();
+        if (length >= maxLength || maxLength > 50) { // If it's bigger than 50 it starts looking weird.
+            vertex(vertexConsumer, pose, (float) -ropeThickness.x, (float) -ropeThickness.y, (float) -ropeThickness.z, 0f, 1f);
+            vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x - ropeThickness.x), (float) (fromProjectileToHand.y - ropeThickness.y), (float) (fromProjectileToHand.z - ropeThickness.z), 1f, 1f);
+            vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x + ropeThickness.x), (float) (fromProjectileToHand.y + ropeThickness.y), (float) (fromProjectileToHand.z + ropeThickness.z), 1f, 0f);
+            vertex(vertexConsumer, pose, (float) ropeThickness.x, (float) +ropeThickness.y, (float) ropeThickness.z, 0f, 0f);
+        } else {
+            List<RopePoint> pointList = calculateRopePoints(projectilePos, playerHandPos, maxLength);
+
+            Vec3 firstPointPos = new Vec3(pointList.getFirst().worldX() + projectilePos.x, pointList.getFirst().localY() + projectilePos.y, pointList.getFirst().worldZ() + projectilePos.z);
+            Vec3 projectileToFirstPointThickness = getSegmentThickness(projectilePos, firstPointPos);
+            vertex(vertexConsumer, pose, (float) (-projectileToFirstPointThickness.x), (float) (-projectileToFirstPointThickness.y), (float) (-projectileToFirstPointThickness.z), 0f, 1f);
+            vertex(vertexConsumer, pose, (float) (pointList.getFirst().worldX() - projectileToFirstPointThickness.x), (float) (pointList.getFirst().localY() - projectileToFirstPointThickness.y), (float) (pointList.getFirst().worldZ() - projectileToFirstPointThickness.z), 1f, 1f);
+            vertex(vertexConsumer, pose, (float) (pointList.getFirst().worldX() + projectileToFirstPointThickness.x), (float) (pointList.getFirst().localY() + projectileToFirstPointThickness.y), (float) (pointList.getFirst().worldZ() + projectileToFirstPointThickness.z), 1f, 0f);
+            vertex(vertexConsumer, pose, (float) (projectileToFirstPointThickness.x), (float) (projectileToFirstPointThickness.y), (float) (projectileToFirstPointThickness.z), 0f, 0f);
+
+            for (int i = 0; i < POINTS - 1; i++) {
+                Vec3 pointPos = new Vec3(pointList.get(i).worldX() + projectilePos.x, pointList.get(i).localY() + projectilePos.y, pointList.get(i).worldZ() + projectilePos.z);
+                Vec3 nextPointPos = new Vec3(pointList.get(i + 1).worldX() + projectilePos.x, pointList.get(i + 1).localY() + projectilePos.y, pointList.get(i + 1).worldZ() + projectilePos.z);
+                Vec3 point1ToPoint2Thickness = getSegmentThickness(pointPos, nextPointPos);
+                vertex(vertexConsumer, pose, (float) (pointList.get(i).worldX() - point1ToPoint2Thickness.x), (float) (pointList.get(i).localY() - point1ToPoint2Thickness.y), (float) (pointList.get(i).worldZ() - point1ToPoint2Thickness.z), 0f, 1f);
+                vertex(vertexConsumer, pose, (float) (pointList.get(i + 1).worldX() - point1ToPoint2Thickness.x), (float) (pointList.get(i + 1).localY() - point1ToPoint2Thickness.y), (float) (pointList.get(i + 1).worldZ() - point1ToPoint2Thickness.z), 1f, 1f);
+                vertex(vertexConsumer, pose, (float) (pointList.get(i + 1).worldX() + point1ToPoint2Thickness.x), (float) (pointList.get(i + 1).localY() + point1ToPoint2Thickness.y), (float) (pointList.get(i + 1).worldZ() + point1ToPoint2Thickness.z), 1f, 0f);
+                vertex(vertexConsumer, pose, (float) (pointList.get(i).worldX() + point1ToPoint2Thickness.x), (float) (pointList.get(i).localY() + point1ToPoint2Thickness.y), (float) (pointList.get(i).worldZ() + point1ToPoint2Thickness.z), 0f, 0f);
+            }
+        }
+        if (animatable.getInitialDirection() == Direction.SOUTH || animatable.getInitialDirection() == Direction.NORTH) {
+            poseStack.mulPose(Axis.ZN.rotationDegrees(90));
+            poseStack.translate(-0.15, 0, 0);
+        } else {
+            poseStack.mulPose(Axis.XN.rotationDegrees(90));
+            poseStack.translate(0, 0, 0.15);
+        }
+        poseStack.translate(0, -0.1, 0);
+    }
+
+    @SuppressWarnings("ConstantValue")
+    public static Vec3 getPlayerHandPos(Player player, float swingAngle, float partialTick, EntityRenderDispatcher entityRenderDispatcher) {
+        int armMultiplier = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
+        ItemStack itemstack = player.getMainHandItem();
+        if (!itemstack.is(MineraculousItems.LADYBUG_YOYO)) {
+            armMultiplier = -armMultiplier;
+        }
+
+        if (entityRenderDispatcher.options.getCameraType().isFirstPerson() && player == Minecraft.getInstance().player && entityRenderDispatcher.camera != null) {
+            double fovScale = 960.0 / (double) entityRenderDispatcher.options.fov().get();
+            Vec3 handOffset = entityRenderDispatcher.camera.getNearPlane().getPointOnPlane((float) armMultiplier * 0.6f, -0.6f).scale(fovScale).yRot(swingAngle * 0.5F).xRot(-swingAngle * 0.7F);
+            return player.getEyePosition(partialTick).add(handOffset);
+        } else {
+            float bodyRotRad = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot) * (Mth.PI / 180F);
+            double sinRot = Mth.sin(bodyRotRad);
+            double cosRot = Mth.cos(bodyRotRad);
+            float scale = player.getScale();
+            double armOffset = (double) armMultiplier * 0.35 * (double) scale;
+            double sideOffset = 0.15 * (double) scale;
+            float crouchOffset = player.isCrouching() ? -0.1875F : 0;
+            return player.getEyePosition(partialTick).add(-cosRot * armOffset - sinRot * sideOffset, (double) crouchOffset - 0.75 * (double) scale, -sinRot * armOffset + cosRot * sideOffset);
+        }
+    }
+
+    private static void vertex(VertexConsumer vertexConsumer, PoseStack.Pose pose, float x, float y, float z, float u, float v) {
+        vertexConsumer.addVertex(pose, x, y, z).setColor(-1).setUv(u, v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(LightTexture.FULL_BRIGHT).setNormal(0, 1, 0);
+    }
+
+    private Vec3 getSegmentThickness(Vec3 projectilePos, Vec3 handPos) {
+        Vec3 fromProjectileToHand = new Vec3(handPos.x - projectilePos.x, handPos.y - projectilePos.y, handPos.z - projectilePos.z);
+        Vec3 fromProjectileToHandOnXZ = new Vec3(fromProjectileToHand.x, 0, fromProjectileToHand.z);
+        Vec3 watcherEyePos = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPosition();
+        Vec3 fromProjectileToPOV = new Vec3(watcherEyePos.x - projectilePos.x, watcherEyePos.y - projectilePos.y, watcherEyePos.z - projectilePos.z);
+
+        double xZGraphLineConst = fromProjectileToHandOnXZ.z / fromProjectileToHandOnXZ.x;
+        double xZGraphPerpendicularConst = -1 * fromProjectileToHandOnXZ.x / fromProjectileToHandOnXZ.z;
+        double offsetParallelLine = fromProjectileToPOV.z - fromProjectileToPOV.x * xZGraphPerpendicularConst;
+        double projectionX = offsetParallelLine / (xZGraphLineConst * xZGraphLineConst + 1);
+        double projectionZ = projectionX * xZGraphLineConst;
+
+        Vec3 projectionXZ = new Vec3(projectionX, 0, projectionZ);
+        double projectionXZlength = projectionXZ.length();
+        if (fromProjectileToHandOnXZ.x >= 0 != projectionXZ.x >= 0) {
+            projectionXZlength = projectionXZlength * (-1); // Making negative if needed
+        }
+
+        double projectionY = fromProjectileToHand.y * projectionXZlength / fromProjectileToHandOnXZ.length();
+
+        Vec3 fromPOVToRope = new Vec3(projectionX - fromProjectileToPOV.x, projectionY - fromProjectileToPOV.y, projectionZ - fromProjectileToPOV.z);
+
+        Vec3 segmentThinkness = fromPOVToRope.cross(fromProjectileToPOV);
         segmentThinkness = segmentThinkness.scale(1 / segmentThinkness.length());
         segmentThinkness = segmentThinkness.scale(0.02d); //0.02 is the thickness
         return segmentThinkness;

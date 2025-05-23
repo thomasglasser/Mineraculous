@@ -39,6 +39,8 @@ public class MineraculousAbilities {
     public static final ResourceKey<Ability> MIRACULOUS_LADYBUG = register("miraculous_ladybug");
     public static final ResourceKey<Ability> PASSIVE_LUCK = register("passive_luck");
 
+    private static final ResourceLocation KAMIKO_FACE_MASK_TEXTURE = Mineraculous.modLoc("textures/entity/player/face_mask/kamiko.png");
+
     private static ResourceKey<Ability> register(String id) {
         return ResourceKey.create(MineraculousRegistries.ABILITY, Mineraculous.modLoc(id));
     }

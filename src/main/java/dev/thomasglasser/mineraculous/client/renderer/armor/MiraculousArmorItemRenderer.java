@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -40,21 +41,21 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
                 ResourceLocation texture = getTextureLocation(animatable);
                 ResourceLocation glowmaskTexture = AutoGlowingTexture.appendToPath(texture, "_glowmask");
                 if (Minecraft.getInstance().getTextureManager().getTexture(glowmaskTexture, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture()) {
-                    if (Minecraft.getInstance().getResourceManager().getResource(glowmaskTexture).isPresent())
+                    if (Minecraft.getInstance().getResourceManager().getResource(glowmaskTexture).isPresent()) {
                         return super.getRenderType(animatable, bufferSource);
-                    else if (getCurrentStack() != null && getCurrentEntity() instanceof LivingEntity livingEntity) {
-                        String look = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS).get(getCurrentStack().get(MineraculousDataComponents.MIRACULOUS)).suitLook();
-                        SuitLookData data = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).get(getCurrentStack().get(MineraculousDataComponents.MIRACULOUS), look);
-                        if (data != null) {
-                            if (data.glowmask().isPresent() && texture.equals(data.texture())) {
-                                byte[] glowmask = data.glowmask().get();
-                                try {
-                                    DynamicAutoGlowingTexture.register(texture, glowmask);
-                                } catch (IOException e) {
-                                    Mineraculous.LOGGER.error("Failed to register glowmask texture for {}", texture, e);
-                                }
-                            }
-                            if (!data.glowmaskFrames().isEmpty()) {
+                    } else {
+                        ItemStack stack = getCurrentStack();
+                        if (stack != null && getCurrentEntity() instanceof LivingEntity livingEntity) {
+                            String look = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS).get(stack.get(MineraculousDataComponents.MIRACULOUS)).suitLook();
+                            SuitLookData data = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).get(stack.get(MineraculousDataComponents.MIRACULOUS), look);
+                            if (data != null && texture.equals(data.texture())) {
+                                data.glowmask().ifPresent(glowmask -> {
+                                    try {
+                                        DynamicAutoGlowingTexture.register(texture, glowmask);
+                                    } catch (IOException e) {
+                                        Mineraculous.LOGGER.error("Failed to register glowmask texture for {}", texture, e);
+                                    }
+                                });
                                 try {
                                     byte[] glowmaskFrame = data.glowmaskFrames().get(data.frames().indexOf(texture));
                                     DynamicAutoGlowingTexture.register(texture, glowmaskFrame);
@@ -78,21 +79,15 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
         ItemStack stack = getCurrentStack();
         if (stack != null) {
             ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-            if (miraculous != null) {
+            Entity entity = getCurrentEntity();
+            if (miraculous != null && entity != null) {
                 Integer transformationTicks = stack.get(MineraculousDataComponents.TRANSFORMATION_FRAMES);
-                if (transformationTicks != null && transformationTicks > 0) {
-                    ResourceLocation loc = super.getTextureLocation(animatable).withPath(path -> path.replace(".png", "_" + (10 - transformationTicks) + ".png"));
-                    if (Minecraft.getInstance().getResourceManager().getResource(loc).isEmpty() && Minecraft.getInstance().getTextureManager().getTexture(loc, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture())
-                        return super.getTextureLocation(animatable);
-                    return loc;
-                } else {
-                    Integer detransformationTicks = stack.get(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
-                    if (detransformationTicks != null && detransformationTicks > 0) {
-                        ResourceLocation loc = super.getTextureLocation(animatable).withPath(path -> path.replace(".png", "_" + detransformationTicks + ".png"));
-                        if (Minecraft.getInstance().getResourceManager().getResource(loc).isEmpty() && Minecraft.getInstance().getTextureManager().getTexture(loc, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture())
-                            return super.getTextureLocation(animatable);
-                        return loc;
-                    }
+                Integer detransformationTicks = stack.get(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
+                int frame = transformationTicks == null ? detransformationTicks == null ? 0 : detransformationTicks : entity.level().holderOrThrow(miraculous).value().transformationFrames() - transformationTicks;
+                if (frame > 0) {
+                    ResourceLocation texture = super.getTextureLocation(animatable).withPath(path -> path.replace(".png", "_" + frame + ".png"));
+                    if (Minecraft.getInstance().getResourceManager().getResource(texture).isPresent() || Minecraft.getInstance().getTextureManager().getTexture(texture, MissingTextureAtlasSprite.getTexture()) != MissingTextureAtlasSprite.getTexture())
+                        return texture;
                 }
             }
         }

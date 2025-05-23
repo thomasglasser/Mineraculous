@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.client.gui.screens;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.network.ServerboundTransferMiraculousPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -23,25 +23,23 @@ import net.minecraft.client.gui.screens.social.PlayerEntry;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import org.jetbrains.annotations.Nullable;
 
 public class MiraculousEligiblePlayerEntry extends ContainerObjectSelectionList.Entry<MiraculousEligiblePlayerEntry> {
     public static final Component RENOUNCE = Component.translatable("gui.miraculous_transfer.renounce");
     public static final Component TRANSFER = Component.translatable("gui.miraculous_transfer.transfer");
-    private static final WidgetSprites RENOUNCE_BUTTON_SPRITES = new WidgetSprites(
+    public static final WidgetSprites RENOUNCE_BUTTON_SPRITES = new WidgetSprites(
             Mineraculous.modLoc("miraculous_transfer/renounce_button"),
             Mineraculous.modLoc("miraculous_transfer/renounce_button_highlighted"));
-    private static final WidgetSprites TRANSFER_BUTTON_SPRITES = new WidgetSprites(
+    public static final WidgetSprites TRANSFER_BUTTON_SPRITES = new WidgetSprites(
             Mineraculous.modLoc("miraculous_transfer/transfer_button"),
             Mineraculous.modLoc("miraculous_transfer/transfer_button_highlighted"));
-    private final Minecraft minecraft;
-    private final List<AbstractWidget> children;
-    private final UUID id;
-    private final String playerName;
-    private final Supplier<PlayerSkin> skinGetter;
-    @Nullable
-    private Button transferButton;
-    private float tooltipHoverTime;
+    protected final Minecraft minecraft;
+    protected final UUID id;
+    protected final String playerName;
+    protected final Supplier<PlayerSkin> skinGetter;
+    protected final Button transferButton;
+    protected final List<AbstractWidget> children;
+    protected float tooltipHoverTime;
 
     public MiraculousEligiblePlayerEntry(
             Minecraft minecraft, UUID id, String playerName, Supplier<PlayerSkin> skinGetter, int kwamiId) {
@@ -87,7 +85,7 @@ public class MiraculousEligiblePlayerEntry extends ContainerObjectSelectionList.
             this.transferButton.setTooltip(Tooltip.create(TRANSFER));
         }
         this.transferButton.setTooltipDelay(PlayerEntry.TOOLTIP_DELAY);
-        this.children = new ArrayList<>();
+        this.children = new ReferenceArrayList<>();
         this.children.add(this.transferButton);
     }
 
@@ -111,14 +109,12 @@ public class MiraculousEligiblePlayerEntry extends ContainerObjectSelectionList.
         l = top + (height - 9) / 2;
         PlayerFaceRenderer.draw(guiGraphics, this.skinGetter.get(), i, j, 24);
         guiGraphics.drawString(this.minecraft.font, this.playerName, k, l, PlayerEntry.PLAYERNAME_COLOR, false);
-        if (this.transferButton != null) {
-            float f = this.tooltipHoverTime;
-            this.transferButton.setX(left + (width - this.transferButton.getWidth() - 4));
-            this.transferButton.setY(top + (height - this.transferButton.getHeight()) / 2);
-            this.transferButton.render(guiGraphics, mouseX, mouseY, partialTick);
-            if (f == this.tooltipHoverTime) {
-                this.tooltipHoverTime = 0.0F;
-            }
+        float f = this.tooltipHoverTime;
+        this.transferButton.setX(left + (width - this.transferButton.getWidth() - 4));
+        this.transferButton.setY(top + (height - this.transferButton.getHeight()) / 2);
+        this.transferButton.render(guiGraphics, mouseX, mouseY, partialTick);
+        if (f == this.tooltipHoverTime) {
+            this.tooltipHoverTime = 0.0F;
         }
     }
 

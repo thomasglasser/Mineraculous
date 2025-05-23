@@ -7,8 +7,8 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.item.armor.KamikotizationArmorItem;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationLookData;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -28,8 +28,8 @@ import software.bernie.geckolib.renderer.GeoArmorRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<KamikotizationArmorItem> {
-    private final Map<ResourceKey<Kamikotization>, GeoModel<KamikotizationArmorItem>> defaultModels = new HashMap<>();
-    private final Map<ResourceKey<Kamikotization>, GeoModel<KamikotizationArmorItem>> customModels = new HashMap<>();
+    private final Map<ResourceKey<Kamikotization>, GeoModel<KamikotizationArmorItem>> defaultModels = new Reference2ReferenceOpenHashMap<>();
+    private final Map<KamikotizationLookData, GeoModel<KamikotizationArmorItem>> lookModels = new Reference2ReferenceOpenHashMap<>();
 
     public KamikotizationArmorItemRenderer() {
         super(null);
@@ -39,20 +39,21 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
                 ResourceLocation texture = getTextureLocation(animatable);
                 ResourceLocation glowmaskTexture = AutoGlowingTexture.appendToPath(texture, "_glowmask");
                 if (Minecraft.getInstance().getTextureManager().getTexture(glowmaskTexture, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture()) {
-                    if (Minecraft.getInstance().getResourceManager().getResource(glowmaskTexture).isPresent())
+                    if (Minecraft.getInstance().getResourceManager().getResource(glowmaskTexture).isPresent()) {
                         return super.getRenderType(animatable, bufferSource);
-                    else if (getCurrentStack() != null && getCurrentEntity() instanceof LivingEntity livingEntity) {
+                    } else if (getCurrentStack() != null && getCurrentEntity() instanceof LivingEntity livingEntity) {
                         ResourceKey<Kamikotization> kamikotization = getCurrentStack().get(MineraculousDataComponents.KAMIKOTIZATION);
                         KamikotizationLookData data = livingEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS).get(kamikotization);
                         if (data != null) {
-                            if (data.glowmask().isPresent() && texture.equals(data.texture())) {
-                                byte[] glowmask = data.glowmask().get();
-                                try {
-                                    DynamicAutoGlowingTexture.register(texture, glowmask);
-                                } catch (IOException e) {
-                                    Mineraculous.LOGGER.error("Failed to register glowmask texture for {}", texture, e);
+                            data.glowmask().ifPresent(glowmask -> {
+                                if (texture.equals(data.texture())) {
+                                    try {
+                                        DynamicAutoGlowingTexture.register(texture, glowmask);
+                                    } catch (IOException e) {
+                                        Mineraculous.LOGGER.error("Failed to register glowmask texture for {}", texture, e);
+                                    }
                                 }
-                            }
+                            });
                         }
                     }
                     return null;
@@ -72,9 +73,9 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
                 if (getCurrentEntity() instanceof Player player) {
                     KamikotizationLookData data = player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS).get(kamikotization);
                     if (data != null) {
-                        if (!customModels.containsKey(kamikotization))
-                            customModels.put(kamikotization, createCustomGeoModel(kamikotization, data));
-                        return customModels.get(kamikotization);
+                        if (!lookModels.containsKey(data))
+                            lookModels.put(data, createLookGeoModel(kamikotization, data));
+                        return lookModels.get(data);
                     }
                 }
                 return defaultModels.get(kamikotization);
@@ -103,7 +104,7 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
         };
     }
 
-    private GeoModel<KamikotizationArmorItem> createCustomGeoModel(ResourceKey<Kamikotization> kamikotization, KamikotizationLookData data) {
+    private GeoModel<KamikotizationArmorItem> createLookGeoModel(ResourceKey<Kamikotization> kamikotization, KamikotizationLookData data) {
         return new GeoModel<>() {
             private BakedGeoModel currentModel = null;
 
@@ -124,7 +125,7 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
 
             @Override
             public BakedGeoModel getBakedModel(ResourceLocation location) {
-                BakedGeoModel baked = data.model().orElseGet(() -> defaultModels.get(kamikotization).getBakedModel(location));
+                BakedGeoModel baked = data.model().orElseGet(() -> super.getBakedModel(location));
                 if (currentModel != baked) {
                     currentModel = baked;
                     getAnimationProcessor().setActiveModel(baked);

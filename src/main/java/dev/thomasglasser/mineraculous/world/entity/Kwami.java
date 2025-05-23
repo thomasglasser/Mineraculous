@@ -199,7 +199,7 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
                         new FollowOwner<Kwami>().speedMod(10f).stopFollowingWithin(2).teleportToTargetAfter(8).startCondition(kwami -> kwami.getOwner() != null),
                         new FollowTemptation<>(),
                         new OneRandomBehaviour<>(
-                                new SetRandomFlyingTarget<>().flightTargetPredicate((entity, pos) -> entity.level().getBlockState(BlockPos.containing(pos)).isAir()),
+                                new SetRandomFlyingTarget<>().flightTargetPredicate((entity, pos) -> pos != null && entity.level().getBlockState(BlockPos.containing(pos)).isAir()),
                                 new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)))));
     }
 

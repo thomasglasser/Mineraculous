@@ -227,7 +227,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                     Integer detransformationFrames = stack.get(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
                     if (detransformationFrames != null && detransformationFrames >= 1 && player.tickCount % 2 == 0) {
                         if (detransformationFrames <= 1) {
-                            stack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, null);
+                            stack.remove(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
                             entity.getArmorSlots().forEach(armorStack -> armorStack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, null));
                             stack.remove(DataComponents.ENCHANTMENTS);
                             player.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(armorData -> {

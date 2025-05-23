@@ -13,26 +13,24 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
 
-public class KamikoMaskModel extends Model {
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Mineraculous.modLoc("kamiko_mask"), "main");
-    public static final ResourceLocation TEXTURE = Mineraculous.modLoc("textures/entity/player/kamiko_mask.png");
+public class FaceMaskModel extends Model {
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Mineraculous.modLoc("face_mask"), "main");
 
     private final ModelPart mask;
 
-    public KamikoMaskModel(ModelPart root) {
+    public FaceMaskModel(ModelPart root) {
         super(RenderType::entityCutout);
         this.mask = root.getChild("mask");
     }
 
     public static LayerDefinition createBodyLayer() {
-        MeshDefinition meshdefinition = new MeshDefinition();
-        PartDefinition partdefinition = meshdefinition.getRoot();
+        MeshDefinition definition = new MeshDefinition();
+        PartDefinition root = definition.getRoot();
 
-        PartDefinition mask = partdefinition.addOrReplaceChild("mask", CubeListBuilder.create().texOffs(0, 0).addBox(-7.5F, -37.0F, -8.0F, 15.0F, 15.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
+        PartDefinition mask = root.addOrReplaceChild("mask", CubeListBuilder.create().texOffs(0, 0).addBox(-7.5F, -37.0F, -8.0F, 15.0F, 15.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
 
-        return LayerDefinition.create(meshdefinition, 30, 15);
+        return LayerDefinition.create(definition, 32, 16);
     }
 
     @Override

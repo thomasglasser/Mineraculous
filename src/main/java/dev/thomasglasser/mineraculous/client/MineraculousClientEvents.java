@@ -4,9 +4,9 @@ import com.mojang.blaze3d.platform.NativeImage;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.client.gui.components.kamiko.KamikoGui;
-import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuScreen;
-import dev.thomasglasser.mineraculous.client.model.KamikoMaskModel;
+import dev.thomasglasser.mineraculous.client.model.DerbyHatModel;
+import dev.thomasglasser.mineraculous.client.model.FaceMaskModel;
 import dev.thomasglasser.mineraculous.client.particle.HoveringOrbParticle;
 import dev.thomasglasser.mineraculous.client.particle.KamikotizationParticle;
 import dev.thomasglasser.mineraculous.client.particle.RiseAndSpreadParticle;
@@ -16,8 +16,9 @@ import dev.thomasglasser.mineraculous.client.renderer.entity.LuckyCharmItemSpawn
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownButterflyCaneRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownCatStaffRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownLadybugYoyoRenderer;
-import dev.thomasglasser.mineraculous.client.renderer.entity.layers.KamikoMaskLayer;
+import dev.thomasglasser.mineraculous.client.renderer.entity.layers.FaceMaskLayer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.KwamiOnShoulderLayer;
+import dev.thomasglasser.mineraculous.client.renderer.entity.layers.SnapshotTesterLayer;
 import dev.thomasglasser.mineraculous.client.renderer.item.MineraculousItemProperties;
 import dev.thomasglasser.mineraculous.client.renderer.item.curio.ContextDependentCurioRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
@@ -33,6 +34,7 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.world.item.armor.KamikotizationArmorItem;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.armor.MiraculousArmorItem;
@@ -42,10 +44,8 @@ import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizatio
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -75,6 +75,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
@@ -111,10 +112,12 @@ public class MineraculousClientEvents {
         MineraculousItemProperties.init();
     }
 
-    public static <T extends RadialMenuOption> void openToolWheel(int color, Consumer<T> onSelected, List<T> options) {
-        if (Minecraft.getInstance().screen == null) {
-            Minecraft.getInstance().setScreen(new RadialMenuScreen<>(options, onSelected, MineraculousKeyMappings.CONFIGURE_TOOL.getKey().getValue(), color));
+    public static boolean tryOpenToolWheel(InteractionHand hand, ItemStack stack, RadialMenuProvider<?> provider) {
+        if (Minecraft.getInstance().screen == null && provider.canOpenMenu(stack, hand)) {
+            Minecraft.getInstance().setScreen(new RadialMenuScreen<>(hand, MineraculousKeyMappings.CONFIGURE_TOOL.getKey().getValue(), stack, provider));
+            return true;
         }
+        return false;
     }
 
     public static void onRegisterAdditionalModels(ModelEvent.RegisterAdditional event) {
@@ -162,9 +165,7 @@ public class MineraculousClientEvents {
 
     private static void renderStealingProgressBar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         LocalPlayer player = Minecraft.getInstance().player;
-        // TODO: Fix
-//        CompoundTag data = TommyLibServices.ENTITY.getPersistentData(player);
-        int width = /*data.getInt(MineraculousEntityEvents.TAG_TAKE_TICKS)*/10;
+        int width = MineraculousKeyMappings.getTakeTicks();
         if (player != null && width > 0) {
             int x = (guiGraphics.guiWidth() - 18) / 2;
             int y = (guiGraphics.guiHeight() + 12) / 2;
@@ -241,7 +242,8 @@ public class MineraculousClientEvents {
     }
 
     public static void onRegisterLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
-        event.registerLayerDefinition(KamikoMaskModel.LAYER_LOCATION, KamikoMaskModel::createBodyLayer);
+        event.registerLayerDefinition(FaceMaskModel.LAYER_LOCATION, FaceMaskModel::createBodyLayer);
+        event.registerLayerDefinition(DerbyHatModel.LAYER_LOCATION, DerbyHatModel::createBodyLayer);
     }
 
     public static void onAddLayers(EntityRenderersEvent.AddLayers event) {
@@ -251,8 +253,9 @@ public class MineraculousClientEvents {
             PlayerRenderer player = event.getSkin(skin);
 
             if (player != null) {
-                player.addLayer(new KamikoMaskLayer<>(player, models));
+                player.addLayer(new FaceMaskLayer<>(player, models));
                 player.addLayer(new KwamiOnShoulderLayer<>(player));
+                player.addLayer(new SnapshotTesterLayer<>(player, models));
             }
         }
     }

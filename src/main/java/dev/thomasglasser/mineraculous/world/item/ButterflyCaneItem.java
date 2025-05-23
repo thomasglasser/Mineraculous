@@ -174,8 +174,6 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
                 }
             }
         }
-
-        LadybugYoyoItem.checkBlocking(stack, entity, stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == Ability.BLOCK);
     }
 
     @Override

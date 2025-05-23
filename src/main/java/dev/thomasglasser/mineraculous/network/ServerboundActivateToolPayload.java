@@ -13,7 +13,6 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -43,7 +42,7 @@ public record ServerboundActivateToolPayload(boolean activate, InteractionHand h
     public void handle(Player player) {
         ItemStack itemInHand = player.getItemInHand(hand);
         if (activate) {
-            itemInHand.set(MineraculousDataComponents.ACTIVE.get(), Unit.INSTANCE);
+//            itemInHand.set(MineraculousDataComponents.ACTIVE.get(), Unit.INSTANCE);
         } else {
             itemInHand.remove(MineraculousDataComponents.ACTIVE.get());
         }

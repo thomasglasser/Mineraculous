@@ -106,7 +106,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousKeyMappings.MIRACULOUS_CATEGORY, "Miraculous");
         add(MineraculousKeyMappings.TRANSFORM, "Transform");
         add(MineraculousKeyMappings.ACTIVATE_POWER, "Activate Power/Renounce Miraculous");
-        add(MineraculousKeyMappings.TOGGLE_ACTIVE, "Activate Tool");
+        add(MineraculousKeyMappings.TOGGLE_ACTIVE, "De/Activate Item");
         add(MineraculousKeyMappings.CONFIGURE_TOOL, "Equip/Return Tool/Open Tool Wheel");
         add(MineraculousKeyMappings.TAKE_BREAK_ITEM, "Take/Break Item");
         add(MineraculousKeyMappings.UNWIND_YOYO, "Unwind YoYo");

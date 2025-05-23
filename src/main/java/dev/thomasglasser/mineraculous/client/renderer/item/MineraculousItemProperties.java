@@ -17,9 +17,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.component.BlockItemStateProperties;
 
 public class MineraculousItemProperties {
+    // Vanilla
+    public static final ResourceLocation BLOCKING = ResourceLocation.withDefaultNamespace("blocking");
+
     // Generic
-    public static final ResourceLocation BLOCKING = Mineraculous.modLoc("blocking");
-    public static final ResourceLocation OPEN = Mineraculous.modLoc("open");
+    public static final ResourceLocation ACTIVE = Mineraculous.modLoc("active");
 
     // Specific
     public static final ResourceLocation ABILITY = Mineraculous.modLoc("ability");
@@ -29,17 +31,12 @@ public class MineraculousItemProperties {
     public static void init() {
         // Generic
         ItemProperties.registerGeneric(BLOCKING, (stack, level, entity, seed) -> stack.has(MineraculousDataComponents.BLOCKING) ? 1 : 0);
-        ItemProperties.registerGeneric(OPEN, (stack, level, entity, seed) -> {
-            Boolean open = stack.get(MineraculousDataComponents.OPEN);
-            if (open == null)
-                return 0;
-            return open ? 1 : 0;
-        });
+        ItemProperties.registerGeneric(ACTIVE, (stack, level, entity, seed) -> stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) ? 1 : 0);
 
         // Miraculous Tools
         ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), ABILITY, getEnumAbilityPropertyFunction(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()));
-        ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), EXTENDED, (stack, level, entity, seed) -> {
-            if (stack.has(MineraculousDataComponents.ACTIVE)) {
+        ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), ACTIVE, (stack, level, entity, seed) -> {
+            if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false)) {
                 if (entity instanceof Player player && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
                     ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
                     ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
@@ -52,7 +49,7 @@ public class MineraculousItemProperties {
             return 0;
         });
         ItemProperties.register(MineraculousItems.CAT_STAFF.get(), ABILITY, getEnumAbilityPropertyFunction(MineraculousDataComponents.CAT_STAFF_ABILITY.get()));
-        ItemProperties.register(MineraculousItems.CAT_STAFF.get(), EXTENDED, (stack, level, entity, seed) -> stack.has(MineraculousDataComponents.ACTIVE) ? 1 : 0);
+        ItemProperties.register(MineraculousItems.CAT_STAFF.get(), EXTENDED, (stack, level, entity, seed) -> stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) ? 1 : 0);
         ItemProperties.register(MineraculousItems.BUTTERFLY_CANE.get(), ABILITY, getEnumAbilityPropertyFunction(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()));
 
         // Block Items

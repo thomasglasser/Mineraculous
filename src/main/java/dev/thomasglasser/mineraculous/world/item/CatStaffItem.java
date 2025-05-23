@@ -16,11 +16,12 @@ import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Position;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -69,7 +70,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, ProjectileItem, ICurioItem, ToolWheelProvider<CatStaffItem.Ability> {
+public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, ProjectileItem, ICurioItem, RadialMenuProvider<CatStaffItem.Ability> {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final String CONTROLLER_USE = "use_controller";
     public static final String CONTROLLER_EXTEND = "extend_controller";
@@ -106,7 +107,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         controllers.add(new AnimationController<>(this, CONTROLLER_EXTEND, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
             if (stack != null) {
-                if (!stack.has(MineraculousDataComponents.ACTIVE) && !state.isCurrentAnimation(RETRACT))
+                if (!stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && !state.isCurrentAnimation(RETRACT))
                     return state.setAndContinue(DefaultAnimations.IDLE);
             }
             return PlayState.STOP;
@@ -135,7 +136,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        if (stack.has(MineraculousDataComponents.ACTIVE)) {
+        if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false)) {
             if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get()) == Ability.PERCH && entity.isCrouching()) {
                 entity.setDeltaMovement(Vec3.ZERO);
                 entity.resetFallDistance();
@@ -143,15 +144,13 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                 entity.resetFallDistance();
         }
 
-        LadybugYoyoItem.checkBlocking(stack, entity, stack.has(MineraculousDataComponents.ACTIVE) && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == Ability.BLOCK);
-
         super.inventoryTick(stack, level, entity, slotId, isSelected);
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player pPlayer, InteractionHand pHand) {
         ItemStack stack = pPlayer.getItemInHand(pHand);
-        if (!stack.has(MineraculousDataComponents.ACTIVE))
+        if (!stack.getOrDefault(MineraculousDataComponents.ACTIVE, false))
             return InteractionResultHolder.fail(stack);
         if (stack.has(MineraculousDataComponents.CAT_STAFF_ABILITY)) {
             Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
@@ -234,7 +233,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
     @Override
     public ItemAttributeModifiers getDefaultAttributeModifiers(ItemStack stack) {
-        if (stack.has(MineraculousDataComponents.ACTIVE))
+        if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false))
             return EXTENDED;
         return super.getDefaultAttributeModifiers(stack);
     }
@@ -255,7 +254,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     }
 
     public boolean canEquip(ItemStack stack) {
-        return !stack.has(MineraculousDataComponents.ACTIVE);
+        return !stack.getOrDefault(MineraculousDataComponents.ACTIVE, false);
     }
 
     @Override
@@ -267,8 +266,8 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     }
 
     @Override
-    public boolean canOpenToolWheel(ItemStack stack) {
-        return stack.has(MineraculousDataComponents.ACTIVE);
+    public boolean canOpenMenu(ItemStack stack, InteractionHand hand) {
+        return stack.getOrDefault(MineraculousDataComponents.ACTIVE, false);
     }
 
     @Override
@@ -287,18 +286,19 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     }
 
     @Override
-    public Ability[] getOptions(ItemStack stack, InteractionHand hand) {
-        return Ability.values();
+    public List<Ability> getOptions(ItemStack stack, InteractionHand hand) {
+        return Ability.valuesList();
     }
 
     @Override
-    public Holder<DataComponentType<?>> getComponentType() {
+    public Supplier<DataComponentType<Ability>> getComponentType(ItemStack stack, InteractionHand hand) {
         return MineraculousDataComponents.CAT_STAFF_ABILITY;
     }
 
     @Override
-    public void handleSecondaryToolKeyBehavior(ItemStack stack, InteractionHand hand) {
+    public boolean handleSecondaryKeyBehavior(ItemStack stack, InteractionHand hand) {
         TommyLibServices.NETWORK.sendToServer(new ServerboundEquipToolPayload(hand));
+        return true;
     }
 
     public enum Ability implements RadialMenuOption, StringRepresentable {
@@ -309,6 +309,8 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
         public static final Codec<Ability> CODEC = StringRepresentable.fromEnum(Ability::values);
         public static final StreamCodec<ByteBuf, Ability> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(Ability::of, Ability::getSerializedName);
+
+        private static final List<Ability> VALUES_LIST = new ReferenceArrayList<>(values());
 
         private final String translationKey;
 
@@ -324,6 +326,10 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         @Override
         public String getSerializedName() {
             return name().toLowerCase();
+        }
+
+        public static List<Ability> valuesList() {
+            return VALUES_LIST;
         }
 
         public static Ability of(String name) {

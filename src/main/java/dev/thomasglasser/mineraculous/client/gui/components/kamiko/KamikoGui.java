@@ -5,7 +5,6 @@ import dev.thomasglasser.mineraculous.client.gui.kamiko.KamikoMenu;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.KamikoMenuItem;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.KamikoMenuListener;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.categories.KamikoPage;
-import org.jetbrains.annotations.Nullable;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -14,6 +13,7 @@ import net.minecraft.client.gui.spectator.categories.SpectatorPage;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
 
 public class KamikoGui implements KamikoMenuListener {
     private final Minecraft minecraft;

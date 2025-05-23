@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.world.item;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.food.MineraculousFoods;
 import dev.thomasglasser.mineraculous.world.item.armortrim.MineraculousTrimPatterns;
@@ -30,9 +31,11 @@ public class MineraculousItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Mineraculous.MOD_ID);
 
     // Tools
-    public static final DeferredItem<Item> LADYBUG_YOYO = register("ladybug_yoyo", () -> new LadybugYoyoItem(new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC)));
-    public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC)));
-    public static final DeferredItem<Item> BUTTERFLY_CANE = register("butterfly_cane", () -> new ButterflyCaneItem(new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC)));
+    public static final Supplier<Item.Properties> TOOL_PROPERTIES = () -> new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC);
+    public static final Supplier<Item.Properties> TOOL_PROPERTIES_WITH_ACTIVE = () -> TOOL_PROPERTIES.get().component(MineraculousDataComponents.ACTIVE, false);
+    public static final DeferredItem<Item> LADYBUG_YOYO = register("ladybug_yoyo", () -> new LadybugYoyoItem(TOOL_PROPERTIES_WITH_ACTIVE.get()));
+    public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(TOOL_PROPERTIES_WITH_ACTIVE.get()));
+    public static final DeferredItem<Item> BUTTERFLY_CANE = register("butterfly_cane", () -> new ButterflyCaneItem(TOOL_PROPERTIES.get()));
 
     // Miraculous
     public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", () -> new MiraculousItem(new Item.Properties()));

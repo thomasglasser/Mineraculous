@@ -45,7 +45,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -145,11 +144,11 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                 if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen()) {
                     if (MineraculousKeyMappings.TOGGLE_ACTIVE.isDown()) {
                         boolean activate = !stack.has(MineraculousDataComponents.ACTIVE);
-                        if (activate) {
-                            stack.set(MineraculousDataComponents.ACTIVE, Unit.INSTANCE);
-                        } else {
-                            stack.remove(MineraculousDataComponents.ACTIVE);
-                        }
+//                        if (activate) {
+//                            stack.set(MineraculousDataComponents.ACTIVE, Unit.INSTANCE);
+//                        } else {
+//                            stack.remove(MineraculousDataComponents.ACTIVE);
+//                        }
                         TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, hand));
                         playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
                     } else if (MineraculousKeyMappings.CONFIGURE_TOOL.isDown()) {
@@ -204,20 +203,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
             }
         }
 
-        checkBlocking(stack, entity, stack.has(MineraculousDataComponents.ACTIVE) && stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.BLOCK);
-
         super.inventoryTick(stack, level, entity, slotId, isSelected);
-    }
-
-    public static void checkBlocking(ItemStack stack, Entity entity, boolean canBlock) {
-        if (entity instanceof LivingEntity livingEntity) {
-            boolean blocking = livingEntity.isBlocking() && livingEntity.getUseItem() == stack;
-            if (!(canBlock && blocking) && stack.has(MineraculousDataComponents.BLOCKING))
-                stack.remove(MineraculousDataComponents.BLOCKING);
-            else if (canBlock && blocking && !stack.has(MineraculousDataComponents.BLOCKING))
-                stack.set(MineraculousDataComponents.BLOCKING, Unit.INSTANCE);
-        } else if (stack.has(MineraculousDataComponents.BLOCKING))
-            stack.remove(MineraculousDataComponents.BLOCKING);
     }
 
     @Override

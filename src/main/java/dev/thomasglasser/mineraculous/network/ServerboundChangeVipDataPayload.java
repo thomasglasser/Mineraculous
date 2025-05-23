@@ -20,7 +20,7 @@ public record ServerboundChangeVipDataPayload(UUID uuid, VipData vipData) implem
     // ON SERVER
     @Override
     public void handle(Player player) {
-        TommyLibServices.NETWORK.sendToAllClients(new ClientboundChangeVipDataPayload(uuid, vipData), player.getServer());
+        TommyLibServices.NETWORK.sendToAllClients(new ClientboundChangeVipDataPayload(uuid, vipData.verify(uuid)), player.getServer());
     }
 
     @Override

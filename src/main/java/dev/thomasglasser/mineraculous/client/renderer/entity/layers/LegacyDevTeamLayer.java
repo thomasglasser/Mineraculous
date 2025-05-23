@@ -8,7 +8,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 
-// TODO: Implement
+// TODO: Implement Fu's beard and mustache
 public class LegacyDevTeamLayer<S extends AbstractClientPlayer> extends RenderLayer<S, PlayerModel<S>> {
 //    private final LegacyDevTeamBeardModel model;
     public LegacyDevTeamLayer(RenderLayerParent<S, PlayerModel<S>> renderer, EntityModelSet modelSet) {

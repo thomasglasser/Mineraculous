@@ -20,7 +20,8 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.SuitLookData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.HashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,28 +51,30 @@ import org.lwjgl.glfw.GLFW;
 public class LookCustomizationScreen extends Screen {
     public static final String TITLE = "gui.look.name";
 
-    private static final ResourceLocation BACKGROUND = Mineraculous.modLoc("textures/gui/look_customization.png");
-    private static final int BACKGROUND_WIDTH = 248;
-    private static final int BACKGROUND_HEIGHT = 166;
+    protected static final ResourceLocation BACKGROUND = Mineraculous.modLoc("textures/gui/look_customization.png");
+    protected static final int BACKGROUND_WIDTH = 248;
+    protected static final int BACKGROUND_HEIGHT = 166;
 
-    private final ResourceKey<Miraculous> miraculous;
-    private final Map<String, FlattenedSuitLookData> flattenedSuitLooks;
-    private final Map<String, FlattenedMiraculousLookData> flattenedMiraculousLooks;
-    private final List<Map.Entry<String, SuitLookData>> suitLooks;
-    private final List<Map.Entry<String, MiraculousLookData>> miraculousLooks;
-    private final Player previewSuit;
-    private final Player previewMiraculousPlayer;
-    private final ItemStack previewMiraculousStack;
+    protected final ResourceKey<Miraculous> miraculous;
+    protected final Map<String, FlattenedSuitLookData> flattenedSuitLooks;
+    protected final Map<String, FlattenedMiraculousLookData> flattenedMiraculousLooks;
+    protected final List<Map.Entry<String, SuitLookData>> suitLooks;
+    protected final List<Map.Entry<String, MiraculousLookData>> miraculousLooks;
+    protected final Player previewSuit;
+    protected final Player previewMiraculousPlayer;
+    protected final ItemStack previewMiraculousStack;
 
-    private boolean showLeftSuitArrow = false;
-    private boolean showRightSuitArrow = false;
-    private boolean showLeftMiraculousArrow = false;
-    private boolean showRightMiraculousArrow = false;
-    private Button done;
-    private EditBox name;
+    protected boolean showLeftSuitArrow = false;
+    protected boolean showRightSuitArrow = false;
+    protected boolean showLeftMiraculousArrow = false;
+    protected boolean showRightMiraculousArrow = false;
+    protected Button done;
+    protected EditBox name;
 
-    private Map.Entry<String, SuitLookData> selectedSuit;
-    private Map.Entry<String, MiraculousLookData> selectedMiraculous;
+    protected int topLeftX;
+    protected int topLeftY;
+    protected Map.Entry<String, SuitLookData> selectedSuit;
+    protected Map.Entry<String, MiraculousLookData> selectedMiraculous;
 
     public LookCustomizationScreen(ResourceKey<Miraculous> miraculous, Map<String, FlattenedSuitLookData> serverSuits, Map<String, FlattenedMiraculousLookData> serverMiraculous) {
         super(Component.translatable(TITLE, Component.translatable(Miraculous.toLanguageKey(miraculous))));
@@ -110,7 +113,7 @@ public class LookCustomizationScreen extends Screen {
     }
 
     protected Map<String, FlattenedSuitLookData> getFlattenedSuitLooks(Map<String, FlattenedSuitLookData> serverSuits) {
-        Map<String, FlattenedSuitLookData> suitLooks = new HashMap<>(serverSuits);
+        Map<String, FlattenedSuitLookData> suitLooks = new Reference2ReferenceOpenHashMap<>(serverSuits);
         if (MineraculousServerConfig.get().enableCustomization.get()) {
             for (Map.Entry<String, FlattenedSuitLookData> entry : MineraculousCoreEvents.fetchSuitLooks(Minecraft.getInstance().gameDirectory.toPath(), Minecraft.getInstance().level.holderOrThrow(miraculous)).entrySet()) {
                 suitLooks.putIfAbsent(entry.getKey(), entry.getValue());
@@ -120,18 +123,18 @@ public class LookCustomizationScreen extends Screen {
     }
 
     protected List<Map.Entry<String, SuitLookData>> getSuitLooks(Map<String, FlattenedSuitLookData> flattenedSuitLooks) {
-        Map<String, SuitLookData> suitLooks = new HashMap<>();
+        Map<String, SuitLookData> suitLooks = new Reference2ReferenceOpenHashMap<>();
         suitLooks.put("", new SuitLookData(Optional.empty(), ResourceLocation.withDefaultNamespace(""), Optional.empty(), List.of(), List.of(), Optional.empty()));
         for (Map.Entry<String, FlattenedSuitLookData> entry : flattenedSuitLooks.entrySet()) {
             SuitLookData data = entry.getValue() == null ? null : entry.getValue().unpack(miraculous, Minecraft.getInstance().player);
             if (data != null)
                 suitLooks.put(entry.getKey(), data);
         }
-        return suitLooks.entrySet().stream().toList();
+        return new ReferenceArrayList<>(suitLooks.entrySet());
     }
 
     protected Map<String, FlattenedMiraculousLookData> getFlattenedMiraculousLooks(Map<String, FlattenedMiraculousLookData> serverMiraculous) {
-        Map<String, FlattenedMiraculousLookData> miraculousLooks = new HashMap<>(serverMiraculous);
+        Map<String, FlattenedMiraculousLookData> miraculousLooks = new Reference2ReferenceOpenHashMap<>(serverMiraculous);
         if (MineraculousServerConfig.get().enableCustomization.get()) {
             for (Map.Entry<String, FlattenedMiraculousLookData> entry : MineraculousCoreEvents.fetchMiraculousLooks(Minecraft.getInstance().gameDirectory.toPath(), miraculous).entrySet()) {
                 miraculousLooks.putIfAbsent(entry.getKey(), entry.getValue());
@@ -141,14 +144,14 @@ public class LookCustomizationScreen extends Screen {
     }
 
     protected List<Map.Entry<String, MiraculousLookData>> getMiraculousLooks(Map<String, FlattenedMiraculousLookData> flattenedMiraculousLooks) {
-        Map<String, MiraculousLookData> miraculousLooks = new HashMap<>();
+        Map<String, MiraculousLookData> miraculousLooks = new Reference2ReferenceOpenHashMap<>();
         miraculousLooks.put("", new MiraculousLookData(Optional.empty(), ResourceLocation.withDefaultNamespace(""), Optional.empty(), Optional.empty()));
         for (Map.Entry<String, FlattenedMiraculousLookData> entry : flattenedMiraculousLooks.entrySet()) {
             MiraculousLookData data = entry.getValue() == null ? null : entry.getValue().unpack(miraculous, Minecraft.getInstance().player);
             if (data != null)
                 miraculousLooks.put(entry.getKey(), data);
         }
-        return miraculousLooks.entrySet().stream().toList();
+        return new ReferenceArrayList<>(miraculousLooks.entrySet());
     }
 
     @Override
@@ -156,22 +159,26 @@ public class LookCustomizationScreen extends Screen {
         clearWidgets();
         if (minecraft != null && minecraft.level != null) {
             if (selectedSuit == null) {
-                Map.Entry<String, SuitLookData> currentSuit = suitLooks.stream().filter(entry -> entry.getKey().equals(minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).suitLook())).findFirst().orElse(null);
-                if (currentSuit != null)
-                    selectedSuit = currentSuit;
-                else
-                    selectedSuit = suitLooks.getFirst();
+                selectedSuit = suitLooks.getFirst();
+                for (Map.Entry<String, SuitLookData> entry : suitLooks) {
+                    if (entry.getKey().equals(minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).suitLook())) {
+                        selectedSuit = entry;
+                        break;
+                    }
+                }
             }
             if (selectedMiraculous == null) {
-                Map.Entry<String, MiraculousLookData> currentMiraculous = miraculousLooks.stream().filter(entry -> entry.getKey().equals(minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).miraculousLook())).findFirst().orElse(null);
-                if (currentMiraculous != null)
-                    selectedMiraculous = currentMiraculous;
-                else
-                    selectedMiraculous = miraculousLooks.getFirst();
+                selectedMiraculous = miraculousLooks.getFirst();
+                for (Map.Entry<String, MiraculousLookData> entry : miraculousLooks) {
+                    if (entry.getKey().equals(minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).miraculousLook())) {
+                        selectedMiraculous = entry;
+                        break;
+                    }
+                }
             }
-            int i = (this.width - BACKGROUND_WIDTH) / 2;
-            int j = (this.height - BACKGROUND_HEIGHT) / 2;
-            this.name = new EditBox(this.font, i + 130, j + 7, 109, 17, Component.translatable(MineraculousClientUtils.NAME));
+            this.topLeftX = (this.width - BACKGROUND_WIDTH) / 2;
+            this.topLeftY = (this.height - BACKGROUND_HEIGHT) / 2;
+            this.name = new EditBox(this.font, topLeftX + 130, topLeftY + 7, 109, 17, Component.translatable(MineraculousClientUtils.NAME));
             this.name.setCanLoseFocus(true);
             this.name.setTextColor(Minecraft.getInstance().level.holderOrThrow(miraculous).value().color().getValue());
             this.name.setTextColorUneditable(-1);
@@ -180,7 +187,7 @@ public class LookCustomizationScreen extends Screen {
             this.name.setValue(Minecraft.getInstance().player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).name());
             this.addWidget(this.name);
             this.name.setEditable(true);
-            done = Button.builder(CommonComponents.GUI_DONE, button -> onClose()).build();
+            done = Button.builder(CommonComponents.GUI_DONE, button -> onClose(false)).build();
             done.setX(((this.width - BACKGROUND_WIDTH) / 2) + 50);
             done.setY(((this.height - BACKGROUND_HEIGHT) / 2) + 175);
             addRenderableWidget(done);
@@ -208,9 +215,7 @@ public class LookCustomizationScreen extends Screen {
     }
 
     public void renderBase(GuiGraphics guiGraphics) {
-        int i = (this.width - BACKGROUND_WIDTH) / 2;
-        int j = (this.height - BACKGROUND_HEIGHT) / 2;
-        guiGraphics.blit(BACKGROUND, i, j, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
+        guiGraphics.blit(BACKGROUND, topLeftX, topLeftY, 0, 0, BACKGROUND_WIDTH, BACKGROUND_HEIGHT);
     }
 
     @Override
@@ -227,24 +232,19 @@ public class LookCustomizationScreen extends Screen {
     }
 
     public void renderSuit(GuiGraphics guiGraphics) {
-        int x = (this.width - BACKGROUND_WIDTH) / 2;
-        int y = (this.height - BACKGROUND_HEIGHT) / 2;
-        MineraculousClientUtils.renderEntityInInventorySpinning(guiGraphics, x + 15, y + 15, x + 113, y + 145, 60, (Minecraft.getInstance().player.tickCount % 360) * 2, previewSuit);
+        MineraculousClientUtils.renderEntityInInventorySpinning(guiGraphics, topLeftX + 15, topLeftY + 15, topLeftX + 113, topLeftY + 145, 60, (Minecraft.getInstance().player.tickCount % 360) * 2, previewSuit);
     }
 
     public void renderMiraculous(GuiGraphics guiGraphics) {
-        int x = (this.width - BACKGROUND_WIDTH) / 2;
-        int y = (this.height - BACKGROUND_HEIGHT) / 2;
         BakedModel bakedmodel = this.minecraft.getItemRenderer().getModel(previewMiraculousStack, Minecraft.getInstance().level, null, 0);
         guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(x + 185, y + 90, 0.0F);
+        guiGraphics.pose().translate(topLeftX + 185, topLeftY + 90, 0.0F);
         guiGraphics.pose().scale(5, 5, 5);
         guiGraphics.pose().scale(16, -16, 16);
         boolean flag = !bakedmodel.usesBlockLight();
         if (flag) {
             Lighting.setupForFlatItems();
         }
-
         guiGraphics.pose().mulPose(Axis.YN.rotationDegrees((Minecraft.getInstance().player.tickCount % 360) * 4));
         this.minecraft.getItemRenderer().render(previewMiraculousStack, ItemDisplayContext.GUI, false, guiGraphics.pose(), guiGraphics.bufferSource(), 15728880, OverlayTexture.NO_OVERLAY, bakedmodel);
         guiGraphics.flush();
@@ -255,17 +255,15 @@ public class LookCustomizationScreen extends Screen {
     }
 
     protected void renderArrows(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        int i = ((this.width - BACKGROUND_WIDTH) / 2);
-        int j = ((this.height - BACKGROUND_HEIGHT) / 2);
-        int k = i + 10;
-        int l = j + 135;
+        int k = topLeftX + 10;
+        int l = topLeftY + 135;
         if (showLeftSuitArrow) guiGraphics.blit(BACKGROUND, k, l, !insideLeftSuitArrow(mouseX, mouseY) ? 26 : 0, 166, 13, 20);
-        k = i + 102;
+        k = topLeftX + 102;
         if (showRightSuitArrow) guiGraphics.blit(BACKGROUND, k, l, 13 + (!insideRightSuitArrow(mouseX, mouseY) ? 26 : 0), 166, 13, 20);
-        k = i + 130;
-        l = j + 135;
+        k = topLeftX + 130;
+        l = topLeftY + 135;
         if (showLeftMiraculousArrow) guiGraphics.blit(BACKGROUND, k, l, !insideLeftMiraculousArrow(mouseX, mouseY) ? 26 : 0, 166, 13, 20);
-        k = i + 224;
+        k = topLeftX + 224;
         if (showRightMiraculousArrow) guiGraphics.blit(BACKGROUND, k, l, 13 + (!insideRightMiraculousArrow(mouseX, mouseY) ? 26 : 0), 166, 13, 20);
     }
 
@@ -275,40 +273,32 @@ public class LookCustomizationScreen extends Screen {
     }
 
     protected boolean insideLeftSuitArrow(double mouseX, double mouseY) {
-        int i = ((this.width - BACKGROUND_WIDTH) / 2);
-        int j = ((this.height - BACKGROUND_HEIGHT) / 2);
-        int k = i + 10;
-        int l = j + 135;
+        int k = topLeftX + 10;
+        int l = topLeftY + 135;
         int m = k + 18;
         int n = l + 20;
         return mouseX >= (double) k && mouseY >= (double) l && mouseX < (double) m && mouseY < (double) n;
     }
 
     protected boolean insideRightSuitArrow(double mouseX, double mouseY) {
-        int i = ((this.width - BACKGROUND_WIDTH) / 2);
-        int j = ((this.height - BACKGROUND_HEIGHT) / 2);
-        int k = i + 102;
-        int l = j + 135;
+        int k = topLeftX + 102;
+        int l = topLeftY + 135;
         int m = k + 18;
         int n = l + 20;
         return mouseX >= (double) k && mouseY >= (double) l && mouseX < (double) m && mouseY < (double) n;
     }
 
     protected boolean insideLeftMiraculousArrow(double mouseX, double mouseY) {
-        int i = ((this.width - BACKGROUND_WIDTH) / 2);
-        int j = ((this.height - BACKGROUND_HEIGHT) / 2);
-        int k = i + 130;
-        int l = j + 135;
+        int k = topLeftX + 130;
+        int l = topLeftY + 135;
         int m = k + 18;
         int n = l + 20;
         return mouseX >= (double) k && mouseY >= (double) l && mouseX < (double) m && mouseY < (double) n;
     }
 
     protected boolean insideRightMiraculousArrow(double mouseX, double mouseY) {
-        int i = ((this.width - BACKGROUND_WIDTH) / 2);
-        int j = ((this.height - BACKGROUND_HEIGHT) / 2);
-        int k = i + 224;
-        int l = j + 135;
+        int k = topLeftX + 224;
+        int l = topLeftY + 135;
         int m = k + 18;
         int n = l + 20;
         return mouseX >= (double) k && mouseY >= (double) l && mouseX < (double) m && mouseY < (double) n;
@@ -338,7 +328,7 @@ public class LookCustomizationScreen extends Screen {
             done.onPress();
             return true;
         } else if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
-            onClose(true);
+            onClose();
             return true;
         }
 
@@ -425,6 +415,6 @@ public class LookCustomizationScreen extends Screen {
 
     @Override
     public void onClose() {
-        onClose(false);
+        onClose(true);
     }
 }

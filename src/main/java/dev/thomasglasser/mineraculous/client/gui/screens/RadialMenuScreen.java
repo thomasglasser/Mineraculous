@@ -7,21 +7,25 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
+import dev.thomasglasser.mineraculous.network.ServerboundSetRadialMenuProviderOptionPayload;
+import dev.thomasglasser.mineraculous.world.item.RadialMenuProvider;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
-import java.util.function.Consumer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 
 public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
     private static final float MAX_CIRCLE_SIZE = 180f;
     private static final float PRECISION = 2.5f / 360.0f;
 
-    protected final List<T> options;
-    protected final Consumer<T> onSelected;
+    protected final InteractionHand hand;
     protected final int heldKey;
+    protected final List<T> options;
     protected final int selectedColor;
 
     private final double sliceAngle;
@@ -32,34 +36,32 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
 
     private float animationTime = 0;
 
-    public RadialMenuScreen(List<T> options, Consumer<T> onSelected, int heldKey, int selectedColor) {
+    public RadialMenuScreen(InteractionHand hand, int heldKey, ItemStack stack, RadialMenuProvider<T> provider) {
         super(Component.empty());
-        this.options = options;
-        this.onSelected = onSelected;
+        this.hand = hand;
         this.heldKey = heldKey;
-        this.selectedColor = selectedColor;
+        this.options = provider.getOptions(stack, hand);
+        this.selectedColor = provider.getColor(stack, hand);
         this.sliceAngle = 2 * Math.PI / options.size();
     }
 
     private double alpha(int x, int y) {
-        double alpha = Math.asin(Math.abs(y) / Math.sqrt(y * y + x * x));
-        if (x > 0 && y >= 0) { //1
+        double alpha = Math.asin(Mth.abs(y) / Mth.sqrt(y * y + x * x));
+        if (x >= 0 && y >= 0) { // Q1
             return alpha;
-        } else if (x <= 0 && y > 0) { //2
+        } else if (x < 0 && y >= 0) { // Q2
             return Math.PI - alpha;
-        } else if (x < 0) { //3
+        } else if (x < 0) { // Q3
             return Math.PI + alpha;
-        } else if (y < 0) { //4
+        } else { // Q4
             return Math.PI - alpha + Math.PI;
-        } else {
-            return -1;
         }
     }
 
-    // TODO: Ensure this always returns the same value
     protected int getSelectedOption(int pMouseX, int pMouseY, float circleSize) {
-        double hypotenuse = Math.sqrt(pMouseX * pMouseX + pMouseY * pMouseY);
-        if (hypotenuse < (circleSize) / 3f /*|| hypotenuse > circleSize * 91 / 90*/) {
+        double hypotenuse = Mth.sqrt(pMouseX * pMouseX + pMouseY * pMouseY);
+        // No selected option if in the middle of the circle
+        if (hypotenuse < (circleSize) / 3f) {
             return -1;
         }
         double alpha = alpha(pMouseX, pMouseY);
@@ -100,7 +102,7 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
         circleSize /= 2f;
         int selectedOption = this.getSelectedOption((int) (currentMouseX - (double) width / 2), (int) (-1 * (currentMouseY - (double) height / 2)), circleSize);
         if (selectedOption != -1) {
-            onSelected.accept(options.get(selectedOption));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundSetRadialMenuProviderOptionPayload(hand, selectedOption));
         }
         super.onClose();
     }
@@ -153,11 +155,11 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
         for (int i = 0; i < options.size(); i++) {
             RadialMenuOption option = options.get(i);
 
-            double angle = (i + 0.5) * sliceAngle;
+            float angle = (float) ((i + 0.5) * sliceAngle);
             float radius = (circleSize) / 1.5f;
 
-            float textX = width / 2f + (float) (radius * Math.cos(angle));
-            float textY = height / 2f - (float) (radius * Math.sin(angle));
+            float textX = width / 2f + radius * Mth.cos(angle);
+            float textY = height / 2f - radius * Mth.sin(angle);
 
             pGuiGraphics.drawCenteredString(font, Component.translatable(option.translationKey()), (int) textX, (int) textY, 0xFFFFFF);
         }
@@ -177,23 +179,22 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
         double slice = angle / sections;
 
         for (int i = 0; i < sections; i++) {
-            double angle1 = startAngle + i * slice;
-            double angle2 = startAngle + (i + 1) * slice;
+            float angle1 = (float) (startAngle + i * slice);
+            float angle2 = (float) (startAngle + (i + 1) * slice);
 
-            float pos1InX = x + radiusIn * (float) Math.cos(angle1);
-            float pos1InY = y + radiusIn * (float) Math.sin(angle1);
-            float pos1OutX = x + radiusOut * (float) Math.cos(angle1);
-            float pos1OutY = y + radiusOut * (float) Math.sin(angle1);
-            float pos2OutX = x + radiusOut * (float) Math.cos(angle2);
-            float pos2OutY = y + radiusOut * (float) Math.sin(angle2);
-            float pos2InX = x + radiusIn * (float) Math.cos(angle2);
-            float pos2InY = y + radiusIn * (float) Math.sin(angle2);
+            float pos1InX = x + radiusIn * Mth.cos(angle1);
+            float pos1InY = y + radiusIn * Mth.sin(angle1);
+            float pos1OutX = x + radiusOut * Mth.cos(angle1);
+            float pos1OutY = y + radiusOut * Mth.sin(angle1);
+            float pos2OutX = x + radiusOut * Mth.cos(angle2);
+            float pos2OutY = y + radiusOut * Mth.sin(angle2);
+            float pos2InX = x + radiusIn * Mth.cos(angle2);
+            float pos2InY = y + radiusIn * Mth.sin(angle2);
 
             buffer.addVertex(pos1OutX, pos1OutY, z).setColor(r, g, b, a);
             buffer.addVertex(pos1InX, pos1InY, z).setColor(r, g, b, a);
             buffer.addVertex(pos2InX, pos2InY, z).setColor(r, g, b, a);
             buffer.addVertex(pos2OutX, pos2OutY, z).setColor(r, g, b, a);
         }
-        ;
     }
 }

@@ -24,10 +24,10 @@ import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
@@ -40,6 +40,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -57,29 +58,26 @@ public class MineraculousClientUtils {
     public static final String CHOOSE = "gui.choose";
     public static final String NAME = "gui.name";
 
-    private static final String GIST = "thomasglasser/aa8eb933847685b93d8f99a59f07b62e";
-    private static final HashMap<Player, VipData> vipData = new HashMap<>();
+    private static final Map<Player, VipData> vipData = new Reference2ReferenceOpenHashMap<>();
 
-    public static boolean renderCosmeticLayerInSlot(AbstractClientPlayer player, EquipmentSlot slot) {
-        return slot == null || !player.hasItemInSlot(slot);
+    public static void setVipData(Player player, VipData data) {
+        vipData.put(player, data);
     }
 
     public static boolean renderSnapshotTesterLayer(AbstractClientPlayer player) {
-        return vipData.get(player) != null && snapshotChoice(player) != null && renderCosmeticLayerInSlot(player, snapshotChoice(player).slot()) && vipData.get(player).displaySnapshot();
+        return vipData.get(player) != null && vipData.get(player).displaySnapshot() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, snapshotChoice(player).slot());
     }
 
-    @Nullable
     public static SnapshotTesterCosmeticOptions snapshotChoice(AbstractClientPlayer player) {
-//        return vipData.get(player) != null && vipData.get(player).choice() != null ? vipData.get(player).choice() : null;
-        return null;
+        return vipData.get(player) != null ? vipData.get(player).choice() : SnapshotTesterCosmeticOptions.DERBY_HAT;
     }
 
     public static boolean renderDevLayer(AbstractClientPlayer player) {
-        return vipData.get(player) != null && renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD/*TODO:Figure out slot*/) && vipData.get(player).displayDev();
+        return vipData.get(player) != null && vipData.get(player).displayDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD/*TODO:Figure out slot*/);
     }
 
     public static boolean renderLegacyDevLayer(AbstractClientPlayer player) {
-        return vipData.get(player) != null && renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD/*TODO:Figure out slot*/) && vipData.get(player).displayLegacyDev();
+        return vipData.get(player) != null && vipData.get(player).displayLegacyDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
     }
 
     public static void refreshVip() {
@@ -90,20 +88,16 @@ public class MineraculousClientUtils {
             boolean displayDev;
             boolean displayLegacyDev;
 
-            displaySnapshot = MineraculousClientConfig.get().displaySnapshotTesterCosmetic.get() && ClientUtils.checkSnapshot(GIST, uuid);
-            displayDev = MineraculousClientConfig.get().displayDevTeamCosmetic.get() && ClientUtils.checkDev(GIST, uuid);
-            displayLegacyDev = MineraculousClientConfig.get().displayLegacyDevTeamCosmetic.get() && ClientUtils.checkLegacyDev(GIST, uuid);
+            displaySnapshot = MineraculousClientConfig.get().displaySnapshotTesterCosmetic.get();
+            displayDev = MineraculousClientConfig.get().displayDevTeamCosmetic.get();
+            displayLegacyDev = MineraculousClientConfig.get().displayLegacyDevTeamCosmetic.get();
 
-            TommyLibServices.NETWORK.sendToServer(new ServerboundChangeVipDataPayload(uuid, new VipData(/*MineraculousClientConfig.get().snapshotTesterCosmeticChoice.get(),*/ displaySnapshot, /*displayDev*/false, displayLegacyDev)));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundChangeVipDataPayload(uuid, new VipData(MineraculousClientConfig.get().snapshotTesterCosmeticChoice.get(), displaySnapshot, displayDev, displayLegacyDev)));
         }
     }
 
     public static boolean verifySnapshotTester(UUID uuid) {
-        return ClientUtils.checkSnapshot(GIST, uuid);
-    }
-
-    public static void setVipData(Player player, VipData data) {
-        vipData.put(player, data);
+        return SpecialPlayerUtils.getSpecialTypes(VipData.GIST, uuid).contains(SpecialPlayerUtils.SNAPSHOT_TESTER_KEY);
     }
 
     public static void setShader(@Nullable ResourceLocation location) {
@@ -207,7 +201,6 @@ public class MineraculousClientUtils {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundStealCuriosPayload(target1.getUUID(), new CuriosData(curioSlot.getSlotIndex(), curioSlot.getIdentifier())));
             else
                 TommyLibServices.NETWORK.sendToServer(new ServerboundStealItemPayload(target1.getUUID(), menu.slots.indexOf(slot)));
-            return true;
         }), exit -> {
             TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
             TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(player.getUUID()));
@@ -230,8 +223,8 @@ public class MineraculousClientUtils {
         float x = (float) (xStart + xEnd) / 2.0F;
         float y = (float) (yStart + yEnd) / 2.0F;
         guiGraphics.enableScissor(xStart, yStart, xEnd, yEnd);
-        Quaternionf quaternionf = new Quaternionf().rotateZ((float) Math.PI);
-        Quaternionf quaternionf1 = new Quaternionf().rotateX(90 * 20.0F * (float) (Math.PI / 180.0));
+        Quaternionf quaternionf = new Quaternionf().rotateZ(Mth.PI);
+        Quaternionf quaternionf1 = new Quaternionf().rotateX(90 * 20.0F * (Mth.PI / 180f));
         quaternionf.mul(quaternionf1);
         float f4 = entity.yBodyRot;
         float f5 = entity.getYRot();

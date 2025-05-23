@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
@@ -11,16 +12,16 @@ public class MineraculousRenderStateShards {
     public static final RenderStateShard.ShaderStateShard RENDERTYPE_GLINT_TRANSLUCENT_LIGHTMAP_SHADER = new RenderStateShard.ShaderStateShard(MineraculousRenderStateShards::getRendertypeGlintTranslucentLightmapShader);
 
     public static final RenderStateShard.TexturingStateShard LUCKY_CHARM_TEXTURING = new RenderStateShard.TexturingStateShard(
-            "lucky_charm_texturing", () -> setupLuckyCharmTexturing(4.0F, (float) (Math.PI / 12)), RenderSystem::resetTextureMatrix);
+            "lucky_charm_texturing", () -> setupLuckyCharmTexturing(4.0F, Mth.PI / 12), RenderSystem::resetTextureMatrix);
 
     public static final RenderStateShard.TexturingStateShard ENTITY_LUCKY_CHARM_TEXTURING = new RenderStateShard.TexturingStateShard(
-            "entity_lucky_charm_texturing", () -> setupLuckyCharmTexturing(0.75F, (float) (Math.PI / 18)), RenderSystem::resetTextureMatrix);
+            "entity_lucky_charm_texturing", () -> setupLuckyCharmTexturing(0.75F, Mth.PI / 18), RenderSystem::resetTextureMatrix);
 
     public static final RenderStateShard.TexturingStateShard ARMOR_LUCKY_CHARM_TEXTURING = new RenderStateShard.TexturingStateShard(
             "armor_lucky_charm_texturing", () -> setupLuckyCharmTexturing(1.0f, 0f), RenderSystem::resetTextureMatrix);
 
     public static final RenderStateShard.TexturingStateShard SHIELD_LUCKY_CHARM_TEXTURING = new RenderStateShard.TexturingStateShard(
-            "shield_lucky_charm_texturing", () -> setupLuckyCharmTexturing(16.0F, (float) (Math.PI / 18)), RenderSystem::resetTextureMatrix);
+            "shield_lucky_charm_texturing", () -> setupLuckyCharmTexturing(16.0F, Mth.PI / 18), RenderSystem::resetTextureMatrix);
 
     @Nullable
     static ShaderInstance rendertypeGlintTranslucentLightmapShader;

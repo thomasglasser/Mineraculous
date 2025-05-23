@@ -21,7 +21,6 @@ public class MineraculousAbilitySerializers {
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<SetCameraEntityAbility>> SET_CAMERA_ENTITY = ABILITIES.register("set_camera_entity", () -> SetCameraEntityAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<SetOwnerAbility>> SET_OWNER = ABILITIES.register("set_owner", () -> SetOwnerAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<SummonLuckyCharmAbility>> SUMMON_LUCKY_CHARM = ABILITIES.register("summon_lucky_charm", () -> SummonLuckyCharmAbility.CODEC);
-    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<UnitAbility>> UNIT = ABILITIES.register("unit", () -> UnitAbility.CODEC);
 
     public static void init() {}
 }

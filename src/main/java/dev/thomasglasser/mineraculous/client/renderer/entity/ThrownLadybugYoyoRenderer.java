@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.renderer.item.LadybugYoyoRenderer;
+import dev.thomasglasser.mineraculous.client.renderer.item.DefaultedGeoItemRenderer;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -28,7 +28,8 @@ import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYoyo> {
-    private static final ResourceLocation TEXTURE = Mineraculous.modLoc("textures/item/ladybug_yoyo_rope.png");
+    private static final ResourceLocation TEXTURE = DefaultedGeoItemRenderer.makeTextureLocation(MineraculousItems.LADYBUG_YOYO.getId());
+    private static final ResourceLocation ROPE_TEXTURE = Mineraculous.modLoc("textures/item/ladybug_yoyo_rope.png");
 
     private static final int POINTS = 100;
     private static final double CATENARY_CURVE_FACTOR = 2048.0;
@@ -44,7 +45,7 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
 
     @Override
     public ResourceLocation getTextureLocation(ThrownLadybugYoyo animatable) {
-        return LadybugYoyoRenderer.TEXTURE;
+        return TEXTURE;
     }
 
     @Override
@@ -109,7 +110,7 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
         Vec3 playerHandPos = getPlayerHandPos(projectilePlayer, swingAngle, partialTick, Minecraft.getInstance().getEntityRenderDispatcher());
         Vec3 projectilePos = animatable.getPosition(partialTick);
 
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(ROPE_TEXTURE));
         PoseStack.Pose pose = poseStack.last();
 
         Vec3 fromProjectileToHand = new Vec3(playerHandPos.x - projectilePos.x, playerHandPos.y - projectilePos.y, playerHandPos.z - projectilePos.z);

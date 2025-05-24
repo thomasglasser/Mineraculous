@@ -62,7 +62,7 @@ public class MineraculousAbilities {
         context.register(KAMIKO_CONTROL, new SetCameraEntityAbility(
                 EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(MineraculousEntityTypes.KAMIKO.get())).build(),
                 Optional.empty(),
-                Optional.of(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK),
+                Optional.of(KAMIKO_FACE_MASK_TEXTURE),
                 true,
                 true,
                 Optional.empty(),
@@ -70,7 +70,7 @@ public class MineraculousAbilities {
         context.register(KAMIKOTIZED_COMMUNICATION, new SetCameraEntityAbility(
                 EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(EntityType.PLAYER)).subPredicate(KamikotizationPredicate.ANY).build(),
                 Optional.of(Kamiko.SPECTATOR_SHADER),
-                Optional.of(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK),
+                Optional.of(KAMIKO_FACE_MASK_TEXTURE),
                 false,
                 false,
                 Optional.empty(),

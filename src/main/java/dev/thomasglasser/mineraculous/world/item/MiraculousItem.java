@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.world.item;
 import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.advancements.critereon.UseMiraculousPowerTrigger;
-import dev.thomasglasser.mineraculous.client.renderer.item.MiraculousRenderer;
+import dev.thomasglasser.mineraculous.client.renderer.item.MiraculousItemRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
@@ -27,6 +27,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -68,8 +69,9 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         ResourceKey<Miraculous> miraculousKey = stack.get(MineraculousDataComponents.MIRACULOUS);
-        if (miraculousKey != null && context.registries() != null) {
-            Miraculous miraculous = context.registries().holderOrThrow(miraculousKey).value();
+        HolderLookup.Provider registries = context.registries();
+        if (miraculousKey != null && registries != null) {
+            Miraculous miraculous = registries.holderOrThrow(miraculousKey).value();
             tooltipComponents.add(Component.translatable(miraculousKey.location().toLanguageKey(miraculousKey.registry().getPath())).withStyle(style -> style.withColor(miraculous.color())));
         }
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
@@ -107,19 +109,6 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
             if (slotId != -1 && stack.has(MineraculousDataComponents.REMAINING_TICKS)) {
                 stack.remove(MineraculousDataComponents.REMAINING_TICKS);
             }
-        } else {
-            // TODO: Fix
-//            if (ClientUtils.getMainClientPlayer() == entity && (isSelected || slotId == Inventory.SLOT_OFFHAND)) {
-//                CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
-//                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
-//                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && !MineraculousClientUtils.isCameraEntityOther()) {
-//                    if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown()) {
-//                        TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(slotId));
-//                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-//                    }
-//                }
-//                TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
-//            }
         }
     }
 
@@ -243,29 +232,6 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                     }
                 }
             }
-            // TODO: Fix
-//            if (entity.level().isClientSide && ClientUtils.getMainClientPlayer() == player) {
-//                CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
-//                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
-//                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && !MineraculousClientUtils.isCameraEntityOther()) {
-//                    if (MineraculousKeyMappings.TRANSFORM.get().isDown()) {
-//                        if (data.transformed()) {
-//                            TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculousKey, data, false, false));
-//                            playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-//                        } else if (!dataSet.isTransformed()) {
-//                            TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculousKey, data, true, false));
-//                            playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-//                        }
-//                    } else if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown() && data.transformed() && !data.mainPowerActive() && !data.usedLimitedPower() && slotContext.entity().level().holderOrThrow(miraculousKey).value().activeAbility().isPresent()) {
-//                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousPowerActivatedPayload(miraculousKey));
-//                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-//                    } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown() && player.getMainHandItem().isEmpty() && data.transformed()) {
-//                        TommyLibServices.NETWORK.sendToServer(new ServerboundPutMiraculousToolInHandPayload(miraculousKey));
-//                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-//                    }
-//                }
-//                TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
-//            }
         }
     }
 
@@ -326,12 +292,12 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     @Override
     public void createGeoRenderer(Consumer<GeoRenderProvider> consumer) {
         consumer.accept(new GeoRenderProvider() {
-            private MiraculousRenderer renderer;
+            private MiraculousItemRenderer renderer;
 
             @Override
             public BlockEntityWithoutLevelRenderer getGeoItemRenderer() {
                 if (this.renderer == null)
-                    this.renderer = new MiraculousRenderer();
+                    this.renderer = new MiraculousItemRenderer();
 
                 return this.renderer;
             }

@@ -3,7 +3,7 @@
   "entity": {
     "type": "mineraculous:kamiko"
   },
+  "face_mask_texture": "mineraculous:textures/entity/player/face_mask/kamiko.png",
   "override_active": true,
-  "override_owner": true,
-  "toggle_tag": "ShowKamikoMask"
+  "override_owner": true
 }

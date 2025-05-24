@@ -9,16 +9,15 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundKamikotizationTransformPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundOpenPerformerKamikotizationChatScreenPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundOpenVictimKamikotizationChatScreenPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundSetToggleTagPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSpawnTamedKamikoPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundTriggerKamikotizationAdvancementsPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -35,6 +34,7 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -322,13 +322,14 @@ public class KamikotizationSelectionScreen extends Screen {
 
     public void onClose(boolean cancel) {
         super.onClose();
+        LocalPlayer player = this.minecraft.player;
         if (selectedKamikotization == null) {
-            this.minecraft.player.displayClientMessage(Component.translatable(NO_KAMIKOTIZATIONS, target.getDisplayName()), true);
+            player.displayClientMessage(Component.translatable(NO_KAMIKOTIZATIONS, target.getDisplayName()), true);
             cancel = true;
         }
         if (cancel) {
-            TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(minecraft.player.getUUID(), target.blockPosition().above()));
-            TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(player.getUUID(), target.blockPosition().above()));
+            AbilityEffectData.checkRemoveFaceMaskTexture(player, kamikoData.faceMaskTexture());
         } else {
             minecraft.setScreen(new ExternalCuriosInventoryScreen(target, false, new ExternalInventoryScreen.ItemPickupHandler() {
                 @Override
@@ -348,17 +349,17 @@ public class KamikotizationSelectionScreen extends Screen {
                     if (target == minecraft.player) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(kamikotizationData, true, false, false, minecraft.player.position().add(0, 1, 0)));
                         TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(target.getUUID(), target.getUUID(), kamikotizationData.kamikotization()));
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
+                        AbilityEffectData.checkRemoveFaceMaskTexture(target, kamikoData.faceMaskTexture());
                     } else {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundOpenVictimKamikotizationChatScreenPayload(target.getUUID(), kamikotizationData));
                         MiraculousDataSet playerMiraculousSet = minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundOpenPerformerKamikotizationChatScreenPayload(playerMiraculousSet.get(playerMiraculousSet.getTransformed().getFirst()).name(), name.getValue(), target.getUUID()));
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundOpenPerformerKamikotizationChatScreenPayload(playerMiraculousSet.get(playerMiraculousSet.getTransformed().getFirst()).name(), name.getValue(), kamikoData.faceMaskTexture(), target.getUUID()));
                     }
                 }
             }, exit -> {
                 if (exit) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(minecraft.player.getUUID(), target.blockPosition().above()));
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(player.getUUID(), target.blockPosition().above()));
+                    AbilityEffectData.checkRemoveFaceMaskTexture(target, kamikoData.faceMaskTexture());
                 }
             }));
         }

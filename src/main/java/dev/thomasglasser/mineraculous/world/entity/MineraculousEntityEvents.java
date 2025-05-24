@@ -112,7 +112,6 @@ public class MineraculousEntityEvents {
     public static final String TAG_HAS_NIGHT_VISION = "HasNightVision";
     public static final String TAG_TAKE_TICKS = "TakeTicks";
     public static final String TAG_CATACLYSMED = "Cataclysmed";
-    public static final String TAG_SHOW_KAMIKO_MASK = "ShowKamikoMask";
     public static final String TAG_CAMERA_CONTROL_INTERRUPTED = "CameraControlInterrupted";
     public static final String TAG_YOYO_BOUND_POS = "YoyoBoundPos";
 
@@ -536,7 +535,7 @@ public class MineraculousEntityEvents {
         KwamiData kwamiData = miraculous.get(MineraculousDataComponents.KWAMI_DATA.get());
         if (kwamiData != null) {
             if (serverLevel.getEntity(kwamiData.uuid()) instanceof Kwami kwami) {
-                miraculous.set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
+                miraculous.set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.getId(), kwami.isCharged()));
                 kwami.discard();
             }
         }
@@ -570,7 +569,7 @@ public class MineraculousEntityEvents {
                 level.addFreshEntity(kwami);
                 kwami.playSound(MineraculousSoundEvents.KWAMI_SUMMON.get());
 
-                miraculousData.miraculousItem().set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.isCharged()));
+                miraculousData.miraculousItem().set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.getId(), kwami.isCharged()));
                 if (miraculousData.curiosData() != CuriosData.EMPTY)
                     CuriosUtils.setStackInSlot(player, miraculousData.curiosData(), miraculousData.miraculousItem());
                 player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, miraculousData.withItem(miraculousData.miraculousItem()), true);
@@ -857,10 +856,6 @@ public class MineraculousEntityEvents {
         return stack;
     }
 
-    public static boolean isCataclysmed(LivingEntity entity) {
-        return entity.hasEffect(MineraculousMobEffects.CATACLYSMED);
-    }
-
     public static Component formatDisplayName(Entity entity, Component original) {
         if (original != null) {
             Style style = original.getStyle();
@@ -890,12 +885,12 @@ public class MineraculousEntityEvents {
     }
 
     public static void onEffectRemoved(MobEffectEvent.Remove event) {
-        if (MineraculousEntityEvents.isCataclysmed(event.getEntity()) && event.getEffect() == MineraculousMobEffects.CATACLYSMED)
+        if (event.getEffect() == MineraculousMobEffects.CATACLYSMED && !(event.getEntity() instanceof Player player && player.isCreative()))
             event.setCanceled(true);
     }
 
     public static void onLivingHeal(LivingHealEvent event) {
-        if (MineraculousEntityEvents.isCataclysmed(event.getEntity()))
+        if (event.getEntity().hasEffect(MineraculousMobEffects.CATACLYSMED))
             event.setCanceled(true);
     }
 
@@ -1081,7 +1076,7 @@ public class MineraculousEntityEvents {
 
     public static void onPlayerBreakSpeed(PlayerEvent.BreakSpeed event) {
         ItemStack mainHandItem = event.getEntity().getMainHandItem();
-        if (mainHandItem.is(MineraculousItems.LADYBUG_YOYO.get()) && mainHandItem.has(MineraculousDataComponents.ACTIVE)) {
+        if (mainHandItem.is(MineraculousItems.LADYBUG_YOYO.get()) && mainHandItem.getOrDefault(MineraculousDataComponents.ACTIVE, false)) {
             event.setCanceled(true);
         }
     }

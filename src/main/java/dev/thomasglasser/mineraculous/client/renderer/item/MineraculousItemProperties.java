@@ -26,7 +26,7 @@ public class MineraculousItemProperties {
     // Specific
     public static final ResourceLocation ABILITY = Mineraculous.modLoc("ability");
     public static final ResourceLocation BITES = Mineraculous.modLoc("bites");
-    public static final ResourceLocation EXTENDED = Mineraculous.modLoc("extended");
+    public static final ResourceLocation THROWN = Mineraculous.modLoc("thrown");
 
     public static void init() {
         // Generic
@@ -35,21 +35,17 @@ public class MineraculousItemProperties {
 
         // Miraculous Tools
         ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), ABILITY, getEnumAbilityPropertyFunction(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()));
-        ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), ACTIVE, (stack, level, entity, seed) -> {
-            if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false)) {
-                if (entity instanceof Player player && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
-                    ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
-                    ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
-                    if (thrownYoyo instanceof ThrownLadybugYoyo yoyo) {
-                        return yoyo.inGround() || yoyo.isBound() ? 3 : 2;
-                    }
+        ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), THROWN, (stack, level, entity, seed) -> {
+            if (entity instanceof Player player && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
+                ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
+                ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
+                if (thrownYoyo instanceof ThrownLadybugYoyo yoyo) {
+                    return yoyo.inGround() || yoyo.isBound() ? 2 : 1;
                 }
-                return 1;
             }
             return 0;
         });
         ItemProperties.register(MineraculousItems.CAT_STAFF.get(), ABILITY, getEnumAbilityPropertyFunction(MineraculousDataComponents.CAT_STAFF_ABILITY.get()));
-        ItemProperties.register(MineraculousItems.CAT_STAFF.get(), EXTENDED, (stack, level, entity, seed) -> stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) ? 1 : 0);
         ItemProperties.register(MineraculousItems.BUTTERFLY_CANE.get(), ABILITY, getEnumAbilityPropertyFunction(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()));
 
         // Block Items

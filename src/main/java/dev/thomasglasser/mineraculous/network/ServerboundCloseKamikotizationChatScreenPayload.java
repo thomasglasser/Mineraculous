@@ -22,7 +22,7 @@ public record ServerboundCloseKamikotizationChatScreenPayload(UUID playerId, boo
     public void handle(Player player) {
         Player player1 = player.level().getPlayerByUUID(playerId);
         if (player1 instanceof ServerPlayer serverPlayer) {
-            TommyLibServices.NETWORK.sendToClient(new ClientboundCloseKamikotizationChatScreenPayload(cancel), serverPlayer);
+            TommyLibServices.NETWORK.sendToClient(new ClientboundRemoteCloseKamikotizationChatScreenPayload(cancel), serverPlayer);
         }
     }
 

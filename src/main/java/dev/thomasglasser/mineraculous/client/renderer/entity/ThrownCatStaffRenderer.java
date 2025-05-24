@@ -3,9 +3,9 @@ package dev.thomasglasser.mineraculous.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.renderer.item.CatStaffRenderer;
+import dev.thomasglasser.mineraculous.client.renderer.item.DefaultedGeoItemRenderer;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
+import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -18,8 +18,10 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class ThrownCatStaffRenderer extends GeoEntityRenderer<ThrownCatStaff> {
+    private static final ResourceLocation TEXTURE = DefaultedGeoItemRenderer.makeTextureLocation(MineraculousItems.CAT_STAFF.getId());
+
     public ThrownCatStaffRenderer(EntityRendererProvider.Context context) {
-        super(context, new DefaultedItemGeoModel<>(Mineraculous.modLoc("cat_staff")));
+        super(context, new DefaultedItemGeoModel<>(MineraculousItems.CAT_STAFF.getId()));
         addRenderLayer(new AutoGlowingGeoLayer<>(this));
     }
 
@@ -36,6 +38,6 @@ public class ThrownCatStaffRenderer extends GeoEntityRenderer<ThrownCatStaff> {
 
     @Override
     public ResourceLocation getTextureLocation(ThrownCatStaff animatable) {
-        return CatStaffRenderer.TEXTURE;
+        return TEXTURE;
     }
 }

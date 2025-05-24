@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.world.item;
 
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
-import dev.thomasglasser.mineraculous.client.renderer.item.CatStaffRenderer;
+import dev.thomasglasser.mineraculous.client.renderer.item.GlowingDefaultedGeoItemRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
@@ -123,7 +123,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
             @Override
             public BlockEntityWithoutLevelRenderer getBewlr() {
-                if (bewlr == null) bewlr = new CatStaffRenderer();
+                if (bewlr == null) bewlr = new GlowingDefaultedGeoItemRenderer(MineraculousItems.CAT_STAFF.getId());
                 return bewlr;
             }
         });
@@ -241,11 +241,6 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     @Override
     public Projectile asProjectile(Level level, Position pos, ItemStack stack, Direction direction) {
         return new ThrownCatStaff(pos.x(), pos.y(), pos.z(), level, stack);
-    }
-
-    @Override
-    public boolean canEquipFromUse(SlotContext slotContext, ItemStack stack) {
-        return canEquip(slotContext, stack);
     }
 
     @Override

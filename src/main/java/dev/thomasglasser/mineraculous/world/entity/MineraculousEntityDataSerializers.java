@@ -10,6 +10,7 @@ import java.util.Optional;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public class MineraculousEntityDataSerializers {
@@ -17,6 +18,7 @@ public class MineraculousEntityDataSerializers {
 
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<ResourceKey<Miraculous>>> MIRACULOUS = ENTITY_DATA_SERIALIZERS.register("miraculous", () -> EntityDataSerializer.forValueType(ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS)));
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Optional<LadybugYoyoItem.Ability>>> OPTIONAL_LADYBUG_YOYO_ABILITY = ENTITY_DATA_SERIALIZERS.register("ladybug_yoyo_ability", () -> EntityDataSerializer.forValueType(ByteBufCodecs.optional(LadybugYoyoItem.Ability.STREAM_CODEC)));
+    public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Optional<ResourceLocation>>> OPTIONAL_RESOURCE_LOCATION = ENTITY_DATA_SERIALIZERS.register("optional_resource_location", () -> EntityDataSerializer.forValueType(ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC)));
 
     public static void init() {}
 }

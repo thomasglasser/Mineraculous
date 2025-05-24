@@ -146,7 +146,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     }
 
     public void setServerMaxRopeLength(float f) {
-        this.entityData.set(SERVER_MAX_ROPE_LENGTH, f);
+        this.entityData.set(SERVER_MAX_ROPE_LENGTH, Math.max(f, 1.5f));
     }
 
     public float getRenderMaxRopeLength() {
@@ -158,7 +158,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     }
 
     public void setRenderMaxRopeLength(float f) {
-        this.entityData.set(RENDER_MAX_ROPE_LENGTH, f);
+        this.entityData.set(RENDER_MAX_ROPE_LENGTH, Math.max(f, 1.5f));
     }
 
     public void setInitialDirection(Direction dir) {
@@ -322,7 +322,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         ItemStack offHandItem = player.getOffhandItem();
         Vec3 fromProjectileToPlayer = new Vec3(player.getX() - this.getX(), player.getY() - this.getY(), player.getZ() - this.getZ());
         double distance = fromProjectileToPlayer.length();
-        boolean flag = distance <= 100 && this.level().dimension() == player.level().dimension() && (mainHandItem.is(MineraculousItems.LADYBUG_YOYO) && mainHandItem.has(MineraculousDataComponents.ACTIVE) && (getAbility() == null || getAbility() == mainHandItem.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY))) || (offHandItem.is(MineraculousItems.LADYBUG_YOYO) && offHandItem.has(MineraculousDataComponents.ACTIVE) && (getAbility() == null || getAbility() == offHandItem.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY)));
+        boolean flag = distance <= 100 && this.level().dimension() == player.level().dimension() && (mainHandItem.is(MineraculousItems.LADYBUG_YOYO) && mainHandItem.getOrDefault(MineraculousDataComponents.ACTIVE, false) && (getAbility() == null || getAbility() == mainHandItem.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY))) || (offHandItem.is(MineraculousItems.LADYBUG_YOYO) && offHandItem.getOrDefault(MineraculousDataComponents.ACTIVE, false) && (getAbility() == null || getAbility() == offHandItem.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY)));
         if (player.isRemoved() || !flag) {
             this.discard();
         }

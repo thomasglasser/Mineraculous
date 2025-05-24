@@ -61,7 +61,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .end();
 
         MineraculousArmors.MIRACULOUS.getAll().forEach(item -> singleTexture(item.getId().getPath(), mcItemLoc("generated"), "layer0", modItemLoc("miraculous/armor")));
-        MineraculousArmors.KAMIKOTIZATION.getAll().forEach(item -> singleTexture(item.getId().getPath(), mcItemLoc("generated"), "layer0", modItemLoc("kamikotization/armor")));
+        MineraculousArmors.KAMIKOTIZATION.getAll().forEach(item -> singleTexture(item.getId().getPath(), mcItemLoc("generated"), "layer0", modItemLoc("kamikotization_armor")));
 
         withEntityModel(MineraculousItems.MIRACULOUS).guiLight(BlockModel.GuiLight.FRONT);
 
@@ -124,15 +124,15 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .end();
         withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO, inHandLadybugYoyo, inventoryLadybugYoyo)
                 .override()
-                .predicate(MineraculousItemProperties.EXTENDED, 1)
-                .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_extended"), inHandLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_extended"))))
+                .predicate(MineraculousItemProperties.ACTIVE, 1)
+                .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_active"), inHandLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_active"))))
                 .end()
                 .override()
-                .predicate(MineraculousItemProperties.EXTENDED, 2)
+                .predicate(MineraculousItemProperties.THROWN, 1)
                 .model(thrownLadybugYoyo)
                 .end()
                 .override()
-                .predicate(MineraculousItemProperties.EXTENDED, 3)
+                .predicate(MineraculousItemProperties.THROWN, 2)
                 .model(landedLadybugYoyo)
                 .end()
                 .override()
@@ -152,8 +152,8 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         ItemModelBuilder inventoryCatStaff = basicInventoryItem(MineraculousItems.CAT_STAFF);
         withSeparateInventoryModel(MineraculousItems.CAT_STAFF, inHandCatStaff, inventoryCatStaff)
                 .override()
-                .predicate(MineraculousItemProperties.EXTENDED, 1)
-                .model(withSeparateInventoryModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_extended"), inHandCatStaff, basicItem(MineraculousItems.CAT_STAFF.getId().withSuffix("_extended"))))
+                .predicate(MineraculousItemProperties.ACTIVE, 1)
+                .model(withSeparateInventoryModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_active"), inHandCatStaff, basicItem(MineraculousItems.CAT_STAFF.getId().withSuffix("_active"))))
                 .end();
 
         ItemModelBuilder inHandButterflyCane = withEntityModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_in_hand"))

@@ -8,6 +8,7 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
+import dev.thomasglasser.mineraculous.world.item.component.ActiveSettings;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharm;
@@ -38,6 +39,7 @@ public class MineraculousDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<LuckyCharm>> LUCKY_CHARM = register("lucky_charm", LuckyCharm.CODEC, LuckyCharm.STREAM_CODEC, false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> RECOVERABLE_ITEM_ID = register("recoverable_item_id", UUIDUtil.CODEC, UUIDUtil.STREAM_CODEC, false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> ACTIVE = register("active", Codec.BOOL, ByteBufCodecs.BOOL, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ActiveSettings>> ACTIVE_SETTINGS = register("active_settings", ActiveSettings.CODEC, ActiveSettings.STREAM_CODEC, true);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> BLOCKING = register("blocking", Codec.unit(Unit.INSTANCE), StreamCodec.unit(Unit.INSTANCE), false);
 
     // Miraculous Item

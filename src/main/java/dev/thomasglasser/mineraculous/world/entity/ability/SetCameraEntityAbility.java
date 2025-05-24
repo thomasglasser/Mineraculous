@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.network.ClientboundSetCameraEntityPayload;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.EntityPredicate;
@@ -23,7 +24,7 @@ public class SetCameraEntityAbility implements Ability {
     public static final MapCodec<SetCameraEntityAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             EntityPredicate.CODEC.fieldOf("entity").forGetter(SetCameraEntityAbility::entity),
             ResourceLocation.CODEC.optionalFieldOf("shader").forGetter(SetCameraEntityAbility::shader),
-            Codec.STRING.optionalFieldOf("toggle_tag").forGetter(SetCameraEntityAbility::toggleTag),
+            ResourceLocation.CODEC.optionalFieldOf("face_mask_texture").forGetter(SetCameraEntityAbility::faceMaskTexture),
             Codec.BOOL.optionalFieldOf("must_be_tamed", true).forGetter(SetCameraEntityAbility::mustBeTamed),
             Codec.BOOL.optionalFieldOf("override_owner", false).forGetter(SetCameraEntityAbility::overrideOwner),
             SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(SetCameraEntityAbility::startSound),
@@ -31,7 +32,7 @@ public class SetCameraEntityAbility implements Ability {
 
     private final EntityPredicate entity;
     private final Optional<ResourceLocation> shader;
-    private final Optional<String> toggleTag;
+    private final Optional<ResourceLocation> faceMaskTexture;
     private final boolean mustBeTamed;
     private final boolean overrideOwner;
     private final Optional<Holder<SoundEvent>> startSound;
@@ -39,10 +40,10 @@ public class SetCameraEntityAbility implements Ability {
 
     private Entity target;
 
-    public SetCameraEntityAbility(EntityPredicate entity, Optional<ResourceLocation> shader, Optional<String> toggleTag, boolean mustBeTamed, boolean overrideOwner, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) {
+    public SetCameraEntityAbility(EntityPredicate entity, Optional<ResourceLocation> shader, Optional<ResourceLocation> faceMaskTexture, boolean mustBeTamed, boolean overrideOwner, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) {
         this.entity = entity;
         this.shader = shader;
-        this.toggleTag = toggleTag;
+        this.faceMaskTexture = faceMaskTexture;
         this.mustBeTamed = mustBeTamed;
         this.overrideOwner = overrideOwner;
         this.startSound = startSound;
@@ -52,7 +53,7 @@ public class SetCameraEntityAbility implements Ability {
     @Override
     public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
         if (context == Context.PASSIVE) {
-            TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target.getId(), shader, toggleTag, true, overrideOwner), (ServerPlayer) entity);
+            TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target.getId(), shader, faceMaskTexture, true, overrideOwner), (ServerPlayer) entity);
             target = null;
             playStartSound(level, pos);
             return true;
@@ -74,13 +75,9 @@ public class SetCameraEntityAbility implements Ability {
                     break;
                 }
             }
-            TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target != null ? target.getId() : -1, Optional.empty(), toggleTag, true, overrideOwner), serverPlayer);
+            TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target != null ? target.getId() : -1, Optional.empty(), faceMaskTexture, true, overrideOwner), serverPlayer);
         }
-        toggleTag.ifPresent(tag -> {
-//            CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(performer);
-//            entityData.putBoolean(tag, false);
-//            TommyLibServices.ENTITY.setPersistentData(performer, entityData, true);
-        });
+        AbilityEffectData.checkRemoveFaceMaskTexture(performer, faceMaskTexture);
     }
 
     @Override
@@ -105,8 +102,8 @@ public class SetCameraEntityAbility implements Ability {
         return shader;
     }
 
-    public Optional<String> toggleTag() {
-        return toggleTag;
+    public Optional<ResourceLocation> faceMaskTexture() {
+        return faceMaskTexture;
     }
 
     public boolean mustBeTamed() {

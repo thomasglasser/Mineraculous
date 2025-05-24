@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
@@ -22,7 +21,7 @@ public record ClientboundRequestSyncKamikotizationLookPayload(ResourceKey<Kamiko
     // ON CLIENT
     @Override
     public void handle(Player player) {
-        FlattenedKamikotizationLookData data = MineraculousClientEvents.flattenKamikotizationLook(kamikotization);
+        FlattenedKamikotizationLookData data = FlattenedKamikotizationLookData.flatten(kamikotization);
         if (data != null)
             TommyLibServices.NETWORK.sendToServer(new ServerboundSyncKamikotizationLookPayload(data));
     }

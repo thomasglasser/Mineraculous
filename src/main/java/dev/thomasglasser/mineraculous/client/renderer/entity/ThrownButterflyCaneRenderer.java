@@ -4,8 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.renderer.item.ButterflyCaneRenderer;
+import dev.thomasglasser.mineraculous.client.renderer.item.DefaultedGeoItemRenderer;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownButterflyCane;
+import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -17,6 +18,8 @@ import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 public class ThrownButterflyCaneRenderer extends GeoEntityRenderer<ThrownButterflyCane> {
+    private static final ResourceLocation TEXTURE = DefaultedGeoItemRenderer.makeTextureLocation(MineraculousItems.BUTTERFLY_CANE.getId());
+
     public ThrownButterflyCaneRenderer(EntityRendererProvider.Context context) {
         super(context, new DefaultedItemGeoModel<>(Mineraculous.modLoc("butterfly_cane")));
     }
@@ -37,6 +40,6 @@ public class ThrownButterflyCaneRenderer extends GeoEntityRenderer<ThrownButterf
 
     @Override
     public ResourceLocation getTextureLocation(ThrownButterflyCane animatable) {
-        return ButterflyCaneRenderer.TEXTURE;
+        return TEXTURE;
     }
 }

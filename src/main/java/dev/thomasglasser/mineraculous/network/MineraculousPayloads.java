@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.network.NeoForgeNetworkUtils;
@@ -13,12 +14,11 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 public class MineraculousPayloads {
     public static List<PayloadInfo<?>> PAYLOADS = List.<PayloadInfo<?>>of(
             // Serverbound
-            new PayloadInfo<>(ServerboundWalkMidSwingingPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundWalkMidSwingingPayload.CODEC),
+            new PayloadInfo<>(ServerboundUpdateYoyoInputPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateYoyoInputPayload.CODEC),
             new PayloadInfo<>(ServerboundJumpMidSwingingPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundJumpMidSwingingPayload.CODEC),
             new PayloadInfo<>(ServerboundMiraculousTransformPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundMiraculousTransformPayload.CODEC),
             new PayloadInfo<>(ServerboundRequestMiraculousDataSetSyncPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRequestMiraculousDataSetSyncPayload.CODEC),
             new PayloadInfo<>(ServerboundSetMiraculousPowerActivatedPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetMiraculousPowerActivatedPayload.CODEC),
-            new PayloadInfo<>(ServerboundActivateToolPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundActivateToolPayload.CODEC),
             new PayloadInfo<>(ServerboundRequestInventorySyncPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRequestInventorySyncPayload.CODEC),
             new PayloadInfo<>(ServerboundStealItemPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundStealItemPayload.CODEC),
             new PayloadInfo<>(ServerboundStealCuriosPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundStealCuriosPayload.CODEC),
@@ -28,7 +28,6 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundSetCatStaffAbilityPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetCatStaffAbilityPayload.CODEC),
             new PayloadInfo<>(ServerboundSetButterflyCaneAbilityPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetButterflyCaneAbilityPayload.CODEC),
             new PayloadInfo<>(ServerboundSetPlayerAttackTargetPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetPlayerAttackTargetPayload.CODEC),
-            new PayloadInfo<>(ServerboundSetToggleTagPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetToggleTagPayload.CODEC),
             new PayloadInfo<>(ServerboundSpawnTamedKamikoPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSpawnTamedKamikoPayload.CODEC),
             new PayloadInfo<>(ServerboundOpenVictimKamikotizationChatScreenPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundOpenVictimKamikotizationChatScreenPayload.CODEC),
             new PayloadInfo<>(ServerboundOpenPerformerKamikotizationChatScreenPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundOpenPerformerKamikotizationChatScreenPayload.CODEC),
@@ -45,14 +44,16 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundTameEntityPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundTameEntityPayload.CODEC),
             new PayloadInfo<>(ServerboundRenounceMiraculousPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRenounceMiraculousPayload.CODEC),
             new PayloadInfo<>(ServerboundSetKamikotizationPowerActivatedPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetKamikotizationPowerActivatedPayload.CODEC),
-            new PayloadInfo<>(ServerboundChangeVipDataPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundChangeVipDataPayload.CODEC),
+            new PayloadInfo<>(ServerboundChangeSpecialPlayerDataPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundChangeSpecialPlayerDataPayload.CODEC),
             new PayloadInfo<>(ServerboundTransferMiraculousPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundTransferMiraculousPayload.CODEC),
             new PayloadInfo<>(ServerboundBeginLuckyCharmWorldRecoveryPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundBeginLuckyCharmWorldRecoveryPayload.CODEC),
             new PayloadInfo<>(ServerboundSetOwnerPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetOwnerPayload.CODEC),
             new PayloadInfo<>(ServerboundSendEmptyLeftClickPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSendEmptyLeftClickPayload.CODEC),
-            new PayloadInfo<>(ServerboundSendOffhandSwingPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSendOffhandSwingPayload.CODEC),
+            new PayloadInfo<>(ServerboundSwingOffhandPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSwingOffhandPayload.CODEC),
             new PayloadInfo<>(ServerboundToggleActivePayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundToggleActivePayload.CODEC),
             new PayloadInfo<>(ServerboundSetRadialMenuProviderOptionPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetRadialMenuProviderOptionPayload.CODEC),
+            new PayloadInfo<>(ServerboundUpdateYoyoLengthPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateYoyoLengthPayload.CODEC),
+            new PayloadInfo<>(ServerboundSetFaceMaskTexturePayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetFaceMaskTexturePayload.CODEC),
 
             // Clientbound
             new PayloadInfo<>(ClientboundSyncMiraculousDataSetPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncMiraculousDataSetPayload.CODEC),
@@ -62,7 +63,7 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ClientboundOpenKamikotizationSelectionScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundOpenKamikotizationSelectionScreenPayload.CODEC),
             new PayloadInfo<>(ClientboundOpenVictimKamikotizationChatScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundOpenVictimKamikotizationChatScreenPayload.CODEC),
             new PayloadInfo<>(ClientboundOpenPerformerKamikotizationChatScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundOpenPerformerKamikotizationChatScreenPayload.CODEC),
-            new PayloadInfo<>(ClientboundCloseKamikotizationChatScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundCloseKamikotizationChatScreenPayload.CODEC),
+            new PayloadInfo<>(ClientboundRemoteCloseKamikotizationChatScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRemoteCloseKamikotizationChatScreenPayload.CODEC),
             new PayloadInfo<>(ClientboundSyncKamikotizationDataPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncKamikotizationDataPayload.CODEC),
             new PayloadInfo<>(ClientboundRequestSyncSuitLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestSyncSuitLookPayload.CODEC),
             new PayloadInfo<>(ClientboundSyncSuitLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncSuitLookPayload.CODEC),
@@ -72,7 +73,7 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ClientboundRequestSyncKamikotizationLooksPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestSyncKamikotizationLooksPayload.CODEC),
             new PayloadInfo<>(ClientboundSyncKamikotizationLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncKamikotizationLookPayload.CODEC),
             new PayloadInfo<>(ClientboundRequestSyncKamikotizationLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestSyncKamikotizationLookPayload.CODEC),
-            new PayloadInfo<>(ClientboundChangeVipDataPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundChangeVipDataPayload.CODEC),
+            new PayloadInfo<>(ClientboundChangeSpecialPlayerDataPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundChangeSpecialPlayerDataPayload.CODEC),
             new PayloadInfo<>(ClientboundRefreshVipDataPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRefreshVipDataPayload.CODEC),
             new PayloadInfo<>(ClientboundOpenMiraculousTransferScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundOpenMiraculousTransferScreenPayload.CODEC),
             new PayloadInfo<>(ClientboundSendRightHandParticlesPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSendRightHandParticlesPayload.CODEC),
@@ -85,6 +86,7 @@ public class MineraculousPayloads {
         PAYLOADS.forEach((info) -> NeoForgeNetworkUtils.register(registrar, info));
 
         // Attachment Syncing Registration
+        NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.ABILITY_EFFECTS.get(), AbilityEffectData.STREAM_CODEC);
         NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO.get(), ThrownLadybugYoyoData.STREAM_CODEC);
     }
 }

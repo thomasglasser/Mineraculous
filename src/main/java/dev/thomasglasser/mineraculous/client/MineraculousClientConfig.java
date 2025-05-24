@@ -6,8 +6,6 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 public class MineraculousClientConfig {
     private static final MineraculousClientConfig INSTANCE = new MineraculousClientConfig();
 
-    public final ModConfigSpec configSpec;
-
     // Cosmetics
     public static final String COSMETICS = "cosmetics";
     public final ModConfigSpec.BooleanValue displaySnapshotTesterCosmetic;
@@ -15,9 +13,11 @@ public class MineraculousClientConfig {
     public final ModConfigSpec.BooleanValue displayDevTeamCosmetic;
     public final ModConfigSpec.BooleanValue displayLegacyDevTeamCosmetic;
 
-    // Tool Wheel
-    public static final String TOOL_WHEEL = "tool_wheel";
+    // Radial Menu
+    public static final String RADIAL_MENU = "radial_menu";
     public final ModConfigSpec.IntValue animationSpeed;
+
+    private final ModConfigSpec configSpec;
 
     public MineraculousClientConfig() {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -33,7 +33,7 @@ public class MineraculousClientConfig {
                 .define("display_legacy_dev_team_cosmetic", true);
         builder.pop();
 
-        builder.push(TOOL_WHEEL);
+        builder.push(RADIAL_MENU);
         animationSpeed = builder
                 .defineInRange("animation_speed", 10, 1, 20);
 

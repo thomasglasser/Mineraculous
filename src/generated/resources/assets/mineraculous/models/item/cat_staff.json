@@ -105,9 +105,9 @@
   "loader": "neoforge:separate_transforms",
   "overrides": [
     {
-      "model": "mineraculous:item/cat_staff_extended",
+      "model": "mineraculous:item/cat_staff_active",
       "predicate": {
-        "mineraculous:extended": 1.0
+        "mineraculous:active": 1.0
       }
     }
   ],

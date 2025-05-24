@@ -13,17 +13,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-public record ServerboundWalkMidSwingingPayload(boolean front, boolean back, boolean left, boolean right, boolean up, boolean down) implements ExtendedPacketPayload {
+public record ServerboundUpdateYoyoInputPayload(boolean front, boolean back, boolean left, boolean right) implements ExtendedPacketPayload {
 
-    public static final Type<ServerboundWalkMidSwingingPayload> TYPE = new Type<>(Mineraculous.modLoc("walk_mid_swinging"));
-    public static final StreamCodec<ByteBuf, ServerboundWalkMidSwingingPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.BOOL, ServerboundWalkMidSwingingPayload::front,
-            ByteBufCodecs.BOOL, ServerboundWalkMidSwingingPayload::back,
-            ByteBufCodecs.BOOL, ServerboundWalkMidSwingingPayload::left,
-            ByteBufCodecs.BOOL, ServerboundWalkMidSwingingPayload::right,
-            ByteBufCodecs.BOOL, ServerboundWalkMidSwingingPayload::up,
-            ByteBufCodecs.BOOL, ServerboundWalkMidSwingingPayload::down,
-            ServerboundWalkMidSwingingPayload::new);
+    public static final Type<ServerboundUpdateYoyoInputPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_update_yoyo_input"));
+    public static final StreamCodec<ByteBuf, ServerboundUpdateYoyoInputPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.BOOL, ServerboundUpdateYoyoInputPayload::front,
+            ByteBufCodecs.BOOL, ServerboundUpdateYoyoInputPayload::back,
+            ByteBufCodecs.BOOL, ServerboundUpdateYoyoInputPayload::left,
+            ByteBufCodecs.BOOL, ServerboundUpdateYoyoInputPayload::right,
+            ServerboundUpdateYoyoInputPayload::new);
 
     // ON SERVER
     @Override
@@ -41,7 +39,7 @@ public record ServerboundWalkMidSwingingPayload(boolean front, boolean back, boo
             Vec3 Y = ox.add(oy.scale(1.7)).normalize().scale(maxRopeLn);
             if (thrownYoyo.inGround() && !player.isNoGravity() && !player.getAbilities().flying) {
                 if (distance >= maxRopeLn - 0.2 && !player.onGround()) {
-                    if (player.getY() < Y.y + thrownYoyo.getY() + 3 && !player.isCrouching()) { //player.getY() < Y.y + thrownYoyo.getY() &&
+                    if (player.getY() < Y.y + thrownYoyo.getY() + 3 && !player.isCrouching()) {
                         Vec3 movement = new Vec3(0, 0, 0);
                         if (front) {
                             Vec3 up = new Vec3(player.getLookAngle().normalize().x, 0, player.getLookAngle().normalize().z);
@@ -82,13 +80,6 @@ public record ServerboundWalkMidSwingingPayload(boolean front, boolean back, boo
                         player.setDeltaMovement(movement);
                         player.hurtMarked = true;
                     }
-                }
-                if (up && distance > 2) {
-                    thrownYoyo.setServerMaxRopeLength(thrownYoyo.getServerMaxRopeLength() - 0.2f);
-                    thrownYoyo.updateRenderMaxRopeLength(player);
-                } else if (down && distance >= maxRopeLn - 0.2) {
-                    thrownYoyo.setServerMaxRopeLength(thrownYoyo.getServerMaxRopeLength() + 0.3f);
-                    thrownYoyo.updateRenderMaxRopeLength(player);
                 }
             }
         }

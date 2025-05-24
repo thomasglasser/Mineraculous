@@ -14,6 +14,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -26,27 +27,30 @@ public record ServerboundPutMiraculousToolInHandPayload(ResourceKey<Miraculous> 
     // ON SERVER
     @Override
     public void handle(Player player) {
-        MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous);
-        KwamiData kwamiData = data.miraculousItem().get(MineraculousDataComponents.KWAMI_DATA.get());
-        UUID uuid = kwamiData != null ? kwamiData.uuid() : null;
-        if (uuid != null) {
-            ItemStack defaultTool = player.level().holderOrThrow(miraculous).value().tool().orElse(ItemStack.EMPTY);
-            if (defaultTool.isEmpty())
-                return;
-            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                ItemStack itemstack = player.getInventory().getItem(i);
-                if (itemstack.is(defaultTool.getItem()) && itemstack.has(MineraculousDataComponents.KWAMI_DATA.get()) && itemstack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(uuid)) {
-                    player.getInventory().setPickedItem(itemstack);
-                    player.getInventory().setItem(i, ItemStack.EMPTY);
+        if (player.getMainHandItem().isEmpty()) {
+            MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous);
+            KwamiData kwamiData = data.miraculousItem().get(MineraculousDataComponents.KWAMI_DATA);
+            UUID uuid = kwamiData != null ? kwamiData.uuid() : null;
+            if (uuid != null) {
+                ItemStack defaultTool = player.level().holderOrThrow(miraculous).value().tool().orElse(ItemStack.EMPTY);
+                if (defaultTool.isEmpty())
                     return;
+                for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                    ItemStack stack = player.getInventory().getItem(i);
+                    KwamiData stackKwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
+                    if (stack.is(defaultTool.getItem()) && stackKwamiData != null && stackKwamiData.uuid().equals(uuid)) {
+                        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+                        player.getInventory().setItem(i, ItemStack.EMPTY);
+                        return;
+                    }
                 }
+                CuriosUtils.getAllItems(player).forEach(((curiosData, stack) -> {
+                    if (stack.is(defaultTool.getItem()) && stack.has(MineraculousDataComponents.KWAMI_DATA.get()) && stack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(uuid)) {
+                        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+                        CuriosUtils.setStackInSlot(player, curiosData, ItemStack.EMPTY);
+                    }
+                }));
             }
-            CuriosUtils.getAllItems(player).forEach(((curiosData, itemStack) -> {
-                if (itemStack.is(defaultTool.getItem()) && itemStack.has(MineraculousDataComponents.KWAMI_DATA.get()) && itemStack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(uuid)) {
-                    player.getInventory().setPickedItem(itemStack);
-                    CuriosUtils.setStackInSlot(player, curiosData, ItemStack.EMPTY);
-                }
-            }));
         }
     }
 

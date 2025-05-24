@@ -17,7 +17,7 @@ public record ClientboundRefreshVipDataPayload() implements ExtendedPacketPayloa
 
     // ON CLIENT
     public void handle(@Nullable Player player) {
-        MineraculousClientUtils.refreshVip();
+        MineraculousClientUtils.refreshSpecialPlayerData();
     }
 
     @Override

@@ -80,21 +80,21 @@
   "loader": "neoforge:separate_transforms",
   "overrides": [
     {
-      "model": "mineraculous:item/ladybug_yoyo_extended",
+      "model": "mineraculous:item/ladybug_yoyo_active",
       "predicate": {
-        "mineraculous:extended": 1.0
+        "mineraculous:active": 1.0
       }
     },
     {
       "model": "mineraculous:item/ladybug_yoyo_thrown",
       "predicate": {
-        "mineraculous:extended": 2.0
+        "mineraculous:thrown": 1.0
       }
     },
     {
       "model": "mineraculous:item/ladybug_yoyo_landed",
       "predicate": {
-        "mineraculous:extended": 3.0
+        "mineraculous:thrown": 2.0
       }
     },
     {

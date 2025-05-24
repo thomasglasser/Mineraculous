@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
-import dev.thomasglasser.mineraculous.client.renderer.item.ButterflyCaneRenderer;
+import dev.thomasglasser.mineraculous.client.renderer.item.DefaultedGeoItemRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
@@ -124,7 +124,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
 
             @Override
             public BlockEntityWithoutLevelRenderer getBewlr() {
-                if (bewlr == null) bewlr = new ButterflyCaneRenderer();
+                if (bewlr == null) bewlr = new DefaultedGeoItemRenderer<>(MineraculousItems.BUTTERFLY_CANE.getId());
                 return bewlr;
             }
         });
@@ -148,7 +148,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
                 // TODO: Fix
                 CompoundTag playerData = /*TommyLibServices.ENTITY.getPersistentData(entity)*/new CompoundTag();
                 int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
-                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && MineraculousKeyMappings.CONFIGURE_TOOL.isDown()) {
+                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown()) {
                     int color = level.holderOrThrow(MineraculousMiraculous.BUTTERFLY).value().color().getValue();
                     ResolvableProfile resolvableProfile = stack.get(DataComponents.PROFILE);
                     if (resolvableProfile != null) {

@@ -2,9 +2,11 @@ package dev.thomasglasser.mineraculous.world.item;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.food.MineraculousFoods;
 import dev.thomasglasser.mineraculous.world.item.armortrim.MineraculousTrimPatterns;
+import dev.thomasglasser.mineraculous.world.item.component.ActiveSettings;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
@@ -14,6 +16,7 @@ import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import dev.thomasglasser.tommylib.api.world.item.ItemNameBlockStateItem;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
+import java.util.Optional;
 import java.util.SortedMap;
 import java.util.function.Supplier;
 import net.minecraft.resources.ResourceKey;
@@ -34,7 +37,12 @@ public class MineraculousItems {
     public static final Supplier<Item.Properties> TOOL_PROPERTIES = () -> new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC);
     public static final Supplier<Item.Properties> TOOL_PROPERTIES_WITH_ACTIVE = () -> TOOL_PROPERTIES.get().component(MineraculousDataComponents.ACTIVE, false);
     public static final DeferredItem<Item> LADYBUG_YOYO = register("ladybug_yoyo", () -> new LadybugYoyoItem(TOOL_PROPERTIES_WITH_ACTIVE.get()));
-    public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(TOOL_PROPERTIES_WITH_ACTIVE.get()));
+    public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(TOOL_PROPERTIES_WITH_ACTIVE.get().component(MineraculousDataComponents.ACTIVE_SETTINGS, new ActiveSettings(
+            Optional.of(CatStaffItem.CONTROLLER_EXTEND),
+            Optional.of(CatStaffItem.ANIMATION_EXTEND),
+            Optional.of(CatStaffItem.ANIMATION_RETRACT),
+            Optional.of(MineraculousSoundEvents.CAT_STAFF_EXTEND),
+            Optional.of(MineraculousSoundEvents.CAT_STAFF_RETRACT)))));
     public static final DeferredItem<Item> BUTTERFLY_CANE = register("butterfly_cane", () -> new ButterflyCaneItem(TOOL_PROPERTIES.get()));
 
     // Miraculous

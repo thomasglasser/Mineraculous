@@ -79,7 +79,7 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
             UUID uuid;
             if (data.power().left().isPresent()) {
                 uuid = entity.getData(MineraculousAttachmentTypes.MIRACULOUS).get(data.power().left().get()).miraculousItem().get(MineraculousDataComponents.KWAMI_DATA).uuid();
-                toAdd.set(MineraculousDataComponents.KWAMI_DATA, new KwamiData(uuid, false));
+                toAdd.set(MineraculousDataComponents.KWAMI_DATA, new KwamiData(uuid, 0, false));
             } else {
                 uuid = entity.getUUID();
                 toAdd.set(MineraculousDataComponents.KAMIKOTIZATION, data.power().right().get());
@@ -121,9 +121,9 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
             Either<ResourceKey<Miraculous>, ResourceKey<Kamikotization>> power = data.power();
             if (power.left().isPresent()) {
                 Integer toolId = mainHandItem.get(MineraculousDataComponents.TOOL_ID);
-                return toolId != null && toolId == entity.getData(MineraculousAttachmentTypes.MIRACULOUS).get(power.left().get()).toolId() && mainHandItem.has(MineraculousDataComponents.ACTIVE);
+                return toolId != null && toolId == entity.getData(MineraculousAttachmentTypes.MIRACULOUS).get(power.left().get()).toolId() && mainHandItem.getOrDefault(MineraculousDataComponents.ACTIVE, false);
             } else {
-                return mainHandItem.get(MineraculousDataComponents.KAMIKOTIZATION) == power.right().get() && mainHandItem.has(MineraculousDataComponents.ACTIVE);
+                return mainHandItem.get(MineraculousDataComponents.KAMIKOTIZATION) == power.right().get() && mainHandItem.getOrDefault(MineraculousDataComponents.ACTIVE, false);
             }
         }
         return true;

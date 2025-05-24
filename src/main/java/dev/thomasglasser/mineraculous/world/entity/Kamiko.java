@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
+import dev.thomasglasser.mineraculous.world.entity.ability.SetCameraEntityAbility;
 import dev.thomasglasser.mineraculous.world.entity.ability.SetOwnerAbility;
 import dev.thomasglasser.mineraculous.world.entity.ai.sensing.PlayerTemptingSensor;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
@@ -22,6 +23,7 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiPredicate;
 import net.minecraft.core.BlockPos;
@@ -81,6 +83,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     public static final BiPredicate<LivingEntity, LivingEntity> TARGET_TOO_FAR = (kamiko, target) -> (kamiko.getAttributes().hasAttribute(Attributes.FOLLOW_RANGE) && kamiko.distanceToSqr(target) >= Math.pow(kamiko.getAttributeValue(Attributes.FOLLOW_RANGE), 2));
 
     private static final EntityDataAccessor<Integer> DATA_NAME_COLOR = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Optional<ResourceLocation>> DATA_FACE_MASK_TEXTURE = SynchedEntityData.defineId(Kamiko.class, MineraculousEntityDataSerializers.OPTIONAL_RESOURCE_LOCATION.get());
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -94,6 +97,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_NAME_COLOR, -1);
+        builder.define(DATA_FACE_MASK_TEXTURE, Optional.empty());
     }
 
     public int getNameColor() {
@@ -102,6 +106,14 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
 
     public void setNameColor(int color) {
         entityData.set(DATA_NAME_COLOR, color);
+    }
+
+    public Optional<ResourceLocation> getFaceMaskTexture() {
+        return entityData.get(DATA_FACE_MASK_TEXTURE);
+    }
+
+    public void setFaceMaskTexture(Optional<ResourceLocation> texture) {
+        entityData.set(DATA_FACE_MASK_TEXTURE, texture);
     }
 
     @Override
@@ -258,12 +270,9 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
             }
             TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncKamikotizationLooksPayload(owner.getUUID(), Kamikotization.getFor(player).stream().map(Holder::getKey).toList()), (ServerPlayer) player);
             TommyLibServices.NETWORK.sendToClient(new ClientboundSyncInventoryPayload(player), owner);
-            // TODO: Fix
-//            CompoundTag ownerData = TommyLibServices.ENTITY.getPersistentData(owner);
-//            ownerData.putBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, true);
-//            TommyLibServices.ENTITY.setPersistentData(getOwner(), ownerData, true);
+            owner.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withFaceMaskTexture(getFaceMaskTexture()).save(owner, true);
             remove(RemovalReason.DISCARDED);
-            TommyLibServices.NETWORK.sendToClient(new ClientboundOpenKamikotizationSelectionScreenPayload(player.getUUID(), new KamikoData(getUUID(), getOwnerUUID(), getNameColor())), owner);
+            TommyLibServices.NETWORK.sendToClient(new ClientboundOpenKamikotizationSelectionScreenPayload(player.getUUID(), new KamikoData(getUUID(), getOwnerUUID(), getNameColor(), getFaceMaskTexture())), owner);
         }
     }
 
@@ -273,14 +282,27 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         if (uuid != null && level() instanceof ServerLevel serverLevel) {
             if (serverLevel.getEntity(uuid) instanceof LivingEntity owner) {
                 MiraculousDataSet miraculousDataSet = owner.getData(MineraculousAttachmentTypes.MIRACULOUS);
-                miraculousDataSet.getTransformed().stream().filter(key -> {
+                boolean colorSet = false;
+                boolean faceMaskTextureSet = false;
+                for (ResourceKey<Miraculous> key : miraculousDataSet.getTransformed()) {
                     Miraculous miraculous = level().holderOrThrow(key).value();
-                    return Ability.hasMatching(ability -> ability instanceof SetOwnerAbility setOwnerAbility && setOwnerAbility.isValid(this), miraculous, true);
-                }).findFirst().ifPresent(colorKey -> setNameColor(level().holderOrThrow(colorKey).value().color().getValue()));
+                    if (!colorSet && Ability.hasMatching(a -> a instanceof SetOwnerAbility sOA && sOA.isValid(this), miraculous, true)) {
+                        setNameColor(miraculous.color().getValue());
+                        colorSet = true;
+                    }
+                    if (!faceMaskTextureSet) {
+                        SetCameraEntityAbility ability = Ability.getFirstMatching(a -> a instanceof SetCameraEntityAbility sCEA && sCEA.faceMaskTexture().isPresent(), miraculous, true) instanceof SetCameraEntityAbility sCEA ? sCEA : null;
+                        if (ability != null) {
+                            setFaceMaskTexture(ability.faceMaskTexture());
+                            faceMaskTextureSet = true;
+                        }
+                    }
+                }
                 if (owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
                     KamikotizationData kamikotizationData = owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
                     if (Ability.hasMatching(ability -> ability instanceof SetOwnerAbility setOwnerAbility && setOwnerAbility.isValid(this), owner.level().holderOrThrow(kamikotizationData.kamikotization()).value(), true))
                         setNameColor(kamikotizationData.kamikoData().nameColor());
+                    setFaceMaskTexture(kamikotizationData.kamikoData().faceMaskTexture());
                 }
             }
         }

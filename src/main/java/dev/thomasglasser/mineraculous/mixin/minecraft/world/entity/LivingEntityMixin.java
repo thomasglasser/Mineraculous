@@ -4,6 +4,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.network.ServerboundHurtEntityPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,7 +39,7 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "dropFromLootTable", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/storage/loot/LootTable;getRandomItems(Lnet/minecraft/world/level/storage/loot/LootParams;JLjava/util/function/Consumer;)V"), cancellable = true)
     private void dropFromLootTable(DamageSource damageSource, boolean hitByPlayer, CallbackInfo ci, @Local LootTable lootTable, @Local LootParams lootParams) {
-        if (MineraculousEntityEvents.isCataclysmed(mineraculous$INSTANCE)) {
+        if (mineraculous$INSTANCE.hasEffect(MineraculousMobEffects.CATACLYSMED)) {
             lootTable.getRandomItems(lootParams, getLootTableSeed(), stack -> mineraculous$INSTANCE.spawnAtLocation(MineraculousEntityEvents.convertToCataclysmDust(stack)));
             ci.cancel();
         }

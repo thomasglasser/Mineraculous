@@ -11,6 +11,7 @@ import dev.thomasglasser.mineraculous.network.ServerboundSetRadialMenuProviderOp
 import dev.thomasglasser.mineraculous.world.item.RadialMenuProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
+import java.util.function.BiConsumer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -23,10 +24,10 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
     private static final float MAX_CIRCLE_SIZE = 180f;
     private static final float PRECISION = 2.5f / 360.0f;
 
-    protected final InteractionHand hand;
     protected final int heldKey;
     protected final List<T> options;
     protected final int selectedColor;
+    protected final BiConsumer<T, Integer> onSelected;
 
     private final double sliceAngle;
 
@@ -36,13 +37,17 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
 
     private float animationTime = 0;
 
-    public RadialMenuScreen(InteractionHand hand, int heldKey, ItemStack stack, RadialMenuProvider<T> provider) {
+    public RadialMenuScreen(int heldKey, List<T> options, int selectedColor, BiConsumer<T, Integer> onSelected) {
         super(Component.empty());
-        this.hand = hand;
         this.heldKey = heldKey;
-        this.options = provider.getOptions(stack, hand);
-        this.selectedColor = provider.getColor(stack, hand);
+        this.options = options;
+        this.selectedColor = selectedColor;
+        this.onSelected = onSelected;
         this.sliceAngle = 2 * Math.PI / options.size();
+    }
+
+    public RadialMenuScreen(InteractionHand hand, int heldKey, ItemStack stack, RadialMenuProvider<T> provider) {
+        this(heldKey, provider.getOptions(stack, hand), provider.getColor(stack, hand), (selected, index) -> TommyLibServices.NETWORK.sendToServer(new ServerboundSetRadialMenuProviderOptionPayload(hand, index)));
     }
 
     private double alpha(int x, int y) {
@@ -100,9 +105,9 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
         }
         circleSize = animationTime * MAX_CIRCLE_SIZE / (float) MineraculousClientConfig.get().animationSpeed.get();
         circleSize /= 2f;
-        int selectedOption = this.getSelectedOption((int) (currentMouseX - (double) width / 2), (int) (-1 * (currentMouseY - (double) height / 2)), circleSize);
+        int selectedOption = this.getSelectedOption((int) currentMouseX, (int) currentMouseY, circleSize);
         if (selectedOption != -1) {
-            TommyLibServices.NETWORK.sendToServer(new ServerboundSetRadialMenuProviderOptionPayload(hand, selectedOption));
+            onSelected.accept(options.get(selectedOption), selectedOption);
         }
         super.onClose();
     }
@@ -110,8 +115,8 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
     @Override
     public void mouseMoved(double mouseX, double mouseY) {
         super.mouseMoved(mouseX, mouseY);
-        this.currentMouseX = mouseX;
-        this.currentMouseY = mouseY;
+        currentMouseX = mouseX - (double) width / 2;
+        currentMouseY = -1 * (mouseY - (double) height / 2);
     }
 
     @Override
@@ -147,7 +152,11 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
         var builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         drawPieArc(builder, width / 2f, height / 2f, 1, (circleSize) / 3f, circleSize * 91 / 90, (selectedOption + 1) * -sliceAngle, 2 * Math.PI - (selectedOption + 1) * sliceAngle, 0xAFAFAF);
         if (hasSelectedOption) {
-            drawPieArc(builder, width / 2f, height / 2f, 0, (circleSize) / 3f, circleSize * 91 / 90, 2 * Math.PI - (selectedOption + 1) * sliceAngle, 2 * Math.PI - selectedOption * sliceAngle, selectedColor);
+            int color = selectedColor;
+            Integer override = options.get(selectedOption).colorOverride();
+            if (override != null)
+                color = override;
+            drawPieArc(builder, width / 2f, height / 2f, 0, (circleSize) / 3f, circleSize * 91 / 90, 2 * Math.PI - (selectedOption + 1) * sliceAngle, 2 * Math.PI - selectedOption * sliceAngle, color);
         }
         BufferUploader.drawWithShader(builder.buildOrThrow());
         RenderSystem.disableBlend();

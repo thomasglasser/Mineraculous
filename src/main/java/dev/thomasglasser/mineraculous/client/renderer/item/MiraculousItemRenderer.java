@@ -3,16 +3,17 @@ package dev.thomasglasser.mineraculous.client.renderer.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.DynamicAutoGlowingTexture;
+import dev.thomasglasser.mineraculous.client.renderer.texture.DynamicAutoGlowingTexture;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousLookData;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -33,48 +34,53 @@ import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
-public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
-    private final Map<ResourceKey<Miraculous>, GeoModel<MiraculousItem>> defaultModels = new HashMap<>();
-    private final Map<MiraculousLookData, GeoModel<MiraculousItem>> lookModels = new HashMap<>();
+public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
+    private static final Map<ResourceKey<Miraculous>, GeoModel<MiraculousItem>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
+    private static final Map<MiraculousLookData, GeoModel<MiraculousItem>> LOOK_MODELS = new Reference2ReferenceOpenHashMap<>();
 
-    public MiraculousRenderer() {
+    public MiraculousItemRenderer() {
         super(null);
         addRenderLayer(new AutoGlowingGeoLayer<>(this) {
             @Override
             protected @Nullable RenderType getRenderType(MiraculousItem animatable, @Nullable MultiBufferSource bufferSource) {
                 ResourceLocation texture = getTextureLocation(animatable);
                 ResourceLocation glowmaskTexture = AutoGlowingTexture.appendToPath(texture, "_glowmask");
-                if (Minecraft.getInstance().getTextureManager().getTexture(glowmaskTexture, MissingTextureAtlasSprite.getTexture()) == MissingTextureAtlasSprite.getTexture()) {
-                    if (Minecraft.getInstance().getResourceManager().getResource(glowmaskTexture).isPresent())
-                        return super.getRenderType(animatable, bufferSource);
-                    else if (getCurrentItemStack() != null) {
-                        MiraculousLookData data = getMiraculousLookData(getCurrentItemStack());
-                        if (data != null) {
-                            if (data.glowmask().isPresent() && texture.equals(data.texture())) {
-                                byte[] glowmask = data.glowmask().get();
+                if (Minecraft.getInstance().getResourceManager().getResource(glowmaskTexture).isPresent() || Minecraft.getInstance().getTextureManager().getTexture(glowmaskTexture, MissingTextureAtlasSprite.getTexture()) != MissingTextureAtlasSprite.getTexture()) {
+                    return super.getRenderType(animatable, bufferSource);
+                } else {
+                    ItemStack stack = getCurrentItemStack();
+                    if (stack != null) {
+                        MiraculousLookData data = getMiraculousLookData(stack);
+                        if (data != null && texture.equals(data.texture())) {
+                            data.glowmask().ifPresent(glowmask -> {
                                 try {
                                     DynamicAutoGlowingTexture.register(texture, glowmask);
                                 } catch (IOException e) {
                                     Mineraculous.LOGGER.error("Failed to register glowmask texture for {}", texture, e);
                                 }
-                            }
+                            });
                         }
                     }
                     return null;
                 }
-                return super.getRenderType(animatable, bufferSource);
             }
         });
+    }
+
+    public static void clearModels() {
+        DEFAULT_MODELS.clear();
+        LOOK_MODELS.clear();
     }
 
     @Override
     public void preRender(PoseStack poseStack, MiraculousItem animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
-        if (getCurrentItemStack() != null) {
-            ResourceKey<Miraculous> miraculous = getCurrentItemStack().get(MineraculousDataComponents.MIRACULOUS);
-            MiraculousLookData data = getMiraculousLookData(getCurrentItemStack());
-            if (!isReRender) {
-                if (data != null && data.transforms().isPresent() && data.transforms().get().hasTransform(renderPerspective) && !getCurrentItemStack().has(MineraculousDataComponents.POWERED)) {
+        if (!isReRender) {
+            ItemStack stack = getCurrentItemStack();
+            if (stack != null) {
+                ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+                MiraculousLookData data = getMiraculousLookData(stack);
+                if (data != null && data.transforms().isPresent() && data.transforms().get().hasTransform(renderPerspective) && !stack.has(MineraculousDataComponents.POWERED)) {
                     data.transforms().get().getTransform(renderPerspective).apply(false, poseStack);
                 } else {
                     BakedModel miraculousModel = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(miraculous.location().getNamespace(), "item/miraculous/" + miraculous.location().getPath())));
@@ -83,19 +89,19 @@ public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
                     }
                 }
             }
-            // Special case for earrings
-            model.getBone("right").ifPresent(bone -> bone.setHidden(renderPerspective == MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue()));
         }
+        // Special case for earrings
+        model.getBone("right_earring").ifPresent(bone -> bone.setHidden(renderPerspective == MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue()));
     }
 
     @Override
     public ResourceLocation getTextureLocation(MiraculousItem animatable) {
         ItemStack stack = getCurrentItemStack();
         if (stack != null) {
-            if (stack.has(MineraculousDataComponents.POWERED.get())) {
-                int ticks = stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS.get(), 0);
-                final int second = ticks / 20;
-                final int minute = (second / 60) + 1;
+            if (stack.has(MineraculousDataComponents.POWERED)) {
+                int ticks = stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS, 0);
+                final int second = ticks / SharedConstants.TICKS_PER_SECOND;
+                final int minute = ticks / SharedConstants.TICKS_PER_MINUTE + 1;
                 ResourceLocation powered = super.getTextureLocation(animatable).withPath(path -> path.replace("hidden", "powered"));
                 if (ticks > 0 && ticks < MiraculousItem.FIVE_MINUTES) {
                     // Blinks every other second
@@ -104,10 +110,12 @@ public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
                     // The first blink level should reference the normal powered model
                     else if (minute == 5) {
                         return powered;
-                    } else
+                    } else {
                         return super.getTextureLocation(animatable).withPath(path -> path.replace("hidden", "powered_" + minute));
-                } else
+                    }
+                } else {
                     return powered;
+                }
             }
         }
         return super.getTextureLocation(animatable);
@@ -115,30 +123,31 @@ public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
 
     @Override
     public GeoModel<MiraculousItem> getGeoModel() {
-        if (getCurrentItemStack() != null) {
-            ResourceKey<Miraculous> miraculous = getCurrentItemStack().get(MineraculousDataComponents.MIRACULOUS);
+        ItemStack stack = getCurrentItemStack();
+        if (stack != null) {
+            ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
             if (miraculous != null) {
-                if (!defaultModels.containsKey(miraculous))
-                    defaultModels.put(miraculous, createDefaultGeoModel(miraculous));
-                MiraculousLookData data = getMiraculousLookData(getCurrentItemStack());
-                if (data != null && !getCurrentItemStack().has(MineraculousDataComponents.POWERED)) {
-                    if (!lookModels.containsKey(data))
-                        lookModels.put(data, createLookGeoModel(miraculous, data));
-                    return lookModels.get(data);
+                if (!DEFAULT_MODELS.containsKey(miraculous))
+                    DEFAULT_MODELS.put(miraculous, createDefaultGeoModel(miraculous));
+                MiraculousLookData data = getMiraculousLookData(stack);
+                if (data != null && !stack.has(MineraculousDataComponents.POWERED)) {
+                    if (!LOOK_MODELS.containsKey(data))
+                        LOOK_MODELS.put(data, createLookGeoModel(miraculous, data));
+                    return LOOK_MODELS.get(data);
                 }
-                return defaultModels.get(miraculous);
+                return DEFAULT_MODELS.get(miraculous);
             }
         }
         return super.getGeoModel();
     }
 
     private GeoModel<MiraculousItem> createDefaultGeoModel(ResourceKey<Miraculous> miraculous) {
-        return new DefaultedItemGeoModel<>(ResourceLocation.fromNamespaceAndPath(miraculous.location().getNamespace(), "miraculous/" + miraculous.location().getPath())) {
-            private final ResourceLocation textureLoc = ResourceLocation.fromNamespaceAndPath(miraculous.location().getNamespace(), "textures/item/miraculous/" + miraculous.location().getPath() + "/hidden.png");
+        return new DefaultedItemGeoModel<>(miraculous.location().withPrefix("miraculous/")) {
+            private final ResourceLocation texture = miraculous.location().withPrefix("textures/item/miraculous/").withSuffix("/hidden.png");
 
             @Override
             public ResourceLocation getTextureResource(MiraculousItem animatable) {
-                return textureLoc;
+                return texture;
             }
         };
     }
@@ -149,7 +158,7 @@ public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
 
             @Override
             public ResourceLocation getModelResource(MiraculousItem animatable) {
-                return data.model().isPresent() ? null : defaultModels.get(miraculous).getModelResource(animatable);
+                return DEFAULT_MODELS.get(miraculous).getModelResource(animatable);
             }
 
             @Override
@@ -164,7 +173,7 @@ public class MiraculousRenderer extends GeoItemRenderer<MiraculousItem> {
 
             @Override
             public BakedGeoModel getBakedModel(ResourceLocation location) {
-                BakedGeoModel baked = data.model().orElseGet(() -> defaultModels.get(miraculous).getBakedModel(location));
+                BakedGeoModel baked = data.model().orElseGet(() -> super.getBakedModel(location));
                 if (currentModel != baked) {
                     currentModel = baked;
                     getAnimationProcessor().setActiveModel(baked);

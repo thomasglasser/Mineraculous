@@ -110,8 +110,8 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingFall);
     }
 
-    public static ResourceLocation modLoc(String s) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, s);
+    public static ResourceLocation modLoc(String path) {
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 
     public enum Dependencies {

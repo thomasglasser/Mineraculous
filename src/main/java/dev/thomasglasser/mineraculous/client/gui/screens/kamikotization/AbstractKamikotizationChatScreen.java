@@ -1,6 +1,8 @@
 package dev.thomasglasser.mineraculous.client.gui.screens.kamikotization;
 
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityEffectData;
 import java.util.ArrayList;
+import java.util.Optional;
 import net.minecraft.client.GuiMessage;
 import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.Minecraft;
@@ -13,7 +15,9 @@ import net.minecraft.client.gui.navigation.FocusNavigationEvent;
 import net.minecraft.client.gui.navigation.ScreenDirection;
 import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.network.chat.Style;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import org.lwjgl.glfw.GLFW;
 
 public abstract class AbstractKamikotizationChatScreen extends ChatScreen {
@@ -21,8 +25,11 @@ public abstract class AbstractKamikotizationChatScreen extends ChatScreen {
     public static final String INTRO_NAMELESS = "gui.kamikotization.chat.intro.nameless";
     public static final String ACCEPT = "gui.kamikotization.chat.accept";
 
-    protected AbstractKamikotizationChatScreen(String initialText) {
+    protected final Optional<ResourceLocation> faceMaskTexture;
+
+    protected AbstractKamikotizationChatScreen(String initialText, Optional<ResourceLocation> faceMaskTexture) {
         super(initialText);
+        this.faceMaskTexture = faceMaskTexture;
     }
 
     @Override
@@ -175,9 +182,13 @@ public abstract class AbstractKamikotizationChatScreen extends ChatScreen {
         }
     }
 
-    protected final void close() {
+    protected final void finalizeClose() {
         super.onClose();
         this.minecraft.gui.getChat().clearMessages(true);
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
+            AbilityEffectData.checkRemoveFaceMaskTexture(player, faceMaskTexture);
+        }
     }
 
     @Override

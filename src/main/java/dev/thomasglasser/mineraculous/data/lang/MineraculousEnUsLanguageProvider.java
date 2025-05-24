@@ -107,7 +107,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousKeyMappings.TRANSFORM, "Transform");
         add(MineraculousKeyMappings.ACTIVATE_POWER, "Activate Power/Renounce Miraculous");
         add(MineraculousKeyMappings.TOGGLE_ACTIVE, "De/Activate Item");
-        add(MineraculousKeyMappings.CONFIGURE_TOOL, "Equip/Return Tool/Open Tool Wheel");
+        add(MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU, "Open Item Radial Menu");
         add(MineraculousKeyMappings.TAKE_BREAK_ITEM, "Take/Break Item");
         add(MineraculousKeyMappings.UNWIND_YOYO, "Unwind YoYo");
         add(MineraculousKeyMappings.WIND_YOYO, "Wind YoYo");
@@ -269,7 +269,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfig(MineraculousClientConfig.get().displayDevTeamCosmetic, "Display Dev Team Cosmetic", "Display the Dev Team cosmetic (if eligible)");
         addConfig(MineraculousClientConfig.get().displayLegacyDevTeamCosmetic, "Display Legacy Dev Team Cosmetic", "Display the Legacy Dev Team cosmetic (if eligible)");
 
-        addConfigSection(MineraculousClientConfig.TOOL_WHEEL, "Tool Wheel", "Settings for the tool wheel");
+        addConfigSection(MineraculousClientConfig.RADIAL_MENU, "Tool Wheel", "Settings for the tool wheel");
         addConfig(MineraculousClientConfig.get().animationSpeed, "Animation Speed", "The speed at which the tool wheel opens");
     }
 

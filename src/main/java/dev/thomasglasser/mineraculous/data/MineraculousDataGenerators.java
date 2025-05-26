@@ -29,7 +29,7 @@ import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilities;
 import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.tommylib.api.data.info.ModRegistryDumpReport;
 import dev.worldgen.lithostitched.registry.LithostitchedRegistryKeys;
 import java.util.List;
@@ -58,7 +58,7 @@ public class MineraculousDataGenerators {
             .add(Registries.PAINTING_VARIANT, MineraculousPaintingVariants::bootstrap)
             .add(LithostitchedRegistryKeys.WORLDGEN_MODIFIER, MineraculousWorldgenModifiers::bootstrap)
             .add(MineraculousRegistries.ABILITY, MineraculousAbilities::bootstrap)
-            .add(MineraculousRegistries.MIRACULOUS, MineraculousMiraculous::bootstrap)
+            .add(MineraculousRegistries.MIRACULOUS, Miraculouses::bootstrap)
             .add(MineraculousRegistries.KAMIKOTIZATION, context -> {
                 // TODO: Remove when testing is done (don't forget to remove the assets)
                 HolderGetter<Ability> abilities = context.lookup(MineraculousRegistries.ABILITY);

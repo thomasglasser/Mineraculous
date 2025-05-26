@@ -29,8 +29,9 @@ public record ServerboundTriggerKamikotizationAdvancementsPayload(UUID performer
         ServerPlayer performer = (ServerPlayer) player.level().getPlayerByUUID(performerId);
         ServerPlayer victim = (ServerPlayer) player.level().getPlayerByUUID(victimId);
         if (performer != null && victim != null) {
-            MineraculousCriteriaTriggers.TRANSFORMED_KAMIKOTIZATION.get().trigger(victim, kamikotization, performer == victim);
-            MineraculousCriteriaTriggers.KAMIKOTIZED_PLAYER.get().trigger(performer, kamikotization);
+            boolean self = performer == victim;
+            MineraculousCriteriaTriggers.TRANSFORMED_KAMIKOTIZATION.get().trigger(victim, kamikotization, self);
+            MineraculousCriteriaTriggers.KAMIKOTIZED_PLAYER.get().trigger(performer, kamikotization, self);
         }
     }
 

@@ -16,7 +16,7 @@ import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.SuitLookData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -161,7 +161,7 @@ public class LookCustomizationScreen extends Screen {
             if (selectedSuit == null) {
                 selectedSuit = suitLooks.getFirst();
                 for (Map.Entry<String, SuitLookData> entry : suitLooks) {
-                    if (entry.getKey().equals(minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).suitLook())) {
+                    if (entry.getKey().equals(minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).suitLook())) {
                         selectedSuit = entry;
                         break;
                     }
@@ -170,7 +170,7 @@ public class LookCustomizationScreen extends Screen {
             if (selectedMiraculous == null) {
                 selectedMiraculous = miraculousLooks.getFirst();
                 for (Map.Entry<String, MiraculousLookData> entry : miraculousLooks) {
-                    if (entry.getKey().equals(minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).miraculousLook())) {
+                    if (entry.getKey().equals(minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).miraculousLook())) {
                         selectedMiraculous = entry;
                         break;
                     }
@@ -184,7 +184,7 @@ public class LookCustomizationScreen extends Screen {
             this.name.setTextColorUneditable(-1);
             this.name.setBordered(true);
             this.name.setMaxLength(50);
-            this.name.setValue(Minecraft.getInstance().player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).name());
+            this.name.setValue(Minecraft.getInstance().player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).name());
             this.addWidget(this.name);
             this.name.setEditable(true);
             done = Button.builder(CommonComponents.GUI_DONE, button -> onClose(false)).build();
@@ -386,16 +386,16 @@ public class LookCustomizationScreen extends Screen {
     protected void onSuitChanged() {
         onLookChanged();
         if (selectedSuit != null) {
-            MiraculousDataSet miraculousDataSet = previewSuit.getData(MineraculousAttachmentTypes.MIRACULOUS);
-            miraculousDataSet.put(previewSuit, miraculous, miraculousDataSet.get(miraculous).withSuitLook(selectedSuit.getKey()), false);
+            MiraculousesData miraculousesData = previewSuit.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+            miraculousesData.put(previewSuit, miraculous, miraculousesData.get(miraculous).withSuitLook(selectedSuit.getKey()), false);
         }
     }
 
     protected void onMiraculousChanged() {
         onLookChanged();
         if (selectedMiraculous != null) {
-            MiraculousDataSet miraculousDataSet = previewMiraculousPlayer.getData(MineraculousAttachmentTypes.MIRACULOUS);
-            miraculousDataSet.put(previewMiraculousPlayer, miraculous, miraculousDataSet.get(miraculous).withMiraculousLook(selectedMiraculous.getKey()), false);
+            MiraculousesData miraculousesData = previewMiraculousPlayer.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+            miraculousesData.put(previewMiraculousPlayer, miraculous, miraculousesData.get(miraculous).withMiraculousLook(selectedMiraculous.getKey()), false);
         }
     }
 

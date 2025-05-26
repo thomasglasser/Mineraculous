@@ -9,7 +9,7 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
-import dev.thomasglasser.tommylib.api.network.NetworkUtils;
+import dev.thomasglasser.tommylib.api.network.codec.ExtraStreamCodecs;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -28,7 +28,7 @@ public record KamikotizationData(ResourceKey<Kamikotization> kamikotization, int
             Codec.BOOL.fieldOf("main_power_active").forGetter(KamikotizationData::mainPowerActive),
             Codec.either(Codec.INT, Codec.INT).optionalFieldOf("transformation_frames").forGetter(KamikotizationData::transformationFrames),
             Codec.STRING.optionalFieldOf("name", "").forGetter(KamikotizationData::name)).apply(instance, KamikotizationData::new));
-    public static final StreamCodec<RegistryFriendlyByteBuf, KamikotizationData> STREAM_CODEC = NetworkUtils.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, KamikotizationData> STREAM_CODEC = ExtraStreamCodecs.composite(
             ResourceKey.streamCodec(MineraculousRegistries.KAMIKOTIZATION), KamikotizationData::kamikotization,
             ByteBufCodecs.INT, KamikotizationData::stackCount,
             ByteBufCodecs.either(ByteBufCodecs.INT, CuriosData.STREAM_CODEC), KamikotizationData::slotInfo,

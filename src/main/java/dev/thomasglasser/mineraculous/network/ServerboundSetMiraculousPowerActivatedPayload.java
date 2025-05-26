@@ -11,7 +11,7 @@ import dev.thomasglasser.mineraculous.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -31,14 +31,14 @@ public record ServerboundSetMiraculousPowerActivatedPayload(ResourceKey<Miraculo
     public void handle(Player player) {
         ServerLevel level = (ServerLevel) player.level();
         Ability power = level.registryAccess().holderOrThrow(miraculousType).value().activeAbility().get().value();
-        MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-        MiraculousData data = miraculousDataSet.get(miraculousType);
+        MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+        MiraculousData data = miraculousesData.get(miraculousType);
         if (power.canActivate(new AbilityData(data.powerLevel(), Either.left(miraculousType)), level, player.blockPosition(), player)) {
             power.playStartSound(level, player.blockPosition());
             data = data.withPowerStatus(true, true);
             if (data.shouldCountDown())
                 data.miraculousItem().set(MineraculousDataComponents.REMAINING_TICKS.get(), MiraculousItem.FIVE_MINUTES);
-            miraculousDataSet.put(player, miraculousType, data, true);
+            miraculousesData.put(player, miraculousType, data, true);
             CuriosUtils.setStackInSlot(player, data.curiosData(), data.miraculousItem());
         }
     }

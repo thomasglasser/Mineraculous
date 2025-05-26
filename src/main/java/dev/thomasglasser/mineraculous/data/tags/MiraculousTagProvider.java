@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.data.tags;
 
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.tommylib.api.data.tags.ExtendedTagsProvider;
 import java.util.concurrent.CompletableFuture;
@@ -19,12 +19,12 @@ public class MiraculousTagProvider extends ExtendedTagsProvider<Miraculous> {
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         tag(MineraculousMiraculousTags.CAN_USE_BUTTERFLY_CANE)
-                .add(MineraculousMiraculous.BUTTERFLY);
+                .add(Miraculouses.BUTTERFLY);
 
         tag(MineraculousMiraculousTags.CAN_USE_CAT_STAFF)
-                .add(MineraculousMiraculous.CAT);
+                .add(Miraculouses.CAT);
 
         tag(MineraculousMiraculousTags.CAN_USE_LADYBUG_YOYO)
-                .add(MineraculousMiraculous.LADYBUG);
+                .add(Miraculouses.LADYBUG);
     }
 }

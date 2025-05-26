@@ -29,7 +29,7 @@ public abstract class ItemStackMixin implements DataComponentHolder {
 
     @Inject(method = "addToTooltip", at = @At("HEAD"), cancellable = true)
     private <T extends TooltipProvider> void addToTooltip(DataComponentType<T> component, Item.TooltipContext context, Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag, CallbackInfo ci) {
-        if (component == DataComponents.ENCHANTMENTS && has(MineraculousDataComponents.HIDE_ENCHANTMENTS.get()))
+        if (component == DataComponents.ENCHANTMENTS && has(MineraculousDataComponents.HIDE_ENCHANTMENTS))
             ci.cancel();
     }
 

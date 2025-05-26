@@ -45,7 +45,7 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
                 } else {
                     ItemStack stack = getCurrentStack();
                     if (stack != null && getCurrentEntity() instanceof LivingEntity livingEntity) {
-                        String look = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS).get(stack.get(MineraculousDataComponents.MIRACULOUS)).suitLook();
+                        String look = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(stack.get(MineraculousDataComponents.MIRACULOUS)).suitLook();
                         SuitLookData data = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).get(stack.get(MineraculousDataComponents.MIRACULOUS), look);
                         if (data != null && texture.equals(data.texture())) {
                             data.glowmask().ifPresent(glowmask -> {
@@ -104,7 +104,7 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
                 if (!DEFAULT_MODELS.containsKey(miraculous))
                     DEFAULT_MODELS.put(miraculous, createDefaultGeoModel(miraculous));
                 if (getCurrentEntity() instanceof Player player) {
-                    String look = player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).suitLook();
+                    String look = player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).suitLook();
                     if (!look.isEmpty()) {
                         SuitLookData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).get(miraculous, look);
                         if (data != null) {

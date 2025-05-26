@@ -47,7 +47,7 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "swing(Lnet/minecraft/world/InteractionHand;Z)V", at = @At("HEAD"), cancellable = true)
     private void swing(InteractionHand hand, boolean swingHand, CallbackInfo ci) {
-        if (mineraculous$INSTANCE instanceof Player player && player.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed()) {
+        if (mineraculous$INSTANCE instanceof Player player && player.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
             Entity camera = player.isLocalPlayer() ? MineraculousClientUtils.getCameraEntity() : player instanceof ServerPlayer serverPlayer ? serverPlayer.getCamera() : null;
             if (camera instanceof Player target && player != target && target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() && target.getHealth() > 4) {
                 if (player.isLocalPlayer())

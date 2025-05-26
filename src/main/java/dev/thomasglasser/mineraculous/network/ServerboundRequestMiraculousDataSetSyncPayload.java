@@ -21,7 +21,7 @@ public record ServerboundRequestMiraculousDataSetSyncPayload(int entity) impleme
     @Override
     public void handle(Player player) {
         if (player.level().getEntity(entity) instanceof LivingEntity livingEntity)
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousDataSetPayload(livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS), entity), player.level().getServer());
+            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousDataSetPayload(livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUSES), entity), player.level().getServer());
     }
 
     @Override

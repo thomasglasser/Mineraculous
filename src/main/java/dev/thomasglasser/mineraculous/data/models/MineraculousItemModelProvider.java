@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.data.models;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.renderer.item.MineraculousItemProperties;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItemDisplayContexts;
@@ -26,7 +26,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
 
     @Override
     protected void registerModels() {
-        miraculous(MineraculousMiraculous.LADYBUG)
+        miraculous(Miraculouses.LADYBUG)
                 .transform(MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue()).rotation(90, 0, 90).translation(-4, -2.65F, -0.5F).scale(0.3f).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0.5F, 0, 1.75F).scale(0.5F).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).translation(-0.5F, 0, 1.75F).scale(0.5F).end()
@@ -37,7 +37,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.FIXED).rotation(-90, 0, 0).translation(1, 1, 0).end()
                 .transform(ItemDisplayContext.GUI).rotation(90, 180, 0).translation(-2.5F, 2.5F, 0).scale(2.5F).end()
                 .end();
-        miraculous(MineraculousMiraculous.CAT)
+        miraculous(Miraculouses.CAT)
                 .transform(MineraculousItemDisplayContexts.CURIOS_RING.getValue()).rotation(90, 0, 270).translation(-1.45F, 9.4F, 0.5F).scale(0.3F).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0, 0, 0.5F).scale(0.3F).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).translation(0, 0, 0.5F).scale(0.3F).end()
@@ -48,7 +48,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.HEAD).translation(0, -2F, -6F).scale(0.5F).end()
                 .transform(ItemDisplayContext.FIXED).translation(0, -2.5F, 3F).scale(2F).end()
                 .end();
-        miraculous(MineraculousMiraculous.BUTTERFLY)
+        miraculous(Miraculouses.BUTTERFLY)
                 .transform(MineraculousItemDisplayContexts.CURIOS_BROOCH.getValue()).translation(0.1F, 4, -2.2F).rotation(0, 0, 180).scale(0.2F).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(90, 0, 0).translation(0, 0.5F, -5).scale(0.5F, 0.5F, 0.5F).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(90, 0, 0).translation(0, 0.5F, -5).scale(0.5F, 0.5F, 0.5F).end()

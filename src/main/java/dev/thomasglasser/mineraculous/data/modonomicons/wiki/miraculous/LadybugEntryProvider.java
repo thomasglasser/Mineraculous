@@ -6,7 +6,7 @@ import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.WikiBookSubProvider;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 
 public class LadybugEntryProvider extends IndexModeEntryProvider {
@@ -147,7 +147,7 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(Miraculous.createMiraculousStack(MineraculousMiraculous.LADYBUG));
+        return BookIconModel.create(Miraculous.createMiraculousStack(Miraculouses.LADYBUG));
     }
 
     @Override

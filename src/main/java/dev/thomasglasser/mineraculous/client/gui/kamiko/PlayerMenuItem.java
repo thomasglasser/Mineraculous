@@ -31,7 +31,7 @@ public class PlayerMenuItem implements KamikoMenuItem {
         Player player = Minecraft.getInstance().level.getPlayerByUUID(profile.getId());
         if (player != null) {
             this.name = player.getDisplayName();
-            List<ResourceKey<Miraculous>> transformed = player.getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed();
+            List<ResourceKey<Miraculous>> transformed = player.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed();
             if (!transformed.isEmpty()) {
                 ResourceKey<Miraculous> key = transformed.getFirst();
                 this.stack = Optional.of(Miraculous.createMiraculousStack(key));

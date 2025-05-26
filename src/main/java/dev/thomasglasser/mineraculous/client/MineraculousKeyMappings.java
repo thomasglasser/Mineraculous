@@ -22,7 +22,7 @@ import dev.thomasglasser.mineraculous.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.ExtendedKeyMapping;
@@ -60,11 +60,11 @@ public class MineraculousKeyMappings {
     private static void handleTransform() {
         Player player = Minecraft.getInstance().player;
         if (player != null) {
-            MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-            List<ResourceKey<Miraculous>> transformed = miraculousDataSet.getTransformed();
+            MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+            List<ResourceKey<Miraculous>> transformed = miraculousesData.getTransformed();
             if (!transformed.isEmpty()) {
                 ResourceKey<Miraculous> miraculous = transformed.getFirst();
-                TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousDataSet.get(miraculous), false, false));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), false, false));
             } else {
                 List<RadialMenuOption> options = new ReferenceArrayList<>();
                 Map<RadialMenuOption, ResourceKey<Miraculous>> miraculousOptions = new Reference2ReferenceOpenHashMap<>();
@@ -97,7 +97,7 @@ public class MineraculousKeyMappings {
                         ResourceKey<Miraculous> miraculous = miraculousOptions.get(selected);
                         if (miraculous != null) {
                             ItemStack stack = miraculousStacks.get(miraculous);
-                            MiraculousData data = miraculousDataSet.get(miraculous);
+                            MiraculousData data = miraculousesData.get(miraculous);
                             if (data != null) {
                                 KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
                                 if (kwamiData != null) {
@@ -115,7 +115,7 @@ public class MineraculousKeyMappings {
                     }));
                 } else if (options.size() == 1) {
                     ResourceKey<Miraculous> miraculous = miraculousOptions.get(options.getFirst());
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousDataSet.get(miraculous), true, false));
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), true, false));
                 }
             }
         }
@@ -124,11 +124,11 @@ public class MineraculousKeyMappings {
     private static void handleActivatePower() {
         Player player = Minecraft.getInstance().player;
         if (player != null) {
-            MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-            List<ResourceKey<Miraculous>> transformed = miraculousDataSet.getTransformed();
+            MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+            List<ResourceKey<Miraculous>> transformed = miraculousesData.getTransformed();
             if (!transformed.isEmpty()) {
                 ResourceKey<Miraculous> miraculous = transformed.getFirst();
-                MiraculousData data = miraculousDataSet.get(miraculous);
+                MiraculousData data = miraculousesData.get(miraculous);
                 if (data != null && !data.mainPowerActive() && !data.usedLimitedPower() && player.level().holderOrThrow(miraculous).value().activeAbility().isPresent()) {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousPowerActivatedPayload(miraculous));
                 }
@@ -167,8 +167,8 @@ public class MineraculousKeyMappings {
                 }
                 return;
             }
-            MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-            List<ResourceKey<Miraculous>> transformed = miraculousDataSet.getTransformed();
+            MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+            List<ResourceKey<Miraculous>> transformed = miraculousesData.getTransformed();
             if (!transformed.isEmpty()) {
                 ResourceKey<Miraculous> miraculous = transformed.getFirst();
                 if (player.getMainHandItem().isEmpty()) {
@@ -189,7 +189,7 @@ public class MineraculousKeyMappings {
         if (player != null) {
             ItemStack mainHandItem = player.getMainHandItem();
             if (mainHandItem.isEmpty()) {
-                if (MineraculousClientUtils.getLookEntity() instanceof Player target && (MineraculousServerConfig.get().enableUniversalStealing.get() || player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).isTransformed()) && (MineraculousServerConfig.get().enableSleepStealing.get() || !target.isSleeping())) {
+                if (MineraculousClientUtils.getLookEntity() instanceof Player target && (MineraculousServerConfig.get().enableUniversalStealing.get() || player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || player.getData(MineraculousAttachmentTypes.MIRACULOUSES.get()).isTransformed()) && (MineraculousServerConfig.get().enableSleepStealing.get() || !target.isSleeping())) {
                     takeTicks++;
                     if (target.isSleeping() && MineraculousServerConfig.get().wakeUpChance.get() > 0 && (MineraculousServerConfig.get().wakeUpChance.get() >= 100 || player.getRandom().nextFloat() < MineraculousServerConfig.get().wakeUpChance.get() / (20f * 5 * 100))) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundWakeUpPayload(target.getUUID(), true));

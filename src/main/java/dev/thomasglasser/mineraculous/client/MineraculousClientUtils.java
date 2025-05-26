@@ -184,8 +184,8 @@ public class MineraculousClientUtils {
         Minecraft.getInstance().setScreen(new MiraculousTransferScreen(kwamiId));
     }
 
-    public static void openLookCustomizationScreen(ResourceKey<Miraculous> miraculous, Map<String, FlattenedSuitLookData> serverSuits, Map<String, FlattenedMiraculousLookData> serverMiraculous) {
-        Minecraft.getInstance().setScreen(new LookCustomizationScreen(miraculous, serverSuits, serverMiraculous));
+    public static void openLookCustomizationScreen(ResourceKey<Miraculous> miraculous, Map<String, FlattenedSuitLookData> serverSuits, Map<String, FlattenedMiraculousLookData> serverMiraculouses) {
+        Minecraft.getInstance().setScreen(new LookCustomizationScreen(miraculous, serverSuits, serverMiraculouses));
     }
 
     // Camera

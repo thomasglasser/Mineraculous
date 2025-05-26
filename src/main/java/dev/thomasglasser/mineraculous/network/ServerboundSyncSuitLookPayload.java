@@ -6,7 +6,7 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -25,8 +25,8 @@ public record ServerboundSyncSuitLookPayload(ResourceKey<Miraculous> key, Flatte
     // ON SERVER
     @Override
     public void handle(Player player) {
-        MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-        miraculousDataSet.put(player, key, miraculousDataSet.get(key).withSuitLook(data.look()), false);
+        MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+        miraculousesData.put(player, key, miraculousesData.get(key).withSuitLook(data.look()), false);
         ((FlattenedLookDataHolder) player.getServer().overworld()).mineraculous$addSuitLookData(player.getUUID(), key, data);
         TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(player.getUUID(), key, data, true), player.getServer());
     }

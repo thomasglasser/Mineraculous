@@ -9,7 +9,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolde
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
@@ -33,8 +33,8 @@ public record ServerboundSyncCustomizationPayload(ResourceKey<Miraculous> key, S
     // ON SERVER
     @Override
     public void handle(Player player) {
-        MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-        MiraculousData data = miraculousDataSet.get(key).withName(name);
+        MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+        MiraculousData data = miraculousesData.get(key).withName(name);
         FlattenedLookDataHolder overworld = (FlattenedLookDataHolder) player.getServer().overworld();
         String suitLook = suit.isPresent() ? suit.get().look() : "";
         data = data.withSuitLook(suitLook);
@@ -48,7 +48,7 @@ public record ServerboundSyncCustomizationPayload(ResourceKey<Miraculous> key, S
             overworld.mineraculous$addMiraculousLookData(player.getUUID(), key, miraculous.get());
             TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), key, miraculous.get(), true), player.getServer());
         }
-        miraculousDataSet.put(player, key, data, true);
+        miraculousesData.put(player, key, data, true);
     }
 
     @Override

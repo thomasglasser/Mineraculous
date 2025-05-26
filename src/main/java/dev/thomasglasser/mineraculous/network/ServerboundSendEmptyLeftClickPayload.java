@@ -37,9 +37,9 @@ public record ServerboundSendEmptyLeftClickPayload(int entityId) implements Exte
         ServerLevel level = (ServerLevel) player.level();
         Entity entity = level.getEntity(entityId);
         if (entity instanceof LivingEntity livingEntity) {
-            livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed().forEach(key -> {
+            livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed().forEach(key -> {
                 Miraculous miraculous = level.holderOrThrow(key).value();
-                MiraculousData data = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(key);
+                MiraculousData data = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUSES.get()).get(key);
                 AtomicBoolean overrideActive = new AtomicBoolean(false);
                 AbilityData abilityData = new AbilityData(data.powerLevel(), Either.left(key));
                 miraculous.passiveAbilities().stream().map(Holder::value).forEach(ability -> {
@@ -48,11 +48,11 @@ public record ServerboundSendEmptyLeftClickPayload(int entityId) implements Exte
                 });
                 if (data.mainPowerActive()) {
                     if (overrideActive.get()) {
-                        livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(livingEntity, key, data.withPowerStatus(false, false), true);
+                        livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(livingEntity, key, data.withPowerStatus(false, false), true);
                     } else {
                         boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(abilityData, level, livingEntity.blockPosition(), livingEntity, Ability.Context.from());
                         if (usedPower) {
-                            livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(livingEntity, key, data.withUsedPower(), true);
+                            livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(livingEntity, key, data.withUsedPower(), true);
                             if (livingEntity instanceof ServerPlayer serverPlayer) {
                                 MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, key, UseMiraculousPowerTrigger.Context.EMPTY);
                             }

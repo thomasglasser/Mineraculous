@@ -34,6 +34,10 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
     @Override
     public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> biConsumer) {
         // Miraculous
+        // TODO: Ladybug and Butterfly lucky charms
+        biConsumer.accept(
+                MineraculousLuckyCharmLootKeys.LADYBUG_MIRACULOUS,
+                LootTable.lootTable());
         biConsumer.accept(
                 MineraculousLuckyCharmLootKeys.CAT_MIRACULOUS,
                 LootTable.lootTable()
@@ -44,6 +48,9 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                                 TagEntry.expandTag(ConventionalItemTags.SHIELD_TOOLS)
                                                         .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
                                                         .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(0, 3)))))));
+        biConsumer.accept(
+                MineraculousLuckyCharmLootKeys.BUTTERFLY_MIRACULOUS,
+                LootTable.lootTable());
 
         // Entities
         biConsumer.accept(

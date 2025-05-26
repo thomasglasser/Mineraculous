@@ -17,7 +17,7 @@ import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import java.util.List;
 import java.util.Optional;
@@ -351,7 +351,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     stack.setCount(1);
                     if (stack.isDamageableItem()) {
                         int i = 100;
-                        MiraculousDataSet data = owner != null ? owner.getData(MineraculousAttachmentTypes.MIRACULOUS) : null;
+                        MiraculousesData data = owner != null ? owner.getData(MineraculousAttachmentTypes.MIRACULOUSES) : null;
                         if (data != null) {
                             for (ResourceKey<Miraculous> type : data.getTransformed()) {
                                 int powerLevel = data.get(type).powerLevel();
@@ -443,16 +443,16 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     TommyLibServices.ENTITY.setPersistentData(entity, entityData, true);*/
                 }
             } else if (getAbility() == LadybugYoyoItem.Ability.PURIFY && getOwner() != null && result.getEntity() instanceof Kamiko kamiko && kamiko.isPowered()) {
-                MiraculousDataSet miraculousDataSet = getOwner().getData(MineraculousAttachmentTypes.MIRACULOUS);
-                ResourceKey<Miraculous> storingKey = miraculousDataSet.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_LADYBUG_YOYO, level());
-                MiraculousData storingData = miraculousDataSet.get(storingKey);
+                MiraculousesData miraculousesData = getOwner().getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                ResourceKey<Miraculous> storingKey = miraculousesData.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_LADYBUG_YOYO, level());
+                MiraculousData storingData = miraculousesData.get(storingKey);
                 if (storingData != null) {
                     CompoundTag kamikoData = kamiko.saveWithoutId(new CompoundTag());
                     ListTag list = storingData.extraData().getList(LadybugYoyoItem.TAG_STORED_KAMIKOS, 10);
                     list.add(kamikoData);
                     kamiko.discard();
                     storingData.extraData().put(LadybugYoyoItem.TAG_STORED_KAMIKOS, list);
-                    miraculousDataSet.put(getOwner(), storingKey, storingData, true);
+                    miraculousesData.put(getOwner(), storingKey, storingData, true);
                     discard();
                 }
             }

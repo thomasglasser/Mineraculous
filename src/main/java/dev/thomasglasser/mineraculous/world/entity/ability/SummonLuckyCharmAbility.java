@@ -78,7 +78,7 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
             ItemStack toAdd = result.get();
             UUID uuid;
             if (data.power().left().isPresent()) {
-                uuid = entity.getData(MineraculousAttachmentTypes.MIRACULOUS).get(data.power().left().get()).miraculousItem().get(MineraculousDataComponents.KWAMI_DATA).uuid();
+                uuid = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(data.power().left().get()).miraculousItem().get(MineraculousDataComponents.KWAMI_DATA).uuid();
                 toAdd.set(MineraculousDataComponents.KWAMI_DATA, new KwamiData(uuid, 0, false));
             } else {
                 uuid = entity.getUUID();
@@ -101,8 +101,8 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
                 if (data != null)
                     return data;
             }
-            if (target.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed()) {
-                List<ResourceKey<Miraculous>> transformed = target.getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed();
+            if (target.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
+                List<ResourceKey<Miraculous>> transformed = target.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed();
                 LuckyCharms data = level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getData(MineraculousDataMaps.MIRACULOUS_LUCKY_CHARMS, transformed.get(level.random.nextInt(transformed.size())));
                 if (data != null)
                     return data;
@@ -121,7 +121,7 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
             Either<ResourceKey<Miraculous>, ResourceKey<Kamikotization>> power = data.power();
             if (power.left().isPresent()) {
                 Integer toolId = mainHandItem.get(MineraculousDataComponents.TOOL_ID);
-                return toolId != null && toolId == entity.getData(MineraculousAttachmentTypes.MIRACULOUS).get(power.left().get()).toolId() && mainHandItem.getOrDefault(MineraculousDataComponents.ACTIVE, false);
+                return toolId != null && toolId == entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(power.left().get()).toolId() && mainHandItem.getOrDefault(MineraculousDataComponents.ACTIVE, false);
             } else {
                 return mainHandItem.get(MineraculousDataComponents.KAMIKOTIZATION) == power.right().get() && mainHandItem.getOrDefault(MineraculousDataComponents.ACTIVE, false);
             }

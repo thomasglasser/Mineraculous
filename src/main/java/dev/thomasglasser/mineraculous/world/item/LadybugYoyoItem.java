@@ -14,13 +14,18 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
+
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
+
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -206,14 +211,14 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                         pPlayer.startUsingItem(pHand);
                     } else if (ability == Ability.PURIFY) {
                         triggerAnim(pPlayer, GeoItem.getOrAssignId(stack, serverLevel), CONTROLLER_USE, ANIMATION_OPEN);
-                        MiraculousDataSet miraculousDataSet = pPlayer.getData(MineraculousAttachmentTypes.MIRACULOUS);
-                        ResourceKey<Miraculous> storingKey = miraculousDataSet.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_LADYBUG_YOYO, serverLevel);
-                        MiraculousData storingData = miraculousDataSet.get(storingKey);
+                        MiraculousesData miraculousesData = pPlayer.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                        ResourceKey<Miraculous> storingKey = miraculousesData.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_LADYBUG_YOYO, serverLevel);
+                        MiraculousData storingData = miraculousesData.get(storingKey);
                         if (storingData != null) {
                             CompoundTag extraData = storingData.extraData();
                             ListTag kamikos = extraData.getList(LadybugYoyoItem.TAG_STORED_KAMIKOS, 10);
                             if (!kamikos.isEmpty()) {
-                                MineraculousCriteriaTriggers.RELEASED_PURIFIED_KAMIKO.get().trigger((ServerPlayer) pPlayer, kamikos.size());
+                                Set<Kamiko> kamikoSet = new ReferenceOpenHashSet<>();
                                 for (Tag tag : kamikos) {
                                     Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(serverLevel);
                                     if (kamiko != null && tag instanceof CompoundTag compoundTag) {
@@ -222,11 +227,13 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                                         kamiko.setPos(pPlayer.getX(), pPlayer.getY() + 0.5, pPlayer.getZ());
                                         kamiko.addDeltaMovement(new Vec3(0, 1, 0));
                                         serverLevel.addFreshEntity(kamiko);
+                                        kamikoSet.add(kamiko);
                                     }
                                 }
+                                MineraculousCriteriaTriggers.RELEASED_PURIFIED_KAMIKO.get().trigger((ServerPlayer) pPlayer, kamikoSet);
                                 extraData.remove(LadybugYoyoItem.TAG_STORED_KAMIKOS);
                             }
-                            pPlayer.getData(MineraculousAttachmentTypes.MIRACULOUS).put(pPlayer, storingKey, storingData, true);
+                            pPlayer.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(pPlayer, storingKey, storingData, true);
                         }
                     } else {
                         throwYoyo(stack, pPlayer, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY));

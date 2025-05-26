@@ -17,7 +17,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideData;
 import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -135,7 +135,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
         LivingEntity entity = slotContext.entity();
         ResourceKey<Miraculous> miraculousKey = stack.get(MineraculousDataComponents.MIRACULOUS);
         if (entity instanceof Player player && miraculousKey != null && player.level().holderOrThrow(miraculousKey).value().acceptableSlot().equals(slotContext.identifier())) {
-            MiraculousDataSet dataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
+            MiraculousesData dataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
             MiraculousData data = dataSet.get(miraculousKey);
             if (data.transformed()) {
                 if (player instanceof ServerPlayer serverPlayer) {
@@ -180,11 +180,11 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                         });
                         if (data.mainPowerActive()) {
                             if (overrideActive.get()) {
-                                entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculousKey, data.withPowerStatus(false, false), true);
+                                entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(entity, miraculousKey, data.withPowerStatus(false, false), true);
                             } else {
                                 boolean usedPower = miraculous.activeAbility().get().value().perform(abilityData, serverLevel, player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem()));
                                 if (usedPower) {
-                                    entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculousKey, data.withUsedPower(), true);
+                                    entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(entity, miraculousKey, data.withUsedPower(), true);
                                     MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, miraculousKey, UseMiraculousPowerTrigger.Context.ITEM);
                                 }
                             }
@@ -192,11 +192,11 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                     }
                     if (data.mainPowerActive()) {
                         if (overrideActive.get()) {
-                            entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculousKey, data.withPowerStatus(false, false), true);
+                            entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(entity, miraculousKey, data.withPowerStatus(false, false), true);
                         } else {
                             boolean usedPower = miraculous.activeAbility().get().value().perform(abilityData, serverLevel, player.blockPosition(), player, Ability.Context.PASSIVE);
                             if (usedPower) {
-                                entity.getData(MineraculousAttachmentTypes.MIRACULOUS).put(entity, miraculousKey, data.withUsedPower(), true);
+                                entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(entity, miraculousKey, data.withUsedPower(), true);
                                 MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, miraculousKey, UseMiraculousPowerTrigger.Context.ITEM);
                             }
                         }
@@ -239,15 +239,15 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
         LivingEntity entity = slotContext.entity();
         if (entity.level() instanceof ServerLevel serverLevel && entity instanceof Player player) {
-            MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS);
-            MiraculousData data = miraculousDataSet.get(stack.get(MineraculousDataComponents.MIRACULOUS));
+            MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+            MiraculousData data = miraculousesData.get(stack.get(MineraculousDataComponents.MIRACULOUS));
             if (!data.transformed()) {
                 data = data.equip(stack, new CuriosData(slotContext.index(), slotContext.identifier()));
                 if (stack.has(MineraculousDataComponents.POWERED.get())) {
                     stack.remove(MineraculousDataComponents.POWERED.get());
                     MineraculousEntityEvents.summonKwami(serverLevel, stack.get(MineraculousDataComponents.MIRACULOUS), data, player);
                 } else {
-                    miraculousDataSet.put(entity, stack.get(MineraculousDataComponents.MIRACULOUS), data, true);
+                    miraculousesData.put(entity, stack.get(MineraculousDataComponents.MIRACULOUS), data, true);
                 }
             }
         }
@@ -258,14 +258,14 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
         LivingEntity entity = slotContext.entity();
         ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
         if (entity instanceof ServerPlayer serverPlayer && !(stack.is(newStack.getItem()) && miraculous == newStack.get(MineraculousDataComponents.MIRACULOUS))) {
-            MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS);
-            MiraculousData data = miraculousDataSet.get(miraculous);
+            MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+            MiraculousData data = miraculousesData.get(miraculous);
             if (data.transformed()) {
                 data = data.withCuriosData(CuriosData.EMPTY).withItem(stack.copy());
                 MineraculousEntityEvents.handleMiraculousTransformation(serverPlayer, miraculous, data, false, true, true);
             } else {
                 data = data.unEquip();
-                miraculousDataSet.put(entity, miraculous, data, true);
+                miraculousesData.put(entity, miraculous, data, true);
             }
         }
     }

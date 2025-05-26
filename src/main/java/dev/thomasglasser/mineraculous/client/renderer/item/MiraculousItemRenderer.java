@@ -190,7 +190,7 @@ public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
         if (profile != null && Minecraft.getInstance().level != null) {
             Player player = Minecraft.getInstance().level.getPlayerByUUID(profile.id().orElse(profile.gameProfile().getId()));
             if (player != null) {
-                String look = player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous).miraculousLook();
+                String look = player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).miraculousLook();
                 if (!look.isEmpty()) {
                     return player.getData(MineraculousAttachmentTypes.MIRACULOUS_MIRACULOUS_LOOKS).get(miraculous, look);
                 }

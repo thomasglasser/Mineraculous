@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.tommylib.api.network.NetworkUtils;
+import dev.thomasglasser.tommylib.api.network.codec.ExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ import software.bernie.geckolib.loading.object.GeometryTree;
 
 public record FlattenedSuitLookData(String look, Optional<String> model, byte[] pixels, Optional<byte[]> glowmaskPixels, List<byte[]> frames, List<byte[]> glowmaskFrames, Optional<String> animations) {
 
-    public static final StreamCodec<ByteBuf, FlattenedSuitLookData> CODEC = NetworkUtils.composite(
+    public static final StreamCodec<ByteBuf, FlattenedSuitLookData> CODEC = ExtraStreamCodecs.composite(
             ByteBufCodecs.STRING_UTF8, FlattenedSuitLookData::look,
             ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), FlattenedSuitLookData::model,
             ByteBufCodecs.BYTE_ARRAY, FlattenedSuitLookData::pixels,

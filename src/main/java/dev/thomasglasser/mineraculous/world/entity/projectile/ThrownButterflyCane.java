@@ -12,7 +12,7 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -103,7 +103,7 @@ public class ThrownButterflyCane extends AbstractArrow implements GeoEntity {
                 stack.setCount(1);
                 if (stack.isDamageableItem()) {
                     int i = 100;
-                    MiraculousDataSet data = owner != null ? owner.getData(MineraculousAttachmentTypes.MIRACULOUS) : null;
+                    MiraculousesData data = owner != null ? owner.getData(MineraculousAttachmentTypes.MIRACULOUSES) : null;
                     if (data != null) {
                         for (ResourceKey<Miraculous> type : data.getTransformed()) {
                             int powerLevel = data.get(type).powerLevel();

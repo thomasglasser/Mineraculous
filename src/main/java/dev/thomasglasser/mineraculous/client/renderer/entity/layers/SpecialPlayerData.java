@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.client.renderer.entity.layers;
 
-import dev.thomasglasser.tommylib.api.network.NetworkUtils;
+import dev.thomasglasser.tommylib.api.network.codec.ExtraStreamCodecs;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
 import java.util.Set;
 import java.util.UUID;
@@ -11,7 +11,7 @@ import net.minecraft.network.codec.StreamCodec;
 public record SpecialPlayerData(SnapshotTesterCosmeticOptions choice, boolean displaySnapshot, boolean displayDev, boolean displayLegacyDev) {
 
     public static final StreamCodec<FriendlyByteBuf, SpecialPlayerData> STREAM_CODEC = StreamCodec.composite(
-            NetworkUtils.enumCodec(SnapshotTesterCosmeticOptions.class), SpecialPlayerData::choice,
+            ExtraStreamCodecs.forEnum(SnapshotTesterCosmeticOptions.class), SpecialPlayerData::choice,
             ByteBufCodecs.BOOL, SpecialPlayerData::displaySnapshot,
             ByteBufCodecs.BOOL, SpecialPlayerData::displayDev,
             ByteBufCodecs.BOOL, SpecialPlayerData::displayLegacyDev,

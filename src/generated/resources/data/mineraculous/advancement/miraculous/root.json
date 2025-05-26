@@ -1,0 +1,38 @@
+{
+  "criteria": {
+    "get_miraculous": {
+      "conditions": {
+        "items": [
+          {
+            "items": "mineraculous:miraculous"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "background": "mineraculous:textures/gui/advancements/backgrounds/miraculous.png",
+    "description": {
+      "translate": "advancement.mineraculous.miraculous.root.desc"
+    },
+    "icon": {
+      "components": {
+        "mineraculous:miraculous": "mineraculous:ladybug"
+      },
+      "count": 1,
+      "id": "mineraculous:miraculous"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancement.mineraculous.miraculous.root.title"
+    }
+  },
+  "requirements": [
+    [
+      "get_miraculous"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

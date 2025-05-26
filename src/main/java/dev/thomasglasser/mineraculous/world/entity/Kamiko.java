@@ -18,7 +18,7 @@ import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.ArrayList;
@@ -195,10 +195,10 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     public List<? extends ExtendedSensor<? extends Kamiko>> getSensors() {
         return ObjectArrayList.of(
                 new PlayerTemptingSensor<Kamiko>().temptedWith((entity, player, stack) -> {
-                    MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-                    List<ResourceKey<?>> tempting = new ArrayList<>(miraculousDataSet.getTransformed().stream().filter(key -> {
+                    MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                    List<ResourceKey<?>> tempting = new ArrayList<>(miraculousesData.getTransformed().stream().filter(key -> {
                         Miraculous miraculous = level().holderOrThrow(key).value();
-                        MiraculousData data = miraculousDataSet.get(key);
+                        MiraculousData data = miraculousesData.get(key);
                         return Ability.hasMatching(ability -> ability instanceof SetOwnerAbility setOwnerAbility && setOwnerAbility.isValid(entity), miraculous, data.mainPowerActive());
                     }).toList());
                     if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
@@ -212,7 +212,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                     Player caneOwner = resolvableProfile != null ? player.level().getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId())) : null;
                     if (caneOwner == null)
                         return false;
-                    MiraculousData storingData = miraculousDataSet.get(miraculousDataSet.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_BUTTERFLY_CANE, level()));
+                    MiraculousData storingData = miraculousesData.get(miraculousesData.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_BUTTERFLY_CANE, level()));
                     return (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == ButterflyCaneItem.Ability.KAMIKO_STORE && storingData != null && !storingData.extraData().contains(ButterflyCaneItem.TAG_STORED_KAMIKO));
                 }));
     }
@@ -234,7 +234,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     public BrainActivityGroup<? extends Kamiko> getIdleTasks() {
         return BrainActivityGroup.idleTasks(
                 new FirstApplicableBehaviour<>(
-                        new FollowOwner<Kamiko>().startCondition(kamiko -> !BrainUtils.hasMemory(kamiko.getBrain(), MemoryModuleType.ATTACK_TARGET) && kamiko.getOwner() != null && kamiko.getOwner().getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed()),
+                        new FollowOwner<Kamiko>().startCondition(kamiko -> !BrainUtils.hasMemory(kamiko.getBrain(), MemoryModuleType.ATTACK_TARGET) && kamiko.getOwner() != null && kamiko.getOwner().getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()),
                         new FollowTemptation<>(),
                         new SetRandomFlyingTarget<>()));
     }
@@ -263,7 +263,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     @Override
     public void playerTouch(Player player) {
         if (getTarget() == player && getOwner() instanceof ServerPlayer owner) {
-            if (player.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed()) {
+            if (player.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
                 owner.displayClientMessage(Component.translatable(CANT_KAMIKOTIZE_TRANSFORMED), true);
                 setTarget(null);
                 return;
@@ -281,10 +281,10 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         super.setOwnerUUID(uuid);
         if (uuid != null && level() instanceof ServerLevel serverLevel) {
             if (serverLevel.getEntity(uuid) instanceof LivingEntity owner) {
-                MiraculousDataSet miraculousDataSet = owner.getData(MineraculousAttachmentTypes.MIRACULOUS);
+                MiraculousesData miraculousesData = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
                 boolean colorSet = false;
                 boolean faceMaskTextureSet = false;
-                for (ResourceKey<Miraculous> key : miraculousDataSet.getTransformed()) {
+                for (ResourceKey<Miraculous> key : miraculousesData.getTransformed()) {
                     Miraculous miraculous = level().holderOrThrow(key).value();
                     if (!colorSet && Ability.hasMatching(a -> a instanceof SetOwnerAbility sOA && sOA.isValid(this), miraculous, true)) {
                         setNameColor(miraculous.color().getValue());

@@ -26,25 +26,25 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-public class MiraculousDataSet {
+public class MiraculousesData {
     public static final UnboundedMapCodec<ResourceKey<Miraculous>, MiraculousData> MAP_CODEC = Codec.unboundedMap(ResourceKey.codec(MineraculousRegistries.MIRACULOUS), MiraculousData.CODEC);
-    public static final Codec<MiraculousDataSet> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            MAP_CODEC.fieldOf("map").forGetter(set -> set.map)).apply(instance, MiraculousDataSet::new));
-    public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousDataSet> STREAM_CODEC = StreamCodec.composite(
+    public static final Codec<MiraculousesData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            MAP_CODEC.fieldOf("map").forGetter(set -> set.map)).apply(instance, MiraculousesData::new));
+    public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousesData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.map(
                     Maps::newHashMapWithExpectedSize,
                     ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS),
                     MiraculousData.STREAM_CODEC),
             set -> set.map,
-            MiraculousDataSet::new);
+            MiraculousesData::new);
 
     private final Map<ResourceKey<Miraculous>, MiraculousData> map;
 
-    public MiraculousDataSet() {
+    public MiraculousesData() {
         this.map = new HashMap<>();
     }
 
-    public MiraculousDataSet(Map<ResourceKey<Miraculous>, MiraculousData> map) {
+    public MiraculousesData(Map<ResourceKey<Miraculous>, MiraculousData> map) {
         this.map = new HashMap<>(map);
     }
 
@@ -89,7 +89,7 @@ public class MiraculousDataSet {
     }
 
     public void save(Entity entity, boolean syncToClient) {
-        entity.setData(MineraculousAttachmentTypes.MIRACULOUS.get(), this);
+        entity.setData(MineraculousAttachmentTypes.MIRACULOUSES.get(), this);
         if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousDataSetPayload(this, entity.getId()), entity.level().getServer());
     }
 }

@@ -16,7 +16,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharm;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -61,7 +61,7 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
             if (luckyCharm != null) {
                 if (power.left().isPresent()) {
                     KwamiData stackKwamiData = mainHandItem.get(MineraculousDataComponents.KWAMI_DATA);
-                    return stackKwamiData != null && stackKwamiData.uuid().equals(entity.getData(MineraculousAttachmentTypes.MIRACULOUS).get(power.left().get()).miraculousItem().get(MineraculousDataComponents.KWAMI_DATA).uuid()) && luckyCharm.id() == ((LuckyCharmIdDataHolder) level.getServer().overworld()).mineraculous$getLuckyCharmIdData().getLuckyCharmId(stackKwamiData.uuid());
+                    return stackKwamiData != null && stackKwamiData.uuid().equals(entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(power.left().get()).miraculousItem().get(MineraculousDataComponents.KWAMI_DATA).uuid()) && luckyCharm.id() == ((LuckyCharmIdDataHolder) level.getServer().overworld()).mineraculous$getLuckyCharmIdData().getLuckyCharmId(stackKwamiData.uuid());
                 } else {
                     return mainHandItem.get(MineraculousDataComponents.KAMIKOTIZATION) == power.right().get() && luckyCharm.id() == ((LuckyCharmIdDataHolder) level.getServer().overworld()).mineraculous$getLuckyCharmIdData().getLuckyCharmId(entity.getUUID());
                 }
@@ -79,8 +79,8 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
             for (UUID related : miraculousRecoveryEntityData.getTrackedAndRelatedEntities(target.get())) {
                 LivingEntity recovering = level.getEntity(related) instanceof LivingEntity livingEntity ? livingEntity : null;
                 if (recovering != null) {
-                    MiraculousDataSet miraculousDataSet = recovering.getData(MineraculousAttachmentTypes.MIRACULOUS);
-                    Set<ResourceKey<Miraculous>> transformed = miraculousDataSet.keySet();
+                    MiraculousesData miraculousesData = recovering.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                    Set<ResourceKey<Miraculous>> transformed = miraculousesData.keySet();
                     Optional<ResourceKey<Kamikotization>> kamikotizationKey = recovering.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization);
                     if (kamikotizationKey.isEmpty())
                         kamikotizationKey = recovering.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION);
@@ -96,7 +96,7 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
                     }
                     for (ResourceKey<Miraculous> miraculousKey : transformed) {
                         Miraculous miraculous = level.holderOrThrow(miraculousKey).value();
-                        MiraculousData miraculousData = miraculousDataSet.get(miraculousKey);
+                        MiraculousData miraculousData = miraculousesData.get(miraculousKey);
                         AbilityData abilityData = new AbilityData(miraculousData.powerLevel(), Either.left(miraculousKey));
                         miraculous.activeAbility().ifPresent(ability -> ability.value().restore(abilityData, level, recovering.blockPosition(), recovering));
                         miraculous.passiveAbilities().forEach(ability -> ability.value().restore(abilityData, level, recovering.blockPosition(), recovering));

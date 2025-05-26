@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.network;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.item.RadialMenuProvider;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
-import dev.thomasglasser.tommylib.api.network.NetworkUtils;
+import dev.thomasglasser.tommylib.api.network.codec.ExtraStreamCodecs;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 public record ServerboundSetRadialMenuProviderOptionPayload(InteractionHand hand, int index) implements ExtendedPacketPayload {
     public static final Type<ServerboundSetRadialMenuProviderOptionPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_set_radial_menu_provider_option"));
     public static final StreamCodec<FriendlyByteBuf, ServerboundSetRadialMenuProviderOptionPayload> CODEC = StreamCodec.composite(
-            NetworkUtils.enumCodec(InteractionHand.class), ServerboundSetRadialMenuProviderOptionPayload::hand,
+            ExtraStreamCodecs.forEnum(InteractionHand.class), ServerboundSetRadialMenuProviderOptionPayload::hand,
             ByteBufCodecs.INT, ServerboundSetRadialMenuProviderOptionPayload::index,
             ServerboundSetRadialMenuProviderOptionPayload::new);
 

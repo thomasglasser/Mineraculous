@@ -1,0 +1,32 @@
+{
+  "parent": "mineraculous:miraculous/transform_cat",
+  "criteria": {
+    "cataclysm_entity": {
+      "conditions": {
+        "type": "mineraculous:cat",
+        "contexts": [
+          "living_entity"
+        ]
+      },
+      "trigger": "mineraculous:used_miraculous_power"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.mineraculous.miraculous.cataclysm_living_entity.desc"
+    },
+    "icon": {
+      "count": 1,
+      "id": "mineraculous:cataclysm_dust"
+    },
+    "title": {
+      "translate": "advancement.mineraculous.miraculous.cataclysm_living_entity.title"
+    }
+  },
+  "requirements": [
+    [
+      "cataclysm_entity"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

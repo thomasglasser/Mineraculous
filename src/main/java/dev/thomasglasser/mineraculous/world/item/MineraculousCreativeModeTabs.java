@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.world.item;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -26,7 +26,7 @@ import net.minecraft.world.item.ItemStackLinkedSet;
 public class MineraculousCreativeModeTabs {
     public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Mineraculous.MOD_ID);
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MIRACULOUS = TABS.register("miraculous", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(Mineraculous.modLoc("miraculous").toLanguageKey("item_group"))).icon(() -> Miraculous.createMiraculousStack(MineraculousMiraculous.LADYBUG)).withSearchBar().displayItems((parameters, output) -> {
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MIRACULOUS = TABS.register("miraculous", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(Mineraculous.modLoc("miraculous").toLanguageKey("item_group"))).icon(() -> Miraculous.createMiraculousStack(Miraculouses.LADYBUG)).withSearchBar().displayItems((parameters, output) -> {
         generateMiraculous(output, parameters.holders().lookupOrThrow(MineraculousRegistries.MIRACULOUS));
     }).build());
 

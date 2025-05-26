@@ -21,10 +21,6 @@ import net.minecraft.world.entity.player.Player;
 import org.lwjgl.glfw.GLFW;
 
 public abstract class AbstractKamikotizationChatScreen extends ChatScreen {
-    public static final String INTRO_NAME = "gui.kamikotization.chat.intro.name";
-    public static final String INTRO_NAMELESS = "gui.kamikotization.chat.intro.nameless";
-    public static final String ACCEPT = "gui.kamikotization.chat.accept";
-
     protected final Optional<ResourceLocation> faceMaskTexture;
 
     protected AbstractKamikotizationChatScreen(String initialText, Optional<ResourceLocation> faceMaskTexture) {

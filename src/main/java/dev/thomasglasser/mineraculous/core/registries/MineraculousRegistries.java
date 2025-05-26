@@ -9,12 +9,12 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 
 public class MineraculousRegistries {
-    public static final ResourceKey<Registry<Miraculous>> MIRACULOUS = createRegistryKey("miraculous");
-    public static final ResourceKey<Registry<MapCodec<? extends Ability>>> ABILITY_SERIALIZER = createRegistryKey("ability_serializer");
-    public static final ResourceKey<Registry<Ability>> ABILITY = createRegistryKey("ability");
-    public static final ResourceKey<Registry<Kamikotization>> KAMIKOTIZATION = createRegistryKey("kamikotization");
+    public static final ResourceKey<Registry<MapCodec<? extends Ability>>> ABILITY_SERIALIZER = create("ability_serializer");
+    public static final ResourceKey<Registry<Ability>> ABILITY = create("ability");
+    public static final ResourceKey<Registry<Miraculous>> MIRACULOUS = create("miraculous");
+    public static final ResourceKey<Registry<Kamikotization>> KAMIKOTIZATION = create("kamikotization");
 
-    private static <T> ResourceKey<Registry<T>> createRegistryKey(String pName) {
-        return ResourceKey.createRegistryKey(Mineraculous.modLoc(pName));
+    private static <T> ResourceKey<Registry<T>> create(String name) {
+        return ResourceKey.createRegistryKey(Mineraculous.modLoc(name));
     }
 }

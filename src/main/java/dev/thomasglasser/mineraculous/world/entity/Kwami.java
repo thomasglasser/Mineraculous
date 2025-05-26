@@ -4,7 +4,7 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.network.ClientboundOpenMiraculousTransferScreenPayload;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
@@ -121,7 +121,7 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_CHARGED, true);
-        builder.define(DATA_MIRACULOUS, MineraculousMiraculous.LADYBUG);
+        builder.define(DATA_MIRACULOUS, Miraculouses.LADYBUG);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.core.component;
 
-import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
@@ -15,62 +14,45 @@ import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharm;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import java.util.UUID;
-import java.util.function.Supplier;
+
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Unit;
-import org.jetbrains.annotations.Nullable;
 
 public class MineraculousDataComponents {
-    public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS = DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, Mineraculous.MOD_ID);
+    public static final DeferredRegister.DataComponents DATA_COMPONENTS = DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, Mineraculous.MOD_ID);
 
     // Shared
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> POWERED = register("powered", Codec.unit(Unit.INSTANCE), StreamCodec.unit(Unit.INSTANCE), false);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<KwamiData>> KWAMI_DATA = register("kwami_data", KwamiData.CODEC, null, true);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TOOL_ID = register("tool_id", Codec.INT, ByteBufCodecs.INT, false);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> HIDE_ENCHANTMENTS = register("hide_enchantments", Codec.unit(Unit.INSTANCE), StreamCodec.unit(Unit.INSTANCE), false);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceKey<Miraculous>>> MIRACULOUS = register("miraculous", ResourceKey.codec(MineraculousRegistries.MIRACULOUS), ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS), false);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceKey<Kamikotization>>> KAMIKOTIZATION = register("kamikotization", ResourceKey.codec(MineraculousRegistries.KAMIKOTIZATION), ResourceKey.streamCodec(MineraculousRegistries.KAMIKOTIZATION), false);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<LuckyCharm>> LUCKY_CHARM = register("lucky_charm", LuckyCharm.CODEC, LuckyCharm.STREAM_CODEC, false);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> RECOVERABLE_ITEM_ID = register("recoverable_item_id", UUIDUtil.CODEC, UUIDUtil.STREAM_CODEC, false);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> ACTIVE = register("active", Codec.BOOL, ByteBufCodecs.BOOL, true);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ActiveSettings>> ACTIVE_SETTINGS = register("active_settings", ActiveSettings.CODEC, ActiveSettings.STREAM_CODEC, true);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> BLOCKING = register("blocking", Codec.unit(Unit.INSTANCE), StreamCodec.unit(Unit.INSTANCE), false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> ACTIVE = DATA_COMPONENTS.registerBoolean("active", true, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ActiveSettings>> ACTIVE_SETTINGS = DATA_COMPONENTS.register("active_settings", ActiveSettings.STREAM_CODEC, ActiveSettings.CODEC, false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> BLOCKING = DATA_COMPONENTS.registerUnit("blocking", false, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> HIDE_ENCHANTMENTS = DATA_COMPONENTS.registerUnit("hide_enchantments", true, false);
 
     // Miraculous Item
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TRANSFORMATION_FRAMES = register("transformation_frames", Codec.INT, null, false);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> DETRANSFORMATION_FRAMES = register("detransformation_frames", Codec.INT, null, false);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> REMAINING_TICKS = register("remaining_ticks", Codec.INT, ByteBufCodecs.INT, false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> POWERED = DATA_COMPONENTS.registerUnit("powered", true, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TRANSFORMATION_FRAMES = DATA_COMPONENTS.registerInteger("transformation_frames", true, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> DETRANSFORMATION_FRAMES = DATA_COMPONENTS.registerInteger("detransformation_frames", true, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> REMAINING_TICKS = DATA_COMPONENTS.registerInteger("remaining_ticks", true, true);
 
     // Miraculous Tools
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<LadybugYoyoItem.Ability>> LADYBUG_YOYO_ABILITY = register("ladybug_yoyo_ability", LadybugYoyoItem.Ability.CODEC, LadybugYoyoItem.Ability.STREAM_CODEC, true);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<CatStaffItem.Ability>> CAT_STAFF_ABILITY = register("cat_staff_ability", CatStaffItem.Ability.CODEC, CatStaffItem.Ability.STREAM_CODEC, true);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ButterflyCaneItem.Ability>> BUTTERFLY_CANE_ABILITY = register("butterfly_cane_ability", ButterflyCaneItem.Ability.CODEC, ButterflyCaneItem.Ability.STREAM_CODEC, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<LadybugYoyoItem.Ability>> LADYBUG_YOYO_ABILITY = DATA_COMPONENTS.register("ladybug_yoyo_ability", LadybugYoyoItem.Ability.STREAM_CODEC, LadybugYoyoItem.Ability.CODEC, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<CatStaffItem.Ability>> CAT_STAFF_ABILITY = DATA_COMPONENTS.register("cat_staff_ability", CatStaffItem.Ability.STREAM_CODEC, CatStaffItem.Ability.CODEC, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ButterflyCaneItem.Ability>> BUTTERFLY_CANE_ABILITY = DATA_COMPONENTS.register("butterfly_cane_ability", ButterflyCaneItem.Ability.STREAM_CODEC, ButterflyCaneItem.Ability.CODEC, true);
+
+    // Abilities
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<LuckyCharm>> LUCKY_CHARM = DATA_COMPONENTS.register("lucky_charm", LuckyCharm.STREAM_CODEC, LuckyCharm.CODEC, false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> RECOVERABLE_ITEM_ID = DATA_COMPONENTS.register("recoverable_item_id", UUIDUtil.STREAM_CODEC, UUIDUtil.CODEC, false);
+
+    // Miraculous
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceKey<Miraculous>>> MIRACULOUS = DATA_COMPONENTS.registerResourceKey("miraculous", MineraculousRegistries.MIRACULOUS, true, false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<KwamiData>> KWAMI_DATA = DATA_COMPONENTS.register("kwami_data", KwamiData.STREAM_CODEC, KwamiData.CODEC, false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TOOL_ID = DATA_COMPONENTS.registerInteger("tool_id", true, false);
 
     // Kamikotization
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<KamikoData>> KAMIKO_DATA = register("kamiko_data", KamikoData.CODEC, null, true);
-
-    private static <T> DeferredHolder<DataComponentType<?>, DataComponentType<T>> register(String name, @Nullable Codec<T> diskCodec, @Nullable StreamCodec<? super RegistryFriendlyByteBuf, T> networkCodec, boolean cache) {
-        Supplier<DataComponentType<T>> component = () -> {
-            DataComponentType.Builder<T> builder = DataComponentType.builder();
-            if (diskCodec != null) {
-                builder.persistent(diskCodec);
-            }
-            if (networkCodec != null) {
-                builder.networkSynchronized(networkCodec);
-            }
-            if (cache) {
-                builder.cacheEncoding();
-            }
-            return builder.build();
-        };
-        return DATA_COMPONENTS.register(name, component);
-    }
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceKey<Kamikotization>>> KAMIKOTIZATION = DATA_COMPONENTS.registerResourceKey("kamikotization", MineraculousRegistries.KAMIKOTIZATION, true, false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<KamikoData>> KAMIKO_DATA = DATA_COMPONENTS.register("kamiko_data", KamikoData.STREAM_CODEC, KamikoData.CODEC, true);
 
     public static void init() {}
 }

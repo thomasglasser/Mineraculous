@@ -6,7 +6,7 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -25,8 +25,8 @@ public record ServerboundSyncMiraculousLookPayload(ResourceKey<Miraculous> mirac
     // ON SERVER
     @Override
     public void handle(Player player) {
-        MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-        miraculousDataSet.put(player, miraculous, miraculousDataSet.get(miraculous).withMiraculousLook(data.look()), false);
+        MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+        miraculousesData.put(player, miraculous, miraculousesData.get(miraculous).withMiraculousLook(data.look()), false);
         ((FlattenedLookDataHolder) player.getServer().overworld()).mineraculous$addMiraculousLookData(player.getUUID(), miraculous, data);
         TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), miraculous, data, true), player.getServer());
     }

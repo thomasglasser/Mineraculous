@@ -11,6 +11,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 
 public class PerformerKamikotizationChatScreen extends AbstractKamikotizationChatScreen {
+    public static final String INTRO_NAME = "gui.kamikotization.chat.intro.name";
+    public static final String INTRO_NAMELESS = "gui.kamikotization.chat.intro.nameless";
+
     private final UUID other;
     private final BlockPos otherPos;
 

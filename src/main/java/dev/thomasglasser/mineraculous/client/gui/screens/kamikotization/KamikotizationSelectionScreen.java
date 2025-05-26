@@ -19,7 +19,7 @@ import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -352,7 +352,7 @@ public class KamikotizationSelectionScreen extends Screen {
                         AbilityEffectData.checkRemoveFaceMaskTexture(target, kamikoData.faceMaskTexture());
                     } else {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundOpenVictimKamikotizationChatScreenPayload(target.getUUID(), kamikotizationData));
-                        MiraculousDataSet playerMiraculousSet = minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUS);
+                        MiraculousesData playerMiraculousSet = minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
                         TommyLibServices.NETWORK.sendToServer(new ServerboundOpenPerformerKamikotizationChatScreenPayload(playerMiraculousSet.get(playerMiraculousSet.getTransformed().getFirst()).name(), name.getValue(), kamikoData.faceMaskTexture(), target.getUUID()));
                     }
                 }

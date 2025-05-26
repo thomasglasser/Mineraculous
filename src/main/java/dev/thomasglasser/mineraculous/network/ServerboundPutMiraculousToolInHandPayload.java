@@ -28,7 +28,7 @@ public record ServerboundPutMiraculousToolInHandPayload(ResourceKey<Miraculous> 
     @Override
     public void handle(Player player) {
         if (player.getMainHandItem().isEmpty()) {
-            MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS).get(miraculous);
+            MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous);
             KwamiData kwamiData = data.miraculousItem().get(MineraculousDataComponents.KWAMI_DATA);
             UUID uuid = kwamiData != null ? kwamiData.uuid() : null;
             if (uuid != null) {

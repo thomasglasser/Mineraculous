@@ -1,0 +1,35 @@
+{
+  "parent": "mineraculous:miraculous/root",
+  "criteria": {
+    "transform_cat": {
+      "conditions": {
+        "type": "mineraculous:cat"
+      },
+      "trigger": "mineraculous:transformed_miraculous"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.mineraculous.miraculous.transform_cat.desc"
+    },
+    "icon": {
+      "components": {
+        "mineraculous:miraculous": "mineraculous:cat"
+      },
+      "count": 1,
+      "id": "mineraculous:miraculous"
+    },
+    "title": {
+      "translate": "advancement.mineraculous.miraculous.transform_cat.title"
+    }
+  },
+  "requirements": [
+    [
+      "transform_cat"
+    ]
+  ],
+  "rewards": {
+    "experience": 10
+  },
+  "sends_telemetry_event": true
+}

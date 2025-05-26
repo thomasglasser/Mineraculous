@@ -100,7 +100,7 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onRegisterVillagerTrades);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityJoinLevel);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerLoggedOut);
-        NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onLoadLootTable);
+        NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onLootTableLoad);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerBreakSpeed);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onServerPlayerLoggedIn);
         NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onServerStarted);

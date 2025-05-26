@@ -4,7 +4,7 @@ import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 
 public class AdvancementTriggersEntryProvider extends IndexModeEntryProvider {
@@ -111,7 +111,7 @@ public class AdvancementTriggersEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(Miraculous.createMiraculousStack(MineraculousMiraculous.BUTTERFLY));
+        return BookIconModel.create(Miraculous.createMiraculousStack(Miraculouses.BUTTERFLY));
     }
 
     @Override

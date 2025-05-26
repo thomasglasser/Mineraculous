@@ -14,13 +14,13 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceKey;
 
-public class MineraculousMiraculous {
-    public static final ResourceKey<Miraculous> BUTTERFLY = register("butterfly");
-    public static final ResourceKey<Miraculous> CAT = register("cat");
-    public static final ResourceKey<Miraculous> LADYBUG = register("ladybug");
+public class Miraculouses {
+    public static final ResourceKey<Miraculous> BUTTERFLY = create("butterfly");
+    public static final ResourceKey<Miraculous> CAT = create("cat");
+    public static final ResourceKey<Miraculous> LADYBUG = create("ladybug");
 
-    private static ResourceKey<Miraculous> register(String id) {
-        return ResourceKey.create(MineraculousRegistries.MIRACULOUS, Mineraculous.modLoc(id));
+    private static ResourceKey<Miraculous> create(String name) {
+        return ResourceKey.create(MineraculousRegistries.MIRACULOUS, Mineraculous.modLoc(name));
     }
 
     public static void bootstrap(BootstrapContext<Miraculous> context) {

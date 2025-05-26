@@ -1,0 +1,39 @@
+{
+  "parent": "mineraculous:miraculous/transform_ladybug",
+  "criteria": {
+    "release_purified_butterfly": {
+      "conditions": {
+        "released": [
+          [
+            {
+              "condition": "minecraft:entity_properties",
+              "entity": "this",
+              "predicate": {
+                "type": "#c:butterflies"
+              }
+            }
+          ]
+        ]
+      },
+      "trigger": "mineraculous:released_purified_kamiko"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.mineraculous.miraculous.release_purified_butterfly.desc"
+    },
+    "icon": {
+      "count": 1,
+      "id": "mineraculous:ladybug_yoyo"
+    },
+    "title": {
+      "translate": "advancement.mineraculous.miraculous.release_purified_butterfly.title"
+    }
+  },
+  "requirements": [
+    [
+      "release_purified_butterfly"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

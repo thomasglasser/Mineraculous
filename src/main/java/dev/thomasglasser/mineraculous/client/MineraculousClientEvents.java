@@ -347,7 +347,7 @@ public class MineraculousClientEvents {
 
     private static boolean isInKamikoView() {
         LocalPlayer player = Minecraft.getInstance().player;
-        return player != null && !player.isSpectator() && player.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed() && MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko && kamiko.isOwnedBy(player) && kamikoGui != null;
+        return player != null && !player.isSpectator() && player.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() && MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko && kamiko.isOwnedBy(player) && kamikoGui != null;
     }
 
     // Tick

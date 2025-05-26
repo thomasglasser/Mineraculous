@@ -4,6 +4,7 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import top.theillusivec4.curios.api.CuriosDataProvider;
 
@@ -26,14 +27,18 @@ public class MineraculousCuriosProvider extends CuriosDataProvider {
                         SLOT_RING,
                         SLOT_EARRINGS);
 
-        createEntities("tool_holders")
+        createEntities("miraculous_tool_holders")
                 .addPlayer()
                 .addSlots(
                         SLOT_BELT);
 
         createSlot(SLOT_BROOCH)
-                .icon(Mineraculous.modLoc("slot/empty_brooch_slot"));
+                .icon(slotIcon(SLOT_BROOCH));
         createSlot(SLOT_EARRINGS)
-                .icon(Mineraculous.modLoc("slot/empty_earrings_slot"));
+                .icon(slotIcon(SLOT_EARRINGS));
+    }
+
+    private ResourceLocation slotIcon(String name) {
+        return Mineraculous.modLoc("slot/empty_" + name + "_slot");
     }
 }

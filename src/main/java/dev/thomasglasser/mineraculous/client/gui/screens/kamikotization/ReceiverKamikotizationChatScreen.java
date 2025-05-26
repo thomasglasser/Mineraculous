@@ -14,6 +14,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
 public class ReceiverKamikotizationChatScreen extends AbstractKamikotizationChatScreen {
+    public static final String ACCEPT = "gui.kamikotization.chat.accept";
+
     private final UUID other;
     private final KamikotizationData kamikotizationData;
 

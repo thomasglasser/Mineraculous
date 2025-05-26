@@ -7,7 +7,7 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import java.util.function.Consumer;
@@ -48,7 +48,7 @@ public record ServerboundTryBreakItemPayload() implements ExtendedPacketPayload 
         ServerLevel serverLevel = (ServerLevel) player.level();
         if (mainHandItem.isDamageableItem()) {
             int i = 100;
-            MiraculousDataSet data = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
+            MiraculousesData data = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
             for (ResourceKey<Miraculous> type : data.getTransformed()) {
                 int powerLevel = data.get(type).powerLevel();
                 if (powerLevel > 0)

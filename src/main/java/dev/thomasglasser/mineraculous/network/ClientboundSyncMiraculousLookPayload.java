@@ -5,7 +5,7 @@ import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousLookData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.UUID;
@@ -37,8 +37,8 @@ public record ClientboundSyncMiraculousLookPayload(UUID targetId, ResourceKey<Mi
                 return;
             target.getData(MineraculousAttachmentTypes.MIRACULOUS_MIRACULOUS_LOOKS).put(miraculous, data.look(), lookData);
             if (override) {
-                MiraculousDataSet miraculousDataSet = target.getData(MineraculousAttachmentTypes.MIRACULOUS);
-                miraculousDataSet.put(target, miraculous, miraculousDataSet.get(miraculous).withMiraculousLook(data.look()), false);
+                MiraculousesData miraculousesData = target.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                miraculousesData.put(target, miraculous, miraculousesData.get(miraculous).withMiraculousLook(data.look()), false);
             }
         }
     }

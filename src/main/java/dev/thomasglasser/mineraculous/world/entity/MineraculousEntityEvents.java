@@ -44,7 +44,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
@@ -115,8 +115,6 @@ public class MineraculousEntityEvents {
     public static final String TAG_CAMERA_CONTROL_INTERRUPTED = "CameraControlInterrupted";
     public static final String TAG_YOYO_BOUND_POS = "YoyoBoundPos";
 
-    public static final String ITEM_BROKEN_KEY = "mineraculous.item_broken";
-
     public static final BiFunction<Holder<MobEffect>, Integer, MobEffectInstance> INFINITE_HIDDEN_EFFECT = (effect, amplifier) -> new MobEffectInstance(effect, -1, amplifier, false, false, false);
 
     public static void onEntityTick(EntityTickEvent.Post event) {
@@ -137,7 +135,7 @@ public class MineraculousEntityEvents {
             MiraculousRecoveryEntityData miraculousRecoveryEntityData = ((MiraculousRecoveryDataHolder) serverLevel.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData();
             if (miraculousRecoveryEntityData.isBeingTracked(entity.getUUID())) {
                 List<UUID> alreadyRelated = miraculousRecoveryEntityData.getRelatedEntities(entity.getUUID());
-                List<LivingEntity> related = entity.level().getEntities(EntityTypeTest.forClass(LivingEntity.class), entity.getBoundingBox().inflate(16), livingEntity -> !alreadyRelated.contains(livingEntity.getUUID()) && (livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed() || livingEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()));
+                List<LivingEntity> related = entity.level().getEntities(EntityTypeTest.forClass(LivingEntity.class), entity.getBoundingBox().inflate(16), livingEntity -> !alreadyRelated.contains(livingEntity.getUUID()) && (livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || livingEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()));
                 for (LivingEntity livingEntity : related) {
                     if (livingEntity.getUUID() != entity.getUUID()) {
                         miraculousRecoveryEntityData.putRelatedEntity(entity.getUUID(), livingEntity.getUUID());
@@ -242,15 +240,15 @@ public class MineraculousEntityEvents {
                     TommyLibServices.NETWORK.sendToClient(new ClientboundSyncKamikotizationLookPayload(uuid, data), serverPlayer);
                 });
                 for (ServerPlayer other : serverPlayer.serverLevel().players()) {
-                    MiraculousDataSet miraculousDataSet = other.getData(MineraculousAttachmentTypes.MIRACULOUS);
-                    for (ResourceKey<Miraculous> miraculous : miraculousDataSet.keySet()) {
+                    MiraculousesData miraculousesData = other.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                    for (ResourceKey<Miraculous> miraculous : miraculousesData.keySet()) {
                         Map<String, FlattenedSuitLookData> commonSuitLooks = ((FlattenedLookDataHolder) serverPlayer.serverLevel().getServer().overworld()).mineraculous$getCommonSuitLookData().get(miraculous);
-                        String look = miraculousDataSet.get(miraculous).suitLook();
+                        String look = miraculousesData.get(miraculous).suitLook();
                         if (commonSuitLooks.containsKey(look)) {
                             TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(other.getUUID(), miraculous, commonSuitLooks.get(look), true), serverPlayer.getServer());
                         }
                         Map<String, FlattenedMiraculousLookData> commonMiraculousLooks = ((FlattenedLookDataHolder) serverPlayer.serverLevel().getServer().overworld()).mineraculous$getCommonMiraculousLookData().get(miraculous);
-                        look = miraculousDataSet.get(miraculous).miraculousLook();
+                        look = miraculousesData.get(miraculous).miraculousLook();
                         if (commonMiraculousLooks.containsKey(look)) {
                             TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(other.getUUID(), miraculous, commonMiraculousLooks.get(look), true), serverPlayer.getServer());
                         }
@@ -394,10 +392,10 @@ public class MineraculousEntityEvents {
 
     public static void onLivingDeath(LivingDeathEvent event) {
         LivingEntity entity = event.getEntity();
-        MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS.get());
+        MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES.get());
         if (entity instanceof ServerPlayer player) {
-            miraculousDataSet.keySet().forEach(miraculous -> {
-                MiraculousData data = miraculousDataSet.get(miraculous);
+            miraculousesData.keySet().forEach(miraculous -> {
+                MiraculousData data = miraculousesData.get(miraculous);
                 if (data.transformed())
                     handleMiraculousTransformation(player, miraculous, data, false, true, false);
                 renounceMiraculous(data.miraculousItem(), player.serverLevel());
@@ -416,7 +414,7 @@ public class MineraculousEntityEvents {
         int transformationFrames = instant ? 0 : player.serverLevel().holderOrThrow(miraculous).value().transformationFrames();
         if (transform) {
             // Transform
-            if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || player.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed()) {
+            if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || player.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
                 return;
             }
             KwamiData kwamiData = miraculousStack.get(MineraculousDataComponents.KWAMI_DATA.get());
@@ -454,7 +452,7 @@ public class MineraculousEntityEvents {
                         }
                     }
 
-                    player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);
+                    player.getData(MineraculousAttachmentTypes.MIRACULOUSES.get()).put(player, miraculous, data, true);
                     serverLevel.playSound(null, player.getX(), player.getY(), player.getZ(), serverLevel.holderOrThrow(miraculous).value().transformSound(), SoundSource.PLAYERS, 1, 1);
                     if (data.curiosData() != CuriosData.EMPTY)
                         CuriosUtils.setStackInSlot(player, data.curiosData(), miraculousStack);
@@ -505,7 +503,7 @@ public class MineraculousEntityEvents {
             data = data.transform(false, miraculousStack, ((ToolIdDataHolder) serverLevel.getServer().overworld()).mineraculous$getToolIdData().getToolId(kwami.getUUID()));
             if (removed)
                 data = data.unEquip();
-            player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, data, true);
+            player.getData(MineraculousAttachmentTypes.MIRACULOUSES.get()).put(player, miraculous, data, true);
             player.getInventory().clearOrCountMatchingItems(itemStack -> itemStack.has(MineraculousDataComponents.TOOL_ID) && itemStack.has(MineraculousDataComponents.KWAMI_DATA) && itemStack.get(MineraculousDataComponents.KWAMI_DATA).uuid().equals(kwami.getUUID()), Integer.MAX_VALUE, new SimpleContainer());
             CuriosUtils.getAllItems(player).forEach(((curiosData, itemStack) -> {
                 if (itemStack.has(MineraculousDataComponents.TOOL_ID) && itemStack.has(MineraculousDataComponents.KWAMI_DATA) && itemStack.get(MineraculousDataComponents.KWAMI_DATA).uuid().equals(kwami.getUUID())) {
@@ -572,7 +570,7 @@ public class MineraculousEntityEvents {
                 miraculousData.miraculousItem().set(MineraculousDataComponents.KWAMI_DATA.get(), new KwamiData(kwami.getUUID(), kwami.getId(), kwami.isCharged()));
                 if (miraculousData.curiosData() != CuriosData.EMPTY)
                     CuriosUtils.setStackInSlot(player, miraculousData.curiosData(), miraculousData.miraculousItem());
-                player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).put(player, miraculous, miraculousData.withItem(miraculousData.miraculousItem()), true);
+                player.getData(MineraculousAttachmentTypes.MIRACULOUSES.get()).put(player, miraculous, miraculousData.withItem(miraculousData.miraculousItem()), true);
                 return kwami;
             }
         }
@@ -590,9 +588,9 @@ public class MineraculousEntityEvents {
             else {
                 livingTarget = null;
             }
-            player.getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed().forEach(key -> {
+            player.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed().forEach(key -> {
                 Miraculous miraculous = level.holderOrThrow(key).value();
-                MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(key);
+                MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUSES.get()).get(key);
                 AtomicBoolean overrideActive = new AtomicBoolean(false);
                 AbilityData abilityData = new AbilityData(data.powerLevel(), Either.left(key));
                 miraculous.passiveAbilities().stream().map(Holder::value).forEach(ability -> {
@@ -601,11 +599,11 @@ public class MineraculousEntityEvents {
                 });
                 if (data.mainPowerActive()) {
                     if (overrideActive.get()) {
-                        player.getData(MineraculousAttachmentTypes.MIRACULOUS).put(player, key, data.withPowerStatus(false, false), true);
+                        player.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(player, key, data.withPowerStatus(false, false), true);
                     } else {
                         boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(abilityData, level, event.getPos(), player, blocked ? Ability.Context.from(livingTarget.getUseItem(), livingTarget) : Ability.Context.from(target));
                         if (usedPower) {
-                            player.getData(MineraculousAttachmentTypes.MIRACULOUS).put(player, key, data.withUsedPower(), true);
+                            player.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(player, key, data.withUsedPower(), true);
                             MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger((ServerPlayer) player, key, target instanceof LivingEntity ? UseMiraculousPowerTrigger.Context.LIVING_ENTITY : UseMiraculousPowerTrigger.Context.ENTITY);
                         }
                     }
@@ -647,9 +645,9 @@ public class MineraculousEntityEvents {
             else {
                 livingTarget = null;
             }
-            player.getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed().forEach(key -> {
+            player.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed().forEach(key -> {
                 Miraculous miraculous = level.holderOrThrow(key).value();
-                MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(key);
+                MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUSES.get()).get(key);
                 AtomicBoolean overrideActive = new AtomicBoolean(false);
                 AbilityData abilityData = new AbilityData(data.powerLevel(), Either.left(key));
                 miraculous.passiveAbilities().stream().map(Holder::value).forEach(ability -> {
@@ -658,11 +656,11 @@ public class MineraculousEntityEvents {
                 });
                 if (data.mainPowerActive()) {
                     if (overrideActive.get()) {
-                        player.getData(MineraculousAttachmentTypes.MIRACULOUS).put(player, key, data.withPowerStatus(false, false), true);
+                        player.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(player, key, data.withPowerStatus(false, false), true);
                     } else {
                         boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(abilityData, level, player.blockPosition(), player, blocked ? Ability.Context.from(livingTarget.getUseItem(), livingTarget) : Ability.Context.from(target));
                         if (usedPower) {
-                            player.getData(MineraculousAttachmentTypes.MIRACULOUS).put(player, key, data.withUsedPower(), true);
+                            player.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(player, key, data.withUsedPower(), true);
                             MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger((ServerPlayer) player, key, target instanceof LivingEntity ? UseMiraculousPowerTrigger.Context.LIVING_ENTITY : UseMiraculousPowerTrigger.Context.ENTITY);
                         }
                     }
@@ -697,9 +695,9 @@ public class MineraculousEntityEvents {
             LivingEntity victim = event.getEntity();
             boolean blocked = victim.isBlocking();
             if (attacker instanceof LivingEntity livingEntity) {
-                livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed().forEach(key -> {
+                livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed().forEach(key -> {
                     Miraculous miraculous = level.holderOrThrow(key).value();
-                    MiraculousData data = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(key);
+                    MiraculousData data = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUSES.get()).get(key);
                     AtomicBoolean overrideActive = new AtomicBoolean(false);
                     AbilityData abilityData = new AbilityData(data.powerLevel(), Either.left(key));
                     miraculous.passiveAbilities().stream().map(Holder::value).forEach(ability -> {
@@ -708,11 +706,11 @@ public class MineraculousEntityEvents {
                     });
                     if (data.mainPowerActive()) {
                         if (overrideActive.get()) {
-                            event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withPowerStatus(false, false), true);
+                            event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUSES).put(event.getEntity(), key, data.withPowerStatus(false, false), true);
                         } else {
                             boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(abilityData, level, livingEntity.blockPosition(), livingEntity, blocked ? Ability.Context.from(victim.getUseItem(), victim) : Ability.Context.from(victim));
                             if (usedPower) {
-                                event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUS).put(event.getEntity(), key, data.withUsedPower(), true);
+                                event.getEntity().getData(MineraculousAttachmentTypes.MIRACULOUSES).put(event.getEntity(), key, data.withUsedPower(), true);
                                 if (event.getEntity() instanceof ServerPlayer player) {
                                     MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(player, key, UseMiraculousPowerTrigger.Context.LIVING_ENTITY);
                                 }
@@ -754,9 +752,9 @@ public class MineraculousEntityEvents {
     public static void onBlockInteract(PlayerInteractEvent.RightClickBlock event) {
         if (event.getLevel() instanceof ServerLevel level) {
             Player player = event.getEntity();
-            player.getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed().forEach(key -> {
+            player.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed().forEach(key -> {
                 Miraculous miraculous = level.holderOrThrow(key).value();
-                MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(key);
+                MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUSES.get()).get(key);
                 AtomicBoolean overrideActive = new AtomicBoolean(false);
                 AbilityData abilityData = new AbilityData(data.powerLevel(), Either.left(key));
                 miraculous.passiveAbilities().stream().map(Holder::value).forEach(ability -> {
@@ -765,11 +763,11 @@ public class MineraculousEntityEvents {
                 });
                 if (data.mainPowerActive()) {
                     if (overrideActive.get()) {
-                        player.getData(MineraculousAttachmentTypes.MIRACULOUS).put(player, key, data.withPowerStatus(false, false), true);
+                        player.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(player, key, data.withPowerStatus(false, false), true);
                     } else {
                         boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(abilityData, level, event.getPos(), player, Ability.Context.from(level.getBlockState(event.getPos()), event.getPos()));
                         if (usedPower) {
-                            player.getData(MineraculousAttachmentTypes.MIRACULOUS).put(player, key, data.withUsedPower(), true);
+                            player.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(player, key, data.withUsedPower(), true);
                             MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger((ServerPlayer) player, key, UseMiraculousPowerTrigger.Context.BLOCK);
                         }
                     }
@@ -801,9 +799,9 @@ public class MineraculousEntityEvents {
     public static void onBlockLeftClick(PlayerInteractEvent.LeftClickBlock event) {
         if (event.getLevel() instanceof ServerLevel level) {
             Player player = event.getEntity();
-            player.getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed().forEach(key -> {
+            player.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed().forEach(key -> {
                 Miraculous miraculous = level.holderOrThrow(key).value();
-                MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS.get()).get(key);
+                MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUSES.get()).get(key);
                 AtomicBoolean overrideActive = new AtomicBoolean(false);
                 AbilityData abilityData = new AbilityData(data.powerLevel(), Either.left(key));
                 miraculous.passiveAbilities().stream().map(Holder::value).forEach(ability -> {
@@ -812,11 +810,11 @@ public class MineraculousEntityEvents {
                 });
                 if (data.mainPowerActive()) {
                     if (overrideActive.get()) {
-                        player.getData(MineraculousAttachmentTypes.MIRACULOUS).put(player, key, data.withPowerStatus(false, false), true);
+                        player.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(player, key, data.withPowerStatus(false, false), true);
                     } else {
                         boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(abilityData, level, event.getPos(), player, Ability.Context.from(level.getBlockState(event.getPos()), event.getPos()));
                         if (usedPower) {
-                            player.getData(MineraculousAttachmentTypes.MIRACULOUS).put(player, key, data.withUsedPower(), true);
+                            player.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(player, key, data.withUsedPower(), true);
                             MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger((ServerPlayer) player, key, UseMiraculousPowerTrigger.Context.BLOCK);
                         }
                     }
@@ -859,10 +857,10 @@ public class MineraculousEntityEvents {
     public static Component formatDisplayName(Entity entity, Component original) {
         if (original != null) {
             Style style = original.getStyle();
-            MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS);
-            List<ResourceKey<Miraculous>> transformed = miraculousDataSet.getTransformed();
+            MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+            List<ResourceKey<Miraculous>> transformed = miraculousesData.getTransformed();
             if (!transformed.isEmpty()) {
-                MiraculousData data = miraculousDataSet.get(transformed.getFirst());
+                MiraculousData data = miraculousesData.get(transformed.getFirst());
                 if (data.miraculousItem().has(MineraculousDataComponents.MIRACULOUS)) {
                     Style newStyle = style.withColor(entity.level().holderOrThrow(data.miraculousItem().get(MineraculousDataComponents.MIRACULOUS)).value().color());
                     if (!data.name().isEmpty())
@@ -906,9 +904,9 @@ public class MineraculousEntityEvents {
             TommyLibServices.NETWORK.sendToServer(new ServerboundRequestMiraculousDataSetSyncPayload(event.getEntity().getId()));
         } else {
             if (event.getEntity() instanceof ServerPlayer player) {
-                MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-                miraculousDataSet.getTransformedHolders(event.getLevel().registryAccess()).forEach(miraculous -> {
-                    NightVisionAbility nightVisionAbility = Ability.getFirstMatching(ability -> ability instanceof NightVisionAbility, miraculous.value(), miraculousDataSet.get(miraculous.getKey()).mainPowerActive()) instanceof NightVisionAbility n ? n : null;
+                MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                miraculousesData.getTransformedHolders(event.getLevel().registryAccess()).forEach(miraculous -> {
+                    NightVisionAbility nightVisionAbility = Ability.getFirstMatching(ability -> ability instanceof NightVisionAbility, miraculous.value(), miraculousesData.get(miraculous.getKey()).mainPowerActive()) instanceof NightVisionAbility n ? n : null;
                     if (nightVisionAbility != null)
                         nightVisionAbility.resetNightVision(player);
                 });
@@ -919,21 +917,21 @@ public class MineraculousEntityEvents {
                         nightVisionAbility.resetNightVision(player);
                 }
 
-                for (ResourceKey<Miraculous> miraculous : miraculousDataSet.keySet()) {
+                for (ResourceKey<Miraculous> miraculous : miraculousesData.keySet()) {
                     Map<String, FlattenedSuitLookData> commonSuitLooks = ((FlattenedLookDataHolder) event.getLevel().getServer().overworld()).mineraculous$getCommonSuitLookData().get(miraculous);
-                    String look = miraculousDataSet.get(miraculous).suitLook();
+                    String look = miraculousesData.get(miraculous).suitLook();
                     if (!look.isEmpty()) {
                         if (commonSuitLooks.containsKey(look)) {
-                            miraculousDataSet.put(player, miraculous, miraculousDataSet.get(miraculous).withSuitLook(look), true);
+                            miraculousesData.put(player, miraculous, miraculousesData.get(miraculous).withSuitLook(look), true);
                             TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(player.getUUID(), miraculous, commonSuitLooks.get(look), true), player.getServer());
                         } else
                             TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncSuitLookPayload(miraculous, look), player);
                     }
                     Map<String, FlattenedMiraculousLookData> commonMiraculousLooks = ((FlattenedLookDataHolder) event.getLevel().getServer().overworld()).mineraculous$getCommonMiraculousLookData().get(miraculous);
-                    look = miraculousDataSet.get(miraculous).miraculousLook();
+                    look = miraculousesData.get(miraculous).miraculousLook();
                     if (!look.isEmpty()) {
                         if (commonMiraculousLooks.containsKey(look)) {
-                            miraculousDataSet.put(player, miraculous, miraculousDataSet.get(miraculous).withMiraculousLook(look), true);
+                            miraculousesData.put(player, miraculous, miraculousesData.get(miraculous).withMiraculousLook(look), true);
                             TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), miraculous, commonMiraculousLooks.get(look), true), player.getServer());
                         } else
                             TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncMiraculousLookPayload(miraculous, look), player);
@@ -969,7 +967,7 @@ public class MineraculousEntityEvents {
         int transformationFrames = 10;
         if (transform) {
             // Transform
-            if (player.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed()) {
+            if (player.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
                 return;
             }
 
@@ -1086,12 +1084,12 @@ public class MineraculousEntityEvents {
         Map<ResourceKey<MobEffect>, Integer> effectsMap = entity.level().registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS);
         Holder<MobEffect> effect = event.getEffect();
         ResourceKey<MobEffect> effectKey = effect.getKey();
-        MiraculousDataSet miraculousDataSet = entity.getData(MineraculousAttachmentTypes.MIRACULOUS);
-        if (miraculousDataSet.isTransformed()) {
+        MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+        if (miraculousesData.isTransformed()) {
             if (effectsMap.containsKey(effectKey))
                 event.setCanceled(true);
             else {
-                for (ResourceKey<Miraculous> miraculous : miraculousDataSet.getTransformed()) {
+                for (ResourceKey<Miraculous> miraculous : miraculousesData.getTransformed()) {
                     if (Ability.hasMatching(a -> a instanceof ApplyEffectsWhileTransformedAbility effectsAbility && effectsAbility.effects().contains(effect), entity.level().holderOrThrow(miraculous).value(), true))
                         event.setCanceled(true);
                 }

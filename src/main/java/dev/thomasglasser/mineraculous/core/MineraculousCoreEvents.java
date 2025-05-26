@@ -52,14 +52,35 @@ import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 
 public class MineraculousCoreEvents {
+    // Registration
+    public static void onNewRegistry(NewRegistryEvent event) {
+        event.register(MineraculousBuiltInRegistries.ABILITY_SERIALIZER);
+    }
+
     public static void onNewDataPackRegistry(DataPackRegistryEvent.NewRegistry event) {
         event.dataPackRegistry(MineraculousRegistries.MIRACULOUS, Miraculous.CODEC, Miraculous.CODEC);
         event.dataPackRegistry(MineraculousRegistries.ABILITY, Ability.DIRECT_CODEC, Ability.DIRECT_CODEC);
         event.dataPackRegistry(MineraculousRegistries.KAMIKOTIZATION, Kamikotization.CODEC, Kamikotization.CODEC);
     }
 
-    public static void onNewRegistry(NewRegistryEvent event) {
-        event.register(MineraculousBuiltInRegistries.ABILITY_SERIALIZER);
+    public static void onAddPackFinders(AddPackFindersEvent event) {
+        for (PackInfo info : MineraculousPacks.getPacks()) {
+            if (event.getPackType() == info.type()) {
+                var resourcePath = ModList.get().getModFileById(Mineraculous.MOD_ID).getFile().findResource("packs/" + info.knownPack().namespace() + "/" + info.knownPack().id());
+                var pack = Pack.readMetaAndCreate(new PackLocationInfo("builtin/" + info.knownPack().id(), Component.translatable(info.titleKey()), info.source(), Optional.of(info.knownPack())), new Pack.ResourcesSupplier() {
+                    @Override
+                    public PackResources openFull(PackLocationInfo p_326241_, Pack.Metadata p_325959_) {
+                        return new PathPackResources(p_326241_, resourcePath);
+                    }
+
+                    @Override
+                    public PackResources openPrimary(PackLocationInfo p_326301_) {
+                        return new PathPackResources(p_326301_, resourcePath);
+                    }
+                }, info.type(), PackInfo.BUILT_IN_SELECTION_CONFIG);
+                event.addRepositorySource((packConsumer) -> packConsumer.accept(pack));
+            }
+        }
     }
 
     public static void onRegisterDataMapTypes(RegisterDataMapTypesEvent event) {
@@ -71,17 +92,7 @@ public class MineraculousCoreEvents {
         event.register(MineraculousDataMaps.MIRACULOUS_ATTRIBUTES);
     }
 
-    public static void onLoadLootTable(LootTableLoadEvent event) {
-        if (event.getName().equals(BuiltInLootTables.SNIFFER_DIGGING.location())) {
-            LootPool main = event.getTable().getPool("main");
-            if (main != null) {
-                ArrayList<LootPoolEntryContainer> entries = new ArrayList<>(main.entries);
-                entries.add(LootItem.lootTableItem(MineraculousBlocks.HIBISCUS_BUSH.asItem()).build());
-                main.entries = entries;
-            }
-        }
-    }
-
+    // Look Loading
     public static void onServerStarted(ServerStartedEvent event) {
         Map<ResourceKey<Miraculous>, Map<String, FlattenedMiraculousLookData>> miraculousLooks = new HashMap<>();
         Map<ResourceKey<Miraculous>, Map<String, FlattenedSuitLookData>> suitLooks = new HashMap<>();
@@ -230,7 +241,7 @@ public class MineraculousCoreEvents {
                 Mineraculous.LOGGER.error("Failed to create miraculous look directory", e);
             }
         }
-        Map<String, FlattenedMiraculousLookData> miraculousLooks = fetchMiraculousLooks(root.resolve("miraculous").resolve(namespace).resolve(type), "");
+        Map<String, FlattenedMiraculousLookData> miraculousLooks = fetchMiraculousLooks(root.resolve("miraculouses").resolve(namespace).resolve(type), "");
         if (Files.exists(root) && Files.isDirectory(root)) {
             try (Stream<Path> files = Files.list(root)) {
                 for (Path file : files.toList()) {
@@ -288,22 +299,14 @@ public class MineraculousCoreEvents {
         return miraculousLooks;
     }
 
-    public static void onAddPackFinders(AddPackFindersEvent event) {
-        for (PackInfo info : MineraculousPacks.getPacks()) {
-            if (event.getPackType() == info.type()) {
-                var resourcePath = ModList.get().getModFileById(Mineraculous.MOD_ID).getFile().findResource("packs/" + info.knownPack().namespace() + "/" + info.knownPack().id());
-                var pack = Pack.readMetaAndCreate(new PackLocationInfo("builtin/" + info.knownPack().id(), Component.translatable(info.titleKey()), info.source(), Optional.of(info.knownPack())), new Pack.ResourcesSupplier() {
-                    @Override
-                    public PackResources openFull(PackLocationInfo p_326241_, Pack.Metadata p_325959_) {
-                        return new PathPackResources(p_326241_, resourcePath);
-                    }
-
-                    @Override
-                    public PackResources openPrimary(PackLocationInfo p_326301_) {
-                        return new PathPackResources(p_326301_, resourcePath);
-                    }
-                }, info.type(), PackInfo.BUILT_IN_SELECTION_CONFIG);
-                event.addRepositorySource((packConsumer) -> packConsumer.accept(pack));
+    // Misc
+    public static void onLootTableLoad(LootTableLoadEvent event) {
+        if (event.getName().equals(BuiltInLootTables.SNIFFER_DIGGING.location())) {
+            LootPool main = event.getTable().getPool("main");
+            if (main != null) {
+                ArrayList<LootPoolEntryContainer> entries = new ArrayList<>(main.entries);
+                entries.add(LootItem.lootTableItem(MineraculousBlocks.HIBISCUS_BUSH.asItem()).build());
+                main.entries = entries;
             }
         }
     }

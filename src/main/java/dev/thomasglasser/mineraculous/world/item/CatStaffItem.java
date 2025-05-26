@@ -8,7 +8,7 @@ import dev.thomasglasser.mineraculous.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -267,12 +267,12 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
     @Override
     public int getColor(ItemStack stack, InteractionHand hand) {
-        int color = ClientUtils.getLevel().holderOrThrow(MineraculousMiraculous.CAT).value().color().getValue();
+        int color = ClientUtils.getLevel().holderOrThrow(Miraculouses.CAT).value().color().getValue();
         ResolvableProfile resolvableProfile = stack.get(DataComponents.PROFILE);
         if (resolvableProfile != null) {
             Player staffOwner = ClientUtils.getLevel().getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
             if (staffOwner != null) {
-                ResourceKey<Miraculous> colorKey = staffOwner.getData(MineraculousAttachmentTypes.MIRACULOUS).getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_CAT_STAFF, ClientUtils.getLevel());
+                ResourceKey<Miraculous> colorKey = staffOwner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_CAT_STAFF, ClientUtils.getLevel());
                 if (colorKey != null)
                     color = ClientUtils.getLevel().holderOrThrow(colorKey).value().color().getValue();
             }

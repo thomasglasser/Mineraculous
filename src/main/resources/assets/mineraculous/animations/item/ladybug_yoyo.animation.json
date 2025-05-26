@@ -212,10 +212,20 @@
 							"vector": [0, 0, 0]
 						}
 					}
+				},
+				"bottom": {
+					"position": {
+						"vector": [0, 0.1, 0]
+					}
+				},
+				"sparkles": {
+					"position": {
+						"vector": [0, -0.5, 0]
+					}
 				}
 			}
 		},
-		"misc.open": {
+		"misc.open_out": {
 			"animation_length": 0.75,
 			"bones": {
 				"left": {
@@ -344,10 +354,36 @@
 							"vector": [0, 0, 0]
 						}
 					}
+				},
+				"bottom": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.75": {
+							"vector": [0, 0.1, 0]
+						}
+					}
 				}
 			}
 		},
-		"misc.close": {
+		"misc.open_down": {
+			"loop": "hold_on_last_frame",
+			"animation_length": 0.25,
+			"bones": {
+				"top": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.25": {
+							"vector": [0, 0, 4.1]
+						}
+					}
+				}
+			}
+		},
+		"misc.close_in": {
 			"animation_length": 0.5,
 			"bones": {
 				"left": {
@@ -394,6 +430,31 @@
 							"vector": [0.4, 1.1, 0.2]
 						},
 						"0.5": {
+							"vector": [0, 0, 0]
+						}
+					}
+				},
+				"bottom": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0.1, 0]
+						},
+						"0.5": {
+							"vector": [0, 0, 0]
+						}
+					}
+				}
+			}
+		},
+		"misc.close_up": {
+			"animation_length": 0.25,
+			"bones": {
+				"top": {
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 4.1]
+						},
+						"0.25": {
 							"vector": [0, 0, 0]
 						}
 					}

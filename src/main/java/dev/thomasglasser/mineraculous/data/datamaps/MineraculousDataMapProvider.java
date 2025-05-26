@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.data.datamaps;
 import dev.thomasglasser.mineraculous.datamaps.LuckyCharms;
 import dev.thomasglasser.mineraculous.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.mineraculous.datamaps.ModifierSettings;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerProfessions;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.MineraculousGiftLootKeys;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.MineraculousLuckyCharmLootKeys;
@@ -27,17 +27,17 @@ public class MineraculousDataMapProvider extends DataMapProvider {
     @Override
     protected void gather() {
         // Lucky Charms
-        builder(MineraculousDataMaps.KAMIKOTIZATION_LUCKY_CHARMS)
-                .build();
         builder(MineraculousDataMaps.MIRACULOUS_LUCKY_CHARMS)
-                .add(MineraculousMiraculous.CAT, new LuckyCharms(MineraculousLuckyCharmLootKeys.CAT_MIRACULOUS), false)
+                .add(Miraculouses.LADYBUG, new LuckyCharms(MineraculousLuckyCharmLootKeys.LADYBUG_MIRACULOUS), false)
+                .add(Miraculouses.CAT, new LuckyCharms(MineraculousLuckyCharmLootKeys.CAT_MIRACULOUS), false)
+                .add(Miraculouses.BUTTERFLY, new LuckyCharms(MineraculousLuckyCharmLootKeys.BUTTERFLY_MIRACULOUS), false)
                 .build();
         builder(MineraculousDataMaps.ENTITY_LUCKY_CHARMS)
+                .add(EntityTypeTags.RAIDERS, new LuckyCharms(MineraculousLuckyCharmLootKeys.RAID), false)
                 .add(EntityType.ENDER_DRAGON.builtInRegistryHolder(), new LuckyCharms(MineraculousLuckyCharmLootKeys.ENDER_DRAGON), false)
                 .add(EntityType.ELDER_GUARDIAN.builtInRegistryHolder(), new LuckyCharms(MineraculousLuckyCharmLootKeys.ELDER_GUARDIAN), false)
                 .add(EntityType.WARDEN.builtInRegistryHolder(), new LuckyCharms(MineraculousLuckyCharmLootKeys.WARDEN), false)
                 .add(EntityType.WITHER.builtInRegistryHolder(), new LuckyCharms(MineraculousLuckyCharmLootKeys.WITHER), false)
-                .add(EntityTypeTags.RAIDERS, new LuckyCharms(MineraculousLuckyCharmLootKeys.RAID), false)
                 .build();
 
         // Miraculous Buffs

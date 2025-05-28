@@ -6,7 +6,7 @@ import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
-import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
+import dev.thomasglasser.mineraculous.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
@@ -19,13 +19,10 @@ import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
-
-import java.util.Collection;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -212,7 +209,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                     } else if (ability == Ability.PURIFY) {
                         triggerAnim(pPlayer, GeoItem.getOrAssignId(stack, serverLevel), CONTROLLER_USE, ANIMATION_OPEN);
                         MiraculousesData miraculousesData = pPlayer.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                        ResourceKey<Miraculous> storingKey = miraculousesData.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_LADYBUG_YOYO, serverLevel);
+                        ResourceKey<Miraculous> storingKey = miraculousesData.getFirstKeyIn(MiraculousTags.CAN_USE_LADYBUG_YOYO, serverLevel);
                         MiraculousData storingData = miraculousesData.get(storingKey);
                         if (storingData != null) {
                             CompoundTag extraData = storingData.extraData();

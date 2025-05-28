@@ -135,17 +135,7 @@ public class ThrownButterflyCane extends AbstractArrow implements GeoEntity {
                     stack.set(DataComponents.MAX_STACK_SIZE, 1);
                     ServerboundTryBreakItemPayload.hurtAndBreak(stack, 1, serverlevel, owner instanceof LivingEntity livingEntity ? livingEntity : null, null);
                 } else {
-                    if (stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.has(DataComponents.PROFILE)) {
-                        ServerPlayer target = (ServerPlayer) serverlevel.getPlayerByUUID(stack.get(DataComponents.PROFILE).gameProfile().getId());
-                        if (target != null) {
-                            KamikotizationData data = target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow();
-                            if (data.stackCount() <= 1)
-                                MineraculousEntityEvents.handleKamikotizationTransformation(target, data, false, false, position().add(0, 1, 0));
-                            else {
-                                data.decrementStackCount().save(target, true);
-                            }
-                        }
-                    }
+                    MineraculousEntityEvents.checkKamikotizationStack(stack, serverlevel, owner);
                     stack.shrink(1);
                     playSound(SoundEvents.ITEM_BREAK);
                 }

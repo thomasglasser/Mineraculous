@@ -2,8 +2,8 @@ package dev.thomasglasser.mineraculous.data.models;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.renderer.item.MineraculousItemProperties;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
@@ -75,15 +75,15 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
 
         basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK);
 
-        MineraculousBlocks.CHEESE_BLOCKS.forEach((age, block) -> withBitesOverrides(block, basicBlockItem(block)));
-        MineraculousBlocks.WAXED_CHEESE_BLOCKS.forEach((age, block) -> withBitesOverrides(MineraculousBlocks.CHEESE_BLOCKS.get(age), withExistingParent(block.getId().getPath(), MineraculousBlocks.CHEESE_BLOCKS.get(age).getId().withPrefix("block/"))));
-        MineraculousBlocks.CAMEMBERT_BLOCKS.values().forEach(block -> withBitesOverrides(block, basicBlockItem(block)));
-        MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.forEach((age, block) -> withBitesOverrides(MineraculousBlocks.CAMEMBERT_BLOCKS.get(age), withExistingParent(block.getId().getPath(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(age).getId().withPrefix("block/"))));
+        MineraculousBlocks.CHEESE.forEach((age, block) -> withBitesOverrides(block, basicBlockItem(block)));
+        MineraculousBlocks.WAXED_CHEESE.forEach((age, block) -> withBitesOverrides(MineraculousBlocks.CHEESE.get(age), withExistingParent(block.getId().getPath(), MineraculousBlocks.CHEESE.get(age).getId().withPrefix("block/"))));
+        MineraculousBlocks.CAMEMBERT.values().forEach(block -> withBitesOverrides(block, basicBlockItem(block)));
+        MineraculousBlocks.WAXED_CAMEMBERT.forEach((age, block) -> withBitesOverrides(MineraculousBlocks.CAMEMBERT.get(age), withExistingParent(block.getId().getPath(), MineraculousBlocks.CAMEMBERT.get(age).getId().withPrefix("block/"))));
 
-        MineraculousItems.CHEESE_WEDGES.values().forEach(this::basicItem);
-        MineraculousItems.WAXED_CHEESE_WEDGES.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousItems.CHEESE_WEDGES.get(age).getId()));
-        MineraculousItems.CAMEMBERT_WEDGES.values().forEach(this::basicItem);
-        MineraculousItems.WAXED_CAMEMBERT_WEDGES.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousItems.CAMEMBERT_WEDGES.get(age).getId()));
+        MineraculousItems.CHEESE.values().forEach(this::basicItem);
+        MineraculousItems.WAXED_CHEESE.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousItems.CHEESE.get(age).getId()));
+        MineraculousItems.CAMEMBERT.values().forEach(this::basicItem);
+        MineraculousItems.WAXED_CAMEMBERT.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousItems.CAMEMBERT.get(age).getId()));
 
         basicItem(MineraculousBlocks.CHEESE_POT.getId());
 

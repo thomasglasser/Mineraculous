@@ -1,12 +1,10 @@
 package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
@@ -42,58 +40,45 @@ public record ServerboundTryBreakItemPayload() implements ExtendedPacketPayload 
     // ON SERVER
     @Override
     public void handle(Player player) {
+        ServerLevel serverLevel = (ServerLevel) player.level();
         ItemStack mainHandItem = player.getMainHandItem();
         ItemStack addRest = mainHandItem.copyWithCount(mainHandItem.getCount() - 1);
         mainHandItem.setCount(1);
-        ServerLevel serverLevel = (ServerLevel) player.level();
-        if (mainHandItem.isDamageableItem()) {
-            int i = 100;
-            MiraculousesData data = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-            for (ResourceKey<Miraculous> type : data.getTransformed()) {
-                int powerLevel = data.get(type).powerLevel();
-                if (powerLevel > 0)
-                    i *= powerLevel;
-            }
-            hurtAndBreak(mainHandItem, i, serverLevel, player, EquipmentSlot.MAINHAND);
-        } else if (mainHandItem.has(DataComponents.UNBREAKABLE)) {
-            player.displayClientMessage(Component.translatable(ITEM_UNBREAKABLE_KEY), true);
-            return;
-        } else if (mainHandItem.getItem() instanceof BlockItem blockItem) {
+        if (mainHandItem.getItem() instanceof BlockItem blockItem) {
             float max = blockItem.getBlock().defaultDestroyTime();
             if (max > -1) {
-                mainHandItem.set(DataComponents.MAX_DAMAGE, (int) (max * 100.0));
+                mainHandItem.set(DataComponents.MAX_DAMAGE, (int) (max * 100));
                 mainHandItem.set(DataComponents.DAMAGE, 0);
                 mainHandItem.set(DataComponents.MAX_STACK_SIZE, 1);
-                hurtAndBreak(mainHandItem, 100, serverLevel, player, EquipmentSlot.MAINHAND);
             } else {
                 mainHandItem.set(DataComponents.UNBREAKABLE, new Unbreakable(false));
-                return;
             }
         } else if (mainHandItem.is(MineraculousItemTags.TOUGH)) {
-            mainHandItem.set(DataComponents.MAX_DAMAGE, 2);
+            mainHandItem.set(DataComponents.MAX_DAMAGE, 200);
             mainHandItem.set(DataComponents.DAMAGE, 0);
             mainHandItem.set(DataComponents.MAX_STACK_SIZE, 1);
-            hurtAndBreak(mainHandItem, 1, serverLevel, player, EquipmentSlot.MAINHAND);
-        } else {
-            if (mainHandItem.has(MineraculousDataComponents.KAMIKOTIZATION) && mainHandItem.has(DataComponents.PROFILE)) {
-                ServerPlayer target = (ServerPlayer) player.level().getPlayerByUUID(mainHandItem.get(DataComponents.PROFILE).gameProfile().getId());
-                if (target != null) {
-                    KamikotizationData data = target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow();
-                    if (data.stackCount() <= 1)
-                        MineraculousEntityEvents.handleKamikotizationTransformation(target, data, false, false, player.position().add(0, 1, 0));
-                    else {
-                        data.decrementStackCount().save(target, true);
-                    }
-                }
-            }
-            mainHandItem.shrink(1);
-            player.level().playSound(null, player.blockPosition(), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1f, 1f);
         }
-        if (!mainHandItem.isEmpty()) {
+        if (mainHandItem.has(DataComponents.UNBREAKABLE)) {
+            player.displayClientMessage(Component.translatable(ITEM_UNBREAKABLE_KEY), true);
+        } else {
+            if (mainHandItem.isDamageableItem()) {
+                int damage = 100;
+                MiraculousesData data = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                for (ResourceKey<Miraculous> type : data.getTransformed()) {
+                    damage += 100 * data.get(type).powerLevel();
+                }
+                hurtAndBreak(mainHandItem, damage, serverLevel, player, EquipmentSlot.MAINHAND);
+            } else {
+                MineraculousEntityEvents.checkKamikotizationStack(mainHandItem, serverLevel, player);
+                mainHandItem.shrink(1);
+                player.level().playSound(null, player.blockPosition(), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1f, 1f);
+            }
+        }
+        if (mainHandItem.isEmpty()) {
+            player.setItemInHand(InteractionHand.MAIN_HAND, addRest);
+        } else {
             player.setItemInHand(InteractionHand.MAIN_HAND, mainHandItem);
             player.addItem(addRest);
-        } else {
-            player.setItemInHand(InteractionHand.MAIN_HAND, addRest);
         }
     }
 
@@ -118,20 +103,10 @@ public record ServerboundTryBreakItemPayload() implements ExtendedPacketPayload 
                 }
             }
 
-            int i = stack.getDamageValue() + damage;
-            stack.setDamageValue(i);
-            if (i >= stack.getMaxDamage()) {
-                if (stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.has(DataComponents.PROFILE)) {
-                    ServerPlayer target = (ServerPlayer) level.getPlayerByUUID(stack.get(DataComponents.PROFILE).gameProfile().getId());
-                    if (target != null) {
-                        KamikotizationData data = target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow();
-                        if (data.stackCount() <= 1)
-                            MineraculousEntityEvents.handleKamikotizationTransformation(target, data, false, false, (breaker != null ? breaker : target).position().add(0, 1, 0));
-                        else {
-                            data.decrementStackCount().save(target, true);
-                        }
-                    }
-                }
+            int newDamage = stack.getDamageValue() + damage;
+            stack.setDamageValue(newDamage);
+            if (newDamage >= stack.getMaxDamage()) {
+                MineraculousEntityEvents.checkKamikotizationStack(stack, level, breaker);
                 Item item = stack.getItem();
                 stack.shrink(1);
                 itemConsumer.accept(item);

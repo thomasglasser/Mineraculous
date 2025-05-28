@@ -16,8 +16,8 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharm;
-import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdDataHolder;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.parameters.MineraculousLootContextParamSets;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.parameters.MineraculousLootContextParams;
 import java.util.List;
@@ -47,13 +47,14 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
     @Override
     public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
         if (context == Context.PASSIVE) {
-            UUID tracked = ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData().getTrackedEntity(entity.getUUID());
+            MiraculousRecoveryEntityData recoveryEntityData = MiraculousRecoveryEntityData.get(level);
+            UUID tracked = recoveryEntityData.getTrackedEntity(entity.getUUID());
             LivingEntity trackedEntity = tracked != null ? level.getEntity(tracked) instanceof LivingEntity livingEntity ? livingEntity : null : null;
             LivingEntity target = trackedEntity != null ? trackedEntity : entity.getKillCredit() != null ? entity.getKillCredit() : entity.getLastHurtByMob() != null ? entity.getLastHurtByMob() : entity.getLastHurtMob();
             if (target instanceof OwnableEntity ownable && ownable.getOwnerUUID() != null)
                 target = level.getEntity(ownable.getOwnerUUID()) instanceof LivingEntity livingEntity ? livingEntity : target;
             if (target != null)
-                ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData().putRelatedEntity(target.getUUID(), entity.getUUID());
+                recoveryEntityData.putRelatedEntity(target.getUUID(), entity.getUUID());
             LuckyCharms charms = getCharms(level, target);
             AtomicReference<ItemStack> result = new AtomicReference<>();
             if (charms.items().left().isPresent()) {
@@ -84,7 +85,7 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
                 uuid = entity.getUUID();
                 toAdd.set(MineraculousDataComponents.KAMIKOTIZATION, data.power().right().get());
             }
-            toAdd.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.ofNullable(target != null ? target.getUUID() : null), ((LuckyCharmIdDataHolder) level.getServer().overworld()).mineraculous$getLuckyCharmIdData().incrementLuckyCharmId(uuid)));
+            toAdd.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.ofNullable(target != null ? target.getUUID() : null), LuckyCharmIdData.get(level).incrementLuckyCharmId(uuid)));
             LuckyCharmItemSpawner item = LuckyCharmItemSpawner.create(level, toAdd);
             item.setPos(entity.position().add(0, 4, 0));
             level.addFreshEntity(item);

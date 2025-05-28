@@ -4,8 +4,8 @@ import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 
 public class MiraculousEntryProvider extends IndexModeEntryProvider {
     public static final String ID = "miraculous";
@@ -22,7 +22,7 @@ public class MiraculousEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Generator");
         add(context().pageText(), """
-                A generator for miraculous can be found online [here](https://snapshot-jsons.thomasglasser.dev/mineraculous/miraculous/).
+                A generator for miraculous can be found online [here](https://beta-jsons.thomasglasser.dev/mineraculous/miraculous/).
                 """);
 
         page("guide", () -> BookTextPageModel.create()
@@ -31,7 +31,7 @@ public class MiraculousEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Guide");
         add(context().pageText(), """
-                A guide for creating miraculous can be found [here](https://snapshot-jsons.thomasglasser.dev/guides/miraculous/).
+                A guide for creating miraculous can be found [here](https://beta-jsons.thomasglasser.dev/guides/miraculous/).
                 """);
     }
 

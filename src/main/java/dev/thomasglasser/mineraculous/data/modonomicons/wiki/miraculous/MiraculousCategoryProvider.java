@@ -3,8 +3,8 @@ package dev.thomasglasser.mineraculous.data.modonomicons.wiki.miraculous;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeCategoryProvider;
 import com.klikli_dev.modonomicon.api.datagen.ModonomiconProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 
 public class MiraculousCategoryProvider extends IndexModeCategoryProvider {
     public static final String ID = "miraculous";

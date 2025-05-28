@@ -19,6 +19,10 @@ public class MiraculousRecoveryBlockData extends SavedData {
     public static final String FILE_ID = "miraculous_recovery_block";
     private final Table<UUID, BlockPos, BlockState> recoverableBlocks = HashBasedTable.create();
 
+    public static MiraculousRecoveryBlockData get(ServerLevel level) {
+        return level.getServer().overworld().getDataStorage().computeIfAbsent(MiraculousRecoveryBlockData.factory(), MiraculousRecoveryBlockData.FILE_ID);
+    }
+
     public static Factory<MiraculousRecoveryBlockData> factory() {
         return new Factory<>(MiraculousRecoveryBlockData::new, MiraculousRecoveryBlockData::load, DataFixTypes.LEVEL);
     }

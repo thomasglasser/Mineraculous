@@ -6,8 +6,8 @@ import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
 import dev.thomasglasser.mineraculous.data.modonomicons.wiki.WikiBookSubProvider;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 
 public class CustomizationEntryProvider extends IndexModeEntryProvider {
@@ -39,7 +39,7 @@ public class CustomizationEntryProvider extends IndexModeEntryProvider {
                 NOTE: The following features are only available if the server manually enables it.\\
                 \\
                 The mod can be further customized by putting files in a subfolder of the 'miraculouslooks' folder in the client's minecraft directory.\\
-                A guide for customizing can be found [here](https://snapshot-jsons.thomasglasser.dev/guides/customization/).
+                A guide for customizing can be found [here](https://beta-jsons.thomasglasser.dev/guides/customization/).
                 """);
     }
 

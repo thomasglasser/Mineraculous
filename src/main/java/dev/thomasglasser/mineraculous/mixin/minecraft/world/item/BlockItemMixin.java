@@ -11,9 +11,7 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(BlockItem.class)
 public class BlockItemMixin {
     @WrapOperation(method = "place", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/context/BlockPlaceContext;canPlace()Z"))
-    private boolean canPlace(BlockPlaceContext instance, Operation<Boolean> original) {
-        if (instance.getItemInHand().has(MineraculousDataComponents.KAMIKOTIZATION))
-            return false;
-        return original.call(instance);
+    private boolean disallowPlacingKamikotizedItems(BlockPlaceContext instance, Operation<Boolean> original) {
+        return !instance.getItemInHand().has(MineraculousDataComponents.KAMIKOTIZATION) && original.call(instance);
     }
 }

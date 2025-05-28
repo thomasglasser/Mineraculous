@@ -4,14 +4,10 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
-
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.ContextAwarePredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
@@ -36,12 +32,12 @@ public class ReleasePurifiedEntityTrigger extends SimpleCriterionTrigger<Release
     }
 
     public record TriggerInstance(Optional<ContextAwarePredicate> player, List<ContextAwarePredicate> released, Optional<Integer> count) implements SimpleCriterionTrigger.SimpleInstance {
+
         public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
                 EntityPredicate.ADVANCEMENT_CODEC.listOf().optionalFieldOf("released", ImmutableList.of()).forGetter(TriggerInstance::released),
                 ExtraCodecs.POSITIVE_INT.optionalFieldOf("count").forGetter(TriggerInstance::count))
                 .apply(instance, TriggerInstance::new));
-
         public static Criterion<TriggerInstance> releasedPurifiedEntity() {
             return criterion(Optional.empty(), ImmutableList.of(), Optional.empty());
         }

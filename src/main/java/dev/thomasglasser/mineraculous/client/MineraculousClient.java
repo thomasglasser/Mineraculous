@@ -18,8 +18,8 @@ import net.neoforged.neoforge.common.NeoForge;
 @Mod(value = Mineraculous.MOD_ID, dist = Dist.CLIENT)
 public class MineraculousClient {
     public MineraculousClient(IEventBus modBus, ModContainer modContainer) {
-        if (FMLEnvironment.production && !modContainer.getModInfo().getVersion().getQualifier().isEmpty() && !SpecialPlayerUtils.getSpecialTypes(SpecialPlayerData.GIST, Minecraft.getInstance().getUser().getProfileId()).contains(SpecialPlayerUtils.SNAPSHOT_TESTER_KEY)) {
-            throw new RuntimeException("You are running a snapshot version of Mineraculous and are not a part of the Snapshot Program. Please switch to a stable version.");
+        if (FMLEnvironment.production && !modContainer.getModInfo().getVersion().getQualifier().isEmpty() && !SpecialPlayerUtils.getSpecialTypes(SpecialPlayerData.GIST, Minecraft.getInstance().getUser().getProfileId()).contains(SpecialPlayerUtils.BETA_TESTER_KEY)) {
+            throw new RuntimeException("You are running a beta version of Mineraculous and are not a part of the Beta Program. Please switch to a stable version.");
         }
 
         MineraculousKeyMappings.init();

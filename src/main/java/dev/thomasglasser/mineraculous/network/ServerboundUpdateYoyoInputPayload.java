@@ -3,14 +3,12 @@ package dev.thomasglasser.mineraculous.network;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
-import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public record ServerboundUpdateYoyoInputPayload(boolean front, boolean back, boolean left, boolean right) implements ExtendedPacketPayload {
@@ -26,20 +24,16 @@ public record ServerboundUpdateYoyoInputPayload(boolean front, boolean back, boo
     // ON SERVER
     @Override
     public void handle(Player player) {
-        Level level = player.level();
-        ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
-        ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(level);
+        ThrownLadybugYoyo thrownYoyo = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).getThrownYoyo(player.level());
         if (thrownYoyo != null) {
-            Vec3 fromProjectileToPlayer = new Vec3(player.getX() - thrownYoyo.getX(), player.getY() - thrownYoyo.getY(), player.getZ() - thrownYoyo.getZ());
-            Vec3 fromPlayerToProjectile = new Vec3(fromProjectileToPlayer.scale(-1).toVector3f());
-            double distance = fromProjectileToPlayer.length();
-            float maxRopeLn = thrownYoyo.getServerMaxRopeLength();
-            Vec3 ox = new Vec3(maxRopeLn, 0, 0);
-            Vec3 oy = new Vec3(0, -1 * (double) maxRopeLn, 0);
-            Vec3 Y = ox.add(oy.scale(1.7)).normalize().scale(maxRopeLn);
             if (thrownYoyo.inGround() && !player.isNoGravity() && !player.getAbilities().flying) {
-                if (distance >= maxRopeLn - 0.2 && !player.onGround()) {
-                    if (player.getY() < Y.y + thrownYoyo.getY() + 3 && !player.isCrouching()) {
+                float maxRopeLn = thrownYoyo.getServerMaxRopeLength();
+                Vec3 oX = new Vec3(maxRopeLn, 0, 0);
+                Vec3 oY = new Vec3(0, -1 * maxRopeLn, 0);
+                double y = oX.add(oY.scale(1.7)).normalize().scale(maxRopeLn).y;
+                Vec3 fromProjectileToPlayer = new Vec3(player.getX() - thrownYoyo.getX(), player.getY() - thrownYoyo.getY(), player.getZ() - thrownYoyo.getZ());
+                if (fromProjectileToPlayer.length() >= maxRopeLn - 0.2 && !player.onGround()) {
+                    if (player.getY() < y + thrownYoyo.getY() + 3 && !player.isCrouching()) {
                         Vec3 movement = new Vec3(0, 0, 0);
                         if (front) {
                             Vec3 up = new Vec3(player.getLookAngle().normalize().x, 0, player.getLookAngle().normalize().z);
@@ -71,9 +65,9 @@ public record ServerboundUpdateYoyoInputPayload(boolean front, boolean back, boo
                         movement = movement.normalize();
                         movement.scale(0.2);
 
-                        movement = projectOnCircle(fromPlayerToProjectile, movement);
-                        if (movement.y + player.getY() > Y.y + thrownYoyo.getY()) {
-                            double newY = movement.y - (Y.y + thrownYoyo.getY());
+                        movement = projectOnCircle(fromProjectileToPlayer.scale(-1), movement);
+                        if (movement.y + player.getY() > y + thrownYoyo.getY()) {
+                            double newY = movement.y - (y + thrownYoyo.getY());
                             newY = newY < 0 ? 0 : newY;
                             movement = new Vec3(movement.x, newY, movement.z);
                         }

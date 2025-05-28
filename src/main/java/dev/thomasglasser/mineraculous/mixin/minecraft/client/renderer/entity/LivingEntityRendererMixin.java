@@ -18,8 +18,9 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(LivingEntityRenderer.class)
 public class LivingEntityRendererMixin {
+    // TODO: Improve look
     @ModifyExpressionValue(method = "getRenderType", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;getTextureLocation(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/resources/ResourceLocation;"))
-    private ResourceLocation getRenderType(ResourceLocation original, LivingEntity livingEntity) {
+    private ResourceLocation applyCataclysmPixels(ResourceLocation original, LivingEntity livingEntity) {
         if (livingEntity.hasEffect(MineraculousMobEffects.CATACLYSMED)) {
             int cataclysmColor = 0xFF201915;
             ResourceLocation result = ResourceLocation.fromNamespaceAndPath(original.getNamespace(), original.getPath() + "_cataclysmed");

@@ -25,12 +25,11 @@ public class KamikotizePlayerTrigger extends SimpleCriterionTrigger<KamikotizePl
 
     public record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<ResourceKey<Kamikotization>> type, Optional<Boolean> self)
             implements SimpleInstance {
+
         public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
                 ResourceKey.codec(MineraculousRegistries.KAMIKOTIZATION).optionalFieldOf("type").forGetter(TriggerInstance::type),
-                Codec.BOOL.optionalFieldOf("self").forGetter(TriggerInstance::self)
-                ).apply(instance, TriggerInstance::new));
-
+                Codec.BOOL.optionalFieldOf("self").forGetter(TriggerInstance::self)).apply(instance, TriggerInstance::new));
         public static Criterion<TriggerInstance> kamikotizedPlayer() {
             return criterion(Optional.empty(), Optional.empty(), Optional.empty());
         }

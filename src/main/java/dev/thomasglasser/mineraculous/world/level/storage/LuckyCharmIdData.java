@@ -6,12 +6,17 @@ import java.util.UUID;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
 
 public class LuckyCharmIdData extends SavedData {
     public static final String FILE_ID = "lucky_charm_id";
     private final Object2IntMap<UUID> luckyCharmIdMap = new Object2IntOpenHashMap<>();
+
+    public static LuckyCharmIdData get(ServerLevel level) {
+        return level.getServer().overworld().getDataStorage().computeIfAbsent(LuckyCharmIdData.factory(), LuckyCharmIdData.FILE_ID);
+    }
 
     public static Factory<LuckyCharmIdData> factory() {
         return new Factory<>(LuckyCharmIdData::new, (p_294039_, p_324123_) -> load(p_294039_), DataFixTypes.LEVEL);

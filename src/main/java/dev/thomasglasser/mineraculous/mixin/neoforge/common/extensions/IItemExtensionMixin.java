@@ -5,6 +5,7 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -18,20 +19,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(IItemExtension.class)
 public interface IItemExtensionMixin {
     @Inject(method = "onDestroyed", at = @At("HEAD"))
-    default void onDestroyed(ItemEntity itemEntity, DamageSource damageSource, CallbackInfo ci) {
-        if (!itemEntity.level().isClientSide()) {
-            ItemStack stack = itemEntity.getItem();
-            if (stack.has(MineraculousDataComponents.KAMIKOTIZATION.get()) && stack.has(DataComponents.PROFILE)) {
-                ServerPlayer target = (ServerPlayer) itemEntity.level().getPlayerByUUID(stack.get(DataComponents.PROFILE).gameProfile().getId());
-                if (target != null) {
-                    KamikotizationData data = target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow();
-                    if (data.stackCount() <= 1)
-                        MineraculousEntityEvents.handleKamikotizationTransformation(target, data, false, false, itemEntity.position().add(0, 1, 0));
-                    else {
-                        data.decrementStackCount().save(target, true);
-                    }
-                }
-            }
+    default void checkKamikotizationStackOnDestroyed(ItemEntity itemEntity, DamageSource damageSource, CallbackInfo ci) {
+        if (itemEntity.level() instanceof ServerLevel level) {
+            MineraculousEntityEvents.checkKamikotizationStack(itemEntity.getItem(), level, damageSource.getEntity());
         }
     }
 }

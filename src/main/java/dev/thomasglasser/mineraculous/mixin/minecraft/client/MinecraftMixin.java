@@ -10,6 +10,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -31,10 +32,14 @@ public abstract class MinecraftMixin {
     @Final
     public GameRenderer gameRenderer;
 
+    @Shadow
+    @Nullable
+    public LocalPlayer player;
+
     @Inject(method = "handleKeybinds", at = @At("TAIL"))
-    private void handleKeybinds(CallbackInfo ci) {
-        Player player = Minecraft.getInstance().player;
-        if (Minecraft.getInstance().gameRenderer.postEffect == null && player != null) {
+    private void checkPostEffectOnKeyPress(CallbackInfo ci) {
+        Player player = this.player;
+        if (this.gameRenderer.postEffect == null && player != null) {
             AbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
             if (abilityEffectData.hasNightVision()) {
                 MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
@@ -52,16 +57,13 @@ public abstract class MinecraftMixin {
                     }
                 }
             } else {
-                gameRenderer.checkEntityPostEffect(getCameraEntity());
+                this.gameRenderer.checkEntityPostEffect(getCameraEntity());
             }
         }
     }
 
     @ModifyReturnValue(method = "shouldEntityAppearGlowing", at = @At("RETURN"))
-    private boolean shouldEntityAppearGlowing(boolean original, Entity entity) {
-        if (getCameraEntity() instanceof Kamiko && entity instanceof Player) {
-            return true;
-        }
-        return original;
+    private boolean showPlayersGlowingInKamikoView(boolean original, Entity entity) {
+        return original || (getCameraEntity() instanceof Kamiko && entity instanceof Player);
     }
 }

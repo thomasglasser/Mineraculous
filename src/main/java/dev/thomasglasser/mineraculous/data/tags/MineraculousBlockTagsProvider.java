@@ -20,7 +20,24 @@ public class MineraculousBlockTagsProvider extends ExtendedBlockTagsProvider {
     }
 
     @Override
-    protected void addTags(HolderLookup.Provider pProvider) {
+    protected void addTags(HolderLookup.Provider provider) {
+        addCheeses();
+        addAbilities();
+    }
+
+    private void addCheeses() {
+        tag(MineraculousBlockTags.CHEESE_BLOCKS_FOODS)
+                .addTag(MineraculousBlockTags.CHEESE_BLOCKS)
+                .addTag(MineraculousBlockTags.CAMEMBERT_BLOCKS);
+
+        ExtendedIntrinsicHolderTagsProvider.ExtendedIntrinsicTagAppender<Block> cheeseBlocks = tag(MineraculousBlockTags.CHEESE_BLOCKS);
+        MineraculousBlocks.CHEESE.values().forEach(cheeseBlocks::add);
+        ExtendedIntrinsicHolderTagsProvider.ExtendedIntrinsicTagAppender<Block> camembertBlocks = tag(MineraculousBlockTags.CAMEMBERT_BLOCKS);
+        MineraculousBlocks.CAMEMBERT.values().forEach(camembertBlocks::add);
+    }
+
+    private void addAbilities() {
+        // Cataclysm
         tag(MineraculousBlockTags.CATACLYSM_IMMUNE)
                 .add(Blocks.WATER)
                 .add(Blocks.LAVA)
@@ -28,14 +45,5 @@ public class MineraculousBlockTagsProvider extends ExtendedBlockTagsProvider {
                 .add(Blocks.SOUL_FIRE)
                 .add(MineraculousBlocks.CATACLYSM_BLOCK.get())
                 .addOptionalTag(ConventionalBlockTags.UNBREAKABLE_BLOCKS);
-
-        tag(MineraculousBlockTags.CHEESE_BLOCKS_FOODS)
-                .addTag(MineraculousBlockTags.CHEESE_BLOCKS)
-                .addTag(MineraculousBlockTags.CAMEMBERT_BLOCKS);
-
-        ExtendedIntrinsicHolderTagsProvider.ExtendedIntrinsicTagAppender<Block> cheeseBlocks = tag(MineraculousBlockTags.CHEESE_BLOCKS);
-        MineraculousBlocks.CHEESE_BLOCKS.values().forEach(cheeseBlocks::add);
-        ExtendedIntrinsicHolderTagsProvider.ExtendedIntrinsicTagAppender<Block> camembertBlocks = tag(MineraculousBlockTags.CAMEMBERT_BLOCKS);
-        MineraculousBlocks.CAMEMBERT_BLOCKS.values().forEach(camembertBlocks::add);
     }
 }

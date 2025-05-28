@@ -3,10 +3,14 @@ package dev.thomasglasser.mineraculous.data.blockstates;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.world.level.block.AgeingCheese;
+import dev.thomasglasser.mineraculous.world.level.block.AgeingCheeseEdibleFullBlock;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.blockstates.ExtendedBlockStateProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
+
+import java.util.Objects;
 import java.util.SortedMap;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
@@ -24,8 +28,8 @@ public class MineraculousBlockStateProvider extends ExtendedBlockStateProvider {
     protected void registerStatesAndModels() {
         simpleBlock(MineraculousBlocks.CATACLYSM_BLOCK.get());
 
-        cheese(MineraculousBlocks.CHEESE_BLOCKS, MineraculousBlocks.WAXED_CHEESE_BLOCKS, "cheese");
-        cheese(MineraculousBlocks.CAMEMBERT_BLOCKS, MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS, "camembert");
+        cheese(MineraculousBlocks.CHEESE, MineraculousBlocks.WAXED_CHEESE, "cheese");
+        cheese(MineraculousBlocks.CAMEMBERT, MineraculousBlocks.WAXED_CAMEMBERT, "camembert");
 
         simpleBlock(MineraculousBlocks.CHEESE_POT.get(), models().getExistingFile(blockLoc(MineraculousBlocks.CHEESE_POT)));
 
@@ -39,8 +43,8 @@ public class MineraculousBlockStateProvider extends ExtendedBlockStateProvider {
         });
     }
 
-    protected void cheese(SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxed, String name) {
-        Table<CheeseBlock.Age, Integer, ModelFile> models = HashBasedTable.create();
+    protected void cheese(SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> blocks, SortedMap<AgeingCheese.Age, DeferredBlock<CheeseBlock>> waxed, String name) {
+        Table<AgeingCheese.Age, Integer, ModelFile> models = HashBasedTable.create();
         blocks.forEach(((age, block) -> getVariantBuilder(block.get()).forAllStates(blockState -> {
             int bites = blockState.getValue(CheeseBlock.BITES);
             String suffix = bites > 0 ? "_slice" + bites : "";
@@ -62,7 +66,7 @@ public class MineraculousBlockStateProvider extends ExtendedBlockStateProvider {
             int bites = blockState.getValue(CheeseBlock.BITES);
             return ConfiguredModel.builder()
                     .rotationY((int) (blockState.getValue(CheeseBlock.FACING).getOpposite()).toYRot())
-                    .modelFile(models.get(age, bites))
+                    .modelFile(Objects.requireNonNull(models.get(age, bites)))
                     .build();
         })));
     }

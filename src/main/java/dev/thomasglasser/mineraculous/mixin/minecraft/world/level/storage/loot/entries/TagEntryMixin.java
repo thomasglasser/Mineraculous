@@ -23,7 +23,7 @@ public abstract class TagEntryMixin extends LootPoolSingletonContainer {
     }
 
     @Redirect(method = "expandTag(Lnet/minecraft/world/level/storage/loot/LootContext;Ljava/util/function/Consumer;)Z", at = @At(value = "INVOKE", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V"))
-    private <T> void expandTag(Consumer<T> instance, T t, @Local(argsOnly = true) LootContext context, @Local Holder<Item> holder) {
+    private <T> void fixTagEnchantments(Consumer<T> instance, T t, @Local(argsOnly = true) LootContext context, @Local Holder<Item> holder) {
         instance.accept((T) new EntryBase() {
             @Override
             public void createItemStack(Consumer<ItemStack> stackConsumer, LootContext lootContext) {

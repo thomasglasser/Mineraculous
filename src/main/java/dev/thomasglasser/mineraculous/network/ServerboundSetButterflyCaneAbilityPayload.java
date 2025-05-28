@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
+import dev.thomasglasser.mineraculous.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
@@ -35,7 +35,7 @@ public record ServerboundSetButterflyCaneAbilityPayload(InteractionHand hand, Bu
         if (old != selected) {
             ServerLevel serverlevel = (ServerLevel) player.level();
             MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-            MiraculousData storingData = miraculousesData.get(miraculousesData.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_BUTTERFLY_CANE, serverlevel));
+            MiraculousData storingData = miraculousesData.get(miraculousesData.getFirstKeyIn(MiraculousTags.CAN_USE_BUTTERFLY_CANE, serverlevel));
             if (old == ButterflyCaneItem.Ability.BLADE)
                 ((SingletonGeoAnimatable) stack.getItem()).triggerAnim(player, GeoItem.getOrAssignId(stack, serverlevel), ButterflyCaneItem.CONTROLLER_USE, ButterflyCaneItem.ANIMATION_SHEATHE);
             else if (old == ButterflyCaneItem.Ability.KAMIKO_STORE && storingData != null && !storingData.extraData().contains(ButterflyCaneItem.TAG_STORED_KAMIKO))

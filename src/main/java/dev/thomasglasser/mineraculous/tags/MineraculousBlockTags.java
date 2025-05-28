@@ -15,7 +15,6 @@ public class MineraculousBlockTags {
     public static final TagKey<Block> CHEESE_BLOCKS = create("cheese_blocks");
     public static final TagKey<Block> CAMEMBERT_BLOCKS = create("camembert_blocks");
 
-
     private static TagKey<Block> create(String name) {
         return TagKey.create(Registries.BLOCK, Mineraculous.modLoc(name));
     }

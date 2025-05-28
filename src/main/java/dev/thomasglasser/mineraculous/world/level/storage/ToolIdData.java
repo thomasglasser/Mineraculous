@@ -7,12 +7,17 @@ import java.util.UUID;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.saveddata.SavedData;
 
 public class ToolIdData extends SavedData {
     public static final String FILE_ID = "tool_id";
     private final Object2IntMap<UUID> toolIdMap = new Object2IntOpenHashMap<>();
+
+    public static ToolIdData get(ServerLevel level) {
+        return level.getDataStorage().computeIfAbsent(ToolIdData.factory(), ToolIdData.FILE_ID);
+    }
 
     public static Factory<ToolIdData> factory() {
         return new Factory<>(ToolIdData::new, (p_294039_, p_324123_) -> load(p_294039_), DataFixTypes.LEVEL);

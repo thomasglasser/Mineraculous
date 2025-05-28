@@ -49,13 +49,17 @@ public class MineraculousItemProperties {
         ItemProperties.register(MineraculousItems.BUTTERFLY_CANE.get(), ABILITY, getEnumAbilityPropertyFunction(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()));
 
         // Block Items
-        MineraculousBlocks.CHEESE_BLOCKS.values().forEach(block -> ItemProperties.register(block.asItem(), BITES, (stack, level, entity, seed) -> {
+        ItemPropertyFunction bitesFunction = (stack, level, entity, seed) -> {
             BlockItemStateProperties blockItemStateProperties = stack.get(DataComponents.BLOCK_STATE);
             if (blockItemStateProperties == null)
                 return 0;
             Integer bites = blockItemStateProperties.get(CheeseBlock.BITES);
             return bites == null ? 0 : bites;
-        }));
+        };
+        MineraculousBlocks.CHEESE.values().forEach(block -> ItemProperties.register(block.asItem(), BITES, bitesFunction));
+        MineraculousBlocks.CAMEMBERT.values().forEach(block -> ItemProperties.register(block.asItem(), BITES, bitesFunction));
+        MineraculousBlocks.WAXED_CHEESE.values().forEach(block -> ItemProperties.register(block.asItem(), BITES, bitesFunction));
+        MineraculousBlocks.WAXED_CAMEMBERT.values().forEach(block -> ItemProperties.register(block.asItem(), BITES, bitesFunction));
     }
 
     public static <T extends Enum<T>> ItemPropertyFunction getEnumAbilityPropertyFunction(DataComponentType<T> component) {

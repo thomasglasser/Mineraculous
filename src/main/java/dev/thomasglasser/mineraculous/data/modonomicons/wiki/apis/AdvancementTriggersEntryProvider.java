@@ -4,8 +4,8 @@ import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 
 public class AdvancementTriggersEntryProvider extends IndexModeEntryProvider {
     public static final String ID = "advancement_triggers";
@@ -22,7 +22,7 @@ public class AdvancementTriggersEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Generator");
         add(context().pageText(), """
-                A generator for advancements can be found online [here](https://snapshot-jsons.thomasglasser.dev/advancement/).
+                A generator for advancements can be found online [here](https://beta-jsons.thomasglasser.dev/advancement/).
                 """);
 
         page("transformed_miraculous", () -> BookTextPageModel.create()

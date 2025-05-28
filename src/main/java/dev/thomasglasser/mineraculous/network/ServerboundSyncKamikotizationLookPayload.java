@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.network;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.ServerLookData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -22,7 +22,7 @@ public record ServerboundSyncKamikotizationLookPayload(FlattenedKamikotizationLo
     public void handle(Player player) {
         if (!MineraculousServerConfig.isCustomizationAllowed(player))
             return;
-        ((FlattenedLookDataHolder) player.getServer().overworld()).mineraculous$addKamikotizationLookData(player.getUUID(), data);
+        ServerLookData.getPlayerKamikotizations().put(player.getUUID(), data);
         TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncKamikotizationLookPayload(player.getUUID(), data), player.getServer());
     }
 

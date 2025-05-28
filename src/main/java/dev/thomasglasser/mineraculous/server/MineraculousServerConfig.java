@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.server;
 
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.ServerLookData;
 import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
@@ -69,8 +69,7 @@ public class MineraculousServerConfig {
     }
 
     public static boolean isCustomizationAllowed(Player player) {
-        FlattenedLookDataHolder overworld = (FlattenedLookDataHolder) player.getServer().overworld();
-        return get().enableCustomization.get() && (get().customizationPermissionsMode.get() == PermissionMode.WHITELIST ? overworld.mineraculous$isPlayerWhitelisted(player) : !overworld.mineraculous$isPlayerBlacklisted(player));
+        return get().enableCustomization.get() && (get().customizationPermissionsMode.get() == PermissionMode.WHITELIST ? ServerLookData.isPlayerInWhitelist(player) : !ServerLookData.isPlayerInBlacklist(player));
     }
 
     public enum PermissionMode {

@@ -10,7 +10,6 @@
     "minecraft.world.entity.LivingEntityMixin",
     "minecraft.world.entity.player.PlayerMixin",
     "minecraft.world.item.BlockItemMixin",
-    "minecraft.world.item.HoneycombItemMixin",
     "minecraft.world.item.ItemStackMixin",
     "minecraft.world.level.storage.loot.entries.TagEntryMixin",
     "neoforge.common.extensions.IItemExtensionMixin"

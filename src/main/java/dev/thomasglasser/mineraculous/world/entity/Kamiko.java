@@ -5,7 +5,7 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ClientboundOpenKamikotizationSelectionScreenPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncKamikotizationLooksPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncInventoryPayload;
-import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
+import dev.thomasglasser.mineraculous.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
@@ -20,6 +20,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +81,6 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, GeoEntity {
     public static final ResourceLocation SPECTATOR_SHADER = Mineraculous.modLoc("post_effect/kamiko.json");
     public static final String CANT_KAMIKOTIZE_TRANSFORMED = "entity.mineraculous.kamiko.cant_kamikotize_transformed";
-    public static final BiPredicate<LivingEntity, LivingEntity> TARGET_TOO_FAR = (kamiko, target) -> (kamiko.getAttributes().hasAttribute(Attributes.FOLLOW_RANGE) && kamiko.distanceToSqr(target) >= Math.pow(kamiko.getAttributeValue(Attributes.FOLLOW_RANGE), 2));
 
     private static final EntityDataAccessor<Integer> DATA_NAME_COLOR = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Optional<ResourceLocation>> DATA_FACE_MASK_TEXTURE = SynchedEntityData.defineId(Kamiko.class, MineraculousEntityDataSerializers.OPTIONAL_RESOURCE_LOCATION.get());
@@ -212,7 +212,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                     Player caneOwner = resolvableProfile != null ? player.level().getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId())) : null;
                     if (caneOwner == null)
                         return false;
-                    MiraculousData storingData = miraculousesData.get(miraculousesData.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_BUTTERFLY_CANE, level()));
+                    MiraculousData storingData = miraculousesData.get(miraculousesData.getFirstKeyIn(MiraculousTags.CAN_USE_BUTTERFLY_CANE, level()));
                     return (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == ButterflyCaneItem.Ability.KAMIKO_STORE && storingData != null && !storingData.extraData().contains(ButterflyCaneItem.TAG_STORED_KAMIKO));
                 }));
     }
@@ -225,7 +225,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                     protected boolean canAttack(LivingEntity entity, LivingEntity target) {
                         return entity.canBeSeenByAnyone();
                     }
-                }.invalidateIf(TARGET_TOO_FAR),
+                }.invalidateIf(EntityUtils.TARGET_TOO_FAR_PREDICATE),
                 new SetWalkTargetToAttackTarget<Kamiko>(),
                 new MoveToWalkTarget<Kamiko>());
     }

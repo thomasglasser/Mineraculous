@@ -35,7 +35,6 @@ public record ServerboundUpdateYoyoLengthPayload(boolean increase) implements Ex
                 thrownYoyo.setServerMaxRopeLength(thrownYoyo.getServerMaxRopeLength() - 0.2f);
                 thrownYoyo.updateRenderMaxRopeLength(player);
             }
-            System.out.println(thrownYoyo.getServerMaxRopeLength());
         }
     }
 

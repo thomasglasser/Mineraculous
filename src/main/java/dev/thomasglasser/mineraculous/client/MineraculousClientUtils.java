@@ -12,7 +12,7 @@ import dev.thomasglasser.mineraculous.client.gui.screens.kamikotization.Kamikoti
 import dev.thomasglasser.mineraculous.client.gui.screens.kamikotization.PerformerKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.renderer.MineraculousRenderTypes;
-import dev.thomasglasser.mineraculous.client.renderer.entity.layers.SnapshotTesterCosmeticOptions;
+import dev.thomasglasser.mineraculous.client.renderer.entity.layers.BetaTesterCosmeticOptions;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.SpecialPlayerData;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundChangeSpecialPlayerDataPayload;
@@ -68,12 +68,12 @@ public class MineraculousClientUtils {
         specialPlayerData.put(player, data);
     }
 
-    public static boolean renderSnapshotTesterLayer(AbstractClientPlayer player) {
-        return specialPlayerData.get(player) != null && specialPlayerData.get(player).displaySnapshot() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, snapshotChoice(player).slot());
+    public static boolean renderBetaTesterLayer(AbstractClientPlayer player) {
+        return specialPlayerData.get(player) != null && specialPlayerData.get(player).displayBeta() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, betaChoice(player).slot());
     }
 
-    public static SnapshotTesterCosmeticOptions snapshotChoice(AbstractClientPlayer player) {
-        return specialPlayerData.get(player) != null ? specialPlayerData.get(player).choice() : SnapshotTesterCosmeticOptions.DERBY_HAT;
+    public static BetaTesterCosmeticOptions betaChoice(AbstractClientPlayer player) {
+        return specialPlayerData.get(player) != null ? specialPlayerData.get(player).choice() : BetaTesterCosmeticOptions.DERBY_HAT;
     }
 
     public static boolean renderDevLayer(AbstractClientPlayer player) {
@@ -89,15 +89,15 @@ public class MineraculousClientUtils {
         if (player != null) {
             UUID uuid = player.getUUID();
 
-            boolean displaySnapshot;
+            boolean displayBeta;
             boolean displayDev;
             boolean displayLegacyDev;
 
-            displaySnapshot = MineraculousClientConfig.get().displaySnapshotTesterCosmetic.get();
+            displayBeta = MineraculousClientConfig.get().displayBetaTesterCosmetic.get();
             displayDev = MineraculousClientConfig.get().displayDevTeamCosmetic.get();
             displayLegacyDev = MineraculousClientConfig.get().displayLegacyDevTeamCosmetic.get();
 
-            TommyLibServices.NETWORK.sendToServer(new ServerboundChangeSpecialPlayerDataPayload(uuid, new SpecialPlayerData(MineraculousClientConfig.get().snapshotTesterCosmeticChoice.get(), displaySnapshot, displayDev, displayLegacyDev)));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundChangeSpecialPlayerDataPayload(uuid, new SpecialPlayerData(MineraculousClientConfig.get().betaTesterCosmeticChoice.get(), displayBeta, displayDev, displayLegacyDev)));
         }
     }
 

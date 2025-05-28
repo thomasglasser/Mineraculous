@@ -9,13 +9,16 @@ import dev.thomasglasser.mineraculous.advancements.critereon.UseMiraculousPowerT
 import dev.thomasglasser.mineraculous.tags.MineraculousDamageTypeTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousEntityTypeTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.advancements.ExtendedAdvancementGenerator;
+import java.util.Optional;
+import java.util.function.BiConsumer;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.critereon.DamageSourcePredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
@@ -24,13 +27,10 @@ import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.KilledTrigger;
 import net.minecraft.advancements.critereon.TagPredicate;
 import net.minecraft.core.HolderLookup;
-import net.neoforged.neoforge.common.data.LanguageProvider;
-
-import java.util.Optional;
 
 public class MineraculousMiraculousAdvancements extends ExtendedAdvancementGenerator {
-    public MineraculousMiraculousAdvancements(LanguageProvider enUs) {
-        super(Mineraculous.MOD_ID, "miraculous", enUs);
+    public MineraculousMiraculousAdvancements(BiConsumer<String, String> lang) {
+        super(Mineraculous.MOD_ID, "miraculous", lang);
     }
 
     @Override
@@ -76,7 +76,7 @@ public class MineraculousMiraculousAdvancements extends ExtendedAdvancementGener
                 .trigger("cataclysm_kill_living_entity", KilledTrigger.TriggerInstance.playerKilledEntity(Optional.empty(), DamageSourcePredicate.Builder.damageType().tag(TagPredicate.is(MineraculousDamageTypeTags.IS_CATACLYSM))))
                 .build();
 
-        AdvancementHolder obtainCamembert = builder("obtain_camembert", MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.FRESH).toStack(), "Smelly Cheese, Smelly Cheese", "What are they feeding you to?")
+        AdvancementHolder obtainCamembert = builder("obtain_camembert", MineraculousBlocks.CAMEMBERT.get(AgeingCheese.Age.FRESH).toStack(), "Smelly Cheese, Smelly Cheese", "What are they feeding you to?")
                 .parent(transformCat)
                 .trigger("obtain_camembert", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(MineraculousItemTags.CAMEMBERT)))
                 .build();

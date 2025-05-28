@@ -1,9 +1,9 @@
 {
   "values": [
-    "mineraculous:fresh_wedge_of_cheese",
-    "mineraculous:aged_wedge_of_cheese",
-    "mineraculous:ripened_wedge_of_cheese",
-    "mineraculous:exquisite_wedge_of_cheese",
-    "mineraculous:time_honored_wedge_of_cheese"
+    "mineraculous:fresh_cheese_wedge",
+    "mineraculous:aged_cheese_wedge",
+    "mineraculous:ripened_cheese_wedge",
+    "mineraculous:exquisite_cheese_wedge",
+    "mineraculous:time_honored_cheese_wedge"
   ]
 }

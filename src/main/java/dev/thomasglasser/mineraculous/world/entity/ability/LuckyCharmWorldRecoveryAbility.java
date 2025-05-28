@@ -14,11 +14,11 @@ import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharm;
-import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryItemData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
 import java.util.Set;
@@ -61,9 +61,9 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
             if (luckyCharm != null) {
                 if (power.left().isPresent()) {
                     KwamiData stackKwamiData = mainHandItem.get(MineraculousDataComponents.KWAMI_DATA);
-                    return stackKwamiData != null && stackKwamiData.uuid().equals(entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(power.left().get()).miraculousItem().get(MineraculousDataComponents.KWAMI_DATA).uuid()) && luckyCharm.id() == ((LuckyCharmIdDataHolder) level.getServer().overworld()).mineraculous$getLuckyCharmIdData().getLuckyCharmId(stackKwamiData.uuid());
+                    return stackKwamiData != null && stackKwamiData.uuid().equals(entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(power.left().get()).miraculousItem().get(MineraculousDataComponents.KWAMI_DATA).uuid()) && luckyCharm.id() == LuckyCharmIdData.get(level).getLuckyCharmId(stackKwamiData.uuid());
                 } else {
-                    return mainHandItem.get(MineraculousDataComponents.KAMIKOTIZATION) == power.right().get() && luckyCharm.id() == ((LuckyCharmIdDataHolder) level.getServer().overworld()).mineraculous$getLuckyCharmIdData().getLuckyCharmId(entity.getUUID());
+                    return mainHandItem.get(MineraculousDataComponents.KAMIKOTIZATION) == power.right().get() && luckyCharm.id() == LuckyCharmIdData.get(level).getLuckyCharmId(entity.getUUID());
                 }
             }
             return false;
@@ -75,7 +75,7 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
         ItemStack luckyCharm = entity.getMainHandItem();
         Optional<UUID> target = luckyCharm.get(MineraculousDataComponents.LUCKY_CHARM).target();
         if (target.isPresent()) {
-            MiraculousRecoveryEntityData miraculousRecoveryEntityData = ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData();
+            MiraculousRecoveryEntityData miraculousRecoveryEntityData = MiraculousRecoveryEntityData.get(level);
             for (UUID related : miraculousRecoveryEntityData.getTrackedAndRelatedEntities(target.get())) {
                 LivingEntity recovering = level.getEntity(related) instanceof LivingEntity livingEntity ? livingEntity : null;
                 if (recovering != null) {
@@ -104,7 +104,7 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
                 }
             }
             miraculousRecoveryEntityData.stopTracking(target.get());
-            ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryItemData().recoverKamikotized(target.get(), level);
+            MiraculousRecoveryItemData.get(level).recoverKamikotized(target.get(), level);
         }
         UUID charmId;
         if (data.power().left().isPresent()) {
@@ -112,7 +112,7 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
         } else {
             charmId = entity.getUUID();
         }
-        ((LuckyCharmIdDataHolder) level.getServer().overworld()).mineraculous$getLuckyCharmIdData().incrementLuckyCharmId(charmId);
+        LuckyCharmIdData.get(level).incrementLuckyCharmId(charmId);
         startSound.ifPresent(sound -> level.playSound(null, pos, sound.value(), SoundSource.PLAYERS, 1, 1));
         spreadParticle.ifPresent(particleOptions -> level.sendParticles(particleOptions, entity.getX(), entity.getY() + 1, entity.getZ(), 100, level.random.nextInt(-4, 5) / 10.0, 0, level.random.nextInt(-4, 5) / 10.0, 0));
     }

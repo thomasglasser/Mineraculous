@@ -2,9 +2,8 @@ package dev.thomasglasser.mineraculous.world.item.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.UUID;
-
 import io.netty.buffer.ByteBuf;
+import java.util.UUID;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -18,6 +17,5 @@ public record KwamiData(UUID uuid, int id, boolean charged) {
             UUIDUtil.STREAM_CODEC, KwamiData::uuid,
             ByteBufCodecs.INT, KwamiData::id,
             ByteBufCodecs.BOOL, KwamiData::charged,
-            KwamiData::new
-    );
+            KwamiData::new);
 }

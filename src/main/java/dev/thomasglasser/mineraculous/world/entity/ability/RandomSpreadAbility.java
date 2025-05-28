@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryBlockData;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -34,7 +34,7 @@ public record RandomSpreadAbility(BlockState blockState, Optional<BlockPredicate
             if (canBlockBeReplaced(level, pos)) {
                 Map<BlockPos, BlockState> blocksAffected = new HashMap<>();
                 applyToBlock(level, pos, data.powerLevel(), blocksAffected);
-                ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryBlockData().putRecoverable(entity.getUUID(), blocksAffected);
+                MiraculousRecoveryBlockData.get(level).putRecoverable(entity.getUUID(), blocksAffected);
                 playStartSound(level, pos);
             }
             return true;
@@ -81,7 +81,7 @@ public record RandomSpreadAbility(BlockState blockState, Optional<BlockPredicate
 
     @Override
     public void restore(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
-        ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryBlockData().recover(entity.getUUID(), level);
+        MiraculousRecoveryBlockData.get(level).recover(entity.getUUID(), level);
     }
 
     @Override

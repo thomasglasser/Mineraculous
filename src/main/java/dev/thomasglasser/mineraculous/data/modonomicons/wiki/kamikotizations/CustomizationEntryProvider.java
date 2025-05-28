@@ -24,7 +24,7 @@ public class CustomizationEntryProvider extends IndexModeEntryProvider {
                 NOTE: The following features are only available if the server manually enables it.\\
                 \\
                 The look of your kamikotizations can be further customized by putting files in the 'kamikotizations' subfolder of the 'miraculouslooks' folder in the client's minecraft directory.\\
-                A guide for customizing can be found [here](https://snapshot-jsons.thomasglasser.dev/guides/customization/).
+                A guide for customizing can be found [here](https://beta-jsons.thomasglasser.dev/guides/customization/).
                 """);
     }
 

@@ -64,7 +64,10 @@ public class WikiBookSubProvider extends SingleBookSubProvider {
     @Override
     protected String bookDescription() {
         return """
-                Thank you for installing Mineraculous! Within these pages is everything you'll ever need to know about the mod, from how to obtain a miraculous to how to use the many powers it grants you. Check back here when new updates come out to see the changes!
+                Thank you for installing Mineraculous!
+                Within these pages is everything you'll ever need to know about the mod,
+                from how to obtain a miraculous to how to use the many powers it grants you.
+                Check back here when new updates come out to see the changes!
                 """;
     }
 

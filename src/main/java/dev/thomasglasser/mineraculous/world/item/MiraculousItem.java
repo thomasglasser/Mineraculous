@@ -15,7 +15,6 @@ import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideData;
-import dev.thomasglasser.mineraculous.world.level.storage.ChargeOverrideDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import java.util.ArrayList;
@@ -97,7 +96,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                 stack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
             }
             if (kwamiData != null) {
-                ChargeOverrideData overrideData = ((ChargeOverrideDataHolder) serverLevel.getServer().overworld()).mineraculous$getChargeOverrideData();
+                ChargeOverrideData overrideData = ChargeOverrideData.get(serverLevel);
                 if (overrideData.has(kwamiData.uuid())) {
                     Entity e = serverLevel.getEntity(kwamiData.uuid());
                     if (e instanceof Kwami kwami) {

@@ -7,13 +7,13 @@ import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.renderer.item.DefaultedGeoItemRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
-import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
+import dev.thomasglasser.mineraculous.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownButterflyCane;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
@@ -154,7 +154,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
                     if (resolvableProfile != null) {
                         Player caneOwner = player.level().getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
                         if (caneOwner != null) {
-                            ResourceKey<Miraculous> colorKey = caneOwner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_BUTTERFLY_CANE, level);
+                            ResourceKey<Miraculous> colorKey = caneOwner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstKeyIn(MiraculousTags.CAN_USE_BUTTERFLY_CANE, level);
                             if (colorKey != null)
                                 color = level.holderOrThrow(colorKey).value().color().getValue();
                         }
@@ -183,7 +183,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
             Player caneOwner = player.level().getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
             if (caneOwner != null) {
                 MiraculousesData miraculousesData = caneOwner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                ResourceKey<Miraculous> storingKey = miraculousesData.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_BUTTERFLY_CANE, player.level());
+                ResourceKey<Miraculous> storingKey = miraculousesData.getFirstKeyIn(MiraculousTags.CAN_USE_BUTTERFLY_CANE, player.level());
                 MiraculousData storingData = miraculousesData.get(storingKey);
                 if (storingData != null && !storingData.extraData().contains(TAG_STORED_KAMIKO)) {
                     if (player.level() instanceof ServerLevel serverLevel) {
@@ -213,7 +213,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
                 Player caneOwner = player.level().getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
                 if (caneOwner != null) {
                     MiraculousesData miraculousesData = caneOwner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                    ResourceKey<Miraculous> storingKey = miraculousesData.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_BUTTERFLY_CANE, player.level());
+                    ResourceKey<Miraculous> storingKey = miraculousesData.getFirstKeyIn(MiraculousTags.CAN_USE_BUTTERFLY_CANE, player.level());
                     MiraculousData storingData = miraculousesData.get(storingKey);
                     if (ability == Ability.KAMIKO_STORE && level instanceof ServerLevel serverLevel && storingData != null && storingData.extraData().contains(TAG_STORED_KAMIKO)) {
                         Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(serverLevel);

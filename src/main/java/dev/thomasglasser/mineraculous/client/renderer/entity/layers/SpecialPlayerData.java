@@ -8,11 +8,11 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-public record SpecialPlayerData(SnapshotTesterCosmeticOptions choice, boolean displaySnapshot, boolean displayDev, boolean displayLegacyDev) {
+public record SpecialPlayerData(BetaTesterCosmeticOptions choice, boolean displayBeta, boolean displayDev, boolean displayLegacyDev) {
 
     public static final StreamCodec<FriendlyByteBuf, SpecialPlayerData> STREAM_CODEC = StreamCodec.composite(
-            ExtraStreamCodecs.forEnum(SnapshotTesterCosmeticOptions.class), SpecialPlayerData::choice,
-            ByteBufCodecs.BOOL, SpecialPlayerData::displaySnapshot,
+            ExtraStreamCodecs.forEnum(BetaTesterCosmeticOptions.class), SpecialPlayerData::choice,
+            ByteBufCodecs.BOOL, SpecialPlayerData::displayBeta,
             ByteBufCodecs.BOOL, SpecialPlayerData::displayDev,
             ByteBufCodecs.BOOL, SpecialPlayerData::displayLegacyDev,
             SpecialPlayerData::new);
@@ -20,6 +20,6 @@ public record SpecialPlayerData(SnapshotTesterCosmeticOptions choice, boolean di
     public static final String GIST = "thomasglasser/aa8eb933847685b93d8f99a59f07b62e";
     public SpecialPlayerData verify(UUID uuid) {
         Set<String> types = SpecialPlayerUtils.getSpecialTypes(GIST, uuid);
-        return new SpecialPlayerData(choice, displaySnapshot && types.contains(SpecialPlayerUtils.SNAPSHOT_TESTER_KEY), displayDev && types.contains(SpecialPlayerUtils.DEV_KEY), displayLegacyDev && types.contains(SpecialPlayerUtils.LEGACY_DEV_KEY));
+        return new SpecialPlayerData(choice, displayBeta && types.contains(SpecialPlayerUtils.BETA_TESTER_KEY), displayDev && types.contains(SpecialPlayerUtils.DEV_KEY), displayLegacyDev && types.contains(SpecialPlayerUtils.LEGACY_DEV_KEY));
     }
 }

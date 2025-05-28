@@ -13,11 +13,11 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
+import dev.thomasglasser.mineraculous.world.level.storage.ServerLookData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Map;
 import java.util.Optional;
@@ -105,8 +105,8 @@ public class MiraculousCommand {
 
     private static int tryOpenCustomizationScreen(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
         Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
-        Map<String, FlattenedSuitLookData> serverSuits = ((FlattenedLookDataHolder) context.getSource().getServer().overworld()).mineraculous$getCommonSuitLookData().get(resolveMiraculous(context, "miraculous").key());
-        Map<String, FlattenedMiraculousLookData> serverMiraculous = ((FlattenedLookDataHolder) context.getSource().getServer().overworld()).mineraculous$getCommonMiraculousLookData().get(resolveMiraculous(context, "miraculous").key());
+        Map<String, FlattenedSuitLookData> serverSuits = ServerLookData.getCommonSuits().get(resolveMiraculous(context, "miraculous").key());
+        Map<String, FlattenedMiraculousLookData> serverMiraculous = ServerLookData.getCommonMiraculouses().get(resolveMiraculous(context, "miraculous").key());
         context.getSource().sendSuccess(() -> self ? Component.translatable(CUSTOMIZE_OPEN_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))) : Component.translatable(CUSTOMIZE_OPEN_SUCCESS_OTHER, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), player.getDisplayName()), true);
         TommyLibServices.NETWORK.sendToClient(new ClientboundOpenLookCustomizationScreenPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), true, miraculousType.key(), serverSuits, serverMiraculous), player);
         return 1;

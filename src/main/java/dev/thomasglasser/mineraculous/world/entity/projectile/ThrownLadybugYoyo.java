@@ -6,7 +6,7 @@ import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownLadybugYoyoRe
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
-import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
+import dev.thomasglasser.mineraculous.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityDataSerializers;
@@ -383,17 +383,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                         stack.set(DataComponents.MAX_STACK_SIZE, 1);
                         ServerboundTryBreakItemPayload.hurtAndBreak(stack, 1, serverlevel, owner instanceof LivingEntity livingEntity ? livingEntity : null, null);
                     } else {
-                        if (stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.has(DataComponents.PROFILE)) {
-                            ServerPlayer target = (ServerPlayer) serverlevel.getPlayerByUUID(stack.get(DataComponents.PROFILE).gameProfile().getId());
-                            if (target != null) {
-                                KamikotizationData data = target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow();
-                                if (data.stackCount() <= 1)
-                                    MineraculousEntityEvents.handleKamikotizationTransformation(target, data, false, false, position().add(0, 1, 0));
-                                else {
-                                    data.decrementStackCount().save(target, true);
-                                }
-                            }
-                        }
+                        MineraculousEntityEvents.checkKamikotizationStack(stack, serverlevel, owner);
                         stack.shrink(1);
                         playSound(SoundEvents.ITEM_BREAK);
                     }
@@ -444,7 +434,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 }
             } else if (getAbility() == LadybugYoyoItem.Ability.PURIFY && getOwner() != null && result.getEntity() instanceof Kamiko kamiko && kamiko.isPowered()) {
                 MiraculousesData miraculousesData = getOwner().getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                ResourceKey<Miraculous> storingKey = miraculousesData.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_LADYBUG_YOYO, level());
+                ResourceKey<Miraculous> storingKey = miraculousesData.getFirstKeyIn(MiraculousTags.CAN_USE_LADYBUG_YOYO, level());
                 MiraculousData storingData = miraculousesData.get(storingKey);
                 if (storingData != null) {
                     CompoundTag kamikoData = kamiko.saveWithoutId(new CompoundTag());

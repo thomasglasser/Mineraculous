@@ -5,11 +5,11 @@ import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
+import dev.thomasglasser.mineraculous.world.level.storage.ServerLookData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
@@ -35,17 +35,16 @@ public record ServerboundSyncCustomizationPayload(ResourceKey<Miraculous> key, S
     public void handle(Player player) {
         MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
         MiraculousData data = miraculousesData.get(key).withName(name);
-        FlattenedLookDataHolder overworld = (FlattenedLookDataHolder) player.getServer().overworld();
         String suitLook = suit.isPresent() ? suit.get().look() : "";
         data = data.withSuitLook(suitLook);
-        if (!suitLook.isEmpty() && (MineraculousServerConfig.isCustomizationAllowed(player) || overworld.mineraculous$getCommonSuitLookData().containsKey(key))) {
-            overworld.mineraculous$addSuitLookData(player.getUUID(), key, suit.get());
+        if (!suitLook.isEmpty() && (MineraculousServerConfig.isCustomizationAllowed(player) || ServerLookData.getCommonSuits().containsKey(key))) {
+            ServerLookData.addPlayerSuit(player.getUUID(), key, suit.get());
             TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(player.getUUID(), key, suit.get(), true), player.getServer());
         }
         String miraculousLook = miraculous.isPresent() ? miraculous.get().look() : "";
         data = data.withMiraculousLook(miraculousLook);
-        if (!miraculousLook.isEmpty() && (MineraculousServerConfig.isCustomizationAllowed(player) || overworld.mineraculous$getCommonMiraculousLookData().containsKey(key))) {
-            overworld.mineraculous$addMiraculousLookData(player.getUUID(), key, miraculous.get());
+        if (!miraculousLook.isEmpty() && (MineraculousServerConfig.isCustomizationAllowed(player) || ServerLookData.getCommonMiraculouses().containsKey(key))) {
+            ServerLookData.addPlayerMiraculous(player.getUUID(), key, miraculous.get());
             TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), key, miraculous.get(), true), player.getServer());
         }
         miraculousesData.put(player, key, data, true);

@@ -14,9 +14,9 @@ import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
+import dev.thomasglasser.mineraculous.world.level.storage.ServerLookData;
 import dev.thomasglasser.tommylib.api.packs.PackInfo;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -47,6 +47,7 @@ import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.event.AddPackFindersEvent;
 import net.neoforged.neoforge.event.LootTableLoadEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
@@ -89,7 +90,9 @@ public class MineraculousCoreEvents {
         event.register(MineraculousDataMaps.ENTITY_LUCKY_CHARMS);
 
         event.register(MineraculousDataMaps.MIRACULOUS_EFFECTS);
-        event.register(MineraculousDataMaps.MIRACULOUS_ATTRIBUTES);
+        event.register(MineraculousDataMaps.MIRACULOUS_ATTRIBUTE_MODIFIERS);
+
+        event.register(MineraculousDataMaps.AGEABLES);
     }
 
     // Look Loading
@@ -138,11 +141,7 @@ public class MineraculousCoreEvents {
                 Mineraculous.LOGGER.error("Failed to read blacklist file", e);
             }
         }
-        FlattenedLookDataHolder overworld = (FlattenedLookDataHolder) event.getServer().overworld();
-        overworld.mineraculous$setCommonMiraculousLookData(miraculousLooks);
-        overworld.mineraculous$setCommonSuitLookData(suitLooks);
-        overworld.mineraculous$setWhitelist(whitelist);
-        overworld.mineraculous$setBlacklist(blacklist);
+        ServerLookData.set(suitLooks, miraculousLooks, whitelist, blacklist);
         if (event.getServer().registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).size() == 0) {
             Mineraculous.LOGGER.warn(Component.translatable(Kamikotization.NO_KAMIKOTIZATIONS).getString());
         }

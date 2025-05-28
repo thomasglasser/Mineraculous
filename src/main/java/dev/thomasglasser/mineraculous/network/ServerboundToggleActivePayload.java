@@ -4,9 +4,8 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.item.component.ActiveSettings;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
-import java.util.Optional;
-
 import dev.thomasglasser.tommylib.api.network.codec.ExtraStreamCodecs;
+import java.util.Optional;
 import net.minecraft.core.Holder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;

@@ -30,8 +30,8 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilities;
 import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerProfessions;
 import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
@@ -39,20 +39,20 @@ import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.world.level.block.AgeingCheese;
+import dev.thomasglasser.mineraculous.world.level.block.AgeingCheeseEdibleFullBlock;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.tommylib.api.data.lang.ExtendedEnUsLanguageProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
+import java.util.Map;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemNameBlockItem;
 
 public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvider {
     public MineraculousEnUsLanguageProvider(PackOutput output) {
@@ -99,12 +99,13 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         }
     }
 
-    protected void cheese(String name, Map<CheeseBlock.Age, DeferredItem<?>> wedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> blocks, Map<CheeseBlock.Age, DeferredItem<?>> waxedWedges, Map<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxedBlocks) {
-        for (CheeseBlock.Age age : CheeseBlock.Age.values()) {
-            add(wedges.get(age).get(), capitalize(age.getSerializedName()).replace('_', '-') + " Wedge of " + name);
-            add(blocks.get(age).get(), capitalize(age.getSerializedName()).replace('_', '-') + " Block of " + name);
-            add(waxedWedges.get(age).get(), "Waxed " + capitalize(age.getSerializedName()).replace('_', '-') + " Wedge of " + name);
-            add(waxedBlocks.get(age).get(), "Waxed " + capitalize(age.getSerializedName()).replace('_', '-') + " Block of " + name);
+    protected void cheese(Map<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> wedges, Map<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> waxedWedges, Map<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> blocks, Map<AgeingCheese.Age, DeferredBlock<CheeseBlock>> waxedBlocks, String name) {
+        for (AgeingCheese.Age age : AgeingCheese.Age.values()) {
+            String ageName = capitalize(age.getSerializedName()).replace('_', '-');
+            add(wedges.get(age).get(), "Wedge of " + ageName + " " + name);
+            add(waxedWedges.get(age).get(), "Waxed Wedge of " + ageName + " " + name);
+            add(blocks.get(age).get(), "Block of " + ageName + " " + name);
+            add(waxedBlocks.get(age).get(), "Waxed Block of " + ageName + " " + name);
         }
     }
 
@@ -151,12 +152,12 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousBlocks.CHEESE_POT.get(), "Cheese Pot");
         add(MineraculousBlocks.HIBISCUS_BUSH.get(), "Hibiscus Bush");
 
-        cheese("Cheese", MineraculousItems.CHEESE_WEDGES, MineraculousBlocks.CHEESE_BLOCKS, MineraculousItems.WAXED_CHEESE_WEDGES, MineraculousBlocks.WAXED_CHEESE_BLOCKS);
-        cheese("Camembert", MineraculousItems.CAMEMBERT_WEDGES, MineraculousBlocks.CAMEMBERT_BLOCKS, MineraculousItems.WAXED_CAMEMBERT_WEDGES, MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS);
+        cheese(MineraculousItems.CHEESE, MineraculousItems.WAXED_CHEESE, MineraculousBlocks.CHEESE, MineraculousBlocks.WAXED_CHEESE, "Cheese");
+        cheese(MineraculousItems.CAMEMBERT, MineraculousItems.WAXED_CAMEMBERT, MineraculousBlocks.CAMEMBERT, MineraculousBlocks.WAXED_CAMEMBERT, "Camembert");
     }
 
     private void addEntityTypes() {
-        add(MineraculousEntityTypes.KAMIKO.get(), "Kamiko", MineraculousItems.KAMIKO_SPAWN_EGG.get());
+        add(MineraculousEntityTypes.KAMIKO.get(), MineraculousItems.KAMIKO_SPAWN_EGG.get(), "Kamiko");
 
         add(MineraculousEntityTypes.KWAMI.get(), "Kwami");
         add(MineraculousEntityTypes.LUCKY_CHARM_ITEM_SPAWNER.get(), "Lucky Charm Item Spawner");
@@ -369,8 +370,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         // Client
         addConfigSection(MineraculousClientConfig.COSMETICS, "Player Cosmetics", "Settings for player cosmetics");
-        addConfig(MineraculousClientConfig.get().displaySnapshotTesterCosmetic, "Display Snapshot Tester Cosmetic", "Display your preferred Snapshot Tester Cosmetic (if eligible)");
-        addConfig(MineraculousClientConfig.get().snapshotTesterCosmeticChoice, "Snapshot Tester Cosmetic Choice", "The Snapshot Tester Cosmetic to be displayed (if eligible)");
+        addConfig(MineraculousClientConfig.get().displayBetaTesterCosmetic, "Display Beta Tester Cosmetic", "Display your preferred Beta Tester Cosmetic (if eligible)");
+        addConfig(MineraculousClientConfig.get().betaTesterCosmeticChoice, "Beta Tester Cosmetic Choice", "The Beta Tester Cosmetic to be displayed (if eligible)");
         addConfig(MineraculousClientConfig.get().displayDevTeamCosmetic, "Display Dev Team Cosmetic", "Display the Dev Team cosmetic (if eligible)");
         addConfig(MineraculousClientConfig.get().displayLegacyDevTeamCosmetic, "Display Legacy Dev Team Cosmetic", "Display the Legacy Dev Team cosmetic (if eligible)");
 

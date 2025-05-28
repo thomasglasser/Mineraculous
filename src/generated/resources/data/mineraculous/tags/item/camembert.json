@@ -1,9 +1,9 @@
 {
   "values": [
-    "mineraculous:fresh_wedge_of_camembert",
-    "mineraculous:aged_wedge_of_camembert",
-    "mineraculous:ripened_wedge_of_camembert",
-    "mineraculous:exquisite_wedge_of_camembert",
-    "mineraculous:time_honored_wedge_of_camembert"
+    "mineraculous:fresh_camembert_wedge",
+    "mineraculous:aged_camembert_wedge",
+    "mineraculous:ripened_camembert_wedge",
+    "mineraculous:exquisite_camembert_wedge",
+    "mineraculous:time_honored_camembert_wedge"
   ]
 }

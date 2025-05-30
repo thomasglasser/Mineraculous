@@ -2,9 +2,8 @@ package dev.thomasglasser.mineraculous.world.item.crafting;
 
 import dev.thomasglasser.mineraculous.world.level.block.AgeingCheeseEdibleFullBlock;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
-import java.util.List;
-
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import java.util.List;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.BlockItem;

@@ -28,7 +28,7 @@ public record ServerboundSyncMiraculousLookPayload(ResourceKey<Miraculous> mirac
         MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
         miraculousesData.put(player, miraculous, miraculousesData.get(miraculous).withMiraculousLook(data.look()), false);
         ServerLookData.addPlayerMiraculous(player.getUUID(), miraculous, data);
-        TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), miraculous, data, true), player.getServer());
+        TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), miraculous, data), player.getServer());
     }
 
     @Override

@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.world.entity.projectile;
 
 import static dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload.ITEM_UNBREAKABLE_KEY;
 
-import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
@@ -10,7 +9,6 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;

@@ -2,7 +2,9 @@ package dev.thomasglasser.mineraculous.world.entity.ability;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thomasglasser.mineraculous.network.ClientboundToggleNightVisionPayload;
+import dev.thomasglasser.mineraculous.network.ClientboundToggleNightVisionShaderPayload;
+import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
@@ -12,6 +14,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 
@@ -62,32 +65,24 @@ public class NightVisionAbility implements Ability {
     public void checkNightVision(ServerPlayer serverPlayer, Level level, BlockPos pos) {
         if (level.getRawBrightness(pos.above(), level.getSkyDarken()) <= 5) {
             if (!nightVision) {
-                enableNightVision(serverPlayer);
+                updateNightVision(serverPlayer, true);
             }
         } else if (nightVision) {
-            disableNightVision(serverPlayer);
+            updateNightVision(serverPlayer, false);
         }
     }
 
-    // TODO: Fix
-    protected void enableNightVision(ServerPlayer serverPlayer) {
-        nightVision = true;
-        playStartSound(serverPlayer.serverLevel(), serverPlayer.blockPosition());
-        TommyLibServices.NETWORK.sendToClient(new ClientboundToggleNightVisionPayload(true, shader), serverPlayer);
-//        CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(serverPlayer);
-//        tag.putBoolean(MineraculousEntityEvents.TAG_HAS_NIGHT_VISION, nightVision);
-//        TommyLibServices.ENTITY.setPersistentData(serverPlayer, tag, false);
+    protected void updateNightVision(ServerPlayer player, boolean nightVision) {
+        shader.ifPresent(loc -> TommyLibServices.NETWORK.sendToClient(new ClientboundToggleNightVisionShaderPayload(nightVision, loc), player));
+        if (nightVision) {
+            player.addEffect(MineraculousEntityEvents.INFINITE_HIDDEN_EFFECT.apply(MobEffects.NIGHT_VISION, 1));
+        } else {
+            player.removeEffect(MobEffects.NIGHT_VISION);
+        }
+        player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withNightVisionShader(nightVision ? shader : Optional.empty()).save(player, true);
     }
 
-    protected void disableNightVision(ServerPlayer serverPlayer) {
-        nightVision = false;
-        TommyLibServices.NETWORK.sendToClient(new ClientboundToggleNightVisionPayload(false, shader), serverPlayer);
-//        CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(serverPlayer);
-//        tag.putBoolean(MineraculousEntityEvents.TAG_HAS_NIGHT_VISION, false);
-//        TommyLibServices.ENTITY.setPersistentData(serverPlayer, tag, false);
-    }
-
-    public void resetNightVision(ServerPlayer serverPlayer) {
+    public void refreshNightVision(ServerPlayer serverPlayer) {
         if (nightVision)
             nightVision = false;
         checkNightVision(serverPlayer, serverPlayer.level(), serverPlayer.blockPosition());
@@ -96,7 +91,7 @@ public class NightVisionAbility implements Ability {
     @Override
     public void detransform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
         if (entity instanceof ServerPlayer serverPlayer) {
-            disableNightVision(serverPlayer);
+            updateNightVision(serverPlayer, false);
         }
     }
 

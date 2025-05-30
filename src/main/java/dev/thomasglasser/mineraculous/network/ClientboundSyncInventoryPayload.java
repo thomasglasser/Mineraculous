@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.UUID;
+import java.util.function.Function;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -15,11 +16,12 @@ import net.minecraft.world.item.ItemStack;
 public record ClientboundSyncInventoryPayload(UUID uuid, NonNullList<ItemStack> items, NonNullList<ItemStack> armor, NonNullList<ItemStack> offhand, int selected) implements ExtendedPacketPayload {
 
     public static final Type<ClientboundSyncInventoryPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_sync_inventory"));
+    private static final StreamCodec<RegistryFriendlyByteBuf, NonNullList<ItemStack>> NON_NULL_LIST_ITEMSTACK_STREAM_CODEC = ItemStack.OPTIONAL_LIST_STREAM_CODEC.map(NonNullList::copyOf, Function.identity());
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundSyncInventoryPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), ClientboundSyncInventoryPayload::uuid,
-            ItemStack.OPTIONAL_LIST_STREAM_CODEC.map(list -> NonNullList.of(ItemStack.EMPTY, list.toArray(new ItemStack[0])), list -> list), ClientboundSyncInventoryPayload::items,
-            ItemStack.OPTIONAL_LIST_STREAM_CODEC.map(list -> NonNullList.of(ItemStack.EMPTY, list.toArray(new ItemStack[0])), list -> list), ClientboundSyncInventoryPayload::armor,
-            ItemStack.OPTIONAL_LIST_STREAM_CODEC.map(list -> NonNullList.of(ItemStack.EMPTY, list.toArray(new ItemStack[0])), list -> list), ClientboundSyncInventoryPayload::offhand,
+            NON_NULL_LIST_ITEMSTACK_STREAM_CODEC, ClientboundSyncInventoryPayload::items,
+            NON_NULL_LIST_ITEMSTACK_STREAM_CODEC, ClientboundSyncInventoryPayload::armor,
+            NON_NULL_LIST_ITEMSTACK_STREAM_CODEC, ClientboundSyncInventoryPayload::offhand,
             ByteBufCodecs.INT, ClientboundSyncInventoryPayload::selected,
             ClientboundSyncInventoryPayload::new);
     public ClientboundSyncInventoryPayload(Player player) {

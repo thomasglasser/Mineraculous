@@ -10,6 +10,7 @@ import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.ArrayList;
@@ -181,7 +182,7 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
                     protected boolean canAttack(LivingEntity entity, LivingEntity target) {
                         return entity.canBeSeenByAnyone();
                     }
-                }.invalidateIf(Kamiko.TARGET_TOO_FAR),
+                }.invalidateIf(EntityUtils.TARGET_TOO_FAR_PREDICATE),
                 new SetWalkTargetToAttackTarget<>(),
                 new MoveToWalkTarget<>(),
                 new LookAtTarget<>(),

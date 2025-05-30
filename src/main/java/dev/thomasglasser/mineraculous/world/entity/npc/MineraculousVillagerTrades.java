@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.world.entity.npc;
 
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.level.block.AgeingCheese;
-import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;

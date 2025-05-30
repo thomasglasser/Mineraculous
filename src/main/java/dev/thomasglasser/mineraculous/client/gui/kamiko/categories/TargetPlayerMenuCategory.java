@@ -6,6 +6,7 @@ import dev.thomasglasser.mineraculous.client.gui.kamiko.KamikoMenuItem;
 import dev.thomasglasser.mineraculous.client.gui.kamiko.PlayerMenuItem;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
+import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -33,7 +34,7 @@ public class TargetPlayerMenuCategory implements KamikoMenuCategory {
                 continue;
             Player player = Minecraft.getInstance().level.getPlayerByUUID(playerInfo.getProfile().getId());
             Kamiko kamiko = MineraculousClientUtils.getCameraEntity() instanceof Kamiko k ? k : null;
-            if (player != null && kamiko != null && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isEmpty() && !Kamiko.TARGET_TOO_FAR.test(kamiko, player)) {
+            if (player != null && kamiko != null && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isEmpty() && !EntityUtils.TARGET_TOO_FAR_PREDICATE.test(kamiko, player)) {
                 this.items.add(new PlayerMenuItem(playerInfo.getProfile()));
             }
         }

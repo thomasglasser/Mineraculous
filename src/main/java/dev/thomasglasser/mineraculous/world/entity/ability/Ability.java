@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -53,6 +54,15 @@ public interface Ability {
 
     MapCodec<? extends Ability> codec();
 
+    static List<Ability> getAll(Ability ability) {
+        List<Ability> abilities = new ReferenceArrayList<>();
+        abilities.add(ability);
+        if (ability instanceof HasSubAbility hasSubAbility) {
+            abilities.addAll(hasSubAbility.getAll());
+        }
+        return abilities;
+    }
+
     static List<Ability> getMatching(Predicate<Ability> predicate, Ability ability) {
         ArrayList<Ability> abilities = new ArrayList<>();
         if (predicate.test(ability))
@@ -68,6 +78,17 @@ public interface Ability {
 
     static boolean hasMatching(Predicate<Ability> predicate, Ability ability) {
         return !getMatching(predicate, ability).isEmpty();
+    }
+
+    static List<Ability> getAll(Optional<Holder<Ability>> activeAbility, List<Holder<Ability>> passiveAbilities, boolean includeActive) {
+        List<Ability> abilities = new ReferenceArrayList<>();
+        if (includeActive) {
+            activeAbility.ifPresent(ability -> abilities.add(ability.value()));
+        }
+        for (Holder<Ability> ability : passiveAbilities) {
+            abilities.addAll(getAll(ability.value()));
+        }
+        return abilities;
     }
 
     static List<Ability> getMatching(Predicate<Ability> predicate, Optional<Holder<Ability>> activeAbility, List<Holder<Ability>> passiveAbilities, boolean includeActive) {
@@ -89,6 +110,10 @@ public interface Ability {
         return !getMatching(predicate, activeAbility, passiveAbilities, includeActive).isEmpty();
     }
 
+    static List<Ability> getAll(Miraculous miraculous, boolean includeActive) {
+        return getAll(miraculous.activeAbility(), miraculous.passiveAbilities(), includeActive);
+    }
+
     static List<Ability> getMatching(Predicate<Ability> predicate, Miraculous miraculous, boolean includeActive) {
         return getMatching(predicate, miraculous.activeAbility(), miraculous.passiveAbilities(), includeActive);
     }
@@ -99,6 +124,10 @@ public interface Ability {
 
     static boolean hasMatching(Predicate<Ability> predicate, Miraculous miraculous, boolean includeActive) {
         return hasMatching(predicate, miraculous.activeAbility(), miraculous.passiveAbilities(), includeActive);
+    }
+
+    static List<Ability> getAll(Kamikotization kamikotization, boolean includeActive) {
+        return getAll(kamikotization.powerSource().right(), kamikotization.passiveAbilities(), includeActive);
     }
 
     static List<Ability> getMatching(Predicate<Ability> predicate, Kamikotization kamikotization, boolean includeActive) {

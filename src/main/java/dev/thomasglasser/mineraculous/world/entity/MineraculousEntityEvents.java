@@ -232,27 +232,21 @@ public class MineraculousEntityEvents {
             }));
 
             if (serverPlayer.tickCount == 15) {
-                ServerLookData.getPlayerSuits().forEach((uuid, dataSet) -> {
-                    dataSet.forEach((key, data) -> TommyLibServices.NETWORK.sendToClient(new ClientboundSyncSuitLookPayload(uuid, key, data, false), serverPlayer));
-                });
-                ServerLookData.getPlayerMiraculouses().forEach((uuid, dataSet) -> {
-                    dataSet.forEach((key, data) -> TommyLibServices.NETWORK.sendToClient(new ClientboundSyncMiraculousLookPayload(uuid, key, data, false), serverPlayer));
-                });
-                ServerLookData.getPlayerKamikotizations().forEach((uuid, data) -> {
-                    TommyLibServices.NETWORK.sendToClient(new ClientboundSyncKamikotizationLookPayload(uuid, data), serverPlayer);
-                });
+                ServerLookData.getPlayerSuits().forEach((uuid, dataSet) -> dataSet.forEach((key, data) -> TommyLibServices.NETWORK.sendToClient(new ClientboundSyncSuitLookPayload(uuid, key, data), serverPlayer)));
+                ServerLookData.getPlayerMiraculouses().forEach((uuid, dataSet) -> dataSet.forEach((key, data) -> TommyLibServices.NETWORK.sendToClient(new ClientboundSyncMiraculousLookPayload(uuid, key, data), serverPlayer)));
+                ServerLookData.getPlayerKamikotizations().forEach((uuid, data) -> TommyLibServices.NETWORK.sendToClient(new ClientboundSyncKamikotizationLookPayload(uuid, data), serverPlayer));
                 for (ServerPlayer other : serverLevel.players()) {
                     MiraculousesData miraculousesData = other.getData(MineraculousAttachmentTypes.MIRACULOUSES);
                     for (ResourceKey<Miraculous> miraculous : miraculousesData.keySet()) {
                         Map<String, FlattenedSuitLookData> commonSuitLooks = ServerLookData.getCommonSuits().get(miraculous);
                         String look = miraculousesData.get(miraculous).suitLook();
                         if (commonSuitLooks.containsKey(look)) {
-                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(other.getUUID(), miraculous, commonSuitLooks.get(look), true), serverPlayer.getServer());
+                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(player.getUUID(), miraculous, commonSuitLooks.get(look)), player.getServer());
                         }
                         Map<String, FlattenedMiraculousLookData> commonMiraculousLooks = ServerLookData.getCommonMiraculouses().get(miraculous);
                         look = miraculousesData.get(miraculous).miraculousLook();
                         if (commonMiraculousLooks.containsKey(look)) {
-                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(other.getUUID(), miraculous, commonMiraculousLooks.get(look), true), serverPlayer.getServer());
+                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(other.getUUID(), miraculous, commonMiraculousLooks.get(look)), serverPlayer.getServer());
                         }
                     }
                 }
@@ -910,13 +904,13 @@ public class MineraculousEntityEvents {
                 miraculousesData.getTransformedHolders(event.getLevel().registryAccess()).forEach(miraculous -> {
                     NightVisionAbility nightVisionAbility = Ability.getFirstMatching(ability -> ability instanceof NightVisionAbility, miraculous.value(), miraculousesData.get(miraculous.getKey()).mainPowerActive()) instanceof NightVisionAbility n ? n : null;
                     if (nightVisionAbility != null)
-                        nightVisionAbility.resetNightVision(player);
+                        nightVisionAbility.refreshNightVision(player);
                 });
                 if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
                     KamikotizationData kamikotizationData = player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
                     NightVisionAbility nightVisionAbility = Ability.getFirstMatching(ability -> ability instanceof NightVisionAbility, player.level().holderOrThrow(kamikotizationData.kamikotization()).value(), kamikotizationData.mainPowerActive()) instanceof NightVisionAbility n ? n : null;
                     if (nightVisionAbility != null)
-                        nightVisionAbility.resetNightVision(player);
+                        nightVisionAbility.refreshNightVision(player);
                 }
 
                 for (ResourceKey<Miraculous> miraculous : miraculousesData.keySet()) {
@@ -924,17 +918,14 @@ public class MineraculousEntityEvents {
                     String look = miraculousesData.get(miraculous).suitLook();
                     if (!look.isEmpty()) {
                         if (commonSuitLooks.containsKey(look)) {
-                            miraculousesData.put(player, miraculous, miraculousesData.get(miraculous).withSuitLook(look), true);
-                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(player.getUUID(), miraculous, commonSuitLooks.get(look), true), player.getServer());
+                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(player.getUUID(), miraculous, commonSuitLooks.get(look)), player.getServer());
                         } else
                             TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncSuitLookPayload(miraculous, look), player);
                     }
                     Map<String, FlattenedMiraculousLookData> commonMiraculousLooks = ServerLookData.getCommonMiraculouses().get(miraculous);
-                    look = miraculousesData.get(miraculous).miraculousLook();
                     if (!look.isEmpty()) {
                         if (commonMiraculousLooks.containsKey(look)) {
-                            miraculousesData.put(player, miraculous, miraculousesData.get(miraculous).withMiraculousLook(look), true);
-                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), miraculous, commonMiraculousLooks.get(look), true), player.getServer());
+                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), miraculous, commonMiraculousLooks.get(look)), player.getServer());
                         } else
                             TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncMiraculousLookPayload(miraculous, look), player);
                     }
@@ -945,6 +936,12 @@ public class MineraculousEntityEvents {
                 }
             }
         }
+    }
+
+    public static void updateAndSyncSuitLook(ServerPlayer player, ResourceKey<Miraculous> miraculous, FlattenedSuitLookData data) {
+        TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(player.getUUID(), miraculous, data), player.getServer());
+        MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+        miraculousesData.put(player, miraculous, miraculousesData.get(miraculous).withSuitLook(data.look()), true);
     }
 
     public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {

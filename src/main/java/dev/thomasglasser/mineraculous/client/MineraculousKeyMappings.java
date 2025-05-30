@@ -129,8 +129,11 @@ public class MineraculousKeyMappings {
             if (!transformed.isEmpty()) {
                 ResourceKey<Miraculous> miraculous = transformed.getFirst();
                 MiraculousData data = miraculousesData.get(miraculous);
-                if (data != null && !data.mainPowerActive() && !data.usedLimitedPower() && player.level().holderOrThrow(miraculous).value().activeAbility().isPresent()) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousPowerActivatedPayload(miraculous));
+                if (data != null) {
+                    // TODO: Ability overriding
+                    if (!data.mainPowerActive() && !data.usedLimitedPower() && player.level().holderOrThrow(miraculous).value().activeAbility().isPresent()) {
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousPowerActivatedPayload(miraculous));
+                    }
                 }
             }
         }

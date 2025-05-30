@@ -7,8 +7,6 @@ import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.level.block.AgeingCheese;
-import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
-import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 
 public class CheeseEntryProvider extends IndexModeEntryProvider {
     public static final String ID = "cheese";

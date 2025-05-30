@@ -5,26 +5,23 @@ import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.SuitLookData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.UUID;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 
-public record ClientboundSyncSuitLookPayload(UUID targetId, ResourceKey<Miraculous> miraculous, FlattenedSuitLookData data, boolean override) implements ExtendedPacketPayload {
+public record ClientboundSyncSuitLookPayload(UUID targetId, ResourceKey<Miraculous> miraculous, FlattenedSuitLookData data) implements ExtendedPacketPayload {
 
     public static final Type<ClientboundSyncSuitLookPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_sync_suit_look"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundSyncSuitLookPayload> CODEC = StreamCodec.composite(
             UUIDUtil.STREAM_CODEC, ClientboundSyncSuitLookPayload::targetId,
             ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS), ClientboundSyncSuitLookPayload::miraculous,
             FlattenedSuitLookData.CODEC, ClientboundSyncSuitLookPayload::data,
-            ByteBufCodecs.BOOL, ClientboundSyncSuitLookPayload::override,
             ClientboundSyncSuitLookPayload::new);
 
     // ON CLIENT
@@ -35,10 +32,6 @@ public record ClientboundSyncSuitLookPayload(UUID targetId, ResourceKey<Miraculo
             SuitLookData suitLookData = data.unpack(miraculous, target);
             if (suitLookData != null) {
                 target.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).put(miraculous, data.look(), suitLookData);
-                if (override) {
-                    MiraculousesData miraculousesData = target.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                    miraculousesData.put(target, miraculous, miraculousesData.get(miraculous).withSuitLook(data.look()), false);
-                }
             }
         }
     }

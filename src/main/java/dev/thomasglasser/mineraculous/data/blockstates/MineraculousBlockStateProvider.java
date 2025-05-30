@@ -9,7 +9,6 @@ import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.blockstates.ExtendedBlockStateProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
-
 import java.util.Objects;
 import java.util.SortedMap;
 import net.minecraft.data.PackOutput;

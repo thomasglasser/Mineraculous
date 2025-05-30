@@ -7,7 +7,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -32,8 +31,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public class CheeseBlock extends HorizontalDirectionalBlock {
     public static final MapCodec<CheeseBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("wedge").forGetter(CheeseBlock::getWedge),
-            propertiesCodec()
-    ).apply(instance, CheeseBlock::new));
+            propertiesCodec()).apply(instance, CheeseBlock::new));
     public static final int MAX_BITES = 3;
     public static final IntegerProperty BITES = IntegerProperty.create("bites", 0, MAX_BITES);
     protected static final VoxelShape SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 3.0, 12.0);

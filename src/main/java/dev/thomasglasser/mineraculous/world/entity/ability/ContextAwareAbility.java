@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -57,8 +58,23 @@ public record ContextAwareAbility(Optional<Holder<Ability>> blockAbility, Option
     }
 
     @Override
+    public List<Ability> getAll() {
+        List<Ability> abilities = new ReferenceArrayList<>();
+        abilities.add(this);
+        abilities.addAll(blockAbility.map(ability -> Ability.getAll(ability.value())).orElse(List.of()));
+        abilities.addAll(entityAbility.map(ability -> Ability.getAll(ability.value())).orElse(List.of()));
+        abilities.addAll(itemAbility.map(ability -> Ability.getAll(ability.value())).orElse(List.of()));
+        abilities.addAll(airAbility.map(ability -> Ability.getAll(ability.value())).orElse(List.of()));
+        for (Holder<Ability> ability : passiveAbilities) {
+            abilities.addAll(Ability.getAll(ability.value()));
+        }
+        return abilities;
+    }
+
+    @Override
     public List<Ability> getMatching(Predicate<Ability> predicate) {
         List<Ability> abilities = new ArrayList<>();
+        abilities.add(this);
         abilities.addAll(blockAbility.map(ability -> Ability.getMatching(predicate, ability.value())).orElse(List.of()));
         abilities.addAll(entityAbility.map(ability -> Ability.getMatching(predicate, ability.value())).orElse(List.of()));
         abilities.addAll(itemAbility.map(ability -> Ability.getMatching(predicate, ability.value())).orElse(List.of()));

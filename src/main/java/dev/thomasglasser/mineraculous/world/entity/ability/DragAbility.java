@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.advancements.critereon.UseKamikotizationPowerTrigger;
 import dev.thomasglasser.mineraculous.advancements.critereon.UseMiraculousPowerTrigger;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -91,8 +92,19 @@ public record DragAbility(Ability ability, int dragTicks, Optional<Holder<SoundE
     }
 
     @Override
+    public List<Ability> getAll() {
+        List<Ability> abilities = new ReferenceArrayList<>();
+        abilities.add(this);
+        abilities.addAll(Ability.getAll(ability));
+        return abilities;
+    }
+
+    @Override
     public List<Ability> getMatching(Predicate<Ability> predicate) {
-        return predicate.test(ability) ? List.of(ability) : List.of();
+        List<Ability> abilities = new ReferenceArrayList<>();
+        abilities.add(this);
+        abilities.addAll(Ability.getMatching(predicate, ability));
+        return abilities;
     }
 
     @Override

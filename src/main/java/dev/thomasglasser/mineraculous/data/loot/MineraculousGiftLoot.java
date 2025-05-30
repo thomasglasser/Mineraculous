@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.data.loot;
 
-import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.MineraculousGiftLootKeys;
 import java.util.function.BiConsumer;

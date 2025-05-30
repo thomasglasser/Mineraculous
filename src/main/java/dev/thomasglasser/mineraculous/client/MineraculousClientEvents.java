@@ -49,9 +49,6 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Map;
 import java.util.Optional;
 import java.util.SortedMap;
-
-import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
-import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -81,7 +78,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.block.Block;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;

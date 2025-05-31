@@ -4,12 +4,13 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.network.ClientboundOpenMiraculousTransferScreenPayload;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.ArrayList;
@@ -121,7 +122,7 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_CHARGED, true);
-        builder.define(DATA_MIRACULOUS, MineraculousMiraculous.LADYBUG);
+        builder.define(DATA_MIRACULOUS, Miraculouses.LADYBUG);
     }
 
     @Override
@@ -181,7 +182,7 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
                     protected boolean canAttack(LivingEntity entity, LivingEntity target) {
                         return entity.canBeSeenByAnyone();
                     }
-                }.invalidateIf(Kamiko.TARGET_TOO_FAR),
+                }.invalidateIf(EntityUtils.TARGET_TOO_FAR_PREDICATE),
                 new SetWalkTargetToAttackTarget<>(),
                 new MoveToWalkTarget<>(),
                 new LookAtTarget<>(),
@@ -199,7 +200,7 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
                         new FollowOwner<Kwami>().speedMod(10f).stopFollowingWithin(2).teleportToTargetAfter(8).startCondition(kwami -> kwami.getOwner() != null),
                         new FollowTemptation<>(),
                         new OneRandomBehaviour<>(
-                                new SetRandomFlyingTarget<>().flightTargetPredicate((entity, pos) -> entity.level().getBlockState(BlockPos.containing(pos)).isAir()),
+                                new SetRandomFlyingTarget<>().flightTargetPredicate((entity, pos) -> pos != null && entity.level().getBlockState(BlockPos.containing(pos)).isAir()),
                                 new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)))));
     }
 
@@ -245,8 +246,7 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
                         }
                     }
                     if (isTreat(stack) || isFood(stack)) {
-                        ItemStack remainder = ItemUtils.safeShrink(1, stack, player);
-                        if (!remainder.isEmpty()) player.addItem(remainder);
+                        ItemUtils.safeShrink(1, stack, player);
                         return InteractionResult.SUCCESS;
                     }
                 }

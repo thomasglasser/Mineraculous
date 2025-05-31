@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.world.entity.projectile;
 
 import static dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload.ITEM_UNBREAKABLE_KEY;
 
-import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
@@ -10,8 +9,7 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -115,7 +113,7 @@ public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
                 stack.setCount(1);
                 if (stack.isDamageableItem()) {
                     int i = 100;
-                    MiraculousDataSet data = owner != null ? owner.getData(MineraculousAttachmentTypes.MIRACULOUS) : null;
+                    MiraculousesData data = owner != null ? owner.getData(MineraculousAttachmentTypes.MIRACULOUSES) : null;
                     if (data != null) {
                         for (ResourceKey<Miraculous> type : data.getTransformed()) {
                             int powerLevel = data.get(type).powerLevel();
@@ -147,17 +145,7 @@ public class ThrownCatStaff extends AbstractArrow implements GeoEntity {
                     stack.set(DataComponents.MAX_STACK_SIZE, 1);
                     ServerboundTryBreakItemPayload.hurtAndBreak(stack, 1, serverlevel, owner instanceof LivingEntity livingEntity ? livingEntity : null, null);
                 } else {
-                    if (stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.has(DataComponents.PROFILE)) {
-                        ServerPlayer target = (ServerPlayer) serverlevel.getPlayerByUUID(stack.get(DataComponents.PROFILE).gameProfile().getId());
-                        if (target != null) {
-                            KamikotizationData data = target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow();
-                            if (data.stackCount() <= 1)
-                                MineraculousEntityEvents.handleKamikotizationTransformation(target, data, false, false, position().add(0, 1, 0));
-                            else {
-                                data.decrementStackCount().save(target, true);
-                            }
-                        }
-                    }
+                    MineraculousEntityEvents.checkKamikotizationStack(stack, serverlevel, owner);
                     stack.shrink(1);
                     playSound(SoundEvents.ITEM_BREAK);
                 }

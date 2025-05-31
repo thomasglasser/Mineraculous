@@ -9,14 +9,13 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public record ServerboundJumpMidSwingingPayload() implements ExtendedPacketPayload {
-    public static final Type<ServerboundJumpMidSwingingPayload> TYPE = new Type<>(Mineraculous.modLoc("jump_mid_swinging"));
     public static final ServerboundJumpMidSwingingPayload INSTANCE = new ServerboundJumpMidSwingingPayload();
+    public static final Type<ServerboundJumpMidSwingingPayload> TYPE = new Type<>(Mineraculous.modLoc("jump_mid_swinging"));
     public static final StreamCodec<ByteBuf, ServerboundJumpMidSwingingPayload> CODEC = StreamCodec.unit(INSTANCE);
 
     // ON SERVER
@@ -25,7 +24,7 @@ public record ServerboundJumpMidSwingingPayload() implements ExtendedPacketPaylo
         Level level = player.level();
         ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
         ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(level);
-        if (thrownYoyo != null && level instanceof ServerLevel serverLevel) {
+        if (thrownYoyo != null) {
             Vec3 fromProjectileToPlayer = new Vec3(player.getX() - thrownYoyo.getX(), player.getY() - thrownYoyo.getY(), player.getZ() - thrownYoyo.getZ());
             double distance = fromProjectileToPlayer.length();
             if (thrownYoyo.inGround() && !player.isNoGravity() && !player.onGround() && !player.getAbilities().flying && distance >= thrownYoyo.getServerMaxRopeLength() - 0.2) {

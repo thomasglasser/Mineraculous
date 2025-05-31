@@ -47,8 +47,5 @@ public class MineraculousDamageTypeTagsProvider extends ExtendedTagsProvider<Dam
 
         tag(MineraculousDamageTypeTags.IS_CATACLYSM)
                 .add(MineraculousDamageTypes.CATACLYSM);
-
-        tag(MineraculousDamageTypeTags.RESISTED_BY_MIRACULOUS)
-                .addTag(DamageTypeTags.PANIC_CAUSES);
     }
 }

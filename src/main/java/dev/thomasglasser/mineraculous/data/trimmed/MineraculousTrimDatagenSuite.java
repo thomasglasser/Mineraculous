@@ -4,13 +4,13 @@ import dev.dhyces.trimmed.api.data.TrimDatagenSuite;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armortrim.MineraculousTrimPatterns;
+import java.util.function.BiConsumer;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.common.data.LanguageProvider;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 public class MineraculousTrimDatagenSuite extends TrimDatagenSuite {
-    public MineraculousTrimDatagenSuite(GatherDataEvent event, LanguageProvider languageProvider) {
-        super(event, Mineraculous.MOD_ID, languageProvider::add);
+    public MineraculousTrimDatagenSuite(GatherDataEvent event, BiConsumer<String, String> lang) {
+        super(event, Mineraculous.MOD_ID, lang);
     }
 
     @Override

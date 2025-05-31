@@ -1,34 +1,34 @@
 package dev.thomasglasser.mineraculous.world.item;
 
 import com.mojang.serialization.Codec;
-import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
-import dev.thomasglasser.mineraculous.client.renderer.item.ButterflyCaneRenderer;
+import dev.thomasglasser.mineraculous.client.renderer.item.DefaultedGeoItemRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.network.ServerboundSetButterflyCaneAbilityPayload;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
-import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
+import dev.thomasglasser.mineraculous.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownButterflyCane;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -73,8 +73,7 @@ import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem, ProjectileItem {
-    public static final ResourceLocation BLADE_PROPERTY_ID = Mineraculous.modLoc("blade");
+public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem, ProjectileItem, RadialMenuProvider<ButterflyCaneItem.Ability> {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final String CONTROLLER_USE = "use_controller";
     public static final String ANIMATION_OPEN = "open";
@@ -130,7 +129,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
 
             @Override
             public BlockEntityWithoutLevelRenderer getBewlr() {
-                if (bewlr == null) bewlr = new ButterflyCaneRenderer();
+                if (bewlr == null) bewlr = new DefaultedGeoItemRenderer<>(MineraculousItems.BUTTERFLY_CANE.getId());
                 return bewlr;
             }
         });
@@ -151,36 +150,35 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
         if (entity instanceof Player player && !player.isUsingItem()) {
             if (level.isClientSide() && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
                 InteractionHand hand = player.getMainHandItem() == stack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-                CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
+                // TODO: Fix
+                CompoundTag playerData = /*TommyLibServices.ENTITY.getPersistentData(entity)*/new CompoundTag();
                 int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
-                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown()) {
-                    int color = level.holderOrThrow(MineraculousMiraculous.BUTTERFLY).value().color().getValue();
+                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen() && MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.isDown()) {
+                    int color = level.holderOrThrow(Miraculouses.BUTTERFLY).value().color().getValue();
                     ResolvableProfile resolvableProfile = stack.get(DataComponents.PROFILE);
                     if (resolvableProfile != null) {
                         Player caneOwner = player.level().getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
                         if (caneOwner != null) {
-                            ResourceKey<Miraculous> colorKey = caneOwner.getData(MineraculousAttachmentTypes.MIRACULOUS).getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_BUTTERFLY_CANE, level);
+                            ResourceKey<Miraculous> colorKey = caneOwner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstTransformedKeyIn(MiraculousTags.CAN_USE_BUTTERFLY_CANE, level);
                             if (colorKey != null)
                                 color = level.holderOrThrow(colorKey).value().color().getValue();
                         }
                     }
-                    MineraculousClientEvents.openToolWheel(color, stack, option -> {
-                        if (option instanceof Ability ability) {
-                            TommyLibServices.NETWORK.sendToServer(new ServerboundSetButterflyCaneAbilityPayload(hand, ability));
-                            stack.set(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get(), ability);
-                        }
-                    }, Arrays.stream(Ability.values()).filter(ability -> {
-                        if (ability == Ability.KAMIKO_STORE)
-                            return stack.has(DataComponents.PROFILE);
-                        return true;
-                    }).toArray(Ability[]::new));
+//                    MineraculousClientEvents.openToolWheel(color, stack, option -> {
+//                        if (option instanceof Ability ability) {
+//                            TommyLibServices.NETWORK.sendToServer(new ServerboundSetButterflyCaneAbilityPayload(hand, ability));
+//                            stack.set(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get(), ability);
+//                        }
+//                    }, Arrays.stream(Ability.values()).filter(ability -> {
+//                        if (ability == Ability.KAMIKO_STORE)
+//                            return stack.has(DataComponents.PROFILE);
+//                        return true;
+//                    }).toArray(Ability[]::new));
                     playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-                    TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
+//                    TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
                 }
             }
         }
-
-        LadybugYoyoItem.checkBlocking(stack, entity, stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == Ability.BLOCK);
     }
 
     @Override
@@ -189,15 +187,15 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
         if (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == Ability.KAMIKO_STORE && interactionTarget instanceof Kamiko kamiko && resolvableProfile != null) {
             Player caneOwner = player.level().getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
             if (caneOwner != null) {
-                MiraculousDataSet miraculousDataSet = caneOwner.getData(MineraculousAttachmentTypes.MIRACULOUS);
-                ResourceKey<Miraculous> storingKey = miraculousDataSet.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_BUTTERFLY_CANE, player.level());
-                MiraculousData storingData = miraculousDataSet.get(storingKey);
+                MiraculousesData miraculousesData = caneOwner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                ResourceKey<Miraculous> storingKey = miraculousesData.getFirstTransformedKeyIn(MiraculousTags.CAN_USE_BUTTERFLY_CANE, player.level());
+                MiraculousData storingData = miraculousesData.get(storingKey);
                 if (storingData != null && !storingData.extraData().contains(TAG_STORED_KAMIKO)) {
                     if (player.level() instanceof ServerLevel serverLevel) {
                         long animId = GeoItem.getOrAssignId(stack, serverLevel);
                         triggerAnim(player, animId, CONTROLLER_USE, ANIMATION_CLOSE);
                         storingData.extraData().put(TAG_STORED_KAMIKO, kamiko.saveWithoutId(new CompoundTag()));
-                        miraculousDataSet.put(caneOwner, storingKey, storingData, true);
+                        miraculousesData.put(caneOwner, storingKey, storingData, true);
                     }
                     kamiko.discard();
                     player.setItemInHand(usedHand, stack);
@@ -219,9 +217,9 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
             } else if (resolvableProfile != null) {
                 Player caneOwner = player.level().getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
                 if (caneOwner != null) {
-                    MiraculousDataSet miraculousDataSet = caneOwner.getData(MineraculousAttachmentTypes.MIRACULOUS);
-                    ResourceKey<Miraculous> storingKey = miraculousDataSet.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_BUTTERFLY_CANE, player.level());
-                    MiraculousData storingData = miraculousDataSet.get(storingKey);
+                    MiraculousesData miraculousesData = caneOwner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                    ResourceKey<Miraculous> storingKey = miraculousesData.getFirstTransformedKeyIn(MiraculousTags.CAN_USE_BUTTERFLY_CANE, player.level());
+                    MiraculousData storingData = miraculousesData.get(storingKey);
                     if (ability == Ability.KAMIKO_STORE && level instanceof ServerLevel serverLevel && storingData != null && storingData.extraData().contains(TAG_STORED_KAMIKO)) {
                         Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(serverLevel);
                         if (kamiko != null) {
@@ -230,7 +228,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
                             serverLevel.addFreshEntity(kamiko);
                             triggerAnim(player, GeoItem.getOrAssignId(stack, serverLevel), CONTROLLER_USE, ANIMATION_OPEN);
                             storingData.extraData().remove(TAG_STORED_KAMIKO);
-                            miraculousDataSet.put(caneOwner, storingKey, storingData, true);
+                            miraculousesData.put(caneOwner, storingKey, storingData, true);
                         }
                     }
                 } else
@@ -293,7 +291,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
 
     @Override
     public boolean canPerformAction(ItemStack stack, ItemAbility itemAbility) {
-        ButterflyCaneItem.Ability ability = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get());
+        Ability ability = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get());
         return switch (ability) {
             case BLOCK -> itemAbility == ItemAbilities.SHIELD_BLOCK;
             case null, default -> false;
@@ -307,6 +305,77 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
         return COVERED;
     }
 
+    @Override
+    public int getColor(ItemStack stack, InteractionHand hand, Player holder) {
+        Level level = holder.level();
+        int color = level.holderOrThrow(Miraculouses.BUTTERFLY).value().color().getValue();
+        ResolvableProfile resolvableProfile = stack.get(DataComponents.PROFILE);
+        if (resolvableProfile != null) {
+            Player owner = level.getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
+            if (owner != null) {
+                ResourceKey<Miraculous> colorKey = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstTransformedKeyIn(MiraculousTags.CAN_USE_BUTTERFLY_CANE, level);
+                if (colorKey != null)
+                    color = level.holderOrThrow(colorKey).value().color().getValue();
+            }
+        }
+        return color;
+    }
+
+    @Override
+    public List<Ability> getOptions(ItemStack stack, InteractionHand hand, Player holder) {
+        if (stack.has(DataComponents.PROFILE))
+            return Ability.valuesList();
+        return Ability.unpoweredValuesList();
+    }
+
+    @Override
+    public Supplier<DataComponentType<Ability>> getComponentType(ItemStack stack, InteractionHand hand, Player holder) {
+        return MineraculousDataComponents.BUTTERFLY_CANE_ABILITY;
+    }
+
+    @Override
+    public Ability setOption(ItemStack stack, InteractionHand hand, int index, Player holder) {
+        Ability old = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY);
+        Ability selected = RadialMenuProvider.super.setOption(stack, hand, index, holder);
+        if (holder.level() instanceof ServerLevel level) {
+            ResolvableProfile resolvableProfile = stack.get(DataComponents.PROFILE);
+            if (resolvableProfile != null) {
+                Player owner = level.getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
+                if (owner != null) {
+                    MiraculousesData miraculousesData = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                    MiraculousData storingData = miraculousesData.get(miraculousesData.getFirstTransformedKeyIn(MiraculousTags.CAN_USE_BUTTERFLY_CANE, level));
+                    String anim = null;
+                    if (selected == Ability.BLADE)
+                        anim = ANIMATION_UNSHEATHE;
+                    else if (selected == Ability.KAMIKO_STORE && storingData != null && !storingData.extraData().contains(TAG_STORED_KAMIKO))
+                        anim = ANIMATION_OPEN;
+                    else if (old == Ability.KAMIKO_STORE && storingData != null && !storingData.extraData().contains(TAG_STORED_KAMIKO))
+                        anim = ANIMATION_CLOSE;
+                    else if (old == Ability.BLADE)
+                        anim = ANIMATION_SHEATHE;
+                    if (anim != null) {
+                        triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_USE, anim);
+                    }
+                }
+            } else {
+                String anim = null;
+                if (selected == Ability.BLADE)
+                    anim = ANIMATION_UNSHEATHE;
+                else if (old == Ability.BLADE)
+                    anim = ANIMATION_SHEATHE;
+                if (anim != null) {
+                    triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_USE, anim);
+                }
+            }
+        }
+        return selected;
+    }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return slotChanged && super.shouldCauseReequipAnimation(oldStack, newStack, true);
+    }
+
     public enum Ability implements RadialMenuOption, StringRepresentable {
         BLADE,
         BLOCK,
@@ -314,7 +383,10 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
         THROW;
 
         public static final Codec<Ability> CODEC = StringRepresentable.fromEnum(Ability::values);
-        public static final StreamCodec<ByteBuf, ButterflyCaneItem.Ability> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(Ability::of, Ability::getSerializedName);
+        public static final StreamCodec<ByteBuf, Ability> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(Ability::of, Ability::getSerializedName);
+
+        private static final List<Ability> VALUES_LIST = new ReferenceArrayList<>(values());
+        private static final List<Ability> UNPOWERED_VALUES_LIST = new ReferenceArrayList<>(Arrays.asList(BLADE, BLOCK, THROW));
 
         private final String translationKey;
 
@@ -330,6 +402,14 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
         @Override
         public String getSerializedName() {
             return name().toLowerCase();
+        }
+
+        public static List<Ability> valuesList() {
+            return VALUES_LIST;
+        }
+
+        public static List<Ability> unpoweredValuesList() {
+            return UNPOWERED_VALUES_LIST;
         }
 
         public static Ability of(String name) {

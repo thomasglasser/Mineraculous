@@ -24,7 +24,7 @@ public record RightHandParticlesAbility(ParticleOptions particle, Optional<Holde
     @Override
     public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
         if (context == Context.PASSIVE) {
-            TommyLibServices.NETWORK.sendToTrackingClients(new ClientboundSendRightHandParticlesPayload(entity.getId(), particle), level.getServer(), entity);
+            TommyLibServices.NETWORK.sendToTrackingClients(new ClientboundSendRightHandParticlesPayload(entity.getId(), particle), entity);
             playStartSound(level, pos);
             return true;
         }

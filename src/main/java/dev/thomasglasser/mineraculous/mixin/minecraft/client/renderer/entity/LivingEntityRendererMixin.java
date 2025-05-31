@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.mixin.minecraft.client.renderer.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.platform.NativeImage;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -18,9 +18,10 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(LivingEntityRenderer.class)
 public class LivingEntityRendererMixin {
+    // TODO: Fix
     @ModifyExpressionValue(method = "getRenderType", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;getTextureLocation(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/resources/ResourceLocation;"))
-    private ResourceLocation getRenderType(ResourceLocation original, LivingEntity livingEntity) {
-        if (MineraculousEntityEvents.isCataclysmed(livingEntity)) {
+    private ResourceLocation applyCataclysmPixels(ResourceLocation original, LivingEntity livingEntity) {
+        if (livingEntity.hasEffect(MineraculousMobEffects.CATACLYSMED)) {
             int cataclysmColor = 0xFF201915;
             ResourceLocation result = ResourceLocation.fromNamespaceAndPath(original.getNamespace(), original.getPath() + "_cataclysmed");
             try (AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(original)) {

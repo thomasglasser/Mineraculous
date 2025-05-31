@@ -6,7 +6,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
@@ -20,9 +19,8 @@ public record ClientboundSyncArrowPickupStackPayload(int entityId, ItemStack sta
 
     @Override
     public void handle(Player player) {
-        Entity entity = player.level().getEntity(entityId);
-        if (entity instanceof AbstractArrow arrow) {
-            arrow.pickupItemStack = stack.copy();
+        if (player.level().getEntity(entityId) instanceof AbstractArrow arrow) {
+            arrow.pickupItemStack = stack;
         }
     }
 

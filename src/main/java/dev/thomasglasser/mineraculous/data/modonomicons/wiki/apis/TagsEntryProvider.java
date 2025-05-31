@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
+import dev.thomasglasser.mineraculous.world.level.block.AgeingCheese;
 
 public class TagsEntryProvider extends IndexModeEntryProvider {
     public static final String ID = "tags";
@@ -22,7 +22,7 @@ public class TagsEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Generator");
         add(context().pageText(), """
-                A generator for vanilla tags can be found online [here](https://snapshot-jsons.thomasglasser.dev/generators/) and mod tags can be found online [here](https://snapshot-jsons.thomasglasser.dev/partners/).
+                A generator for vanilla tags can be found online [here](https://beta-jsons.thomasglasser.dev/generators/) and mod tags can be found online [here](https://beta-jsons.thomasglasser.dev/partners/).
                 """);
 
         page("block", () -> BookTextPageModel.create()
@@ -52,7 +52,7 @@ public class TagsEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Damage Type");
         add(context().pageText(), """
-                There is a damage type tag for those resisted by miraculous.
+                There is a damage type tag for those resisted by miraculouses.
                 """);
     }
 
@@ -68,7 +68,7 @@ public class TagsEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.FRESH));
+        return BookIconModel.create(MineraculousItems.CAMEMBERT.get(AgeingCheese.Age.FRESH));
     }
 
     @Override

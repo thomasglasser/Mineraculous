@@ -20,6 +20,7 @@ import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.EntityTypePredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
@@ -38,6 +39,8 @@ public class MineraculousAbilities {
     public static final ResourceKey<Ability> MIRACULOUS_LADYBUG = register("miraculous_ladybug");
     public static final ResourceKey<Ability> PASSIVE_LUCK = register("passive_luck");
 
+    private static final ResourceLocation KAMIKO_FACE_MASK_TEXTURE = Mineraculous.modLoc("textures/entity/player/face_mask/kamiko.png");
+
     private static ResourceKey<Ability> register(String id) {
         return ResourceKey.create(MineraculousRegistries.ABILITY, Mineraculous.modLoc(id));
     }
@@ -45,21 +48,21 @@ public class MineraculousAbilities {
     public static void bootstrap(BootstrapContext<Ability> context) {
         context.register(KAMIKOTIZATION, new ContextAwareAbility(
                 Optional.empty(),
-                Optional.of(new SetOwnerAbility(
+                Optional.of(Holder.direct(new SetOwnerAbility(
                         Optional.of(1),
                         Optional.of(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(MineraculousEntityTypes.KAMIKO.get())).build()),
                         Optional.empty(),
                         Optional.of(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE),
-                        false)),
+                        false))),
                 Optional.empty(),
                 Optional.empty(),
-                List.of(new RightHandParticlesAbility(MineraculousParticleTypes.BLACK_ORB.get(), Optional.empty(), false)),
+                List.of(Holder.direct(new RightHandParticlesAbility(MineraculousParticleTypes.BLACK_ORB.get(), Optional.empty(), false))),
                 Optional.empty(),
                 false));
         context.register(KAMIKO_CONTROL, new SetCameraEntityAbility(
                 EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(MineraculousEntityTypes.KAMIKO.get())).build(),
                 Optional.empty(),
-                Optional.of(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK),
+                Optional.of(KAMIKO_FACE_MASK_TEXTURE),
                 true,
                 true,
                 Optional.empty(),
@@ -67,35 +70,35 @@ public class MineraculousAbilities {
         context.register(KAMIKOTIZED_COMMUNICATION, new SetCameraEntityAbility(
                 EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(EntityType.PLAYER)).subPredicate(KamikotizationPredicate.ANY).build(),
                 Optional.of(Kamiko.SPECTATOR_SHADER),
-                Optional.of(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK),
+                Optional.of(KAMIKO_FACE_MASK_TEXTURE),
                 false,
                 false,
                 Optional.empty(),
                 true));
 
         context.register(CATACLYSM, new DragAbility(new ContextAwareAbility(
-                Optional.of(new RandomSpreadAbility(
+                Optional.of(Holder.direct(new RandomSpreadAbility(
                         MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(),
                         Optional.empty(),
                         Optional.of(BlockPredicate.Builder.block().of(MineraculousBlockTags.CATACLYSM_IMMUNE).build()),
                         Optional.of(MineraculousSoundEvents.CATACLYSM_USE),
-                        false)),
-                Optional.of(new ApplyInfiniteEffectsOrDestroyAbility(
+                        false))),
+                Optional.of(Holder.direct(new ApplyInfiniteEffectsOrDestroyAbility(
                         HolderSet.direct(MineraculousMobEffects.CATACLYSMED),
                         Optional.of(MineraculousItems.CATACLYSM_DUST.get()),
                         Optional.of(MineraculousDamageTypes.CATACLYSM),
                         Optional.of(MineraculousEntityEvents.TAG_CATACLYSMED),
                         Optional.of(MineraculousSoundEvents.CATACLYSM_USE),
-                        false)),
-                Optional.of(new ReplaceItemsInHandAbility(
+                        false))),
+                Optional.of(Holder.direct(new ReplaceItemsInHandAbility(
                         MineraculousItems.CATACLYSM_DUST.toStack(),
                         true,
                         Optional.empty(),
                         Optional.of(ItemPredicate.Builder.item().of(MineraculousItemTags.CATACLYSM_IMMUNE).build()),
                         Optional.of(MineraculousSoundEvents.CATACLYSM_USE),
-                        false)),
+                        false))),
                 Optional.empty(),
-                List.of(new RightHandParticlesAbility(MineraculousParticleTypes.BLACK_ORB.get(), Optional.empty(), false)),
+                List.of(Holder.direct(new RightHandParticlesAbility(MineraculousParticleTypes.BLACK_ORB.get(), Optional.empty(), false))),
                 Optional.empty(),
                 false),
                 20,

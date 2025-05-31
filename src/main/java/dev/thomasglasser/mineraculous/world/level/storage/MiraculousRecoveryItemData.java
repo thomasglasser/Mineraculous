@@ -21,6 +21,10 @@ public class MiraculousRecoveryItemData extends SavedData {
     private final Map<UUID, ItemStack> recoveredItems = new HashMap<>();
     private final Map<UUID, ItemStack> kamikotizedItems = new HashMap<>();
 
+    public static MiraculousRecoveryItemData get(ServerLevel level) {
+        return level.getServer().overworld().getDataStorage().computeIfAbsent(MiraculousRecoveryItemData.factory(), MiraculousRecoveryItemData.FILE_ID);
+    }
+
     public static Factory<MiraculousRecoveryItemData> factory() {
         return new Factory<>(MiraculousRecoveryItemData::new, MiraculousRecoveryItemData::load, DataFixTypes.LEVEL);
     }

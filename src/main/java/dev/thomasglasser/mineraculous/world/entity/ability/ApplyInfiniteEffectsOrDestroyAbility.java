@@ -5,8 +5,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryItemData;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -15,7 +15,6 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -45,7 +44,7 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
     public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
         if (context == Context.INTERACT_ENTITY) {
             Entity target = context.entity();
-            ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData().putRecoverable(entity.getUUID(), target);
+            MiraculousRecoveryEntityData.get(level).putRecoverable(entity.getUUID(), target);
             if (target instanceof LivingEntity livingEntity) {
                 for (Holder<MobEffect> mobEffect : effects) {
                     MobEffectInstance effect = new MobEffectInstance(mobEffect, -1, (data.powerLevel() / 10));
@@ -56,9 +55,10 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
                 if (entity instanceof Player player) {
                     livingEntity.setLastHurtByPlayer(player);
                     blameTag.ifPresent(s -> {
-                        CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(livingEntity);
-                        tag.putUUID(s, player.getUUID());
-                        TommyLibServices.ENTITY.setPersistentData(livingEntity, tag, true);
+                        // TODO: Fix
+//                        CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(livingEntity);
+//                        tag.putUUID(s, player.getUUID());
+//                        TommyLibServices.ENTITY.setPersistentData(livingEntity, tag, true);
                     });
                 }
             } else if (target instanceof VehicleEntity vehicle && dropItem.isPresent()) {
@@ -67,7 +67,7 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
                     ItemStack itemstack = new ItemStack(dropItem.get());
                     UUID id = UUID.randomUUID();
                     itemstack.set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
-                    ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryItemData().putRemovable(entity.getUUID(), id);
+                    MiraculousRecoveryItemData.get(level).putRemovable(entity.getUUID(), id);
                     vehicle.spawnAtLocation(itemstack);
                 }
             } else {
@@ -81,7 +81,7 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
 
     @Override
     public void restore(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
-        ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData().recover(entity.getUUID(), level, target -> {
+        MiraculousRecoveryEntityData.get(level).recover(entity.getUUID(), level, target -> {
             if (target instanceof LivingEntity livingEntity) {
                 for (Holder<MobEffect> mobEffect : effects) {
                     livingEntity.removeEffect(mobEffect);
@@ -89,6 +89,7 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
             }
             return target;
         });
+        MiraculousRecoveryItemData.get(level).markRecovered(entity.getUUID());
     }
 
     @Override

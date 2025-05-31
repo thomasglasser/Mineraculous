@@ -7,7 +7,9 @@ import net.minecraft.world.level.storage.loot.LootTable;
 
 public class MineraculousLuckyCharmLootKeys {
     // Miraculous
+    public static final ResourceKey<LootTable> LADYBUG_MIRACULOUS = miraculous("ladybug");
     public static final ResourceKey<LootTable> CAT_MIRACULOUS = miraculous("cat");
+    public static final ResourceKey<LootTable> BUTTERFLY_MIRACULOUS = miraculous("butterfly");
 
     // Entities
     public static final ResourceKey<LootTable> ENDER_DRAGON = entity("ender_dragon");

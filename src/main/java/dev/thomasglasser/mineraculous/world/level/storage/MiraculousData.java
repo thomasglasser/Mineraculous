@@ -6,7 +6,7 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
-import dev.thomasglasser.tommylib.api.network.NetworkUtils;
+import dev.thomasglasser.tommylib.api.network.codec.ExtraStreamCodecs;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -32,7 +32,7 @@ public record MiraculousData(boolean transformed, ItemStack miraculousItem, Curi
             Codec.STRING.optionalFieldOf("suit_look", "").forGetter(MiraculousData::suitLook),
             CompoundTag.CODEC.optionalFieldOf("extra_data", new CompoundTag()).forGetter(MiraculousData::extraData)).apply(instance, MiraculousData::new));
 
-    public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousData> STREAM_CODEC = NetworkUtils.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousData> STREAM_CODEC = ExtraStreamCodecs.composite(
             ByteBufCodecs.BOOL, MiraculousData::transformed,
             ItemStack.OPTIONAL_STREAM_CODEC, MiraculousData::miraculousItem,
             CuriosData.STREAM_CODEC, MiraculousData::curiosData,

@@ -1,52 +1,54 @@
 package dev.thomasglasser.mineraculous.client;
 
-import com.mojang.blaze3d.platform.NativeImage;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.client.gui.components.kamiko.KamikoGui;
-import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
-import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuScreen;
-import dev.thomasglasser.mineraculous.client.model.KamikoMaskModel;
+import dev.thomasglasser.mineraculous.client.model.DerbyHatModel;
+import dev.thomasglasser.mineraculous.client.model.FaceMaskModel;
 import dev.thomasglasser.mineraculous.client.particle.HoveringOrbParticle;
 import dev.thomasglasser.mineraculous.client.particle.KamikotizationParticle;
 import dev.thomasglasser.mineraculous.client.particle.RiseAndSpreadParticle;
+import dev.thomasglasser.mineraculous.client.renderer.MineraculousRenderTypes;
+import dev.thomasglasser.mineraculous.client.renderer.armor.KamikotizationArmorItemRenderer;
+import dev.thomasglasser.mineraculous.client.renderer.armor.MiraculousArmorItemRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KamikoRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.LuckyCharmItemSpawnerRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownButterflyCaneRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownCatStaffRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownLadybugYoyoRenderer;
-import dev.thomasglasser.mineraculous.client.renderer.entity.layers.KamikoMaskLayer;
+import dev.thomasglasser.mineraculous.client.renderer.entity.layers.BetaTesterLayer;
+import dev.thomasglasser.mineraculous.client.renderer.entity.layers.FaceMaskLayer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.KwamiOnShoulderLayer;
 import dev.thomasglasser.mineraculous.client.renderer.item.MineraculousItemProperties;
+import dev.thomasglasser.mineraculous.client.renderer.item.MiraculousItemRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.item.curio.ContextDependentCurioRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
+import dev.thomasglasser.mineraculous.network.ServerboundJumpMidSwingingPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundKamikotizationTransformPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundSendOffhandSwingPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSetOwnerPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundSetToggleTagPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundSwingOffhandPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.KamikotizationArmorItem;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.armor.MiraculousArmorItem;
-import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
+import dev.thomasglasser.mineraculous.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityEffectData;
+import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
+import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Consumer;
+import java.util.SortedMap;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -55,15 +57,11 @@ import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.FlyStraightTowardsParticle;
-import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -79,7 +77,7 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.neoforged.fml.config.ModConfig;
+import net.minecraft.world.level.ItemLike;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
@@ -93,10 +91,10 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterEntitySpectatorShadersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
@@ -105,7 +103,9 @@ public class MineraculousClientEvents {
     public static final String REVOKE_WITH_SPACE = "gui.mineraculous.revoke_with_space";
 
     private static KamikoGui kamikoGui;
+    private static Button revokeButton;
 
+    // Setup
     public static void onFMLClientSetup(FMLClientSetupEvent event) {
         CuriosRendererRegistry.register(MineraculousItems.MIRACULOUS.get(), ContextDependentCurioRenderer::new);
         CuriosRendererRegistry.register(MineraculousItems.CAT_STAFF.get(), ContextDependentCurioRenderer::new);
@@ -114,12 +114,58 @@ public class MineraculousClientEvents {
         MineraculousItemProperties.init();
     }
 
-    public static void openToolWheel(int color, ItemStack stack, Consumer<RadialMenuOption> onSelected, RadialMenuOption... options) {
-        if (ClientUtils.getMinecraft().screen == null) {
-            ClientUtils.setScreen(new RadialMenuScreen(Arrays.asList(options), stack, onSelected, MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().getKey().getValue(), color));
+    public static void onBuildCreativeModeTabContents(BuildCreativeModeTabContentsEvent event) {
+        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
+
+        } else if (event.getTabKey() == CreativeModeTabs.COLORED_BLOCKS) {
+
+        } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
+            event.insertAfter(Items.PINK_PETALS.getDefaultInstance(), MineraculousBlocks.HIBISCUS_BUSH.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(Items.COBWEB.getDefaultInstance(), MineraculousBlocks.CATACLYSM_BLOCK.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        } else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
+            event.insertAfter(Items.LOOM.getDefaultInstance(), MineraculousBlocks.CHEESE_POT.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            addCheeses(event, MineraculousBlocks.CHEESE_POT.toStack(), MineraculousItems.WAXED_CHEESE);
+            addCheeses(event, MineraculousItems.WAXED_CHEESE.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousBlocks.WAXED_CHEESE);
+            addCheeses(event, MineraculousBlocks.WAXED_CHEESE.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousItems.WAXED_CAMEMBERT);
+            addCheeses(event, MineraculousItems.WAXED_CAMEMBERT.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousBlocks.WAXED_CAMEMBERT);
+        } else if (event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS) {
+
+        } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+
+        } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
+            event.insertAfter(Items.SHIELD.getDefaultInstance(), MineraculousItems.LADYBUG_YOYO.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.LADYBUG_YOYO.toStack(), MineraculousItems.CAT_STAFF.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.CAT_STAFF.toStack(), MineraculousItems.BUTTERFLY_CANE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        } else if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
+            addCheeses(event, Items.PUMPKIN_PIE.getDefaultInstance(), MineraculousItems.CHEESE);
+            addCheeses(event, MineraculousItems.CHEESE.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousBlocks.CHEESE);
+            addCheeses(event, MineraculousBlocks.CHEESE.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousItems.CAMEMBERT);
+            addCheeses(event, MineraculousItems.CAMEMBERT.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousBlocks.CAMEMBERT);
+        } else if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+            event.insertAfter(Items.BLAZE_POWDER.getDefaultInstance(), MineraculousItems.CATACLYSM_DUST.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+
+            // Armor Trims
+            event.insertAfter(Items.BOLT_ARMOR_TRIM_SMITHING_TEMPLATE.getDefaultInstance(), MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        } else if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
+            // Must be in alphabetical order
+            event.insertAfter(Items.IRON_GOLEM_SPAWN_EGG.getDefaultInstance(), MineraculousItems.KAMIKO_SPAWN_EGG.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        } else if (event.getTabKey() == CreativeModeTabs.OP_BLOCKS) {
+
         }
     }
 
+    private static <T extends ItemLike> void addCheeses(BuildCreativeModeTabContentsEvent event, ItemStack before, SortedMap<AgeingCheese.Age, T> cheeses) {
+        event.insertAfter(before, cheeses.get(AgeingCheese.Age.FRESH).asItem().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        for (int i = 1; i < AgeingCheese.Age.values().length; i++) {
+            AgeingCheese.Age age = AgeingCheese.Age.values()[i];
+            AgeingCheese.Age previous = AgeingCheese.Age.values()[i - 1];
+            event.insertAfter(cheeses.get(previous).asItem().getDefaultInstance(), cheeses.get(age).asItem().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        }
+    }
+
+    // Registration
     public static void onRegisterAdditionalModels(ModelEvent.RegisterAdditional event) {
         ResourceManager manager = Minecraft.getInstance().getResourceManager();
         Map<ResourceLocation, Resource> miraculous = manager.listResources("models/item/miraculous", (location -> location.getPath().endsWith(".json")));
@@ -127,8 +173,6 @@ public class MineraculousClientEvents {
             ResourceLocation stripped = ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), rl.getPath().substring("models/".length(), rl.getPath().indexOf(".json")));
             event.register(ModelResourceLocation.standalone(stripped));
         }
-
-        event.register(ModelResourceLocation.standalone(Mineraculous.modLoc("item/kamikotization/armor")));
     }
 
     public static void onRegisterRenderer(EntityRenderersEvent.RegisterRenderers event) {
@@ -143,30 +187,79 @@ public class MineraculousClientEvents {
     public static void onRegisterParticleProviders(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(MineraculousParticleTypes.BLACK_ORB.get(), HoveringOrbParticle.Provider::new);
         event.registerSpriteSet(MineraculousParticleTypes.KAMIKOTIZATION.get(), KamikotizationParticle.Provider::new);
-        event.registerSpriteSet(MineraculousParticleTypes.SUMMONING_LADYBUG.get(), sprites -> new ParticleProvider<>() {
-            @Override
-            public @Nullable Particle createParticle(SimpleParticleType type, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-                FlyStraightTowardsParticle flystraighttowardsparticle = new FlyStraightTowardsParticle(
-                        level, x, y, z, xSpeed, ySpeed, zSpeed, -1, -1);
-                flystraighttowardsparticle.pickSprite(sprites);
-                return flystraighttowardsparticle;
-            }
+        event.registerSpriteSet(MineraculousParticleTypes.SUMMONING_LADYBUG.get(), sprites -> (type, level, x, y, z, xSpeed, ySpeed, zSpeed) -> {
+            FlyStraightTowardsParticle flystraighttowardsparticle = new FlyStraightTowardsParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, -1, -1);
+            flystraighttowardsparticle.pickSprite(sprites);
+            return flystraighttowardsparticle;
         });
         event.registerSpriteSet(MineraculousParticleTypes.SPREADING_LADYBUG.get(), RiseAndSpreadParticle.Provider::new);
     }
 
+    public static void onRegisterEntitySpectatorShaders(RegisterEntitySpectatorShadersEvent event) {
+        event.register(MineraculousEntityTypes.KAMIKO.get(), Kamiko.SPECTATOR_SHADER);
+    }
+
+    public static void onRegisterEntityRendererLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(FaceMaskModel.LAYER_LOCATION, FaceMaskModel::createBodyLayer);
+        event.registerLayerDefinition(DerbyHatModel.LAYER_LOCATION, DerbyHatModel::createBodyLayer);
+    }
+
+    public static void onAddEntityRendererLayers(EntityRenderersEvent.AddLayers event) {
+        EntityModelSet models = event.getEntityModels();
+
+        for (PlayerSkin.Model skin : event.getSkins()) {
+            PlayerRenderer player = event.getSkin(skin);
+
+            if (player != null) {
+                player.addLayer(new FaceMaskLayer<>(player, models));
+                player.addLayer(new KwamiOnShoulderLayer<>(player));
+                player.addLayer(new BetaTesterLayer<>(player, models));
+            }
+        }
+    }
+
+    public static void onRegisterItemColorHandlers(RegisterColorHandlersEvent.Item event) {
+        event.register((stack, index) -> {
+            ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+            ClientLevel level = Minecraft.getInstance().level;
+            if (level != null && miraculous != null) {
+                return FastColor.ARGB32.opaque(level.registryAccess().holderOrThrow(miraculous).value().color().getValue());
+            }
+            return -1;
+        }, MineraculousArmors.MIRACULOUS.getAllAsItems().toArray(new Item[0]));
+    }
+
+    public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
+        // Clears old rendering data on reload
+        event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
+            MineraculousClientUtils.syncSpecialPlayerChoices();
+            MiraculousArmorItem.clearAnimationData();
+            KamikotizationArmorItem.clearAnimationData();
+            MiraculousItemRenderer.clearModels();
+            MiraculousArmorItemRenderer.clearModels();
+            KamikotizationArmorItemRenderer.clearModels();
+        });
+    }
+
+    public static void onRegisterRenderBuffers(RegisterRenderBuffersEvent event) {
+        event.registerRenderBuffer(MineraculousRenderTypes.itemLuckyCharm());
+        event.registerRenderBuffer(MineraculousRenderTypes.armorLuckyCharm());
+        event.registerRenderBuffer(MineraculousRenderTypes.entityLuckyCharm());
+        event.registerRenderBuffer(MineraculousRenderTypes.shieldLuckyCharm());
+    }
+
+    // GUI
     public static void onRegisterGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAboveAll(Mineraculous.modLoc("stealing_progress_bar"), MineraculousClientEvents::renderStealingProgressBar);
+        event.registerAboveAll(Mineraculous.modLoc("revoke_button"), MineraculousClientEvents::renderRevokeButton);
         kamikoGui = new KamikoGui(Minecraft.getInstance());
         event.registerAboveAll(Mineraculous.modLoc("kamiko_hotbar"), ((guiGraphics, deltaTracker) -> kamikoGui.renderHotbar(guiGraphics)));
         event.registerAboveAll(Mineraculous.modLoc("kamiko_tooltip"), ((guiGraphics, deltaTracker) -> kamikoGui.renderTooltip(guiGraphics)));
-        event.registerAboveAll(Mineraculous.modLoc("revoke_button"), MineraculousClientEvents::renderRevokeButton);
     }
 
     private static void renderStealingProgressBar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         LocalPlayer player = Minecraft.getInstance().player;
-        CompoundTag data = TommyLibServices.ENTITY.getPersistentData(player);
-        int width = data.getInt(MineraculousEntityEvents.TAG_TAKE_TICKS);
+        int width = MineraculousKeyMappings.getTakeTicks();
         if (player != null && width > 0) {
             int x = (guiGraphics.guiWidth() - 18) / 2;
             int y = (guiGraphics.guiHeight() + 12) / 2;
@@ -175,19 +268,18 @@ public class MineraculousClientEvents {
         }
     }
 
-    private static Button revokeButton;
-
     private static void renderRevokeButton(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         if (revokeButton == null) {
             revokeButton = new Button(Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 - 100, Minecraft.getInstance().getWindow().getGuiScaledHeight() - 35, 200, 20, Component.translatable(REVOKE), button -> {
                 Entity cameraEntity = MineraculousClientUtils.getCameraEntity();
                 if (cameraEntity instanceof Player target) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(Optional.of(target.getUUID()), target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow(), false, false, false, target.position().add(0, 1, 0)));
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetToggleTagPayload(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK, false));
+                    KamikotizationData kamikotizationData = target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow();
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(Optional.of(target.getUUID()), kamikotizationData, false, false, false, target.position().add(0, 1, 0)));
+                    AbilityEffectData.checkRemoveFaceMaskTexture(target, kamikotizationData.kamikoData().faceMaskTexture());
                 } else if (cameraEntity instanceof Kamiko kamiko) {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundSetOwnerPayload(kamiko.getId(), Optional.empty()));
                 }
-                MineraculousClientUtils.setCameraEntity(ClientUtils.getMainClientPlayer());
+                MineraculousClientUtils.setCameraEntity(Minecraft.getInstance().player);
             }, Button.DEFAULT_NARRATION) {
                 @Override
                 public Component getMessage() {
@@ -210,7 +302,7 @@ public class MineraculousClientEvents {
             };
         }
 
-        if (!ClientUtils.getMainClientPlayer().isSpectator() && ClientUtils.getMainClientPlayer().getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed() && (MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko && ClientUtils.getMainClientPlayer().getUUID().equals(kamiko.getOwnerUUID())) || (MineraculousClientUtils.getCameraEntity() instanceof Player player && player != ClientUtils.getMainClientPlayer() && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent())) {
+        if (isInKamikoView() && !kamikoGui.isMenuActive()) {
             if (MineraculousClientUtils.hasNoScreenOpen()) {
                 revokeButton.setPosition(revokeButton.getX(), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 60);
                 revokeButton.active = true;
@@ -233,40 +325,43 @@ public class MineraculousClientEvents {
         }
     }
 
-    public static void onGetPlayerHeartType(PlayerHeartTypeEvent event) {
-        if (MineraculousEntityEvents.isCataclysmed(event.getEntity()))
-            event.setType(MineraculousHeartTypes.CATACLYSMED.getValue());
+    private static boolean isInKamikoView() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        return player != null && !player.isSpectator() && player.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() && MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko && kamiko.isOwnedBy(player) && kamikoGui != null;
     }
 
-    public static void onRegisterEntitySpectatorShaders(RegisterEntitySpectatorShadersEvent event) {
-        event.register(MineraculousEntityTypes.KAMIKO.get(), Kamiko.SPECTATOR_SHADER);
+    // Tick
+    public static void onClientTick(ClientTickEvent.Post event) {
+        if (MineraculousClientUtils.getCameraEntity() != null && MineraculousClientUtils.getCameraEntity().isRemoved())
+            MineraculousClientUtils.setCameraEntity(null);
+
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player != null) {
+            checkYoyoInput(player);
+        }
     }
 
-    public static void onRegisterLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
-        event.registerLayerDefinition(KamikoMaskModel.LAYER_LOCATION, KamikoMaskModel::createBodyLayer);
-    }
-
-    public static void onAddLayers(EntityRenderersEvent.AddLayers event) {
-        EntityModelSet models = event.getEntityModels();
-
-        for (PlayerSkin.Model skin : event.getSkins()) {
-            PlayerRenderer player = event.getSkin(skin);
-
-            if (player != null) {
-                player.addLayer(new KamikoMaskLayer<>(player, models));
-                player.addLayer(new KwamiOnShoulderLayer<>(player));
+    private static void checkYoyoInput(LocalPlayer player) {
+        ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
+        ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
+        if (thrownYoyo != null) {
+            if (player.input.jumping) {
+                TommyLibServices.NETWORK.sendToServer(ServerboundJumpMidSwingingPayload.INSTANCE);
+            } else {
+                boolean front = player.input.up;
+                boolean back = player.input.down;
+                boolean left = player.input.left;
+                boolean right = player.input.right;
+                if (front || back || left || right) {
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoInputPayload(front, back, left, right));
+                }
             }
         }
     }
 
-    public static void onRenderHand(RenderHandEvent event) {
-        if (MineraculousClientUtils.getCameraEntity() != ClientUtils.getMainClientPlayer()) {
-            event.setCanceled(true);
-        }
-    }
-
+    // Input
     public static void onKeyInput(InputEvent.Key event) {
-        if (canControlKamiko()) {
+        if (isInKamikoView()) {
             for (int i = 0; i < 9; i++) {
                 if (Minecraft.getInstance().options.keyHotbarSlots[i].consumeClick()) {
                     kamikoGui.onHotbarSelected(i);
@@ -279,17 +374,17 @@ public class MineraculousClientEvents {
     }
 
     public static void onMouseScrollingInput(InputEvent.MouseScrollingEvent event) {
-        if (canControlKamiko()) {
+        if (isInKamikoView()) {
             int i = (int) (event.getScrollDeltaY() == 0 ? -event.getScrollDeltaX() : event.getScrollDeltaY());
             kamikoGui.onMouseScrolled(i);
         }
     }
 
-    public static void onMouseButtonClick(InputEvent.MouseButton.Post event) {
-        if (canControlKamiko() && event.getButton() == 2) {
+    public static void onPostMouseButtonInput(InputEvent.MouseButton.Post event) {
+        if (isInKamikoView() && event.getButton() == GLFW.GLFW_MOUSE_BUTTON_MIDDLE) {
             kamikoGui.onMouseMiddleClick();
         }
-        if (revokeButton != null && revokeButton.visible) {
+        if (revokeButton != null && revokeButton.active) {
             int mouseX = (int) (Minecraft.getInstance().mouseHandler.xpos()
                     * (double) Minecraft.getInstance().getWindow().getGuiScaledWidth()
                     / (double) Minecraft.getInstance().getWindow().getScreenWidth());
@@ -300,177 +395,47 @@ public class MineraculousClientEvents {
         }
     }
 
-    private static boolean canControlKamiko() {
-        return MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko && kamiko.isOwnedBy(ClientUtils.getMainClientPlayer()) && !ClientUtils.getMainClientPlayer().isSpectator() && kamikoGui != null;
-    }
-
-    public static void onClientTick(ClientTickEvent.Post event) {
-        if (MineraculousClientUtils.getCameraEntity() != null && MineraculousClientUtils.getCameraEntity().isRemoved())
-            MineraculousClientUtils.setCameraEntity(null);
-    }
-
-    public static void onClientChatReceived(ClientChatReceivedEvent event) {
-        if (Minecraft.getInstance().level != null && Minecraft.getInstance().player != null) {
-            boolean onlyButterflyChat = TommyLibServices.ENTITY.getPersistentData(Minecraft.getInstance().player).getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK);
-            if (event.isSystem()) {
-                if (onlyButterflyChat && !(event instanceof ClientChatReceivedEvent.System system && system.isOverlay())) {
-                    event.setCanceled(true);
-                }
-            } else {
-                boolean senderHasKamikoMask = TommyLibServices.ENTITY.getPersistentData(Minecraft.getInstance().level.getPlayerByUUID(event.getSender())).getBoolean(MineraculousEntityEvents.TAG_SHOW_KAMIKO_MASK);
-                if ((onlyButterflyChat && !senderHasKamikoMask) || (senderHasKamikoMask && !onlyButterflyChat)) {
-                    event.setCanceled(true);
-                }
-            }
-        }
-    }
-
-    public static void onPlayerLoggedIn(ClientPlayerNetworkEvent.LoggingIn event) {
-        MineraculousClientUtils.refreshVip();
-    }
-
-    public static void onClientConfigChanged(ModConfigEvent event) {
-        if (event.getConfig().getType() == ModConfig.Type.CLIENT && Minecraft.getInstance().player != null) {
-            MineraculousClientUtils.refreshVip();
-        }
-    }
-
-    public static void onRegisterItemColorHandlers(RegisterColorHandlersEvent.Item event) {
-        event.register((stack, index) -> {
-            ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-            if (miraculous != null) {
-                return FastColor.ARGB32.opaque(Minecraft.getInstance().level.registryAccess().holderOrThrow(miraculous).value().color().getValue());
-            }
-            return -1;
-        }, MineraculousArmors.MIRACULOUS.getAllAsItems().toArray(new Item[0]));
-    }
-
-    public static void onBuildCreativeModeTabContents(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
-
-        } else if (event.getTabKey() == CreativeModeTabs.COLORED_BLOCKS) {
-
-        } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
-            event.insertAfter(Items.PINK_PETALS.getDefaultInstance(), MineraculousBlocks.HIBISCUS_BUSH.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(Items.COBWEB.getDefaultInstance(), MineraculousBlocks.CATACLYSM_BLOCK.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-        } else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
-            event.insertAfter(Items.LOOM.getDefaultInstance(), MineraculousBlocks.CHEESE_POT.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-        } else if (event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS) {
-
-        } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
-
-        } else if (event.getTabKey() == CreativeModeTabs.COMBAT) {
-            event.insertAfter(Items.SHIELD.getDefaultInstance(), MineraculousItems.LADYBUG_YOYO.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.LADYBUG_YOYO.toStack(), MineraculousItems.CAT_STAFF.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.CAT_STAFF.toStack(), MineraculousItems.BUTTERFLY_CANE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-        } else if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
-            event.insertAfter(Items.PUMPKIN_PIE.getDefaultInstance(), MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.FRESH).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.FRESH).toStack(), MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.FRESH).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.FRESH).toStack(), MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.FRESH).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.FRESH).toStack(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.FRESH).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.FRESH).toStack(), MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.AGED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.AGED).toStack(), MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.AGED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.AGED).toStack(), MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.AGED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.AGED).toStack(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.AGED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.AGED).toStack(), MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.RIPENED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.RIPENED).toStack(), MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.RIPENED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.RIPENED).toStack(), MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.RIPENED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.RIPENED).toStack(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.RIPENED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.RIPENED).toStack(), MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.EXQUISITE).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.EXQUISITE).toStack(), MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.EXQUISITE).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.EXQUISITE).toStack(), MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.EXQUISITE).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.EXQUISITE).toStack(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.EXQUISITE).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.EXQUISITE).toStack(), MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.TIME_HONORED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.CHEESE_WEDGES.get(CheeseBlock.Age.TIME_HONORED).toStack(), MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.TIME_HONORED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.CHEESE_BLOCKS.get(CheeseBlock.Age.TIME_HONORED).toStack(), MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.TIME_HONORED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.CAMEMBERT_WEDGES.get(CheeseBlock.Age.TIME_HONORED).toStack(), MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.TIME_HONORED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.CAMEMBERT_BLOCKS.get(CheeseBlock.Age.TIME_HONORED).toStack(), MineraculousItems.WAXED_CHEESE_WEDGES.get(CheeseBlock.Age.FRESH).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.WAXED_CHEESE_WEDGES.get(CheeseBlock.Age.FRESH).toStack(), MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.FRESH).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.FRESH).toStack(), MineraculousItems.WAXED_CAMEMBERT_WEDGES.get(CheeseBlock.Age.FRESH).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.WAXED_CAMEMBERT_WEDGES.get(CheeseBlock.Age.FRESH).toStack(), MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.FRESH).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.FRESH).toStack(), MineraculousItems.WAXED_CHEESE_WEDGES.get(CheeseBlock.Age.AGED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.WAXED_CHEESE_WEDGES.get(CheeseBlock.Age.AGED).toStack(), MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.AGED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.AGED).toStack(), MineraculousItems.WAXED_CAMEMBERT_WEDGES.get(CheeseBlock.Age.AGED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.WAXED_CAMEMBERT_WEDGES.get(CheeseBlock.Age.AGED).toStack(), MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.AGED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.AGED).toStack(), MineraculousItems.WAXED_CHEESE_WEDGES.get(CheeseBlock.Age.RIPENED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.WAXED_CHEESE_WEDGES.get(CheeseBlock.Age.RIPENED).toStack(), MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.RIPENED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.RIPENED).toStack(), MineraculousItems.WAXED_CAMEMBERT_WEDGES.get(CheeseBlock.Age.RIPENED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.WAXED_CAMEMBERT_WEDGES.get(CheeseBlock.Age.RIPENED).toStack(), MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.RIPENED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.RIPENED).toStack(), MineraculousItems.WAXED_CHEESE_WEDGES.get(CheeseBlock.Age.EXQUISITE).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.WAXED_CHEESE_WEDGES.get(CheeseBlock.Age.EXQUISITE).toStack(), MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.EXQUISITE).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.EXQUISITE).toStack(), MineraculousItems.WAXED_CAMEMBERT_WEDGES.get(CheeseBlock.Age.EXQUISITE).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.WAXED_CAMEMBERT_WEDGES.get(CheeseBlock.Age.EXQUISITE).toStack(), MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.EXQUISITE).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.EXQUISITE).toStack(), MineraculousItems.WAXED_CHEESE_WEDGES.get(CheeseBlock.Age.TIME_HONORED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.WAXED_CHEESE_WEDGES.get(CheeseBlock.Age.TIME_HONORED).toStack(), MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.TIME_HONORED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousBlocks.WAXED_CHEESE_BLOCKS.get(CheeseBlock.Age.TIME_HONORED).toStack(), MineraculousItems.WAXED_CAMEMBERT_WEDGES.get(CheeseBlock.Age.TIME_HONORED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.WAXED_CAMEMBERT_WEDGES.get(CheeseBlock.Age.TIME_HONORED).toStack(), MineraculousBlocks.WAXED_CAMEMBERT_BLOCKS.get(CheeseBlock.Age.TIME_HONORED).toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-        } else if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
-            event.insertAfter(Items.BLAZE_POWDER.getDefaultInstance(), MineraculousItems.CATACLYSM_DUST.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-
-            // Armor Trims
-            event.insertAfter(Items.BOLT_ARMOR_TRIM_SMITHING_TEMPLATE.getDefaultInstance(), MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            event.insertAfter(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-        } else if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
-            // Must be in alphabetical order
-            event.insertAfter(Items.IRON_GOLEM_SPAWN_EGG.getDefaultInstance(), MineraculousItems.KAMIKO_SPAWN_EGG.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-        } else if (event.getTabKey() == CreativeModeTabs.OP_BLOCKS) {
-
-        }
-    }
-
-    public static FlattenedKamikotizationLookData flattenKamikotizationLook(ResourceKey<Kamikotization> kamikotization) {
-        Path folder = Minecraft.getInstance().gameDirectory.toPath().resolve("miraculouslooks").resolve("kamikotizations");
-        if (!Files.exists(folder)) {
-            return null;
-        }
-        String namespace = kamikotization.location().getNamespace();
-        Path nameFolder = folder.resolve(namespace);
-        if (!Files.exists(nameFolder)) {
-            return null;
-        }
-        String type = kamikotization.location().getPath();
-        Path texture = nameFolder.resolve(type + ".png");
-        if (Files.exists(texture)) {
-            try {
-                Path model = texture.resolveSibling(type + ".geo.json");
-                String convertedModel = null;
-                if (Files.exists(model)) {
-                    convertedModel = Files.readString(model);
-                }
-                byte[] convertedImage = NativeImage.read(texture.toUri().toURL().openStream()).asByteArray();
-                Path glowmask = texture.resolveSibling(type + "_glowmask.png");
-                byte[] convertedGlowmask = null;
-                if (Files.exists(glowmask)) {
-                    convertedGlowmask = NativeImage.read(glowmask.toUri().toURL().openStream()).asByteArray();
-                }
-                Path animations = texture.resolveSibling(type + ".animation.json");
-                String convertedAnimations = null;
-                if (Files.exists(animations)) {
-                    convertedAnimations = Files.readString(animations);
-                }
-                return new FlattenedKamikotizationLookData(kamikotization, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), Optional.ofNullable(convertedAnimations));
-            } catch (Exception exception) {
-                Mineraculous.LOGGER.error("Failed to handle clientbound request sync kamikotization look payload", exception);
-            }
-        }
-        return null;
-    }
-
     public static void onInteractionKeyMappingTriggered(InputEvent.InteractionKeyMappingTriggered event) {
-        if (event.isAttack() && event.getHand() == InteractionHand.MAIN_HAND && ClientUtils.getMainClientPlayer().getOffhandItem().is(MineraculousItems.LADYBUG_YOYO)) {
-            TommyLibServices.NETWORK.sendToServer(ServerboundSendOffhandSwingPayload.INSTANCE);
-            if (ClientUtils.getMainClientPlayer().getOffhandItem().onEntitySwing(ClientUtils.getMainClientPlayer(), InteractionHand.OFF_HAND)) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (event.isAttack() && event.getHand() == InteractionHand.MAIN_HAND && player != null && player.getOffhandItem().is(MineraculousItems.LADYBUG_YOYO)) {
+            TommyLibServices.NETWORK.sendToServer(ServerboundSwingOffhandPayload.INSTANCE);
+            if (player.getOffhandItem().onEntitySwing(player, InteractionHand.OFF_HAND)) {
                 event.setCanceled(true);
             }
         }
     }
 
-    public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
-        event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
-            MineraculousClientUtils.refreshVip();
-            MiraculousArmorItem.clearAnimationData();
-            KamikotizationArmorItem.clearAnimationData();
-        });
+    // Rendering
+    public static void onRenderHand(RenderHandEvent event) {
+        if (MineraculousClientUtils.getCameraEntity() != Minecraft.getInstance().player) {
+            event.setCanceled(true);
+        }
+    }
+
+    // Special Player Handling
+    public static void onClientPlayerLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
+        MineraculousClientUtils.syncSpecialPlayerChoices();
+    }
+
+    public static void onConfigChanged(ModConfigEvent event) {
+        MineraculousClientUtils.syncSpecialPlayerChoices();
+    }
+
+    // Misc
+    public static void onPlayerHeartType(PlayerHeartTypeEvent event) {
+        if (event.getEntity().hasEffect(MineraculousMobEffects.CATACLYSMED))
+            event.setType(MineraculousHeartTypes.CATACLYSMED.getValue());
+    }
+
+    public static void onClientChatReceived(ClientChatReceivedEvent event) {
+        ClientLevel level = Minecraft.getInstance().level;
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (level != null && player != null) {
+            player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().ifPresent(chatter -> {
+                if (!(event.getSender().equals(chatter) || (event instanceof ClientChatReceivedEvent.System system && system.isOverlay()))) {
+                    event.setCanceled(true);
+                }
+            });
+        }
     }
 }

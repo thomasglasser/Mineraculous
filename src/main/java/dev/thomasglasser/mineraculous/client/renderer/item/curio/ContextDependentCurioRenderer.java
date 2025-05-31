@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.client.renderer.item.curio;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItemDisplayContexts;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
@@ -24,19 +25,19 @@ public class ContextDependentCurioRenderer implements ICurioRenderer {
         if (renderLayerParent.getModel() instanceof HumanoidModel<?> humanoidModel) {
             poseStack.pushPose();
             ItemDisplayContext displayContext = switch (slotContext.identifier()) {
-                case "ring" -> {
+                case MineraculousCuriosProvider.SLOT_RING -> {
                     humanoidModel.translateToHand(HumanoidArm.RIGHT, poseStack);
                     yield MineraculousItemDisplayContexts.CURIOS_RING.getValue();
                 }
-                case "brooch" -> {
+                case MineraculousCuriosProvider.SLOT_BROOCH -> {
                     humanoidModel.body.translateAndRotate(poseStack);
                     yield MineraculousItemDisplayContexts.CURIOS_BROOCH.getValue();
                 }
-                case "earrings" -> {
+                case MineraculousCuriosProvider.SLOT_EARRINGS -> {
                     humanoidModel.head.translateAndRotate(poseStack);
                     yield MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue();
                 }
-                case "belt" -> {
+                case MineraculousCuriosProvider.SLOT_BELT -> {
                     humanoidModel.body.translateAndRotate(poseStack);
                     yield MineraculousItemDisplayContexts.CURIOS_BELT.getValue();
                 }

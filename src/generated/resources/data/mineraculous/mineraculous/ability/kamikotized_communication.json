@@ -6,8 +6,8 @@
       "type": "mineraculous:kamikotization"
     }
   },
+  "face_mask_texture": "mineraculous:textures/entity/player/face_mask/kamiko.png",
   "must_be_tamed": false,
   "override_active": true,
-  "shader": "mineraculous:post_effect/kamiko.json",
-  "toggle_tag": "ShowKamikoMask"
+  "shader": "mineraculous:post_effect/kamiko.json"
 }

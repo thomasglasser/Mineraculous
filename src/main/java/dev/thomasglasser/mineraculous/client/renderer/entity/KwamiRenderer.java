@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import java.util.HashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.Map;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -23,7 +23,7 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
     private static final String LEFT_HAND = "left_hand";
     private static final String RIGHT_HAND = "right_hand";
 
-    private final Map<ResourceKey<Miraculous>, GeoModel<T>> models = new HashMap<>();
+    private final Map<ResourceKey<Miraculous>, GeoModel<T>> models = new Reference2ReferenceOpenHashMap<>();
 
     public KwamiRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, null);
@@ -55,8 +55,9 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
 
     @Override
     public GeoModel<T> getGeoModel() {
-        if (getAnimatable() != null) {
-            ResourceKey<Miraculous> miraculous = getAnimatable().getMiraculous();
+        T animatable = getAnimatable();
+        if (animatable != null) {
+            ResourceKey<Miraculous> miraculous = animatable.getMiraculous();
             if (miraculous != null) {
                 if (!models.containsKey(miraculous))
                     models.put(miraculous, createGeoModel(miraculous));
@@ -73,8 +74,7 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
             @Override
             public ResourceLocation getTextureResource(T animatable) {
                 if (hungryTexture == null) {
-                    ResourceLocation original = super.getTextureResource(animatable);
-                    hungryTexture = ResourceLocation.fromNamespaceAndPath(original.getNamespace(), original.getPath().replace(".png", "_hungry.png"));
+                    hungryTexture = super.getTextureResource(animatable).withPath(path -> path.replace(".png", "_hungry.png"));
                 }
                 if (!animatable.isCharged())
                     return hungryTexture;

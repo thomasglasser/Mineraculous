@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
-import java.util.HashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
@@ -14,12 +14,10 @@ import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
+// TODO: Convert to Curio Renderer by allowing kwami in item form on shoulder
 public class KwamiOnShoulderLayer<T extends Player> extends RenderLayer<T, PlayerModel<T>> {
-    private static final Map<CompoundTag, Kwami> KWAMIS = new HashMap<>();
+    private static final Map<CompoundTag, Kwami> KWAMIS = new Object2ObjectOpenHashMap<>();
 
     public KwamiOnShoulderLayer(RenderLayerParent<T, PlayerModel<T>> renderer) {
         super(renderer);
@@ -61,6 +59,7 @@ public class KwamiOnShoulderLayer<T extends Player> extends RenderLayer<T, Playe
             poseStack.pushPose();
             poseStack.translate(leftShoulder ? 0.33F : -0.33F, livingEntity.isCrouching() ? 0.3 : 0.1, 0.0F);
             poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
+
             Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(kwami).render(kwami, 0, 0, poseStack, buffer, packedLight);
             poseStack.popPose();
         }

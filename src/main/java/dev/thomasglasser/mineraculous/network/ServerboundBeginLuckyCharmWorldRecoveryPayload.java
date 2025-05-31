@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Player;
 
+// TODO: Fix when abilities are reworked
 public record ServerboundBeginLuckyCharmWorldRecoveryPayload(AbilityData data, Optional<ParticleOptions> spreadParticle, Optional<Holder<SoundEvent>> startSound) implements ExtendedPacketPayload {
 
     public static final Type<ServerboundBeginLuckyCharmWorldRecoveryPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_begin_lucky_charm_world_recovery"));

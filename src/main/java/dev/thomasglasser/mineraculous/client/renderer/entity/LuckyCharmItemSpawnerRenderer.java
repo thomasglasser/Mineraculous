@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.world.entity.LuckyCharmItemSpawner;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -19,30 +20,30 @@ public class LuckyCharmItemSpawnerRenderer extends EntityRenderer<LuckyCharmItem
     private static final int TICKS_SCALING = 50;
     private final ItemRenderer itemRenderer;
 
-    public LuckyCharmItemSpawnerRenderer(EntityRendererProvider.Context p_338603_) {
-        super(p_338603_);
-        this.itemRenderer = p_338603_.getItemRenderer();
+    public LuckyCharmItemSpawnerRenderer(EntityRendererProvider.Context context) {
+        super(context);
+        this.itemRenderer = context.getItemRenderer();
     }
 
     public ResourceLocation getTextureLocation(LuckyCharmItemSpawner p_338515_) {
         return TextureAtlas.LOCATION_BLOCKS;
     }
 
-    public void render(LuckyCharmItemSpawner p_338815_, float p_338631_, float p_338539_, PoseStack p_338440_, MultiBufferSource p_338413_, int p_338541_) {
-        ItemStack itemstack = p_338815_.getItem();
+    public void render(LuckyCharmItemSpawner entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+        ItemStack itemstack = entity.getItem();
         if (!itemstack.isEmpty()) {
-            p_338440_.pushPose();
-            if (p_338815_.tickCount <= TICKS_SCALING) {
-                float f = Math.min((float) p_338815_.tickCount + p_338539_, TICKS_SCALING) / TICKS_SCALING;
-                p_338440_.scale(f, f, f);
+            poseStack.pushPose();
+            if (entity.tickCount <= TICKS_SCALING) {
+                float f = Math.min((float) entity.tickCount + partialTick, TICKS_SCALING) / TICKS_SCALING;
+                poseStack.scale(f, f, f);
             }
 
-            Level level = p_338815_.level();
+            Level level = entity.level();
             float f1 = Mth.wrapDegrees((float) (level.getGameTime() - 1L)) * ROTATION_SPEED;
             float f2 = Mth.wrapDegrees((float) level.getGameTime()) * ROTATION_SPEED;
-            p_338440_.mulPose(Axis.YP.rotationDegrees(Mth.rotLerp(p_338539_, f1, f2)));
-            ItemEntityRenderer.renderMultipleFromCount(this.itemRenderer, p_338440_, p_338413_, 15728880, itemstack, level.random, level);
-            p_338440_.popPose();
+            poseStack.mulPose(Axis.YP.rotationDegrees(Mth.rotLerp(partialTick, f1, f2)));
+            ItemEntityRenderer.renderMultipleFromCount(this.itemRenderer, poseStack, bufferSource, LightTexture.FULL_BRIGHT, itemstack, level.random, level);
+            poseStack.popPose();
         }
     }
 }

@@ -1,0 +1,34 @@
+{
+  "values": {
+    "mineraculous:aged_camembert_block": {
+      "waxed": "mineraculous:waxed_aged_camembert_block"
+    },
+    "mineraculous:aged_cheese_block": {
+      "waxed": "mineraculous:waxed_aged_cheese_block"
+    },
+    "mineraculous:exquisite_camembert_block": {
+      "waxed": "mineraculous:waxed_exquisite_camembert_block"
+    },
+    "mineraculous:exquisite_cheese_block": {
+      "waxed": "mineraculous:waxed_exquisite_cheese_block"
+    },
+    "mineraculous:fresh_camembert_block": {
+      "waxed": "mineraculous:waxed_fresh_camembert_block"
+    },
+    "mineraculous:fresh_cheese_block": {
+      "waxed": "mineraculous:waxed_fresh_cheese_block"
+    },
+    "mineraculous:ripened_camembert_block": {
+      "waxed": "mineraculous:waxed_ripened_camembert_block"
+    },
+    "mineraculous:ripened_cheese_block": {
+      "waxed": "mineraculous:waxed_ripened_cheese_block"
+    },
+    "mineraculous:time_honored_camembert_block": {
+      "waxed": "mineraculous:waxed_time_honored_camembert_block"
+    },
+    "mineraculous:time_honored_cheese_block": {
+      "waxed": "mineraculous:waxed_time_honored_cheese_block"
+    }
+  }
+}

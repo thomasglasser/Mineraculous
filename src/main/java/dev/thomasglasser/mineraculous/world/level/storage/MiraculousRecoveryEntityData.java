@@ -22,6 +22,10 @@ public class MiraculousRecoveryEntityData extends SavedData {
     private final Map<UUID, List<UUID>> trackedAndRelatedEntities = new HashMap<>();
     private final Map<UUID, List<CompoundTag>> recoverableEntities = new HashMap<>();
 
+    public static MiraculousRecoveryEntityData get(ServerLevel level) {
+        return level.getServer().overworld().getDataStorage().computeIfAbsent(MiraculousRecoveryEntityData.factory(), MiraculousRecoveryEntityData.FILE_ID);
+    }
+
     public static SavedData.Factory<MiraculousRecoveryEntityData> factory() {
         return new SavedData.Factory<>(MiraculousRecoveryEntityData::new, (p_294039_, p_324123_) -> load(p_294039_), DataFixTypes.LEVEL);
     }

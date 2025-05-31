@@ -31,8 +31,12 @@ public record ServerboundStealItemPayload(UUID target, int slot) implements Exte
             if (EnchantmentHelper.has(stack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE)) {
                 player.displayClientMessage(Component.translatable(ExternalInventoryScreen.ITEM_BOUND_KEY), true);
             } else {
-                player.setItemInHand(InteractionHand.MAIN_HAND, stack);
                 target.getInventory().removeItem(stack);
+                if (player.getMainHandItem().isEmpty()) {
+                    player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+                } else {
+                    player.drop(stack, true, true);
+                }
             }
         }
     }

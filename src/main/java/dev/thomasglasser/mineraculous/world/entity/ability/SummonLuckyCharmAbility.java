@@ -16,8 +16,8 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharm;
-import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdDataHolder;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryDataHolder;
+import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.parameters.MineraculousLootContextParamSets;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.parameters.MineraculousLootContextParams;
 import java.util.List;
@@ -47,13 +47,14 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
     @Override
     public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
         if (context == Context.PASSIVE) {
-            UUID tracked = ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData().getTrackedEntity(entity.getUUID());
+            MiraculousRecoveryEntityData recoveryEntityData = MiraculousRecoveryEntityData.get(level);
+            UUID tracked = recoveryEntityData.getTrackedEntity(entity.getUUID());
             LivingEntity trackedEntity = tracked != null ? level.getEntity(tracked) instanceof LivingEntity livingEntity ? livingEntity : null : null;
             LivingEntity target = trackedEntity != null ? trackedEntity : entity.getKillCredit() != null ? entity.getKillCredit() : entity.getLastHurtByMob() != null ? entity.getLastHurtByMob() : entity.getLastHurtMob();
             if (target instanceof OwnableEntity ownable && ownable.getOwnerUUID() != null)
                 target = level.getEntity(ownable.getOwnerUUID()) instanceof LivingEntity livingEntity ? livingEntity : target;
             if (target != null)
-                ((MiraculousRecoveryDataHolder) level.getServer().overworld()).mineraculous$getMiraculousRecoveryEntityData().putRelatedEntity(target.getUUID(), entity.getUUID());
+                recoveryEntityData.putRelatedEntity(target.getUUID(), entity.getUUID());
             LuckyCharms charms = getCharms(level, target);
             AtomicReference<ItemStack> result = new AtomicReference<>();
             if (charms.items().left().isPresent()) {
@@ -78,13 +79,13 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
             ItemStack toAdd = result.get();
             UUID uuid;
             if (data.power().left().isPresent()) {
-                uuid = entity.getData(MineraculousAttachmentTypes.MIRACULOUS).get(data.power().left().get()).miraculousItem().get(MineraculousDataComponents.KWAMI_DATA).uuid();
-                toAdd.set(MineraculousDataComponents.KWAMI_DATA, new KwamiData(uuid, false));
+                uuid = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(data.power().left().get()).miraculousItem().get(MineraculousDataComponents.KWAMI_DATA).uuid();
+                toAdd.set(MineraculousDataComponents.KWAMI_DATA, new KwamiData(uuid, 0, false));
             } else {
                 uuid = entity.getUUID();
                 toAdd.set(MineraculousDataComponents.KAMIKOTIZATION, data.power().right().get());
             }
-            toAdd.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.ofNullable(target != null ? target.getUUID() : null), ((LuckyCharmIdDataHolder) level.getServer().overworld()).mineraculous$getLuckyCharmIdData().incrementLuckyCharmId(uuid)));
+            toAdd.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.ofNullable(target != null ? target.getUUID() : null), LuckyCharmIdData.get(level).incrementLuckyCharmId(uuid)));
             LuckyCharmItemSpawner item = LuckyCharmItemSpawner.create(level, toAdd);
             item.setPos(entity.position().add(0, 4, 0));
             level.addFreshEntity(item);
@@ -101,8 +102,8 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
                 if (data != null)
                     return data;
             }
-            if (target.getData(MineraculousAttachmentTypes.MIRACULOUS).isTransformed()) {
-                List<ResourceKey<Miraculous>> transformed = target.getData(MineraculousAttachmentTypes.MIRACULOUS).getTransformed();
+            if (target.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
+                List<ResourceKey<Miraculous>> transformed = target.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed();
                 LuckyCharms data = level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getData(MineraculousDataMaps.MIRACULOUS_LUCKY_CHARMS, transformed.get(level.random.nextInt(transformed.size())));
                 if (data != null)
                     return data;
@@ -121,9 +122,9 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
             Either<ResourceKey<Miraculous>, ResourceKey<Kamikotization>> power = data.power();
             if (power.left().isPresent()) {
                 Integer toolId = mainHandItem.get(MineraculousDataComponents.TOOL_ID);
-                return toolId != null && toolId == entity.getData(MineraculousAttachmentTypes.MIRACULOUS).get(power.left().get()).toolId() && mainHandItem.has(MineraculousDataComponents.ACTIVE);
+                return toolId != null && toolId == entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(power.left().get()).toolId() && mainHandItem.getOrDefault(MineraculousDataComponents.ACTIVE, false);
             } else {
-                return mainHandItem.get(MineraculousDataComponents.KAMIKOTIZATION) == power.right().get() && mainHandItem.has(MineraculousDataComponents.ACTIVE);
+                return mainHandItem.get(MineraculousDataComponents.KAMIKOTIZATION) == power.right().get() && mainHandItem.getOrDefault(MineraculousDataComponents.ACTIVE, false);
             }
         }
         return true;

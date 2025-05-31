@@ -4,12 +4,12 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
-import dev.thomasglasser.mineraculous.network.ClientboundSyncKamikotizationDataPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
-import dev.thomasglasser.tommylib.api.network.NetworkUtils;
+import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
+import dev.thomasglasser.tommylib.api.network.codec.ExtraStreamCodecs;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -28,7 +28,7 @@ public record KamikotizationData(ResourceKey<Kamikotization> kamikotization, int
             Codec.BOOL.fieldOf("main_power_active").forGetter(KamikotizationData::mainPowerActive),
             Codec.either(Codec.INT, Codec.INT).optionalFieldOf("transformation_frames").forGetter(KamikotizationData::transformationFrames),
             Codec.STRING.optionalFieldOf("name", "").forGetter(KamikotizationData::name)).apply(instance, KamikotizationData::new));
-    public static final StreamCodec<RegistryFriendlyByteBuf, KamikotizationData> STREAM_CODEC = NetworkUtils.composite(
+    public static final StreamCodec<RegistryFriendlyByteBuf, KamikotizationData> STREAM_CODEC = ExtraStreamCodecs.composite(
             ResourceKey.streamCodec(MineraculousRegistries.KAMIKOTIZATION), KamikotizationData::kamikotization,
             ByteBufCodecs.INT, KamikotizationData::stackCount,
             ByteBufCodecs.either(ByteBufCodecs.INT, CuriosData.STREAM_CODEC), KamikotizationData::slotInfo,
@@ -66,13 +66,13 @@ public record KamikotizationData(ResourceKey<Kamikotization> kamikotization, int
         if (entity.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION).isPresent())
             entity.setData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION, Optional.empty());
         if (syncToClient)
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncKamikotizationDataPayload(this, entity.getId()), entity.getServer());
+            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.KAMIKOTIZATION, Optional.of(this)), entity.getServer());
     }
 
     public static void remove(LivingEntity entity, boolean syncToClient) {
         entity.setData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION, entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization));
         entity.setData(MineraculousAttachmentTypes.KAMIKOTIZATION, Optional.empty());
         if (syncToClient)
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncKamikotizationDataPayload(entity.getId()), entity.getServer());
+            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.KAMIKOTIZATION, Optional.<Optional<KamikotizationData>>empty()), entity.getServer());
     }
 }

@@ -9,15 +9,15 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-public record ClientboundRefreshVipDataPayload() implements ExtendedPacketPayload {
-    public static final ClientboundRefreshVipDataPayload INSTANCE = new ClientboundRefreshVipDataPayload();
+public record ClientboundSyncSpecialPlayerChoicesPayload() implements ExtendedPacketPayload {
+    public static final ClientboundSyncSpecialPlayerChoicesPayload INSTANCE = new ClientboundSyncSpecialPlayerChoicesPayload();
 
-    public static final Type<ClientboundRefreshVipDataPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_refresh_vip_data"));
-    public static final StreamCodec<ByteBuf, ClientboundRefreshVipDataPayload> CODEC = StreamCodec.unit(INSTANCE);
+    public static final Type<ClientboundSyncSpecialPlayerChoicesPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_sync_special_player_choices"));
+    public static final StreamCodec<ByteBuf, ClientboundSyncSpecialPlayerChoicesPayload> CODEC = StreamCodec.unit(INSTANCE);
 
     // ON CLIENT
     public void handle(@Nullable Player player) {
-        MineraculousClientUtils.refreshSpecialPlayerData();
+        MineraculousClientUtils.syncSpecialPlayerChoices();
     }
 
     @Override

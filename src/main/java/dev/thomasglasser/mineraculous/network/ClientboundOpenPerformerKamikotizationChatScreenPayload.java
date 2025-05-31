@@ -24,7 +24,10 @@ public record ClientboundOpenPerformerKamikotizationChatScreenPayload(String per
     // ON CLIENT
     @Override
     public void handle(Player player) {
-        MineraculousClientUtils.openPerformerKamikotizationChatScreen(performerName, targetName, faceMaskTexture, player.level().getPlayerByUUID(targetId));
+        Player target = player.level().getPlayerByUUID(targetId);
+        if (target != null) {
+            MineraculousClientUtils.openPerformerKamikotizationChatScreen(performerName, targetName, faceMaskTexture, target);
+        }
     }
 
     @Override

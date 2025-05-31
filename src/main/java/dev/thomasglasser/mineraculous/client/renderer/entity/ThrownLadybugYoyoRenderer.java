@@ -21,7 +21,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
@@ -107,7 +106,7 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
 
         double maxLength = animatable.getRenderMaxRopeLength();
 
-        Vec3 playerHandPos = getPlayerHandPos(projectilePlayer, swingAngle, partialTick, Minecraft.getInstance().getEntityRenderDispatcher());
+        Vec3 playerHandPos = getPlayerHandPos(projectilePlayer, swingAngle, partialTick, !projectilePlayer.getMainHandItem().is(MineraculousItems.LADYBUG_YOYO));
         Vec3 projectilePos = animatable.getPosition(partialTick);
 
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(ROPE_TEXTURE));
@@ -152,14 +151,15 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
         poseStack.translate(0, -0.1, 0);
     }
 
+    // TODO: Fix to make better and account for speed and other things that alter hand pos
     @SuppressWarnings("ConstantValue")
-    public static Vec3 getPlayerHandPos(Player player, float swingAngle, float partialTick, EntityRenderDispatcher entityRenderDispatcher) {
+    public static Vec3 getPlayerHandPos(Player player, float swingAngle, float partialTick, boolean offHand) {
         int armMultiplier = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
-        ItemStack itemstack = player.getMainHandItem();
-        if (!itemstack.is(MineraculousItems.LADYBUG_YOYO)) {
+        if (offHand) {
             armMultiplier = -armMultiplier;
         }
 
+        EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
         if (entityRenderDispatcher.options.getCameraType().isFirstPerson() && player == Minecraft.getInstance().player && entityRenderDispatcher.camera != null) {
             double fovScale = 960.0 / (double) entityRenderDispatcher.options.fov().get();
             Vec3 handOffset = entityRenderDispatcher.camera.getNearPlane().getPointOnPlane((float) armMultiplier * 0.6f, -0.6f).scale(fovScale).yRot(swingAngle * 0.5F).xRot(-swingAngle * 0.7F);

@@ -1,11 +1,16 @@
 package dev.thomasglasser.mineraculous.world.level.storage;
 
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.platform.NativeImage;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.network.codec.ExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -54,5 +59,55 @@ public record FlattenedSuitLookData(String look, Optional<String> model, byte[] 
             Mineraculous.LOGGER.error("Failed to handle clientbound sync suit look payload", e);
             return null;
         }
+    }
+
+    public static FlattenedSuitLookData resolve(ResourceKey<Miraculous> miraculous, String look) throws IOException {
+        Path folder = MineraculousClientUtils.getGameDirectory().resolve("miraculouslooks").resolve("suits");
+        if (!Files.exists(folder)) {
+            return null;
+        }
+        String namespace = miraculous.location().getNamespace();
+        Path namespaceFolder = folder.resolve(namespace);
+        if (!Files.exists(namespaceFolder)) {
+            return null;
+        }
+        String name = miraculous.location().getPath();
+        Path nameFolder = namespaceFolder.resolve(name);
+        if (!Files.exists(nameFolder)) {
+            return null;
+        }
+        Path texture = folder.resolve(look + ".png");
+        if (Files.exists(texture)) {
+            Path model = texture.resolveSibling(look + ".geo.json");
+            String convertedModel = null;
+            if (Files.exists(model)) {
+                convertedModel = Files.readString(model);
+            }
+            byte[] convertedImage = NativeImage.read(texture.toUri().toURL().openStream()).asByteArray();
+            Path glowmask = texture.resolveSibling(look + "_glowmask.png");
+            byte[] convertedGlowmask = null;
+            if (Files.exists(glowmask)) {
+                convertedGlowmask = NativeImage.read(glowmask.toUri().toURL().openStream()).asByteArray();
+            }
+            List<byte[]> convertedFrames = new ArrayList<>();
+            List<byte[]> convertedGlowmaskFrames = new ArrayList<>();
+            for (int i = 1; i <= ClientUtils.getLevel().holderOrThrow(miraculous).value().transformationFrames(); i++) {
+                Path frame = texture.resolveSibling(look + "_" + i + ".png");
+                if (Files.exists(frame)) {
+                    convertedFrames.add(NativeImage.read(frame.toUri().toURL().openStream()).asByteArray());
+                }
+                Path glowmaskFrame = texture.resolveSibling(look + "_" + i + "_glowmask.png");
+                if (Files.exists(glowmaskFrame)) {
+                    convertedGlowmaskFrames.add(NativeImage.read(glowmaskFrame.toUri().toURL().openStream()).asByteArray());
+                }
+            }
+            Path animations = texture.resolveSibling(look + ".animation.json");
+            String convertedAnimations = null;
+            if (Files.exists(animations)) {
+                convertedAnimations = Files.readString(animations);
+            }
+            return new FlattenedSuitLookData(look, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), convertedFrames, convertedGlowmaskFrames, Optional.ofNullable(convertedAnimations));
+        }
+        return null;
     }
 }

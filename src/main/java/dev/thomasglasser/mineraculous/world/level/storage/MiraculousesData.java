@@ -6,9 +6,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mojang.serialization.codecs.UnboundedMapCodec;
 import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
-import dev.thomasglasser.mineraculous.network.ClientboundSyncMiraculousDataSetPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.HashMap;
 import java.util.List;
@@ -84,12 +84,13 @@ public class MiraculousesData {
         return map.values().stream().anyMatch(MiraculousData::transformed);
     }
 
-    public @Nullable ResourceKey<Miraculous> getFirstKeyIn(TagKey<Miraculous> tag, Level level) {
-        return keySet().stream().filter(key -> level.holderOrThrow(key).is(tag)).findFirst().orElse(null);
+    public @Nullable ResourceKey<Miraculous> getFirstTransformedKeyIn(TagKey<Miraculous> tag, Level level) {
+        return keySet().stream().filter(key -> get(key).transformed() && level.holderOrThrow(key).is(tag)).findFirst().orElse(null);
     }
 
     public void save(Entity entity, boolean syncToClient) {
-        entity.setData(MineraculousAttachmentTypes.MIRACULOUSES.get(), this);
-        if (syncToClient) TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousDataSetPayload(this, entity.getId()), entity.level().getServer());
+        entity.setData(MineraculousAttachmentTypes.MIRACULOUSES, this);
+        if (syncToClient)
+            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.MIRACULOUSES, this), entity.getServer());
     }
 }

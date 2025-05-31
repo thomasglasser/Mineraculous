@@ -22,7 +22,8 @@ public record ServerboundWakeUpPayload(UUID targetId, boolean showStealingWarnin
     // ON SERVER
     @Override
     public void handle(Player player) {
-        if (player.level().getPlayerByUUID(targetId) instanceof Player target) {
+        Player target = player.level().getPlayerByUUID(targetId);
+        if (target != null) {
             target.stopSleepInBed(true, true);
             if (showStealingWarning) {
                 target.displayClientMessage(Component.translatable(STEALING_WARNING_KEY), true);

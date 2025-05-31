@@ -10,12 +10,12 @@ import dev.thomasglasser.mineraculous.advancements.critereon.UseMiraculousPowerT
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.datamaps.MineraculousDataMaps;
-import dev.thomasglasser.mineraculous.network.ClientboundRefreshVipDataPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncKamikotizationLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncMiraculousLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncSuitLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncKamikotizationLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncMiraculousLookPayload;
+import dev.thomasglasser.mineraculous.network.ClientboundSyncSpecialPlayerChoicesPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncSuitLookPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestMiraculousDataSetSyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSendEmptyLeftClickPayload;
@@ -369,7 +369,7 @@ public class MineraculousEntityEvents {
     public static void onServerPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         Player player = event.getEntity();
         for (ServerPlayer serverPlayer : ((ServerLevel) player.level()).getPlayers(serverPlayer -> true)) {
-            TommyLibServices.NETWORK.sendToAllClients(ClientboundRefreshVipDataPayload.INSTANCE, serverPlayer.getServer());
+            TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncSpecialPlayerChoicesPayload.INSTANCE, serverPlayer.getServer());
         }
     }
 
@@ -381,7 +381,7 @@ public class MineraculousEntityEvents {
                 Entity yoyo = event.getLevel().getEntity(id);
                 if (yoyo != null)
                     yoyo.discard();
-                ThrownLadybugYoyoData.remove(entity, true);
+                new ThrownLadybugYoyoData().save(entity, true);
             });
         }
     }
@@ -944,6 +944,12 @@ public class MineraculousEntityEvents {
         miraculousesData.put(player, miraculous, miraculousesData.get(miraculous).withSuitLook(data.look()), true);
     }
 
+    public static void updateAndSyncMiraculousLook(ServerPlayer player, ResourceKey<Miraculous> miraculous, FlattenedMiraculousLookData data) {
+        TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), miraculous, data), player.getServer());
+        MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+        miraculousesData.put(player, miraculous, miraculousesData.get(miraculous).withMiraculousLook(data.look()), true);
+    }
+
     public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         ServerPlayer serverPlayer = (ServerPlayer) event.getEntity();
         ServerLookData.getPlayerSuits().remove(serverPlayer.getUUID());
@@ -953,7 +959,7 @@ public class MineraculousEntityEvents {
             Entity yoyo = serverPlayer.level().getEntity(id);
             if (yoyo != null)
                 yoyo.discard();
-            ThrownLadybugYoyoData.remove(serverPlayer, true);
+            new ThrownLadybugYoyoData().save(serverPlayer, true);
         });
     }
 

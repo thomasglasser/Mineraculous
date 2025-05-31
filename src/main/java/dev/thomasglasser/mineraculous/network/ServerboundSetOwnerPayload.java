@@ -23,7 +23,7 @@ public record ServerboundSetOwnerPayload(int entityId, Optional<Integer> ownerId
     public void handle(Player player) {
         Entity entity = player.level().getEntity(entityId);
         if (entity instanceof TamableAnimal tamable) {
-            tamable.setOwnerUUID(ownerId.isPresent() && player.level().getEntity(ownerId.get()) instanceof Entity e ? e.getUUID() : null);
+            tamable.setOwnerUUID(ownerId.map(player.level()::getEntity).map(Entity::getUUID).orElse(null));
         }
     }
 

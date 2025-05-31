@@ -9,6 +9,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.thomasglasser.mineraculous.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.network.ServerboundSetRadialMenuProviderOptionPayload;
 import dev.thomasglasser.mineraculous.world.item.RadialMenuProvider;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
 import java.util.function.BiConsumer;
@@ -47,7 +48,10 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
     }
 
     public RadialMenuScreen(InteractionHand hand, int heldKey, ItemStack stack, RadialMenuProvider<T> provider) {
-        this(heldKey, provider.getOptions(stack, hand), provider.getColor(stack, hand), (selected, index) -> TommyLibServices.NETWORK.sendToServer(new ServerboundSetRadialMenuProviderOptionPayload(hand, index)));
+        this(heldKey, provider.getOptions(stack, hand, ClientUtils.getLocalPlayer()), provider.getColor(stack, hand, ClientUtils.getLocalPlayer()), (selected, index) -> {
+            if (stack.get(provider.getComponentType(stack, hand, ClientUtils.getLocalPlayer())) != selected)
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSetRadialMenuProviderOptionPayload(hand, index));
+        });
     }
 
     private double alpha(int x, int y) {

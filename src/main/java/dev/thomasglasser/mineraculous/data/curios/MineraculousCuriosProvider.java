@@ -6,6 +6,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import org.jetbrains.annotations.Nullable;
 import top.theillusivec4.curios.api.CuriosDataProvider;
 
 public class MineraculousCuriosProvider extends CuriosDataProvider {
@@ -14,7 +15,7 @@ public class MineraculousCuriosProvider extends CuriosDataProvider {
     public static final String SLOT_EARRINGS = "earrings";
     public static final String SLOT_BELT = "belt";
 
-    public MineraculousCuriosProvider(PackOutput output, ExistingFileHelper fileHelper, CompletableFuture<HolderLookup.Provider> registries) {
+    public MineraculousCuriosProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, @Nullable ExistingFileHelper fileHelper) {
         super(Mineraculous.MOD_ID, output, fileHelper, registries);
     }
 

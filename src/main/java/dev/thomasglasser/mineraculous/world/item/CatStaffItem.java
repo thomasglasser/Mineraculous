@@ -261,39 +261,45 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     }
 
     @Override
-    public boolean canOpenMenu(ItemStack stack, InteractionHand hand) {
+    public boolean canOpenMenu(ItemStack stack, InteractionHand hand, Player holder) {
         return stack.getOrDefault(MineraculousDataComponents.ACTIVE, false);
     }
 
     @Override
-    public int getColor(ItemStack stack, InteractionHand hand) {
-        int color = ClientUtils.getLevel().holderOrThrow(Miraculouses.CAT).value().color().getValue();
+    public int getColor(ItemStack stack, InteractionHand hand, Player holder) {
+        Level level = holder.level();
+        int color = level.holderOrThrow(Miraculouses.CAT).value().color().getValue();
         ResolvableProfile resolvableProfile = stack.get(DataComponents.PROFILE);
         if (resolvableProfile != null) {
-            Player staffOwner = ClientUtils.getLevel().getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
-            if (staffOwner != null) {
-                ResourceKey<Miraculous> colorKey = staffOwner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstKeyIn(MiraculousTags.CAN_USE_CAT_STAFF, ClientUtils.getLevel());
+            Player owner = level.getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
+            if (owner != null) {
+                ResourceKey<Miraculous> colorKey = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstTransformedKeyIn(MiraculousTags.CAN_USE_CAT_STAFF, ClientUtils.getLevel());
                 if (colorKey != null)
-                    color = ClientUtils.getLevel().holderOrThrow(colorKey).value().color().getValue();
+                    color = level.holderOrThrow(colorKey).value().color().getValue();
             }
         }
         return color;
     }
 
     @Override
-    public List<Ability> getOptions(ItemStack stack, InteractionHand hand) {
+    public List<Ability> getOptions(ItemStack stack, InteractionHand hand, Player holder) {
         return Ability.valuesList();
     }
 
     @Override
-    public Supplier<DataComponentType<Ability>> getComponentType(ItemStack stack, InteractionHand hand) {
+    public Supplier<DataComponentType<Ability>> getComponentType(ItemStack stack, InteractionHand hand, Player holder) {
         return MineraculousDataComponents.CAT_STAFF_ABILITY;
     }
 
     @Override
-    public boolean handleSecondaryKeyBehavior(ItemStack stack, InteractionHand hand) {
+    public boolean handleSecondaryKeyBehavior(ItemStack stack, InteractionHand hand, Player holder) {
         TommyLibServices.NETWORK.sendToServer(new ServerboundEquipToolPayload(hand));
         return true;
+    }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return slotChanged && super.shouldCauseReequipAnimation(oldStack, newStack, true);
     }
 
     public enum Ability implements RadialMenuOption, StringRepresentable {

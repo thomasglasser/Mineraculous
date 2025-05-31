@@ -20,8 +20,7 @@ public record ServerboundCloseKamikotizationChatScreenPayload(UUID playerId, boo
     // ON SERVER
     @Override
     public void handle(Player player) {
-        Player player1 = player.level().getPlayerByUUID(playerId);
-        if (player1 instanceof ServerPlayer serverPlayer) {
+        if (player.level().getPlayerByUUID(playerId) instanceof ServerPlayer serverPlayer) {
             TommyLibServices.NETWORK.sendToClient(new ClientboundRemoteCloseKamikotizationChatScreenPayload(cancel), serverPlayer);
         }
     }

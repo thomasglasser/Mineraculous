@@ -64,12 +64,12 @@ public class MineraculousServerConfig {
         return configSpec;
     }
 
-    public static MineraculousServerConfig get() {
-        return INSTANCE;
+    public boolean isCustomizationAllowed(Player player) {
+        return enableCustomization.get() && (customizationPermissionsMode.get() == PermissionMode.WHITELIST ? ServerLookData.isPlayerInWhitelist(player) : !ServerLookData.isPlayerInBlacklist(player));
     }
 
-    public static boolean isCustomizationAllowed(Player player) {
-        return get().enableCustomization.get() && (get().customizationPermissionsMode.get() == PermissionMode.WHITELIST ? ServerLookData.isPlayerInWhitelist(player) : !ServerLookData.isPlayerInBlacklist(player));
+    public static MineraculousServerConfig get() {
+        return INSTANCE;
     }
 
     public enum PermissionMode {

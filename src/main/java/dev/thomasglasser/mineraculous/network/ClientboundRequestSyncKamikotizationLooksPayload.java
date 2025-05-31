@@ -1,17 +1,18 @@
 package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -30,15 +31,20 @@ public record ClientboundRequestSyncKamikotizationLooksPayload(UUID senderId, Li
     // ON CLIENT
     @Override
     public void handle(Player player) {
-        Path folder = Minecraft.getInstance().gameDirectory.toPath().resolve("miraculouslooks").resolve("kamikotizations");
+        Path folder = MineraculousClientUtils.getGameDirectory().resolve("miraculouslooks").resolve("kamikotizations");
         if (!Files.exists(folder)) {
             return;
         }
-        List<FlattenedKamikotizationLookData> looks = new ArrayList<>();
+        List<FlattenedKamikotizationLookData> looks = new ReferenceArrayList<>();
         for (ResourceKey<Kamikotization> kamikotization : kamikotizations) {
-            FlattenedKamikotizationLookData data = FlattenedKamikotizationLookData.flatten(kamikotization);
-            if (data != null)
-                looks.add(data);
+            try {
+                FlattenedKamikotizationLookData data = FlattenedKamikotizationLookData.resolve(kamikotization);
+                if (data != null) {
+                    looks.add(data);
+                }
+            } catch (IOException e) {
+                Mineraculous.LOGGER.error("Failed to resolve kamikotization look for {}", kamikotization, e);
+            }
         }
         TommyLibServices.NETWORK.sendToServer(new ServerboundSyncKamikotizationLooksPayload(senderId, looks));
     }

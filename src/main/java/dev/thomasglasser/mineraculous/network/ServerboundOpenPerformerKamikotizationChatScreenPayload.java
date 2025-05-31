@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -12,7 +11,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 
 public record ServerboundOpenPerformerKamikotizationChatScreenPayload(String performerName, String targetName, Optional<ResourceLocation> faceMaskTexture, UUID targetId) implements ExtendedPacketPayload {
@@ -22,7 +20,6 @@ public record ServerboundOpenPerformerKamikotizationChatScreenPayload(String per
             ByteBufCodecs.STRING_UTF8, ServerboundOpenPerformerKamikotizationChatScreenPayload::performerName,
             ByteBufCodecs.STRING_UTF8, ServerboundOpenPerformerKamikotizationChatScreenPayload::targetName,
             ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC), ServerboundOpenPerformerKamikotizationChatScreenPayload::faceMaskTexture,
-
             ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), ServerboundOpenPerformerKamikotizationChatScreenPayload::targetId,
             ServerboundOpenPerformerKamikotizationChatScreenPayload::new);
 
@@ -31,7 +28,6 @@ public record ServerboundOpenPerformerKamikotizationChatScreenPayload(String per
     public void handle(Player player) {
         player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withFaceMaskTexture(faceMaskTexture).save(player, true);
         TommyLibServices.NETWORK.sendToClient(new ClientboundOpenPerformerKamikotizationChatScreenPayload(performerName, targetName, faceMaskTexture, targetId), (ServerPlayer) player);
-        player.level().playSound(null, player.blockPosition(), MineraculousSoundEvents.KAMIKOTIZATION_USE.get(), SoundSource.PLAYERS, 1f, 1f);
     }
 
     @Override

@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
+// TODO: Fix when abilities are reworked
 public record ClientboundSetCameraEntityPayload(int entityId, Optional<ResourceLocation> shader, Optional<ResourceLocation> faceMaskTexture, boolean maskTarget, boolean overrideOwner) implements ExtendedPacketPayload {
 
     public static final Type<ClientboundSetCameraEntityPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_set_camera_entity"));
@@ -44,8 +45,8 @@ public record ClientboundSetCameraEntityPayload(int entityId, Optional<ResourceL
             } else {
                 MineraculousClientUtils.setCameraEntity(entity);
                 shader.ifPresent(MineraculousClientUtils::setShader);
-                if (overrideOwner)
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundTameEntityPayload(entity.getId()));
+//                if (overrideOwner)
+//                    TommyLibServices.NETWORK.sendToServer(new ServerboundTameEntityPayload(entity.getId()));
             }
             faceMaskTexture.ifPresent(texture -> {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundSetFaceMaskTexturePayload(player.getId(), MineraculousClientUtils.isCameraEntityOther() ? faceMaskTexture : Optional.empty()));

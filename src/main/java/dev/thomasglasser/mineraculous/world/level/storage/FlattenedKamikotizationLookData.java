@@ -6,6 +6,7 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.loading.json.raw.Model;
 import software.bernie.geckolib.loading.json.typeadapter.KeyFramesAdapter;
@@ -34,7 +36,7 @@ public record FlattenedKamikotizationLookData(ResourceKey<Kamikotization> kamiko
             ByteBufCodecs.optional(ByteBufCodecs.BYTE_ARRAY), FlattenedKamikotizationLookData::glowmaskPixels,
             ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), FlattenedKamikotizationLookData::animations,
             FlattenedKamikotizationLookData::new);
-    public KamikotizationLookData unpack(Player target) {
+    public @Nullable KamikotizationLookData unpack(Player target) {
         try {
             BakedGeoModel model = null;
             if (model().isPresent())
@@ -51,40 +53,36 @@ public record FlattenedKamikotizationLookData(ResourceKey<Kamikotization> kamiko
         }
     }
 
-    public static FlattenedKamikotizationLookData flatten(ResourceKey<Kamikotization> kamikotization) {
+    public static @Nullable FlattenedKamikotizationLookData resolve(ResourceKey<Kamikotization> kamikotization) throws IOException {
         Path folder = MineraculousClientUtils.getGameDirectory().resolve("miraculouslooks").resolve("kamikotizations");
         if (!Files.exists(folder)) {
             return null;
         }
         String namespace = kamikotization.location().getNamespace();
-        Path nameFolder = folder.resolve(namespace);
-        if (!Files.exists(nameFolder)) {
+        Path namespaceFolder = folder.resolve(namespace);
+        if (!Files.exists(namespaceFolder)) {
             return null;
         }
-        String type = kamikotization.location().getPath();
-        Path texture = nameFolder.resolve(type + ".png");
+        String name = kamikotization.location().getPath();
+        Path texture = namespaceFolder.resolve(name + ".png");
         if (Files.exists(texture)) {
-            try {
-                Path model = texture.resolveSibling(type + ".geo.json");
-                String convertedModel = null;
-                if (Files.exists(model)) {
-                    convertedModel = Files.readString(model);
-                }
-                byte[] convertedImage = NativeImage.read(texture.toUri().toURL().openStream()).asByteArray();
-                Path glowmask = texture.resolveSibling(type + "_glowmask.png");
-                byte[] convertedGlowmask = null;
-                if (Files.exists(glowmask)) {
-                    convertedGlowmask = NativeImage.read(glowmask.toUri().toURL().openStream()).asByteArray();
-                }
-                Path animations = texture.resolveSibling(type + ".animation.json");
-                String convertedAnimations = null;
-                if (Files.exists(animations)) {
-                    convertedAnimations = Files.readString(animations);
-                }
-                return new FlattenedKamikotizationLookData(kamikotization, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), Optional.ofNullable(convertedAnimations));
-            } catch (Exception exception) {
-                Mineraculous.LOGGER.error("Failed to handle clientbound request sync kamikotization look payload", exception);
+            Path model = texture.resolveSibling(name + ".geo.json");
+            String convertedModel = null;
+            if (Files.exists(model)) {
+                convertedModel = Files.readString(model);
             }
+            byte[] convertedImage = NativeImage.read(texture.toUri().toURL().openStream()).asByteArray();
+            Path glowmask = texture.resolveSibling(name + "_glowmask.png");
+            byte[] convertedGlowmask = null;
+            if (Files.exists(glowmask)) {
+                convertedGlowmask = NativeImage.read(glowmask.toUri().toURL().openStream()).asByteArray();
+            }
+            Path animations = texture.resolveSibling(name + ".animation.json");
+            String convertedAnimations = null;
+            if (Files.exists(animations)) {
+                convertedAnimations = Files.readString(animations);
+            }
+            return new FlattenedKamikotizationLookData(kamikotization, Optional.ofNullable(convertedModel), convertedImage, Optional.ofNullable(convertedGlowmask), Optional.ofNullable(convertedAnimations));
         }
         return null;
     }

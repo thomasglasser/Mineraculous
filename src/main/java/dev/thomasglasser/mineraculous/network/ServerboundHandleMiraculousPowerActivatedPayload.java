@@ -20,15 +20,22 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 
-public record ServerboundSetMiraculousPowerActivatedPayload(ResourceKey<Miraculous> miraculousType) implements ExtendedPacketPayload {
-    public static final Type<ServerboundSetMiraculousPowerActivatedPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_set_miraculous_power_activated"));
-    public static final StreamCodec<FriendlyByteBuf, ServerboundSetMiraculousPowerActivatedPayload> CODEC = StreamCodec.composite(
-            ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS), ServerboundSetMiraculousPowerActivatedPayload::miraculousType,
-            ServerboundSetMiraculousPowerActivatedPayload::new);
+public record ServerboundHandleMiraculousPowerActivatedPayload(ResourceKey<Miraculous> miraculousType) implements ExtendedPacketPayload {
+    public static final Type<ServerboundHandleMiraculousPowerActivatedPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_handle_miraculous_power_activated"));
+    public static final StreamCodec<FriendlyByteBuf, ServerboundHandleMiraculousPowerActivatedPayload> CODEC = StreamCodec.composite(
+            ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS), ServerboundHandleMiraculousPowerActivatedPayload::miraculousType,
+            ServerboundHandleMiraculousPowerActivatedPayload::new);
 
     // ON SERVER
     @Override
     public void handle(Player player) {
+        // TODO: Ability overriding
+//        MiraculousData data = miraculousesData.get(miraculous);
+//        if (data != null) {
+//            if (!data.mainPowerActive() && !data.usedLimitedPower() && player.level().holderOrThrow(miraculous).value().activeAbility().isPresent()) {
+//                TommyLibServices.NETWORK.sendToServer(new ServerboundHandleMiraculousPowerActivatedPayload(miraculous));
+//            }
+//        }
         ServerLevel level = (ServerLevel) player.level();
         Ability power = level.registryAccess().holderOrThrow(miraculousType).value().activeAbility().get().value();
         MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);

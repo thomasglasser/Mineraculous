@@ -11,7 +11,7 @@ import net.minecraft.core.particles.SimpleParticleType;
 public class HoveringOrbParticle extends TextureSheetParticle {
     public HoveringOrbParticle(ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed) {
         super(pLevel, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed);
-        scale(pLevel.random.nextInt(1, 2) / 10.0F);
+        scale(pLevel.random.nextInt(1, 2) / 5f);
         this.friction = 0.96F;
         this.speedUpWhenYMotionIsBlocked = true;
         this.xd *= 0.1F;

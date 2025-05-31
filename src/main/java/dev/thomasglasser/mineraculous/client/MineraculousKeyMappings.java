@@ -5,10 +5,10 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.network.ServerboundHandleMiraculousPowerActivatedPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundPutMiraculousToolInHandPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundSetMiraculousPowerActivatedPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundRenounceMiraculousPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundToggleActivePayload;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundUpdateYoyoLengthPayload;
@@ -18,6 +18,7 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
+import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
@@ -127,14 +128,11 @@ public class MineraculousKeyMappings {
             MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
             List<ResourceKey<Miraculous>> transformed = miraculousesData.getTransformed();
             if (!transformed.isEmpty()) {
-                ResourceKey<Miraculous> miraculous = transformed.getFirst();
-                MiraculousData data = miraculousesData.get(miraculous);
-                if (data != null) {
-                    // TODO: Ability overriding
-                    if (!data.mainPowerActive() && !data.usedLimitedPower() && player.level().holderOrThrow(miraculous).value().activeAbility().isPresent()) {
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousPowerActivatedPayload(miraculous));
-                    }
-                }
+                TommyLibServices.NETWORK.sendToServer(new ServerboundHandleMiraculousPowerActivatedPayload(transformed.getFirst()));
+            } else if (player.getMainHandItem().is(MineraculousItems.MIRACULOUS)) {
+                TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(InteractionHand.MAIN_HAND));
+            } else if (player.getOffhandItem().is(MineraculousItems.MIRACULOUS)) {
+                TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(InteractionHand.OFF_HAND));
             }
         }
     }
@@ -158,7 +156,7 @@ public class MineraculousKeyMappings {
             if (mainHandStack.getItem() instanceof RadialMenuProvider<?> provider) {
                 if (MineraculousClientUtils.tryOpenRadialMenuScreenFromProvider(hand, mainHandStack, provider)) {
                     return;
-                } else if (provider.handleSecondaryKeyBehavior(mainHandStack, hand)) {
+                } else if (provider.handleSecondaryKeyBehavior(mainHandStack, hand, player)) {
                     return;
                 }
             }
@@ -166,7 +164,7 @@ public class MineraculousKeyMappings {
             ItemStack offHandStack = player.getOffhandItem();
             if (offHandStack.getItem() instanceof RadialMenuProvider<?> provider) {
                 if (!MineraculousClientUtils.tryOpenRadialMenuScreenFromProvider(hand, offHandStack, provider)) {
-                    provider.handleSecondaryKeyBehavior(offHandStack, hand);
+                    provider.handleSecondaryKeyBehavior(offHandStack, hand, player);
                 }
                 return;
             }
@@ -198,8 +196,7 @@ public class MineraculousKeyMappings {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundWakeUpPayload(target.getUUID(), true));
                     }
                     if (takeTicks > (20 * MineraculousServerConfig.get().stealingDuration.get())) {
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
-                        MineraculousClientUtils.openExternalCuriosInventoryScreen(target, player);
+                        MineraculousClientUtils.openExternalCuriosInventoryScreen(target);
                         takeTicks = 0;
                     }
                 } else if (takeTicks > 0) {

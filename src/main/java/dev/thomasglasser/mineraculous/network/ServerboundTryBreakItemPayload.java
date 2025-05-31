@@ -44,19 +44,21 @@ public record ServerboundTryBreakItemPayload() implements ExtendedPacketPayload 
         ItemStack mainHandItem = player.getMainHandItem();
         ItemStack addRest = mainHandItem.copyWithCount(mainHandItem.getCount() - 1);
         mainHandItem.setCount(1);
-        if (mainHandItem.getItem() instanceof BlockItem blockItem) {
-            float max = blockItem.getBlock().defaultDestroyTime();
-            if (max > -1) {
-                mainHandItem.set(DataComponents.MAX_DAMAGE, (int) (max * 100));
+        if (!mainHandItem.isDamageableItem()) {
+            if (mainHandItem.getItem() instanceof BlockItem blockItem) {
+                float max = blockItem.getBlock().defaultDestroyTime();
+                if (max > -1) {
+                    mainHandItem.set(DataComponents.MAX_DAMAGE, (int) (max * 100));
+                    mainHandItem.set(DataComponents.DAMAGE, 0);
+                    mainHandItem.set(DataComponents.MAX_STACK_SIZE, 1);
+                } else {
+                    mainHandItem.set(DataComponents.UNBREAKABLE, new Unbreakable(false));
+                }
+            } else if (mainHandItem.is(MineraculousItemTags.TOUGH)) {
+                mainHandItem.set(DataComponents.MAX_DAMAGE, 200);
                 mainHandItem.set(DataComponents.DAMAGE, 0);
                 mainHandItem.set(DataComponents.MAX_STACK_SIZE, 1);
-            } else {
-                mainHandItem.set(DataComponents.UNBREAKABLE, new Unbreakable(false));
             }
-        } else if (mainHandItem.is(MineraculousItemTags.TOUGH)) {
-            mainHandItem.set(DataComponents.MAX_DAMAGE, 200);
-            mainHandItem.set(DataComponents.DAMAGE, 0);
-            mainHandItem.set(DataComponents.MAX_STACK_SIZE, 1);
         }
         if (mainHandItem.has(DataComponents.UNBREAKABLE)) {
             player.displayClientMessage(Component.translatable(ITEM_UNBREAKABLE_KEY), true);

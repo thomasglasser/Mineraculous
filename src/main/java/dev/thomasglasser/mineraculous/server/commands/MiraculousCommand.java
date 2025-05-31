@@ -72,7 +72,6 @@ public class MiraculousCommand {
                                 .then(Commands.literal("query")
                                         .executes(context -> getKwamiCharged(context.getSource().getEntityOrException(), context, true))
                                         .then(Commands.argument("target", EntityArgument.entity())
-                                                .requires(source -> source.hasPermission(COMMANDS_ENABLED_PERMISSION_LEVEL))
                                                 .executes(context -> {
                                                     Entity target = EntityArgument.getEntity(context, "target");
                                                     return getKwamiCharged(EntityArgument.getEntity(context, "target"), context, target == context.getSource().getEntity());
@@ -89,7 +88,6 @@ public class MiraculousCommand {
                                 .then(Commands.literal("query")
                                         .executes(context -> getPowerLevel(context.getSource().getEntityOrException(), context, true))
                                         .then(Commands.argument("target", EntityArgument.entity())
-                                                .requires(source -> source.hasPermission(COMMANDS_ENABLED_PERMISSION_LEVEL))
                                                 .executes(context -> {
                                                     Entity target = EntityArgument.getEntity(context, "target");
                                                     return getPowerLevel(target, context, target == context.getSource().getEntity());
@@ -131,7 +129,7 @@ public class MiraculousCommand {
                     return 0;
                 }
             } else {
-                context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))));
+                context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))));
                 return 0;
             }
         }
@@ -157,11 +155,11 @@ public class MiraculousCommand {
                     context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), charged ? Component.translatable(CHARGED_TRUE) : Component.translatable(CHARGED_FALSE)) : Component.translatable(CHARGED_SET_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), charged ? Component.translatable(CHARGED_TRUE) : Component.translatable(CHARGED_FALSE)), true);
                     return 1;
                 } else {
-                    context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))));
+                    context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))));
                     return 0;
                 }
             } else {
-                context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))));
+                context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))));
                 return 0;
             }
         }

@@ -25,6 +25,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
+// TODO: Fix when abilities are reworked
 public record ServerboundSendEmptyLeftClickPayload(int entityId) implements ExtendedPacketPayload {
     public static final Type<ServerboundSendEmptyLeftClickPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_send_empty_left_click"));
     public static final StreamCodec<ByteBuf, ServerboundSendEmptyLeftClickPayload> CODEC = StreamCodec.composite(

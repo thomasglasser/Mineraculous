@@ -5,6 +5,7 @@ import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
@@ -12,19 +13,26 @@ import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -47,6 +55,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -67,15 +76,15 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICurioItem {
+public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Ability> {
     public static final String TAG_STORED_KAMIKOS = "StoredKamikos";
     public static final String CONTROLLER_USE = "use_controller";
     public static final String CONTROLLER_OPEN = "open_controller";
-    public static final String ANIMATION_OPEN = "open";
-    public static final String ANIMATION_CLOSE = "close";
+    public static final String ANIMATION_OPEN_OUT = "open_out";
+    public static final String ANIMATION_CLOSE_IN = "close_in";
 
-    private static final RawAnimation OPEN = RawAnimation.begin().thenPlay("misc.open");
-    private static final RawAnimation CLOSE = RawAnimation.begin().thenPlay("misc.close");
+    private static final RawAnimation OPEN_OUT = RawAnimation.begin().thenPlay("misc.open_out");
+    private static final RawAnimation CLOSE_IN = RawAnimation.begin().thenPlay("misc.close_in");
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -90,7 +99,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         controllers.add(new AnimationController<>(this, CONTROLLER_USE, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
             if (stack != null) {
-                if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.PURIFY && !state.isCurrentAnimation(OPEN))
+                if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.PURIFY && !state.isCurrentAnimation(OPEN_OUT))
                     return state.setAndContinue(DefaultAnimations.IDLE);
                 else if (stack.has(MineraculousDataComponents.BLOCKING))
                     return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
@@ -98,8 +107,8 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
             return PlayState.STOP;
         }));
         controllers.add(new AnimationController<>(this, CONTROLLER_OPEN, state -> PlayState.CONTINUE)
-                .triggerableAnim(ANIMATION_OPEN, OPEN)
-                .triggerableAnim(ANIMATION_CLOSE, CLOSE));
+                .triggerableAnim(ANIMATION_OPEN_OUT, OPEN_OUT)
+                .triggerableAnim(ANIMATION_CLOSE_IN, CLOSE_IN));
     }
 
     @Override
@@ -207,9 +216,9 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                     } else if (ability == Ability.BLOCK) {
                         pPlayer.startUsingItem(pHand);
                     } else if (ability == Ability.PURIFY) {
-                        triggerAnim(pPlayer, GeoItem.getOrAssignId(stack, serverLevel), CONTROLLER_USE, ANIMATION_OPEN);
+                        triggerAnim(pPlayer, GeoItem.getOrAssignId(stack, serverLevel), CONTROLLER_USE, ANIMATION_OPEN_OUT);
                         MiraculousesData miraculousesData = pPlayer.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                        ResourceKey<Miraculous> storingKey = miraculousesData.getFirstKeyIn(MiraculousTags.CAN_USE_LADYBUG_YOYO, serverLevel);
+                        ResourceKey<Miraculous> storingKey = miraculousesData.getFirstTransformedKeyIn(MiraculousTags.CAN_USE_LADYBUG_YOYO, serverLevel);
                         MiraculousData storingData = miraculousesData.get(storingKey);
                         if (storingData != null) {
                             CompoundTag extraData = storingData.extraData();
@@ -374,6 +383,66 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         return 0;
     }
 
+    @Override
+    public boolean canOpenMenu(ItemStack stack, InteractionHand hand, Player holder) {
+        return stack.getOrDefault(MineraculousDataComponents.ACTIVE, false);
+    }
+
+    @Override
+    public int getColor(ItemStack stack, InteractionHand hand, Player holder) {
+        Level level = holder.level();
+        int color = level.holderOrThrow(Miraculouses.LADYBUG).value().color().getValue();
+        ResolvableProfile resolvableProfile = stack.get(DataComponents.PROFILE);
+        if (resolvableProfile != null) {
+            Player owner = level.getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
+            if (owner != null) {
+                ResourceKey<Miraculous> colorKey = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstTransformedKeyIn(MiraculousTags.CAN_USE_LADYBUG_YOYO, ClientUtils.getLevel());
+                if (colorKey != null)
+                    color = level.holderOrThrow(colorKey).value().color().getValue();
+            }
+        }
+        return color;
+    }
+
+    @Override
+    public List<Ability> getOptions(ItemStack stack, InteractionHand hand, Player holder) {
+        if (stack.has(DataComponents.PROFILE))
+            return Ability.valuesList();
+        return Ability.unpoweredValuesList();
+    }
+
+    @Override
+    public boolean handleSecondaryKeyBehavior(ItemStack stack, InteractionHand hand, Player holder) {
+        TommyLibServices.NETWORK.sendToServer(new ServerboundEquipToolPayload(hand));
+        return true;
+    }
+
+    @Override
+    public Supplier<DataComponentType<Ability>> getComponentType(ItemStack stack, InteractionHand hand, Player holder) {
+        return MineraculousDataComponents.LADYBUG_YOYO_ABILITY;
+    }
+
+    @Override
+    public Ability setOption(ItemStack stack, InteractionHand hand, int index, Player holder) {
+        Ability old = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY);
+        Ability selected = RadialMenuProvider.super.setOption(stack, hand, index, holder);
+        if (holder.level() instanceof ServerLevel level) {
+            String anim = null;
+            if (selected == LadybugYoyoItem.Ability.PURIFY)
+                anim = ANIMATION_OPEN_OUT;
+            else if (old == Ability.PURIFY)
+                anim = ANIMATION_CLOSE_IN;
+            if (anim != null)
+                triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_OPEN, anim);
+        }
+        return selected;
+    }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return slotChanged && super.shouldCauseReequipAnimation(oldStack, newStack, true);
+    }
+
     public enum Ability implements RadialMenuOption, StringRepresentable {
         BLOCK,
         LASSO,
@@ -382,6 +451,9 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
 
         public static final Codec<Ability> CODEC = StringRepresentable.fromEnum(Ability::values);
         public static final StreamCodec<ByteBuf, Ability> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(Ability::of, Ability::getSerializedName);
+
+        private static final List<Ability> VALUES_LIST = new ReferenceArrayList<>(values());
+        private static final List<Ability> UNPOWERED_VALUES_LIST = new ReferenceArrayList<>(Arrays.asList(BLOCK, LASSO, TRAVEL));
 
         private final String translationKey;
 
@@ -397,6 +469,14 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         @Override
         public String getSerializedName() {
             return name().toLowerCase();
+        }
+
+        public static List<Ability> valuesList() {
+            return VALUES_LIST;
+        }
+
+        public static List<Ability> unpoweredValuesList() {
+            return UNPOWERED_VALUES_LIST;
         }
 
         public static Ability of(String name) {

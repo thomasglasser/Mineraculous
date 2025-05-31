@@ -21,6 +21,7 @@ import dev.thomasglasser.mineraculous.data.tags.MineraculousItemTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousPaintingVariantTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MineraculousPoiTypeTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MiraculousTagsProvider;
+import dev.thomasglasser.mineraculous.data.tags.client.MineraculousResourceLocationClientTagsProvider;
 import dev.thomasglasser.mineraculous.data.trimmed.MineraculousTrimDatagenSuite;
 import dev.thomasglasser.mineraculous.data.worldgen.MineraculousWorldgenModifiers;
 import dev.thomasglasser.mineraculous.packs.MineraculousPacks;
@@ -30,14 +31,12 @@ import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilities
 import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
-import dev.thomasglasser.tommylib.api.data.info.ModRegistryDumpReport;
+import dev.thomasglasser.mineraculous.world.item.armortrim.MineraculousTrimPatterns;
+import dev.thomasglasser.tommylib.api.data.DataGenerationUtils;
 import dev.worldgen.lithostitched.registry.LithostitchedRegistryKeys;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.HolderGetter;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
@@ -48,14 +47,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
-import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 public class MineraculousDataGenerators {
     public static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
             .add(Registries.DAMAGE_TYPE, MineraculousDamageTypes::bootstrap)
             .add(Registries.PAINTING_VARIANT, MineraculousPaintingVariants::bootstrap)
+            .add(Registries.TRIM_PATTERN, MineraculousTrimPatterns::bootstrap)
             .add(LithostitchedRegistryKeys.WORLDGEN_MODIFIER, MineraculousWorldgenModifiers::bootstrap)
             .add(MineraculousRegistries.ABILITY, MineraculousAbilities::bootstrap)
             .add(MineraculousRegistries.MIRACULOUS, Miraculouses::bootstrap)
@@ -89,51 +87,34 @@ public class MineraculousDataGenerators {
             });
 
     public static void onGatherData(GatherDataEvent event) {
-        DataGenerator generator = event.getGenerator();
-        PackOutput packOutput = generator.getPackOutput();
-        CompletableFuture<HolderLookup.Provider> registries = event.getLookupProvider();
-        ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
-
-        boolean onServer = event.includeServer();
-        boolean onClient = event.includeClient();
-
-        // Lang
-        MineraculousEnUsLanguageProvider enUs = new MineraculousEnUsLanguageProvider(packOutput);
-
-        // Suites
-        new MineraculousTrimDatagenSuite(event, enUs::add);
-
         // Server
-        DatapackBuiltinEntriesProvider builtinEntriesProvider = new DatapackBuiltinEntriesProvider(packOutput, registries, BUILDER, ReferenceOpenHashSet.of(Mineraculous.MOD_ID));
-        generator.addProvider(onServer, builtinEntriesProvider);
-        registries = builtinEntriesProvider.getRegistryProvider();
-        generator.addProvider(onServer, new ModRegistryDumpReport(packOutput, Mineraculous.MOD_ID, registries));
-        generator.addProvider(onServer, new MineraculousLootTables(packOutput, registries));
-        generator.addProvider(onServer, new MineraculousRecipes(packOutput, registries));
-        generator.addProvider(onServer, new MineraculousAdvancementProvider(packOutput, registries, existingFileHelper, enUs::add));
-        MineraculousBlockTagsProvider blockTagsProvider = new MineraculousBlockTagsProvider(packOutput, registries, existingFileHelper);
-        generator.addProvider(onServer, blockTagsProvider);
-        generator.addProvider(onServer, new MineraculousItemTagsProvider(packOutput, registries, blockTagsProvider.contentsGetter(), existingFileHelper));
-        generator.addProvider(onServer, new MineraculousPoiTypeTagsProvider(packOutput, registries, existingFileHelper));
-        generator.addProvider(onServer, new MineraculousDamageTypeTagsProvider(packOutput, registries, existingFileHelper));
-        generator.addProvider(onServer, new MineraculousPaintingVariantTagsProvider(packOutput, registries, existingFileHelper));
-        generator.addProvider(onServer, new MiraculousTagsProvider(packOutput, registries, existingFileHelper));
-        generator.addProvider(onServer, new MineraculousDataMapProvider(packOutput, registries));
-        generator.addProvider(onServer, new MineraculousCuriosProvider(packOutput, existingFileHelper, registries));
-        generator.addProvider(onServer, new MineraculousBookProvider(packOutput, registries, enUs::add));
+        event.createDatapackRegistryObjects(BUILDER);
+        DataGenerationUtils.createRegistryDumpReport(event, Mineraculous.MOD_ID);
+        event.createProvider(MineraculousLootTables::new);
+        event.createProvider(MineraculousRecipes::new);
+        DataGenerationUtils.createBlockAndItemTags(event, MineraculousBlockTagsProvider::new, MineraculousItemTagsProvider::new);
+        DataGenerationUtils.createProvider(event, MineraculousPoiTypeTagsProvider::new);
+        DataGenerationUtils.createProvider(event, MineraculousDamageTypeTagsProvider::new);
+        DataGenerationUtils.createProvider(event, MineraculousPaintingVariantTagsProvider::new);
+        DataGenerationUtils.createProvider(event, MiraculousTagsProvider::new);
+        event.createProvider(MineraculousDataMapProvider::new);
+        DataGenerationUtils.createProvider(event, MineraculousCuriosProvider::new);
+
+        // Common
+        DataGenerationUtils.createLangDependent(event, MineraculousEnUsLanguageProvider::new, MineraculousAdvancementProvider::new, MineraculousBookProvider::new);
 
         // Client
-        generator.addProvider(onClient, new MineraculousBlockStateProvider(packOutput, existingFileHelper));
-        generator.addProvider(onClient, new MineraculousItemModelProvider(packOutput, existingFileHelper));
-        generator.addProvider(onClient, new MineraculousParticleDescriptionProvider(packOutput, existingFileHelper));
-        generator.addProvider(onClient, new MineraculousSoundDefinitionsProvider(packOutput, existingFileHelper));
-        generator.addProvider(onClient, enUs);
+        DataGenerationUtils.createProvider(event, MineraculousBlockStateProvider::new);
+        DataGenerationUtils.createProvider(event, MineraculousItemModelProvider::new);
+        DataGenerationUtils.createProvider(event, MineraculousParticleDescriptionProvider::new);
+        DataGenerationUtils.createProvider(event, MineraculousSoundDefinitionsProvider::new);
+        DataGenerationUtils.createProvider(event, MineraculousResourceLocationClientTagsProvider::new);
 
-        generateAkumatizationPack(generator, new PackOutput(packOutput.getOutputFolder().resolve(MineraculousPacks.AKUMATIZATION.path())), registries, existingFileHelper, onServer, onClient);
+        generateAkumatizationPack(event.getGenerator(), new PackOutput(event.getGenerator().getPackOutput().getOutputFolder().resolve(MineraculousPacks.AKUMATIZATION.path())));
     }
 
-    private static void generateAkumatizationPack(DataGenerator generator, PackOutput packOutput, CompletableFuture<HolderLookup.Provider> lookupProvider, ExistingFileHelper existingFileHelper, boolean onServer, boolean onClient) {
+    private static void generateAkumatizationPack(DataGenerator generator, PackOutput packOutput) {
         // Client
-        generator.addProvider(onClient, new AkumatizationPackEnUsLanguageProvider(packOutput));
+        generator.addProvider(true, new AkumatizationPackEnUsLanguageProvider(packOutput));
     }
 }

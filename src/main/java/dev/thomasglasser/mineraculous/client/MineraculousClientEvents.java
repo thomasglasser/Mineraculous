@@ -219,9 +219,9 @@ public class MineraculousClientEvents {
     }
 
     public static void onRegisterItemColorHandlers(RegisterColorHandlersEvent.Item event) {
-        ClientLevel level = Minecraft.getInstance().level;
         event.register((stack, index) -> {
             ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+            ClientLevel level = Minecraft.getInstance().level;
             if (level != null && miraculous != null) {
                 return FastColor.ARGB32.opaque(level.registryAccess().holderOrThrow(miraculous).value().color().getValue());
             }
@@ -232,7 +232,7 @@ public class MineraculousClientEvents {
     public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
         // Clears old rendering data on reload
         event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
-            MineraculousClientUtils.refreshSpecialPlayerData();
+            MineraculousClientUtils.syncSpecialPlayerChoices();
             MiraculousArmorItem.clearAnimationData();
             KamikotizationArmorItem.clearAnimationData();
             MiraculousItemRenderer.clearModels();
@@ -414,11 +414,11 @@ public class MineraculousClientEvents {
 
     // Special Player Handling
     public static void onClientPlayerLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
-        MineraculousClientUtils.refreshSpecialPlayerData();
+        MineraculousClientUtils.syncSpecialPlayerChoices();
     }
 
     public static void onConfigChanged(ModConfigEvent event) {
-        MineraculousClientUtils.refreshSpecialPlayerData();
+        MineraculousClientUtils.syncSpecialPlayerChoices();
     }
 
     // Misc

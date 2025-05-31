@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.client.gui.screens.kamikotization;
 
+import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.network.ServerboundCloseKamikotizationChatScreenPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundKamikotizationTransformPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSyncKamikotizationLookPayload;
@@ -9,6 +10,7 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.io.IOException;
 import java.util.UUID;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -40,13 +42,19 @@ public class ReceiverKamikotizationChatScreen extends AbstractKamikotizationChat
     public void onClose(boolean cancel, boolean initiated) {
         if (cancel) {
             if (initiated) {
-                if (!MineraculousServerConfig.get().enableKamikotizationRejection.get())
+                if (!MineraculousServerConfig.get().enableKamikotizationRejection.get()) {
                     return;
+                }
                 TommyLibServices.NETWORK.sendToServer(new ServerboundCloseKamikotizationChatScreenPayload(other, true));
             }
         } else {
-            if (this.minecraft.player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS).containsKey(kamikotizationData.kamikotization()))
-                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncKamikotizationLookPayload(FlattenedKamikotizationLookData.flatten(kamikotizationData.kamikotization())));
+            if (this.minecraft.player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS).containsKey(kamikotizationData.kamikotization())) {
+                try {
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundSyncKamikotizationLookPayload(FlattenedKamikotizationLookData.resolve(kamikotizationData.kamikotization())));
+                } catch (IOException e) {
+                    Mineraculous.LOGGER.error("Failed to resolve kamikotization look for {}", kamikotizationData.kamikotization(), e);
+                }
+            }
             TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(kamikotizationData, true, false, false, minecraft.player.position().add(0, 1, 0)));
             TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(other, minecraft.player.getUUID(), kamikotizationData.kamikotization()));
             TommyLibServices.NETWORK.sendToServer(new ServerboundCloseKamikotizationChatScreenPayload(other, false));

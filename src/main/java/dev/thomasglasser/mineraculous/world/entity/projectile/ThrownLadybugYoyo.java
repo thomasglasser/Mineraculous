@@ -432,7 +432,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 }
             } else if (getAbility() == LadybugYoyoItem.Ability.PURIFY && getOwner() != null && result.getEntity() instanceof Kamiko kamiko && kamiko.isPowered()) {
                 MiraculousesData miraculousesData = getOwner().getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                ResourceKey<Miraculous> storingKey = miraculousesData.getFirstKeyIn(MiraculousTags.CAN_USE_LADYBUG_YOYO, level());
+                ResourceKey<Miraculous> storingKey = miraculousesData.getFirstTransformedKeyIn(MiraculousTags.CAN_USE_LADYBUG_YOYO, level());
                 MiraculousData storingData = miraculousesData.get(storingKey);
                 if (storingData != null) {
                     CompoundTag kamikoData = kamiko.saveWithoutId(new CompoundTag());
@@ -496,7 +496,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         float f = p.getAttackAnim(0);
         float f1 = Mth.sin(Mth.sqrt(f) * 3.1415927F);
 
-        Vec3 vec3 = ThrownLadybugYoyoRenderer.getPlayerHandPos(p, f1, 0, Minecraft.getInstance().getEntityRenderDispatcher());
+        Vec3 vec3 = ThrownLadybugYoyoRenderer.getPlayerHandPos(p, f1, 0, !p.getMainHandItem().is(MineraculousItems.LADYBUG_YOYO));
         Vec3 fromProjectileToHand = new Vec3(vec3.x - this.getX(), vec3.y - this.getY(), vec3.z - this.getZ());
         setRenderMaxRopeLength((float) fromProjectileToHand.length());
     }

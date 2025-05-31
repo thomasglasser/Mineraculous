@@ -18,7 +18,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -33,9 +32,8 @@ public record ServerboundTransferMiraculousPayload(Optional<UUID> targetId, int 
     @Override
     public void handle(Player player) {
         ItemStack miraculous = player.getMainHandItem();
-        Entity entity = player.level().getEntity(kwamiId);
         MinecraftServer server = player.getServer();
-        if (entity instanceof Kwami kwami && server != null) {
+        if (player.level().getEntity(kwamiId) instanceof Kwami kwami && server != null) {
             Player target;
             if (targetId.isPresent())
                 target = player.level().getPlayerByUUID(targetId.get());

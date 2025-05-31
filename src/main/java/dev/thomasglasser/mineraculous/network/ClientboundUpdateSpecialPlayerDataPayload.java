@@ -13,12 +13,12 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
-public record ClientboundChangeSpecialPlayerDataPayload(UUID uuid, SpecialPlayerData specialPlayerData) implements ExtendedPacketPayload {
-    public static final Type<ClientboundChangeSpecialPlayerDataPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_change_special_player_data"));
-    public static final StreamCodec<FriendlyByteBuf, ClientboundChangeSpecialPlayerDataPayload> CODEC = StreamCodec.composite(
-            UUIDUtil.STREAM_CODEC, ClientboundChangeSpecialPlayerDataPayload::uuid,
-            SpecialPlayerData.STREAM_CODEC, ClientboundChangeSpecialPlayerDataPayload::specialPlayerData,
-            ClientboundChangeSpecialPlayerDataPayload::new);
+public record ClientboundUpdateSpecialPlayerDataPayload(UUID uuid, SpecialPlayerData specialPlayerData) implements ExtendedPacketPayload {
+    public static final Type<ClientboundUpdateSpecialPlayerDataPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_update_special_player_data"));
+    public static final StreamCodec<FriendlyByteBuf, ClientboundUpdateSpecialPlayerDataPayload> CODEC = StreamCodec.composite(
+            UUIDUtil.STREAM_CODEC, ClientboundUpdateSpecialPlayerDataPayload::uuid,
+            SpecialPlayerData.STREAM_CODEC, ClientboundUpdateSpecialPlayerDataPayload::specialPlayerData,
+            ClientboundUpdateSpecialPlayerDataPayload::new);
 
     // ON CLIENT
     @Override

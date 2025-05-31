@@ -204,6 +204,11 @@
     "mineraculous:used_kamikotization_power",
     "mineraculous:used_miraculous_power"
   ],
+  "minecraft:trim_pattern": [
+    "mineraculous:butterfly",
+    "mineraculous:cat",
+    "mineraculous:ladybug"
+  ],
   "minecraft:villager_profession": [
     "mineraculous:fromager"
   ],
@@ -244,6 +249,7 @@
   ],
   "neoforge:attachment_types": [
     "mineraculous:ability_effects",
+    "mineraculous:inventory_trackers",
     "mineraculous:kamikotization",
     "mineraculous:kamikotization_looks",
     "mineraculous:miraculous_miraculous_looks",

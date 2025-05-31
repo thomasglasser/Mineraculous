@@ -12,7 +12,6 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.ServerLookData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -39,15 +38,15 @@ public record ServerboundSyncCustomizationPayload(ResourceKey<Miraculous> key, S
         MiraculousData data = miraculousesData.get(key).withName(name);
         String suitLook = suit.isPresent() ? suit.get().look() : "";
         data = data.withSuitLook(suitLook);
-        if (!suitLook.isEmpty() && (MineraculousServerConfig.isCustomizationAllowed(player) || ServerLookData.getCommonSuits().containsKey(key))) {
+        if (!suitLook.isEmpty() && (MineraculousServerConfig.get().isCustomizationAllowed(player) || ServerLookData.getCommonSuits().containsKey(key))) {
             ServerLookData.addPlayerSuit(player.getUUID(), key, suit.get());
             MineraculousEntityEvents.updateAndSyncSuitLook((ServerPlayer) player, key, suit.get());
         }
         String miraculousLook = miraculous.isPresent() ? miraculous.get().look() : "";
         data = data.withMiraculousLook(miraculousLook);
-        if (!miraculousLook.isEmpty() && (MineraculousServerConfig.isCustomizationAllowed(player) || ServerLookData.getCommonMiraculouses().containsKey(key))) {
+        if (!miraculousLook.isEmpty() && (MineraculousServerConfig.get().isCustomizationAllowed(player) || ServerLookData.getCommonMiraculouses().containsKey(key))) {
             ServerLookData.addPlayerMiraculous(player.getUUID(), key, miraculous.get());
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), key, miraculous.get()), player.getServer());
+            MineraculousEntityEvents.updateAndSyncMiraculousLook((ServerPlayer) player, key, miraculous.get());
         }
         miraculousesData.put(player, key, data, true);
     }

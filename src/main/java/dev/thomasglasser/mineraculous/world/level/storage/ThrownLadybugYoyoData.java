@@ -52,11 +52,4 @@ public record ThrownLadybugYoyoData(Optional<Integer> id, int safeFallTicks) {
         if (syncToClient)
             TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO, this), entity.getServer());
     }
-
-    public static void remove(Entity entity, boolean syncToClient) {
-        ThrownLadybugYoyoData data = new ThrownLadybugYoyoData();
-        entity.setData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO, data);
-        if (syncToClient)
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO, data), entity.getServer());
-    }
 }

@@ -24,12 +24,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
-public record ServerboundStealCuriosPayload(UUID target, CuriosData data) implements ExtendedPacketPayload {
-    public static final Type<ServerboundStealCuriosPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_steal_curios"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundStealCuriosPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), ServerboundStealCuriosPayload::target,
-            CuriosData.STREAM_CODEC, ServerboundStealCuriosPayload::data,
-            ServerboundStealCuriosPayload::new);
+public record ServerboundStealCurioPayload(UUID target, CuriosData data) implements ExtendedPacketPayload {
+    public static final Type<ServerboundStealCurioPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_steal_curio"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundStealCurioPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), ServerboundStealCurioPayload::target,
+            CuriosData.STREAM_CODEC, ServerboundStealCurioPayload::data,
+            ServerboundStealCurioPayload::new);
 
     // ON SERVER
     @Override
@@ -45,8 +45,12 @@ public record ServerboundStealCuriosPayload(UUID target, CuriosData data) implem
             if (EnchantmentHelper.has(stack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE)) {
                 player.displayClientMessage(Component.translatable(ExternalInventoryScreen.ITEM_BOUND_KEY), true);
             } else {
-                player.setItemInHand(InteractionHand.MAIN_HAND, stack);
                 CuriosUtils.setStackInSlot(target, this.data, ItemStack.EMPTY);
+                if (player.getMainHandItem().isEmpty()) {
+                    player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+                } else {
+                    player.drop(stack, true, true);
+                }
             }
         }
     }

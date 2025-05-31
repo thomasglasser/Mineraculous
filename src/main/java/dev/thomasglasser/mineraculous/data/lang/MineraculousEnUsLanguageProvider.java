@@ -39,6 +39,7 @@ import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.mineraculous.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.world.level.block.AgeingCheeseEdibleFullBlock;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
@@ -80,6 +81,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addCuriosSlots();
         addSoundEvents();
         addPaintingVariants();
+        addArmorTrims();
         addTags();
         addPacks();
         addConfigs();
@@ -136,11 +138,6 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addToolAbilities(LadybugYoyoItem.Ability.values());
         addToolAbilities(CatStaffItem.Ability.values());
         addToolAbilities(ButterflyCaneItem.Ability.values());
-
-        // Armor Trims
-        addArmorTrim(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE.get());
-        addArmorTrim(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE.get());
-        addArmorTrim(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE.get());
 
         // Armor
         addMiraculousArmor(MineraculousArmors.MIRACULOUS);
@@ -324,6 +321,12 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addPaintingVariant(MineraculousPaintingVariants.MINI_CAT, "Mini Cat", "NastiaGalaxy");
         addPaintingVariant(MineraculousPaintingVariants.BUTTERFLY, "Butterfly", "NastiaGalaxy");
         addPaintingVariant(MineraculousPaintingVariants.MINI_BUTTERFLY, "Mini Butterfly", "NastiaGalaxy");
+    }
+
+    private void addArmorTrims() {
+        addArmorTrim(MineraculousTrimPatterns.LADYBUG, MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE.get(), "Ladybug");
+        addArmorTrim(MineraculousTrimPatterns.CAT, MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE.get(), "Cat");
+        addArmorTrim(MineraculousTrimPatterns.BUTTERFLY, MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE.get(), "Butterfly");
     }
 
     private void addTags() {

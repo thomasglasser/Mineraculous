@@ -15,10 +15,10 @@ import dev.thomasglasser.mineraculous.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.BetaTesterCosmeticOptions;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.SpecialPlayerData;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.network.ServerboundChangeSpecialPlayerDataPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundStealCuriosPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundStealCurioPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundStealItemPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundUpdateSpecialPlayerDataPayload;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
@@ -26,6 +26,7 @@ import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
@@ -84,20 +85,14 @@ public class MineraculousClientUtils {
         return specialPlayerData.get(player) != null && specialPlayerData.get(player).displayLegacyDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
     }
 
-    public static void refreshSpecialPlayerData() {
+    public static void syncSpecialPlayerChoices() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
-            UUID uuid = player.getUUID();
-
-            boolean displayBeta;
-            boolean displayDev;
-            boolean displayLegacyDev;
-
-            displayBeta = MineraculousClientConfig.get().displayBetaTesterCosmetic.get();
-            displayDev = MineraculousClientConfig.get().displayDevTeamCosmetic.get();
-            displayLegacyDev = MineraculousClientConfig.get().displayLegacyDevTeamCosmetic.get();
-
-            TommyLibServices.NETWORK.sendToServer(new ServerboundChangeSpecialPlayerDataPayload(uuid, new SpecialPlayerData(MineraculousClientConfig.get().betaTesterCosmeticChoice.get(), displayBeta, displayDev, displayLegacyDev)));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateSpecialPlayerDataPayload(player.getUUID(), new SpecialPlayerData(
+                    MineraculousClientConfig.get().betaTesterCosmeticChoice.get(),
+                    MineraculousClientConfig.get().displayBetaTesterCosmetic.get(),
+                    MineraculousClientConfig.get().displayDevTeamCosmetic.get(),
+                    MineraculousClientConfig.get().displayLegacyDevTeamCosmetic.get())));
         }
     }
 
@@ -144,22 +139,22 @@ public class MineraculousClientUtils {
     }
 
     public static boolean tryOpenRadialMenuScreenFromProvider(InteractionHand hand, ItemStack stack, RadialMenuProvider<?> provider) {
-        if (hasNoScreenOpen() && provider.canOpenMenu(stack, hand)) {
+        if (hasNoScreenOpen() && provider.canOpenMenu(stack, hand, ClientUtils.getLocalPlayer())) {
             Minecraft.getInstance().setScreen(new RadialMenuScreen<>(hand, MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.getKey().getValue(), stack, provider));
             return true;
         }
         return false;
     }
 
-    public static void openExternalCuriosInventoryScreen(Player target, Player player) {
+    public static void openExternalCuriosInventoryScreen(Player target) {
+        TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), true));
         Minecraft.getInstance().setScreen(new ExternalCuriosInventoryScreen(target, true, ((slot, target1, menu) -> {
             if (slot instanceof CurioSlot curioSlot)
-                TommyLibServices.NETWORK.sendToServer(new ServerboundStealCuriosPayload(target1.getUUID(), new CuriosData(curioSlot.getSlotIndex(), curioSlot.getIdentifier())));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundStealCurioPayload(target1.getUUID(), new CuriosData(curioSlot.getSlotIndex(), curioSlot.getIdentifier())));
             else
                 TommyLibServices.NETWORK.sendToServer(new ServerboundStealItemPayload(target1.getUUID(), menu.slots.indexOf(slot)));
         }), exit -> {
-            TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID()));
-            TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(player.getUUID()));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), false));
         }));
     }
 

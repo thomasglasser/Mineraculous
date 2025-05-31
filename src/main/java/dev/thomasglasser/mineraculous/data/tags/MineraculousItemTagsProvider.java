@@ -31,6 +31,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         addKwamiFoods();
         addCheeses();
         addArmors();
+        addArmorTrims();
         addCurios();
         addAbilities();
 
@@ -118,6 +119,13 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
     private void addArmors() {
         armorSet(MineraculousArmors.MIRACULOUS);
         armorSet(MineraculousArmors.KAMIKOTIZATION);
+    }
+
+    private void addArmorTrims() {
+        tag(ItemTags.TRIM_TEMPLATES)
+                .add(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE)
+                .add(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE)
+                .add(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE);
     }
 
     private void addCurios() {

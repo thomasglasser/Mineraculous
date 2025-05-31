@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.data.recipes;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
+import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.crafting.CheeseWedgeRecipe;
 import dev.thomasglasser.mineraculous.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.world.level.block.AgeingCheeseEdibleFullBlock;
@@ -22,6 +23,8 @@ import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
 
 public class MineraculousRecipes extends ExtendedRecipeProvider {
     public MineraculousRecipes(PackOutput output, CompletableFuture<HolderLookup.Provider> provider) {
@@ -44,6 +47,10 @@ public class MineraculousRecipes extends ExtendedRecipeProvider {
         cheeseWaxRecipes(recipeOutput, MineraculousBlocks.CAMEMBERT, MineraculousBlocks.WAXED_CAMEMBERT);
 
         SpecialRecipeBuilder.special(CheeseWedgeRecipe::new).save(recipeOutput, Mineraculous.modLoc("cheese_wedge"));
+
+        trimWithCopy(recipeOutput, MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE, Blocks.RED_CONCRETE);
+        trimWithCopy(recipeOutput, MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE, Blocks.LIME_CONCRETE);
+        trimWithCopy(recipeOutput, MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE, Blocks.PURPLE_CONCRETE);
     }
 
     protected void cheeseWaxRecipes(RecipeOutput recipeOutput, SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> waxables, SortedMap<AgeingCheese.Age, DeferredBlock<CheeseBlock>> waxedBlocks) {
@@ -58,5 +65,10 @@ public class MineraculousRecipes extends ExtendedRecipeProvider {
                         .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(waxed.getId().getNamespace(), getConversionRecipeName(waxed, Items.HONEYCOMB)));
             }
         });
+    }
+
+    private void trimWithCopy(RecipeOutput recipeOutput, ItemLike template, ItemLike copyMaterial) {
+        trimSmithing(recipeOutput, template.asItem(), Mineraculous.modLoc(getItemName(template) + "_smithing_trim"));
+        copySmithingTemplate(recipeOutput, template, copyMaterial);
     }
 }

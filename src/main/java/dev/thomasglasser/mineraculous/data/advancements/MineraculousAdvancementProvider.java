@@ -8,9 +8,10 @@ import java.util.function.BiConsumer;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import org.jetbrains.annotations.Nullable;
 
 public class MineraculousAdvancementProvider extends ExtendedAdvancementProvider {
-    public MineraculousAdvancementProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, ExistingFileHelper existingFileHelper, BiConsumer<String, String> lang) {
+    public MineraculousAdvancementProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, BiConsumer<String, String> lang, @Nullable ExistingFileHelper existingFileHelper) {
         super(output, registries, existingFileHelper, ReferenceOpenHashSet.of(
                 new MineraculousMiraculousAdvancements(lang)));
     }

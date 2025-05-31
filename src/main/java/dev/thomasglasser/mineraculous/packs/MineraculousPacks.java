@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.packs;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.tommylib.api.packs.PackInfo;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.PackSource;
@@ -14,7 +15,6 @@ public class MineraculousPacks {
     }
 
     public static List<PackInfo> getPacks() {
-        return List.of(
-                AKUMATIZATION);
+        return ReferenceArrayList.of(AKUMATIZATION);
     }
 }

@@ -10,16 +10,15 @@ import dev.thomasglasser.mineraculous.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
+import dev.thomasglasser.mineraculous.world.entity.projectile.ItemBreakingQuicklyReturningThrownSword;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
+import dev.thomasglasser.mineraculous.world.item.component.ActiveSettings;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
@@ -70,6 +69,11 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
 public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, ProjectileItem, ICurioItem, RadialMenuProvider<CatStaffItem.Ability> {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final String CONTROLLER_USE = "use_controller";
@@ -77,10 +81,17 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     public static final String ANIMATION_EXTEND = "extend";
     public static final String ANIMATION_RETRACT = "retract";
 
+    public static final ActiveSettings ACTIVE_SETTINGS = new ActiveSettings(
+            Optional.of(CatStaffItem.CONTROLLER_EXTEND),
+            Optional.of(CatStaffItem.ANIMATION_EXTEND),
+            Optional.of(CatStaffItem.ANIMATION_RETRACT),
+            Optional.of(MineraculousSoundEvents.CAT_STAFF_EXTEND),
+            Optional.of(MineraculousSoundEvents.CAT_STAFF_RETRACT));
+
     private static final RawAnimation EXTEND = RawAnimation.begin().thenPlay("misc.extend");
     private static final RawAnimation RETRACT = RawAnimation.begin().thenPlay("misc.retract");
 
-    private static final ItemAttributeModifiers EXTENDED = ItemAttributeModifiers.builder()
+    private static final ItemAttributeModifiers EXTENDED_ATTRIBUTE_MODIFIERS = ItemAttributeModifiers.builder()
             .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 15, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
             .add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -1.5, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
             .add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(BASE_ENTITY_INTERACTION_RANGE_ID, 2, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
@@ -190,7 +201,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
             if (i >= 10) {
                 if (!level.isClientSide) {
                     stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(entityLiving.getUsedItemHand()));
-                    ThrownCatStaff thrown = new ThrownCatStaff(entityLiving, level, stack);
+                    ItemBreakingQuicklyReturningThrownSword thrown = new ThrownCatStaff(level, entityLiving, stack);
                     thrown.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F, 1.0F);
                     if (player.hasInfiniteMaterials()) {
                         thrown.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
@@ -234,13 +245,13 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     @Override
     public ItemAttributeModifiers getDefaultAttributeModifiers(ItemStack stack) {
         if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false))
-            return EXTENDED;
+            return EXTENDED_ATTRIBUTE_MODIFIERS;
         return super.getDefaultAttributeModifiers(stack);
     }
 
     @Override
     public Projectile asProjectile(Level level, Position pos, ItemStack stack, Direction direction) {
-        return new ThrownCatStaff(pos.x(), pos.y(), pos.z(), level, stack);
+        return new ThrownCatStaff(level, pos.x(), pos.y(), pos.z(), stack);
     }
 
     @Override
@@ -273,7 +284,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         if (resolvableProfile != null) {
             Player owner = level.getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
             if (owner != null) {
-                ResourceKey<Miraculous> colorKey = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstTransformedKeyIn(MiraculousTags.CAN_USE_CAT_STAFF, ClientUtils.getLevel());
+                ResourceKey<Miraculous> colorKey = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstTransformedKeyIn(MiraculousTags.CAN_USE_CAT_STAFF, ClientUtils.getLevel().registryAccess());
                 if (colorKey != null)
                     color = level.holderOrThrow(colorKey).value().color().getValue();
             }

@@ -4,21 +4,21 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.network.ClientboundSetCameraEntityPayload;
+import dev.thomasglasser.mineraculous.world.entity.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.TamableAnimal;
+import org.jetbrains.annotations.Nullable;
 
 public class SetCameraEntityAbility implements Ability {
     public static final MapCodec<SetCameraEntityAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -51,11 +51,11 @@ public class SetCameraEntityAbility implements Ability {
     }
 
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, Context context) {
         if (context == Context.PASSIVE) {
-            TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target.getId(), shader, faceMaskTexture, true, overrideOwner), (ServerPlayer) entity);
+            TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(target.getId(), shader, faceMaskTexture, true, overrideOwner), (ServerPlayer) performer);
             target = null;
-            playStartSound(level, pos);
+            playStartSound(level, pos, );
             return true;
         }
         return false;
@@ -63,7 +63,7 @@ public class SetCameraEntityAbility implements Ability {
 
     // TODO: Fix
     @Override
-    public void detransform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity performer) {
+    public void detransform(AbilityData data, ServerLevel level, Entity performer) {
         if (performer instanceof ServerPlayer serverPlayer) {
 //            CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(performer);
 //            tag.putBoolean(MineraculousEntityEvents.TAG_CAMERA_CONTROL_INTERRUPTED, true);
@@ -81,8 +81,8 @@ public class SetCameraEntityAbility implements Ability {
     }
 
     @Override
-    public boolean canActivate(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
-        if (entity instanceof ServerPlayer serverPlayer) {
+    public boolean canActivate(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
+        if (performer instanceof ServerPlayer serverPlayer) {
             for (Entity e : level.getEntities().getAll()) {
                 if ((!mustBeTamed || (e instanceof OwnableEntity tamable && tamable.getOwnerUUID() != null)) && this.entity.matches(serverPlayer.serverLevel(), e.position(), e)) {
                     target = e;

@@ -20,12 +20,14 @@ import net.minecraft.world.item.ItemStack;
 
 public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Either<ItemStack, Holder<Ability>> powerSource, List<Holder<Ability>> passiveAbilities) {
 
+    public static final int TRANSFORMATION_FRAMES = 10;
     public static final String NO_KAMIKOTIZATIONS = "mineraculous.no_kamikotizations";
     public static final Codec<Kamikotization> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("default_name").forGetter(Kamikotization::defaultName),
             ItemPredicate.CODEC.optionalFieldOf("item_predicate", ItemPredicate.Builder.item().build()).forGetter(Kamikotization::itemPredicate),
             new EitherCodec<>(ItemStack.CODEC, Ability.CODEC).fieldOf("power_source").forGetter(Kamikotization::powerSource),
             Ability.CODEC.listOf().optionalFieldOf("passive_abilities", List.of()).forGetter(Kamikotization::passiveAbilities)).apply(instance, Kamikotization::new));
+
     @Override
     public Either<ItemStack, Holder<Ability>> powerSource() {
         return powerSource.mapLeft(ItemStack::copy);

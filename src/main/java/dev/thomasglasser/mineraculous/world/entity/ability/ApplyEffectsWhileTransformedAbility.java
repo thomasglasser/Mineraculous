@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import java.util.Optional;
-import net.minecraft.core.BlockPos;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 
 public record ApplyEffectsWhileTransformedAbility(HolderSet<MobEffect> effects, int startLevel, Optional<Holder<SoundEvent>> startSound) implements Ability {
@@ -23,15 +24,15 @@ public record ApplyEffectsWhileTransformedAbility(HolderSet<MobEffect> effects, 
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("start_level", 1).forGetter(ApplyEffectsWhileTransformedAbility::startLevel),
             SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(ApplyEffectsWhileTransformedAbility::startSound)).apply(instance, ApplyEffectsWhileTransformedAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, Context context) {
         return false;
     }
 
     @Override
-    public void transform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
+    public void transform(AbilityData data, ServerLevel level, Entity performer) {
         if (effects.size() > 0) {
-            effects.forEach(effect -> entity.addEffect(MineraculousEntityEvents.INFINITE_HIDDEN_EFFECT.apply(effect, startLevel + (data.powerLevel() / 10))));
-            playStartSound(level, pos);
+            effects.forEach(effect -> performer.addEffect(MineraculousEntityEvents.INFINITE_HIDDEN_EFFECT.apply(effect, startLevel + (data.powerLevel() / 10))));
+            playStartSound(level, pos, );
         }
     }
 
@@ -40,9 +41,9 @@ public record ApplyEffectsWhileTransformedAbility(HolderSet<MobEffect> effects, 
     }
 
     @Override
-    public void detransform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
+    public void detransform(AbilityData data, ServerLevel level, Entity performer) {
         if (effects.size() > 0) {
-            effects.forEach(entity::removeEffect);
+            effects.forEach(performer::removeEffect);
         }
     }
 

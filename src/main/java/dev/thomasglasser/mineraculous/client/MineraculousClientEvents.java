@@ -11,7 +11,6 @@ import dev.thomasglasser.mineraculous.client.particle.RiseAndSpreadParticle;
 import dev.thomasglasser.mineraculous.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.client.renderer.armor.KamikotizationArmorItemRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.armor.MiraculousArmorItemRenderer;
-import dev.thomasglasser.mineraculous.client.renderer.entity.KamikoRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.LuckyCharmItemSpawnerRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownButterflyCaneRenderer;
@@ -46,9 +45,6 @@ import dev.thomasglasser.mineraculous.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.Map;
-import java.util.Optional;
-import java.util.SortedMap;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -96,7 +92,13 @@ import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
 import org.lwjgl.glfw.GLFW;
+import software.bernie.geckolib.model.DefaultedEntityGeoModel;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.SortedMap;
 
 public class MineraculousClientEvents {
     public static final String REVOKE = "gui.mineraculous.revoke";
@@ -107,11 +109,13 @@ public class MineraculousClientEvents {
 
     // Setup
     public static void onFMLClientSetup(FMLClientSetupEvent event) {
-        CuriosRendererRegistry.register(MineraculousItems.MIRACULOUS.get(), ContextDependentCurioRenderer::new);
-        CuriosRendererRegistry.register(MineraculousItems.CAT_STAFF.get(), ContextDependentCurioRenderer::new);
-        CuriosRendererRegistry.register(MineraculousItems.LADYBUG_YOYO.get(), ContextDependentCurioRenderer::new);
+        event.enqueueWork(() -> {
+            CuriosRendererRegistry.register(MineraculousItems.MIRACULOUS.get(), ContextDependentCurioRenderer::new);
+            CuriosRendererRegistry.register(MineraculousItems.CAT_STAFF.get(), ContextDependentCurioRenderer::new);
+            CuriosRendererRegistry.register(MineraculousItems.LADYBUG_YOYO.get(), ContextDependentCurioRenderer::new);
 
-        MineraculousItemProperties.init();
+            MineraculousItemProperties.init();
+        });
     }
 
     public static void onBuildCreativeModeTabContents(BuildCreativeModeTabContentsEvent event) {
@@ -177,7 +181,7 @@ public class MineraculousClientEvents {
 
     public static void onRegisterRenderer(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(MineraculousEntityTypes.KWAMI.get(), KwamiRenderer::new);
-        event.registerEntityRenderer(MineraculousEntityTypes.KAMIKO.get(), KamikoRenderer::new);
+        event.registerEntityRenderer(MineraculousEntityTypes.KAMIKO.get(), context -> new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(Mineraculous.modLoc("kamiko"))));
         event.registerEntityRenderer(MineraculousEntityTypes.LUCKY_CHARM_ITEM_SPAWNER.get(), LuckyCharmItemSpawnerRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), ThrownCatStaffRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), ThrownButterflyCaneRenderer::new);
@@ -423,7 +427,7 @@ public class MineraculousClientEvents {
 
     // Misc
     public static void onPlayerHeartType(PlayerHeartTypeEvent event) {
-        if (event.getEntity().hasEffect(MineraculousMobEffects.CATACLYSMED))
+        if (event.getEntity().hasEffect(MineraculousMobEffects.CATACLYSM))
             event.setType(MineraculousHeartTypes.CATACLYSMED.getValue());
     }
 

@@ -22,7 +22,6 @@ import dev.thomasglasser.mineraculous.data.tags.MineraculousPaintingVariantTagsP
 import dev.thomasglasser.mineraculous.data.tags.MineraculousPoiTypeTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.MiraculousTagsProvider;
 import dev.thomasglasser.mineraculous.data.tags.client.MineraculousResourceLocationClientTagsProvider;
-import dev.thomasglasser.mineraculous.data.trimmed.MineraculousTrimDatagenSuite;
 import dev.thomasglasser.mineraculous.data.worldgen.MineraculousWorldgenModifiers;
 import dev.thomasglasser.mineraculous.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;

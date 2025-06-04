@@ -31,7 +31,7 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "dropFromLootTable", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/storage/loot/LootTable;getRandomItems(Lnet/minecraft/world/level/storage/loot/LootParams;JLjava/util/function/Consumer;)V"), cancellable = true)
     private void dropDustIfCataclysmed(DamageSource damageSource, boolean hitByPlayer, CallbackInfo ci, @Local LootTable lootTable, @Local LootParams lootParams) {
-        if (mineraculous$instance.hasEffect(MineraculousMobEffects.CATACLYSMED)) {
+        if (mineraculous$instance.hasEffect(MineraculousMobEffects.CATACLYSM)) {
             lootTable.getRandomItems(lootParams, getLootTableSeed(), stack -> mineraculous$instance.spawnAtLocation(MineraculousEntityEvents.convertToCataclysmDust(stack)));
             ci.cancel();
         }

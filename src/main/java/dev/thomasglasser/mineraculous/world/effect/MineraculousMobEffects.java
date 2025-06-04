@@ -9,7 +9,7 @@ import net.minecraft.world.effect.MobEffect;
 public class MineraculousMobEffects {
     public static final DeferredRegister<MobEffect> MOB_EFFECTS = DeferredRegister.create(Registries.MOB_EFFECT, Mineraculous.MOD_ID);
 
-    public static final DeferredHolder<MobEffect, CataclysmMobEffect> CATACLYSMED = MOB_EFFECTS.register("cataclysmed", () -> new CataclysmMobEffect(0x60ff0b));
+    public static final DeferredHolder<MobEffect, CataclysmMobEffect> CATACLYSM = MOB_EFFECTS.register("cataclysm", () -> new CataclysmMobEffect(0x60ff0b));
 
     public static void init() {}
 }

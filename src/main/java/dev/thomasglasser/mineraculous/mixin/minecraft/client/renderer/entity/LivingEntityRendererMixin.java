@@ -21,7 +21,7 @@ public class LivingEntityRendererMixin {
     // TODO: Fix
     @ModifyExpressionValue(method = "getRenderType", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/LivingEntityRenderer;getTextureLocation(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/resources/ResourceLocation;"))
     private ResourceLocation applyCataclysmPixels(ResourceLocation original, LivingEntity livingEntity) {
-        if (livingEntity.hasEffect(MineraculousMobEffects.CATACLYSMED)) {
+        if (livingEntity.hasEffect(MineraculousMobEffects.CATACLYSM)) {
             int cataclysmColor = 0xFF201915;
             ResourceLocation result = ResourceLocation.fromNamespaceAndPath(original.getNamespace(), original.getPath() + "_cataclysmed");
             try (AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(original)) {

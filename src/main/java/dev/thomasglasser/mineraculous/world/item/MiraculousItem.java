@@ -29,6 +29,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -118,7 +119,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
 
     @Override
     public List<Component> getSlotsTooltip(List<Component> tooltips, TooltipContext context, ItemStack stack) {
-        var slotsTooltip = Component.translatable("curios.tooltip.slot").append(" ").withStyle(ChatFormatting.GOLD);
+        MutableComponent slotsTooltip = Component.translatable("curios.tooltip.slot").append(" ").withStyle(ChatFormatting.GOLD);
         ResourceKey<Miraculous> miraculousKey = stack.get(MineraculousDataComponents.MIRACULOUS);
         if (miraculousKey != null && context.registries() != null) {
             slotsTooltip.append(Component.translatable("curios.identifier." + context.registries().holderOrThrow(miraculousKey).value().acceptableSlot()).withStyle(ChatFormatting.YELLOW));
@@ -169,19 +170,19 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                     AbilityData abilityData = new AbilityData(data.powerLevel(), Either.left(miraculousKey));
                     Miraculous miraculous = entity.level().holderOrThrow(miraculousKey).value();
                     miraculous.passiveAbilities().stream().map(Holder::value).forEach(ability -> {
-                        if (ability.canActivate(abilityData, serverLevel, player.blockPosition(), player) && ability.perform(abilityData, serverLevel, player.blockPosition(), player, Ability.Context.PASSIVE) && ability.overrideActive())
+                        if (ability.canActivate(abilityData, serverLevel, player, ) && ability.perform(abilityData, serverLevel, player, Ability.Context.PASSIVE) && ability.overrideActive())
                             overrideActive.set(true);
                     });
                     if (!entity.getMainHandItem().isEmpty()) {
                         miraculous.passiveAbilities().stream().map(Holder::value).forEach(ability -> {
-                            if (ability.canActivate(abilityData, serverLevel, player.blockPosition(), player) && ability.perform(abilityData, serverLevel, player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem())) && ability.overrideActive())
+                            if (ability.canActivate(abilityData, serverLevel, player, ) && ability.perform(abilityData, serverLevel, player, Ability.Context.from(entity.getMainHandItem())) && ability.overrideActive())
                                 overrideActive.set(true);
                         });
-                        if (data.mainPowerActive()) {
+                        if (data.powerActive()) {
                             if (overrideActive.get()) {
                                 entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(entity, miraculousKey, data.withPowerStatus(false, false), true);
                             } else {
-                                boolean usedPower = miraculous.activeAbility().get().value().perform(abilityData, serverLevel, player.blockPosition(), player, Ability.Context.from(entity.getMainHandItem()));
+                                boolean usedPower = miraculous.activeAbility().get().value().perform(abilityData, serverLevel, player, Ability.Context.from(entity.getMainHandItem()));
                                 if (usedPower) {
                                     entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(entity, miraculousKey, data.withUsedPower(), true);
                                     MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, miraculousKey, UseMiraculousPowerTrigger.Context.ITEM);
@@ -189,11 +190,11 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                             }
                         }
                     }
-                    if (data.mainPowerActive()) {
+                    if (data.powerActive()) {
                         if (overrideActive.get()) {
                             entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(entity, miraculousKey, data.withPowerStatus(false, false), true);
                         } else {
-                            boolean usedPower = miraculous.activeAbility().get().value().perform(abilityData, serverLevel, player.blockPosition(), player, Ability.Context.PASSIVE);
+                            boolean usedPower = miraculous.activeAbility().get().value().perform(abilityData, serverLevel, player, Ability.Context.PASSIVE);
                             if (usedPower) {
                                 entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(entity, miraculousKey, data.withUsedPower(), true);
                                 MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, miraculousKey, UseMiraculousPowerTrigger.Context.ITEM);

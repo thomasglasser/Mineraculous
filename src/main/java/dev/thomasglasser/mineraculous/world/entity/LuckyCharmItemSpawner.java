@@ -2,8 +2,10 @@ package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
-import java.util.ArrayList;
+
 import java.util.List;
+
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -17,7 +19,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.item.ArrowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileItem;
 import net.minecraft.world.level.Level;
@@ -73,21 +74,21 @@ public class LuckyCharmItemSpawner extends Entity {
         Level level = this.level();
         ItemStack itemstack = this.getItem();
         if (!itemstack.isEmpty()) {
-            List<Entity> entities = new ArrayList<>();
-            if (itemstack.getItem() instanceof ArrowItem arrowItem) {
+            List<Entity> entities = new ReferenceArrayList<>();
+            if (itemstack.getItem() instanceof ProjectileItem projectileItem) {
                 for (int i = 0; i < itemstack.getCount(); i++) {
                     Direction direction = Direction.DOWN;
-                    Projectile projectile = arrowItem.asProjectile(level, this.position(), itemstack, direction);
+                    Projectile projectile = projectileItem.asProjectile(level, this.position(), itemstack, direction);
                     projectile.setOwner(this);
-                    ProjectileItem.DispenseConfig projectileitem$dispenseconfig = arrowItem.createDispenseConfig();
-                    arrowItem.shoot(
+                    ProjectileItem.DispenseConfig dispenseConfig = projectileItem.createDispenseConfig();
+                    projectileItem.shoot(
                             projectile,
                             direction.getStepX(),
                             direction.getStepY(),
                             direction.getStepZ(),
-                            projectileitem$dispenseconfig.power(),
-                            projectileitem$dispenseconfig.uncertainty());
-                    projectileitem$dispenseconfig.overrideDispenseEvent().ifPresent(p_352709_ -> level.levelEvent(p_352709_, this.blockPosition(), 0));
+                            dispenseConfig.power(),
+                            dispenseConfig.uncertainty());
+                    dispenseConfig.overrideDispenseEvent().ifPresent(p_352709_ -> level.levelEvent(p_352709_, this.blockPosition(), 0));
                     entities.add(projectile);
                 }
             } else {
@@ -102,20 +103,37 @@ public class LuckyCharmItemSpawner extends Entity {
         }
     }
 
+    public void addParticles() {
+        Vec3 vec3 = this.position();
+        int i = this.random.nextIntBetweenInclusive(1, 3);
+
+        for (int j = 0; j < i; j++) {
+            double d0 = 0.4;
+            Vec3 vec31 = new Vec3(
+                    this.getX() + 0.4 * (this.random.nextGaussian() - this.random.nextGaussian()),
+                    this.getY() + 0.4 * (this.random.nextGaussian() - this.random.nextGaussian()),
+                    this.getZ() + 0.4 * (this.random.nextGaussian() - this.random.nextGaussian()));
+            Vec3 vec32 = vec3.vectorTo(vec31);
+            this.level().addParticle(MineraculousParticleTypes.SUMMONING_LADYBUG.get(), vec3.x(), vec3.y(), vec3.z(), vec32.x(), vec32.y(), vec32.z());
+        }
+    }
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(DATA_ITEM, ItemStack.EMPTY);
     }
 
-    /**
-     * (abstract) Protected helper method to read subclass entity data from NBT.
-     */
+    public ItemStack getItem() {
+        return this.getEntityData().get(DATA_ITEM);
+    }
+
+    private void setItem(ItemStack item) {
+        this.getEntityData().set(DATA_ITEM, item);
+    }
+
     @Override
     protected void readAdditionalSaveData(CompoundTag compound) {
-        ItemStack itemstack = compound.contains(TAG_ITEM, 10)
-                ? ItemStack.parse(this.registryAccess(), compound.getCompound(TAG_ITEM)).orElse(ItemStack.EMPTY)
-                : ItemStack.EMPTY;
-        this.setItem(itemstack);
+        this.setItem(ItemStack.parseOptional(registryAccess(), compound.getCompound(TAG_ITEM)));
         this.spawnItemAfterTicks = compound.getInt(TAG_SPAWN_ITEM_AFTER_TICKS);
     }
 
@@ -151,28 +169,5 @@ public class LuckyCharmItemSpawner extends Entity {
     @Override
     public boolean isIgnoringBlockTriggers() {
         return true;
-    }
-
-    public void addParticles() {
-        Vec3 vec3 = this.position();
-        int i = this.random.nextIntBetweenInclusive(1, 3);
-
-        for (int j = 0; j < i; j++) {
-            double d0 = 0.4;
-            Vec3 vec31 = new Vec3(
-                    this.getX() + 0.4 * (this.random.nextGaussian() - this.random.nextGaussian()),
-                    this.getY() + 0.4 * (this.random.nextGaussian() - this.random.nextGaussian()),
-                    this.getZ() + 0.4 * (this.random.nextGaussian() - this.random.nextGaussian()));
-            Vec3 vec32 = vec3.vectorTo(vec31);
-            this.level().addParticle(MineraculousParticleTypes.SUMMONING_LADYBUG.get(), vec3.x(), vec3.y(), vec3.z(), vec32.x(), vec32.y(), vec32.z());
-        }
-    }
-
-    public ItemStack getItem() {
-        return this.getEntityData().get(DATA_ITEM);
-    }
-
-    private void setItem(ItemStack item) {
-        this.getEntityData().set(DATA_ITEM, item);
     }
 }

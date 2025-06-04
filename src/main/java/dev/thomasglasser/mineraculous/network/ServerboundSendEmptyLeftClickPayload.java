@@ -44,14 +44,14 @@ public record ServerboundSendEmptyLeftClickPayload(int entityId) implements Exte
                 AtomicBoolean overrideActive = new AtomicBoolean(false);
                 AbilityData abilityData = new AbilityData(data.powerLevel(), Either.left(key));
                 miraculous.passiveAbilities().stream().map(Holder::value).forEach(ability -> {
-                    if (ability.canActivate(abilityData, level, livingEntity.blockPosition(), livingEntity) && ability.perform(abilityData, level, livingEntity.blockPosition(), livingEntity, Ability.Context.from()) && ability.overrideActive())
+                    if (ability.canActivate(abilityData, level, livingEntity, ) && ability.perform(abilityData, level, livingEntity, Ability.Context.from()) && ability.overrideActive())
                         overrideActive.set(true);
                 });
-                if (data.mainPowerActive()) {
+                if (data.powerActive()) {
                     if (overrideActive.get()) {
                         livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(livingEntity, key, data.withPowerStatus(false, false), true);
                     } else {
-                        boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(abilityData, level, livingEntity.blockPosition(), livingEntity, Ability.Context.from());
+                        boolean usedPower = miraculous.activeAbility().isPresent() && miraculous.activeAbility().get().value().perform(abilityData, level, livingEntity, Ability.Context.from());
                         if (usedPower) {
                             livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(livingEntity, key, data.withUsedPower(), true);
                             if (livingEntity instanceof ServerPlayer serverPlayer) {
@@ -67,20 +67,20 @@ public record ServerboundSendEmptyLeftClickPayload(int entityId) implements Exte
                 AtomicBoolean overrideActive = new AtomicBoolean(false);
                 AbilityData abilityData = new AbilityData(0, Either.right(key));
                 kamikotization.passiveAbilities().stream().map(Holder::value).forEach(ability -> {
-                    if (ability.canActivate(abilityData, level, livingEntity.blockPosition(), livingEntity) && ability.perform(abilityData, level, livingEntity.blockPosition(), livingEntity, Ability.Context.from()) && ability.overrideActive())
+                    if (ability.canActivate(abilityData, level, livingEntity, ) && ability.perform(abilityData, level, livingEntity, Ability.Context.from()) && ability.overrideActive())
                         overrideActive.set(true);
                 });
-                if (data.mainPowerActive()) {
+                if (data.powerActive()) {
                     if (!overrideActive.get()) {
-                        boolean usedPower = kamikotization.powerSource().right().isPresent() && kamikotization.powerSource().right().get().value().perform(abilityData, level, livingEntity.blockPosition(), livingEntity, Ability.Context.from());
+                        boolean usedPower = kamikotization.powerSource().right().isPresent() && kamikotization.powerSource().right().get().value().perform(abilityData, level, livingEntity, Ability.Context.from());
                         if (usedPower) {
-                            data.withMainPowerActive(false).save(livingEntity, true);
+                            data.withPowerActive(false).save(livingEntity, true);
                             if (livingEntity instanceof ServerPlayer serverPlayer) {
-                                MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, key, UseKamikotizationPowerTrigger.Context.EMPTY);
+                                MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, key, UseKamikotizationPowerTrigger.Context.PASSIVE);
                             }
                         }
                     } else
-                        data.withMainPowerActive(false).save(livingEntity, true);
+                        data.withPowerActive(false).save(livingEntity, true);
                 }
             });
         }

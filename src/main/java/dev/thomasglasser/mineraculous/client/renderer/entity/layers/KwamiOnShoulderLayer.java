@@ -45,23 +45,23 @@ public class KwamiOnShoulderLayer<T extends Player> extends RenderLayer<T, Playe
             T livingEntity,
             float netHeadYaw,
             boolean leftShoulder) {
-        CompoundTag compound = leftShoulder ? livingEntity.getShoulderEntityLeft() : livingEntity.getShoulderEntityRight();
-        if (!compound.isEmpty() && EntityType.by(compound).isPresent() && EntityType.by(compound).get() == MineraculousEntityTypes.KWAMI.get()) {
-            Kwami kwami = KWAMIS.computeIfAbsent(compound, c -> {
-                Kwami k = new Kwami(MineraculousEntityTypes.KWAMI.get(), Minecraft.getInstance().level);
-                k.setNoAi(true);
-                k.load(c);
-                k.setOnShoulder();
-                return k;
-            });
-            kwami.yBodyRot = netHeadYaw;
-            kwami.yBodyRotO = netHeadYaw;
-            poseStack.pushPose();
-            poseStack.translate(leftShoulder ? 0.33F : -0.33F, livingEntity.isCrouching() ? 0.3 : 0.1, 0.0F);
-            poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
-
-            Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(kwami).render(kwami, 0, 0, poseStack, buffer, packedLight);
-            poseStack.popPose();
-        }
+//        CompoundTag compound = leftShoulder ? livingEntity.getShoulderEntityLeft() : livingEntity.getShoulderEntityRight();
+//        if (!compound.isEmpty() && EntityType.by(compound).isPresent() && EntityType.by(compound).get() == MineraculousEntityTypes.KWAMI.get()) {
+//            Kwami kwami = KWAMIS.computeIfAbsent(compound, c -> {
+//                Kwami k = new Kwami(MineraculousEntityTypes.KWAMI.get(), Minecraft.getInstance().level);
+//                k.setNoAi(true);
+//                k.load(c);
+//                k.setOnShoulder();
+//                return k;
+//            });
+//            kwami.yBodyRot = netHeadYaw;
+//            kwami.yBodyRotO = netHeadYaw;
+//            poseStack.pushPose();
+//            poseStack.translate(leftShoulder ? 0.33F : -0.33F, livingEntity.isCrouching() ? 0.3 : 0.1, 0.0F);
+//            poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
+//
+//            Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(kwami).render(kwami, 0, 0, poseStack, buffer, packedLight);
+//            poseStack.popPose();
+//        }
     }
 }

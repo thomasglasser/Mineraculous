@@ -84,10 +84,10 @@ public class MineraculousAbilities {
                         Optional.of(MineraculousSoundEvents.CATACLYSM_USE),
                         false))),
                 Optional.of(Holder.direct(new ApplyInfiniteEffectsOrDestroyAbility(
-                        HolderSet.direct(MineraculousMobEffects.CATACLYSMED),
+                        HolderSet.direct(MineraculousMobEffects.CATACLYSM),
                         Optional.of(MineraculousItems.CATACLYSM_DUST.get()),
                         Optional.of(MineraculousDamageTypes.CATACLYSM),
-                        Optional.of(MineraculousEntityEvents.TAG_CATACLYSMED),
+                        Optional.of(/*MineraculousEntityEvents.TAG_CATACLYSMED*/"Cataclysmed"),
                         Optional.of(MineraculousSoundEvents.CATACLYSM_USE),
                         false))),
                 Optional.of(Holder.direct(new ReplaceItemsInHandAbility(

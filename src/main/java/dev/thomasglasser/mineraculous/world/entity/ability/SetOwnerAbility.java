@@ -3,19 +3,19 @@ package dev.thomasglasser.mineraculous.world.entity.ability;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.world.entity.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
+import org.jetbrains.annotations.Nullable;
 
 public record SetOwnerAbility(Optional<Integer> maxOfTypes, Optional<EntityPredicate> validEntities, Optional<EntityPredicate> invalidEntities, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
 
@@ -26,24 +26,24 @@ public record SetOwnerAbility(Optional<Integer> maxOfTypes, Optional<EntityPredi
             SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(SetOwnerAbility::startSound),
             Codec.BOOL.optionalFieldOf("override_active", false).forGetter(SetOwnerAbility::overrideActive)).apply(instance, SetOwnerAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, Context context) {
         if (context == Context.INTERACT_ENTITY && context.entity() instanceof TamableAnimal animal) {
             if (validEntities.isPresent() && !validEntities.get().matches(level, animal.position(), animal))
                 return false;
             if (invalidEntities.isPresent() && invalidEntities.get().matches(level, animal.position(), animal))
                 return false;
-            animal.setOwnerUUID(entity.getUUID());
-            playStartSound(level, pos);
+            animal.setOwnerUUID(performer.getUUID());
+            playStartSound(level, pos, );
             return true;
         }
         return false;
     }
 
     @Override
-    public boolean canActivate(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
+    public boolean canActivate(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         List<Entity> like = new ArrayList<>();
         for (Entity e : level.getEntities().getAll()) {
-            if (isValid(e) && (entity instanceof TamableAnimal ta && ta.isOwnedBy(entity)))
+            if (isValid(e) && (performer instanceof TamableAnimal ta && ta.isOwnedBy(performer)))
                 like.add(e);
         }
         return maxOfTypes.isEmpty() || like.size() < maxOfTypes.get();

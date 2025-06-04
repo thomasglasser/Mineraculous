@@ -11,6 +11,7 @@ import dev.thomasglasser.mineraculous.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.LuckyCharmItemSpawner;
+import dev.thomasglasser.mineraculous.world.entity.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
@@ -24,12 +25,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
-import net.minecraft.core.BlockPos;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.item.Item;
@@ -37,6 +39,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import org.jetbrains.annotations.Nullable;
 
 public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
 
@@ -45,26 +48,26 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
             SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(SummonLuckyCharmAbility::startSound),
             Codec.BOOL.optionalFieldOf("override_active", false).forGetter(SummonLuckyCharmAbility::overrideActive)).apply(instance, SummonLuckyCharmAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, Context context) {
         if (context == Context.PASSIVE) {
             MiraculousRecoveryEntityData recoveryEntityData = MiraculousRecoveryEntityData.get(level);
-            UUID tracked = recoveryEntityData.getTrackedEntity(entity.getUUID());
+            UUID tracked = recoveryEntityData.getTrackedEntity(performer.getUUID());
             LivingEntity trackedEntity = tracked != null ? level.getEntity(tracked) instanceof LivingEntity livingEntity ? livingEntity : null : null;
-            LivingEntity target = trackedEntity != null ? trackedEntity : entity.getKillCredit() != null ? entity.getKillCredit() : entity.getLastHurtByMob() != null ? entity.getLastHurtByMob() : entity.getLastHurtMob();
+            LivingEntity target = trackedEntity != null ? trackedEntity : performer.getKillCredit() != null ? performer.getKillCredit() : performer.getLastHurtByMob() != null ? performer.getLastHurtByMob() : performer.getLastHurtMob();
             if (target instanceof OwnableEntity ownable && ownable.getOwnerUUID() != null)
                 target = level.getEntity(ownable.getOwnerUUID()) instanceof LivingEntity livingEntity ? livingEntity : target;
             if (target != null)
-                recoveryEntityData.putRelatedEntity(target.getUUID(), entity.getUUID());
+                recoveryEntityData.putRelatedEntity(target.getUUID(), performer.getUUID());
             LuckyCharms charms = getCharms(level, target);
             AtomicReference<ItemStack> result = new AtomicReference<>();
             if (charms.items().left().isPresent()) {
                 LootTable loottable = level.getServer().reloadableRegistries().getLootTable(charms.items().left().get());
                 LootParams.Builder lootparams$builder = new LootParams.Builder(level)
-                        .withParameter(LootContextParams.THIS_ENTITY, entity)
-                        .withParameter(LootContextParams.ORIGIN, entity.position())
-                        .withParameter(LootContextParams.TOOL, entity.getMainHandItem())
+                        .withParameter(LootContextParams.THIS_ENTITY, performer)
+                        .withParameter(LootContextParams.ORIGIN, performer.position())
+                        .withParameter(LootContextParams.TOOL, performer.getMainHandItem())
                         .withParameter(MineraculousLootContextParams.POWER_LEVEL, data.powerLevel())
-                        .withOptionalParameter(LootContextParams.DAMAGE_SOURCE, entity.getLastDamageSource())
+                        .withOptionalParameter(LootContextParams.DAMAGE_SOURCE, performer.getLastDamageSource())
                         .withOptionalParameter(LootContextParams.ATTACKING_ENTITY, target);
 
                 LootParams lootparams = lootparams$builder.create(MineraculousLootContextParamSets.LUCKY_CHARM);
@@ -79,17 +82,17 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
             ItemStack toAdd = result.get();
             UUID uuid;
             if (data.power().left().isPresent()) {
-                uuid = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(data.power().left().get()).miraculousItem().get(MineraculousDataComponents.KWAMI_DATA).uuid();
+                uuid = performer.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(data.power().left().get()).miraculousItem().get(MineraculousDataComponents.KWAMI_DATA).uuid();
                 toAdd.set(MineraculousDataComponents.KWAMI_DATA, new KwamiData(uuid, 0, false));
             } else {
-                uuid = entity.getUUID();
+                uuid = performer.getUUID();
                 toAdd.set(MineraculousDataComponents.KAMIKOTIZATION, data.power().right().get());
             }
             toAdd.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.ofNullable(target != null ? target.getUUID() : null), LuckyCharmIdData.get(level).incrementLuckyCharmId(uuid)));
             LuckyCharmItemSpawner item = LuckyCharmItemSpawner.create(level, toAdd);
-            item.setPos(entity.position().add(0, 4, 0));
+            item.setPos(performer.position().add(0, 4, 0));
             level.addFreshEntity(item);
-            playStartSound(level, pos);
+            playStartSound(level, pos, );
             return true;
         }
         return false;
@@ -116,13 +119,13 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
     }
 
     @Override
-    public boolean canActivate(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
+    public boolean canActivate(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (requireTool) {
-            ItemStack mainHandItem = entity.getMainHandItem();
+            ItemStack mainHandItem = performer.getMainHandItem();
             Either<ResourceKey<Miraculous>, ResourceKey<Kamikotization>> power = data.power();
             if (power.left().isPresent()) {
                 Integer toolId = mainHandItem.get(MineraculousDataComponents.TOOL_ID);
-                return toolId != null && toolId == entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(power.left().get()).toolId() && mainHandItem.getOrDefault(MineraculousDataComponents.ACTIVE, false);
+                return toolId != null && toolId == performer.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(power.left().get()).toolId() && mainHandItem.getOrDefault(MineraculousDataComponents.ACTIVE, false);
             } else {
                 return mainHandItem.get(MineraculousDataComponents.KAMIKOTIZATION) == power.right().get() && mainHandItem.getOrDefault(MineraculousDataComponents.ACTIVE, false);
             }

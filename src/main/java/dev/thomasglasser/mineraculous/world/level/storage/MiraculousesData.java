@@ -10,10 +10,18 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+
+import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -41,11 +49,11 @@ public class MiraculousesData {
     private final Map<ResourceKey<Miraculous>, MiraculousData> map;
 
     public MiraculousesData() {
-        this.map = new HashMap<>();
+        this.map = new Reference2ObjectOpenHashMap<>();
     }
 
     public MiraculousesData(Map<ResourceKey<Miraculous>, MiraculousData> map) {
-        this.map = new HashMap<>(map);
+        this.map = new Reference2ObjectOpenHashMap<>(map);
     }
 
     public MiraculousData get(ResourceKey<Miraculous> key) {
@@ -68,24 +76,51 @@ public class MiraculousesData {
         return List.copyOf(map.values());
     }
 
+    public void forEach(BiConsumer<ResourceKey<Miraculous>, MiraculousData> consumer) {
+        map.forEach(consumer);
+    }
+
     public List<ResourceKey<Miraculous>> getTransformed() {
-        return map.entrySet().stream().filter(entry -> entry.getValue().transformed()).map(Map.Entry::getKey).toList();
+        List<ResourceKey<Miraculous>> keys = new ReferenceArrayList<>();
+        for (ResourceKey<Miraculous> key : map.keySet()) {
+            if (get(key).transformed()) {
+                keys.add(key);
+            }
+        }
+        return keys;
     }
 
     public List<Holder<Miraculous>> getTransformedHolders(HolderLookup.Provider lookup) {
-        return getTransformed().stream().map(lookup::holderOrThrow).toList();
+        List<Holder<Miraculous>> holders = new ReferenceArrayList<>();
+        for (ResourceKey<Miraculous> key : getTransformed()) {
+            holders.add(lookup.holderOrThrow(key));
+        }
+        return holders;
     }
 
     public List<Miraculous> getTransformedDirect(HolderLookup.Provider lookup) {
-        return getTransformedHolders(lookup).stream().map(Holder::value).toList();
+        List<Miraculous> miraculouses = new ReferenceArrayList<>();
+        for (Holder<Miraculous> holder : getTransformedHolders(lookup)) {
+            miraculouses.add(holder.value());
+        }
+        return miraculouses;
     }
 
     public boolean isTransformed() {
-        return map.values().stream().anyMatch(MiraculousData::transformed);
+        for (ResourceKey<Miraculous> key : keySet()) {
+            if (get(key).transformed()) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public @Nullable ResourceKey<Miraculous> getFirstTransformedKeyIn(TagKey<Miraculous> tag, Level level) {
-        return keySet().stream().filter(key -> get(key).transformed() && level.holderOrThrow(key).is(tag)).findFirst().orElse(null);
+    public @Nullable ResourceKey<Miraculous> getFirstTransformedKeyIn(TagKey<Miraculous> tag, HolderLookup.Provider lookup) {
+        for (Holder<Miraculous> holder : getTransformedHolders(lookup)) {
+            if (holder.is(tag))
+                return holder.getKey();
+        }
+        return null;
     }
 
     public void save(Entity entity, boolean syncToClient) {

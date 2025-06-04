@@ -4,13 +4,17 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemDisplayContext;
 import org.jetbrains.annotations.Nullable;
 import org.joml.AxisAngle4d;
@@ -32,11 +36,21 @@ public class LadybugYoyoRenderer extends BlockingDefaultedGeoItemRenderer<Ladybu
     @Override
     public void defaultRender(PoseStack poseStack, LadybugYoyoItem animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
         AbstractClientPlayer player = Minecraft.getInstance().player;
-        if (player != null && player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).id().isPresent()) {
-            if (this.renderPerspective.firstPerson())
-                renderHand(player, this.renderPerspective, poseStack, bufferSource, packedLight);
-        } else
-            super.defaultRender(poseStack, animatable, bufferSource, renderType, buffer, yaw, partialTick, packedLight);
+        if (player != null) {
+            ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
+            ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
+            if (thrownYoyo != null) {
+                InteractionHand initialHand = thrownYoyo.getInitialHand();
+                InteractionHand currentHand = switch (player.getMainArm()) {
+                    case LEFT -> this.renderPerspective == ItemDisplayContext.FIRST_PERSON_LEFT_HAND ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+                    case RIGHT -> this.renderPerspective == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+                };
+                if (initialHand == currentHand) {
+                    renderHand(player, this.renderPerspective, poseStack, bufferSource, packedLight);
+                }
+            }
+        }
+        super.defaultRender(poseStack, animatable, bufferSource, renderType, buffer, yaw, partialTick, packedLight);
     }
 
     private static void renderHand(AbstractClientPlayer player, ItemDisplayContext context, PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight) {

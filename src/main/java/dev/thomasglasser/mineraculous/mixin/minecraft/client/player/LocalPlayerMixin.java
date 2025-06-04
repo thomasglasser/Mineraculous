@@ -15,13 +15,13 @@ public class LocalPlayerMixin {
 
     @ModifyExpressionValue(method = "handleConfusionTransitionEffect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;hasEffect(Lnet/minecraft/core/Holder;)Z"))
     private boolean checkCatacylsmedForConfusionSpin(boolean original) {
-        return original || mineraculous$instance.hasEffect(MineraculousMobEffects.CATACLYSMED);
+        return original || mineraculous$instance.hasEffect(MineraculousMobEffects.CATACLYSM);
     }
 
     @ModifyExpressionValue(method = "handleConfusionTransitionEffect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getEffect(Lnet/minecraft/core/Holder;)Lnet/minecraft/world/effect/MobEffectInstance;"))
     private MobEffectInstance getCatacylsmForConfusionSpin(MobEffectInstance original) {
-        if (original == null && mineraculous$instance.hasEffect(MineraculousMobEffects.CATACLYSMED)) {
-            return mineraculous$instance.getEffect(MineraculousMobEffects.CATACLYSMED);
+        if (original == null && mineraculous$instance.hasEffect(MineraculousMobEffects.CATACLYSM)) {
+            return mineraculous$instance.getEffect(MineraculousMobEffects.CATACLYSM);
         }
         return original;
     }

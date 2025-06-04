@@ -148,7 +148,7 @@
     "mineraculous:power_level_multiplier"
   ],
   "minecraft:mob_effect": [
-    "mineraculous:cataclysmed"
+    "mineraculous:cataclysm"
   ],
   "minecraft:painting_variant": [
     "mineraculous:butterfly",
@@ -171,7 +171,7 @@
     "mineraculous:crafting_special_cheesewedge"
   ],
   "minecraft:sensor_type": [
-    "mineraculous:player_tempting"
+    "mineraculous:player_item_tempting"
   ],
   "minecraft:sound_event": [
     "mineraculous:butterfly_transform",
@@ -189,7 +189,7 @@
     "mineraculous:kamikotization_detransform",
     "mineraculous:kamikotization_transform",
     "mineraculous:kamikotization_use",
-    "mineraculous:kwami_hungry",
+    "mineraculous:kwami_hurt",
     "mineraculous:kwami_summon",
     "mineraculous:ladybug_transform",
     "mineraculous:ladybug_yoyo_shield",
@@ -260,8 +260,8 @@
     "mineraculous:thrown_ladybug_yoyo"
   ],
   "neoforge:entity_data_serializers": [
-    "mineraculous:ladybug_yoyo_ability",
     "mineraculous:miraculous",
+    "mineraculous:optional_ladybug_yoyo_ability",
     "mineraculous:optional_resource_location"
   ]
 }

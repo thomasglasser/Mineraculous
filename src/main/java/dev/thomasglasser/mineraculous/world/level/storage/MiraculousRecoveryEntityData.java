@@ -6,6 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
+
+import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -13,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.neoforged.neoforge.entity.PartEntity;
 import org.jetbrains.annotations.Nullable;
@@ -28,6 +33,18 @@ public class MiraculousRecoveryEntityData extends SavedData {
 
     public static SavedData.Factory<MiraculousRecoveryEntityData> factory() {
         return new SavedData.Factory<>(MiraculousRecoveryEntityData::new, (p_294039_, p_324123_) -> load(p_294039_), DataFixTypes.LEVEL);
+    }
+
+    public void tick(Entity entity) {
+        if (isBeingTracked(entity.getUUID()) && entity.tickCount % SharedConstants.TICKS_PER_SECOND * 5 == 0) {
+            List<UUID> alreadyRelated = getRelatedEntities(entity.getUUID());
+            List<LivingEntity> newRelated = entity.level().getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(16), livingEntity -> !alreadyRelated.contains(livingEntity.getUUID()) && (livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || livingEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()));
+            for (LivingEntity related : newRelated) {
+                if (related.getUUID() != entity.getUUID()) {
+                    putRelatedEntity(entity.getUUID(), related.getUUID());
+                }
+            }
+        }
     }
 
     public boolean isBeingTracked(UUID uuid) {
@@ -50,7 +67,7 @@ public class MiraculousRecoveryEntityData extends SavedData {
 
     public void putRelatedEntity(UUID trackedEntity, UUID relatedEntity) {
         if (!trackedAndRelatedEntities.containsKey(trackedEntity))
-            trackedAndRelatedEntities.put(trackedEntity, new ArrayList<>());
+            trackedAndRelatedEntities.put(trackedEntity, new ReferenceArrayList<>());
         List<UUID> related = trackedAndRelatedEntities.get(trackedEntity);
         if (!related.contains(relatedEntity)) {
             related.add(relatedEntity);

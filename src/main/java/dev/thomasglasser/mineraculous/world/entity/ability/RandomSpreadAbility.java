@@ -15,7 +15,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,13 +29,13 @@ public record RandomSpreadAbility(BlockState blockState, Optional<BlockPredicate
             SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(RandomSpreadAbility::startSound),
             Codec.BOOL.optionalFieldOf("override_active", false).forGetter(RandomSpreadAbility::overrideActive)).apply(instance, RandomSpreadAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, Context context) {
         if (context == Context.INTERACT_BLOCK) {
             if (canBlockBeReplaced(level, pos)) {
                 Map<BlockPos, BlockState> blocksAffected = new HashMap<>();
                 applyToBlock(level, pos, data.powerLevel(), blocksAffected);
-                MiraculousRecoveryBlockData.get(level).putRecoverable(entity.getUUID(), blocksAffected);
-                playStartSound(level, pos);
+                MiraculousRecoveryBlockData.get(level).putRecoverable(performer.getUUID(), blocksAffected);
+                playStartSound(level, pos, );
             }
             return true;
         }
@@ -80,8 +80,8 @@ public record RandomSpreadAbility(BlockState blockState, Optional<BlockPredicate
     }
 
     @Override
-    public void restore(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
-        MiraculousRecoveryBlockData.get(level).recover(entity.getUUID(), level);
+    public void restore(AbilityData data, ServerLevel level, Entity performer) {
+        MiraculousRecoveryBlockData.get(level).recover(performer.getUUID(), level);
     }
 
     @Override

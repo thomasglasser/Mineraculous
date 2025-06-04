@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.network.ClientboundToggleNightVisionShaderPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.entity.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
@@ -15,8 +16,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 public class NightVisionAbility implements Ability {
     public static final MapCodec<NightVisionAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -49,17 +51,17 @@ public class NightVisionAbility implements Ability {
     }
 
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, Context context) {
         if (context == Context.PASSIVE) {
-            checkNightVision((ServerPlayer) entity, level, pos);
+            checkNightVision((ServerPlayer) performer, level, pos);
             return true;
         }
         return false;
     }
 
     @Override
-    public boolean canActivate(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
-        return entity instanceof ServerPlayer;
+    public boolean canActivate(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
+        return performer instanceof ServerPlayer;
     }
 
     public void checkNightVision(ServerPlayer serverPlayer, Level level, BlockPos pos) {
@@ -89,8 +91,8 @@ public class NightVisionAbility implements Ability {
     }
 
     @Override
-    public void detransform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
-        if (entity instanceof ServerPlayer serverPlayer) {
+    public void detransform(AbilityData data, ServerLevel level, Entity performer) {
+        if (performer instanceof ServerPlayer serverPlayer) {
             updateNightVision(serverPlayer, false);
         }
     }

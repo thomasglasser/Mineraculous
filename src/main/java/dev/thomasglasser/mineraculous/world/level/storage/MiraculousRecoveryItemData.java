@@ -4,13 +4,29 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+
+import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
+import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.npc.InventoryCarrier;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.saveddata.SavedData;
@@ -27,6 +43,53 @@ public class MiraculousRecoveryItemData extends SavedData {
 
     public static Factory<MiraculousRecoveryItemData> factory() {
         return new Factory<>(MiraculousRecoveryItemData::new, MiraculousRecoveryItemData::load, DataFixTypes.LEVEL);
+    }
+
+    public void tick(Entity entity) {
+        if (entity instanceof LivingEntity livingEntity) {
+            if (livingEntity instanceof Player player) {
+                Inventory inventory = player.getInventory();
+                checkRecovered(inventory.items, inventory);
+            } else if (livingEntity instanceof InventoryCarrier carrier) {
+                SimpleContainer inventory = carrier.getInventory();
+                checkRecovered(inventory.getItems(), inventory);
+            }
+            for (EquipmentSlot slot : EquipmentSlot.values()) {
+                ItemStack stack = livingEntity.getItemBySlot(slot);
+                ItemStack recovered = checkRecovered(stack);
+                if (recovered != null) {
+                    livingEntity.setItemSlot(slot, recovered);
+                    stack.setCount(0);
+                }
+            }
+            List<Map.Entry<CuriosData, ItemStack>> curios = new ReferenceArrayList<>(CuriosUtils.getAllItems(livingEntity).entrySet());
+            checkRecovered(curios.size(), i -> curios.get(i).getValue(), (i, stack) -> {
+                CuriosData curiosData = curios.get(i).getKey();
+                CuriosUtils.setStackInSlot(livingEntity, curiosData, stack);
+            });
+        } else if (entity instanceof ItemEntity itemEntity) {
+            ItemStack stack = itemEntity.getItem();
+            ItemStack recovered = checkRecovered(stack);
+            if (recovered != null) {
+                itemEntity.setItem(recovered);
+                stack.setCount(0);
+            }
+        }
+    }
+
+    private void checkRecovered(int size, Function<Integer, ItemStack> getter, BiConsumer<Integer, ItemStack> setter) {
+        for (int i = 0; i < size; i++) {
+            ItemStack stack = getter.apply(i);
+            ItemStack recovered = checkRecovered(stack);
+            if (recovered != null) {
+                setter.accept(i, recovered);
+                stack.setCount(0);
+            }
+        }
+    }
+
+    private void checkRecovered(NonNullList<ItemStack> items, Container container) {
+        checkRecovered(items.size(), container::getItem, container::setItem);
     }
 
     public ItemStack checkRecovered(ItemStack itemStack) {

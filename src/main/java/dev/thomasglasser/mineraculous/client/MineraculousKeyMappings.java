@@ -65,7 +65,7 @@ public class MineraculousKeyMappings {
             List<ResourceKey<Miraculous>> transformed = miraculousesData.getTransformed();
             if (!transformed.isEmpty()) {
                 ResourceKey<Miraculous> miraculous = transformed.getFirst();
-                TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), false, false));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), false));
             } else {
                 List<RadialMenuOption> options = new ReferenceArrayList<>();
                 Map<RadialMenuOption, ResourceKey<Miraculous>> miraculousOptions = new Reference2ReferenceOpenHashMap<>();
@@ -103,7 +103,7 @@ public class MineraculousKeyMappings {
                                 KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
                                 if (kwamiData != null) {
                                     if (kwamiData.charged()) {
-                                        TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, data, true, false));
+                                        TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, data, true));
                                     } else {
                                         Kwami kwami = player.level().getEntity(kwamiData.id()) instanceof Kwami k ? k : null;
                                         if (kwami != null) {
@@ -116,7 +116,7 @@ public class MineraculousKeyMappings {
                     }));
                 } else if (options.size() == 1) {
                     ResourceKey<Miraculous> miraculous = miraculousOptions.get(options.getFirst());
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), true, false));
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), true));
                 }
             }
         }

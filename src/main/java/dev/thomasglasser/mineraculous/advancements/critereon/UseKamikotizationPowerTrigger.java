@@ -7,6 +7,8 @@ import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import java.util.List;
 import java.util.Optional;
+
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.ContextAwarePredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
@@ -37,7 +39,7 @@ public class UseKamikotizationPowerTrigger extends SimpleCriterionTrigger<UseKam
         }
 
         public static Criterion<TriggerInstance> usedPower(ResourceKey<Kamikotization> type, Context... contexts) {
-            return usedPower(type, List.of(contexts));
+            return usedPower(type, ReferenceArrayList.of(contexts));
         }
 
         public static Criterion<TriggerInstance> usedPower(ResourceKey<Kamikotization> type, List<Context> contexts) {
@@ -54,7 +56,7 @@ public class UseKamikotizationPowerTrigger extends SimpleCriterionTrigger<UseKam
     }
 
     public enum Context implements StringRepresentable {
-        EMPTY,
+        PASSIVE,
         BLOCK,
         ENTITY,
         LIVING_ENTITY,

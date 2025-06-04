@@ -9,7 +9,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEnti
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryItemData;
 import java.util.Optional;
 import java.util.UUID;
-import net.minecraft.core.BlockPos;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
@@ -41,18 +41,18 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
             SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(ApplyInfiniteEffectsOrDestroyAbility::startSound),
             Codec.BOOL.optionalFieldOf("override_active", false).forGetter(ApplyInfiniteEffectsOrDestroyAbility::overrideActive)).apply(instance, ApplyInfiniteEffectsOrDestroyAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, Context context) {
         if (context == Context.INTERACT_ENTITY) {
             Entity target = context.entity();
-            MiraculousRecoveryEntityData.get(level).putRecoverable(entity.getUUID(), target);
+            MiraculousRecoveryEntityData.get(level).putRecoverable(performer.getUUID(), target);
             if (target instanceof LivingEntity livingEntity) {
                 for (Holder<MobEffect> mobEffect : effects) {
                     MobEffectInstance effect = new MobEffectInstance(mobEffect, -1, (data.powerLevel() / 10));
                     livingEntity.addEffect(effect);
-                    if (entity instanceof ServerPlayer serverPlayer)
+                    if (performer instanceof ServerPlayer serverPlayer)
                         serverPlayer.connection.send(new ClientboundUpdateMobEffectPacket(livingEntity.getId(), effect, true));
                 }
-                if (entity instanceof Player player) {
+                if (performer instanceof Player player) {
                     livingEntity.setLastHurtByPlayer(player);
                     blameTag.ifPresent(s -> {
                         // TODO: Fix
@@ -67,21 +67,21 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
                     ItemStack itemstack = new ItemStack(dropItem.get());
                     UUID id = UUID.randomUUID();
                     itemstack.set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
-                    MiraculousRecoveryItemData.get(level).putRemovable(entity.getUUID(), id);
+                    MiraculousRecoveryItemData.get(level).putRemovable(performer.getUUID(), id);
                     vehicle.spawnAtLocation(itemstack);
                 }
             } else {
-                target.hurt(damageType.map(damageTypeResourceKey -> entity.damageSources().source(damageTypeResourceKey, entity)).orElse(entity.damageSources().indirectMagic(entity, entity)), 1024);
+                target.hurt(damageType.map(damageTypeResourceKey -> performer.damageSources().source(damageTypeResourceKey, performer)).orElse(performer.damageSources().indirectMagic(performer, performer)), 1024);
             }
-            playStartSound(level, pos);
+            playStartSound(level, pos, );
             return true;
         }
         return false;
     }
 
     @Override
-    public void restore(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
-        MiraculousRecoveryEntityData.get(level).recover(entity.getUUID(), level, target -> {
+    public void restore(AbilityData data, ServerLevel level, Entity performer) {
+        MiraculousRecoveryEntityData.get(level).recover(performer.getUUID(), level, target -> {
             if (target instanceof LivingEntity livingEntity) {
                 for (Holder<MobEffect> mobEffect : effects) {
                     livingEntity.removeEffect(mobEffect);
@@ -89,7 +89,7 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
             }
             return target;
         });
-        MiraculousRecoveryItemData.get(level).markRecovered(entity.getUUID());
+        MiraculousRecoveryItemData.get(level).markRecovered(performer.getUUID());
     }
 
     @Override

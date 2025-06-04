@@ -153,7 +153,7 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        var builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         drawPieArc(builder, width / 2f, height / 2f, 1, (circleSize) / 3f, circleSize * 91 / 90, (selectedOption + 1) * -sliceAngle, 2 * Math.PI - (selectedOption + 1) * sliceAngle, 0xAFAFAF);
         if (hasSelectedOption) {
             int color = selectedColor;

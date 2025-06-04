@@ -6,8 +6,6 @@ import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
-import java.util.HashMap;
-import java.util.Map;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
@@ -16,50 +14,29 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 
-public class MineraculousEntityTypes {
-    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(Registries.ENTITY_TYPE, Mineraculous.MOD_ID);
+import java.util.HashMap;
+import java.util.Map;
 
-    public static final DeferredHolder<EntityType<?>, EntityType<Kwami>> KWAMI = register("kwami",
-            EntityType.Builder.of(Kwami::new, MobCategory.CREATURE)
-                    .sized(0.3F, 0.4F));
-    public static final DeferredHolder<EntityType<?>, EntityType<Kamiko>> KAMIKO = register("kamiko",
-            EntityType.Builder.of(Kamiko::new, MobCategory.CREATURE)
-                    .clientTrackingRange(Integer.MAX_VALUE / 16)
-                    .sized(1.0F, 1.0F));
-    public static final DeferredHolder<EntityType<?>, EntityType<LuckyCharmItemSpawner>> LUCKY_CHARM_ITEM_SPAWNER = register("lucky_charm_item_spawner",
-            EntityType.Builder.of(LuckyCharmItemSpawner::new, MobCategory.MISC)
-                    .clientTrackingRange(8)
-                    .sized(0.25F, 0.25F));
+public class  MineraculousEntityTypes {
+    public static final DeferredRegister.Entities ENTITY_TYPES = DeferredRegister.createEntities(Mineraculous.MOD_ID);
+
+    public static final DeferredHolder<EntityType<?>, EntityType<Kwami>> KWAMI = ENTITY_TYPES.register("kwami", Kwami::new, MobCategory.CREATURE, builder -> builder
+            .sized(0.3F, 0.4F));
+    public static final DeferredHolder<EntityType<?>, EntityType<Kamiko>> KAMIKO = ENTITY_TYPES.register("kamiko", Kamiko::new, MobCategory.CREATURE, builder -> builder
+            .clientTrackingRange(Integer.MAX_VALUE / 16)
+            .sized(1.0F, 1.0F));
+    public static final DeferredHolder<EntityType<?>, EntityType<LuckyCharmItemSpawner>> LUCKY_CHARM_ITEM_SPAWNER = ENTITY_TYPES.register("lucky_charm_item_spawner", LuckyCharmItemSpawner::new, MobCategory.MISC, builder -> builder
+            .sized(0.25F, 0.25F));
 
     // Projectiles
-    public static final DeferredHolder<EntityType<?>, EntityType<ThrownLadybugYoyo>> THROWN_LADYBUG_YOYO = register("thrown_ladybug_yoyo",
-            EntityType.Builder.<ThrownLadybugYoyo>of(ThrownLadybugYoyo::new, MobCategory.MISC)
-                    .clientTrackingRange(Integer.MAX_VALUE / 16)
-                    .sized(0.5F, 0.5F));
-    public static final DeferredHolder<EntityType<?>, EntityType<ThrownCatStaff>> THROWN_CAT_STAFF = register("thrown_cat_staff",
-            EntityType.Builder.<ThrownCatStaff>of(ThrownCatStaff::new, MobCategory.MISC)
-                    .clientTrackingRange(Integer.MAX_VALUE / 16)
-                    .sized(0.5F, 0.5F));
-    public static final DeferredHolder<EntityType<?>, EntityType<ThrownButterflyCane>> THROWN_BUTTERFLY_CANE = register("thrown_butterfly_cane",
-            EntityType.Builder.<ThrownButterflyCane>of(ThrownButterflyCane::new, MobCategory.MISC)
-                    .clientTrackingRange(Integer.MAX_VALUE / 16)
-                    .sized(0.5F, 0.5F));
+    public static final DeferredHolder<EntityType<?>, EntityType<ThrownLadybugYoyo>> THROWN_LADYBUG_YOYO = registerThrown("thrown_ladybug_yoyo", ThrownLadybugYoyo::new);
+    public static final DeferredHolder<EntityType<?>, EntityType<ThrownCatStaff>> THROWN_CAT_STAFF = registerThrown("thrown_cat_staff", ThrownCatStaff::new);
+    public static final DeferredHolder<EntityType<?>, EntityType<ThrownButterflyCane>> THROWN_BUTTERFLY_CANE = registerThrown("thrown_butterfly_cane", ThrownButterflyCane::new);
 
-    private static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> register(String name, EntityType.Builder<T> builder) {
-        return ENTITY_TYPES.register(name, () -> builder.build(name));
-    }
-
-    private static ResourceKey<EntityType<?>> key(String name) {
-        return ResourceKey.create(Registries.ENTITY_TYPE, Mineraculous.modLoc(name));
-    }
-
-    public static Map<EntityType<? extends LivingEntity>, AttributeSupplier> getAllAttributes() {
-        Map<EntityType<? extends LivingEntity>, AttributeSupplier> map = new HashMap<>();
-
-        map.put(KWAMI.get(), Kwami.createAttributes().build());
-        map.put(KAMIKO.get(), Kamiko.createAttributes().build());
-
-        return map;
+    private static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> registerThrown(String name, EntityType.EntityFactory<T> factory) {
+        return ENTITY_TYPES.register(name, factory, MobCategory.MISC, builder -> builder
+                .clientTrackingRange(Integer.MAX_VALUE / 16)
+                .sized(0.5f, 0.5f));
     }
 
     public static void init() {}

@@ -20,6 +20,7 @@ import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilitySe
 import dev.thomasglasser.mineraculous.world.entity.ai.sensing.MineraculousSensorTypes;
 import dev.thomasglasser.mineraculous.world.entity.ai.village.poi.MineraculousPoiTypes;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerProfessions;
+import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerTrades;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmorMaterials;
@@ -79,11 +80,13 @@ public class Mineraculous {
         modBus.addListener(MineraculousPayloads::onRegisterPackets);
 
         modBus.addListener(MineraculousEntityEvents::onEntityAttributeCreation);
+        modBus.addListener(MineraculousCoreEvents::onFMLCommonSetup);
         modBus.addListener(MineraculousCoreEvents::onNewDataPackRegistry);
         modBus.addListener(MineraculousCoreEvents::onNewRegistry);
         modBus.addListener(MineraculousCoreEvents::onRegisterDataMapTypes);
         modBus.addListener(MineraculousCoreEvents::onAddPackFinders);
 
+        NeoForge.EVENT_BUS.addListener(MineraculousVillagerTrades::onRegisterVillagerTrades);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingDeath);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityInteract);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onBlockInteract);
@@ -95,9 +98,7 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousCommandEvents::onCommandsRegister);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingHeal);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityTick);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityLeaveLevel);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onRegisterVillagerTrades);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityJoinLevel);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerLoggedOut);
         NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onLootTableLoad);

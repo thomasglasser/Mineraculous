@@ -15,7 +15,6 @@ import dev.thomasglasser.mineraculous.client.gui.screens.kamikotization.Kamikoti
 import dev.thomasglasser.mineraculous.client.gui.screens.kamikotization.PerformerKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
-import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
@@ -26,6 +25,7 @@ import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilities;
 import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
@@ -49,11 +49,12 @@ import dev.thomasglasser.tommylib.api.data.lang.ExtendedEnUsLanguageProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
-import java.util.Map;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemNameBlockItem;
+
+import java.util.Map;
 
 public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvider {
     public MineraculousEnUsLanguageProvider(PackOutput output) {
@@ -233,7 +234,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         // Taking/Breaking
         add(ServerboundWakeUpPayload.STEALING_WARNING_KEY, "You may not rest now, there are thieves nearby.");
         add(ExternalInventoryScreen.ITEM_BOUND_KEY, "This item is bound to the player.");
-        add(ServerboundTryBreakItemPayload.ITEM_UNBREAKABLE_KEY, "This item is unbreakable by normal means.");
+        add(MineraculousEntityEvents.ITEM_UNBREAKABLE_KEY, "This item is unbreakable by normal means.");
 
         // Kamiko Gui
         add(TargetPlayerMenuCategory.TARGET_PROMPT, "Select a player to target");
@@ -273,7 +274,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     private void addMobEffects() {
-        add(MineraculousMobEffects.CATACLYSMED.get(), "Cataclysmed");
+        add(MineraculousMobEffects.CATACLYSM.get(), "Cataclysm");
     }
 
     private void addCuriosSlots() {
@@ -310,7 +311,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM.get(), "Kamikotized player detransforms");
 
         // Kwami
-        add(MineraculousSoundEvents.KWAMI_HUNGRY.get(), "Kwami hungers");
+        add(MineraculousSoundEvents.KWAMI_HURT.get(), "Kwami hungers");
         add(MineraculousSoundEvents.KWAMI_SUMMON.get(), "Kwami appears");
     }
 

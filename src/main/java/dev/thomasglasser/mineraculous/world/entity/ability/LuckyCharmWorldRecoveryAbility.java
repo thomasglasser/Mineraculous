@@ -7,6 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ClientboundCheckLuckyCharmWorldRecoveryPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.entity.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.KamikotizedPowerSourceItem;
@@ -32,8 +33,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<ParticleOptions> spreadParticle, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
 
@@ -43,9 +46,9 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
             SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(LuckyCharmWorldRecoveryAbility::startSound),
             Codec.BOOL.optionalFieldOf("override_active", false).forGetter(LuckyCharmWorldRecoveryAbility::overrideActive)).apply(instance, LuckyCharmWorldRecoveryAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, Context context) {
         if (context == Context.PASSIVE) {
-            if (entity instanceof ServerPlayer serverPlayer)
+            if (performer instanceof ServerPlayer serverPlayer)
                 TommyLibServices.NETWORK.sendToClient(new ClientboundCheckLuckyCharmWorldRecoveryPayload(data, spreadParticle, startSound), serverPlayer);
             return true;
         }
@@ -53,17 +56,17 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
     }
 
     @Override
-    public boolean canActivate(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
+    public boolean canActivate(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (requireInHand) {
-            ItemStack mainHandItem = entity.getMainHandItem();
+            ItemStack mainHandItem = performer.getMainHandItem();
             Either<ResourceKey<Miraculous>, ResourceKey<Kamikotization>> power = data.power();
             LuckyCharm luckyCharm = mainHandItem.get(MineraculousDataComponents.LUCKY_CHARM);
             if (luckyCharm != null) {
                 if (power.left().isPresent()) {
                     KwamiData stackKwamiData = mainHandItem.get(MineraculousDataComponents.KWAMI_DATA);
-                    return stackKwamiData != null && stackKwamiData.uuid().equals(entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(power.left().get()).miraculousItem().get(MineraculousDataComponents.KWAMI_DATA).uuid()) && luckyCharm.id() == LuckyCharmIdData.get(level).getLuckyCharmId(stackKwamiData.uuid());
+                    return stackKwamiData != null && stackKwamiData.uuid().equals(performer.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(power.left().get()).miraculousItem().get(MineraculousDataComponents.KWAMI_DATA).uuid()) && luckyCharm.id() == LuckyCharmIdData.get(level).getLuckyCharmId(stackKwamiData.uuid());
                 } else {
-                    return mainHandItem.get(MineraculousDataComponents.KAMIKOTIZATION) == power.right().get() && luckyCharm.id() == LuckyCharmIdData.get(level).getLuckyCharmId(entity.getUUID());
+                    return mainHandItem.get(MineraculousDataComponents.KAMIKOTIZATION) == power.right().get() && luckyCharm.id() == LuckyCharmIdData.get(level).getLuckyCharmId(performer.getUUID());
                 }
             }
             return false;
@@ -91,15 +94,15 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
                             if (kamikotization.powerSource().left().get().getItem() instanceof KamikotizedPowerSourceItem item)
                                 item.restore(recovering);
                         } else
-                            kamikotization.powerSource().right().get().value().restore(abilityData, level, recovering.blockPosition(), recovering);
-                        kamikotization.passiveAbilities().forEach(ability -> ability.value().restore(abilityData, level, recovering.blockPosition(), recovering));
+                            kamikotization.powerSource().right().get().value().restore(abilityData, level, recovering);
+                        kamikotization.passiveAbilities().forEach(ability -> ability.value().restore(abilityData, level, recovering));
                     }
                     for (ResourceKey<Miraculous> miraculousKey : transformed) {
                         Miraculous miraculous = level.holderOrThrow(miraculousKey).value();
                         MiraculousData miraculousData = miraculousesData.get(miraculousKey);
                         AbilityData abilityData = new AbilityData(miraculousData.powerLevel(), Either.left(miraculousKey));
-                        miraculous.activeAbility().ifPresent(ability -> ability.value().restore(abilityData, level, recovering.blockPosition(), recovering));
-                        miraculous.passiveAbilities().forEach(ability -> ability.value().restore(abilityData, level, recovering.blockPosition(), recovering));
+                        miraculous.activeAbility().ifPresent(ability -> ability.value().restore(abilityData, level, recovering));
+                        miraculous.passiveAbilities().forEach(ability -> ability.value().restore(abilityData, level, recovering));
                     }
                 }
             }

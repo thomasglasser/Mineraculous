@@ -4,8 +4,7 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.item.component.ActiveSettings;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
-import dev.thomasglasser.tommylib.api.network.codec.ExtraStreamCodecs;
-import java.util.Optional;
+import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import net.minecraft.core.Holder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -19,10 +18,12 @@ import net.minecraft.world.item.ItemStack;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 
+import java.util.Optional;
+
 public record ServerboundToggleActivePayload(InteractionHand hand) implements ExtendedPacketPayload {
     public static final Type<ServerboundToggleActivePayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_toggle_active"));
     public static final StreamCodec<FriendlyByteBuf, ServerboundToggleActivePayload> CODEC = StreamCodec.composite(
-            ExtraStreamCodecs.forEnum(InteractionHand.class), ServerboundToggleActivePayload::hand,
+            TommyLibExtraStreamCodecs.forEnum(InteractionHand.class), ServerboundToggleActivePayload::hand,
             ServerboundToggleActivePayload::new);
 
     @Override

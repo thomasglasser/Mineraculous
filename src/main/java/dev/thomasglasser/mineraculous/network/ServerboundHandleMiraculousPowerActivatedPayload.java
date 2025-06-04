@@ -40,8 +40,8 @@ public record ServerboundHandleMiraculousPowerActivatedPayload(ResourceKey<Mirac
         Ability power = level.registryAccess().holderOrThrow(miraculousType).value().activeAbility().get().value();
         MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
         MiraculousData data = miraculousesData.get(miraculousType);
-        if (power.canActivate(new AbilityData(data.powerLevel(), Either.left(miraculousType)), level, player.blockPosition(), player)) {
-            power.playStartSound(level, player.blockPosition());
+        if (power.canActivate(new AbilityData(data.powerLevel(), Either.left(miraculousType)), level, player, )) {
+            power.playStartSound(level, player.blockPosition(), );
             data = data.withPowerStatus(true, true);
             if (data.shouldCountDown())
                 data.miraculousItem().set(MineraculousDataComponents.REMAINING_TICKS.get(), MiraculousItem.FIVE_MINUTES);

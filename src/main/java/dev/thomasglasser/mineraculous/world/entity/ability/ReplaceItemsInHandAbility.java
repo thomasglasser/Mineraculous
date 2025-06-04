@@ -10,11 +10,11 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryItem
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.advancements.critereon.ItemPredicate;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -29,7 +29,7 @@ public record ReplaceItemsInHandAbility(ItemStack replacement, boolean hurtAndBr
             SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(ReplaceItemsInHandAbility::startSound),
             Codec.BOOL.optionalFieldOf("override_active", false).forGetter(ReplaceItemsInHandAbility::overrideActive)).apply(instance, ReplaceItemsInHandAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, Context context) {
         if (context == Context.INTERACT_ITEM) {
             ItemStack stack = context.stack();
             if (validItems.isPresent() && !validItems.get().test(stack))
@@ -39,28 +39,28 @@ public record ReplaceItemsInHandAbility(ItemStack replacement, boolean hurtAndBr
             ItemStack replacement = this.replacement.copyWithCount(1);
             UUID id = UUID.randomUUID();
             replacement.set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
-            MiraculousRecoveryItemData.get(level).putRecoverable(entity.getUUID(), id, stack);
+            MiraculousRecoveryItemData.get(level).putRecoverable(performer.getUUID(), id, stack);
             stack.setCount(0);
             if (hurtAndBreak) {
                 if (stack.isDamageableItem()) {
-                    stack.hurtAndBreak(stack.getMaxDamage(), entity, EquipmentSlot.MAINHAND);
+                    stack.hurtAndBreak(stack.getMaxDamage(), performer, EquipmentSlot.MAINHAND);
                 } else {
-                    MineraculousEntityEvents.checkKamikotizationStack(stack, level, entity);
+                    MineraculousEntityEvents.checkKamikotizationStack(stack, level, performer);
                 }
             }
             if (context.entity() instanceof LivingEntity livingEntity)
                 livingEntity.setItemInHand(livingEntity.getUsedItemHand(), replacement);
             else
-                entity.setItemInHand(InteractionHand.MAIN_HAND, replacement);
-            playStartSound(level, pos);
+                performer.setItemInHand(InteractionHand.MAIN_HAND, replacement);
+            playStartSound(level, pos, );
             return true;
         }
         return false;
     }
 
     @Override
-    public void restore(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
-        MiraculousRecoveryItemData.get(level).markRecovered(entity.getUUID());
+    public void restore(AbilityData data, ServerLevel level, Entity performer) {
+        MiraculousRecoveryItemData.get(level).markRecovered(performer.getUUID());
     }
 
     @Override

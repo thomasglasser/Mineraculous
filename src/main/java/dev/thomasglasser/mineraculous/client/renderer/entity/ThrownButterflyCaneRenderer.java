@@ -29,7 +29,7 @@ public class ThrownButterflyCaneRenderer extends GeoEntityRenderer<ThrownButterf
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot()) - 90.0F));
         poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot()) + 90.0F));
-        if (animatable.showBlade()) {
+        if (animatable.shouldShowBlade()) {
             poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
             poseStack.translate(0.0, -1.0, 0.0);
         }

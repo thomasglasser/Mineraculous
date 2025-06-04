@@ -8,7 +8,6 @@ import dev.thomasglasser.mineraculous.client.renderer.item.DefaultedGeoItemRende
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -19,6 +18,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -26,9 +26,12 @@ import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
+import java.util.List;
+
 public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYoyo> {
+    public static final ResourceLocation ROPE_TEXTURE = Mineraculous.modLoc("textures/item/ladybug_yoyo_rope.png");
+
     private static final ResourceLocation TEXTURE = DefaultedGeoItemRenderer.makeTextureLocation(MineraculousItems.LADYBUG_YOYO.getId());
-    private static final ResourceLocation ROPE_TEXTURE = Mineraculous.modLoc("textures/item/ladybug_yoyo_rope.png");
 
     private static final int POINTS = 100;
     private static final double CATENARY_CURVE_FACTOR = 2048.0;
@@ -57,56 +60,18 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
         }
     }
 
-    private List<RopePoint> calculateRopePoints(Vec3 projectilePos, Vec3 playerHandPos, double maxLength) {
-        if (shouldRecalculatePoints(projectilePos, playerHandPos, maxLength)) {
-            Vec3 fromProjectileToHand = new Vec3(playerHandPos.x - projectilePos.x,
-                    playerHandPos.y - projectilePos.y,
-                    playerHandPos.z - projectilePos.z);
-            Vec3 fromProjectileToHandOnXZ = new Vec3(fromProjectileToHand.x, 0, fromProjectileToHand.z);
-
-            points.clear();
-            double lastX = POINTS * (fromProjectileToHandOnXZ.length()) / (POINTS + 1);
-            double lastY = POINTS * (playerHandPos.y - projectilePos.y) / POINTS
-                    - (2 * POINTS * (maxLength - POINTS * maxLength / (POINTS + 1)) / CATENARY_CURVE_FACTOR);
-            RopePoint lastPoint = new RopePoint(lastX, lastY, fromProjectileToHandOnXZ);
-
-            Vec3 offset = new Vec3(fromProjectileToHand.x - lastPoint.worldX(),
-                    fromProjectileToHand.y - lastPoint.localY(),
-                    fromProjectileToHand.z - lastPoint.worldZ());
-            double offsetLength = offset.length();
-
-            for (int i = 1; i <= POINTS; i++) {
-                double x = i * (fromProjectileToHandOnXZ.length() + offsetLength) / (POINTS + 1);
-                double y = i * (playerHandPos.y - projectilePos.y) / POINTS
-                        - (2 * i * (maxLength - i * maxLength / (POINTS + 1)) / CATENARY_CURVE_FACTOR);
-                points.add(new RopePoint(x, y, fromProjectileToHandOnXZ));
-            }
-
-            lastProjectilePos = projectilePos;
-            lastPlayerHandPos = playerHandPos;
-            lastMaxLength = maxLength;
-        }
-
-        return points;
-    }
-
-    private boolean shouldRecalculatePoints(Vec3 projectilePos, Vec3 playerHandPos, double maxLength) {
-        return lastProjectilePos == null
-                || lastPlayerHandPos == null
-                || !lastProjectilePos.equals(projectilePos)
-                || !lastPlayerHandPos.equals(playerHandPos)
-                || lastMaxLength != maxLength;
-    }
-
     private void renderRope(PoseStack poseStack, ThrownLadybugYoyo animatable, MultiBufferSource bufferSource, float partialTick) {
         Player projectilePlayer = animatable.getPlayerOwner();
+        if (projectilePlayer == null) {
+            return;
+        }
 
         float attackAnim = projectilePlayer.getAttackAnim(partialTick);
         float swingAngle = Mth.sin(Mth.sqrt(attackAnim) * Mth.PI);
 
         double maxLength = animatable.getRenderMaxRopeLength();
 
-        Vec3 playerHandPos = getPlayerHandPos(projectilePlayer, swingAngle, partialTick, !projectilePlayer.getMainHandItem().is(MineraculousItems.LADYBUG_YOYO));
+        Vec3 playerHandPos = getPlayerHandPos(projectilePlayer, swingAngle, partialTick, !(animatable.getInitialHand() == InteractionHand.MAIN_HAND));
         Vec3 projectilePos = animatable.getPosition(partialTick);
 
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(ROPE_TEXTURE));
@@ -149,6 +114,47 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
             poseStack.translate(0, 0, 0.15);
         }
         poseStack.translate(0, -0.1, 0);
+    }
+
+    private List<RopePoint> calculateRopePoints(Vec3 projectilePos, Vec3 playerHandPos, double maxLength) {
+        if (shouldRecalculatePoints(projectilePos, playerHandPos, maxLength)) {
+            Vec3 fromProjectileToHand = new Vec3(playerHandPos.x - projectilePos.x,
+                    playerHandPos.y - projectilePos.y,
+                    playerHandPos.z - projectilePos.z);
+            Vec3 fromProjectileToHandOnXZ = new Vec3(fromProjectileToHand.x, 0, fromProjectileToHand.z);
+
+            points.clear();
+            double lastX = POINTS * (fromProjectileToHandOnXZ.length()) / (POINTS + 1);
+            double lastY = POINTS * (playerHandPos.y - projectilePos.y) / POINTS
+                    - (2 * POINTS * (maxLength - POINTS * maxLength / (POINTS + 1)) / CATENARY_CURVE_FACTOR);
+            RopePoint lastPoint = new RopePoint(lastX, lastY, fromProjectileToHandOnXZ);
+
+            Vec3 offset = new Vec3(fromProjectileToHand.x - lastPoint.worldX(),
+                    fromProjectileToHand.y - lastPoint.localY(),
+                    fromProjectileToHand.z - lastPoint.worldZ());
+            double offsetLength = offset.length();
+
+            for (int i = 1; i <= POINTS; i++) {
+                double x = i * (fromProjectileToHandOnXZ.length() + offsetLength) / (POINTS + 1);
+                double y = i * (playerHandPos.y - projectilePos.y) / POINTS
+                        - (2 * i * (maxLength - i * maxLength / (POINTS + 1)) / CATENARY_CURVE_FACTOR);
+                points.add(new RopePoint(x, y, fromProjectileToHandOnXZ));
+            }
+
+            lastProjectilePos = projectilePos;
+            lastPlayerHandPos = playerHandPos;
+            lastMaxLength = maxLength;
+        }
+
+        return points;
+    }
+
+    private boolean shouldRecalculatePoints(Vec3 projectilePos, Vec3 playerHandPos, double maxLength) {
+        return lastProjectilePos == null
+                || lastPlayerHandPos == null
+                || !lastProjectilePos.equals(projectilePos)
+                || !lastPlayerHandPos.equals(playerHandPos)
+                || lastMaxLength != maxLength;
     }
 
     // TODO: Fix to make better and account for speed and other things that alter hand pos

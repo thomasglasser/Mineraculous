@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -14,10 +15,13 @@ import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -35,7 +39,6 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -99,7 +102,6 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
     private TagKey<Item> treatTag;
 
     private int eatTicks = 0;
-    private boolean onShoulder = false;
 
     public Kwami(EntityType<? extends Kwami> entityType, Level level) {
         super(entityType, level);
@@ -125,14 +127,12 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
         builder.define(DATA_MIRACULOUS, Miraculouses.LADYBUG);
     }
 
-    @Override
-    protected PathNavigation createNavigation(Level world) {
-        return new SmoothFlyingPathNavigation(this, world);
+    public void setCharged(boolean charged) {
+        entityData.set(DATA_CHARGED, charged);
     }
 
-    @Override
-    public float getPathfindingMalus(PathType pathType) {
-        return 0;
+    public boolean isCharged() {
+        return entityData.get(DATA_CHARGED);
     }
 
     public void setMiraculous(ResourceKey<Miraculous> type) {
@@ -141,6 +141,16 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
 
     public ResourceKey<Miraculous> getMiraculous() {
         return entityData.get(DATA_MIRACULOUS);
+    }
+
+    @Override
+    protected PathNavigation createNavigation(Level level) {
+        return new SmoothFlyingPathNavigation(this, level);
+    }
+
+    @Override
+    public float getPathfindingMalus(PathType pathType) {
+        return 0;
     }
 
     @Nullable
@@ -158,20 +168,50 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
     protected void customServerAiStep() {
         super.customServerAiStep();
         tickBrain(this);
-        if (isFood(getMainHandItem()) || isTreat(getMainHandItem())) {
+        ItemStack mainHandItem = getMainHandItem();
+        if (eatTicks > 0 && (isFood(mainHandItem) || isTreat(mainHandItem))) {
             eatTicks--;
-            if (eatTicks <= 0) {
+            if (eatTicks <= 1) {
+                if (isTreat(mainHandItem) || (isFood(mainHandItem) && random.nextInt(3) == 0)) {
+                    setCharged(true);
+                }
                 setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                setCharged(true);
+            }
+            if (!mainHandItem.has(DataComponents.FOOD) && shouldTriggerItemUseEffects(getDefaultEatTicks(), eatTicks)) {
+                this.spawnItemParticles(mainHandItem, 5);
+                this.playSound(
+                        this.getEatingSound(mainHandItem),
+                        0.5F + 0.5F * (float) this.random.nextInt(2),
+                        (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F
+                );
             }
         }
+    }
+
+    private boolean shouldTriggerItemUseEffects(int max, int remaining) {
+        int left = max - remaining;
+        int startAt = (int)((float)max * 0.21875F);
+        boolean flag = left > startAt;
+        return flag && remaining % 4 == 0;
+    }
+
+    protected int getDefaultEatTicks() {
+        return SharedConstants.TICKS_PER_SECOND * 3;
     }
 
     @Override
     public List<? extends ExtendedSensor<? extends Kwami>> getSensors() {
         return ObjectArrayList.of(
                 new NearbyPlayersSensor<>(),
-                new ItemTemptingSensor<Kwami>().temptedWith((entity, stack) -> (!isCharged() && (isFood(stack) || isTreat(stack))) || (stack.is(MineraculousItems.MIRACULOUS) && stack.has(MineraculousDataComponents.KWAMI_DATA) && stack.get(MineraculousDataComponents.KWAMI_DATA).uuid().equals(getUUID()))));
+                new ItemTemptingSensor<Kwami>().temptedWith((entity, stack) -> {
+                    if (stack.is(MineraculousItems.MIRACULOUS)) {
+                        KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
+                        return kwamiData != null && kwamiData.uuid().equals(entity.getUUID());
+                    } else if (!entity.isCharged()) {
+                        return isFood(stack) || isTreat(stack);
+                    }
+                    return false;
+                }));
     }
 
     @Override
@@ -186,7 +226,7 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
                 new SetWalkTargetToAttackTarget<>(),
                 new MoveToWalkTarget<>(),
                 new LookAtTarget<>(),
-                new AvoidEntity<>().noCloserThan(5).stopCaringAfter(10).speedModifier(2f).avoiding(livingEntity -> getOwner() != null && livingEntity instanceof Player && livingEntity != getOwner()));
+                new AvoidEntity<>().noCloserThan(5).stopCaringAfter(10).speedModifier(2f).avoiding(livingEntity -> !livingEntity.getUUID().equals(getOwnerUUID())));
     }
 
     @Override
@@ -215,45 +255,37 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
         return getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(super.getTarget());
     }
 
-    public void setCharged(boolean charged) {
-        entityData.set(DATA_CHARGED, charged);
-    }
-
-    public boolean isCharged() {
-        return entityData.get(DATA_CHARGED);
-    }
-
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (player == getOwner()) {
+        if (player.getUUID().equals(getOwnerUUID())) {
             if (player instanceof ServerPlayer serverPlayer) {
                 ItemStack stack = player.getItemInHand(hand);
                 if (stack.isEmpty()) {
-                    return setEntityOnShoulder(serverPlayer) ? InteractionResult.SUCCESS : InteractionResult.FAIL;
-                } else if (serverPlayer.serverLevel().players().size() > 1 && stack.is(MineraculousItems.MIRACULOUS) && stack.has(MineraculousDataComponents.KWAMI_DATA) && stack.get(MineraculousDataComponents.KWAMI_DATA).uuid().equals(getUUID())) {
-                    TommyLibServices.NETWORK.sendToClient(new ClientboundOpenMiraculousTransferScreenPayload(getId()), serverPlayer);
-                    return InteractionResult.SUCCESS;
-                }
-                if (!isCharged()) {
-                    if (isTreat(stack) || (isFood(stack) && random.nextInt(3) == 0)) {
-                        playHurtSound(level().damageSources().starve());
-                        setItemInHand(hand, stack.copyWithCount(1));
-                        FoodProperties foodData = stack.get(DataComponents.FOOD);
-                        if (foodData != null) {
-                            eatTicks = foodData.eatDurationTicks() * 2;
-                        } else {
-                            eatTicks = 40;
+                    // TODO: Put kwami in item mode in hand
+                } else {
+                    KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
+                    if (serverPlayer.serverLevel().players().size() > 1 && stack.is(MineraculousItems.MIRACULOUS) && kwamiData != null && kwamiData.uuid().equals(getUUID())) {
+                        TommyLibServices.NETWORK.sendToClient(new ClientboundOpenMiraculousTransferScreenPayload(getId()), serverPlayer);
+                    } else if (!isCharged()) {
+                        if (isTreat(stack) || isFood(stack)) {
+                            setItemInHand(InteractionHand.MAIN_HAND, stack.copyWithCount(1));
+                            FoodProperties foodProperties = stack.get(DataComponents.FOOD);
+                            if (foodProperties != null) {
+                                eatTicks = foodProperties.eatDurationTicks();
+                                if (eatTicks <= 0)
+                                    eatTicks = getDefaultEatTicks();
+                            } else {
+                                eatTicks = getDefaultEatTicks();
+                            }
+                            ItemUtils.safeShrink(1, stack, player);
+                            startUsingItem(InteractionHand.MAIN_HAND);
                         }
-                    }
-                    if (isTreat(stack) || isFood(stack)) {
-                        ItemUtils.safeShrink(1, stack, player);
-                        return InteractionResult.SUCCESS;
                     }
                 }
             }
-            return InteractionResult.SUCCESS;
+            return InteractionResult.sidedSuccess(level().isClientSide);
         }
-        return InteractionResult.PASS;
+        return InteractionResult.FAIL;
     }
 
     @Override
@@ -261,7 +293,7 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
         controllers.add(new AnimationController<>(this, "move_controller", state -> {
             if (state.isMoving())
                 return state.setAndContinue(DefaultAnimations.FLY);
-            return onShoulder ? state.setAndContinue(SIT) : state.setAndContinue(DefaultAnimations.IDLE);
+            return state.setAndContinue(DefaultAnimations.IDLE);
         }));
         controllers.add(new AnimationController<>(this, "item_controller", state -> {
             ItemStack mainHandItem = this.getMainHandItem();
@@ -309,29 +341,36 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
 
     @Override
     protected @Nullable SoundEvent getHurtSound(DamageSource damageSource) {
-        if (damageSource.is(DamageTypes.STARVE))
-            return MineraculousSoundEvents.KWAMI_HUNGRY.get();
-        return super.getHurtSound(damageSource);
+        return MineraculousSoundEvents.KWAMI_HURT.get();
     }
 
     @Override
     public void die(DamageSource damageSource) {
-        if (getOwner() instanceof ServerPlayer player) {
-            Predicate<ItemStack> isMyJewel = stack -> stack.has(MineraculousDataComponents.KWAMI_DATA.get()) && stack.get(MineraculousDataComponents.KWAMI_DATA.get()).uuid().equals(getUUID());
-            List<ItemStack> miraculous = new ArrayList<>(player.getInventory().items.stream().filter(isMyJewel).toList());
-            Map<CuriosData, ItemStack> allCurios = CuriosUtils.getAllItems(player);
-            Map<CuriosData, ItemStack> curios = new HashMap<>();
-            allCurios.forEach(((curiosData, stack) -> {
-                if (isMyJewel.test(stack))
-                    curios.put(curiosData, stack);
-            }));
-            List<ItemStack> all = new ArrayList<>(miraculous);
-            all.addAll(curios.values());
-            for (ItemStack stack : all) {
-                stack.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
-                stack.remove(MineraculousDataComponents.KWAMI_DATA.get());
+        LivingEntity owner = getOwner();
+        if (owner != null) {
+            Predicate<ItemStack> isMyMiraculous = stack -> {
+                KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
+                return kwamiData != null && kwamiData.uuid().equals(getUUID());
+            };
+            List<ItemStack> inventoryMiraculouses = new ReferenceArrayList<>();
+            for (ItemStack stack : EntityUtils.getInventory(owner)) {
+                if (isMyMiraculous.test(stack)) {
+                    inventoryMiraculouses.add(stack);
+                }
             }
-            curios.forEach((data, stack) -> CuriosUtils.setStackInSlot(player, data, stack));
+            Map<CuriosData, ItemStack> curiosMiraculouses = new Reference2ReferenceOpenHashMap<>();
+            for (Map.Entry<CuriosData, ItemStack> entry : CuriosUtils.getAllItems(owner).entrySet()) {
+                if (isMyMiraculous.test(entry.getValue())) {
+                    curiosMiraculouses.put(entry.getKey(), entry.getValue());
+                }
+            }
+            List<ItemStack> allMiraculouses = new ReferenceArrayList<>(inventoryMiraculouses);
+            allMiraculouses.addAll(curiosMiraculouses.values());
+            for (ItemStack stack : allMiraculouses) {
+                stack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
+                stack.remove(MineraculousDataComponents.KWAMI_DATA);
+            }
+            curiosMiraculouses.forEach((data, stack) -> CuriosUtils.setStackInSlot(owner, data, stack));
         }
         super.die(damageSource);
     }
@@ -360,10 +399,6 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
     @Override
     public boolean isFlying() {
         return true;
-    }
-
-    public void setOnShoulder() {
-        onShoulder = true;
     }
 
     @Override

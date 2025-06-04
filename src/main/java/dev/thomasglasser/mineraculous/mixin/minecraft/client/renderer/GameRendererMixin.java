@@ -34,6 +34,6 @@ public abstract class GameRendererMixin {
     @ModifyExpressionValue(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;hasEffect(Lnet/minecraft/core/Holder;)Z"))
     private boolean checkCatacylsmedForConfusionSpin(boolean original) {
         Player player = this.minecraft.player;
-        return original || (player != null && player.hasEffect(MineraculousMobEffects.CATACLYSMED));
+        return original || (player != null && player.hasEffect(MineraculousMobEffects.CATACLYSM));
     }
 }

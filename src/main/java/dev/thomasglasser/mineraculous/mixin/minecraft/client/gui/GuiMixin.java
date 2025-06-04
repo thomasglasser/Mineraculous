@@ -20,7 +20,7 @@ public abstract class GuiMixin {
 
     @ModifyExpressionValue(method = "renderCameraOverlays", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;hasEffect(Lnet/minecraft/core/Holder;)Z"))
     private boolean disablePortalOverlayWhenCataclysmed(boolean original) {
-        return original || this.minecraft.player.hasEffect(MineraculousMobEffects.CATACLYSMED);
+        return original || this.minecraft.player.hasEffect(MineraculousMobEffects.CATACLYSM);
     }
 
     @ModifyExpressionValue(method = "renderCrosshair", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/CameraType;isFirstPerson()Z"))

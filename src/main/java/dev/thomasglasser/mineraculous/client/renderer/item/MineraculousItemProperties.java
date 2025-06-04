@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.item.ItemPropertyFunction;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.component.BlockItemStateProperties;
 
@@ -36,11 +37,13 @@ public class MineraculousItemProperties {
         // Miraculous Tools
         ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), ABILITY, getEnumAbilityPropertyFunction(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()));
         ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), THROWN, (stack, level, entity, seed) -> {
-            if (entity instanceof Player player && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
+            if (entity instanceof Player player) {
                 ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
                 ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
                 if (thrownYoyo instanceof ThrownLadybugYoyo yoyo) {
-                    return yoyo.inGround() || yoyo.isBound() ? 2 : 1;
+                    if (yoyo.getInitialHand() == InteractionHand.MAIN_HAND ? player.getMainHandItem() == stack : player.getOffhandItem() == stack) {
+                        return yoyo.inGround() /*|| yoyo.isBound()*/ ? 2 : 1;
+                    }
                 }
             }
             return 0;

@@ -3,17 +3,17 @@ package dev.thomasglasser.mineraculous.world.entity.ability;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thomasglasser.mineraculous.network.ClientboundSendRightHandParticlesPayload;
+import dev.thomasglasser.mineraculous.network.ClientboundAddRightHandParticlesPayload;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
-import net.minecraft.core.BlockPos;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
 
 public record RightHandParticlesAbility(ParticleOptions particle, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
 
@@ -22,10 +22,10 @@ public record RightHandParticlesAbility(ParticleOptions particle, Optional<Holde
             SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(RightHandParticlesAbility::startSound),
             Codec.BOOL.optionalFieldOf("override_active", false).forGetter(RightHandParticlesAbility::overrideActive)).apply(instance, RightHandParticlesAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, Context context) {
         if (context == Context.PASSIVE) {
-            TommyLibServices.NETWORK.sendToTrackingClients(new ClientboundSendRightHandParticlesPayload(entity.getId(), particle), level.getServer(), entity);
-            playStartSound(level, pos);
+            TommyLibServices.NETWORK.sendToTrackingClients(new ClientboundAddRightHandParticlesPayload(performer.getId(), particle), performer);
+            playStartSound(level, pos, );
             return true;
         }
         return false;
@@ -33,6 +33,6 @@ public record RightHandParticlesAbility(ParticleOptions particle, Optional<Holde
 
     @Override
     public MapCodec<? extends Ability> codec() {
-        return MineraculousAbilitySerializers.RIGHT_HAND_PARTICLES.get();
+        return AbilitySerializers.RIGHT_HAND_PARTICLES.get();
     }
 }

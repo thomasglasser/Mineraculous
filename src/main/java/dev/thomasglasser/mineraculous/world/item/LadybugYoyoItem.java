@@ -1,41 +1,37 @@
 package dev.thomasglasser.mineraculous.world.item;
 
 import com.mojang.serialization.Codec;
-import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
-import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
-import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
-import dev.thomasglasser.mineraculous.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.network.ServerboundActivateToolPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundEquipToolPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundJumpMidSwingingPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundSetLadybugYoyoAbilityPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundWalkMidSwingingPayload;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
-import dev.thomasglasser.mineraculous.tags.MineraculousMiraculousTags;
+import dev.thomasglasser.mineraculous.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
-import net.minecraft.client.Minecraft;
+import java.util.function.Supplier;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -44,14 +40,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -81,17 +75,15 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICurioItem {
-    public static final ResourceLocation BLOCKING_PROPERTY_ID = Mineraculous.modLoc("blocking");
-    public static final ResourceLocation EXTENDED_PROPERTY_ID = Mineraculous.modLoc("extended");
+public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Ability> {
     public static final String TAG_STORED_KAMIKOS = "StoredKamikos";
     public static final String CONTROLLER_USE = "use_controller";
     public static final String CONTROLLER_OPEN = "open_controller";
-    public static final String ANIMATION_OPEN = "open";
-    public static final String ANIMATION_CLOSE = "close";
+    public static final String ANIMATION_OPEN_OUT = "open_out";
+    public static final String ANIMATION_CLOSE_IN = "close_in";
 
-    private static final RawAnimation OPEN = RawAnimation.begin().thenPlay("misc.open");
-    private static final RawAnimation CLOSE = RawAnimation.begin().thenPlay("misc.close");
+    private static final RawAnimation OPEN_OUT = RawAnimation.begin().thenPlay("misc.open_out");
+    private static final RawAnimation CLOSE_IN = RawAnimation.begin().thenPlay("misc.close_in");
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -105,15 +97,17 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, CONTROLLER_USE, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
-            if (stack.has(MineraculousDataComponents.ACTIVE) && stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.PURIFY && !state.isCurrentAnimation(OPEN))
-                return state.setAndContinue(DefaultAnimations.IDLE);
-            else if (stack.has(MineraculousDataComponents.BLOCKING))
-                return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
+            if (stack != null) {
+                if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.PURIFY && !state.isCurrentAnimation(OPEN_OUT))
+                    return state.setAndContinue(DefaultAnimations.IDLE);
+                else if (stack.has(MineraculousDataComponents.BLOCKING))
+                    return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
+            }
             return PlayState.STOP;
         }));
         controllers.add(new AnimationController<>(this, CONTROLLER_OPEN, state -> PlayState.CONTINUE)
-                .triggerableAnim(ANIMATION_OPEN, OPEN)
-                .triggerableAnim(ANIMATION_CLOSE, CLOSE));
+                .triggerableAnim(ANIMATION_OPEN_OUT, OPEN_OUT)
+                .triggerableAnim(ANIMATION_CLOSE_IN, CLOSE_IN));
     }
 
     @Override
@@ -136,99 +130,23 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
 
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        if (entity instanceof Player player && !player.isUsingItem()) {
+        if (entity instanceof LivingEntity livingEntity && !livingEntity.isUsingItem()) {
             if (!level.isClientSide()) {
-                ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
+                ThrownLadybugYoyoData data = livingEntity.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
                 if (data.safeFallTicks() > 0) {
-                    player.resetFallDistance();
-                    data.decrementSafeFallTicks().save(player, true);
+                    livingEntity.resetFallDistance();
+                    data.decrementSafeFallTicks().save(livingEntity, true);
                 }
-            }
-            if (level.isClientSide() && (player.getMainHandItem() == stack || player.getOffhandItem() == stack)) {
-                InteractionHand hand = player.getMainHandItem() == stack ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-
-                CompoundTag playerData = TommyLibServices.ENTITY.getPersistentData(entity);
-                int waitTicks = playerData.getInt(MineraculousEntityEvents.TAG_WAIT_TICKS);
-                if (waitTicks <= 0 && MineraculousClientUtils.hasNoScreenOpen()) {
-                    if (MineraculousKeyMappings.ACTIVATE_TOOL.get().isDown()) {
-                        boolean activate = !stack.has(MineraculousDataComponents.ACTIVE);
-                        if (activate) {
-                            stack.set(MineraculousDataComponents.ACTIVE, Unit.INSTANCE);
-                        } else {
-                            stack.remove(MineraculousDataComponents.ACTIVE);
-                        }
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundActivateToolPayload(activate, hand));
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-                    } else if (MineraculousKeyMappings.OPEN_TOOL_WHEEL.get().isDown()) {
-                        if (stack.has(MineraculousDataComponents.ACTIVE)) {
-                            int color = level.holderOrThrow(MineraculousMiraculous.LADYBUG).value().color().getValue();
-                            ResolvableProfile resolvableProfile = stack.get(DataComponents.PROFILE);
-                            if (resolvableProfile != null) {
-                                Player yoyoOwner = player.level().getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
-                                if (yoyoOwner != null) {
-                                    ResourceKey<Miraculous> colorKey = yoyoOwner.getData(MineraculousAttachmentTypes.MIRACULOUS).getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_LADYBUG_YOYO, level);
-                                    if (colorKey != null)
-                                        color = level.holderOrThrow(colorKey).value().color().getValue();
-                                }
-                            }
-                            MineraculousClientEvents.openToolWheel(color, stack, option -> {
-                                if (option instanceof Ability ability) {
-                                    stack.set(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get(), ability);
-                                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetLadybugYoyoAbilityPayload(hand, ability));
-                                }
-                            }, Arrays.stream(Ability.values()).filter(ability -> {
-                                if (ability == Ability.PURIFY)
-                                    return stack.has(DataComponents.PROFILE);
-                                return true;
-                            }).toArray(Ability[]::new));
-                        } else {
-                            TommyLibServices.NETWORK.sendToServer(new ServerboundEquipToolPayload(hand));
-                        }
-                        playerData.putInt(MineraculousEntityEvents.TAG_WAIT_TICKS, 10);
-                    } else if (Minecraft.getInstance().player != null &&
-                            Minecraft.getInstance().player.input.jumping && stack.has(MineraculousDataComponents.ACTIVE)) {
-                                TommyLibServices.NETWORK.sendToServer(new ServerboundJumpMidSwingingPayload());
-                            } else
-                        if (Minecraft.getInstance().player != null &&
-                                (Minecraft.getInstance().player.input.up ||
-                                        Minecraft.getInstance().player.input.down ||
-                                        Minecraft.getInstance().player.input.left ||
-                                        Minecraft.getInstance().player.input.right ||
-                                        MineraculousKeyMappings.UNWIND_YOYO.get().isDown() ||
-                                        MineraculousKeyMappings.WIND_YOYO.get().isDown())) {
-                                            boolean front = Minecraft.getInstance().player.input.up;
-                                            boolean back = Minecraft.getInstance().player.input.down;
-                                            boolean left = Minecraft.getInstance().player.input.left;
-                                            boolean right = Minecraft.getInstance().player.input.right;
-                                            boolean up = MineraculousKeyMappings.WIND_YOYO.get().isDown();
-                                            boolean down = MineraculousKeyMappings.UNWIND_YOYO.get().isDown();
-                                            TommyLibServices.NETWORK.sendToServer(new ServerboundWalkMidSwingingPayload(front, back, left, right, up, down));
-                                        }
-                }
-                TommyLibServices.ENTITY.setPersistentData(entity, playerData, false);
             }
         }
 
-        checkBlocking(stack, entity, stack.has(MineraculousDataComponents.ACTIVE) && stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.BLOCK);
-
         super.inventoryTick(stack, level, entity, slotId, isSelected);
-    }
-
-    public static void checkBlocking(ItemStack stack, Entity entity, boolean canBlock) {
-        if (entity instanceof LivingEntity livingEntity) {
-            boolean blocking = livingEntity.isBlocking() && livingEntity.getUseItem() == stack;
-            if (!(canBlock && blocking) && stack.has(MineraculousDataComponents.BLOCKING))
-                stack.remove(MineraculousDataComponents.BLOCKING);
-            else if (canBlock && blocking && !stack.has(MineraculousDataComponents.BLOCKING))
-                stack.set(MineraculousDataComponents.BLOCKING, Unit.INSTANCE);
-        } else if (stack.has(MineraculousDataComponents.BLOCKING))
-            stack.remove(MineraculousDataComponents.BLOCKING);
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player pPlayer, InteractionHand pHand) {
         ItemStack stack = pPlayer.getItemInHand(pHand);
-        if (!stack.has(MineraculousDataComponents.ACTIVE))
+        if (!stack.getOrDefault(MineraculousDataComponents.ACTIVE, false))
             return InteractionResultHolder.fail(stack);
         Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get());
         if (ability != null) {
@@ -240,16 +158,17 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                         if (thrownYoyo != null) {
                             if (thrownYoyo.isRecalling() && ability == thrownYoyo.getAbility()) {
                                 thrownYoyo.discard();
-                                throwYoyo(stack, pPlayer, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY));
+                                throwYoyo(stack, pPlayer, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY), pHand);
                                 pPlayer.getCooldowns().addCooldown(this, 5);
                             } else if (ability == LadybugYoyoItem.Ability.LASSO) {
                                 List<Entity> entities = serverLevel.getEntities(thrownYoyo.getOwner(), thrownYoyo.getBoundingBox().inflate(2, 1, 2), entity -> entity != thrownYoyo);
                                 for (Entity entity : entities) {
-                                    CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(entity);
-                                    entityData.remove(MineraculousEntityEvents.TAG_YOYO_BOUND_POS);
-                                    TommyLibServices.ENTITY.setPersistentData(entity, entityData, true);
+                                    // TODO: Fix
+//                                    CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(entity);
+//                                    entityData.remove(MineraculousEntityEvents.TAG_YOYO_BOUND_POS);
+//                                    TommyLibServices.ENTITY.setPersistentData(entity, entityData, true);
                                 }
-                                thrownYoyo.clearBoundPos();
+//                                thrownYoyo.clearBoundPos();
                                 recallYoyo(pPlayer);
                             } else {
                                 recallYoyo(pPlayer);
@@ -260,31 +179,9 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                     } else if (ability == Ability.BLOCK) {
                         pPlayer.startUsingItem(pHand);
                     } else if (ability == Ability.PURIFY) {
-                        triggerAnim(pPlayer, GeoItem.getOrAssignId(stack, serverLevel), CONTROLLER_USE, ANIMATION_OPEN);
-                        MiraculousDataSet miraculousDataSet = pPlayer.getData(MineraculousAttachmentTypes.MIRACULOUS);
-                        ResourceKey<Miraculous> storingKey = miraculousDataSet.getFirstKeyIn(MineraculousMiraculousTags.CAN_USE_LADYBUG_YOYO, serverLevel);
-                        MiraculousData storingData = miraculousDataSet.get(storingKey);
-                        if (storingData != null) {
-                            CompoundTag extraData = storingData.extraData();
-                            ListTag kamikos = extraData.getList(LadybugYoyoItem.TAG_STORED_KAMIKOS, 10);
-                            if (!kamikos.isEmpty()) {
-                                MineraculousCriteriaTriggers.RELEASED_PURIFIED_KAMIKO.get().trigger((ServerPlayer) pPlayer, kamikos.size());
-                                for (Tag tag : kamikos) {
-                                    Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(serverLevel);
-                                    if (kamiko != null && tag instanceof CompoundTag compoundTag) {
-                                        kamiko.load(compoundTag);
-                                        kamiko.setOwnerUUID(null);
-                                        kamiko.setPos(pPlayer.getX(), pPlayer.getY() + 0.5, pPlayer.getZ());
-                                        kamiko.addDeltaMovement(new Vec3(0, 1, 0));
-                                        serverLevel.addFreshEntity(kamiko);
-                                    }
-                                }
-                                extraData.remove(LadybugYoyoItem.TAG_STORED_KAMIKOS);
-                            }
-                            pPlayer.getData(MineraculousAttachmentTypes.MIRACULOUS).put(pPlayer, storingKey, storingData, true);
-                        }
+                        pPlayer.startUsingItem(pHand);
                     } else {
-                        throwYoyo(stack, pPlayer, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY));
+                        throwYoyo(stack, pPlayer, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY), pHand);
                         pPlayer.getCooldowns().addCooldown(this, 5);
                     }
                 }
@@ -303,8 +200,45 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     }
 
     @Override
+    public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeCharged) {
+        if (stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.PURIFY && level instanceof ServerLevel serverLevel) {
+            ResolvableProfile profile = stack.get(DataComponents.PROFILE);
+            Entity owner = profile != null ? serverLevel.getEntity(profile.id().orElse(profile.gameProfile().getId())) : null;
+            if (owner != null) {
+                MiraculousesData miraculousesData = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                ResourceKey<Miraculous> storingKey = miraculousesData.getFirstTransformedKeyIn(MiraculousTags.CAN_USE_LADYBUG_YOYO, serverLevel.registryAccess());
+                MiraculousData storingData = miraculousesData.get(storingKey);
+                if (storingData != null) {
+                    CompoundTag extraData = storingData.extraData();
+                    ListTag kamikos = extraData.getList(LadybugYoyoItem.TAG_STORED_KAMIKOS, 10);
+                    if (!kamikos.isEmpty()) {
+                        Set<Kamiko> kamikoSet = new ReferenceOpenHashSet<>();
+                        for (Tag tag : kamikos) {
+                            Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(serverLevel);
+                            if (kamiko != null && tag instanceof CompoundTag compoundTag) {
+                                kamiko.load(compoundTag);
+                                kamiko.setOwnerUUID(null);
+                                kamiko.setPos(livingEntity.getX(), livingEntity.getY() + 0.5, livingEntity.getZ());
+                                kamiko.addDeltaMovement(new Vec3(0, 0.1 * ((getUseDuration(stack, livingEntity) - timeCharged) / 10.0), 0));
+                                serverLevel.addFreshEntity(kamiko);
+                                kamikoSet.add(kamiko);
+                            }
+                        }
+                        if (livingEntity instanceof ServerPlayer serverPlayer) {
+                            MineraculousCriteriaTriggers.RELEASED_PURIFIED_KAMIKO.get().trigger(serverPlayer, kamikoSet);
+                        }
+                    }
+                    extraData.remove(LadybugYoyoItem.TAG_STORED_KAMIKOS);
+                    owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(owner, storingKey, storingData, true);
+                }
+            }
+        }
+        super.releaseUsing(stack, level, livingEntity, timeCharged);
+    }
+
+    @Override
     public boolean onEntitySwing(ItemStack stack, LivingEntity entity, InteractionHand hand) {
-        if (stack.has(MineraculousDataComponents.ACTIVE) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
+        if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
             if (entity.level() instanceof ServerLevel serverLevel) {
                 ThrownLadybugYoyoData data = entity.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
                 if (data.id().isPresent()) {
@@ -320,19 +254,20 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                         } else if (thrownYoyo.getAbility() == LadybugYoyoItem.Ability.LASSO) {
                             List<Entity> entities = serverLevel.getEntities(thrownYoyo.getOwner(), thrownYoyo.getBoundingBox().inflate(2, 1, 2), e -> e != thrownYoyo);
                             for (Entity e : entities) {
-                                CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(e);
-                                entityData.remove(MineraculousEntityEvents.TAG_YOYO_BOUND_POS);
-                                TommyLibServices.ENTITY.setPersistentData(e, entityData, true);
+                                // TODO: Fix
+//                                CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(e);
+//                                entityData.remove(MineraculousEntityEvents.TAG_YOYO_BOUND_POS);
+//                                TommyLibServices.ENTITY.setPersistentData(e, entityData, true);
                                 Vec3 fromEntityToPlayer = new Vec3(entity.getX() - e.getX(), entity.getY() - e.getY(), entity.getZ() - e.getZ());
                                 e.setDeltaMovement(fromEntityToPlayer.scale(0.2));
                                 e.hurtMarked = true;
                             }
-                            thrownYoyo.clearBoundPos();
+//                            thrownYoyo.clearBoundPos();
                         }
                         recallYoyo(player);
                     }
                 } else {
-                    throwYoyo(stack, player, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()) == Ability.PURIFY ? Ability.PURIFY : null);
+                    throwYoyo(stack, player, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()) == Ability.PURIFY ? Ability.PURIFY : null, hand);
                     player.getCooldowns().addCooldown(this, 5);
                 }
             }
@@ -343,7 +278,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
 
     @Override
     public boolean onLeftClickEntity(ItemStack stack, Player player, Entity entity) {
-        return stack.has(MineraculousDataComponents.ACTIVE);
+        return stack.getOrDefault(MineraculousDataComponents.ACTIVE, false);
     }
 
     @Override
@@ -367,12 +302,13 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         }
     }
 
-    public void throwYoyo(ItemStack stack, Player player, Ability ability) {
+    public void throwYoyo(ItemStack stack, Player player, Ability ability, InteractionHand hand) {
         Level level = player.level();
         if (!level.isClientSide) {
             ThrownLadybugYoyo thrown = new ThrownLadybugYoyo(player, level, stack, ability);
             thrown.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F, 1.0F);
             thrown.setInitialDirection(player.getDirection());
+            thrown.setInitialHand(hand);
             level.addFreshEntity(thrown);
             thrown.setNoGravity(true);
             level.playSound(null, thrown, SoundEvents.FISHING_BOBBER_THROW, SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -383,14 +319,18 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        if (stack.has(MineraculousDataComponents.BLOCKING))
-            return UseAnim.BLOCK;
-        return UseAnim.NONE;
+        return UseAnim.BLOCK;
     }
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return 72000;
+        Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY);
+        if (ability == Ability.BLOCK) {
+            return 72000;
+        } else if (ability == Ability.PURIFY) {
+            return 100;
+        }
+        return 0;
     }
 
     @Override
@@ -403,17 +343,12 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     }
 
     @Override
-    public boolean canEquipFromUse(SlotContext slotContext, ItemStack stack) {
-        return canEquip(slotContext, stack);
-    }
-
-    @Override
     public boolean canEquip(SlotContext slotContext, ItemStack stack) {
         return canEquip(stack);
     }
 
     public boolean canEquip(ItemStack stack) {
-        return !stack.has(MineraculousDataComponents.ACTIVE);
+        return !stack.getOrDefault(MineraculousDataComponents.ACTIVE, false);
     }
 
     @Override
@@ -429,6 +364,66 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         return 0;
     }
 
+    @Override
+    public boolean canOpenMenu(ItemStack stack, InteractionHand hand, Player holder) {
+        return stack.getOrDefault(MineraculousDataComponents.ACTIVE, false);
+    }
+
+    @Override
+    public int getColor(ItemStack stack, InteractionHand hand, Player holder) {
+        Level level = holder.level();
+        int color = level.holderOrThrow(Miraculouses.LADYBUG).value().color().getValue();
+        ResolvableProfile resolvableProfile = stack.get(DataComponents.PROFILE);
+        if (resolvableProfile != null) {
+            Player owner = level.getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
+            if (owner != null) {
+                ResourceKey<Miraculous> colorKey = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstTransformedKeyIn(MiraculousTags.CAN_USE_LADYBUG_YOYO, ClientUtils.getLevel().registryAccess());
+                if (colorKey != null)
+                    color = level.holderOrThrow(colorKey).value().color().getValue();
+            }
+        }
+        return color;
+    }
+
+    @Override
+    public List<Ability> getOptions(ItemStack stack, InteractionHand hand, Player holder) {
+        if (stack.has(DataComponents.PROFILE))
+            return Ability.valuesList();
+        return Ability.unpoweredValuesList();
+    }
+
+    @Override
+    public boolean handleSecondaryKeyBehavior(ItemStack stack, InteractionHand hand, Player holder) {
+        TommyLibServices.NETWORK.sendToServer(new ServerboundEquipToolPayload(hand));
+        return true;
+    }
+
+    @Override
+    public Supplier<DataComponentType<Ability>> getComponentType(ItemStack stack, InteractionHand hand, Player holder) {
+        return MineraculousDataComponents.LADYBUG_YOYO_ABILITY;
+    }
+
+    @Override
+    public Ability setOption(ItemStack stack, InteractionHand hand, int index, Player holder) {
+        Ability old = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY);
+        Ability selected = RadialMenuProvider.super.setOption(stack, hand, index, holder);
+        if (holder.level() instanceof ServerLevel level) {
+            String anim = null;
+            if (selected == LadybugYoyoItem.Ability.PURIFY)
+                anim = ANIMATION_OPEN_OUT;
+            else if (old == Ability.PURIFY)
+                anim = ANIMATION_CLOSE_IN;
+            if (anim != null)
+                triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_OPEN, anim);
+        }
+        return selected;
+    }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return slotChanged && super.shouldCauseReequipAnimation(oldStack, newStack, true);
+    }
+
     public enum Ability implements RadialMenuOption, StringRepresentable {
         BLOCK,
         LASSO,
@@ -437,6 +432,9 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
 
         public static final Codec<Ability> CODEC = StringRepresentable.fromEnum(Ability::values);
         public static final StreamCodec<ByteBuf, Ability> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(Ability::of, Ability::getSerializedName);
+
+        private static final List<Ability> VALUES_LIST = new ReferenceArrayList<>(values());
+        private static final List<Ability> UNPOWERED_VALUES_LIST = new ReferenceArrayList<>(Arrays.asList(BLOCK, LASSO, TRAVEL));
 
         private final String translationKey;
 
@@ -452,6 +450,14 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         @Override
         public String getSerializedName() {
             return name().toLowerCase();
+        }
+
+        public static List<Ability> valuesList() {
+            return VALUES_LIST;
+        }
+
+        public static List<Ability> unpoweredValuesList() {
+            return UNPOWERED_VALUES_LIST;
         }
 
         public static Ability of(String name) {

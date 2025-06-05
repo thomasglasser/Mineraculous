@@ -1,12 +1,12 @@
 package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.io.IOException;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -22,9 +22,14 @@ public record ClientboundRequestSyncKamikotizationLookPayload(ResourceKey<Kamiko
     // ON CLIENT
     @Override
     public void handle(Player player) {
-        FlattenedKamikotizationLookData data = MineraculousClientEvents.flattenKamikotizationLook(kamikotization);
-        if (data != null)
-            TommyLibServices.NETWORK.sendToServer(new ServerboundSyncKamikotizationLookPayload(data));
+        try {
+            FlattenedKamikotizationLookData data = FlattenedKamikotizationLookData.resolve(kamikotization);
+            if (data != null) {
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSyncKamikotizationLookPayload(data));
+            }
+        } catch (IOException e) {
+            Mineraculous.LOGGER.error("Failed to resolve kamikotization look for {}", kamikotization, e);
+        }
     }
 
     @Override

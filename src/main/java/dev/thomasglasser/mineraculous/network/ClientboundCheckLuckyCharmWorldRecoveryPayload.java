@@ -28,7 +28,7 @@ public record ClientboundCheckLuckyCharmWorldRecoveryPayload(AbilityData data, O
     // ON CLIENT
     @Override
     public void handle(Player player) {
-        if (MineraculousKeyMappings.ACTIVATE_POWER.get().isDown()) {
+        if (MineraculousKeyMappings.ACTIVATE_POWER.isDown()) {
             TommyLibServices.NETWORK.sendToServer(new ServerboundBeginLuckyCharmWorldRecoveryPayload(data, spreadParticle, startSound));
         }
     }

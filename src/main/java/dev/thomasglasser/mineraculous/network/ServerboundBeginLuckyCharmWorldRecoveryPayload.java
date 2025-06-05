@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.world.entity.ability.LuckyCharmWorldRecoveryAbility;
+import dev.thomasglasser.mineraculous.world.entity.ability.RevertAbilityEffectsAbility;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.Optional;
@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Player;
 
+// TODO: Fix when abilities are reworked
 public record ServerboundBeginLuckyCharmWorldRecoveryPayload(AbilityData data, Optional<ParticleOptions> spreadParticle, Optional<Holder<SoundEvent>> startSound) implements ExtendedPacketPayload {
 
     public static final Type<ServerboundBeginLuckyCharmWorldRecoveryPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_begin_lucky_charm_world_recovery"));
@@ -28,7 +29,7 @@ public record ServerboundBeginLuckyCharmWorldRecoveryPayload(AbilityData data, O
     // ON SERVER
     @Override
     public void handle(Player player) {
-        LuckyCharmWorldRecoveryAbility.beginRecovery(data, (ServerLevel) player.level(), player.blockPosition(), player, spreadParticle, startSound);
+        RevertAbilityEffectsAbility.beginRecovery(data, (ServerLevel) player.level(), player.blockPosition(), player, spreadParticle, startSound);
     }
 
     @Override

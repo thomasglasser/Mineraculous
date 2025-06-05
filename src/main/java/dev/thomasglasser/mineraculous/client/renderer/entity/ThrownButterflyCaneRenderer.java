@@ -4,8 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.renderer.item.ButterflyCaneRenderer;
+import dev.thomasglasser.mineraculous.client.renderer.item.DefaultedGeoItemRenderer;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownButterflyCane;
+import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -17,6 +18,8 @@ import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 public class ThrownButterflyCaneRenderer extends GeoEntityRenderer<ThrownButterflyCane> {
+    private static final ResourceLocation TEXTURE = DefaultedGeoItemRenderer.makeTextureLocation(MineraculousItems.BUTTERFLY_CANE.getId());
+
     public ThrownButterflyCaneRenderer(EntityRendererProvider.Context context) {
         super(context, new DefaultedItemGeoModel<>(Mineraculous.modLoc("butterfly_cane")));
     }
@@ -26,7 +29,7 @@ public class ThrownButterflyCaneRenderer extends GeoEntityRenderer<ThrownButterf
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, animatable.yRotO, animatable.getYRot()) - 90.0F));
         poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot()) + 90.0F));
-        if (animatable.showBlade()) {
+        if (animatable.shouldShowBlade()) {
             poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F));
             poseStack.translate(0.0, -1.0, 0.0);
         }
@@ -37,6 +40,6 @@ public class ThrownButterflyCaneRenderer extends GeoEntityRenderer<ThrownButterf
 
     @Override
     public ResourceLocation getTextureLocation(ThrownButterflyCane animatable) {
-        return ButterflyCaneRenderer.TEXTURE;
+        return TEXTURE;
     }
 }

@@ -12,7 +12,6 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,15 +27,13 @@ public record KamikotizationPredicate(HolderSet<Kamikotization> kamikotizations)
     }
 
     @Override
-    public boolean matches(Entity entity, ServerLevel serverLevel, @Nullable Vec3 vec3) {
-        if (entity instanceof LivingEntity livingEntity) {
-            Optional<KamikotizationData> kamikotizationData = livingEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
-            if (kamikotizationData.isPresent()) {
-                if (kamikotizations instanceof HolderSet.Direct<Kamikotization> && kamikotizations.size() == 0) {
-                    return true;
-                } else {
-                    return kamikotizations.contains(serverLevel.registryAccess().holderOrThrow(kamikotizationData.get().kamikotization()));
-                }
+    public boolean matches(Entity entity, ServerLevel level, @Nullable Vec3 pos) {
+        Optional<KamikotizationData> kamikotizationData = entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
+        if (kamikotizationData.isPresent()) {
+            if (kamikotizations == HolderSet.<Kamikotization>empty()) {
+                return true;
+            } else {
+                return kamikotizations.contains(level.registryAccess().holderOrThrow(kamikotizationData.get().kamikotization()));
             }
         }
         return false;

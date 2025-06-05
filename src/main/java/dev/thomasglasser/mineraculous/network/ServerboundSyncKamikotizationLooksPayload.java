@@ -15,19 +15,18 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
-public record ServerboundSyncKamikotizationLooksPayload(UUID senderId, List<FlattenedKamikotizationLookData> looks) implements ExtendedPacketPayload {
+public record ServerboundSyncKamikotizationLooksPayload(UUID targetId, List<FlattenedKamikotizationLookData> looks) implements ExtendedPacketPayload {
     public static final Type<ServerboundSyncKamikotizationLooksPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_sync_kamikotization_looks"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundSyncKamikotizationLooksPayload> CODEC = StreamCodec.composite(
-            UUIDUtil.STREAM_CODEC, ServerboundSyncKamikotizationLooksPayload::senderId,
+            UUIDUtil.STREAM_CODEC, ServerboundSyncKamikotizationLooksPayload::targetId,
             FlattenedKamikotizationLookData.CODEC.apply(ByteBufCodecs.list()), ServerboundSyncKamikotizationLooksPayload::looks,
             ServerboundSyncKamikotizationLooksPayload::new);
 
     // ON SERVER
     @Override
     public void handle(Player player) {
-        Player sender = player.level().getPlayerByUUID(senderId);
-        if (sender != null && MineraculousServerConfig.isCustomizationAllowed(player)) {
-            TommyLibServices.NETWORK.sendToClient(new ClientboundSyncKamikotizationLooksPayload(player.getUUID(), looks), (ServerPlayer) sender);
+        if (player.level().getPlayerByUUID(targetId) instanceof ServerPlayer target && MineraculousServerConfig.get().isCustomizationAllowed(player)) {
+            TommyLibServices.NETWORK.sendToClient(new ClientboundSyncKamikotizationLooksPayload(player.getUUID(), looks), target);
         }
     }
 

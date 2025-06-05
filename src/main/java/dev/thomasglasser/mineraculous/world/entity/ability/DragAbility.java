@@ -1,61 +1,54 @@
 package dev.thomasglasser.mineraculous.world.entity.ability;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
-import dev.thomasglasser.mineraculous.advancements.critereon.KamikotizationUsePowerTrigger;
-import dev.thomasglasser.mineraculous.advancements.critereon.MiraculousUsePowerTrigger;
+import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.entity.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityEffectData;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import net.minecraft.core.BlockPos;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.Holder;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.Nullable;
 
-public record DragAbility(Ability ability, int dragTicks, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability, HasSubAbility {
-
-    public static final String DRAG_TICKS = "DragTicks";
+public record DragAbility(Holder<Ability> ability, int dragTicks) implements AbilityWithSubAbilities {
     public static final MapCodec<DragAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Ability.DIRECT_CODEC.fieldOf("ability").forGetter(DragAbility::ability),
-            ExtraCodecs.POSITIVE_INT.optionalFieldOf("drag_ticks", 20).forGetter(DragAbility::dragTicks),
-            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(DragAbility::startSound),
-            Codec.BOOL.optionalFieldOf("override_active", false).forGetter(DragAbility::overrideActive)).apply(instance, DragAbility::new));
+            Ability.CODEC.fieldOf("ability").forGetter(DragAbility::ability),
+            ExtraCodecs.POSITIVE_INT.optionalFieldOf("drag_ticks", SharedConstants.TICKS_PER_SECOND).forGetter(DragAbility::dragTicks)).apply(instance, DragAbility::new));
+
+    public DragAbility(Holder<Ability> ability) {
+        this(ability, SharedConstants.TICKS_PER_SECOND);
+    }
+
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity, Context context) {
-        CompoundTag performerData = TommyLibServices.ENTITY.getPersistentData(entity);
-        int remainingDragTicks = performerData.getInt(DRAG_TICKS);
-        boolean consume = ability.perform(data, level, pos, entity, context);
-        if (context == Context.PASSIVE) {
-            if (remainingDragTicks != 0) {
-                int nowRemaining = remainingDragTicks - 1;
-                if (nowRemaining <= 0) {
-                    performerData.remove(DRAG_TICKS);
-                    TommyLibServices.ENTITY.setPersistentData(entity, performerData, true);
-                    return true;
-                }
-                performerData.putInt(DRAG_TICKS, nowRemaining);
-                TommyLibServices.ENTITY.setPersistentData(entity, performerData, true);
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
+        boolean consume = ability.value().perform(data, level, performer, context);
+        AbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
+        if (context == null && abilityEffectData.dragTicks().isPresent()) {
+            int dragTicks = abilityEffectData.dragTicks().get();
+            dragTicks--;
+            if (dragTicks <= 0) {
+                abilityEffectData.withDragTicks(Optional.empty()).save(performer, true);
+                return consume;
             }
-            return false;
         }
         if (consume) {
-            if (entity instanceof ServerPlayer serverPlayer) {
+            if (performer instanceof ServerPlayer serverPlayer && context != null) {
                 if (data.power().left().isPresent())
-                    MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, data.power().left().get(), miraculousContextFrom(context));
+                    MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, data.power().left().get(), context.advancementContext());
                 if (data.power().right().isPresent())
-                    MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, data.power().right().get(), kamikotizationContextFrom(context));
+                    MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, data.power().right().get(), context.advancementContext());
             }
-            if (remainingDragTicks == 0) {
-                performerData.putInt(DRAG_TICKS, dragTicks);
-                TommyLibServices.ENTITY.setPersistentData(entity, performerData, true);
+            if (abilityEffectData.dragTicks().isEmpty()) {
+                abilityEffectData.withDragTicks(Optional.of(dragTicks)).save(performer, true);
                 return false;
             }
         }
@@ -63,40 +56,23 @@ public record DragAbility(Ability ability, int dragTicks, Optional<Holder<SoundE
     }
 
     @Override
-    public boolean canActivate(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
-        return ability.canActivate(data, level, pos, entity);
-    }
-
-    @Override
-    public void restore(AbilityData data, ServerLevel level, BlockPos pos, LivingEntity entity) {
-        ability.restore(data, level, pos, entity);
-    }
-
-    MiraculousUsePowerTrigger.Context miraculousContextFrom(Ability.Context context) {
-        return switch (context) {
-            case PASSIVE, INTERACT_AIR -> MiraculousUsePowerTrigger.Context.EMPTY;
-            case INTERACT_BLOCK -> MiraculousUsePowerTrigger.Context.BLOCK;
-            case INTERACT_ENTITY -> context.entity() instanceof LivingEntity ? MiraculousUsePowerTrigger.Context.LIVING_ENTITY : MiraculousUsePowerTrigger.Context.ENTITY;
-            case INTERACT_ITEM -> MiraculousUsePowerTrigger.Context.ITEM;
-        };
-    }
-
-    KamikotizationUsePowerTrigger.Context kamikotizationContextFrom(Ability.Context context) {
-        return switch (context) {
-            case PASSIVE, INTERACT_AIR -> KamikotizationUsePowerTrigger.Context.EMPTY;
-            case INTERACT_BLOCK -> KamikotizationUsePowerTrigger.Context.BLOCK;
-            case INTERACT_ENTITY -> context.entity() instanceof LivingEntity ? KamikotizationUsePowerTrigger.Context.LIVING_ENTITY : KamikotizationUsePowerTrigger.Context.ENTITY;
-            case INTERACT_ITEM -> KamikotizationUsePowerTrigger.Context.ITEM;
-        };
+    public List<Ability> getAll() {
+        List<Ability> abilities = new ReferenceArrayList<>();
+        abilities.add(this);
+        abilities.addAll(Ability.getAll(ability.value()));
+        return abilities;
     }
 
     @Override
     public List<Ability> getMatching(Predicate<Ability> predicate) {
-        return predicate.test(ability) ? List.of(ability) : List.of();
+        List<Ability> abilities = new ReferenceArrayList<>();
+        abilities.add(this);
+        abilities.addAll(Ability.getMatching(predicate, ability.value()));
+        return abilities;
     }
 
     @Override
     public MapCodec<? extends Ability> codec() {
-        return MineraculousAbilitySerializers.DRAG.get();
+        return AbilitySerializers.DRAG.get();
     }
 }

@@ -16,31 +16,42 @@ import net.minecraft.server.level.ServerPlayer;
 public class KamikotizePlayerTrigger extends SimpleCriterionTrigger<KamikotizePlayerTrigger.TriggerInstance> {
     @Override
     public Codec<TriggerInstance> codec() {
-        return KamikotizePlayerTrigger.TriggerInstance.CODEC;
+        return TriggerInstance.CODEC;
     }
 
-    public void trigger(ServerPlayer player, ResourceKey<Kamikotization> type) {
-        this.trigger(player, (instance) -> instance.matches(type));
+    public void trigger(ServerPlayer player, ResourceKey<Kamikotization> type, boolean self) {
+        this.trigger(player, instance -> instance.matches(type, self));
     }
 
-    public record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<ResourceKey<Kamikotization>> type)
+    public record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<ResourceKey<Kamikotization>> type, Optional<Boolean> self)
             implements SimpleInstance {
-        public static final Codec<KamikotizePlayerTrigger.TriggerInstance> CODEC = RecordCodecBuilder.create(
-                p_337367_ -> p_337367_.group(
-                        EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(KamikotizePlayerTrigger.TriggerInstance::player),
-                        ResourceKey.codec(MineraculousRegistries.KAMIKOTIZATION).optionalFieldOf("type").forGetter(KamikotizePlayerTrigger.TriggerInstance::type))
-                        .apply(p_337367_, KamikotizePlayerTrigger.TriggerInstance::new));
 
-        public static Criterion<KamikotizePlayerTrigger.TriggerInstance> kamikotizedPlayer() {
-            return MineraculousCriteriaTriggers.KAMIKOTIZED_PLAYER.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.empty()));
+        public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
+                ResourceKey.codec(MineraculousRegistries.KAMIKOTIZATION).optionalFieldOf("type").forGetter(TriggerInstance::type),
+                Codec.BOOL.optionalFieldOf("self").forGetter(TriggerInstance::self)).apply(instance, TriggerInstance::new));
+        public static Criterion<TriggerInstance> kamikotizedPlayer() {
+            return criterion(Optional.empty(), Optional.empty(), Optional.empty());
         }
 
-        public static Criterion<KamikotizePlayerTrigger.TriggerInstance> kamikotizedPlayer(ResourceKey<Kamikotization> type) {
-            return MineraculousCriteriaTriggers.KAMIKOTIZED_PLAYER.get().createCriterion(new TriggerInstance(Optional.empty(), Optional.of(type)));
+        public static Criterion<TriggerInstance> kamikotizedPlayer(boolean self) {
+            return criterion(Optional.empty(), Optional.empty(), Optional.of(self));
         }
 
-        public boolean matches(ResourceKey<Kamikotization> type) {
-            return this.type.isEmpty() || this.type.get() == type;
+        public static Criterion<TriggerInstance> kamikotizedPlayer(ResourceKey<Kamikotization> type) {
+            return criterion(Optional.empty(), Optional.of(type), Optional.empty());
+        }
+
+        public static Criterion<TriggerInstance> kamikotizedPlayer(ResourceKey<Kamikotization> type, boolean self) {
+            return criterion(Optional.empty(), Optional.of(type), Optional.of(self));
+        }
+
+        public static Criterion<TriggerInstance> criterion(Optional<ContextAwarePredicate> player, Optional<ResourceKey<Kamikotization>> type, Optional<Boolean> self) {
+            return MineraculousCriteriaTriggers.KAMIKOTIZED_PLAYER.get().createCriterion(new TriggerInstance(player, type, self));
+        }
+
+        public boolean matches(ResourceKey<Kamikotization> type, boolean self) {
+            return this.type.map(key -> key == type).orElse(true) && this.self.map(value -> value == self).orElse(true);
         }
     }
 }

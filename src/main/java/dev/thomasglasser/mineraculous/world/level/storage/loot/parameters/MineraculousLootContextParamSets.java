@@ -17,16 +17,16 @@ public class MineraculousLootContextParamSets {
             .optional(MineraculousLootContextParams.POWER_LEVEL)
             .build());
 
-    private static LootContextParamSet register(String registryName, Consumer<LootContextParamSet.Builder> builderConsumer) {
-        LootContextParamSet.Builder lootcontextparamset$builder = new LootContextParamSet.Builder();
-        builderConsumer.accept(lootcontextparamset$builder);
-        LootContextParamSet lootcontextparamset = lootcontextparamset$builder.build();
-        ResourceLocation resourcelocation = Mineraculous.modLoc(registryName);
-        LootContextParamSet lootcontextparamset1 = LootContextParamSets.REGISTRY.put(resourcelocation, lootcontextparamset);
-        if (lootcontextparamset1 != null) {
-            throw new IllegalStateException("Loot table parameter set " + resourcelocation + " is already registered");
+    private static LootContextParamSet register(String name, Consumer<LootContextParamSet.Builder> builderConsumer) {
+        LootContextParamSet.Builder builder = new LootContextParamSet.Builder();
+        builderConsumer.accept(builder);
+        LootContextParamSet paramSet = builder.build();
+        ResourceLocation id = Mineraculous.modLoc(name);
+        LootContextParamSet existing = LootContextParamSets.REGISTRY.put(id, paramSet);
+        if (existing != null) {
+            throw new IllegalStateException("Loot table parameter set " + id + " is already registered");
         } else {
-            return lootcontextparamset;
+            return paramSet;
         }
     }
 

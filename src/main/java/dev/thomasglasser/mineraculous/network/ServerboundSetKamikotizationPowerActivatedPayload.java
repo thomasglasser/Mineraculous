@@ -16,6 +16,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 
+// TODO: Match to miraculous power activation
 public record ServerboundSetKamikotizationPowerActivatedPayload(ResourceKey<Kamikotization> kamikotization) implements ExtendedPacketPayload {
     public static final Type<ServerboundSetKamikotizationPowerActivatedPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_set_kamikotization_power_activated"));
     public static final StreamCodec<FriendlyByteBuf, ServerboundSetKamikotizationPowerActivatedPayload> CODEC = StreamCodec.composite(
@@ -27,9 +28,9 @@ public record ServerboundSetKamikotizationPowerActivatedPayload(ResourceKey<Kami
     public void handle(Player player) {
         ServerLevel level = (ServerLevel) player.level();
         Ability power = level.registryAccess().holderOrThrow(kamikotization).value().powerSource().right().map(Holder::value).orElse(null);
-        if (power != null && power.canActivate(new AbilityData(0, Either.right(kamikotization)), level, player.blockPosition(), player)) {
-            power.playStartSound(level, player.blockPosition());
-            player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow().withMainPowerActive(true).save(player, true);
+        if (power != null && power.canActivate(new AbilityData(0, Either.right(kamikotization)), level, player, )) {
+            power.playStartSound(level, player.blockPosition(), );
+            player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow().withPowerActive(true).save(player, true);
         }
     }
 

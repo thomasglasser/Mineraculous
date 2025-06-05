@@ -1,7 +1,7 @@
 {
   "parent": "mineraculous:miraculous/cataclysm_living_entity",
   "criteria": {
-    "cataclysm_kill_entity": {
+    "cataclysm_kill_living_entity": {
       "conditions": {
         "killing_blow": {
           "tags": [
@@ -30,7 +30,7 @@
   },
   "requirements": [
     [
-      "cataclysm_kill_entity"
+      "cataclysm_kill_living_entity"
     ]
   ],
   "rewards": {

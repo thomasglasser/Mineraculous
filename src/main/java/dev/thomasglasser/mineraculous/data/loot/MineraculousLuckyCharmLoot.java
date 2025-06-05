@@ -33,17 +33,24 @@ import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) implements LootTableSubProvider {
     @Override
     public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> biConsumer) {
-        // Miraculous
+        // Miraculouses
+        // TODO: Ladybug and Butterfly lucky charms
+        biConsumer.accept(
+                MineraculousLuckyCharmLootKeys.LADYBUG_MIRACULOUS,
+                LootTable.lootTable());
         biConsumer.accept(
                 MineraculousLuckyCharmLootKeys.CAT_MIRACULOUS,
                 LootTable.lootTable()
                         .withPool(
                                 LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1.0F))
+                                        .setRolls(ConstantValue.exactly(1))
                                         .add(
                                                 TagEntry.expandTag(ConventionalItemTags.SHIELD_TOOLS)
                                                         .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
                                                         .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(0, 3)))))));
+        biConsumer.accept(
+                MineraculousLuckyCharmLootKeys.BUTTERFLY_MIRACULOUS,
+                LootTable.lootTable());
 
         // Entities
         biConsumer.accept(
@@ -51,7 +58,7 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                 LootTable.lootTable()
                         .withPool(
                                 LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1.0F))
+                                        .setRolls(ConstantValue.exactly(1))
                                         .add(
                                                 LootItem.lootTableItem(Items.ENDER_PEARL)
                                                         .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 16)))))
@@ -70,7 +77,7 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                 LootTable.lootTable()
                         .withPool(
                                 LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1.0F))
+                                        .setRolls(ConstantValue.exactly(1))
                                         .add(
                                                 LootItem.lootTableItem(Blocks.SPONGE)
                                                         .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 16)))))
@@ -91,7 +98,7 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                 LootTable.lootTable()
                         .withPool(
                                 LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1.0F))
+                                        .setRolls(ConstantValue.exactly(1))
                                         .add(
                                                 TagEntry.expandTag(ConventionalItemTags.MELEE_WEAPON_TOOLS)
                                                         .apply(EnchantWithLevelsFunction.enchantWithLevels(registries, PowerLevelMultiplierGenerator.apply(UniformGenerator.between(0, 3)))))
@@ -132,7 +139,7 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                 LootTable.lootTable()
                         .withPool(
                                 LootPool.lootPool()
-                                        .setRolls(ConstantValue.exactly(1.0F))
+                                        .setRolls(ConstantValue.exactly(1))
                                         .add(
                                                 LootItem.lootTableItem(Items.SHEEP_SPAWN_EGG)
                                                         .apply(SetItemCountFunction.setCount(PowerLevelMultiplierGenerator.apply(UniformGenerator.between(1, 16)))))));

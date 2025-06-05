@@ -36,11 +36,11 @@
     ],
     "subtitle": "subtitles.ability.miraculous_ladybug.activate"
   },
-  "entity.kwami.hungry": {
+  "entity.kwami.hurt": {
     "sounds": [
-      "mineraculous:entity/kwami/hungry"
+      "mineraculous:entity/kwami/hurt"
     ],
-    "subtitle": "subtitles.entity.kwami.hungry"
+    "subtitle": "subtitles.entity.kwami.hurt"
   },
   "entity.kwami.summon": {
     "sounds": [

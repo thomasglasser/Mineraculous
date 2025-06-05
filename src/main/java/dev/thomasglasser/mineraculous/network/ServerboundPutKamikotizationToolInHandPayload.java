@@ -3,12 +3,14 @@ package dev.thomasglasser.mineraculous.network;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.UUID;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -20,28 +22,29 @@ public record ServerboundPutKamikotizationToolInHandPayload() implements Extende
     // ON SERVER
     @Override
     public void handle(Player player) {
-        player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {
-            UUID uuid = data.kamikoData().uuid();
-            if (uuid != null) {
-                ItemStack defaultTool = player.level().holderOrThrow(data.kamikotization()).value().powerSource().left().orElse(ItemStack.EMPTY);
+        if (player.getMainHandItem().isEmpty()) {
+            player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> player.level().holderOrThrow(data.kamikotization()).value().powerSource().left().ifPresent(defaultTool -> {
                 if (defaultTool.isEmpty())
                     return;
+                UUID uuid = data.kamikoData().uuid();
                 for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                    ItemStack itemstack = player.getInventory().getItem(i);
-                    if (itemstack.is(defaultTool.getItem()) && itemstack.has(MineraculousDataComponents.KAMIKO_DATA.get()) && itemstack.get(MineraculousDataComponents.KAMIKO_DATA.get()).uuid().equals(uuid)) {
-                        player.getInventory().setPickedItem(itemstack);
+                    ItemStack stack = player.getInventory().getItem(i);
+                    KamikoData kamikoData = stack.get(MineraculousDataComponents.KAMIKO_DATA);
+                    if (kamikoData != null && stack.is(defaultTool.getItem()) && kamikoData.uuid().equals(uuid)) {
+                        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
                         player.getInventory().setItem(i, ItemStack.EMPTY);
                         return;
                     }
                 }
-                CuriosUtils.getAllItems(player).forEach(((curiosData, itemStack) -> {
-                    if (itemStack.is(defaultTool.getItem()) && itemStack.has(MineraculousDataComponents.KAMIKO_DATA.get()) && itemStack.get(MineraculousDataComponents.KAMIKO_DATA.get()).uuid().equals(uuid)) {
-                        player.getInventory().setPickedItem(itemStack);
+                CuriosUtils.getAllItems(player).forEach(((curiosData, stack) -> {
+                    KamikoData kamikoData = stack.get(MineraculousDataComponents.KAMIKO_DATA);
+                    if (kamikoData != null && stack.is(defaultTool.getItem()) && kamikoData.uuid().equals(uuid)) {
+                        player.setItemInHand(InteractionHand.MAIN_HAND, stack);
                         CuriosUtils.setStackInSlot(player, curiosData, ItemStack.EMPTY);
                     }
                 }));
-            }
-        });
+            }));
+        }
     }
 
     @Override

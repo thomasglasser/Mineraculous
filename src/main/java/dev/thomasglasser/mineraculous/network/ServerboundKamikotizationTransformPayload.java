@@ -14,11 +14,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
-public record ServerboundKamikotizationTransformPayload(Optional<UUID> target, KamikotizationData data, boolean transform, boolean instant, boolean itemBroken, Vec3 kamikoSpawnPos) implements ExtendedPacketPayload {
+public record ServerboundKamikotizationTransformPayload(Optional<UUID> targetId, KamikotizationData data, boolean transform, boolean instant, boolean itemBroken, Vec3 kamikoSpawnPos) implements ExtendedPacketPayload {
 
     public static final Type<ServerboundKamikotizationTransformPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_kamikotization_transform"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundKamikotizationTransformPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString)), ServerboundKamikotizationTransformPayload::target,
+            ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString)), ServerboundKamikotizationTransformPayload::targetId,
             KamikotizationData.STREAM_CODEC, ServerboundKamikotizationTransformPayload::data,
             ByteBufCodecs.BOOL, ServerboundKamikotizationTransformPayload::transform,
             ByteBufCodecs.BOOL, ServerboundKamikotizationTransformPayload::instant,
@@ -32,14 +32,7 @@ public record ServerboundKamikotizationTransformPayload(Optional<UUID> target, K
     // ON SERVER
     @Override
     public void handle(Player player) {
-        if (target.isPresent()) {
-            player = player.level().getPlayerByUUID(target.get());
-            if (player == null) {
-                Mineraculous.LOGGER.error("Tried to transform kamikotization for invalid player {}", target.get());
-                return;
-            }
-        }
-        MineraculousEntityEvents.handleKamikotizationTransformation((ServerPlayer) player, data, transform, instant, kamikoSpawnPos);
+        MineraculousEntityEvents.handleKamikotizationTransformation((ServerPlayer) targetId.map(player.level()::getPlayerByUUID).orElse(player), data, transform, instant, kamikoSpawnPos);
     }
 
     @Override

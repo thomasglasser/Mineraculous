@@ -2,12 +2,11 @@ package dev.thomasglasser.mineraculous.client.renderer.entity.layers;
 
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
+import java.util.Set;
+import java.util.UUID;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-
-import java.util.Set;
-import java.util.UUID;
 
 public record SpecialPlayerData(BetaTesterCosmeticOptions choice, boolean displayBeta, boolean displayDev, boolean displayLegacyDev) {
 

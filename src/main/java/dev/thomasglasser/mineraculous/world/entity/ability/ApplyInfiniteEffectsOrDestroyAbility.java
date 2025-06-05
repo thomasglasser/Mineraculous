@@ -4,96 +4,99 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.entity.ability.context.AbilityContext;
+import dev.thomasglasser.mineraculous.world.entity.ability.context.EntityAbilityContext;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryItemData;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionEntityData;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionItemData;
 import java.util.Optional;
 import java.util.UUID;
-
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.VehicleEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
+import org.jetbrains.annotations.Nullable;
 
-public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects, Optional<Item> dropItem, Optional<ResourceKey<DamageType>> damageType, Optional<String> blameTag, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
+public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects, Optional<Item> dropItem, Optional<ResourceKey<DamageType>> damageType, boolean overrideKillCredit, boolean allowBlocking, Optional<Holder<SoundEvent>> useSound) implements Ability {
 
     public static final MapCodec<ApplyInfiniteEffectsOrDestroyAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             RegistryCodecs.homogeneousList(Registries.MOB_EFFECT).fieldOf("effects").forGetter(ApplyInfiniteEffectsOrDestroyAbility::effects),
             BuiltInRegistries.ITEM.byNameCodec().optionalFieldOf("drop_item").forGetter(ApplyInfiniteEffectsOrDestroyAbility::dropItem),
             ResourceKey.codec(Registries.DAMAGE_TYPE).optionalFieldOf("damage_type").forGetter(ApplyInfiniteEffectsOrDestroyAbility::damageType),
-            Codec.STRING.optionalFieldOf("blame_tag").forGetter(ApplyInfiniteEffectsOrDestroyAbility::blameTag),
-            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(ApplyInfiniteEffectsOrDestroyAbility::startSound),
-            Codec.BOOL.optionalFieldOf("override_active", false).forGetter(ApplyInfiniteEffectsOrDestroyAbility::overrideActive)).apply(instance, ApplyInfiniteEffectsOrDestroyAbility::new));
+            Codec.BOOL.optionalFieldOf("override_kill_credit", false).forGetter(ApplyInfiniteEffectsOrDestroyAbility::overrideKillCredit),
+            Codec.BOOL.optionalFieldOf("allow_blocking", true).forGetter(ApplyInfiniteEffectsOrDestroyAbility::allowBlocking),
+            SoundEvent.CODEC.optionalFieldOf("use_sound").forGetter(ApplyInfiniteEffectsOrDestroyAbility::useSound)).apply(instance, ApplyInfiniteEffectsOrDestroyAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, Context context) {
-        if (context == Context.INTERACT_ENTITY) {
-            Entity target = context.entity();
-            MiraculousRecoveryEntityData.get(level).putRecoverable(performer.getUUID(), target);
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
+        if (context instanceof EntityAbilityContext(Entity target)) {
+            AbilityReversionEntityData.get(level).putRecoverable(performer.getUUID(), target);
+            DamageSource source = damageType.map(key -> performer.damageSources().source(key, performer)).orElse(performer.damageSources().indirectMagic(performer, performer));
+            target.hurt(source, 1);
             if (target instanceof LivingEntity livingEntity) {
-                for (Holder<MobEffect> mobEffect : effects) {
-                    MobEffectInstance effect = new MobEffectInstance(mobEffect, -1, (data.powerLevel() / 10));
-                    livingEntity.addEffect(effect);
-                    if (performer instanceof ServerPlayer serverPlayer)
-                        serverPlayer.connection.send(new ClientboundUpdateMobEffectPacket(livingEntity.getId(), effect, true));
+                if (allowBlocking && livingEntity.isBlocking()) {
+                    ItemStack stack = livingEntity.getUseItem();
+                    if (dropItem.isPresent()) {
+                        ItemStack replacement = new ItemStack(dropItem.get());
+                        UUID id = UUID.randomUUID();
+                        replacement.set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
+                        AbilityReversionItemData.get(level).putRecoverable(performer.getUUID(), id, stack);
+                        livingEntity.setItemInHand(livingEntity.getUsedItemHand(), replacement);
+                    } else {
+                        livingEntity.setItemInHand(livingEntity.getUsedItemHand(), ItemStack.EMPTY);
+                    }
+                } else {
+                    for (Holder<MobEffect> mobEffect : effects) {
+                        MobEffectInstance effect = new MobEffectInstance(mobEffect, -1, (data.powerLevel() / 10));
+                        livingEntity.addEffect(effect);
+                    }
                 }
-                if (performer instanceof Player player) {
-                    livingEntity.setLastHurtByPlayer(player);
-                    blameTag.ifPresent(s -> {
-                        // TODO: Fix
-//                        CompoundTag tag = TommyLibServices.ENTITY.getPersistentData(livingEntity);
-//                        tag.putUUID(s, player.getUUID());
-//                        TommyLibServices.ENTITY.setPersistentData(livingEntity, tag, true);
-                    });
-                }
-            } else if (target instanceof VehicleEntity vehicle && dropItem.isPresent()) {
+            } else if (target instanceof VehicleEntity vehicle) {
                 vehicle.kill();
-                if (level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
-                    ItemStack itemstack = new ItemStack(dropItem.get());
+                if (dropItem.isPresent() && level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
+                    ItemStack stack = new ItemStack(dropItem.get());
                     UUID id = UUID.randomUUID();
-                    itemstack.set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
-                    MiraculousRecoveryItemData.get(level).putRemovable(performer.getUUID(), id);
-                    vehicle.spawnAtLocation(itemstack);
+                    stack.set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
+                    AbilityReversionItemData.get(level).putRemovable(performer.getUUID(), id);
+                    vehicle.spawnAtLocation(stack);
                 }
             } else {
-                target.hurt(damageType.map(damageTypeResourceKey -> performer.damageSources().source(damageTypeResourceKey, performer)).orElse(performer.damageSources().indirectMagic(performer, performer)), 1024);
+                target.hurt(source, 1024);
             }
-            playStartSound(level, pos, );
+            if (performer instanceof LivingEntity livingEntity) {
+                livingEntity.setLastHurtMob(target);
+            }
+            if (overrideKillCredit) {
+                target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withKillCredit(Optional.of(performer.getUUID())).save(target, true);
+            }
+            useSound.ifPresent(sound -> level.playSound(null, target.blockPosition(), sound.value(), performer.getSoundSource(), 1, 1));
             return true;
         }
         return false;
     }
 
     @Override
-    public void restore(AbilityData data, ServerLevel level, Entity performer) {
-        MiraculousRecoveryEntityData.get(level).recover(performer.getUUID(), level, target -> {
-            if (target instanceof LivingEntity livingEntity) {
-                for (Holder<MobEffect> mobEffect : effects) {
-                    livingEntity.removeEffect(mobEffect);
-                }
-            }
-            return target;
-        });
-        MiraculousRecoveryItemData.get(level).markRecovered(performer.getUUID());
+    public void revert(AbilityData data, ServerLevel level, Entity performer) {
+        AbilityReversionEntityData.get(level).revert(performer.getUUID(), level);
+        AbilityReversionItemData.get(level).markReverted(performer.getUUID());
     }
 
     @Override
     public MapCodec<? extends Ability> codec() {
-        return MineraculousAbilitySerializers.APPLY_INFINITE_EFFECTS_OR_DESTROY.get();
+        return AbilitySerializers.APPLY_INFINITE_EFFECTS_OR_DESTROY.get();
     }
 }

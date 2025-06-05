@@ -14,13 +14,11 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -182,15 +180,14 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
                 this.playSound(
                         this.getEatingSound(mainHandItem),
                         0.5F + 0.5F * (float) this.random.nextInt(2),
-                        (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F
-                );
+                        (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
             }
         }
     }
 
     private boolean shouldTriggerItemUseEffects(int max, int remaining) {
         int left = max - remaining;
-        int startAt = (int)((float)max * 0.21875F);
+        int startAt = (int) ((float) max * 0.21875F);
         boolean flag = left > startAt;
         return flag && remaining % 4 == 0;
     }

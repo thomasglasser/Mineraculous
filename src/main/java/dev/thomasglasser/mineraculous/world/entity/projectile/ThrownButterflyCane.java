@@ -41,7 +41,6 @@ public class ThrownButterflyCane extends ItemBreakingQuicklyReturningThrownSword
         setOwner(shooter);
     }
 
-
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);

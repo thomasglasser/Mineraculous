@@ -1,18 +1,14 @@
 package dev.thomasglasser.mineraculous.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.Map;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 
 // TODO: Convert to Curio Renderer by allowing kwami in item form on shoulder

@@ -8,7 +8,7 @@ import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilities;
+import dev.thomasglasser.mineraculous.world.entity.ability.Abilities;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
@@ -52,9 +52,9 @@ public class AkumatizationPackEnUsLanguageProvider extends EnUsOverrideLanguageP
     }
 
     private void addAbilities() {
-        add(MineraculousAbilities.KAMIKOTIZATION, "Akumatization");
-        add(MineraculousAbilities.KAMIKO_CONTROL, "Akuma Control");
-        add(MineraculousAbilities.KAMIKOTIZED_COMMUNICATION, "Akumatized Communication");
+        add(Abilities.KAMIKOTIZATION, "Akumatization");
+        add(Abilities.KAMIKO_CONTROL, "Akuma Control");
+        add(Abilities.KAMIKOTIZED_COMMUNICATION, "Akumatized Communication");
     }
 
     private void addGuis() {

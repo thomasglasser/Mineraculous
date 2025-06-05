@@ -6,9 +6,9 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
-import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceKey;
@@ -19,7 +19,7 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-public record Miraculous(TextColor color, String acceptableSlot, Optional<Integer> transformationFrames, ItemStack tool, Optional<String> toolSlot, Optional<Holder<Ability>> activeAbility, List<Holder<Ability>> passiveAbilities, Holder<SoundEvent> transformSound, Holder<SoundEvent> detransformSound, Holder<SoundEvent> timerBeepSound, Holder<SoundEvent> timerEndSound) {
+public record Miraculous(TextColor color, String acceptableSlot, Optional<Integer> transformationFrames, ItemStack tool, Optional<String> toolSlot, Holder<Ability> activeAbility, HolderSet<Ability> passiveAbilities, Holder<SoundEvent> transformSound, Holder<SoundEvent> detransformSound, Holder<SoundEvent> timerBeepSound, Holder<SoundEvent> timerEndSound) {
 
     public static final Codec<Miraculous> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             TextColor.CODEC.fieldOf("color").forGetter(Miraculous::color),
@@ -27,13 +27,13 @@ public record Miraculous(TextColor color, String acceptableSlot, Optional<Intege
             ExtraCodecs.POSITIVE_INT.optionalFieldOf("transformation_frames").forGetter(Miraculous::transformationFrames),
             ItemStack.SINGLE_ITEM_CODEC.fieldOf("tool").forGetter(Miraculous::tool),
             Codec.STRING.optionalFieldOf("tool_slot").forGetter(Miraculous::toolSlot),
-            Ability.CODEC.optionalFieldOf("active_ability").forGetter(Miraculous::activeAbility),
-            Ability.CODEC.listOf().optionalFieldOf("passive_abilities", List.of()).forGetter(Miraculous::passiveAbilities),
+            Ability.CODEC.fieldOf("active_ability").forGetter(Miraculous::activeAbility),
+            Ability.HOLDER_SET_CODEC.optionalFieldOf("passive_abilities", HolderSet.empty()).forGetter(Miraculous::passiveAbilities),
             SoundEvent.CODEC.optionalFieldOf("transform_sound", MineraculousSoundEvents.GENERIC_TRANSFORM).forGetter(Miraculous::transformSound),
             SoundEvent.CODEC.optionalFieldOf("detransform_sound", MineraculousSoundEvents.GENERIC_DETRANSFORM).forGetter(Miraculous::detransformSound),
             SoundEvent.CODEC.optionalFieldOf("timer_beep_sound", MineraculousSoundEvents.GENERIC_TIMER_BEEP).forGetter(Miraculous::timerBeepSound),
             SoundEvent.CODEC.optionalFieldOf("timer_end_sound", MineraculousSoundEvents.GENERIC_TIMER_END).forGetter(Miraculous::timerEndSound)).apply(instance, Miraculous::new));
-    public Miraculous(TextColor color, String acceptableSlot, Optional<Integer> transformationFrames, ItemStack tool, Optional<String> toolSlot, Optional<Holder<Ability>> activeAbility, List<Holder<Ability>> passiveAbilities) {
+    public Miraculous(TextColor color, String acceptableSlot, Optional<Integer> transformationFrames, ItemStack tool, Optional<String> toolSlot, Holder<Ability> activeAbility, HolderSet<Ability> passiveAbilities) {
         this(color, acceptableSlot, transformationFrames, tool, toolSlot, activeAbility, passiveAbilities, MineraculousSoundEvents.GENERIC_TRANSFORM, MineraculousSoundEvents.GENERIC_DETRANSFORM, MineraculousSoundEvents.GENERIC_TIMER_BEEP, MineraculousSoundEvents.GENERIC_TIMER_END);
     }
 

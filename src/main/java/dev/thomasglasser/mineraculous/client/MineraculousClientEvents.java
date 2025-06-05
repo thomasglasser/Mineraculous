@@ -45,6 +45,9 @@ import dev.thomasglasser.mineraculous.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.Map;
+import java.util.Optional;
+import java.util.SortedMap;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -95,10 +98,6 @@ import org.lwjgl.glfw.GLFW;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.SortedMap;
 
 public class MineraculousClientEvents {
     public static final String REVOKE = "gui.mineraculous.revoke";

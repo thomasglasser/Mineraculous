@@ -25,8 +25,8 @@ import dev.thomasglasser.mineraculous.data.tags.client.MineraculousResourceLocat
 import dev.thomasglasser.mineraculous.data.worldgen.MineraculousWorldgenModifiers;
 import dev.thomasglasser.mineraculous.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
+import dev.thomasglasser.mineraculous.world.entity.ability.Abilities;
 import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
-import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilities;
 import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
@@ -54,7 +54,7 @@ public class MineraculousDataGenerators {
             .add(Registries.PAINTING_VARIANT, MineraculousPaintingVariants::bootstrap)
             .add(Registries.TRIM_PATTERN, MineraculousTrimPatterns::bootstrap)
             .add(LithostitchedRegistryKeys.WORLDGEN_MODIFIER, MineraculousWorldgenModifiers::bootstrap)
-            .add(MineraculousRegistries.ABILITY, MineraculousAbilities::bootstrap)
+            .add(MineraculousRegistries.ABILITY, Abilities::bootstrap)
             .add(MineraculousRegistries.MIRACULOUS, Miraculouses::bootstrap)
             .add(MineraculousRegistries.KAMIKOTIZATION, context -> {
                 // TODO: Remove when testing is done (don't forget to remove the assets)
@@ -65,14 +65,14 @@ public class MineraculousDataGenerators {
                         new Kamikotization(
                                 "Kitty",
                                 ItemPredicate.Builder.item().build(),
-                                Either.right(abilities.getOrThrow(MineraculousAbilities.CATACLYSM)),
-                                List.of(abilities.getOrThrow(MineraculousAbilities.CAT_VISION))));
+                                Either.right(abilities.getOrThrow(Abilities.CATACLYSM)),
+                                List.of(abilities.getOrThrow(Abilities.CAT_VISION))));
                 context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, Mineraculous.modLoc("ladybug")),
                         new Kamikotization(
                                 "Bugaboo",
                                 ItemPredicate.Builder.item().build(),
                                 Either.left(Items.DIAMOND_SWORD.getDefaultInstance()),
-                                List.of(abilities.getOrThrow(MineraculousAbilities.CAT_VISION), abilities.getOrThrow(MineraculousAbilities.KAMIKOTIZED_COMMUNICATION))));
+                                List.of(abilities.getOrThrow(Abilities.CAT_VISION), abilities.getOrThrow(Abilities.KAMIKOTIZED_COMMUNICATION))));
                 ItemStack stormyTool = Items.DIAMOND.getDefaultInstance();
                 stormyTool.enchant(enchantments.getOrThrow(Enchantments.SHARPNESS), 1);
                 stormyTool.enchant(enchantments.getOrThrow(Enchantments.SMITE), 1);

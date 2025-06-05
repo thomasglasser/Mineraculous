@@ -9,9 +9,6 @@ import dev.thomasglasser.mineraculous.advancements.critereon.UseMiraculousPowerT
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.datamaps.MineraculousDataMaps;
-import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncKamikotizationLookPayload;
-import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncMiraculousLookPayload;
-import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncSuitLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncMiraculousLookPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncSpecialPlayerChoicesPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncSuitLookPayload;
@@ -22,8 +19,6 @@ import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
-import dev.thomasglasser.mineraculous.world.entity.ability.ApplyEffectsWhileTransformedAbility;
-import dev.thomasglasser.mineraculous.world.entity.ability.NightVisionAbility;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
@@ -38,9 +33,9 @@ import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryBlockData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryItemData;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionBlockData;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionEntityData;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionItemData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.ServerLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
@@ -49,7 +44,6 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -123,8 +117,8 @@ public class MineraculousEntityEvents {
         if (entity.level() instanceof ServerLevel level) {
             checkBlockingComponent(entity);
 
-            MiraculousRecoveryEntityData.get(level).tick(entity);
-            MiraculousRecoveryItemData.get(level).tick(entity);
+            AbilityReversionEntityData.get(level).tick(entity);
+            AbilityReversionItemData.get(level).tick(entity);
             ToolIdData.get(level).tick(entity);
             LuckyCharmIdData.get(level).tick(entity);
 
@@ -547,45 +541,24 @@ public class MineraculousEntityEvents {
     }
 
     public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
-        if (event.getLevel().isClientSide) {
-            TommyLibServices.NETWORK.sendToServer(new ServerboundRequestMiraculousDataSetSyncPayload(event.getEntity().getId()));
-        } else {
-            if (event.getEntity() instanceof ServerPlayer player) {
-                MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                miraculousesData.getTransformedHolders(event.getLevel().registryAccess()).forEach(miraculous -> {
-                    NightVisionAbility nightVisionAbility = Ability.getFirstMatching(ability -> ability instanceof NightVisionAbility, miraculous.value(), miraculousesData.get(miraculous.getKey()).powerActive()) instanceof NightVisionAbility n ? n : null;
-                    if (nightVisionAbility != null)
-                        nightVisionAbility.refreshNightVision(player);
-                });
-                if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
-                    KamikotizationData kamikotizationData = player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
-                    NightVisionAbility nightVisionAbility = Ability.getFirstMatching(ability -> ability instanceof NightVisionAbility, player.level().holderOrThrow(kamikotizationData.kamikotization()).value(), kamikotizationData.powerActive()) instanceof NightVisionAbility n ? n : null;
-                    if (nightVisionAbility != null)
-                        nightVisionAbility.refreshNightVision(player);
-                }
-
-                for (ResourceKey<Miraculous> miraculous : miraculousesData.keySet()) {
-                    Map<String, FlattenedSuitLookData> commonSuitLooks = ServerLookData.getCommonSuits().get(miraculous);
-                    String look = miraculousesData.get(miraculous).suitLook();
-                    if (!look.isEmpty()) {
-                        if (commonSuitLooks.containsKey(look)) {
-                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncSuitLookPayload(player.getUUID(), miraculous, commonSuitLooks.get(look)), player.getServer());
-                        } else
-                            TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncSuitLookPayload(miraculous, look), player);
-                    }
-                    Map<String, FlattenedMiraculousLookData> commonMiraculousLooks = ServerLookData.getCommonMiraculouses().get(miraculous);
-                    if (!look.isEmpty()) {
-                        if (commonMiraculousLooks.containsKey(look)) {
-                            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), miraculous, commonMiraculousLooks.get(look)), player.getServer());
-                        } else
-                            TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncMiraculousLookPayload(miraculous, look), player);
-                    }
-                }
-
-                if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
-                    TommyLibServices.NETWORK.sendToClient(new ClientboundRequestSyncKamikotizationLookPayload(player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get().kamikotization()), player);
+        Entity entity = event.getEntity();
+        if (event.getLevel() instanceof ServerLevel level) {
+            MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+            for (ResourceKey<Miraculous> miraculous : miraculousesData.getTransformed()) {
+                MiraculousData data = miraculousesData.get(miraculous);
+                AbilityData abilityData = new AbilityData(data.powerLevel(), Either.left(miraculous), data.powerActive());
+                for (Ability ability : Ability.getAll(level.holderOrThrow(miraculous).value(), true)) {
+                    ability.joinLevel(abilityData, level, entity);
                 }
             }
+            entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {
+                AbilityData abilityData = new AbilityData(0, Either.right(data.kamikotization()), data.powerActive());
+                for (Ability ability : Ability.getAll(level.holderOrThrow(data.kamikotization()).value(), true)) {
+                    ability.joinLevel(abilityData, level, entity);
+                }
+            });
+        } else {
+            TommyLibServices.NETWORK.sendToServer(new ServerboundRequestMiraculousDataSetSyncPayload(entity.getId()));
         }
     }
 
@@ -636,7 +609,7 @@ public class MineraculousEntityEvents {
             kamikotizationStack.set(MineraculousDataComponents.KAMIKOTIZATION, data.kamikotization());
             kamikotizationStack.set(DataComponents.PROFILE, new ResolvableProfile(player.getGameProfile()));
 
-            MiraculousRecoveryItemData.get(serverLevel).putKamikotized(player.getUUID(), originalStack);
+            AbilityReversionItemData.get(serverLevel).putKamikotized(player.getUUID(), originalStack);
 
             if (!instant) {
                 data = data.withTransformationFrames(transformationFrames);
@@ -666,7 +639,7 @@ public class MineraculousEntityEvents {
             KamikotizationData finalData = data;
             kamikotization.powerSource().right().ifPresent(ability -> ability.value().transform(new AbilityData(0, Either.right(finalData.kamikotization())), serverLevel, player));
             kamikotization.passiveAbilities().forEach(ability -> ability.value().transform(new AbilityData(0, Either.right(finalData.kamikotization())), serverLevel, player));
-            MiraculousRecoveryEntityData.get(serverLevel).startTracking(player.getUUID());
+            AbilityReversionEntityData.get(serverLevel).startTracking(player.getUUID());
         } else {
             // De-transform
             Kamiko kamiko = summonKamiko(player.level(), data, kamikoSpawnPos);
@@ -752,40 +725,13 @@ public class MineraculousEntityEvents {
         }
     }
 
-    public static void onMobEffectRemoved(MobEffectEvent.Remove event) {
-        LivingEntity entity = event.getEntity();
-        Map<ResourceKey<MobEffect>, Integer> effectsMap = entity.level().registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS);
-        Holder<MobEffect> effect = event.getEffect();
-        ResourceKey<MobEffect> effectKey = effect.getKey();
-        MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-        if (miraculousesData.isTransformed()) {
-            if (effectsMap.containsKey(effectKey))
-                event.setCanceled(true);
-            else {
-                for (ResourceKey<Miraculous> miraculous : miraculousesData.getTransformed()) {
-                    if (Ability.hasMatching(a -> a instanceof ApplyEffectsWhileTransformedAbility effectsAbility && effectsAbility.effects().contains(effect), entity.level().holderOrThrow(miraculous).value(), true))
-                        event.setCanceled(true);
-                }
-            }
-        }
-        if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
-            KamikotizationData data = entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
-            if (effectsMap.containsKey(effectKey))
-                event.setCanceled(true);
-            else {
-                if (Ability.hasMatching(a -> a instanceof ApplyEffectsWhileTransformedAbility effectsAbility && effectsAbility.effects().contains(effect), entity.level().holderOrThrow(data.kamikotization()).value(), true))
-                    event.setCanceled(true);
-            }
-        }
-    }
-
     public static void onBlockDrops(BlockDropsEvent event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
-            UUID recoverer = MiraculousRecoveryBlockData.get(serverLevel).getRecoverer(event.getPos());
+            UUID recoverer = AbilityReversionBlockData.get(serverLevel).getRecoverer(event.getPos());
             if (recoverer != null) {
                 for (ItemEntity item : event.getDrops()) {
                     UUID id = UUID.randomUUID();
-                    MiraculousRecoveryItemData.get(serverLevel).putRemovable(recoverer, id);
+                    AbilityReversionItemData.get(serverLevel).putRemovable(recoverer, id);
                     item.getItem().set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
                 }
             }
@@ -793,12 +739,16 @@ public class MineraculousEntityEvents {
     }
 
     public static void onLivingDrops(LivingDropsEvent event) {
-        if (event.getEntity().level() instanceof ServerLevel serverLevel) {
-            UUID recoverer = MiraculousRecoveryEntityData.get(serverLevel).getRecoverer(event.getEntity(), serverLevel);
-            if (recoverer != null) {
-                for (ItemEntity item : event.getDrops()) {
+        LivingEntity entity = event.getEntity();
+        if (entity.level() instanceof ServerLevel serverLevel) {
+            UUID recoverer = AbilityReversionEntityData.get(serverLevel).getRecoverer(entity, serverLevel);
+            for (ItemEntity item : event.getDrops()) {
+                if (entity.hasEffect(MineraculousMobEffects.CATACLYSM) ) {
+                    item.setItem(convertToCataclysmDust(item.getItem()));
+                }
+                if (recoverer != null) {
                     UUID id = UUID.randomUUID();
-                    MiraculousRecoveryItemData.get(serverLevel).putRemovable(recoverer, id);
+                    AbilityReversionItemData.get(serverLevel).putRemovable(recoverer, id);
                     item.getItem().set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
                 }
             }

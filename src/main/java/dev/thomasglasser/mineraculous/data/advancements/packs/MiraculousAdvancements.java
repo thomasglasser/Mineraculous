@@ -9,6 +9,8 @@ import dev.thomasglasser.mineraculous.advancements.critereon.UseMiraculousPowerT
 import dev.thomasglasser.mineraculous.tags.MineraculousDamageTypeTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousEntityTypeTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
+import dev.thomasglasser.mineraculous.world.entity.ability.context.BlockAbilityContext;
+import dev.thomasglasser.mineraculous.world.entity.ability.context.EntityAbilityContext;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
@@ -27,8 +29,8 @@ import net.minecraft.advancements.critereon.KilledTrigger;
 import net.minecraft.advancements.critereon.TagPredicate;
 import net.minecraft.core.HolderLookup;
 
-public class MineraculousMiraculousAdvancements extends ExtendedAdvancementGenerator {
-    public MineraculousMiraculousAdvancements(BiConsumer<String, String> lang) {
+public class MiraculousAdvancements extends ExtendedAdvancementGenerator {
+    public MiraculousAdvancements(BiConsumer<String, String> lang) {
         super(Mineraculous.MOD_ID, "miraculous", lang);
     }
 
@@ -60,12 +62,12 @@ public class MineraculousMiraculousAdvancements extends ExtendedAdvancementGener
 
         AdvancementHolder cataclysmBlock = builder("cataclysm_block", MineraculousBlocks.CATACLYSM_BLOCK.toStack(), "My Castle Crumbled Overnight", "Cataclysm a block and watch it spread")
                 .parent(transformCat)
-                .trigger("cataclysm_block", UseMiraculousPowerTrigger.TriggerInstance.usedPower(Miraculouses.CAT, UseMiraculousPowerTrigger.Context.BLOCK))
+                .trigger("cataclysm_block", UseMiraculousPowerTrigger.TriggerInstance.usedPower(Miraculouses.CAT, BlockAbilityContext.ADVANCEMENT_CONTEXT))
                 .build();
 
         AdvancementHolder cataclysmLivingEntity = builder("cataclysm_living_entity", MineraculousItems.CATACLYSM_DUST.toStack(), "What Have I Done?!", "Cataclysm a living entity")
                 .parent(transformCat)
-                .trigger("cataclysm_entity", UseMiraculousPowerTrigger.TriggerInstance.usedPower(Miraculouses.CAT, UseMiraculousPowerTrigger.Context.LIVING_ENTITY))
+                .trigger("cataclysm_entity", UseMiraculousPowerTrigger.TriggerInstance.usedPower(Miraculouses.CAT, EntityAbilityContext.ADVANCEMENT_CONTEXT_LIVING))
                 .build();
 
         AdvancementHolder cataclysmKillLivingEntity = builder("cataclysm_kill_living_entity", MineraculousItems.CATACLYSM_DUST.toStack(), "Dead and Gone and Buried", "Cataclysm an entity that dies before it is cured")
@@ -89,7 +91,7 @@ public class MineraculousMiraculousAdvancements extends ExtendedAdvancementGener
         AdvancementHolder kamikotizeButterfly = builder("kamikotize_butterfly", MineraculousArmors.KAMIKOTIZATION.HEAD.toStack(), "Fly Away My Little Kamiko", "Kamikotize a butterfly")
                 .parent(transformButterfly)
                 .experience(10)
-                .trigger("kamikotize_butterfly", UseMiraculousPowerTrigger.TriggerInstance.usedPower(Miraculouses.BUTTERFLY, UseMiraculousPowerTrigger.Context.LIVING_ENTITY))
+                .trigger("kamikotize_butterfly", UseMiraculousPowerTrigger.TriggerInstance.usedPower(Miraculouses.BUTTERFLY, EntityAbilityContext.ADVANCEMENT_CONTEXT_LIVING))
                 .build();
 
         AdvancementHolder kamikotizePlayer = builder("kamikotize_player", MineraculousArmors.KAMIKOTIZATION.HEAD.toStack(), "Sharing the Wealth", "Provide power to another player via kamikotization")

@@ -14,12 +14,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-public record ClientboundSendRightHandParticlesPayload(int id, ParticleOptions particle) implements ExtendedPacketPayload {
-    public static final Type<ClientboundSendRightHandParticlesPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_send_right_hand_particles"));
-    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundSendRightHandParticlesPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT, ClientboundSendRightHandParticlesPayload::id,
-            ParticleTypes.STREAM_CODEC, ClientboundSendRightHandParticlesPayload::particle,
-            ClientboundSendRightHandParticlesPayload::new);
+public record ClientboundAddRightHandParticlesPayload(int id, ParticleOptions particle) implements ExtendedPacketPayload {
+    public static final Type<ClientboundAddRightHandParticlesPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_add_right_hand_particles"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundAddRightHandParticlesPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.INT, ClientboundAddRightHandParticlesPayload::id,
+            ParticleTypes.STREAM_CODEC, ClientboundAddRightHandParticlesPayload::particle,
+            ClientboundAddRightHandParticlesPayload::new);
 
     // ON CLIENT
     @Override

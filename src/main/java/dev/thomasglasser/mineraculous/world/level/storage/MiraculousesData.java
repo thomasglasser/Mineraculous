@@ -10,18 +10,12 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-
-import java.util.ArrayList;
-import java.util.HashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
-import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -31,7 +25,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 public class MiraculousesData {

@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.world.entity.ability;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thomasglasser.mineraculous.network.ClientboundSendRightHandParticlesPayload;
+import dev.thomasglasser.mineraculous.network.ClientboundAddRightHandParticlesPayload;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
@@ -24,7 +24,7 @@ public record RightHandParticlesAbility(ParticleOptions particle, Optional<Holde
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, Context context) {
         if (context == Context.PASSIVE) {
-            TommyLibServices.NETWORK.sendToTrackingClients(new ClientboundSendRightHandParticlesPayload(performer.getId(), particle), performer);
+            TommyLibServices.NETWORK.sendToTrackingClients(new ClientboundAddRightHandParticlesPayload(performer.getId(), particle), performer);
             playStartSound(level, pos, );
             return true;
         }
@@ -33,6 +33,6 @@ public record RightHandParticlesAbility(ParticleOptions particle, Optional<Holde
 
     @Override
     public MapCodec<? extends Ability> codec() {
-        return MineraculousAbilitySerializers.RIGHT_HAND_PARTICLES.get();
+        return AbilitySerializers.RIGHT_HAND_PARTICLES.get();
     }
 }

@@ -4,8 +4,8 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
+import dev.thomasglasser.mineraculous.world.entity.ability.Abilities;
 import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
-import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilities;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import java.util.List;
 import java.util.Optional;
@@ -32,10 +32,10 @@ public class Miraculouses {
                 7,
                 Optional.of(MineraculousItems.BUTTERFLY_CANE.toStack()),
                 Optional.empty(),
-                Optional.of(abilities.getOrThrow(MineraculousAbilities.KAMIKOTIZATION)),
+                Optional.of(abilities.getOrThrow(Abilities.KAMIKOTIZATION)),
                 List.of(
-                        abilities.getOrThrow(MineraculousAbilities.KAMIKO_CONTROL),
-                        abilities.getOrThrow(MineraculousAbilities.KAMIKOTIZED_COMMUNICATION)),
+                        abilities.getOrThrow(Abilities.KAMIKO_CONTROL),
+                        abilities.getOrThrow(Abilities.KAMIKOTIZED_COMMUNICATION)),
                 MineraculousSoundEvents.BUTTERFLY_TRANSFORM,
                 MineraculousSoundEvents.GENERIC_DETRANSFORM,
                 MineraculousSoundEvents.GENERIC_TIMER_BEEP,
@@ -46,10 +46,10 @@ public class Miraculouses {
                 9,
                 Optional.of(MineraculousItems.CAT_STAFF.toStack()),
                 Optional.of("belt"),
-                Optional.of(abilities.getOrThrow(MineraculousAbilities.CATACLYSM)),
+                Optional.of(abilities.getOrThrow(Abilities.CATACLYSM)),
                 List.of(
-                        abilities.getOrThrow(MineraculousAbilities.CAT_VISION),
-                        abilities.getOrThrow(MineraculousAbilities.PASSIVE_UNLUCK)),
+                        abilities.getOrThrow(Abilities.CAT_VISION),
+                        abilities.getOrThrow(Abilities.PASSIVE_UNLUCK)),
                 MineraculousSoundEvents.CAT_TRANSFORM,
                 MineraculousSoundEvents.GENERIC_DETRANSFORM,
                 MineraculousSoundEvents.GENERIC_TIMER_BEEP,
@@ -60,10 +60,10 @@ public class Miraculouses {
                 9,
                 Optional.of(MineraculousItems.LADYBUG_YOYO.toStack()),
                 Optional.of("belt"),
-                Optional.of(abilities.getOrThrow(MineraculousAbilities.LUCKY_CHARM)),
+                Optional.of(abilities.getOrThrow(Abilities.LUCKY_CHARM)),
                 List.of(
-                        abilities.getOrThrow(MineraculousAbilities.MIRACULOUS_LADYBUG),
-                        abilities.getOrThrow(MineraculousAbilities.PASSIVE_LUCK)),
+                        abilities.getOrThrow(Abilities.MIRACULOUS_LADYBUG),
+                        abilities.getOrThrow(Abilities.PASSIVE_LUCK)),
                 MineraculousSoundEvents.LADYBUG_TRANSFORM,
                 MineraculousSoundEvents.GENERIC_DETRANSFORM,
                 MineraculousSoundEvents.GENERIC_TIMER_BEEP,

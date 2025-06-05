@@ -10,7 +10,6 @@
     "minecraft.server.level.ServerPlayer$2Mixin",
     "minecraft.server.network.ServerGamePacketListenerImplMixin",
     "minecraft.world.entity.EntityMixin",
-    "minecraft.world.entity.LivingEntityMixin",
     "minecraft.world.entity.player.PlayerMixin",
     "minecraft.world.item.BlockItemMixin",
     "minecraft.world.item.ItemStackMixin",

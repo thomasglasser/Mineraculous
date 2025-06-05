@@ -8,6 +8,12 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
@@ -20,13 +26,6 @@ import software.bernie.geckolib.loading.json.typeadapter.KeyFramesAdapter;
 import software.bernie.geckolib.loading.object.BakedAnimations;
 import software.bernie.geckolib.loading.object.BakedModelFactory;
 import software.bernie.geckolib.loading.object.GeometryTree;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 public record FlattenedSuitLookData(String look, Optional<String> model, byte[] pixels, Optional<byte[]> glowmaskPixels, List<byte[]> frames, List<byte[]> glowmaskFrames, Optional<String> animations) {
 

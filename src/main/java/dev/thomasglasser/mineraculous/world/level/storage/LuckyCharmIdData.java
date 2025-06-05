@@ -6,11 +6,9 @@ import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Set;
 import java.util.UUID;
-
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -22,7 +20,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.saveddata.SavedData;
-import org.jetbrains.annotations.Nullable;
 
 public class LuckyCharmIdData extends SavedData {
     public static final String FILE_ID = "lucky_charm_id";

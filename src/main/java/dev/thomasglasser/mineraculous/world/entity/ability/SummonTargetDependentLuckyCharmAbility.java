@@ -18,7 +18,7 @@ import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharm;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.parameters.MineraculousLootContextParamSets;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.parameters.MineraculousLootContextParams;
 import java.util.List;
@@ -41,16 +41,16 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import org.jetbrains.annotations.Nullable;
 
-public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
+public record SummonTargetDependentLuckyCharmAbility(boolean requireTool, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
 
-    public static final MapCodec<SummonLuckyCharmAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Codec.BOOL.optionalFieldOf("require_tool", false).forGetter(SummonLuckyCharmAbility::requireTool),
-            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(SummonLuckyCharmAbility::startSound),
-            Codec.BOOL.optionalFieldOf("override_active", false).forGetter(SummonLuckyCharmAbility::overrideActive)).apply(instance, SummonLuckyCharmAbility::new));
+    public static final MapCodec<SummonTargetDependentLuckyCharmAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Codec.BOOL.optionalFieldOf("require_tool", false).forGetter(SummonTargetDependentLuckyCharmAbility::requireTool),
+            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(SummonTargetDependentLuckyCharmAbility::startSound),
+            Codec.BOOL.optionalFieldOf("override_active", false).forGetter(SummonTargetDependentLuckyCharmAbility::overrideActive)).apply(instance, SummonTargetDependentLuckyCharmAbility::new));
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, Context context) {
         if (context == Context.PASSIVE) {
-            MiraculousRecoveryEntityData recoveryEntityData = MiraculousRecoveryEntityData.get(level);
+            AbilityReversionEntityData recoveryEntityData = AbilityReversionEntityData.get(level);
             UUID tracked = recoveryEntityData.getTrackedEntity(performer.getUUID());
             LivingEntity trackedEntity = tracked != null ? level.getEntity(tracked) instanceof LivingEntity livingEntity ? livingEntity : null : null;
             LivingEntity target = trackedEntity != null ? trackedEntity : performer.getKillCredit() != null ? performer.getKillCredit() : performer.getLastHurtByMob() != null ? performer.getLastHurtByMob() : performer.getLastHurtMob();
@@ -101,6 +101,7 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
     private LuckyCharms getCharms(ServerLevel level, LivingEntity target) {
         if (target != null) {
             if (target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
+                level.registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).getDataMap()
                 LuckyCharms data = level.registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).getData(MineraculousDataMaps.KAMIKOTIZATION_LUCKY_CHARMS, target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get().kamikotization());
                 if (data != null)
                     return data;
@@ -135,6 +136,6 @@ public record SummonLuckyCharmAbility(boolean requireTool, Optional<Holder<Sound
 
     @Override
     public MapCodec<? extends Ability> codec() {
-        return MineraculousAbilitySerializers.SUMMON_LUCKY_CHARM.get();
+        return AbilitySerializers.SUMMON_LUCKY_CHARM.get();
     }
 }

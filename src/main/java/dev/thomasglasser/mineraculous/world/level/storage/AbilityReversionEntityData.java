@@ -1,14 +1,12 @@
 package dev.thomasglasser.mineraculous.world.level.storage;
 
+import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
-
-import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -22,17 +20,17 @@ import net.minecraft.world.level.saveddata.SavedData;
 import net.neoforged.neoforge.entity.PartEntity;
 import org.jetbrains.annotations.Nullable;
 
-public class MiraculousRecoveryEntityData extends SavedData {
-    public static final String FILE_ID = "miraculous_recovery_entity";
+public class AbilityReversionEntityData extends SavedData {
+    public static final String FILE_ID = "ability_reversion_entity";
     private final Map<UUID, List<UUID>> trackedAndRelatedEntities = new HashMap<>();
     private final Map<UUID, List<CompoundTag>> recoverableEntities = new HashMap<>();
 
-    public static MiraculousRecoveryEntityData get(ServerLevel level) {
-        return level.getServer().overworld().getDataStorage().computeIfAbsent(MiraculousRecoveryEntityData.factory(), MiraculousRecoveryEntityData.FILE_ID);
+    public static AbilityReversionEntityData get(ServerLevel level) {
+        return level.getServer().overworld().getDataStorage().computeIfAbsent(AbilityReversionEntityData.factory(), AbilityReversionEntityData.FILE_ID);
     }
 
-    public static SavedData.Factory<MiraculousRecoveryEntityData> factory() {
-        return new SavedData.Factory<>(MiraculousRecoveryEntityData::new, (p_294039_, p_324123_) -> load(p_294039_), DataFixTypes.LEVEL);
+    public static SavedData.Factory<AbilityReversionEntityData> factory() {
+        return new SavedData.Factory<>(AbilityReversionEntityData::new, (p_294039_, p_324123_) -> load(p_294039_), DataFixTypes.LEVEL);
     }
 
     public void tick(Entity entity) {
@@ -85,7 +83,7 @@ public class MiraculousRecoveryEntityData extends SavedData {
         setDirty();
     }
 
-    public void recover(UUID owner, ServerLevel level, Function<Entity, Entity> applyToEntity) {
+    public void revert(UUID owner, ServerLevel level) {
         if (recoverableEntities.containsKey(owner)) {
             for (CompoundTag entityData : recoverableEntities.get(owner)) {
                 UUID entityId = entityData.getUUID("UUID");
@@ -97,7 +95,6 @@ public class MiraculousRecoveryEntityData extends SavedData {
                 } else {
                     entity.load(entityData);
                 }
-                applyToEntity.apply(entity);
             }
             recoverableEntities.remove(owner);
             setDirty();
@@ -158,8 +155,8 @@ public class MiraculousRecoveryEntityData extends SavedData {
         return tag;
     }
 
-    public static MiraculousRecoveryEntityData load(CompoundTag tag) {
-        MiraculousRecoveryEntityData miraculousRecoveryEntityData = new MiraculousRecoveryEntityData();
+    public static AbilityReversionEntityData load(CompoundTag tag) {
+        AbilityReversionEntityData abilityReversionEntityData = new AbilityReversionEntityData();
         ListTag listTag = tag.getList("TrackedAndRelatedEntities", 10);
         for (int i = 0; i < listTag.size(); i++) {
             CompoundTag compoundTag = listTag.getCompound(i);
@@ -168,7 +165,7 @@ public class MiraculousRecoveryEntityData extends SavedData {
             List<UUID> relatedEntityList = new ArrayList<>();
             for (String key : relatedEntities.getAllKeys())
                 relatedEntityList.add(relatedEntities.getUUID(key));
-            miraculousRecoveryEntityData.trackedAndRelatedEntities.put(trackedEntity, relatedEntityList);
+            abilityReversionEntityData.trackedAndRelatedEntities.put(trackedEntity, relatedEntityList);
         }
         ListTag recoverableEntities = tag.getList("RecoverableEntities", 10);
         for (int i = 0; i < recoverableEntities.size(); i++) {
@@ -178,8 +175,8 @@ public class MiraculousRecoveryEntityData extends SavedData {
             List<CompoundTag> entityList = new ArrayList<>();
             for (int j = 0; j < entities.size(); j++)
                 entityList.add(entities.getCompound(j));
-            miraculousRecoveryEntityData.recoverableEntities.put(owner, entityList);
+            abilityReversionEntityData.recoverableEntities.put(owner, entityList);
         }
-        return miraculousRecoveryEntityData;
+        return abilityReversionEntityData;
     }
 }

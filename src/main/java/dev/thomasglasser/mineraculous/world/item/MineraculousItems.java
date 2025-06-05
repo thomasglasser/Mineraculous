@@ -15,6 +15,9 @@ import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.function.Supplier;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
@@ -29,10 +32,6 @@ import net.minecraft.world.item.armortrim.TrimPattern;
 import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.DeferredSpawnEggItem;
-
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.function.Supplier;
 
 public class MineraculousItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Mineraculous.MOD_ID);

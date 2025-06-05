@@ -27,7 +27,7 @@ import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilities;
+import dev.thomasglasser.mineraculous.world.entity.ability.Abilities;
 import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
@@ -49,12 +49,11 @@ import dev.thomasglasser.tommylib.api.data.lang.ExtendedEnUsLanguageProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
+import java.util.Map;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemNameBlockItem;
-
-import java.util.Map;
 
 public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvider {
     public MineraculousEnUsLanguageProvider(PackOutput output) {
@@ -214,12 +213,12 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     private void addAbilities() {
-        addCapitalized(MineraculousAbilities.KAMIKOTIZATION);
-        addCapitalized(MineraculousAbilities.KAMIKO_CONTROL);
-        addCapitalized(MineraculousAbilities.KAMIKOTIZED_COMMUNICATION);
-        addCapitalized(MineraculousAbilities.CATACLYSM);
-        addCapitalized(MineraculousAbilities.CAT_VISION);
-        addCapitalized(MineraculousAbilities.MIRACULOUS_LADYBUG);
+        addCapitalized(Abilities.KAMIKOTIZATION);
+        addCapitalized(Abilities.KAMIKO_CONTROL);
+        addCapitalized(Abilities.KAMIKOTIZED_COMMUNICATION);
+        addCapitalized(Abilities.CATACLYSM);
+        addCapitalized(Abilities.CAT_VISION);
+        addCapitalized(Abilities.MIRACULOUS_LADYBUG);
     }
 
     private void addProfessions() {

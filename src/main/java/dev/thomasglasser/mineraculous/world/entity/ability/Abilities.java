@@ -10,7 +10,6 @@ import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
@@ -28,7 +27,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 
-public class MineraculousAbilities {
+public class Abilities {
     public static final ResourceKey<Ability> KAMIKOTIZATION = register("kamikotization");
     public static final ResourceKey<Ability> KAMIKO_CONTROL = register("kamiko_control");
     public static final ResourceKey<Ability> KAMIKOTIZED_COMMUNICATION = register("kamikotized_communication");
@@ -46,7 +45,7 @@ public class MineraculousAbilities {
     }
 
     public static void bootstrap(BootstrapContext<Ability> context) {
-        context.register(KAMIKOTIZATION, new ContextAwareAbility(
+        context.register(KAMIKOTIZATION, new ContextDependentAbility(
                 Optional.empty(),
                 Optional.of(Holder.direct(new SetOwnerAbility(
                         Optional.of(1),
@@ -76,8 +75,8 @@ public class MineraculousAbilities {
                 Optional.empty(),
                 true));
 
-        context.register(CATACLYSM, new DragAbility(new ContextAwareAbility(
-                Optional.of(Holder.direct(new RandomSpreadAbility(
+        context.register(CATACLYSM, new DragAbility(new ContextDependentAbility(
+                Optional.of(Holder.direct(new ReplaceAdjacentBlocksAbility(
                         MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(),
                         Optional.empty(),
                         Optional.of(BlockPredicate.Builder.block().of(MineraculousBlockTags.CATACLYSM_IMMUNE).build()),
@@ -90,7 +89,7 @@ public class MineraculousAbilities {
                         Optional.of(/*MineraculousEntityEvents.TAG_CATACLYSMED*/"Cataclysmed"),
                         Optional.of(MineraculousSoundEvents.CATACLYSM_USE),
                         false))),
-                Optional.of(Holder.direct(new ReplaceItemsInHandAbility(
+                Optional.of(Holder.direct(new ReplaceItemInHandAbility(
                         MineraculousItems.CATACLYSM_DUST.toStack(),
                         true,
                         Optional.empty(),
@@ -104,15 +103,15 @@ public class MineraculousAbilities {
                 20,
                 Optional.of(MineraculousSoundEvents.CATACLYSM_ACTIVATE),
                 false));
-        context.register(CAT_VISION, new NightVisionAbility(Optional.of(ResourceLocation.withDefaultNamespace("shaders/post/creeper.json"))));
-        context.register(PASSIVE_UNLUCK, new ApplyEffectsWhileTransformedAbility(
+        context.register(CAT_VISION, new AutomaticNightVisionAbility(Optional.of(ResourceLocation.withDefaultNamespace("shaders/post/creeper.json"))));
+        context.register(PASSIVE_UNLUCK, new PassiveEffectsAbility(
                 HolderSet.direct(MobEffects.UNLUCK),
                 1,
                 Optional.empty()));
 
-        context.register(LUCKY_CHARM, new SummonLuckyCharmAbility(true, Optional.of(MineraculousSoundEvents.LUCKY_CHARM_ACTIVATE), false));
-        context.register(MIRACULOUS_LADYBUG, new LuckyCharmWorldRecoveryAbility(true, Optional.of(MineraculousParticleTypes.SPREADING_LADYBUG.get()), Optional.of(MineraculousSoundEvents.MIRACULOUS_LADYBUG_ACTIVATE), true));
-        context.register(PASSIVE_LUCK, new ApplyEffectsWhileTransformedAbility(
+        context.register(LUCKY_CHARM, new SummonTargetDependentLuckyCharmAbility(true, Optional.of(MineraculousSoundEvents.LUCKY_CHARM_ACTIVATE), false));
+        context.register(MIRACULOUS_LADYBUG, new RevertAbilityEffectsAbility(true, Optional.of(MineraculousParticleTypes.SPREADING_LADYBUG.get()), Optional.of(MineraculousSoundEvents.MIRACULOUS_LADYBUG_ACTIVATE), true));
+        context.register(PASSIVE_LUCK, new PassiveEffectsAbility(
                 HolderSet.direct(MobEffects.LUCK),
                 1,
                 Optional.empty()));

@@ -15,16 +15,16 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
 
-public class MiraculousRecoveryBlockData extends SavedData {
-    public static final String FILE_ID = "miraculous_recovery_block";
+public class AbilityReversionBlockData extends SavedData {
+    public static final String FILE_ID = "ability_reversion_block";
     private final Table<UUID, BlockPos, BlockState> recoverableBlocks = HashBasedTable.create();
 
-    public static MiraculousRecoveryBlockData get(ServerLevel level) {
-        return level.getServer().overworld().getDataStorage().computeIfAbsent(MiraculousRecoveryBlockData.factory(), MiraculousRecoveryBlockData.FILE_ID);
+    public static AbilityReversionBlockData get(ServerLevel level) {
+        return level.getServer().overworld().getDataStorage().computeIfAbsent(AbilityReversionBlockData.factory(), AbilityReversionBlockData.FILE_ID);
     }
 
-    public static Factory<MiraculousRecoveryBlockData> factory() {
-        return new Factory<>(MiraculousRecoveryBlockData::new, MiraculousRecoveryBlockData::load, DataFixTypes.LEVEL);
+    public static Factory<AbilityReversionBlockData> factory() {
+        return new Factory<>(AbilityReversionBlockData::new, AbilityReversionBlockData::load, DataFixTypes.LEVEL);
     }
 
     public void recover(UUID owner, ServerLevel level) {
@@ -68,8 +68,8 @@ public class MiraculousRecoveryBlockData extends SavedData {
         return tag;
     }
 
-    public static MiraculousRecoveryBlockData load(CompoundTag tag, HolderLookup.Provider registries) {
-        MiraculousRecoveryBlockData miraculousRecoveryEntityData = new MiraculousRecoveryBlockData();
+    public static AbilityReversionBlockData load(CompoundTag tag, HolderLookup.Provider registries) {
+        AbilityReversionBlockData miraculousRecoveryEntityData = new AbilityReversionBlockData();
         ListTag recoverable = tag.getList("RecoverableBlocks", 10);
         for (int i = 0; i < recoverable.size(); i++) {
             CompoundTag compoundTag = recoverable.getCompound(i);

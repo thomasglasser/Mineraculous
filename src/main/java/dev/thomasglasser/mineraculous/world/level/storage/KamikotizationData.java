@@ -17,6 +17,7 @@ import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
+import java.util.Optional;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -31,8 +32,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
-
-import java.util.Optional;
 
 public record KamikotizationData(ResourceKey<Kamikotization> kamikotization, int stackCount, Either<Integer, CuriosData> slotInfo, KamikoData kamikoData, boolean powerActive, Optional<Either<Integer, Integer>> transformationFrames, String name) {
 
@@ -54,6 +53,7 @@ public record KamikotizationData(ResourceKey<Kamikotization> kamikotization, int
             ByteBufCodecs.STRING_UTF8, KamikotizationData::name,
             KamikotizationData::new);
 
+    // TODO: Check and re-apply effects
     public void tick(Entity entity, ServerLevel level) {
         transformationFrames.ifPresentOrElse(either -> either.ifLeft(transformationFrames -> {
             if (transformationFrames > 0) {
@@ -65,7 +65,7 @@ public record KamikotizationData(ResourceKey<Kamikotization> kamikotization, int
                 if (entity instanceof LivingEntity livingEntity) {
                     ArmorData armor = new ArmorData(livingEntity.getItemBySlot(EquipmentSlot.HEAD), livingEntity.getItemBySlot(EquipmentSlot.CHEST), livingEntity.getItemBySlot(EquipmentSlot.LEGS), livingEntity.getItemBySlot(EquipmentSlot.FEET));
                     livingEntity.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
-                    for (EquipmentSlot slot : new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
+                    for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
                         ItemStack stack = Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.getForSlot(slot).get(), kamikotization);
                         stack.enchant(level.holderOrThrow(Enchantments.BINDING_CURSE), 1);
                         stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS, Unit.INSTANCE);
@@ -87,7 +87,7 @@ public record KamikotizationData(ResourceKey<Kamikotization> kamikotization, int
                 remove(entity, true);
                 if (entity instanceof LivingEntity livingEntity) {
                     livingEntity.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(data -> {
-                        for (EquipmentSlot slot : new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
+                        for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
                             livingEntity.setItemSlot(slot, data.forSlot(slot));
                         }
                     });
@@ -100,10 +100,10 @@ public record KamikotizationData(ResourceKey<Kamikotization> kamikotization, int
         }), () -> {
             Kamikotization kamikotizationValue = entity.level().holderOrThrow(kamikotization).value();
             boolean overrideActive = false;
-            AbilityData abilityData = new AbilityData(0, Either.right(kamikotization));
+            AbilityData abilityData = new AbilityData(0, Either.right(kamikotization), powerActive);
             for (Holder<Ability> abilityHolder : kamikotizationValue.passiveAbilities()) {
                 Ability ability = abilityHolder.value();
-                if (ability.perform(abilityData, level, entity, null) && ability.overrideActive(null))
+                if (ability.perform(abilityData, level, entity, null))
                     overrideActive = true;
             }
             if (powerActive) {

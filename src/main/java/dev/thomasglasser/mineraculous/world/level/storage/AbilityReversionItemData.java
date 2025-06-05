@@ -3,16 +3,15 @@ package dev.thomasglasser.mineraculous.world.level.storage;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
+import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
-import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
-import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
@@ -31,18 +30,18 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.saveddata.SavedData;
 
-public class MiraculousRecoveryItemData extends SavedData {
-    public static final String FILE_ID = "miraculous_recovery_item";
+public class AbilityReversionItemData extends SavedData {
+    public static final String FILE_ID = "ability_reversion_item";
     private final Table<UUID, UUID, ItemStack> recoverableItems = HashBasedTable.create();
     private final Map<UUID, ItemStack> recoveredItems = new HashMap<>();
     private final Map<UUID, ItemStack> kamikotizedItems = new HashMap<>();
 
-    public static MiraculousRecoveryItemData get(ServerLevel level) {
-        return level.getServer().overworld().getDataStorage().computeIfAbsent(MiraculousRecoveryItemData.factory(), MiraculousRecoveryItemData.FILE_ID);
+    public static AbilityReversionItemData get(ServerLevel level) {
+        return level.getServer().overworld().getDataStorage().computeIfAbsent(AbilityReversionItemData.factory(), AbilityReversionItemData.FILE_ID);
     }
 
-    public static Factory<MiraculousRecoveryItemData> factory() {
-        return new Factory<>(MiraculousRecoveryItemData::new, MiraculousRecoveryItemData::load, DataFixTypes.LEVEL);
+    public static Factory<AbilityReversionItemData> factory() {
+        return new Factory<>(AbilityReversionItemData::new, AbilityReversionItemData::load, DataFixTypes.LEVEL);
     }
 
     public void tick(Entity entity) {
@@ -105,7 +104,7 @@ public class MiraculousRecoveryItemData extends SavedData {
         return null;
     }
 
-    public void markRecovered(UUID owner) {
+    public void markReverted(UUID owner) {
         if (recoverableItems.containsRow(owner)) {
             recoveredItems.putAll(recoverableItems.row(owner));
             recoverableItems.row(owner).clear();
@@ -174,8 +173,8 @@ public class MiraculousRecoveryItemData extends SavedData {
         return tag;
     }
 
-    public static MiraculousRecoveryItemData load(CompoundTag tag, HolderLookup.Provider registries) {
-        MiraculousRecoveryItemData miraculousRecoveryEntityData = new MiraculousRecoveryItemData();
+    public static AbilityReversionItemData load(CompoundTag tag, HolderLookup.Provider registries) {
+        AbilityReversionItemData miraculousRecoveryEntityData = new AbilityReversionItemData();
         ListTag recoverableItems = tag.getList("RecoverableItems", 10);
         for (int i = 0; i < recoverableItems.size(); ++i) {
             CompoundTag compoundTag = recoverableItems.getCompound(i);

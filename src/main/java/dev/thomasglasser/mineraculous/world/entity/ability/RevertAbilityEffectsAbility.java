@@ -13,12 +13,12 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.KamikotizedPowerSourceItem;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionEntityData;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionItemData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharm;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryEntityData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousRecoveryItemData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
@@ -38,13 +38,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<ParticleOptions> spreadParticle, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
+public record RevertAbilityEffectsAbility(boolean requireInHand, Optional<ParticleOptions> spreadParticle, Optional<Holder<SoundEvent>> startSound) implements Ability {
 
-    public static final MapCodec<LuckyCharmWorldRecoveryAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Codec.BOOL.optionalFieldOf("require_in_hand", false).forGetter(LuckyCharmWorldRecoveryAbility::requireInHand),
-            ParticleTypes.CODEC.optionalFieldOf("spread_particle").forGetter(LuckyCharmWorldRecoveryAbility::spreadParticle),
-            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(LuckyCharmWorldRecoveryAbility::startSound),
-            Codec.BOOL.optionalFieldOf("override_active", false).forGetter(LuckyCharmWorldRecoveryAbility::overrideActive)).apply(instance, LuckyCharmWorldRecoveryAbility::new));
+    public static final MapCodec<RevertAbilityEffectsAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Codec.BOOL.optionalFieldOf("require_in_hand", false).forGetter(RevertAbilityEffectsAbility::requireInHand),
+            ParticleTypes.CODEC.optionalFieldOf("spread_particle").forGetter(RevertAbilityEffectsAbility::spreadParticle),
+            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(RevertAbilityEffectsAbility::startSound),
+            Codec.BOOL.optionalFieldOf("override_active", false).forGetter(RevertAbilityEffectsAbility::overrideActive)).apply(instance, RevertAbilityEffectsAbility::new));
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, Context context) {
         if (context == Context.PASSIVE) {
@@ -78,8 +78,8 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
         ItemStack luckyCharm = entity.getMainHandItem();
         Optional<UUID> target = luckyCharm.get(MineraculousDataComponents.LUCKY_CHARM).target();
         if (target.isPresent()) {
-            MiraculousRecoveryEntityData miraculousRecoveryEntityData = MiraculousRecoveryEntityData.get(level);
-            for (UUID related : miraculousRecoveryEntityData.getTrackedAndRelatedEntities(target.get())) {
+            AbilityReversionEntityData abilityReversionEntityData = AbilityReversionEntityData.get(level);
+            for (UUID related : abilityReversionEntityData.getTrackedAndRelatedEntities(target.get())) {
                 LivingEntity recovering = level.getEntity(related) instanceof LivingEntity livingEntity ? livingEntity : null;
                 if (recovering != null) {
                     MiraculousesData miraculousesData = recovering.getData(MineraculousAttachmentTypes.MIRACULOUSES);
@@ -94,20 +94,20 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
                             if (kamikotization.powerSource().left().get().getItem() instanceof KamikotizedPowerSourceItem item)
                                 item.restore(recovering);
                         } else
-                            kamikotization.powerSource().right().get().value().restore(abilityData, level, recovering);
-                        kamikotization.passiveAbilities().forEach(ability -> ability.value().restore(abilityData, level, recovering));
+                            kamikotization.powerSource().right().get().value().revert(abilityData, level, recovering);
+                        kamikotization.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, recovering));
                     }
                     for (ResourceKey<Miraculous> miraculousKey : transformed) {
                         Miraculous miraculous = level.holderOrThrow(miraculousKey).value();
                         MiraculousData miraculousData = miraculousesData.get(miraculousKey);
                         AbilityData abilityData = new AbilityData(miraculousData.powerLevel(), Either.left(miraculousKey));
                         miraculous.activeAbility().ifPresent(ability -> ability.value().restore(abilityData, level, recovering));
-                        miraculous.passiveAbilities().forEach(ability -> ability.value().restore(abilityData, level, recovering));
+                        miraculous.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, recovering));
                     }
                 }
             }
-            miraculousRecoveryEntityData.stopTracking(target.get());
-            MiraculousRecoveryItemData.get(level).recoverKamikotized(target.get(), level);
+            abilityReversionEntityData.stopTracking(target.get());
+            AbilityReversionItemData.get(level).recoverKamikotized(target.get(), level);
         }
         UUID charmId;
         if (data.power().left().isPresent()) {
@@ -122,6 +122,6 @@ public record LuckyCharmWorldRecoveryAbility(boolean requireInHand, Optional<Par
 
     @Override
     public MapCodec<? extends Ability> codec() {
-        return MineraculousAbilitySerializers.LUCKY_CHARM_WORLD_RECOVERY.get();
+        return AbilitySerializers.RECOVER_ABILITY_DAMAGE.get();
     }
 }

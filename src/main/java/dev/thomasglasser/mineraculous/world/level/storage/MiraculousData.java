@@ -20,6 +20,8 @@ import dev.thomasglasser.mineraculous.world.item.curio.CuriosUtils;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.util.List;
+import java.util.Optional;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
@@ -31,9 +33,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Unit;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -43,13 +43,9 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
-import org.checkerframework.checker.units.qual.K;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 public record MiraculousData(boolean transformed, Optional<KwamiData> kwamiData, Optional<CuriosData> curiosData, int toolId, int powerLevel, boolean countdownStarted, boolean powerActive, String name, Optional<Either<Integer, Integer>> transformationFrames, String miraculousLook, String suitLook, List<CompoundTag> storedEntities) {
+
     public static final String NAME_NOT_SET = "miraculous_data.name.not_set";
 
     public static final Codec<MiraculousData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -64,8 +60,7 @@ public record MiraculousData(boolean transformed, Optional<KwamiData> kwamiData,
             Codec.either(Codec.INT, Codec.INT).optionalFieldOf("transformation_frames").forGetter(MiraculousData::transformationFrames),
             Codec.STRING.optionalFieldOf("miraculous_look", "").forGetter(MiraculousData::miraculousLook),
             Codec.STRING.optionalFieldOf("suit_look", "").forGetter(MiraculousData::suitLook),
-            CompoundTag.CODEC.listOf().optionalFieldOf("stored_entities", new ObjectArrayList<>()).forGetter(MiraculousData::storedEntities)
-    ).apply(instance, MiraculousData::new));
+            CompoundTag.CODEC.listOf().optionalFieldOf("stored_entities", new ObjectArrayList<>()).forGetter(MiraculousData::storedEntities)).apply(instance, MiraculousData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousData> STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
             ByteBufCodecs.BOOL, MiraculousData::transformed,
@@ -81,7 +76,6 @@ public record MiraculousData(boolean transformed, Optional<KwamiData> kwamiData,
             ByteBufCodecs.STRING_UTF8, MiraculousData::suitLook,
             ByteBufCodecs.COMPOUND_TAG.apply(ByteBufCodecs.list()), MiraculousData::storedEntities,
             MiraculousData::new);
-
     public MiraculousData() {
         this(false, Optional.empty(), Optional.empty(), 0, 0, false, false, "", Optional.empty(), "", "", new ObjectArrayList<>());
     }
@@ -100,7 +94,7 @@ public record MiraculousData(boolean transformed, Optional<KwamiData> kwamiData,
                     if (entity instanceof LivingEntity livingEntity) {
                         ArmorData armor = new ArmorData(livingEntity.getItemBySlot(EquipmentSlot.HEAD), livingEntity.getItemBySlot(EquipmentSlot.CHEST), livingEntity.getItemBySlot(EquipmentSlot.LEGS), livingEntity.getItemBySlot(EquipmentSlot.FEET));
                         livingEntity.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
-                        for (EquipmentSlot slot : new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
+                        for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
                             ItemStack stack = Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.getForSlot(slot).get(), miraculous);
                             stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS.get(), Unit.INSTANCE);
                             transformationFrames.ifPresent(frames -> stack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, frames));
@@ -167,11 +161,11 @@ public record MiraculousData(boolean transformed, Optional<KwamiData> kwamiData,
             }
 
             detransformationFrames.ifPresentOrElse(frames -> {
-                for (EquipmentSlot slot : new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
+                for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
                     livingEntity.getItemBySlot(slot).set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, frames);
                 }
             }, () -> livingEntity.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(armorData -> {
-                for (EquipmentSlot slot : new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
+                for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
                     livingEntity.setItemSlot(slot, armorData.forSlot(slot));
                 }
             }));
@@ -207,7 +201,7 @@ public record MiraculousData(boolean transformed, Optional<KwamiData> kwamiData,
     }
 
     public void tick() {
-
+        // TODO: Check and re-apply effects
     }
 
     private int equipTool(Entity entity, ServerLevel level, Miraculous miraculous, KwamiData kwamiData) {
@@ -239,10 +233,8 @@ public record MiraculousData(boolean transformed, Optional<KwamiData> kwamiData,
 
     private MiraculousData transform(Either<Integer, Integer> either) {
         return either.map(
-                transformationFrames ->
-                new MiraculousData(true, kwamiData, curiosData, toolId, powerLevel, countdownStarted, powerActive, name, Optional.of(Either.left(transformationFrames)), miraculousLook, suitLook, storedEntities),
-                toolId ->
-                new MiraculousData(true, kwamiData, curiosData, toolId, powerLevel, countdownStarted, powerActive, name, Optional.empty(), miraculousLook, suitLook, storedEntities));
+                transformationFrames -> new MiraculousData(true, kwamiData, curiosData, toolId, powerLevel, countdownStarted, powerActive, name, Optional.of(Either.left(transformationFrames)), miraculousLook, suitLook, storedEntities),
+                toolId -> new MiraculousData(true, kwamiData, curiosData, toolId, powerLevel, countdownStarted, powerActive, name, Optional.empty(), miraculousLook, suitLook, storedEntities));
     }
 
     private MiraculousData detransform(Optional<KwamiData> kwamiData, boolean removed, Optional<Integer> detransformationFrames) {

@@ -21,6 +21,19 @@ import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.ServerLookData;
 import dev.thomasglasser.tommylib.api.packs.PackInfo;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Stream;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Position;
@@ -47,20 +60,6 @@ import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.registries.DataPackRegistryEvent;
 import net.neoforged.neoforge.registries.NewRegistryEvent;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Stream;
 
 public class MineraculousCoreEvents {
     // Setup

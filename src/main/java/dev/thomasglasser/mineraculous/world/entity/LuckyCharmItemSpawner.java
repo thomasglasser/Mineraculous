@@ -2,10 +2,8 @@ package dev.thomasglasser.mineraculous.world.entity;
 
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
-
-import java.util.List;
-
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import java.util.List;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;

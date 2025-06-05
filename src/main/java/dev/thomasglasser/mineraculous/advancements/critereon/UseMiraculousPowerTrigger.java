@@ -14,7 +14,6 @@ import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.StringRepresentable;
 
 public class UseMiraculousPowerTrigger extends SimpleCriterionTrigger<UseMiraculousPowerTrigger.TriggerInstance> {
     @Override
@@ -22,54 +21,35 @@ public class UseMiraculousPowerTrigger extends SimpleCriterionTrigger<UseMiracul
         return TriggerInstance.CODEC;
     }
 
-    public void trigger(ServerPlayer player, ResourceKey<Miraculous> type, Context context) {
+    public void trigger(ServerPlayer player, ResourceKey<Miraculous> type, String context) {
         this.trigger(player, instance -> instance.matches(type, context));
     }
 
-    public record TriggerInstance(Optional<ContextAwarePredicate> player, ResourceKey<Miraculous> type, List<Context> contexts) implements SimpleCriterionTrigger.SimpleInstance {
+    public record TriggerInstance(Optional<ContextAwarePredicate> player, ResourceKey<Miraculous> type, Optional<List<String>> contexts) implements SimpleCriterionTrigger.SimpleInstance {
 
         public static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
                 ResourceKey.codec(MineraculousRegistries.MIRACULOUS).fieldOf("type").forGetter(TriggerInstance::type),
-                Context.CODEC.listOf().optionalFieldOf("contexts", Context.any()).forGetter(TriggerInstance::contexts))
+                Codec.STRING.listOf().optionalFieldOf("contexts").forGetter(TriggerInstance::contexts))
                 .apply(instance, TriggerInstance::new));
         public static Criterion<TriggerInstance> usedPower(ResourceKey<Miraculous> type) {
-            return usedPower(type, Context.any());
+            return usedPower(type, Optional.empty());
         }
 
-        public static Criterion<TriggerInstance> usedPower(ResourceKey<Miraculous> type, Context... contexts) {
-            return usedPower(type, ReferenceArrayList.of(contexts));
+        public static Criterion<TriggerInstance> usedPower(ResourceKey<Miraculous> type, String... contexts) {
+            return usedPower(type, Optional.of(ReferenceArrayList.of(contexts)));
         }
 
-        public static Criterion<TriggerInstance> usedPower(ResourceKey<Miraculous> type, List<Context> contexts) {
+        public static Criterion<TriggerInstance> usedPower(ResourceKey<Miraculous> type, Optional<List<String>> contexts) {
             return criterion(Optional.empty(), type, contexts);
         }
 
-        public static Criterion<TriggerInstance> criterion(Optional<ContextAwarePredicate> player, ResourceKey<Miraculous> type, List<Context> contexts) {
+        public static Criterion<TriggerInstance> criterion(Optional<ContextAwarePredicate> player, ResourceKey<Miraculous> type, Optional<List<String>> contexts) {
             return MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().createCriterion(new TriggerInstance(player, type, contexts));
         }
 
-        public boolean matches(ResourceKey<Miraculous> type, Context context) {
-            return this.type == type && this.contexts.contains(context);
-        }
-    }
-
-    public enum Context implements StringRepresentable {
-        EMPTY,
-        BLOCK,
-        ENTITY,
-        LIVING_ENTITY,
-        ITEM;
-
-        private static final Codec<Context> CODEC = StringRepresentable.fromEnum(Context::values);
-
-        public static List<Context> any() {
-            return List.of(values());
-        }
-
-        @Override
-        public String getSerializedName() {
-            return this.name().toLowerCase();
+        public boolean matches(ResourceKey<Miraculous> type, String context) {
+            return this.type == type && this.contexts.map(contexts -> contexts.contains(context)).orElse(true);
         }
     }
 }

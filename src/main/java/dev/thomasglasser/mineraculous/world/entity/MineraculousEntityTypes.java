@@ -6,18 +6,11 @@ import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class  MineraculousEntityTypes {
+public class MineraculousEntityTypes {
     public static final DeferredRegister.Entities ENTITY_TYPES = DeferredRegister.createEntities(Mineraculous.MOD_ID);
 
     public static final DeferredHolder<EntityType<?>, EntityType<Kwami>> KWAMI = ENTITY_TYPES.register("kwami", Kwami::new, MobCategory.CREATURE, builder -> builder

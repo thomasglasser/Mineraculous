@@ -16,7 +16,7 @@ import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.world.entity.ability.MineraculousAbilitySerializers;
+import dev.thomasglasser.mineraculous.world.entity.ability.AbilitySerializers;
 import dev.thomasglasser.mineraculous.world.entity.ai.sensing.MineraculousSensorTypes;
 import dev.thomasglasser.mineraculous.world.entity.ai.village.poi.MineraculousPoiTypes;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerProfessions;
@@ -65,7 +65,7 @@ public class Mineraculous {
         MineraculousVillagerProfessions.init();
         MineraculousCriteriaTriggers.init();
         MineraculousMobEffects.init();
-        MineraculousAbilitySerializers.init();
+        AbilitySerializers.init();
         MineraculousEntitySubPredicates.init();
         MineraculousSoundEvents.init();
         MineraculousSensorTypes.init();

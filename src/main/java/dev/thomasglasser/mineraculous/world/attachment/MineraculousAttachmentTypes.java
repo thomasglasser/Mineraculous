@@ -20,8 +20,6 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.Optional;
 import java.util.UUID;
-
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.resources.ResourceKey;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;

@@ -24,9 +24,14 @@ public class MineraculousClient {
 
         MineraculousKeyMappings.init();
 
+        addEventListeners(modBus);
+
         modContainer.registerConfig(ModConfig.Type.CLIENT, MineraculousClientConfig.get().getConfigSpec());
         modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+    }
 
+    private void addEventListeners(IEventBus modBus) {
+        // Mod Bus
         modBus.addListener(MineraculousClientEvents::onFMLClientSetup);
         modBus.addListener(MineraculousClientEvents::onBuildCreativeModeTabContents);
         modBus.addListener(MineraculousClientEvents::onRegisterAdditionalModels);
@@ -43,6 +48,7 @@ public class MineraculousClient {
 
         modBus.addListener(MineraculousRenderStateShards::onRegisterShaders);
 
+        // Neo Bus
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientTick);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onKeyInput);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onMouseScrollingInput);

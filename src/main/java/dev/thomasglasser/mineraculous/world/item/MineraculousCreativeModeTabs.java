@@ -6,9 +6,11 @@ import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -22,16 +24,21 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackLinkedSet;
+import net.minecraft.world.level.Level;
 
 public class MineraculousCreativeModeTabs {
     public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Mineraculous.MOD_ID);
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MIRACULOUS = TABS.register("miraculous", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(Mineraculous.modLoc("miraculous").toLanguageKey("item_group"))).icon(() -> Miraculous.createMiraculousStack(Miraculouses.LADYBUG)).withSearchBar().displayItems((parameters, output) -> {
-        generateMiraculous(output, parameters.holders().lookupOrThrow(MineraculousRegistries.MIRACULOUS));
-    }).build());
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MIRACULOUS = TABS.register("miraculous", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(Mineraculous.modLoc("miraculous").toLanguageKey("item_group"))).icon(() -> {
+        Level level = ClientUtils.getLevel();
+        if (level != null) {
+            return Miraculous.createMiraculousStack(level.holderOrThrow(Miraculouses.LADYBUG));
+        }
+        return ItemStack.EMPTY;
+    }).withSearchBar().displayItems((parameters, output) -> generateMiraculous(output, parameters.holders().lookupOrThrow(MineraculousRegistries.MIRACULOUS))).build());
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> KAMIKOTIZATION_TOOLS = TABS.register("kamikotization_tools", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(Mineraculous.modLoc("kamikotization_tools").toLanguageKey("item_group"))).icon(MineraculousArmors.KAMIKOTIZATION.HEAD::toStack).displayItems((parameters, output) -> {
-        LinkedHashSet<Kamikotization> kamikotizations = parameters.holders().lookupOrThrow(MineraculousRegistries.KAMIKOTIZATION).listElements().sorted(Comparator.comparing(Holder.Reference::getKey)).map(Holder::value).collect(Collectors.toCollection(LinkedHashSet::new));
+        ReferenceLinkedOpenHashSet<Kamikotization> kamikotizations = parameters.holders().lookupOrThrow(MineraculousRegistries.KAMIKOTIZATION).listElements().sorted(Comparator.comparing(Holder.Reference::key)).map(Holder::value).collect(Collectors.toCollection(ReferenceLinkedOpenHashSet::new));
         for (Kamikotization kamikotization : kamikotizations) {
             if (kamikotization.powerSource().left().isPresent()) {
                 output.accept(kamikotization.powerSource().left().get());
@@ -45,7 +52,7 @@ public class MineraculousCreativeModeTabs {
 
         for (CreativeModeTab creativemodetab : parameters.holders().lookupOrThrow(Registries.CREATIVE_MODE_TAB).listElements().map(Holder::value).toList()) {
             if (creativemodetab.getType() != CreativeModeTab.Type.SEARCH) {
-                LinkedHashSet<Kamikotization> kamikotizations = parameters.holders().lookupOrThrow(MineraculousRegistries.KAMIKOTIZATION).listElements().sorted(Comparator.comparing(Holder.Reference::getKey)).map(Holder::value).collect(Collectors.toCollection(LinkedHashSet::new));
+                LinkedHashSet<Kamikotization> kamikotizations = parameters.holders().lookupOrThrow(MineraculousRegistries.KAMIKOTIZATION).listElements().sorted(Comparator.comparing(Holder.Reference::key)).map(Holder::value).collect(Collectors.toCollection(LinkedHashSet::new));
                 for (ItemStack stack : creativemodetab.getSearchTabDisplayItems()) {
                     if (kamikotizations.stream().anyMatch(kamikotization -> !kamikotization.itemPredicate().equals(ANY) && kamikotization.itemPredicate().test(stack))) {
                         set.add(stack);
@@ -77,7 +84,7 @@ public class MineraculousCreativeModeTabs {
             CreativeModeTab.Output output,
             HolderLookup.RegistryLookup<Miraculous> miraculous) {
         miraculous.listElements()
-                .forEach(m -> output.accept(Miraculous.createMiraculousStack(m.key())));
+                .forEach(m -> output.accept(Miraculous.createMiraculousStack(m)));
     }
 
     public static void init() {}

@@ -34,7 +34,7 @@ public class MiraculousCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected BookIconModel categoryIcon() {
-        return BookIconModel.create(Miraculous.createMiraculousStack(Miraculouses.LADYBUG));
+        return BookIconModel.create(Miraculous.createMiraculousStack(registries().holderOrThrow(Miraculouses.LADYBUG)));
     }
 
     @Override

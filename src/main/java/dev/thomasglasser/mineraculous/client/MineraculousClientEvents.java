@@ -25,8 +25,9 @@ import dev.thomasglasser.mineraculous.client.renderer.item.curio.ContextDependen
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.network.ServerboundJumpMidSwingingPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundKamikotizationTransformPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundSetOwnerPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundRevertConvertedEntityPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundSetSpectationInterruptedPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundStartKamikotizationDetransformationPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSwingOffhandPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
@@ -36,9 +37,8 @@ import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.world.item.armor.KamikotizationArmorItem;
+import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmorUtils;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
-import dev.thomasglasser.mineraculous.world.item.armor.MiraculousArmorItem;
 import dev.thomasglasser.mineraculous.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityEffectData;
@@ -61,8 +61,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -223,10 +223,9 @@ public class MineraculousClientEvents {
 
     public static void onRegisterItemColorHandlers(RegisterColorHandlersEvent.Item event) {
         event.register((stack, index) -> {
-            ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-            ClientLevel level = Minecraft.getInstance().level;
-            if (level != null && miraculous != null) {
-                return FastColor.ARGB32.opaque(level.registryAccess().holderOrThrow(miraculous).value().color().getValue());
+            Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+            if (miraculous != null) {
+                return FastColor.ARGB32.opaque(miraculous.value().color().getValue());
             }
             return -1;
         }, MineraculousArmors.MIRACULOUS.getAllAsItems().toArray(new Item[0]));
@@ -236,8 +235,7 @@ public class MineraculousClientEvents {
         // Clears old rendering data on reload
         event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
             MineraculousClientUtils.syncSpecialPlayerChoices();
-            MiraculousArmorItem.clearAnimationData();
-            KamikotizationArmorItem.clearAnimationData();
+            MineraculousArmorUtils.clearAnimationData();
             MiraculousItemRenderer.clearModels();
             MiraculousArmorItemRenderer.clearModels();
             KamikotizationArmorItemRenderer.clearModels();
@@ -277,12 +275,12 @@ public class MineraculousClientEvents {
                 Entity cameraEntity = MineraculousClientUtils.getCameraEntity();
                 if (cameraEntity instanceof Player target) {
                     KamikotizationData kamikotizationData = target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow();
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(Optional.of(target.getUUID()), kamikotizationData, false, false, false, target.position().add(0, 1, 0)));
-                    AbilityEffectData.checkRemoveFaceMaskTexture(target, kamikotizationData.kamikoData().faceMaskTexture());
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationDetransformationPayload(Optional.of(target.getUUID()), kamikotizationData, false));
+                    AbilityEffectData.removeFaceMaskTexture(target, kamikotizationData.kamikoData().faceMaskTexture());
                 } else if (cameraEntity instanceof Kamiko kamiko) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetOwnerPayload(kamiko.getId(), Optional.empty()));
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundRevertConvertedEntityPayload(kamiko.getOwner().getId(), kamiko.getId()));
                 }
-                MineraculousClientUtils.setCameraEntity(Minecraft.getInstance().player);
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSetSpectationInterruptedPayload(Optional.empty()));
             }, Button.DEFAULT_NARRATION) {
                 @Override
                 public Component getMessage() {
@@ -435,7 +433,7 @@ public class MineraculousClientEvents {
         LocalPlayer player = Minecraft.getInstance().player;
         if (level != null && player != null) {
             player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().ifPresent(chatter -> {
-                if (!(event.getSender().equals(chatter) || (event instanceof ClientChatReceivedEvent.System system && system.isOverlay()))) {
+                if (!(event.getSender().equals(chatter) || event.getSender().equals(player.getUUID()) || (event instanceof ClientChatReceivedEvent.System system && system.isOverlay()))) {
                     event.setCanceled(true);
                 }
             });

@@ -1,32 +1,25 @@
 package dev.thomasglasser.mineraculous.world.entity.ability;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.network.ClientboundAddRightHandParticlesPayload;
+import dev.thomasglasser.mineraculous.world.entity.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.Optional;
-
-import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.Nullable;
 
-public record RightHandParticlesAbility(ParticleOptions particle, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
-
+public record RightHandParticlesAbility(ParticleOptions particle) implements Ability {
     public static final MapCodec<RightHandParticlesAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ParticleTypes.CODEC.fieldOf("particle").forGetter(RightHandParticlesAbility::particle),
-            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(RightHandParticlesAbility::startSound),
-            Codec.BOOL.optionalFieldOf("override_active", false).forGetter(RightHandParticlesAbility::overrideActive)).apply(instance, RightHandParticlesAbility::new));
+            ParticleTypes.CODEC.fieldOf("particle").forGetter(RightHandParticlesAbility::particle)).apply(instance, RightHandParticlesAbility::new));
+
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, Context context) {
-        if (context == Context.PASSIVE) {
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
+        if (context == null) {
             TommyLibServices.NETWORK.sendToTrackingClients(new ClientboundAddRightHandParticlesPayload(performer.getId(), particle), performer);
-            playStartSound(level, pos, );
-            return true;
         }
         return false;
     }

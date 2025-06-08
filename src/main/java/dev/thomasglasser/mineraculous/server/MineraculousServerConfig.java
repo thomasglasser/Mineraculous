@@ -14,6 +14,7 @@ public class MineraculousServerConfig {
     public final ModConfigSpec.BooleanValue enableCustomization;
     public final ModConfigSpec.EnumValue<PermissionMode> customizationPermissionsMode;
     public final ModConfigSpec.BooleanValue enableMiraculousTimer;
+    public final ModConfigSpec.IntValue miraculousTimerDuration;
     public final ModConfigSpec.BooleanValue enableLimitedPower;
     public final ModConfigSpec.BooleanValue enableKamikotizationRejection;
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMin;
@@ -36,6 +37,8 @@ public class MineraculousServerConfig {
                 .defineEnum("customization_permission_mode", PermissionMode.WHITELIST);
         enableMiraculousTimer = builder
                 .define("enable_miraculous_timer", true);
+        miraculousTimerDuration = builder
+                .defineInRange("miraculous_timer_duration", 60 * 5, 10, 60 * 10);
         enableLimitedPower = builder
                 .define("enable_limited_power", true);
         enableKamikotizationRejection = builder

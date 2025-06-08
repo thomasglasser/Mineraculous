@@ -30,7 +30,7 @@ public class MineraculousSoundDefinitionsProvider extends ExtendedSoundDefinitio
         // Miraculous
         add(MineraculousSoundEvents.GENERIC_TRANSFORM);
         add(MineraculousSoundEvents.GENERIC_DETRANSFORM);
-        add(MineraculousSoundEvents.GENERIC_TIMER_BEEP);
+        add(MineraculousSoundEvents.GENERIC_TIMER_WARNING);
         add(MineraculousSoundEvents.GENERIC_TIMER_END);
         add(MineraculousSoundEvents.LADYBUG_TRANSFORM);
         add(MineraculousSoundEvents.CAT_TRANSFORM);

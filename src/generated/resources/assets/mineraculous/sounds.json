@@ -102,17 +102,17 @@
     ],
     "subtitle": "subtitles.miraculous.generic.detransform"
   },
-  "miraculous.generic.timer_beep": {
-    "sounds": [
-      "mineraculous:miraculous/generic/timer_beep"
-    ],
-    "subtitle": "subtitles.miraculous.generic.timer_beep"
-  },
   "miraculous.generic.timer_end": {
     "sounds": [
       "mineraculous:miraculous/generic/timer_end"
     ],
     "subtitle": "subtitles.miraculous.generic.timer_end"
+  },
+  "miraculous.generic.timer_warning": {
+    "sounds": [
+      "mineraculous:miraculous/generic/timer_warning"
+    ],
+    "subtitle": "subtitles.miraculous.generic.timer_warning"
   },
   "miraculous.generic.transform": {
     "sounds": [

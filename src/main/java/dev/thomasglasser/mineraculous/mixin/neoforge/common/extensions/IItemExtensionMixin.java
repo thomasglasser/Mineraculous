@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.mixin.neoforge.common.extensions;
 
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -15,7 +15,7 @@ public interface IItemExtensionMixin {
     @Inject(method = "onDestroyed", at = @At("HEAD"))
     default void checkKamikotizationStackOnDestroyed(ItemEntity itemEntity, DamageSource damageSource, CallbackInfo ci) {
         if (itemEntity.level() instanceof ServerLevel level) {
-            MineraculousEntityEvents.checkKamikotizationStack(itemEntity.getItem(), level, damageSource.getEntity());
+            Kamikotization.checkBroken(itemEntity.getItem(), level, damageSource.getEntity());
         }
     }
 }

@@ -1,7 +1,5 @@
 {
   "default_name": "Kitty",
-  "passive_abilities": [
-    "mineraculous:cat_vision"
-  ],
+  "passive_abilities": "mineraculous:cat_vision",
   "power_source": "mineraculous:cataclysm"
 }

@@ -14,8 +14,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -31,10 +31,9 @@ public class PlayerMenuItem implements KamikoMenuItem {
         Player player = Minecraft.getInstance().level.getPlayerByUUID(profile.getId());
         if (player != null) {
             this.name = player.getDisplayName();
-            List<ResourceKey<Miraculous>> transformed = player.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed();
+            List<Holder<Miraculous>> transformed = player.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed();
             if (!transformed.isEmpty()) {
-                ResourceKey<Miraculous> key = transformed.getFirst();
-                this.stack = Optional.of(Miraculous.createMiraculousStack(key));
+                this.stack = Optional.of(Miraculous.createMiraculousStack(transformed.getFirst()));
             } else {
                 this.stack = Optional.empty();
             }

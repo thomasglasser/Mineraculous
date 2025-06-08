@@ -33,9 +33,9 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.tommylib.api.data.DataGenerationUtils;
 import dev.worldgen.lithostitched.registry.LithostitchedRegistryKeys;
-import java.util.List;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.DataGenerator;
@@ -66,13 +66,13 @@ public class MineraculousDataGenerators {
                                 "Kitty",
                                 ItemPredicate.Builder.item().build(),
                                 Either.right(abilities.getOrThrow(Abilities.CATACLYSM)),
-                                List.of(abilities.getOrThrow(Abilities.CAT_VISION))));
+                                HolderSet.direct(abilities.getOrThrow(Abilities.CAT_VISION))));
                 context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, Mineraculous.modLoc("ladybug")),
                         new Kamikotization(
                                 "Bugaboo",
                                 ItemPredicate.Builder.item().build(),
                                 Either.left(Items.DIAMOND_SWORD.getDefaultInstance()),
-                                List.of(abilities.getOrThrow(Abilities.CAT_VISION), abilities.getOrThrow(Abilities.KAMIKOTIZED_COMMUNICATION))));
+                                HolderSet.direct(abilities.getOrThrow(Abilities.CAT_VISION), abilities.getOrThrow(Abilities.KAMIKOTIZED_COMMUNICATION))));
                 ItemStack stormyTool = Items.DIAMOND.getDefaultInstance();
                 stormyTool.enchant(enchantments.getOrThrow(Enchantments.SHARPNESS), 1);
                 stormyTool.enchant(enchantments.getOrThrow(Enchantments.SMITE), 1);
@@ -82,7 +82,7 @@ public class MineraculousDataGenerators {
                                 "Stormy Tester",
                                 ItemPredicate.Builder.item().of(ItemTags.BANNERS).build(),
                                 Either.left(stormyTool),
-                                List.of()));
+                                HolderSet.empty()));
             });
 
     public static void onGatherData(GatherDataEvent event) {

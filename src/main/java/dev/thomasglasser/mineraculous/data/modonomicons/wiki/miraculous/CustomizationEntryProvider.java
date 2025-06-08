@@ -55,7 +55,7 @@ public class CustomizationEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.HEAD.get(), Miraculouses.LADYBUG));
+        return BookIconModel.create(Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.HEAD.get(), registries().holderOrThrow(Miraculouses.LADYBUG)));
     }
 
     @Override

@@ -20,8 +20,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -35,7 +35,7 @@ import software.bernie.geckolib.renderer.GeoItemRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
-    private static final Map<ResourceKey<Miraculous>, GeoModel<MiraculousItem>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
+    private static final Map<Holder<Miraculous>, GeoModel<MiraculousItem>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
     private static final Map<MiraculousLookData, GeoModel<MiraculousItem>> LOOK_MODELS = new Reference2ReferenceOpenHashMap<>();
 
     public MiraculousItemRenderer() {
@@ -78,12 +78,12 @@ public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
         if (!isReRender) {
             ItemStack stack = getCurrentItemStack();
             if (stack != null) {
-                ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+                Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
                 MiraculousLookData data = getMiraculousLookData(stack);
                 if (data != null && data.transforms().isPresent() && data.transforms().get().hasTransform(renderPerspective) && !stack.has(MineraculousDataComponents.POWERED)) {
                     data.transforms().get().getTransform(renderPerspective).apply(false, poseStack);
                 } else {
-                    BakedModel miraculousModel = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(miraculous.location().getNamespace(), "item/miraculous/" + miraculous.location().getPath())));
+                    BakedModel miraculousModel = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(miraculous.getKey().location().getNamespace(), "item/miraculous/" + miraculous.getKey().location().getPath())));
                     if (miraculousModel != Minecraft.getInstance().getModelManager().getMissingModel()) {
                         miraculousModel.applyTransform(renderPerspective, poseStack, false);
                     }
@@ -103,7 +103,8 @@ public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
                 final int second = ticks / SharedConstants.TICKS_PER_SECOND;
                 final int minute = ticks / SharedConstants.TICKS_PER_MINUTE + 1;
                 ResourceLocation powered = super.getTextureLocation(animatable).withPath(path -> path.replace("hidden", "powered"));
-                if (ticks > 0 && ticks < MiraculousItem.FIVE_MINUTES) {
+                // TODO: Adapt to config value
+                if (ticks > 0 && ticks < SharedConstants.TICKS_PER_MINUTE * 5) {
                     // Blinks every other second
                     if (second % 2 == 0)
                         return super.getTextureLocation(animatable).withPath(path -> path.replace("hidden", "powered_" + (minute - 1)));
@@ -125,7 +126,7 @@ public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
     public GeoModel<MiraculousItem> getGeoModel() {
         ItemStack stack = getCurrentItemStack();
         if (stack != null) {
-            ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+            Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
             if (miraculous != null) {
                 if (!DEFAULT_MODELS.containsKey(miraculous))
                     DEFAULT_MODELS.put(miraculous, createDefaultGeoModel(miraculous));
@@ -141,9 +142,9 @@ public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
         return super.getGeoModel();
     }
 
-    private GeoModel<MiraculousItem> createDefaultGeoModel(ResourceKey<Miraculous> miraculous) {
-        return new DefaultedItemGeoModel<>(miraculous.location().withPrefix("miraculous/")) {
-            private final ResourceLocation texture = miraculous.location().withPrefix("textures/item/miraculous/").withSuffix("/hidden.png");
+    private GeoModel<MiraculousItem> createDefaultGeoModel(Holder<Miraculous> miraculous) {
+        return new DefaultedItemGeoModel<>(miraculous.getKey().location().withPrefix("miraculous/")) {
+            private final ResourceLocation texture = miraculous.getKey().location().withPrefix("textures/item/miraculous/").withSuffix("/hidden.png");
 
             @Override
             public ResourceLocation getTextureResource(MiraculousItem animatable) {
@@ -152,7 +153,7 @@ public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
         };
     }
 
-    private GeoModel<MiraculousItem> createLookGeoModel(ResourceKey<Miraculous> miraculous, MiraculousLookData data) {
+    private GeoModel<MiraculousItem> createLookGeoModel(Holder<Miraculous> miraculous, MiraculousLookData data) {
         return new GeoModel<>() {
             private BakedGeoModel currentModel = null;
 
@@ -185,12 +186,12 @@ public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
 
     @Nullable
     private MiraculousLookData getMiraculousLookData(ItemStack stack) {
-        ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+        Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
         ResolvableProfile profile = getCurrentItemStack().get(DataComponents.PROFILE);
         if (profile != null && Minecraft.getInstance().level != null) {
             Player player = Minecraft.getInstance().level.getPlayerByUUID(profile.id().orElse(profile.gameProfile().getId()));
             if (player != null) {
-                String look = player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).miraculousLook();
+                String look = /*player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).miraculousLook()*/"";
                 if (!look.isEmpty()) {
                     return player.getData(MineraculousAttachmentTypes.MIRACULOUS_MIRACULOUS_LOOKS).get(miraculous, look);
                 }

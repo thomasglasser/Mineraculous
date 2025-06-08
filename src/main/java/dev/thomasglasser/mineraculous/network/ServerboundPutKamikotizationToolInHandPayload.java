@@ -23,7 +23,7 @@ public record ServerboundPutKamikotizationToolInHandPayload() implements Extende
     @Override
     public void handle(Player player) {
         if (player.getMainHandItem().isEmpty()) {
-            player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> player.level().holderOrThrow(data.kamikotization()).value().powerSource().left().ifPresent(defaultTool -> {
+            player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.kamikotization().value().powerSource().left().ifPresent(defaultTool -> {
                 if (defaultTool.isEmpty())
                     return;
                 UUID uuid = data.kamikoData().uuid();

@@ -6,11 +6,11 @@ import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.inventory.ExternalInventoryScreen;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.network.ServerboundKamikotizationTransformPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundOpenPerformerKamikotizationChatScreenPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundOpenVictimKamikotizationChatScreenPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRequestInventorySyncPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSpawnTamedKamikoPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundStartKamikotizationTransformationPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundTriggerKamikotizationAdvancementsPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
@@ -23,7 +23,6 @@ import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
@@ -61,7 +60,7 @@ public class KamikotizationSelectionScreen extends Screen {
     public static final Component PASSIVE_ABILITIES = Component.translatable("gui.kamikotization.passive_abilities");
     public static final String NO_KAMIKOTIZATIONS = "gui.kamikotization.no_kamikotizations";
 
-    private final LinkedList<Holder<Kamikotization>> kamikotizations;
+    private final List<Holder<Kamikotization>> kamikotizations;
     private final Player target;
     private final Player targetPreview;
     private final KamikoData kamikoData;
@@ -156,9 +155,11 @@ public class KamikotizationSelectionScreen extends Screen {
                 components.add(Component.literal(""));
                 targetPreview.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
             }
-            if (!selectedKamikotization.value().passiveAbilities().isEmpty()) {
+            if (selectedKamikotization.value().passiveAbilities().size() > 0) {
                 components.add(PASSIVE_ABILITIES.copy().withStyle(ChatFormatting.UNDERLINE));
-                components.addAll(selectedKamikotization.value().passiveAbilities().stream().map(holder -> Component.translatable(holder.getKey().location().toLanguageKey("ability"))).toList());
+                for (Holder<Ability> ability : selectedKamikotization.value().passiveAbilities()) {
+                    components.add(Component.translatable(ability.getKey().location().toLanguageKey("ability")).withStyle(ChatFormatting.GRAY));
+                }
             }
             MineraculousClientUtils.renderEntityInInventorySpinning(guiGraphics, topLeftX + 15, topLeftY + 15, topLeftX + 113, topLeftY + 145, 60, (Minecraft.getInstance().player.tickCount % 360) * 2, targetPreview);
             guiGraphics.drawString(this.font, Component.literal("---------------"), topLeftX + 131, topLeftY + 22, Optional.ofNullable(ChatFormatting.WHITE.getColor()).orElseThrow(), false);
@@ -312,10 +313,10 @@ public class KamikotizationSelectionScreen extends Screen {
 
     protected void onKamikotizationChanged() {
         if (selectedKamikotization != null) {
-            targetPreview.setItemSlot(EquipmentSlot.HEAD, Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.HEAD.get(), selectedKamikotization.getKey()));
-            targetPreview.setItemSlot(EquipmentSlot.CHEST, Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.CHEST.get(), selectedKamikotization.getKey()));
-            targetPreview.setItemSlot(EquipmentSlot.LEGS, Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.LEGS.get(), selectedKamikotization.getKey()));
-            targetPreview.setItemSlot(EquipmentSlot.FEET, Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.FEET.get(), selectedKamikotization.getKey()));
+            targetPreview.setItemSlot(EquipmentSlot.HEAD, Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.HEAD.get(), selectedKamikotization));
+            targetPreview.setItemSlot(EquipmentSlot.CHEST, Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.CHEST.get(), selectedKamikotization));
+            targetPreview.setItemSlot(EquipmentSlot.LEGS, Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.LEGS.get(), selectedKamikotization));
+            targetPreview.setItemSlot(EquipmentSlot.FEET, Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.FEET.get(), selectedKamikotization));
             name.setValue(selectedKamikotization.value().defaultName());
         }
         refreshArrows();
@@ -330,7 +331,7 @@ public class KamikotizationSelectionScreen extends Screen {
         }
         if (cancel) {
             TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(player.getUUID(), target.blockPosition().above()));
-            AbilityEffectData.checkRemoveFaceMaskTexture(player, kamikoData.faceMaskTexture());
+            AbilityEffectData.removeFaceMaskTexture(player, kamikoData.faceMaskTexture());
         } else {
             minecraft.setScreen(new ExternalCuriosInventoryScreen(target, false, new ExternalInventoryScreen.ItemPickupHandler() {
                 @Override
@@ -346,21 +347,21 @@ public class KamikotizationSelectionScreen extends Screen {
                         slotInfo = Either.right(new CuriosData(curiosSlot.getSlotIndex(), curiosSlot.getIdentifier()));
                     else
                         slotInfo = Either.left(slot.getSlotIndex());
-                    KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization.getKey(), slot.getItem().getCount(), slotInfo, kamikoData, false, Optional.of(Either.left(0)), name.getValue());
+                    KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, name.getValue(), Optional.empty(), slot.getItem().getCount(), false);
                     if (target == minecraft.player) {
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(kamikotizationData, true, false, false, minecraft.player.position().add(0, 1, 0)));
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(target.getUUID(), target.getUUID(), kamikotizationData.kamikotization()));
-                        AbilityEffectData.checkRemoveFaceMaskTexture(target, kamikoData.faceMaskTexture());
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationTransformationPayload(kamikotizationData, slotInfo));
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(target.getUUID(), target.getUUID(), kamikotizationData.kamikotization().getKey()));
+                        AbilityEffectData.removeFaceMaskTexture(target, kamikoData.faceMaskTexture());
                     } else {
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundOpenVictimKamikotizationChatScreenPayload(target.getUUID(), kamikotizationData));
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundOpenVictimKamikotizationChatScreenPayload(target.getUUID(), kamikotizationData, slotInfo));
                         MiraculousesData playerMiraculousSet = minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundOpenPerformerKamikotizationChatScreenPayload(playerMiraculousSet.get(playerMiraculousSet.getTransformed().getFirst()).name(), name.getValue(), kamikoData.faceMaskTexture(), target.getUUID()));
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundOpenPerformerKamikotizationChatScreenPayload(/*playerMiraculousSet.get(playerMiraculousSet.getTransformed().getFirst()).name()*/"", name.getValue(), kamikoData.faceMaskTexture(), target.getUUID()));
                     }
                 }
             }, exit -> {
                 if (exit) {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(player.getUUID(), target.blockPosition().above()));
-                    AbilityEffectData.checkRemoveFaceMaskTexture(target, kamikoData.faceMaskTexture());
+                    AbilityEffectData.removeFaceMaskTexture(target, kamikoData.faceMaskTexture());
                 }
                 TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), false));
             }));

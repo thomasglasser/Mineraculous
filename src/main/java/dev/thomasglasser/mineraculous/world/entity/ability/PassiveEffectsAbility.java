@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.world.entity.ability;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.world.entity.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import net.minecraft.core.Holder;
@@ -26,7 +26,7 @@ public record PassiveEffectsAbility(HolderSet<MobEffect> effects, int startLevel
         if (context == null && performer instanceof LivingEntity livingEntity) {
             for (Holder<MobEffect> effect : effects) {
                 if (!livingEntity.hasEffect(effect)) {
-                    livingEntity.addEffect(MineraculousEntityEvents.INFINITE_HIDDEN_EFFECT.apply(effect, startLevel + (data.powerLevel() / 10)));
+                    MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, effect, startLevel + (data.powerLevel() / 10));
                 }
             }
         }
@@ -36,7 +36,7 @@ public record PassiveEffectsAbility(HolderSet<MobEffect> effects, int startLevel
     @Override
     public void transform(AbilityData data, ServerLevel level, Entity performer) {
         if (effects.size() > 0 && performer instanceof LivingEntity livingEntity) {
-            effects.forEach(effect -> livingEntity.addEffect(MineraculousEntityEvents.INFINITE_HIDDEN_EFFECT.apply(effect, startLevel + (data.powerLevel() / 10))));
+            effects.forEach(effect -> MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, effect, startLevel + (data.powerLevel() / 10)));
         }
     }
 

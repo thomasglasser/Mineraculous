@@ -149,7 +149,7 @@ public class ButterflyEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(Miraculous.createMiraculousStack(Miraculouses.BUTTERFLY));
+        return BookIconModel.create(Miraculous.createMiraculousStack(registries().holderOrThrow(Miraculouses.BUTTERFLY)));
     }
 
     @Override

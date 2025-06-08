@@ -4,7 +4,7 @@ import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.network.ServerboundHurtEntityPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -35,12 +35,12 @@ public abstract class PlayerMixin extends LivingEntity {
 
     @ModifyReturnValue(method = "getName", at = @At("RETURN"))
     private Component formatMiraculousName(Component original) {
-        return MineraculousEntityEvents.formatDisplayName(mineraculous$instance, original);
+        return MineraculousEntityUtils.formatDisplayName(mineraculous$instance, original);
     }
 
     @ModifyReturnValue(method = "decorateDisplayNameComponent", at = @At(value = "RETURN"))
     private MutableComponent formatMiraculousDisplayName(MutableComponent original) {
-        return MineraculousEntityEvents.formatDisplayName(mineraculous$instance, original).copy();
+        return MineraculousEntityUtils.formatDisplayName(mineraculous$instance, original).copy();
     }
 
     // TODO: Check, and find a way to prevent block breaking

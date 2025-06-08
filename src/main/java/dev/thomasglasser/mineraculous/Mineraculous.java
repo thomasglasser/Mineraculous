@@ -26,6 +26,7 @@ import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmorMaterials;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.crafting.MineraculousRecipeSerializers;
+import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlockEvents;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.parameters.MineraculousLootContextParamSets;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.predicates.MineraculousLootItemConditions;
@@ -49,6 +50,14 @@ public class Mineraculous {
     public Mineraculous(IEventBus modBus, ModContainer modContainer) {
         LOGGER.info("Initializing {} for {} in a {} environment...", MOD_NAME, TommyLibServices.PLATFORM.getPlatformName(), TommyLibServices.PLATFORM.getEnvironmentName());
 
+        initRegistries();
+
+        addEventListeners(modBus);
+
+        modContainer.registerConfig(ModConfig.Type.SERVER, MineraculousServerConfig.get().getConfigSpec());
+    }
+
+    private void initRegistries() {
         MineraculousBuiltInRegistries.init();
         MineraculousItems.init();
         MineraculousArmors.init();
@@ -72,43 +81,48 @@ public class Mineraculous {
         MineraculousNumberProviders.init();
         MineraculousLootItemConditions.init();
         MineraculousLootContextParamSets.init();
+    }
 
-        modContainer.registerConfig(ModConfig.Type.SERVER, MineraculousServerConfig.get().getConfigSpec());
-
+    private void addEventListeners(IEventBus modBus) {
+        // Mod Bus
         modBus.addListener(MineraculousDataGenerators::onGatherData);
 
         modBus.addListener(MineraculousPayloads::onRegisterPackets);
 
-        modBus.addListener(MineraculousEntityEvents::onEntityAttributeCreation);
         modBus.addListener(MineraculousCoreEvents::onFMLCommonSetup);
-        modBus.addListener(MineraculousCoreEvents::onNewDataPackRegistry);
         modBus.addListener(MineraculousCoreEvents::onNewRegistry);
-        modBus.addListener(MineraculousCoreEvents::onRegisterDataMapTypes);
+        modBus.addListener(MineraculousCoreEvents::onNewDataPackRegistry);
         modBus.addListener(MineraculousCoreEvents::onAddPackFinders);
+        modBus.addListener(MineraculousCoreEvents::onRegisterDataMapTypes);
 
+        modBus.addListener(MineraculousEntityEvents::onEntityAttributeCreation);
+
+        // Neo Bus
         NeoForge.EVENT_BUS.addListener(MineraculousVillagerTrades::onRegisterVillagerTrades);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingDeath);
+
+        NeoForge.EVENT_BUS.addListener(MineraculousCommandEvents::onCommandsRegister);
+
+        NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onServerStarted);
+        NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onLootTableLoad);
+
+        NeoForge.EVENT_BUS.addListener(MineraculousBlockEvents::onBlockDrops);
+
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityJoinLevel);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onServerPlayerLoggedIn);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityTick);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerBreakSpeed);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingFall);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityInteract);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onBlockInteract);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onAttackEntity);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingAttack);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onBlockInteract);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onBlockLeftClick);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEmptyLeftClick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEffectRemoved);
-        NeoForge.EVENT_BUS.addListener(MineraculousCommandEvents::onCommandsRegister);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingHeal);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityTick);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityLeaveLevel);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityJoinLevel);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerLoggedOut);
-        NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onLootTableLoad);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerBreakSpeed);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onServerPlayerLoggedIn);
-        NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onServerStarted);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onMobEffectRemoved);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onBlockDrops);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingDeath);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingDrops);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingFall);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityLeaveLevel);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerLoggedOut);
     }
 
     public static ResourceLocation modLoc(String path) {

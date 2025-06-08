@@ -1,9 +1,5 @@
 {
-  "type": "mineraculous:set_camera_entity",
-  "entity": {
-    "type": "mineraculous:kamiko"
-  },
+  "type": "mineraculous:kamiko_control",
   "face_mask_texture": "mineraculous:textures/entity/player/face_mask/kamiko.png",
-  "override_active": true,
-  "override_owner": true
+  "shader": "mineraculous:post_effect/kamiko.json"
 }

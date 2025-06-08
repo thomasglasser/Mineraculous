@@ -35,10 +35,10 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -55,7 +55,7 @@ public class LookCustomizationScreen extends Screen {
     protected static final int BACKGROUND_WIDTH = 248;
     protected static final int BACKGROUND_HEIGHT = 166;
 
-    protected final ResourceKey<Miraculous> miraculous;
+    protected final Holder<Miraculous> miraculous;
     protected final Map<String, FlattenedSuitLookData> flattenedSuitLooks;
     protected final Map<String, FlattenedMiraculousLookData> flattenedMiraculousLooks;
     protected final List<Map.Entry<String, SuitLookData>> suitLooks;
@@ -76,8 +76,8 @@ public class LookCustomizationScreen extends Screen {
     protected Map.Entry<String, SuitLookData> selectedSuit;
     protected Map.Entry<String, MiraculousLookData> selectedMiraculous;
 
-    public LookCustomizationScreen(ResourceKey<Miraculous> miraculous, Map<String, FlattenedSuitLookData> serverSuits, Map<String, FlattenedMiraculousLookData> serverMiraculous) {
-        super(Component.translatable(TITLE, Component.translatable(Miraculous.toLanguageKey(miraculous))));
+    public LookCustomizationScreen(Holder<Miraculous> miraculous, Map<String, FlattenedSuitLookData> serverSuits, Map<String, FlattenedMiraculousLookData> serverMiraculous) {
+        super(Component.translatable(TITLE, Component.translatable(Miraculous.toLanguageKey(miraculous.getKey()))));
         this.miraculous = miraculous;
         this.flattenedSuitLooks = getFlattenedSuitLooks(serverSuits);
         this.flattenedMiraculousLooks = getFlattenedMiraculousLooks(serverMiraculous);
@@ -89,7 +89,7 @@ public class LookCustomizationScreen extends Screen {
         this.previewSuit.setItemSlot(EquipmentSlot.LEGS, Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.LEGS.get(), miraculous));
         this.previewSuit.setItemSlot(EquipmentSlot.FEET, Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.FEET.get(), miraculous));
         CuriosUtils.setStackInFirstValidSlot(this.previewSuit, Miraculous.createMiraculousStack(miraculous));
-        HashBasedTable<ResourceKey<Miraculous>, String, SuitLookData> previewSuitLooks = HashBasedTable.create();
+        HashBasedTable<Holder<Miraculous>, String, SuitLookData> previewSuitLooks = HashBasedTable.create();
         for (Map.Entry<String, SuitLookData> entry : suitLooks) {
             previewSuitLooks.put(miraculous, entry.getKey(), entry.getValue());
         }
@@ -101,7 +101,7 @@ public class LookCustomizationScreen extends Screen {
                 return false;
             }
         };
-        HashBasedTable<ResourceKey<Miraculous>, String, MiraculousLookData> previewMiraculousLooks = HashBasedTable.create();
+        HashBasedTable<Holder<Miraculous>, String, MiraculousLookData> previewMiraculousLooks = HashBasedTable.create();
         for (Map.Entry<String, MiraculousLookData> entry : miraculousLooks) {
             previewMiraculousLooks.put(miraculous, entry.getKey(), entry.getValue());
         }
@@ -115,7 +115,7 @@ public class LookCustomizationScreen extends Screen {
     protected Map<String, FlattenedSuitLookData> getFlattenedSuitLooks(Map<String, FlattenedSuitLookData> serverSuits) {
         Map<String, FlattenedSuitLookData> suitLooks = new Reference2ReferenceOpenHashMap<>(serverSuits);
         if (MineraculousServerConfig.get().enableCustomization.get()) {
-            for (Map.Entry<String, FlattenedSuitLookData> entry : MineraculousCoreEvents.fetchSuitLooks(Minecraft.getInstance().gameDirectory.toPath(), Minecraft.getInstance().level.holderOrThrow(miraculous)).entrySet()) {
+            for (Map.Entry<String, FlattenedSuitLookData> entry : MineraculousCoreEvents.fetchSuitLooks(Minecraft.getInstance().gameDirectory.toPath(), miraculous).entrySet()) {
                 suitLooks.putIfAbsent(entry.getKey(), entry.getValue());
             }
         }
@@ -126,7 +126,7 @@ public class LookCustomizationScreen extends Screen {
         Map<String, SuitLookData> suitLooks = new Reference2ReferenceOpenHashMap<>();
         suitLooks.put("", new SuitLookData(Optional.empty(), ResourceLocation.withDefaultNamespace(""), Optional.empty(), List.of(), List.of(), Optional.empty()));
         for (Map.Entry<String, FlattenedSuitLookData> entry : flattenedSuitLooks.entrySet()) {
-            SuitLookData data = entry.getValue() == null ? null : entry.getValue().unpack(miraculous, Minecraft.getInstance().player);
+            SuitLookData data = entry.getValue() == null ? null : entry.getValue().unpack(miraculous.getKey(), Minecraft.getInstance().player);
             if (data != null)
                 suitLooks.put(entry.getKey(), data);
         }
@@ -136,7 +136,7 @@ public class LookCustomizationScreen extends Screen {
     protected Map<String, FlattenedMiraculousLookData> getFlattenedMiraculousLooks(Map<String, FlattenedMiraculousLookData> serverMiraculous) {
         Map<String, FlattenedMiraculousLookData> miraculousLooks = new Reference2ReferenceOpenHashMap<>(serverMiraculous);
         if (MineraculousServerConfig.get().enableCustomization.get()) {
-            for (Map.Entry<String, FlattenedMiraculousLookData> entry : MineraculousCoreEvents.fetchMiraculousLooks(Minecraft.getInstance().gameDirectory.toPath(), miraculous).entrySet()) {
+            for (Map.Entry<String, FlattenedMiraculousLookData> entry : MineraculousCoreEvents.fetchMiraculousLooks(Minecraft.getInstance().gameDirectory.toPath(), miraculous.getKey()).entrySet()) {
                 miraculousLooks.putIfAbsent(entry.getKey(), entry.getValue());
             }
         }
@@ -147,7 +147,7 @@ public class LookCustomizationScreen extends Screen {
         Map<String, MiraculousLookData> miraculousLooks = new Reference2ReferenceOpenHashMap<>();
         miraculousLooks.put("", new MiraculousLookData(Optional.empty(), ResourceLocation.withDefaultNamespace(""), Optional.empty(), Optional.empty()));
         for (Map.Entry<String, FlattenedMiraculousLookData> entry : flattenedMiraculousLooks.entrySet()) {
-            MiraculousLookData data = entry.getValue() == null ? null : entry.getValue().unpack(miraculous, Minecraft.getInstance().player);
+            MiraculousLookData data = entry.getValue() == null ? null : entry.getValue().unpack(miraculous.getKey(), Minecraft.getInstance().player);
             if (data != null)
                 miraculousLooks.put(entry.getKey(), data);
         }
@@ -161,7 +161,7 @@ public class LookCustomizationScreen extends Screen {
             if (selectedSuit == null) {
                 selectedSuit = suitLooks.getFirst();
                 for (Map.Entry<String, SuitLookData> entry : suitLooks) {
-                    if (entry.getKey().equals(minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).suitLook())) {
+                    if (/*entry.getKey().equals(minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).suitLook())*/false) {
                         selectedSuit = entry;
                         break;
                     }
@@ -170,7 +170,7 @@ public class LookCustomizationScreen extends Screen {
             if (selectedMiraculous == null) {
                 selectedMiraculous = miraculousLooks.getFirst();
                 for (Map.Entry<String, MiraculousLookData> entry : miraculousLooks) {
-                    if (entry.getKey().equals(minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).miraculousLook())) {
+                    if (/*entry.getKey().equals(minecraft.player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).miraculousLook())*/false) {
                         selectedMiraculous = entry;
                         break;
                     }
@@ -180,11 +180,11 @@ public class LookCustomizationScreen extends Screen {
             this.topLeftY = (this.height - BACKGROUND_HEIGHT) / 2;
             this.name = new EditBox(this.font, topLeftX + 130, topLeftY + 7, 109, 17, Component.translatable(MineraculousClientUtils.NAME));
             this.name.setCanLoseFocus(true);
-            this.name.setTextColor(Minecraft.getInstance().level.holderOrThrow(miraculous).value().color().getValue());
+            this.name.setTextColor(miraculous.value().color().getValue());
             this.name.setTextColorUneditable(-1);
             this.name.setBordered(true);
             this.name.setMaxLength(50);
-            this.name.setValue(Minecraft.getInstance().player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).name());
+            this.name.setValue(/*Minecraft.getInstance().player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).name()*/"");
             this.addWidget(this.name);
             this.name.setEditable(true);
             done = Button.builder(CommonComponents.GUI_DONE, button -> onClose(false)).build();
@@ -387,7 +387,7 @@ public class LookCustomizationScreen extends Screen {
         onLookChanged();
         if (selectedSuit != null) {
             MiraculousesData miraculousesData = previewSuit.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-            miraculousesData.put(previewSuit, miraculous, miraculousesData.get(miraculous).withSuitLook(selectedSuit.getKey()), false);
+//            miraculousesData.put(previewSuit, miraculous, miraculousesData.get(miraculous).withSuitLook(selectedSuit.getKey()), false);
         }
     }
 
@@ -395,7 +395,7 @@ public class LookCustomizationScreen extends Screen {
         onLookChanged();
         if (selectedMiraculous != null) {
             MiraculousesData miraculousesData = previewMiraculousPlayer.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-            miraculousesData.put(previewMiraculousPlayer, miraculous, miraculousesData.get(miraculous).withMiraculousLook(selectedMiraculous.getKey()), false);
+//            miraculousesData.put(previewMiraculousPlayer, miraculous, miraculousesData.get(miraculous).withMiraculousLook(selectedMiraculous.getKey()), false);
         }
     }
 

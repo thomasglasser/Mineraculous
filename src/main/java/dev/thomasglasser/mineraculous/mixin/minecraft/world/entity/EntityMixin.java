@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.mixin.minecraft.world.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,6 +15,6 @@ public abstract class EntityMixin {
 
     @ModifyReturnValue(method = "getName", at = @At("RETURN"))
     private Component formatMiraculousName(Component original) {
-        return MineraculousEntityEvents.formatDisplayName(mineraculous$instance, original);
+        return MineraculousEntityUtils.formatDisplayName(mineraculous$instance, original);
     }
 }

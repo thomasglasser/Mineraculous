@@ -14,8 +14,4 @@ public record CuriosData(int slot, String identifier) {
             ByteBufCodecs.INT, CuriosData::slot,
             ByteBufCodecs.STRING_UTF8, CuriosData::identifier,
             CuriosData::new);
-
-    private CuriosData() {
-        this(-1, "");
-    }
 }

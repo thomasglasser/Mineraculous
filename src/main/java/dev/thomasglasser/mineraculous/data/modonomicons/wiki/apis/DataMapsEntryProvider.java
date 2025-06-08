@@ -7,6 +7,7 @@ import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharm;
 import java.util.Optional;
+import net.minecraft.Util;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -49,7 +50,7 @@ public class DataMapsEntryProvider extends IndexModeEntryProvider {
     @Override
     protected BookIconModel entryIcon() {
         ItemStack stack = new ItemStack(Items.BOW);
-        stack.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.empty(), 0));
+        stack.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.empty(), Util.NIL_UUID, 0));
         return BookIconModel.create(stack);
     }
 

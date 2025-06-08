@@ -1,8 +1,11 @@
 package dev.thomasglasser.mineraculous.world.level.storage;
 
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +19,10 @@ import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.food.Foods;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.entity.PartEntity;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,6 +30,7 @@ public class AbilityReversionEntityData extends SavedData {
     public static final String FILE_ID = "ability_reversion_entity";
     private final Map<UUID, List<UUID>> trackedAndRelatedEntities = new HashMap<>();
     private final Map<UUID, List<CompoundTag>> recoverableEntities = new HashMap<>();
+    private final Table<UUID, UUID, CompoundTag> convertedEntities = HashBasedTable.create();
 
     public static AbilityReversionEntityData get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(AbilityReversionEntityData.factory(), AbilityReversionEntityData.FILE_ID);
@@ -57,9 +64,10 @@ public class AbilityReversionEntityData extends SavedData {
         return trackedAndRelatedEntities.get(uuid);
     }
 
-    public List<UUID> getTrackedAndRelatedEntities(UUID uuid) {
-        ArrayList<UUID> all = new ArrayList<>(trackedAndRelatedEntities.get(uuid));
+    public List<UUID> getAndClearTrackedAndRelatedEntities(UUID uuid) {
+        List<UUID> all = new ReferenceArrayList<>(trackedAndRelatedEntities.remove(uuid));
         all.add(uuid);
+        setDirty();
         return all;
     }
 
@@ -78,11 +86,6 @@ public class AbilityReversionEntityData extends SavedData {
         setDirty();
     }
 
-    public void stopTracking(UUID uuid) {
-        trackedAndRelatedEntities.remove(uuid);
-        setDirty();
-    }
-
     public void revert(UUID owner, ServerLevel level) {
         if (recoverableEntities.containsKey(owner)) {
             for (CompoundTag entityData : recoverableEntities.get(owner)) {
@@ -94,6 +97,12 @@ public class AbilityReversionEntityData extends SavedData {
                         level.addFreshEntity(entity);
                 } else {
                     entity.load(entityData);
+                }
+                if (entity instanceof LivingEntity livingEntity) {
+                    livingEntity.removeAllEffects();
+                    for (FoodProperties.PossibleEffect effect : Foods.ENCHANTED_GOLDEN_APPLE.effects()) {
+                        livingEntity.addEffect(effect.effect());
+                    }
                 }
             }
             recoverableEntities.remove(owner);
@@ -127,6 +136,48 @@ public class AbilityReversionEntityData extends SavedData {
             }
         }
         return null;
+    }
+
+    public void putConverted(UUID performer, UUID entity, CompoundTag original) {
+        convertedEntities.put(performer, entity, original);
+        setDirty();
+    }
+
+    public boolean isConverted(UUID entity) {
+        return convertedEntities.containsColumn(entity);
+    }
+
+    public void revertConversions(UUID performer, ServerLevel level) {
+        Collection<CompoundTag> conversions = convertedEntities.row(performer).values();
+        for (CompoundTag entityData : conversions) {
+            revertConversion(entityData, level);
+            convertedEntities.remove(performer, entityData.getUUID("UUID"));
+        }
+    }
+
+    public void revertConversion(UUID performer, UUID entity, ServerLevel level) {
+        CompoundTag original = convertedEntities.remove(performer, entity);
+        if (original != null) {
+            revertConversion(original, level);
+        }
+    }
+
+    private void revertConversion(CompoundTag original, ServerLevel level) {
+        UUID entityId = original.getUUID("UUID");
+        Entity entity = level.getEntity(entityId);
+        Vec3 pos = null;
+        if (entity != null && !entity.isRemoved()) {
+            pos = entity.position();
+            entity.discard();
+        }
+        entity = EntityType.loadEntityRecursive(original, level, e -> e);
+        if (entity != null) {
+            if (pos != null) {
+                entity.setPos(pos);
+            }
+            level.addFreshEntity(entity);
+        }
+        setDirty();
     }
 
     @Override

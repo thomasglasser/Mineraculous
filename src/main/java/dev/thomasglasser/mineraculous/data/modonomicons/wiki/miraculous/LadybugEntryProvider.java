@@ -147,7 +147,7 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(Miraculous.createMiraculousStack(Miraculouses.LADYBUG));
+        return BookIconModel.create(Miraculous.createMiraculousStack(registries().holderOrThrow(Miraculouses.LADYBUG)));
     }
 
     @Override

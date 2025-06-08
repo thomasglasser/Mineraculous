@@ -5,7 +5,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mojang.serialization.codecs.UnboundedMapCodec;
 import dev.thomasglasser.mineraculous.advancements.MineraculousCriteriaTriggers;
-import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
@@ -21,47 +20,51 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 public class MiraculousesData {
-    public static final UnboundedMapCodec<ResourceKey<Miraculous>, MiraculousData> MAP_CODEC = Codec.unboundedMap(ResourceKey.codec(MineraculousRegistries.MIRACULOUS), MiraculousData.CODEC);
+    public static final UnboundedMapCodec<Holder<Miraculous>, MiraculousData> MAP_CODEC = Codec.unboundedMap(Miraculous.CODEC, MiraculousData.CODEC);
     public static final Codec<MiraculousesData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             MAP_CODEC.fieldOf("map").forGetter(set -> set.map)).apply(instance, MiraculousesData::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousesData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.map(
                     Maps::newHashMapWithExpectedSize,
-                    ResourceKey.streamCodec(MineraculousRegistries.MIRACULOUS),
+                    Miraculous.STREAM_CODEC,
                     MiraculousData.STREAM_CODEC),
             set -> set.map,
             MiraculousesData::new);
 
-    private final Map<ResourceKey<Miraculous>, MiraculousData> map;
+    private final Map<Holder<Miraculous>, MiraculousData> map;
 
     public MiraculousesData() {
         this.map = new Reference2ObjectOpenHashMap<>();
     }
 
-    public MiraculousesData(Map<ResourceKey<Miraculous>, MiraculousData> map) {
+    public MiraculousesData(Map<Holder<Miraculous>, MiraculousData> map) {
         this.map = new Reference2ObjectOpenHashMap<>(map);
     }
 
-    public MiraculousData get(ResourceKey<Miraculous> key) {
+    public void tick(Entity entity, ServerLevel level) {
+        forEach((miraculous, data) -> data.tick(entity, level, miraculous));
+    }
+
+    public MiraculousData get(Holder<Miraculous> key) {
         return map.getOrDefault(key, new MiraculousData());
     }
 
-    public MiraculousData put(Entity entity, ResourceKey<Miraculous> key, MiraculousData value, boolean syncToClient) {
+    public MiraculousData put(Entity entity, Holder<Miraculous> key, MiraculousData value, boolean syncToClient) {
         MiraculousData data = map.put(key, value);
         if (value.transformed() && entity instanceof ServerPlayer player)
-            MineraculousCriteriaTriggers.TRANSFORMED_MIRACULOUS.get().trigger(player, key);
+            MineraculousCriteriaTriggers.TRANSFORMED_MIRACULOUS.get().trigger(player, key.getKey());
         save(entity, syncToClient);
         return data;
     }
 
-    public Set<ResourceKey<Miraculous>> keySet() {
+    public Set<Holder<Miraculous>> keySet() {
         return Set.copyOf(map.keySet());
     }
 
@@ -69,13 +72,13 @@ public class MiraculousesData {
         return List.copyOf(map.values());
     }
 
-    public void forEach(BiConsumer<ResourceKey<Miraculous>, MiraculousData> consumer) {
+    public void forEach(BiConsumer<Holder<Miraculous>, MiraculousData> consumer) {
         map.forEach(consumer);
     }
 
-    public List<ResourceKey<Miraculous>> getTransformed() {
-        List<ResourceKey<Miraculous>> keys = new ReferenceArrayList<>();
-        for (ResourceKey<Miraculous> key : map.keySet()) {
+    public List<Holder<Miraculous>> getTransformed() {
+        List<Holder<Miraculous>> keys = new ReferenceArrayList<>();
+        for (Holder<Miraculous> key : map.keySet()) {
             if (get(key).transformed()) {
                 keys.add(key);
             }
@@ -83,24 +86,16 @@ public class MiraculousesData {
         return keys;
     }
 
-    public List<Holder<Miraculous>> getTransformedHolders(HolderLookup.Provider lookup) {
-        List<Holder<Miraculous>> holders = new ReferenceArrayList<>();
-        for (ResourceKey<Miraculous> key : getTransformed()) {
-            holders.add(lookup.holderOrThrow(key));
-        }
-        return holders;
-    }
-
     public List<Miraculous> getTransformedDirect(HolderLookup.Provider lookup) {
         List<Miraculous> miraculouses = new ReferenceArrayList<>();
-        for (Holder<Miraculous> holder : getTransformedHolders(lookup)) {
-            miraculouses.add(holder.value());
+        for (Holder<Miraculous> miraculous : getTransformed()) {
+            miraculouses.add(miraculous.value());
         }
         return miraculouses;
     }
 
     public boolean isTransformed() {
-        for (ResourceKey<Miraculous> key : keySet()) {
+        for (Holder<Miraculous> key : keySet()) {
             if (get(key).transformed()) {
                 return true;
             }
@@ -108,10 +103,10 @@ public class MiraculousesData {
         return false;
     }
 
-    public @Nullable ResourceKey<Miraculous> getFirstTransformedKeyIn(TagKey<Miraculous> tag, HolderLookup.Provider lookup) {
-        for (Holder<Miraculous> holder : getTransformedHolders(lookup)) {
-            if (holder.is(tag))
-                return holder.getKey();
+    public @Nullable Holder<Miraculous> getFirstTransformedIn(TagKey<Miraculous> tag) {
+        for (Holder<Miraculous> miraculous : getTransformed()) {
+            if (miraculous.is(tag))
+                return miraculous;
         }
         return null;
     }

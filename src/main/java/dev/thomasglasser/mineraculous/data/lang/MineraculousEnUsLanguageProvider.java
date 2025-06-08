@@ -25,18 +25,17 @@ import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.world.entity.Kamiko;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.ability.Abilities;
 import dev.thomasglasser.mineraculous.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.npc.MineraculousVillagerProfessions;
 import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousCreativeModeTabs;
+import dev.thomasglasser.mineraculous.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.armortrim.MineraculousTrimPatterns;
@@ -51,7 +50,6 @@ import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
 import java.util.Map;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemNameBlockItem;
 
@@ -109,11 +107,6 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
             add(blocks.get(age).get(), "Block of " + ageName + " " + name);
             add(waxedBlocks.get(age).get(), "Waxed Block of " + ageName + " " + name);
         }
-    }
-
-    protected void addMiraculous(ResourceKey<Miraculous> type, String name) {
-        add(type, name);
-        add(MineraculousEntityTypes.KWAMI.getId().toLanguageKey("entity", type.location().toShortLanguageKey()), name + " Kwami");
     }
 
     protected void add(RadialMenuOption option, String name) {
@@ -188,8 +181,6 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.CUSTOMIZE_OPEN_SUCCESS_SELF, "Opening %s miraculous look customization screen.");
         add(MiraculousCommand.CUSTOMIZE_OPEN_SUCCESS_OTHER, "Opening %s miraculous look customization screen for %s.");
         // Charged
-        add(MiraculousCommand.CHARGED_TRUE, "charged");
-        add(MiraculousCommand.CHARGED_FALSE, "not charged");
         add(MiraculousCommand.CHARGED_QUERY_SUCCESS_SELF, "Your %s kwami is %s.");
         add(MiraculousCommand.CHARGED_QUERY_SUCCESS_OTHER, "%s's %s kwami is %s.");
         add(MiraculousCommand.CHARGED_SET_SUCCESS_SELF, "Set charged state of %s kwami to %s");
@@ -207,9 +198,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     private void addMiraculouses() {
-        addMiraculous(Miraculouses.BUTTERFLY, "Butterfly");
-        addMiraculous(Miraculouses.CAT, "Cat");
-        addMiraculous(Miraculouses.LADYBUG, "Ladybug");
+        add(Miraculouses.BUTTERFLY, "Butterfly");
+        add(Miraculouses.CAT, "Cat");
+        add(Miraculouses.LADYBUG, "Ladybug");
     }
 
     private void addAbilities() {
@@ -229,11 +220,13 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         // General
         add(MineraculousClientUtils.CHOOSE, "Choose");
         add(MineraculousClientUtils.NAME, "Name");
+        add(MiraculousData.CHARGED_TRUE, "charged");
+        add(MiraculousData.CHARGED_FALSE, "not charged");
 
         // Taking/Breaking
         add(ServerboundWakeUpPayload.STEALING_WARNING_KEY, "You may not rest now, there are thieves nearby.");
         add(ExternalInventoryScreen.ITEM_BOUND_KEY, "This item is bound to the player.");
-        add(MineraculousEntityEvents.ITEM_UNBREAKABLE_KEY, "This item is unbreakable by normal means.");
+        add(MineraculousItemUtils.ITEM_UNBREAKABLE_KEY, "This item is unbreakable by normal means.");
 
         // Kamiko Gui
         add(TargetPlayerMenuCategory.TARGET_PROMPT, "Select a player to target");
@@ -299,7 +292,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         // Miraculous
         add(MineraculousSoundEvents.GENERIC_TRANSFORM.get(), "Miraculous holder transforms");
         add(MineraculousSoundEvents.GENERIC_DETRANSFORM.get(), "Miraculous holder detransforms");
-        add(MineraculousSoundEvents.GENERIC_TIMER_BEEP.get(), "Miraculous beeps");
+        add(MineraculousSoundEvents.GENERIC_TIMER_WARNING.get(), "Miraculous beeps");
         add(MineraculousSoundEvents.GENERIC_TIMER_END.get(), "Miraculous powers down");
         add(MineraculousSoundEvents.LADYBUG_TRANSFORM.get(), "Ladybug Miraculous holder puts spots on");
         add(MineraculousSoundEvents.CAT_TRANSFORM.get(), "Cat Miraculous holder takes claws out");

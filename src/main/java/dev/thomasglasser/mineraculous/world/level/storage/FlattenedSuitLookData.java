@@ -91,7 +91,7 @@ public record FlattenedSuitLookData(String look, Optional<String> model, byte[] 
             }
             List<byte[]> convertedFrames = new ArrayList<>();
             List<byte[]> convertedGlowmaskFrames = new ArrayList<>();
-            for (int i = 1; i <= ClientUtils.getLevel().holderOrThrow(miraculous).value().transformationFrames(); i++) {
+            for (int i = 1; i <= ClientUtils.getLevel().holderOrThrow(miraculous).value().transformationFrames().orElse(0); i++) {
                 Path frame = texture.resolveSibling(look + "_" + i + ".png");
                 if (Files.exists(frame)) {
                     convertedFrames.add(NativeImage.read(frame.toUri().toURL().openStream()).asByteArray());

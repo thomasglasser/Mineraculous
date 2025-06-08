@@ -4,8 +4,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
 import dev.thomasglasser.mineraculous.world.entity.ability.context.AbilityContext;
+import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
+import dev.thomasglasser.mineraculous.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionItemData;
 import java.util.Optional;
@@ -19,13 +20,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public record ReplaceItemInHandAbility(ItemStack replacement, boolean breakOriginal, Optional<ItemPredicate> validItems, Optional<ItemPredicate> invalidItems) implements Ability {
+public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakOriginal, Optional<ItemPredicate> validItems, Optional<ItemPredicate> invalidItems) implements Ability {
 
-    public static final MapCodec<ReplaceItemInHandAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ItemStack.SINGLE_ITEM_CODEC.optionalFieldOf("replacement", ItemStack.EMPTY).forGetter(ReplaceItemInHandAbility::replacement),
-            Codec.BOOL.optionalFieldOf("break_original", false).forGetter(ReplaceItemInHandAbility::breakOriginal),
-            ItemPredicate.CODEC.optionalFieldOf("valid_items").forGetter(ReplaceItemInHandAbility::validItems),
-            ItemPredicate.CODEC.optionalFieldOf("invalid_items").forGetter(ReplaceItemInHandAbility::invalidItems)).apply(instance, ReplaceItemInHandAbility::new));
+    public static final MapCodec<ReplaceItemInMainHandAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ItemStack.SINGLE_ITEM_CODEC.optionalFieldOf("replacement", ItemStack.EMPTY).forGetter(ReplaceItemInMainHandAbility::replacement),
+            Codec.BOOL.optionalFieldOf("break_original", false).forGetter(ReplaceItemInMainHandAbility::breakOriginal),
+            ItemPredicate.CODEC.optionalFieldOf("valid_items").forGetter(ReplaceItemInMainHandAbility::validItems),
+            ItemPredicate.CODEC.optionalFieldOf("invalid_items").forGetter(ReplaceItemInMainHandAbility::invalidItems)).apply(instance, ReplaceItemInMainHandAbility::new));
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (context == null && performer instanceof LivingEntity livingEntity) {
@@ -39,9 +40,9 @@ public record ReplaceItemInHandAbility(ItemStack replacement, boolean breakOrigi
             AbilityReversionItemData.get(level).putRecoverable(performer.getUUID(), id, stack);
             if (breakOriginal) {
                 if (stack.isDamageableItem()) {
-                    MineraculousEntityEvents.hurtAndBreak(stack, stack.getMaxDamage(), level, livingEntity, EquipmentSlot.MAINHAND);
+                    MineraculousItemUtils.hurtAndBreak(stack, stack.getMaxDamage(), level, livingEntity, EquipmentSlot.MAINHAND);
                 } else {
-                    MineraculousEntityEvents.checkKamikotizationStack(stack, level, performer);
+                    Kamikotization.checkBroken(stack, level, performer);
                 }
             }
             livingEntity.setItemInHand(InteractionHand.MAIN_HAND, replacement);
@@ -57,6 +58,6 @@ public record ReplaceItemInHandAbility(ItemStack replacement, boolean breakOrigi
 
     @Override
     public MapCodec<? extends Ability> codec() {
-        return AbilitySerializers.REPLACE_ITEMS_IN_HAND.get();
+        return AbilitySerializers.REPLACE_ITEM_IN_MAIN_HAND.get();
     }
 }

@@ -5,10 +5,11 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.network.ServerboundHandleMiraculousPowerActivatedPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundPutMiraculousToolInHandPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundRenounceMiraculousPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundSetKamikotizationPowerActivatedPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundSetMiraculousPowerActivatedPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundToggleActivePayload;
 import dev.thomasglasser.mineraculous.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundUpdateYoyoLengthPayload;
@@ -34,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.Holder;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -62,29 +63,29 @@ public class MineraculousKeyMappings {
         Player player = Minecraft.getInstance().player;
         if (player != null) {
             MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-            List<ResourceKey<Miraculous>> transformed = miraculousesData.getTransformed();
+            List<Holder<Miraculous>> transformed = miraculousesData.getTransformed();
             if (!transformed.isEmpty()) {
-                ResourceKey<Miraculous> miraculous = transformed.getFirst();
+                Holder<Miraculous> miraculous = transformed.getFirst();
                 TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), false));
             } else {
                 List<RadialMenuOption> options = new ReferenceArrayList<>();
-                Map<RadialMenuOption, ResourceKey<Miraculous>> miraculousOptions = new Reference2ReferenceOpenHashMap<>();
-                Map<ResourceKey<Miraculous>, ItemStack> miraculousStacks = new Reference2ReferenceOpenHashMap<>();
+                Map<RadialMenuOption, Holder<Miraculous>> miraculousOptions = new Reference2ReferenceOpenHashMap<>();
+                Map<Holder<Miraculous>, ItemStack> miraculousStacks = new Reference2ReferenceOpenHashMap<>();
                 for (ItemStack stack : CuriosUtils.getAllItems(player).values()) {
-                    ResourceKey<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+                    Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
                     if (miraculous != null) {
                         RadialMenuOption option = new RadialMenuOption() {
                             private Integer color;
 
                             @Override
                             public String translationKey() {
-                                return Miraculous.toLanguageKey(miraculous);
+                                return Miraculous.toLanguageKey(miraculous.getKey());
                             }
 
                             @Override
                             public Integer colorOverride() {
                                 if (color == null)
-                                    color = player.level().holderOrThrow(miraculous).value().color().getValue();
+                                    color = miraculous.value().color().getValue();
                                 return color;
                             }
                         };
@@ -95,7 +96,7 @@ public class MineraculousKeyMappings {
                 }
                 if (options.size() > 1) {
                     Minecraft.getInstance().setScreen(new RadialMenuScreen<>(TRANSFORM.getKey().getValue(), options, -1, (selected, i) -> {
-                        ResourceKey<Miraculous> miraculous = miraculousOptions.get(selected);
+                        Holder<Miraculous> miraculous = miraculousOptions.get(selected);
                         if (miraculous != null) {
                             ItemStack stack = miraculousStacks.get(miraculous);
                             MiraculousData data = miraculousesData.get(miraculous);
@@ -115,7 +116,7 @@ public class MineraculousKeyMappings {
                         }
                     }));
                 } else if (options.size() == 1) {
-                    ResourceKey<Miraculous> miraculous = miraculousOptions.get(options.getFirst());
+                    Holder<Miraculous> miraculous = miraculousOptions.get(options.getFirst());
                     TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), true));
                 }
             }
@@ -126,13 +127,15 @@ public class MineraculousKeyMappings {
         Player player = Minecraft.getInstance().player;
         if (player != null) {
             MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-            List<ResourceKey<Miraculous>> transformed = miraculousesData.getTransformed();
+            List<Holder<Miraculous>> transformed = miraculousesData.getTransformed();
             if (!transformed.isEmpty()) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundHandleMiraculousPowerActivatedPayload(transformed.getFirst()));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousPowerActivatedPayload(transformed.getFirst()));
             } else if (player.getMainHandItem().is(MineraculousItems.MIRACULOUS)) {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(InteractionHand.MAIN_HAND));
             } else if (player.getOffhandItem().is(MineraculousItems.MIRACULOUS)) {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(InteractionHand.OFF_HAND));
+            } else if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
+                TommyLibServices.NETWORK.sendToServer(ServerboundSetKamikotizationPowerActivatedPayload.INSTANCE);
             }
         }
     }
@@ -169,9 +172,9 @@ public class MineraculousKeyMappings {
                 return;
             }
             MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-            List<ResourceKey<Miraculous>> transformed = miraculousesData.getTransformed();
+            List<Holder<Miraculous>> transformed = miraculousesData.getTransformed();
             if (!transformed.isEmpty()) {
-                ResourceKey<Miraculous> miraculous = transformed.getFirst();
+                Holder<Miraculous> miraculous = transformed.getFirst();
                 if (player.getMainHandItem().isEmpty()) {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundPutMiraculousToolInHandPayload(miraculous));
                 }
@@ -202,7 +205,8 @@ public class MineraculousKeyMappings {
                 } else if (takeTicks > 0) {
                     takeTicks = 0;
                 }
-            } else {
+            } else if (player.tickCount % 10 == 0) {
+                // Holding the key down causes some issues with stack miscounts, so we slow down breaking
                 TommyLibServices.NETWORK.sendToServer(ServerboundTryBreakItemPayload.INSTANCE);
             }
         }

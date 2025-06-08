@@ -33,7 +33,7 @@ public record KamikotizationPredicate(HolderSet<Kamikotization> kamikotizations)
             if (kamikotizations == HolderSet.<Kamikotization>empty()) {
                 return true;
             } else {
-                return kamikotizations.contains(level.registryAccess().holderOrThrow(kamikotizationData.get().kamikotization()));
+                return kamikotizations.contains(kamikotizationData.get().kamikotization());
             }
         }
         return false;

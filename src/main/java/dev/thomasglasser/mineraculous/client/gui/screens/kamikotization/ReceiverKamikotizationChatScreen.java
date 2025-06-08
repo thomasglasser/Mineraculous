@@ -1,12 +1,14 @@
 package dev.thomasglasser.mineraculous.client.gui.screens.kamikotization;
 
+import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.network.ServerboundCloseKamikotizationChatScreenPayload;
-import dev.thomasglasser.mineraculous.network.ServerboundKamikotizationTransformPayload;
+import dev.thomasglasser.mineraculous.network.ServerboundStartKamikotizationTransformationPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundSyncKamikotizationLookPayload;
 import dev.thomasglasser.mineraculous.network.ServerboundTriggerKamikotizationAdvancementsPayload;
 import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedKamikotizationLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -20,13 +22,15 @@ public class ReceiverKamikotizationChatScreen extends AbstractKamikotizationChat
 
     private final UUID other;
     private final KamikotizationData kamikotizationData;
+    private final Either<Integer, CuriosData> slotInfo;
 
     protected Button accept;
 
-    public ReceiverKamikotizationChatScreen(UUID other, KamikotizationData kamikotizationData) {
+    public ReceiverKamikotizationChatScreen(UUID other, KamikotizationData kamikotizationData, Either<Integer, CuriosData> slotInfo) {
         super("", kamikotizationData.kamikoData().faceMaskTexture());
         this.other = other;
         this.kamikotizationData = kamikotizationData;
+        this.slotInfo = slotInfo;
     }
 
     @Override
@@ -55,8 +59,8 @@ public class ReceiverKamikotizationChatScreen extends AbstractKamikotizationChat
                     Mineraculous.LOGGER.error("Failed to resolve kamikotization look for {}", kamikotizationData.kamikotization(), e);
                 }
             }
-            TommyLibServices.NETWORK.sendToServer(new ServerboundKamikotizationTransformPayload(kamikotizationData, true, false, false, minecraft.player.position().add(0, 1, 0)));
-            TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(other, minecraft.player.getUUID(), kamikotizationData.kamikotization()));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationTransformationPayload(kamikotizationData, slotInfo));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(other, minecraft.player.getUUID(), kamikotizationData.kamikotization().getKey()));
             TommyLibServices.NETWORK.sendToServer(new ServerboundCloseKamikotizationChatScreenPayload(other, false));
         }
         finalizeClose();

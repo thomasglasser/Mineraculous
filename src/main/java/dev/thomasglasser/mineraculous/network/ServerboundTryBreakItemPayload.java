@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.network;
 
 import com.mojang.datafixers.util.Pair;
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.item.MineraculousItemUtils;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -21,7 +21,7 @@ public record ServerboundTryBreakItemPayload() implements ExtendedPacketPayload 
     // ON SERVER
     @Override
     public void handle(Player player) {
-        Pair<ItemStack, ItemStack> result = MineraculousEntityEvents.tryBreakItem(player.getMainHandItem(), (ServerLevel) player.level(), player.position().add(0, 1, 0), player);
+        Pair<ItemStack, ItemStack> result = MineraculousItemUtils.tryBreakItem(player.getMainHandItem(), (ServerLevel) player.level(), player.position().add(0, 1, 0), player);
         ItemStack mainHandItem = result.getFirst();
         ItemStack rest = result.getSecond();
         if (mainHandItem.isEmpty()) {

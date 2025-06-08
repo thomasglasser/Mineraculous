@@ -4,7 +4,6 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.advancements.critereon.KamikotizationPredicate;
 import dev.thomasglasser.mineraculous.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
-import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes;
@@ -13,11 +12,9 @@ import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
-import java.util.List;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.advancements.critereon.EntityTypePredicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -25,95 +22,73 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EntityType;
 
 public class Abilities {
-    public static final ResourceKey<Ability> KAMIKOTIZATION = register("kamikotization");
-    public static final ResourceKey<Ability> KAMIKO_CONTROL = register("kamiko_control");
-    public static final ResourceKey<Ability> KAMIKOTIZED_COMMUNICATION = register("kamikotized_communication");
-    public static final ResourceKey<Ability> CATACLYSM = register("cataclysm");
-    public static final ResourceKey<Ability> CAT_VISION = register("cat_vision");
-    public static final ResourceKey<Ability> PASSIVE_UNLUCK = register("passive_unluck");
-    public static final ResourceKey<Ability> LUCKY_CHARM = register("lucky_charm");
-    public static final ResourceKey<Ability> MIRACULOUS_LADYBUG = register("miraculous_ladybug");
-    public static final ResourceKey<Ability> PASSIVE_LUCK = register("passive_luck");
+    // Butterfly
+    public static final ResourceKey<Ability> KAMIKOTIZATION = create("kamikotization");
+    public static final ResourceKey<Ability> KAMIKO_CONTROL = create("kamiko_control");
+    public static final ResourceKey<Ability> KAMIKOTIZED_COMMUNICATION = create("kamikotized_communication");
+
+    // Cat
+    public static final ResourceKey<Ability> CATACLYSM = create("cataclysm");
+    public static final ResourceKey<Ability> CAT_VISION = create("cat_vision");
+    public static final ResourceKey<Ability> PASSIVE_UNLUCK = create("passive_unluck");
+
+    // Ladybug
+    public static final ResourceKey<Ability> LUCKY_CHARM = create("lucky_charm");
+    public static final ResourceKey<Ability> MIRACULOUS_LADYBUG = create("miraculous_ladybug");
+    public static final ResourceKey<Ability> PASSIVE_LUCK = create("passive_luck");
 
     private static final ResourceLocation KAMIKO_FACE_MASK_TEXTURE = Mineraculous.modLoc("textures/entity/player/face_mask/kamiko.png");
 
-    private static ResourceKey<Ability> register(String id) {
-        return ResourceKey.create(MineraculousRegistries.ABILITY, Mineraculous.modLoc(id));
+    private static ResourceKey<Ability> create(String name) {
+        return ResourceKey.create(MineraculousRegistries.ABILITY, Mineraculous.modLoc(name));
     }
 
     public static void bootstrap(BootstrapContext<Ability> context) {
         context.register(KAMIKOTIZATION, new ContextDependentAbility(
                 Optional.empty(),
-                Optional.of(Holder.direct(new SetOwnerAbility(
-                        Optional.of(1),
-                        Optional.of(EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(MineraculousEntityTypes.KAMIKO.get())).build()),
-                        Optional.empty(),
-                        Optional.of(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE),
-                        false))),
-                Optional.empty(),
-                Optional.empty(),
-                List.of(Holder.direct(new RightHandParticlesAbility(MineraculousParticleTypes.BLACK_ORB.get(), Optional.empty(), false))),
-                Optional.empty(),
-                false));
-        context.register(KAMIKO_CONTROL, new SetCameraEntityAbility(
-                EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(MineraculousEntityTypes.KAMIKO.get())).build(),
-                Optional.empty(),
-                Optional.of(KAMIKO_FACE_MASK_TEXTURE),
-                true,
-                true,
-                Optional.empty(),
-                true));
-        context.register(KAMIKOTIZED_COMMUNICATION, new SetCameraEntityAbility(
-                EntityPredicate.Builder.entity().entityType(EntityTypePredicate.of(EntityType.PLAYER)).subPredicate(KamikotizationPredicate.ANY).build(),
+                Optional.of(Holder.direct(new ConvertAndTameAbility(
+                        MineraculousEntityTypes.KAMIKO.get(),
+                        Optional.of(EntityPredicate.Builder.entity()/*.of(MineraculousEntityTypeTags.BUTTERFLIES)*/.build()),
+                        Optional.empty()))),
+                HolderSet.direct(Holder.direct(new RightHandParticlesAbility(MineraculousParticleTypes.BLACK_ORB.get())))));
+        context.register(KAMIKO_CONTROL, new KamikoControlAbility(
                 Optional.of(Kamiko.SPECTATOR_SHADER),
-                Optional.of(KAMIKO_FACE_MASK_TEXTURE),
-                false,
-                false,
-                Optional.empty(),
-                true));
+                Optional.of(KAMIKO_FACE_MASK_TEXTURE)));
+        context.register(KAMIKOTIZED_COMMUNICATION, new SpectateEntityAbility(
+                EntityPredicate.Builder.entity().subPredicate(KamikotizationPredicate.ANY).build(),
+                true,
+                true,
+                Optional.of(Kamiko.SPECTATOR_SHADER),
+                Optional.of(KAMIKO_FACE_MASK_TEXTURE)));
 
-        context.register(CATACLYSM, new DragAbility(new ContextDependentAbility(
+        // Cat
+        context.register(CATACLYSM, new ContinuousAbility(Holder.direct(new ContextDependentAbility(
                 Optional.of(Holder.direct(new ReplaceAdjacentBlocksAbility(
                         MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(),
+                        true,
                         Optional.empty(),
-                        Optional.of(BlockPredicate.Builder.block().of(MineraculousBlockTags.CATACLYSM_IMMUNE).build()),
-                        Optional.of(MineraculousSoundEvents.CATACLYSM_USE),
-                        false))),
+                        Optional.of(BlockPredicate.Builder.block().of(MineraculousBlockTags.CATACLYSM_IMMUNE).build())))),
                 Optional.of(Holder.direct(new ApplyInfiniteEffectsOrDestroyAbility(
                         HolderSet.direct(MineraculousMobEffects.CATACLYSM),
                         Optional.of(MineraculousItems.CATACLYSM_DUST.get()),
                         Optional.of(MineraculousDamageTypes.CATACLYSM),
-                        Optional.of(/*MineraculousEntityEvents.TAG_CATACLYSMED*/"Cataclysmed"),
-                        Optional.of(MineraculousSoundEvents.CATACLYSM_USE),
-                        false))),
-                Optional.of(Holder.direct(new ReplaceItemInHandAbility(
-                        MineraculousItems.CATACLYSM_DUST.toStack(),
                         true,
-                        Optional.empty(),
-                        Optional.of(ItemPredicate.Builder.item().of(MineraculousItemTags.CATACLYSM_IMMUNE).build()),
-                        Optional.of(MineraculousSoundEvents.CATACLYSM_USE),
-                        false))),
-                Optional.empty(),
-                List.of(Holder.direct(new RightHandParticlesAbility(MineraculousParticleTypes.BLACK_ORB.get(), Optional.empty(), false))),
-                Optional.empty(),
-                false),
-                20,
-                Optional.of(MineraculousSoundEvents.CATACLYSM_ACTIVATE),
-                false));
+                        true))),
+                HolderSet.direct(
+                        Holder.direct(new RightHandParticlesAbility(MineraculousParticleTypes.BLACK_ORB.get())),
+                        Holder.direct(new ReplaceItemInMainHandAbility(
+                                MineraculousItems.CATACLYSM_DUST.toStack(),
+                                true,
+                                Optional.empty(),
+                                Optional.of(ItemPredicate.Builder.item().of(MineraculousItemTags.CATACLYSM_IMMUNE).build()))))))));
         context.register(CAT_VISION, new AutomaticNightVisionAbility(Optional.of(ResourceLocation.withDefaultNamespace("shaders/post/creeper.json"))));
-        context.register(PASSIVE_UNLUCK, new PassiveEffectsAbility(
-                HolderSet.direct(MobEffects.UNLUCK),
-                1,
-                Optional.empty()));
+        context.register(PASSIVE_UNLUCK, new PassiveEffectsAbility(HolderSet.direct(MobEffects.UNLUCK), 1));
 
-        context.register(LUCKY_CHARM, new SummonTargetDependentLuckyCharmAbility(true, Optional.of(MineraculousSoundEvents.LUCKY_CHARM_ACTIVATE), false));
-        context.register(MIRACULOUS_LADYBUG, new RevertAbilityEffectsAbility(true, Optional.of(MineraculousParticleTypes.SPREADING_LADYBUG.get()), Optional.of(MineraculousSoundEvents.MIRACULOUS_LADYBUG_ACTIVATE), true));
-        context.register(PASSIVE_LUCK, new PassiveEffectsAbility(
-                HolderSet.direct(MobEffects.LUCK),
-                1,
-                Optional.empty()));
+        // Ladybug
+        context.register(LUCKY_CHARM, new SummonTargetDependentLuckyCharmAbility(true));
+        context.register(MIRACULOUS_LADYBUG, RevertLuckyCharmTargetsAbilityEffectsAbility.INSTANCE);
+        context.register(PASSIVE_LUCK, new PassiveEffectsAbility(HolderSet.direct(MobEffects.LUCK), 1));
     }
 }

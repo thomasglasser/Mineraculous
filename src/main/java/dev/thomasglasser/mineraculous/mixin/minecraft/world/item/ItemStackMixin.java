@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.mixin.minecraft.world.item;
 
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import java.util.function.Consumer;
 import net.minecraft.core.component.DataComponentHolder;
 import net.minecraft.core.component.DataComponentType;
@@ -32,6 +32,6 @@ public abstract class ItemStackMixin implements DataComponentHolder {
 
     @Inject(method = "hurtAndBreak(ILnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LivingEntity;Ljava/util/function/Consumer;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;shrink(I)V"))
     private void checkKamikotizationStack(int p_220158_, ServerLevel level, LivingEntity breaker, Consumer<Item> p_348596_, CallbackInfo ci) {
-        MineraculousEntityEvents.checkKamikotizationStack(mineraculous$instance, level, breaker);
+        Kamikotization.checkBroken(mineraculous$instance, level, breaker);
     }
 }

@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.world.entity.projectile;
 
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.tommylib.api.world.entity.projectile.ThrownSword;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -30,7 +30,7 @@ public abstract class ItemBreakingQuicklyReturningThrownSword extends ThrownSwor
     protected void onHitEntity(EntityHitResult entityHitResult) {
         super.onHitEntity(entityHitResult);
         if (entityHitResult.getEntity() instanceof ItemEntity itemEntity && level() instanceof ServerLevel serverLevel) {
-            MineraculousEntityEvents.tryBreakItemEntity(entityHitResult, itemEntity, serverLevel, position());
+            MineraculousEntityUtils.tryBreakItemEntity(entityHitResult, itemEntity, serverLevel, position());
         }
     }
 

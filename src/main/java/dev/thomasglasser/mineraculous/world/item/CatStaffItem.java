@@ -13,7 +13,6 @@ import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ItemBreakingQuicklyReturningThrownSword;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.world.item.component.ActiveSettings;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
@@ -25,13 +24,13 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Position;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -283,9 +282,9 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         if (resolvableProfile != null) {
             Player owner = level.getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
             if (owner != null) {
-                ResourceKey<Miraculous> colorKey = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstTransformedKeyIn(MiraculousTags.CAN_USE_CAT_STAFF, ClientUtils.getLevel().registryAccess());
+                Holder<Miraculous> colorKey = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstTransformedIn(MiraculousTags.CAN_USE_CAT_STAFF);
                 if (colorKey != null)
-                    color = level.holderOrThrow(colorKey).value().color().getValue();
+                    color = colorKey.value().color().getValue();
             }
         }
         return color;

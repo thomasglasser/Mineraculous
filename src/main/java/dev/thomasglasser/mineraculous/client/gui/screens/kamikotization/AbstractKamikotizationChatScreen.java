@@ -183,7 +183,7 @@ public abstract class AbstractKamikotizationChatScreen extends ChatScreen {
         this.minecraft.gui.getChat().clearMessages(true);
         Player player = Minecraft.getInstance().player;
         if (player != null) {
-            AbilityEffectData.checkRemoveFaceMaskTexture(player, faceMaskTexture);
+            AbilityEffectData.removeFaceMaskTexture(player, faceMaskTexture);
         }
     }
 

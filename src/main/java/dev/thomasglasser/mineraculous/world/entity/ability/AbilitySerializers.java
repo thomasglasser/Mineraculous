@@ -10,15 +10,18 @@ public class AbilitySerializers {
     public static final DeferredRegister<MapCodec<? extends Ability>> ABILITIES = DeferredRegister.create(MineraculousRegistries.ABILITY_SERIALIZER, Mineraculous.MOD_ID);
 
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ApplyInfiniteEffectsOrDestroyAbility>> APPLY_INFINITE_EFFECTS_OR_DESTROY = ABILITIES.register("apply_infinite_effects_or_destroy", () -> ApplyInfiniteEffectsOrDestroyAbility.CODEC);
+    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<AutomaticNightVisionAbility>> AUTOMATIC_NIGHT_VISION = ABILITIES.register("automatic_night_vision", () -> AutomaticNightVisionAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ContextDependentAbility>> CONTEXT_DEPENDENT = ABILITIES.register("context_dependent", () -> ContextDependentAbility.CODEC);
-    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<DragAbility>> DRAG = ABILITIES.register("drag", () -> DragAbility.CODEC);
-    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<RevertAbilityEffectsAbility>> RECOVER_ABILITY_DAMAGE = ABILITIES.register("lucky_charm_world_recovery", () -> RevertAbilityEffectsAbility.CODEC);
-    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<AutomaticNightVisionAbility>> NIGHT_VISION = ABILITIES.register("night_vision", () -> AutomaticNightVisionAbility.CODEC);
+    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ContinuousAbility>> CONTINUOUS = ABILITIES.register("continuous", () -> ContinuousAbility.CODEC);
+    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ConvertAndTameAbility>> CONVERT_AND_TAME = ABILITIES.register("convert_and_tame", () -> ConvertAndTameAbility.CODEC);
+    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<KamikoControlAbility>> KAMIKO_CONTROL = ABILITIES.register("kamiko_control", () -> KamikoControlAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<PassiveEffectsAbility>> PASSIVE_EFFECTS = ABILITIES.register("passive_effects", () -> PassiveEffectsAbility.CODEC);
-    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ReplaceAdjacentBlocksAbility>> RANDOM_SPREAD = ABILITIES.register("random_spread", () -> ReplaceAdjacentBlocksAbility.CODEC);
-    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ReplaceItemInHandAbility>> REPLACE_ITEMS_IN_HAND = ABILITIES.register("replace_items_in_hand", () -> ReplaceItemInHandAbility.CODEC);
+    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ReplaceAdjacentBlocksAbility>> REPLACE_ADJACENT_BLOCKS = ABILITIES.register("replace_adjacent_blocks", () -> ReplaceAdjacentBlocksAbility.CODEC);
+    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ReplaceItemInMainHandAbility>> REPLACE_ITEM_IN_MAIN_HAND = ABILITIES.register("replace_item_in_main_hand", () -> ReplaceItemInMainHandAbility.CODEC);
+    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<RevertLuckyCharmTargetsAbilityEffectsAbility>> REVERT_LUCKY_CHARM_TARGETS_ABILITY_EFFECTS = ABILITIES.register("revert_lucky_charm_targets_ability_effects", () -> RevertLuckyCharmTargetsAbilityEffectsAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<RightHandParticlesAbility>> RIGHT_HAND_PARTICLES = ABILITIES.register("right_hand_particles", () -> RightHandParticlesAbility.CODEC);
-    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<SummonTargetDependentLuckyCharmAbility>> SUMMON_LUCKY_CHARM = ABILITIES.register("summon_lucky_charm", () -> SummonTargetDependentLuckyCharmAbility.CODEC);
+    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<SpectateEntityAbility>> SPECTATE_ENTITY = ABILITIES.register("spectate_entity", () -> SpectateEntityAbility.CODEC);
+    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<SummonTargetDependentLuckyCharmAbility>> SUMMON_TARGET_DEPENDENT_LUCKY_CHARM = ABILITIES.register("summon_target_dependent_lucky_charm", () -> SummonTargetDependentLuckyCharmAbility.CODEC);
 
     public static void init() {}
 }

@@ -11,10 +11,10 @@ public class MineraculousLootContextParamSets {
     public static final LootContextParamSet LUCKY_CHARM = register("lucky_charm", builder -> builder
             .required(LootContextParams.THIS_ENTITY)
             .required(LootContextParams.ORIGIN)
-            .required(LootContextParams.TOOL)
-            .optional(LootContextParams.DAMAGE_SOURCE)
+            .required(MineraculousLootContextParams.POWER_LEVEL)
             .optional(LootContextParams.ATTACKING_ENTITY)
-            .optional(MineraculousLootContextParams.POWER_LEVEL)
+            .optional(LootContextParams.TOOL)
+            .optional(LootContextParams.DAMAGE_SOURCE)
             .build());
 
     private static LootContextParamSet register(String name, Consumer<LootContextParamSet.Builder> builderConsumer) {

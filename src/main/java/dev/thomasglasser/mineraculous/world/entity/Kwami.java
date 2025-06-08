@@ -375,7 +375,7 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
     @Override
     protected Component getTypeName() {
         if (name == null)
-            name = Component.translatable(MineraculousEntityTypes.KWAMI.getId().toLanguageKey("entity", getMiraculous().location().toShortLanguageKey()));
+            name = Component.translatable(Miraculous.toLanguageKey(getMiraculous())).append(" ").append(super.getTypeName());
         return name;
     }
 

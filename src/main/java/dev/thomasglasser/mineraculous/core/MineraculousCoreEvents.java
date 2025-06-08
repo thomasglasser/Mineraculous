@@ -87,9 +87,9 @@ public class MineraculousCoreEvents {
     }
 
     public static void onNewDataPackRegistry(DataPackRegistryEvent.NewRegistry event) {
-        event.dataPackRegistry(MineraculousRegistries.MIRACULOUS, Miraculous.CODEC, Miraculous.CODEC);
+        event.dataPackRegistry(MineraculousRegistries.MIRACULOUS, Miraculous.DIRECT_CODEC, Miraculous.DIRECT_CODEC);
         event.dataPackRegistry(MineraculousRegistries.ABILITY, Ability.DIRECT_CODEC, Ability.DIRECT_CODEC);
-        event.dataPackRegistry(MineraculousRegistries.KAMIKOTIZATION, Kamikotization.CODEC, Kamikotization.CODEC);
+        event.dataPackRegistry(MineraculousRegistries.KAMIKOTIZATION, Kamikotization.DIRECT_CODEC, Kamikotization.DIRECT_CODEC);
     }
 
     public static void onAddPackFinders(AddPackFindersEvent event) {
@@ -175,8 +175,9 @@ public class MineraculousCoreEvents {
         }
     }
 
+    // TODO: Move to a better place
     public static Map<String, FlattenedSuitLookData> fetchSuitLooks(Path root, Holder<Miraculous> miraculous) {
-        int transformationFrames = miraculous.value().transformationFrames();
+        int transformationFrames = miraculous.value().transformationFrames().orElse(0);
         String namespace = miraculous.getKey().location().getNamespace();
         String type = miraculous.getKey().location().getPath();
         root = root.resolve("miraculouslooks");

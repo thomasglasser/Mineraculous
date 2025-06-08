@@ -16,126 +16,136 @@ import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionEntityData;
+import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharm;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdData;
-import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionEntityData;
+import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.parameters.MineraculousLootContextParamSets;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.parameters.MineraculousLootContextParams;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
-
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import org.jetbrains.annotations.Nullable;
 
-public record SummonTargetDependentLuckyCharmAbility(boolean requireTool, Optional<Holder<SoundEvent>> startSound, boolean overrideActive) implements Ability {
-
+public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolInHand) implements Ability {
     public static final MapCodec<SummonTargetDependentLuckyCharmAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Codec.BOOL.optionalFieldOf("require_tool", false).forGetter(SummonTargetDependentLuckyCharmAbility::requireTool),
-            SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(SummonTargetDependentLuckyCharmAbility::startSound),
-            Codec.BOOL.optionalFieldOf("override_active", false).forGetter(SummonTargetDependentLuckyCharmAbility::overrideActive)).apply(instance, SummonTargetDependentLuckyCharmAbility::new));
+            Codec.BOOL.optionalFieldOf("require_active_tool_in_hand", false).forGetter(SummonTargetDependentLuckyCharmAbility::requireActiveToolInHand)).apply(instance, SummonTargetDependentLuckyCharmAbility::new));
+
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, Context context) {
-        if (context == Context.PASSIVE) {
-            AbilityReversionEntityData recoveryEntityData = AbilityReversionEntityData.get(level);
-            UUID tracked = recoveryEntityData.getTrackedEntity(performer.getUUID());
-            LivingEntity trackedEntity = tracked != null ? level.getEntity(tracked) instanceof LivingEntity livingEntity ? livingEntity : null : null;
-            LivingEntity target = trackedEntity != null ? trackedEntity : performer.getKillCredit() != null ? performer.getKillCredit() : performer.getLastHurtByMob() != null ? performer.getLastHurtByMob() : performer.getLastHurtMob();
-            if (target instanceof OwnableEntity ownable && ownable.getOwnerUUID() != null)
-                target = level.getEntity(ownable.getOwnerUUID()) instanceof LivingEntity livingEntity ? livingEntity : target;
-            if (target != null)
-                recoveryEntityData.putRelatedEntity(target.getUUID(), performer.getUUID());
-            LuckyCharms charms = getCharms(level, target);
-            AtomicReference<ItemStack> result = new AtomicReference<>();
-            if (charms.items().left().isPresent()) {
-                LootTable loottable = level.getServer().reloadableRegistries().getLootTable(charms.items().left().get());
-                LootParams.Builder lootparams$builder = new LootParams.Builder(level)
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
+        boolean toolInHand = false;
+        if (requireActiveToolInHand && performer instanceof LivingEntity livingEntity) {
+            ItemStack stack = livingEntity.getMainHandItem();
+            toolInHand = data.power().map(miraculous -> {
+                KwamiData stackKwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
+                return stackKwamiData != null && performer.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).kwamiData().map(kwamiData -> kwamiData.uuid().equals(stackKwamiData.uuid())).orElse(false) && stack.getOrDefault(MineraculousDataComponents.ACTIVE, true);
+            }, kamikotization -> kamikotization == stack.get(MineraculousDataComponents.KAMIKOTIZATION) && stack.getOrDefault(MineraculousDataComponents.ACTIVE, true));
+        }
+        if (!requireActiveToolInHand || toolInHand) {
+            AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
+            Entity target = determineTarget(level, entityData.getTrackedEntity(performer.getUUID()), performer);
+            if (target != null) {
+                entityData.putRelatedEntity(performer.getUUID(), target.getUUID());
+                entityData.putRelatedEntity(target.getUUID(), performer.getUUID());
+            }
+            ItemStack stack = getLuckyCharms(level, target).items().map(lootTable -> {
+                LootParams.Builder paramsBuilder = new LootParams.Builder(level)
                         .withParameter(LootContextParams.THIS_ENTITY, performer)
                         .withParameter(LootContextParams.ORIGIN, performer.position())
-                        .withParameter(LootContextParams.TOOL, performer.getMainHandItem())
                         .withParameter(MineraculousLootContextParams.POWER_LEVEL, data.powerLevel())
-                        .withOptionalParameter(LootContextParams.DAMAGE_SOURCE, performer.getLastDamageSource())
                         .withOptionalParameter(LootContextParams.ATTACKING_ENTITY, target);
 
-                LootParams lootparams = lootparams$builder.create(MineraculousLootContextParamSets.LUCKY_CHARM);
-                loottable.getRandomItems(lootparams, target.getLootTableSeed(), result::set);
-            } else {
-                Optional<Holder<Item>> item = charms.items().right().get().getRandomElement(level.random);
-                item.ifPresent(itemHolder -> result.set(itemHolder.value().getDefaultInstance()));
+                if (performer instanceof LivingEntity livingEntity) {
+                    paramsBuilder = paramsBuilder
+                            .withOptionalParameter(LootContextParams.TOOL, livingEntity.getMainHandItem())
+                            .withOptionalParameter(LootContextParams.DAMAGE_SOURCE, livingEntity.getLastDamageSource());
+                }
+
+                LootParams params = paramsBuilder
+                        .create(MineraculousLootContextParamSets.LUCKY_CHARM);
+
+                LootTable table = level.getServer().reloadableRegistries().getLootTable(lootTable);
+                ObjectArrayList<ItemStack> stacks = target instanceof LivingEntity livingEntity ? table.getRandomItems(params, livingEntity.getLootTableSeed()) : table.getRandomItems(params);
+                return stacks.isEmpty() ? ItemStack.EMPTY : stacks.get(level.random.nextInt(stacks.size()));
+            }, set -> set.getRandomElement(level.random).map(item -> item.value().getDefaultInstance()).orElse(ItemStack.EMPTY));
+            if (stack.isEmpty()) {
+                stack = BuiltInRegistries.ITEM.getTag(MineraculousItemTags.GENERIC_LUCKY_CHARMS).orElseThrow().getRandomElement(level.random).orElseThrow().value().getDefaultInstance();
             }
-            if (result.get() == null) {
-                result.set(BuiltInRegistries.ITEM.getTag(MineraculousItemTags.GENERIC_LUCKY_CHARMS).orElseThrow().getRandomElement(level.random).orElseThrow().value().getDefaultInstance());
-            }
-            ItemStack toAdd = result.get();
-            UUID uuid;
-            if (data.power().left().isPresent()) {
-                uuid = performer.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(data.power().left().get()).miraculousItem().get(MineraculousDataComponents.KWAMI_DATA).uuid();
-                toAdd.set(MineraculousDataComponents.KWAMI_DATA, new KwamiData(uuid, 0, false));
-            } else {
-                uuid = performer.getUUID();
-                toAdd.set(MineraculousDataComponents.KAMIKOTIZATION, data.power().right().get());
-            }
-            toAdd.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.ofNullable(target != null ? target.getUUID() : null), LuckyCharmIdData.get(level).incrementLuckyCharmId(uuid)));
-            LuckyCharmItemSpawner item = LuckyCharmItemSpawner.create(level, toAdd);
+            ItemStack result = stack;
+            UUID uuid = data.power().map(miraculous -> {
+                KwamiData kwamiData = performer.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).kwamiData().orElse(null);
+                result.set(MineraculousDataComponents.KWAMI_DATA, kwamiData);
+                return kwamiData != null ? kwamiData.uuid() : null;
+            }, kamikotization -> {
+                result.set(MineraculousDataComponents.KAMIKOTIZATION, kamikotization);
+                return performer.getUUID();
+            });
+            result.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.ofNullable(target).map(Entity::getUUID), uuid, uuid != null ? LuckyCharmIdData.get(level).incrementLuckyCharmId(uuid) : 0));
+            LuckyCharmItemSpawner item = LuckyCharmItemSpawner.create(level, result);
             item.setPos(performer.position().add(0, 4, 0));
             level.addFreshEntity(item);
-            playStartSound(level, pos, );
             return true;
         }
         return false;
     }
 
-    private LuckyCharms getCharms(ServerLevel level, LivingEntity target) {
-        if (target != null) {
-            if (target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
-                level.registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).getDataMap()
-                LuckyCharms data = level.registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).getData(MineraculousDataMaps.KAMIKOTIZATION_LUCKY_CHARMS, target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get().kamikotization());
-                if (data != null)
-                    return data;
+    private @Nullable Entity determineTarget(ServerLevel level, @Nullable UUID trackedId, Entity performer) {
+        Entity target = trackedId != null ? level.getEntity(trackedId) : null;
+        if (performer instanceof LivingEntity livingEntity) {
+            if (target == null) {
+                target = livingEntity.getKillCredit();
             }
-            if (target.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
-                List<ResourceKey<Miraculous>> transformed = target.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed();
-                LuckyCharms data = level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getData(MineraculousDataMaps.MIRACULOUS_LUCKY_CHARMS, transformed.get(level.random.nextInt(transformed.size())));
-                if (data != null)
+            if (target == null) {
+                target = livingEntity.getLastHurtMob();
+            }
+        }
+        if (target instanceof OwnableEntity ownable && ownable.getOwnerUUID() != null) {
+            Entity owner = level.getEntity(ownable.getOwnerUUID());
+            if (owner != null) {
+                target = owner;
+            }
+        }
+        return target;
+    }
+
+    private LuckyCharms getLuckyCharms(ServerLevel level, Entity target) {
+        if (target != null) {
+            Optional<Holder<Kamikotization>> kamikotization = target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization);
+            if (kamikotization.isPresent()) {
+                LuckyCharms data = level.registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).getData(MineraculousDataMaps.KAMIKOTIZATION_LUCKY_CHARMS, kamikotization.get().getKey());
+                if (data != null) {
                     return data;
+                }
+            }
+            MiraculousesData miraculousesData = target.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+            if (miraculousesData.isTransformed()) {
+                Holder<Miraculous> miraculous = miraculousesData.getTransformed().getFirst();
+                LuckyCharms data = level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getData(MineraculousDataMaps.MIRACULOUS_LUCKY_CHARMS, miraculous.getKey());
+                if (data != null) {
+                    return data;
+                }
             }
             LuckyCharms data = BuiltInRegistries.ENTITY_TYPE.getData(MineraculousDataMaps.ENTITY_LUCKY_CHARMS, target.getType().builtInRegistryHolder().key());
-            if (data != null)
+            if (data != null) {
                 return data;
+            }
         }
         return new LuckyCharms(Either.right(BuiltInRegistries.ITEM.getTag(MineraculousItemTags.GENERIC_LUCKY_CHARMS).orElseThrow()));
     }
 
     @Override
-    public boolean canActivate(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
-        if (requireTool) {
-            ItemStack mainHandItem = performer.getMainHandItem();
-            Either<ResourceKey<Miraculous>, ResourceKey<Kamikotization>> power = data.power();
-            if (power.left().isPresent()) {
-                Integer toolId = mainHandItem.get(MineraculousDataComponents.TOOL_ID);
-                return toolId != null && toolId == performer.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(power.left().get()).toolId() && mainHandItem.getOrDefault(MineraculousDataComponents.ACTIVE, false);
-            } else {
-                return mainHandItem.get(MineraculousDataComponents.KAMIKOTIZATION) == power.right().get() && mainHandItem.getOrDefault(MineraculousDataComponents.ACTIVE, false);
-            }
-        }
-        return true;
-    }
-
-    @Override
     public MapCodec<? extends Ability> codec() {
-        return AbilitySerializers.SUMMON_LUCKY_CHARM.get();
+        return AbilitySerializers.SUMMON_TARGET_DEPENDENT_LUCKY_CHARM.get();
     }
 }

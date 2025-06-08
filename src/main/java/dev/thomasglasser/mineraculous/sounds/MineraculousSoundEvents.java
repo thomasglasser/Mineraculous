@@ -29,7 +29,7 @@ public class MineraculousSoundEvents {
     // Miraculous
     public static final DeferredHolder<SoundEvent, SoundEvent> GENERIC_TRANSFORM = register("generic", "miraculous", "transform");
     public static final DeferredHolder<SoundEvent, SoundEvent> GENERIC_DETRANSFORM = register("generic", "miraculous", "detransform");
-    public static final DeferredHolder<SoundEvent, SoundEvent> GENERIC_TIMER_BEEP = register("generic", "miraculous", "timer_beep");
+    public static final DeferredHolder<SoundEvent, SoundEvent> GENERIC_TIMER_WARNING = register("generic", "miraculous", "timer_warning");
     public static final DeferredHolder<SoundEvent, SoundEvent> GENERIC_TIMER_END = register("generic", "miraculous", "timer_end");
     public static final DeferredHolder<SoundEvent, SoundEvent> LADYBUG_TRANSFORM = register("ladybug", "miraculous", "transform");
     public static final DeferredHolder<SoundEvent, SoundEvent> CAT_TRANSFORM = register("cat", "miraculous", "transform");

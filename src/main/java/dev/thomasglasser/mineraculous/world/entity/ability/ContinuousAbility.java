@@ -19,12 +19,12 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
-public record DragAbility(Holder<Ability> ability, int dragTicks) implements AbilityWithSubAbilities {
-    public static final MapCodec<DragAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Ability.CODEC.fieldOf("ability").forGetter(DragAbility::ability),
-            ExtraCodecs.POSITIVE_INT.optionalFieldOf("drag_ticks", SharedConstants.TICKS_PER_SECOND).forGetter(DragAbility::dragTicks)).apply(instance, DragAbility::new));
+public record ContinuousAbility(Holder<Ability> ability, int ticks) implements AbilityWithSubAbilities {
+    public static final MapCodec<ContinuousAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Ability.CODEC.fieldOf("ability").forGetter(ContinuousAbility::ability),
+            ExtraCodecs.POSITIVE_INT.optionalFieldOf("ticks", SharedConstants.TICKS_PER_SECOND).forGetter(ContinuousAbility::ticks)).apply(instance, ContinuousAbility::new));
 
-    public DragAbility(Holder<Ability> ability) {
+    public ContinuousAbility(Holder<Ability> ability) {
         this(ability, SharedConstants.TICKS_PER_SECOND);
     }
 
@@ -37,18 +37,20 @@ public record DragAbility(Holder<Ability> ability, int dragTicks) implements Abi
             dragTicks--;
             if (dragTicks <= 0) {
                 abilityEffectData.withDragTicks(Optional.empty()).save(performer, true);
-                return consume;
+                return true;
+            } else {
+                abilityEffectData.withDragTicks(Optional.of(dragTicks)).save(performer, true);
             }
         }
         if (consume) {
             if (performer instanceof ServerPlayer serverPlayer && context != null) {
                 if (data.power().left().isPresent())
-                    MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, data.power().left().get(), context.advancementContext());
+                    MineraculousCriteriaTriggers.USED_MIRACULOUS_POWER.get().trigger(serverPlayer, data.power().left().get().getKey(), context.advancementContext());
                 if (data.power().right().isPresent())
-                    MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, data.power().right().get(), context.advancementContext());
+                    MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, data.power().right().get().getKey(), context.advancementContext());
             }
             if (abilityEffectData.dragTicks().isEmpty()) {
-                abilityEffectData.withDragTicks(Optional.of(dragTicks)).save(performer, true);
+                abilityEffectData.withDragTicks(Optional.of(ticks)).save(performer, true);
                 return false;
             }
         }
@@ -73,6 +75,6 @@ public record DragAbility(Holder<Ability> ability, int dragTicks) implements Abi
 
     @Override
     public MapCodec<? extends Ability> codec() {
-        return AbilitySerializers.DRAG.get();
+        return AbilitySerializers.CONTINUOUS.get();
     }
 }

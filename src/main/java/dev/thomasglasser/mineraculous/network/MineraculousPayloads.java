@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.network;
 
+import com.google.common.collect.ImmutableList;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityEffectData;
@@ -15,13 +16,12 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public class MineraculousPayloads {
-    public static List<PayloadInfo<?>> PAYLOADS = List.<PayloadInfo<?>>of(
+    public static List<PayloadInfo<?>> PAYLOADS = ImmutableList.of(
             // Serverbound
             new PayloadInfo<>(ServerboundUpdateYoyoInputPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateYoyoInputPayload.CODEC),
             new PayloadInfo<>(ServerboundJumpMidSwingingPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundJumpMidSwingingPayload.CODEC),
             new PayloadInfo<>(ServerboundMiraculousTransformPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundMiraculousTransformPayload.CODEC),
-            new PayloadInfo<>(ServerboundRequestMiraculousDataSetSyncPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRequestMiraculousDataSetSyncPayload.CODEC),
-            new PayloadInfo<>(ServerboundHandleMiraculousPowerActivatedPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundHandleMiraculousPowerActivatedPayload.CODEC),
+            new PayloadInfo<>(ServerboundSetMiraculousPowerActivatedPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetMiraculousPowerActivatedPayload.CODEC),
             new PayloadInfo<>(ServerboundRequestInventorySyncPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRequestInventorySyncPayload.CODEC),
             new PayloadInfo<>(ServerboundStealItemPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundStealItemPayload.CODEC),
             new PayloadInfo<>(ServerboundStealCurioPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundStealCurioPayload.CODEC),
@@ -32,27 +32,26 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundOpenVictimKamikotizationChatScreenPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundOpenVictimKamikotizationChatScreenPayload.CODEC),
             new PayloadInfo<>(ServerboundOpenPerformerKamikotizationChatScreenPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundOpenPerformerKamikotizationChatScreenPayload.CODEC),
             new PayloadInfo<>(ServerboundCloseKamikotizationChatScreenPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundCloseKamikotizationChatScreenPayload.CODEC),
-            new PayloadInfo<>(ServerboundKamikotizationTransformPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundKamikotizationTransformPayload.CODEC),
+            new PayloadInfo<>(ServerboundStartKamikotizationTransformationPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundStartKamikotizationTransformationPayload.CODEC),
             new PayloadInfo<>(ServerboundPutMiraculousToolInHandPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundPutMiraculousToolInHandPayload.CODEC),
             new PayloadInfo<>(ServerboundPutKamikotizationToolInHandPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundPutKamikotizationToolInHandPayload.CODEC),
             new PayloadInfo<>(ServerboundEquipToolPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundEquipToolPayload.CODEC),
             new PayloadInfo<>(ServerboundHurtEntityPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundHurtEntityPayload.CODEC),
             new PayloadInfo<>(ServerboundTriggerKamikotizationAdvancementsPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundTriggerKamikotizationAdvancementsPayload.CODEC),
             new PayloadInfo<>(ServerboundSyncCustomizationPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSyncCustomizationPayload.CODEC),
-            new PayloadInfo<>(ServerboundSyncKamikotizationLooksPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSyncKamikotizationLooksPayload.CODEC),
-            new PayloadInfo<>(ServerboundSyncKamikotizationLookPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSyncKamikotizationLookPayload.CODEC),
+//            new PayloadInfo<>(ServerboundSyncKamikotizationLooksPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSyncKamikotizationLooksPayload.CODEC),
+//            new PayloadInfo<>(ServerboundSyncKamikotizationLookPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSyncKamikotizationLookPayload.CODEC),
             new PayloadInfo<>(ServerboundRenounceMiraculousPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRenounceMiraculousPayload.CODEC),
             new PayloadInfo<>(ServerboundSetKamikotizationPowerActivatedPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetKamikotizationPowerActivatedPayload.CODEC),
             new PayloadInfo<>(ServerboundUpdateSpecialPlayerDataPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateSpecialPlayerDataPayload.CODEC),
             new PayloadInfo<>(ServerboundTransferMiraculousPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundTransferMiraculousPayload.CODEC),
-            new PayloadInfo<>(ServerboundBeginLuckyCharmWorldRecoveryPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundBeginLuckyCharmWorldRecoveryPayload.CODEC),
-            new PayloadInfo<>(ServerboundSetOwnerPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetOwnerPayload.CODEC),
-            new PayloadInfo<>(ServerboundSendEmptyLeftClickPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSendEmptyLeftClickPayload.CODEC),
+            new PayloadInfo<>(ServerboundRevertConvertedEntityPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRevertConvertedEntityPayload.CODEC),
             new PayloadInfo<>(ServerboundSwingOffhandPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSwingOffhandPayload.CODEC),
             new PayloadInfo<>(ServerboundToggleActivePayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundToggleActivePayload.CODEC),
             new PayloadInfo<>(ServerboundSetRadialMenuProviderOptionPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetRadialMenuProviderOptionPayload.CODEC),
             new PayloadInfo<>(ServerboundUpdateYoyoLengthPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateYoyoLengthPayload.CODEC),
             new PayloadInfo<>(ServerboundSetFaceMaskTexturePayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetFaceMaskTexturePayload.CODEC),
+            new PayloadInfo<>(ServerboundSetSpectationInterruptedPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetSpectationInterruptedPayload.CODEC),
 
             // Clientbound
             new PayloadInfo<>(ClientboundToggleNightVisionShaderPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundToggleNightVisionShaderPayload.CODEC),
@@ -62,20 +61,19 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ClientboundOpenVictimKamikotizationChatScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundOpenVictimKamikotizationChatScreenPayload.CODEC),
             new PayloadInfo<>(ClientboundOpenPerformerKamikotizationChatScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundOpenPerformerKamikotizationChatScreenPayload.CODEC),
             new PayloadInfo<>(ClientboundRemoteCloseKamikotizationChatScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRemoteCloseKamikotizationChatScreenPayload.CODEC),
-            new PayloadInfo<>(ClientboundRequestSyncSuitLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestSyncSuitLookPayload.CODEC),
-            new PayloadInfo<>(ClientboundSyncSuitLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncSuitLookPayload.CODEC),
-            new PayloadInfo<>(ClientboundSyncMiraculousLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncMiraculousLookPayload.CODEC),
-            new PayloadInfo<>(ClientboundRequestSyncMiraculousLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestSyncMiraculousLookPayload.CODEC),
-            new PayloadInfo<>(ClientboundSyncKamikotizationLooksPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncKamikotizationLooksPayload.CODEC),
-            new PayloadInfo<>(ClientboundRequestSyncKamikotizationLooksPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestSyncKamikotizationLooksPayload.CODEC),
-            new PayloadInfo<>(ClientboundSyncKamikotizationLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncKamikotizationLookPayload.CODEC),
-            new PayloadInfo<>(ClientboundRequestSyncKamikotizationLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestSyncKamikotizationLookPayload.CODEC),
+//            new PayloadInfo<>(ClientboundRequestSyncSuitLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestSyncSuitLookPayload.CODEC),
+//            new PayloadInfo<>(ClientboundSyncSuitLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncSuitLookPayload.CODEC),
+//            new PayloadInfo<>(ClientboundSyncMiraculousLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncMiraculousLookPayload.CODEC),
+//            new PayloadInfo<>(ClientboundRequestSyncMiraculousLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestSyncMiraculousLookPayload.CODEC),
+//            new PayloadInfo<>(ClientboundSyncKamikotizationLooksPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncKamikotizationLooksPayload.CODEC),
+//            new PayloadInfo<>(ClientboundRequestSyncKamikotizationLooksPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestSyncKamikotizationLooksPayload.CODEC),
+//            new PayloadInfo<>(ClientboundSyncKamikotizationLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncKamikotizationLookPayload.CODEC),
+//            new PayloadInfo<>(ClientboundRequestSyncKamikotizationLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestSyncKamikotizationLookPayload.CODEC),
             new PayloadInfo<>(ClientboundUpdateSpecialPlayerDataPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundUpdateSpecialPlayerDataPayload.CODEC),
             new PayloadInfo<>(ClientboundSyncSpecialPlayerChoicesPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncSpecialPlayerChoicesPayload.CODEC),
             new PayloadInfo<>(ClientboundOpenMiraculousTransferScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundOpenMiraculousTransferScreenPayload.CODEC),
             new PayloadInfo<>(ClientboundAddRightHandParticlesPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundAddRightHandParticlesPayload.CODEC),
-            new PayloadInfo<>(ClientboundCheckLuckyCharmWorldRecoveryPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundCheckLuckyCharmWorldRecoveryPayload.CODEC),
-            new PayloadInfo<>(ClientboundOpenLookCustomizationScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundOpenLookCustomizationScreenPayload.CODEC),
+//            new PayloadInfo<>(ClientboundOpenLookCustomizationScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundOpenLookCustomizationScreenPayload.CODEC),
             new PayloadInfo<>(ClientboundSyncArrowPickupStackPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncArrowPickupStackPayload.CODEC));
 
     public static void onRegisterPackets(RegisterPayloadHandlersEvent event) {

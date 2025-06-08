@@ -139,7 +139,7 @@ public class CatEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(Miraculous.createMiraculousStack(Miraculouses.CAT));
+        return BookIconModel.create(Miraculous.createMiraculousStack(registries().holderOrThrow(Miraculouses.CAT)));
     }
 
     @Override

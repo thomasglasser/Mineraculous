@@ -9,15 +9,12 @@ import dev.thomasglasser.mineraculous.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.world.entity.Kamiko;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
@@ -31,15 +28,13 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -49,6 +44,7 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -206,30 +202,29 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
             Entity owner = profile != null ? serverLevel.getEntity(profile.id().orElse(profile.gameProfile().getId())) : null;
             if (owner != null) {
                 MiraculousesData miraculousesData = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                ResourceKey<Miraculous> storingKey = miraculousesData.getFirstTransformedKeyIn(MiraculousTags.CAN_USE_LADYBUG_YOYO, serverLevel.registryAccess());
+                Holder<Miraculous> storingKey = miraculousesData.getFirstTransformedIn(MiraculousTags.CAN_USE_LADYBUG_YOYO);
                 MiraculousData storingData = miraculousesData.get(storingKey);
                 if (storingData != null) {
-                    CompoundTag extraData = storingData.extraData();
-                    ListTag kamikos = extraData.getList(LadybugYoyoItem.TAG_STORED_KAMIKOS, 10);
-                    if (!kamikos.isEmpty()) {
-                        Set<Kamiko> kamikoSet = new ReferenceOpenHashSet<>();
-                        for (Tag tag : kamikos) {
-                            Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(serverLevel);
-                            if (kamiko != null && tag instanceof CompoundTag compoundTag) {
-                                kamiko.load(compoundTag);
-                                kamiko.setOwnerUUID(null);
-                                kamiko.setPos(livingEntity.getX(), livingEntity.getY() + 0.5, livingEntity.getZ());
-                                kamiko.addDeltaMovement(new Vec3(0, 0.1 * ((getUseDuration(stack, livingEntity) - timeCharged) / 10.0), 0));
-                                serverLevel.addFreshEntity(kamiko);
-                                kamikoSet.add(kamiko);
+                    List<CompoundTag> stored = storingData.storedEntities();
+                    if (!stored.isEmpty()) {
+                        Set<Entity> entities = new ReferenceOpenHashSet<>();
+                        for (CompoundTag tag : stored) {
+                            Entity entity = EntityType.loadEntityRecursive(tag, level, loaded -> {
+                                loaded.setPos(livingEntity.getX(), livingEntity.getY() + 0.5, livingEntity.getZ());
+                                loaded.addDeltaMovement(new Vec3(0, 0.1 * ((getUseDuration(stack, livingEntity) - timeCharged) / 10.0), 0));
+                                return loaded;
+                            });
+                            if (entity != null) {
+                                serverLevel.addFreshEntity(entity);
+                                entities.add(entity);
                             }
                         }
                         if (livingEntity instanceof ServerPlayer serverPlayer) {
-                            MineraculousCriteriaTriggers.RELEASED_PURIFIED_KAMIKO.get().trigger(serverPlayer, kamikoSet);
+                            MineraculousCriteriaTriggers.RELEASED_PURIFIED_KAMIKO.get().trigger(serverPlayer, entities);
                         }
                     }
-                    extraData.remove(LadybugYoyoItem.TAG_STORED_KAMIKOS);
-                    owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(owner, storingKey, storingData, true);
+                    storingData.storedEntities().clear();
+                    storingData.save(storingKey, livingEntity, true);
                 }
             }
         }
@@ -377,9 +372,9 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         if (resolvableProfile != null) {
             Player owner = level.getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
             if (owner != null) {
-                ResourceKey<Miraculous> colorKey = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstTransformedKeyIn(MiraculousTags.CAN_USE_LADYBUG_YOYO, ClientUtils.getLevel().registryAccess());
+                Holder<Miraculous> colorKey = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstTransformedIn(MiraculousTags.CAN_USE_LADYBUG_YOYO);
                 if (colorKey != null)
-                    color = level.holderOrThrow(colorKey).value().color().getValue();
+                    color = colorKey.value().color().getValue();
             }
         }
         return color;

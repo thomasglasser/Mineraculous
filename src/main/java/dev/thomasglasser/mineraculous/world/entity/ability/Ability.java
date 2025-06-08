@@ -16,6 +16,9 @@ import java.util.function.Predicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -26,6 +29,9 @@ public interface Ability {
             .dispatch(Ability::codec, Function.identity());
     Codec<Holder<Ability>> CODEC = RegistryFileCodec.create(MineraculousRegistries.ABILITY, DIRECT_CODEC);
     Codec<HolderSet<Ability>> HOLDER_SET_CODEC = RegistryCodecs.homogeneousList(MineraculousRegistries.ABILITY, DIRECT_CODEC);
+
+    StreamCodec<RegistryFriendlyByteBuf, Holder<Ability>> STREAM_CODEC = ByteBufCodecs.holderRegistry(MineraculousRegistries.ABILITY);
+    StreamCodec<RegistryFriendlyByteBuf, HolderSet<Ability>> HOLDER_SET_STREAM_CODEC = ByteBufCodecs.holderSet(MineraculousRegistries.ABILITY);
 
     boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context);
 

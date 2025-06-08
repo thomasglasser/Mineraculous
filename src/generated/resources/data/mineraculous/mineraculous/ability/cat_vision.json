@@ -1,4 +1,4 @@
 {
-  "type": "mineraculous:night_vision",
+  "type": "mineraculous:automatic_night_vision",
   "shader": "minecraft:shaders/post/creeper.json"
 }

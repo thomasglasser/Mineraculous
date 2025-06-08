@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.core.component;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
@@ -14,10 +13,10 @@ import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharm;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import java.util.UUID;
+import net.minecraft.core.Holder;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Unit;
 
 public class MineraculousDataComponents {
@@ -45,12 +44,12 @@ public class MineraculousDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> RECOVERABLE_ITEM_ID = DATA_COMPONENTS.register("recoverable_item_id", UUIDUtil.STREAM_CODEC, UUIDUtil.CODEC, false);
 
     // Miraculous
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceKey<Miraculous>>> MIRACULOUS = DATA_COMPONENTS.registerResourceKey("miraculous", MineraculousRegistries.MIRACULOUS, true, false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Holder<Miraculous>>> MIRACULOUS = DATA_COMPONENTS.register("miraculous", Miraculous.STREAM_CODEC, Miraculous.CODEC, false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<KwamiData>> KWAMI_DATA = DATA_COMPONENTS.register("kwami_data", KwamiData.STREAM_CODEC, KwamiData.CODEC, false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TOOL_ID = DATA_COMPONENTS.registerInteger("tool_id", true, false);
 
     // Kamikotization
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceKey<Kamikotization>>> KAMIKOTIZATION = DATA_COMPONENTS.registerResourceKey("kamikotization", MineraculousRegistries.KAMIKOTIZATION, true, false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Holder<Kamikotization>>> KAMIKOTIZATION = DATA_COMPONENTS.register("kamikotization", Kamikotization.STREAM_CODEC, Kamikotization.CODEC, false);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<KamikoData>> KAMIKO_DATA = DATA_COMPONENTS.register("kamiko_data", KamikoData.STREAM_CODEC, KamikoData.CODEC, true);
 
     public static void init() {}

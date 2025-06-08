@@ -6,7 +6,6 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
-import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.network.ClientboundOpenLookCustomizationScreenPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
@@ -30,7 +29,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.ItemStack;
 
 public class MiraculousCommand {
     public static final int COMMANDS_ENABLED_PERMISSION_LEVEL = 2;
@@ -38,8 +36,6 @@ public class MiraculousCommand {
     public static final String CUSTOMIZE_OPEN_SUCCESS_SELF = "commands.miraculous.customize.open.success.self";
     public static final String CUSTOMIZE_OPEN_SUCCESS_OTHER = "commands.miraculous.customize.open.success.other";
     // Charged
-    public static final String CHARGED_TRUE = "commands.miraculous.charged.true";
-    public static final String CHARGED_FALSE = "commands.miraculous.charged.false";
     public static final String CHARGED_QUERY_SUCCESS_SELF = "commands.miraculous.charged.query.success.self";
     public static final String CHARGED_QUERY_SUCCESS_OTHER = "commands.miraculous.charged.query.success.other";
     public static final String CHARGED_SET_SUCCESS_SELF = "commands.miraculous.charged.set.success.self";
@@ -102,64 +98,61 @@ public class MiraculousCommand {
     }
 
     private static int tryOpenCustomizationScreen(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
+        Holder.Reference<Miraculous> miraculous = resolveMiraculous(context, "miraculous");
         Map<String, FlattenedSuitLookData> serverSuits = ServerLookData.getCommonSuits().get(resolveMiraculous(context, "miraculous").key());
         Map<String, FlattenedMiraculousLookData> serverMiraculous = ServerLookData.getCommonMiraculouses().get(resolveMiraculous(context, "miraculous").key());
-        context.getSource().sendSuccess(() -> self ? Component.translatable(CUSTOMIZE_OPEN_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))) : Component.translatable(CUSTOMIZE_OPEN_SUCCESS_OTHER, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), player.getDisplayName()), true);
-        TommyLibServices.NETWORK.sendToClient(new ClientboundOpenLookCustomizationScreenPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), true, miraculousType.key(), serverSuits, serverMiraculous), player);
+        context.getSource().sendSuccess(() -> self ? Component.translatable(CUSTOMIZE_OPEN_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key()))) : Component.translatable(CUSTOMIZE_OPEN_SUCCESS_OTHER, Component.translatable(Miraculous.toLanguageKey(miraculous.key())), player.getDisplayName()), true);
+        TommyLibServices.NETWORK.sendToClient(new ClientboundOpenLookCustomizationScreenPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), true, miraculous, serverSuits, serverMiraculous), player);
         return 1;
     }
 
     private static int getKwamiCharged(Entity entity, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
+        Holder.Reference<Miraculous> miraculous = resolveMiraculous(context, "miraculous");
         MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-        MiraculousData data = miraculousesData.get(miraculousType.key());
+        MiraculousData data = miraculousesData.get(miraculous);
         if (data.transformed()) {
             context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_TRANSFORMED, entity.getDisplayName()));
             return 0;
         } else {
-            KwamiData kwamiData = data.miraculousItem().get(MineraculousDataComponents.KWAMI_DATA);
+            KwamiData kwamiData = data.kwamiData().orElse(null);
             if (kwamiData != null) {
                 Kwami kwami = ((ServerLevel) entity.level()).getEntity(kwamiData.uuid()) instanceof Kwami k ? k : null;
                 if (kwami != null) {
-                    context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_QUERY_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), Component.translatable(kwami.isCharged() ? CHARGED_TRUE : CHARGED_FALSE)) : Component.translatable(CHARGED_QUERY_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), Component.translatable(kwami.isCharged() ? CHARGED_TRUE : CHARGED_FALSE)), true);
+                    context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_QUERY_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key())), Component.translatable(kwami.isCharged() ? MiraculousData.CHARGED_TRUE : MiraculousData.CHARGED_FALSE)) : Component.translatable(CHARGED_QUERY_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculous.key())), Component.translatable(kwami.isCharged() ? MiraculousData.CHARGED_TRUE : MiraculousData.CHARGED_FALSE)), true);
                     return 1;
                 } else {
-                    context.getSource().sendFailure(self ? Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))) : Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))));
+                    context.getSource().sendFailure(self ? Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key()))) : Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculous.key()))));
                     return 0;
                 }
             } else {
-                context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))));
+                context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key()))));
                 return 0;
             }
         }
     }
 
     private static int setKwamiCharged(Entity entity, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
+        Holder.Reference<Miraculous> miraculous = resolveMiraculous(context, "miraculous");
         MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-        MiraculousData data = miraculousesData.get(miraculousType.key());
+        MiraculousData data = miraculousesData.get(miraculous);
         if (data.transformed()) {
             context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_TRANSFORMED, entity.getDisplayName()));
             return 0;
         } else {
-            ItemStack miraculousItem = data.miraculousItem();
-            if (miraculousItem.getCount() == 0)
-                miraculousItem.setCount(1);
-            KwamiData kwamiData = miraculousItem.get(MineraculousDataComponents.KWAMI_DATA);
+            KwamiData kwamiData = data.kwamiData().orElse(null);
             if (kwamiData != null) {
                 boolean charged = BoolArgumentType.getBool(context, "charged");
                 Kwami kwami = ((ServerLevel) entity.level()).getEntity(kwamiData.uuid()) instanceof Kwami k ? k : null;
                 if (kwami != null) {
                     kwami.setCharged(charged);
-                    context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), charged ? Component.translatable(CHARGED_TRUE) : Component.translatable(CHARGED_FALSE)) : Component.translatable(CHARGED_SET_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), charged ? Component.translatable(CHARGED_TRUE) : Component.translatable(CHARGED_FALSE)), true);
+                    context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key())), charged ? Component.translatable(MiraculousData.CHARGED_TRUE) : Component.translatable(MiraculousData.CHARGED_FALSE)) : Component.translatable(CHARGED_SET_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculous.key())), charged ? Component.translatable(MiraculousData.CHARGED_TRUE) : Component.translatable(MiraculousData.CHARGED_FALSE)), true);
                     return 1;
                 } else {
-                    context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))));
+                    context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key()))));
                     return 0;
                 }
             } else {
-                context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key()))));
+                context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key()))));
                 return 0;
             }
         }
@@ -168,18 +161,16 @@ public class MiraculousCommand {
     private static int getPowerLevel(Entity entity, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
         Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
         MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-        MiraculousData data = miraculousesData.get(miraculousType.key());
+        MiraculousData data = miraculousesData.get(miraculousType);
         context.getSource().sendSuccess(() -> self ? Component.translatable(POWER_LEVEL_QUERY_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), data.powerLevel()) : Component.translatable(POWER_LEVEL_QUERY_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), data.powerLevel()), true);
         return 1;
     }
 
     private static int setPowerLevel(Entity entity, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
         int newLevel = IntegerArgumentType.getInteger(context, "level");
-        Holder.Reference<Miraculous> miraculousType = resolveMiraculous(context, "miraculous");
-        MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-        MiraculousData data = miraculousesData.get(miraculousType.key());
-        miraculousesData.put(entity, miraculousType.key(), data.withLevel(newLevel), true);
-        context.getSource().sendSuccess(() -> self ? Component.translatable(POWER_LEVEL_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), Math.clamp(newLevel, 0, 100)) : Component.translatable(POWER_LEVEL_SET_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculousType.key())), newLevel), true);
+        Holder.Reference<Miraculous> miraculous = resolveMiraculous(context, "miraculous");
+        entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).withPowerLevel(newLevel).save(miraculous, entity, true);
+        context.getSource().sendSuccess(() -> self ? Component.translatable(POWER_LEVEL_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key())), Math.clamp(newLevel, 0, 100)) : Component.translatable(POWER_LEVEL_SET_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculous.key())), newLevel), true);
         return 1;
     }
 

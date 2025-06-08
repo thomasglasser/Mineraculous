@@ -1,19 +1,14 @@
 {
-  "type": "mineraculous:context_aware",
+  "type": "mineraculous:context_dependent",
   "entity": {
-    "type": "mineraculous:set_owner",
-    "max_of_types": 1,
-    "start_sound": "mineraculous:kamikotization_activate",
-    "valid_entities": {
-      "type": "mineraculous:kamiko"
-    }
+    "type": "mineraculous:convert_and_tame",
+    "new_type": "mineraculous:kamiko",
+    "valid_entities": {}
   },
-  "passive": [
-    {
-      "type": "mineraculous:right_hand_particles",
-      "particle": {
-        "type": "mineraculous:black_orb"
-      }
+  "passive": {
+    "type": "mineraculous:right_hand_particles",
+    "particle": {
+      "type": "mineraculous:black_orb"
     }
-  ]
+  }
 }

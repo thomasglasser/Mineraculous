@@ -24,10 +24,9 @@ public abstract class GameRendererMixin {
     @Inject(method = "togglePostEffect", at = @At("TAIL"))
     private void resetPostEffectToggleIfSpecial(CallbackInfo ci) {
         Player player = this.minecraft.player;
-        // TODO: Check in kamiko view
         if (player != null) {
             AbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
-            abilityEffectData.nightVisionShader().ifPresent(MineraculousClientUtils::setShader);
+            abilityEffectData.shader().ifPresent(MineraculousClientUtils::setShader);
         }
     }
 

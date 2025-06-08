@@ -14,7 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -29,7 +29,7 @@ import software.bernie.geckolib.renderer.GeoArmorRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<KamikotizationArmorItem> {
-    private static final Map<ResourceKey<Kamikotization>, GeoModel<KamikotizationArmorItem>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
+    private static final Map<Holder<Kamikotization>, GeoModel<KamikotizationArmorItem>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
     private static final Map<KamikotizationLookData, GeoModel<KamikotizationArmorItem>> LOOK_MODELS = new Reference2ReferenceOpenHashMap<>();
 
     public KamikotizationArmorItemRenderer() {
@@ -44,7 +44,7 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
                 } else {
                     ItemStack stack = getCurrentStack();
                     if (stack != null && getCurrentEntity() instanceof LivingEntity livingEntity) {
-                        ResourceKey<Kamikotization> kamikotization = stack.get(MineraculousDataComponents.KAMIKOTIZATION);
+                        Holder<Kamikotization> kamikotization = stack.get(MineraculousDataComponents.KAMIKOTIZATION);
                         KamikotizationLookData data = livingEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS).get(kamikotization);
                         if (data != null) {
                             data.glowmask().ifPresent(glowmask -> {
@@ -72,7 +72,7 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
     @Override
     public GeoModel<KamikotizationArmorItem> getGeoModel() {
         if (getCurrentStack() != null) {
-            ResourceKey<Kamikotization> kamikotization = getCurrentStack().get(MineraculousDataComponents.KAMIKOTIZATION);
+            Holder<Kamikotization> kamikotization = getCurrentStack().get(MineraculousDataComponents.KAMIKOTIZATION);
             if (kamikotization != null) {
                 if (!DEFAULT_MODELS.containsKey(kamikotization))
                     DEFAULT_MODELS.put(kamikotization, createDefaultGeoModel(kamikotization));
@@ -90,9 +90,9 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
         return super.getGeoModel();
     }
 
-    private GeoModel<KamikotizationArmorItem> createDefaultGeoModel(ResourceKey<Kamikotization> kamikotization) {
-        return new DefaultedItemGeoModel<>(ResourceLocation.fromNamespaceAndPath(kamikotization.location().getNamespace(), "armor/kamikotization/" + kamikotization.location().getPath())) {
-            private final ResourceLocation texture = ResourceLocation.fromNamespaceAndPath(kamikotization.location().getNamespace(), "textures/entity/equipment/humanoid/kamikotization/" + kamikotization.location().getPath() + ".png");
+    private GeoModel<KamikotizationArmorItem> createDefaultGeoModel(Holder<Kamikotization> kamikotization) {
+        return new DefaultedItemGeoModel<>(ResourceLocation.fromNamespaceAndPath(kamikotization.getKey().location().getNamespace(), "armor/kamikotization/" + kamikotization.getKey().location().getPath())) {
+            private final ResourceLocation texture = ResourceLocation.fromNamespaceAndPath(kamikotization.getKey().location().getNamespace(), "textures/entity/equipment/humanoid/kamikotization/" + kamikotization.getKey().location().getPath() + ".png");
 
             @Override
             public ResourceLocation getTextureResource(KamikotizationArmorItem animatable) {
@@ -110,7 +110,7 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
         };
     }
 
-    private GeoModel<KamikotizationArmorItem> createLookGeoModel(ResourceKey<Kamikotization> kamikotization, KamikotizationLookData data) {
+    private GeoModel<KamikotizationArmorItem> createLookGeoModel(Holder<Kamikotization> kamikotization, KamikotizationLookData data) {
         return new GeoModel<>() {
             private BakedGeoModel currentModel = null;
 

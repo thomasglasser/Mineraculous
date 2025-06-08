@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.client;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
+import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.client.gui.screens.LookCustomizationScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.MiraculousTransferScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuScreen;
@@ -43,7 +44,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -167,8 +168,8 @@ public class MineraculousClientUtils {
         Minecraft.getInstance().setScreen(new KamikotizationSelectionScreen(target, kamikoData));
     }
 
-    public static void openReceiverKamikotizationChatScreen(UUID other, KamikotizationData kamikotizationData) {
-        Minecraft.getInstance().setScreen(new ReceiverKamikotizationChatScreen(other, kamikotizationData));
+    public static void openReceiverKamikotizationChatScreen(UUID other, KamikotizationData kamikotizationData, Either<Integer, CuriosData> slotInfo) {
+        Minecraft.getInstance().setScreen(new ReceiverKamikotizationChatScreen(other, kamikotizationData, slotInfo));
     }
 
     public static void openPerformerKamikotizationChatScreen(String performerName, String targetName, Optional<ResourceLocation> faceMaskTexture, Player target) {
@@ -179,7 +180,7 @@ public class MineraculousClientUtils {
         Minecraft.getInstance().setScreen(new MiraculousTransferScreen(kwamiId));
     }
 
-    public static void openLookCustomizationScreen(ResourceKey<Miraculous> miraculous, Map<String, FlattenedSuitLookData> serverSuits, Map<String, FlattenedMiraculousLookData> serverMiraculouses) {
+    public static void openLookCustomizationScreen(Holder<Miraculous> miraculous, Map<String, FlattenedSuitLookData> serverSuits, Map<String, FlattenedMiraculousLookData> serverMiraculouses) {
         Minecraft.getInstance().setScreen(new LookCustomizationScreen(miraculous, serverSuits, serverMiraculouses));
     }
 

@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.network.ClientboundToggleNightVisionShaderPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityEvents;
+import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.world.entity.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -25,7 +25,6 @@ public record AutomaticNightVisionAbility(Optional<ResourceLocation> shader) imp
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (context == null && performer instanceof LivingEntity livingEntity) {
             checkNightVision(livingEntity, level);
-            return true;
         }
         return false;
     }
@@ -62,15 +61,15 @@ public record AutomaticNightVisionAbility(Optional<ResourceLocation> shader) imp
             }
         });
         if (giveNightVision) {
-            entity.addEffect(MineraculousEntityEvents.INFINITE_HIDDEN_EFFECT.apply(MobEffects.NIGHT_VISION, 1));
+            MineraculousEntityUtils.applyInfiniteHiddenEffect(entity, MobEffects.NIGHT_VISION, 1);
         } else {
             entity.removeEffect(MobEffects.NIGHT_VISION);
         }
-        entity.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withNightVisionShader(giveNightVision ? shader : Optional.empty()).save(entity, true);
+        entity.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withShader(giveNightVision ? shader : Optional.empty()).save(entity, true);
     }
 
     @Override
     public MapCodec<? extends Ability> codec() {
-        return AbilitySerializers.NIGHT_VISION.get();
+        return AbilitySerializers.AUTOMATIC_NIGHT_VISION.get();
     }
 }

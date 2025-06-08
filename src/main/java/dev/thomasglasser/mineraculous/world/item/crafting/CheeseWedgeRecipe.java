@@ -20,7 +20,6 @@ public class CheeseWedgeRecipe extends CustomRecipe {
         super(category);
     }
 
-    // TODO: Check
     @Override
     public boolean matches(CraftingInput input, Level level) {
         List<ItemStack> items = new ReferenceArrayList<>();

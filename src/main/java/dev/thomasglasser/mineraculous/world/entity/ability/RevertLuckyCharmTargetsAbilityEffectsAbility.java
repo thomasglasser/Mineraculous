@@ -61,7 +61,7 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility() implements Ability 
                                         }
                                     }).ifRight(ability -> ability.value().revert(abilityData, level, related));
                                     value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related));
-                                    AbilityReversionItemData.get(level).recoverKamikotized(relatedId, level);
+                                    AbilityReversionItemData.get(level).revertKamikotized(relatedId, level);
                                 });
                                 MiraculousesData miraculousesData = related.getData(MineraculousAttachmentTypes.MIRACULOUSES);
                                 for (Holder<Miraculous> miraculous : miraculousesData.keySet()) {

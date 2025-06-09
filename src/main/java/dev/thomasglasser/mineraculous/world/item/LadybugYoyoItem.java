@@ -12,6 +12,7 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
@@ -201,16 +202,19 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                         for (CompoundTag tag : stored) {
                             Entity entity = EntityType.loadEntityRecursive(tag, level, loaded -> {
                                 loaded.setPos(livingEntity.getX(), livingEntity.getY() + 0.5, livingEntity.getZ());
-                                loaded.addDeltaMovement(new Vec3(0, 0.1 * ((getUseDuration(stack, livingEntity) - timeCharged) / 10.0), 0));
                                 return loaded;
                             });
                             if (entity != null) {
                                 serverLevel.addFreshEntity(entity);
-                                entities.add(entity);
+                                Entity reverted = AbilityReversionEntityData.get(serverLevel).revertConversion(entity.getUUID(), serverLevel);
+                                if (reverted != null) {
+                                    reverted.addDeltaMovement(new Vec3(0, 0.1 * ((getUseDuration(stack, livingEntity) - timeCharged) / 10.0), 0));
+                                    entities.add(reverted);
+                                }
                             }
                         }
                         if (livingEntity instanceof ServerPlayer serverPlayer) {
-                            MineraculousCriteriaTriggers.RELEASED_PURIFIED_KAMIKO.get().trigger(serverPlayer, entities);
+                            MineraculousCriteriaTriggers.RELEASED_PURIFIED_ENTITY.get().trigger(serverPlayer, entities);
                         }
                     }
                     storingData.storedEntities().clear();

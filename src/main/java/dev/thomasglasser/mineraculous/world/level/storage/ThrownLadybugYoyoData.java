@@ -27,16 +27,12 @@ public record ThrownLadybugYoyoData(Optional<Integer> id, int safeFallTicks) {
         this(Optional.of(id), DEFAULT_SAFE_FALL_TICKS);
     }
 
-    public ThrownLadybugYoyoData withSafeFallTicks(int safeFallTicks) {
-        return new ThrownLadybugYoyoData(id, safeFallTicks);
+    public @Nullable ThrownLadybugYoyo getThrownYoyo(Level level) {
+        return id.isPresent() && level.getEntity(id.get()) instanceof ThrownLadybugYoyo thrownYoyo ? thrownYoyo : null;
     }
 
     public ThrownLadybugYoyoData clearId() {
         return new ThrownLadybugYoyoData(Optional.empty(), safeFallTicks);
-    }
-
-    public @Nullable ThrownLadybugYoyo getThrownYoyo(Level level) {
-        return id.isPresent() && level.getEntity(id.get()) instanceof ThrownLadybugYoyo thrownYoyo ? thrownYoyo : null;
     }
 
     public ThrownLadybugYoyoData startSafeFall() {
@@ -45,6 +41,10 @@ public record ThrownLadybugYoyoData(Optional<Integer> id, int safeFallTicks) {
 
     public ThrownLadybugYoyoData decrementSafeFallTicks() {
         return new ThrownLadybugYoyoData(id, safeFallTicks - 1);
+    }
+
+    public ThrownLadybugYoyoData withSafeFallTicks(int safeFallTicks) {
+        return new ThrownLadybugYoyoData(id, safeFallTicks);
     }
 
     public void save(Entity entity, boolean syncToClient) {

@@ -29,7 +29,7 @@ public class ToolIdData extends SavedData {
     }
 
     public static Factory<ToolIdData> factory() {
-        return new Factory<>(ToolIdData::new, (p_294039_, p_324123_) -> load(p_294039_), DataFixTypes.LEVEL);
+        return new Factory<>(ToolIdData::new, ToolIdData::load, DataFixTypes.LEVEL);
     }
 
     public void tick(Entity entity) {
@@ -76,9 +76,9 @@ public class ToolIdData extends SavedData {
         return tag;
     }
 
-    public static ToolIdData load(CompoundTag tag) {
+    public static ToolIdData load(CompoundTag tag, HolderLookup.Provider registries) {
         ToolIdData toolIdData = new ToolIdData();
-        ListTag listTag = tag.getList("ToolIds", 10);
+        ListTag listTag = tag.getList("ToolIds", ListTag.TAG_COMPOUND);
         for (int i = 0; i < listTag.size(); i++) {
             CompoundTag compoundTag = listTag.getCompound(i);
             UUID uuid = compoundTag.getUUID("Uuid");

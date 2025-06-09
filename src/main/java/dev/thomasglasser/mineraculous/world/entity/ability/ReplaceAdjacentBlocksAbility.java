@@ -43,7 +43,7 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean prefe
                     originals.put(blockPos, original);
                     level.setBlock(blockPos, MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL);
                 }
-                AbilityReversionBlockData.get(level).putRecoverable(performer.getUUID(), originals);
+                AbilityReversionBlockData.get(level).putRevertable(performer.getUUID(), originals);
             }
             return true;
         }
@@ -86,7 +86,7 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean prefe
 
     @Override
     public void revert(AbilityData data, ServerLevel level, Entity performer) {
-        AbilityReversionBlockData.get(level).recover(performer.getUUID(), level);
+        AbilityReversionBlockData.get(level).revert(performer.getUUID(), level);
     }
 
     @Override

@@ -17,7 +17,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 
 public class AbilityReversionBlockData extends SavedData {
     public static final String FILE_ID = "ability_reversion_block";
-    private final Table<UUID, BlockPos, BlockState> recoverableBlocks = HashBasedTable.create();
+    private final Table<UUID, BlockPos, BlockState> revertableBlocks = HashBasedTable.create();
 
     public static AbilityReversionBlockData get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(AbilityReversionBlockData.factory(), AbilityReversionBlockData.FILE_ID);
@@ -27,21 +27,21 @@ public class AbilityReversionBlockData extends SavedData {
         return new Factory<>(AbilityReversionBlockData::new, AbilityReversionBlockData::load, DataFixTypes.LEVEL);
     }
 
-    public void recover(UUID owner, ServerLevel level) {
-        for (Map.Entry<BlockPos, BlockState> entry : recoverableBlocks.row(owner).entrySet()) {
+    public void revert(UUID owner, ServerLevel level) {
+        for (Map.Entry<BlockPos, BlockState> entry : revertableBlocks.row(owner).entrySet()) {
             level.setBlock(entry.getKey(), entry.getValue(), Block.UPDATE_ALL);
         }
-        recoverableBlocks.row(owner).clear();
+        revertableBlocks.row(owner).clear();
         setDirty();
     }
 
-    public void putRecoverable(UUID owner, Map<BlockPos, BlockState> recoverable) {
-        recoverableBlocks.row(owner).putAll(recoverable);
+    public void putRevertable(UUID owner, Map<BlockPos, BlockState> revertable) {
+        revertableBlocks.row(owner).putAll(revertable);
         setDirty();
     }
 
-    public UUID getRecoverer(BlockPos pos) {
-        for (Table.Cell<UUID, BlockPos, BlockState> cell : recoverableBlocks.cellSet()) {
+    public UUID getCause(BlockPos pos) {
+        for (Table.Cell<UUID, BlockPos, BlockState> cell : revertableBlocks.cellSet()) {
             if (cell.getColumnKey().equals(pos))
                 return cell.getRowKey();
         }
@@ -50,36 +50,36 @@ public class AbilityReversionBlockData extends SavedData {
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        ListTag recoverable = new ListTag();
-        for (UUID uuid : this.recoverableBlocks.rowKeySet()) {
+        ListTag revertable = new ListTag();
+        for (UUID uuid : this.revertableBlocks.rowKeySet()) {
             CompoundTag compoundTag = new CompoundTag();
             compoundTag.putUUID("UUID", uuid);
             ListTag recoverableBlocks = new ListTag();
-            for (Map.Entry<BlockPos, BlockState> entry1 : this.recoverableBlocks.row(uuid).entrySet()) {
+            for (Map.Entry<BlockPos, BlockState> entry1 : this.revertableBlocks.row(uuid).entrySet()) {
                 CompoundTag compoundTag1 = new CompoundTag();
                 compoundTag1.putLong("BlockPos", entry1.getKey().asLong());
                 compoundTag1.put("BlockState", BlockState.CODEC.encodeStart(NbtOps.INSTANCE, entry1.getValue()).result().orElseThrow());
                 recoverableBlocks.add(compoundTag1);
             }
             compoundTag.put("Blocks", recoverableBlocks);
-            recoverable.add(compoundTag);
+            revertable.add(compoundTag);
         }
-        tag.put("RecoverableBlocks", recoverable);
+        tag.put("RevertableBlocks", revertable);
         return tag;
     }
 
     public static AbilityReversionBlockData load(CompoundTag tag, HolderLookup.Provider registries) {
         AbilityReversionBlockData miraculousRecoveryEntityData = new AbilityReversionBlockData();
-        ListTag recoverable = tag.getList("RecoverableBlocks", 10);
-        for (int i = 0; i < recoverable.size(); i++) {
-            CompoundTag compoundTag = recoverable.getCompound(i);
+        ListTag revertable = tag.getList("RevertableBlocks", ListTag.TAG_COMPOUND);
+        for (int i = 0; i < revertable.size(); i++) {
+            CompoundTag compoundTag = revertable.getCompound(i);
             UUID owner = compoundTag.getUUID("UUID");
-            ListTag recoverableBlocks = compoundTag.getList("Blocks", 10);
+            ListTag recoverableBlocks = compoundTag.getList("Blocks", ListTag.TAG_COMPOUND);
             for (int j = 0; j < recoverableBlocks.size(); j++) {
                 CompoundTag compoundTag1 = recoverableBlocks.getCompound(j);
                 BlockPos blockPos = BlockPos.of(compoundTag1.getLong("BlockPos"));
                 BlockState blockState = BlockState.CODEC.parse(NbtOps.INSTANCE, compoundTag1.get("BlockState")).result().orElseThrow();
-                miraculousRecoveryEntityData.recoverableBlocks.put(owner, blockPos, blockState);
+                miraculousRecoveryEntityData.revertableBlocks.put(owner, blockPos, blockState);
             }
         }
         return miraculousRecoveryEntityData;

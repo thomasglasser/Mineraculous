@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -58,8 +60,6 @@ public class MiraculousesData {
 
     public MiraculousData put(Entity entity, Holder<Miraculous> key, MiraculousData value, boolean syncToClient) {
         MiraculousData data = map.put(key, value);
-        if (value.transformed() && entity instanceof ServerPlayer player)
-            MineraculousCriteriaTriggers.TRANSFORMED_MIRACULOUS.get().trigger(player, key.getKey());
         save(entity, syncToClient);
         return data;
     }
@@ -84,14 +84,6 @@ public class MiraculousesData {
             }
         }
         return keys;
-    }
-
-    public List<Miraculous> getTransformedDirect(HolderLookup.Provider lookup) {
-        List<Miraculous> miraculouses = new ReferenceArrayList<>();
-        for (Holder<Miraculous> miraculous : getTransformed()) {
-            miraculouses.add(miraculous.value());
-        }
-        return miraculouses;
     }
 
     public boolean isTransformed() {

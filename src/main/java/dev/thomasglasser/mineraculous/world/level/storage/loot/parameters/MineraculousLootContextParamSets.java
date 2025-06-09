@@ -21,10 +21,10 @@ public class MineraculousLootContextParamSets {
         LootContextParamSet.Builder builder = new LootContextParamSet.Builder();
         builderConsumer.accept(builder);
         LootContextParamSet paramSet = builder.build();
-        ResourceLocation id = Mineraculous.modLoc(name);
-        LootContextParamSet existing = LootContextParamSets.REGISTRY.put(id, paramSet);
+        ResourceLocation loc = Mineraculous.modLoc(name);
+        LootContextParamSet existing = LootContextParamSets.REGISTRY.put(loc, paramSet);
         if (existing != null) {
-            throw new IllegalStateException("Loot table parameter set " + id + " is already registered");
+            throw new IllegalStateException("Loot table parameter set " + loc + " is already registered");
         } else {
             return paramSet;
         }

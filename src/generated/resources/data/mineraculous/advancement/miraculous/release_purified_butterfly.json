@@ -15,7 +15,7 @@
           ]
         ]
       },
-      "trigger": "mineraculous:released_purified_kamiko"
+      "trigger": "mineraculous:released_purified_entity"
     }
   },
   "display": {

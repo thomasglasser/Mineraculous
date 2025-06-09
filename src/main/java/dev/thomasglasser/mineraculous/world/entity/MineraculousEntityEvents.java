@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.MiraculousUtils;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionItemData;
@@ -21,6 +22,8 @@ import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import java.util.UUID;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
@@ -225,13 +228,17 @@ public class MineraculousEntityEvents {
                     entity.setLastHurtByMob(livingEntity);
                 }
             });
+            if (entity.hasEffect(MineraculousMobEffects.CATACLYSM)) {
+                entity.deathTime = 20;
+                level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState()), entity.getX(), entity.getY() + entity.getEyeHeight(), entity.getZ(), 30, Math.random() / 3.0, Math.random() / 3.0, Math.random() / 3.0, 0);
+            }
         }
     }
 
     public static void onLivingDrops(LivingDropsEvent event) {
         LivingEntity entity = event.getEntity();
         if (entity.level() instanceof ServerLevel level) {
-            UUID recoverer = AbilityReversionEntityData.get(level).getRecoverer(entity, level);
+            UUID recoverer = AbilityReversionEntityData.get(level).getCause(entity, level);
             for (ItemEntity item : event.getDrops()) {
                 ItemStack stack = item.getItem();
                 if (entity.hasEffect(MineraculousMobEffects.CATACLYSM) && !stack.is(MineraculousItemTags.CATACLYSM_IMMUNE)) {

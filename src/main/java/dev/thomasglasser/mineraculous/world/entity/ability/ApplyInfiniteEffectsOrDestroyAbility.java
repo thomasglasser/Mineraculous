@@ -44,7 +44,7 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (context instanceof EntityAbilityContext(Entity target)) {
-            AbilityReversionEntityData.get(level).putRecoverable(performer.getUUID(), target);
+            AbilityReversionEntityData.get(level).putRevertable(performer.getUUID(), target);
             DamageSource source = damageType.map(key -> performer.damageSources().source(key, performer)).orElse(performer.damageSources().indirectMagic(performer, performer));
             target.hurt(source, 1);
             if (target instanceof LivingEntity livingEntity) {
@@ -54,7 +54,7 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
                         ItemStack replacement = new ItemStack(dropItem.get());
                         UUID id = UUID.randomUUID();
                         replacement.set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
-                        AbilityReversionItemData.get(level).putRecoverable(performer.getUUID(), id, stack);
+                        AbilityReversionItemData.get(level).putRevertable(performer.getUUID(), id, stack);
                         livingEntity.setItemInHand(livingEntity.getUsedItemHand(), replacement);
                     } else {
                         livingEntity.setItemInHand(livingEntity.getUsedItemHand(), ItemStack.EMPTY);
@@ -93,7 +93,13 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
 
     @Override
     public void revert(AbilityData data, ServerLevel level, Entity performer) {
-        AbilityReversionEntityData.get(level).revert(performer.getUUID(), level);
+        AbilityReversionEntityData.get(level).revert(performer.getUUID(), level, entity -> {
+            if (entity instanceof LivingEntity livingEntity) {
+                for (Holder<MobEffect> effect : effects) {
+                    livingEntity.removeEffect(effect);
+                }
+            }
+        });
         AbilityReversionItemData.get(level).markReverted(performer.getUUID());
     }
 

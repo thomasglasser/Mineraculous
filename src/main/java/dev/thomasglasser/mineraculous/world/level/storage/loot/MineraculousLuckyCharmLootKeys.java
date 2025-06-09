@@ -21,18 +21,18 @@ public class MineraculousLuckyCharmLootKeys {
     public static final ResourceKey<LootTable> RAID = event("raid");
 
     private static ResourceKey<LootTable> miraculous(String name) {
-        return modLoc("miraculous/" + name);
+        return create("miraculous/" + name);
     }
 
     private static ResourceKey<LootTable> entity(String name) {
-        return modLoc("entity/" + name);
+        return create("entity/" + name);
     }
 
     private static ResourceKey<LootTable> event(String name) {
-        return modLoc("event/" + name);
+        return create("event/" + name);
     }
 
-    private static ResourceKey<LootTable> modLoc(String name) {
+    private static ResourceKey<LootTable> create(String name) {
         return ResourceKey.create(Registries.LOOT_TABLE, Mineraculous.modLoc("gameplay/lucky_charm/" + name));
     }
 }

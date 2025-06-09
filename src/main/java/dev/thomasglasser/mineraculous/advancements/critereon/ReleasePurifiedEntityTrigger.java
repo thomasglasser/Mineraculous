@@ -55,7 +55,7 @@ public class ReleasePurifiedEntityTrigger extends SimpleCriterionTrigger<Release
         }
 
         private static Criterion<TriggerInstance> criterion(Optional<ContextAwarePredicate> player, List<ContextAwarePredicate> released, Optional<Integer> count) {
-            return MineraculousCriteriaTriggers.RELEASED_PURIFIED_KAMIKO.get().createCriterion(new TriggerInstance(player, released, count));
+            return MineraculousCriteriaTriggers.RELEASED_PURIFIED_ENTITY.get().createCriterion(new TriggerInstance(player, released, count));
         }
 
         public boolean matches(List<LootContext> released) {

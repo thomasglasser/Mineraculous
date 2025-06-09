@@ -4,13 +4,13 @@ import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownLadybugYoyoRe
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
@@ -346,21 +346,26 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 }
             }
             recall();
-        } else if (ability == LadybugYoyoItem.Ability.PURIFY && entity instanceof Kamiko kamiko && level() instanceof ServerLevel serverLevel) {
-            ResolvableProfile profile = getPickupItemStackOrigin().get(DataComponents.PROFILE);
-            Player yoyoOwner = profile != null ? serverLevel.getPlayerByUUID(profile.id().orElse(profile.gameProfile().getId())) : null;
-            if (yoyoOwner != null) {
-                MiraculousesData miraculousesData = yoyoOwner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                Holder<Miraculous> storingKey = miraculousesData.getFirstTransformedIn(MiraculousTags.CAN_USE_LADYBUG_YOYO);
-                MiraculousData storingData = miraculousesData.get(storingKey);
-                if (storingData != null) {
-                    CompoundTag tag = new CompoundTag();
-                    kamiko.save(tag);
-                    List<CompoundTag> stored = storingData.storedEntities();
-                    stored.add(tag);
-                    kamiko.discard();
-                    storingData.save(storingKey, yoyoOwner, true);
-                    discard();
+        } else {
+            if (ability == LadybugYoyoItem.Ability.PURIFY && level() instanceof ServerLevel level) {
+                AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
+                if (entityData.isConverted(entity.getUUID())) {
+                    ResolvableProfile profile = getPickupItemStackOrigin().get(DataComponents.PROFILE);
+                    Player yoyoOwner = profile != null ? level.getPlayerByUUID(profile.id().orElse(profile.gameProfile().getId())) : null;
+                    if (yoyoOwner != null) {
+                        MiraculousesData miraculousesData = yoyoOwner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                        Holder<Miraculous> storingKey = miraculousesData.getFirstTransformedIn(MiraculousTags.CAN_USE_LADYBUG_YOYO);
+                        MiraculousData storingData = miraculousesData.get(storingKey);
+                        if (storingData != null) {
+                            CompoundTag tag = new CompoundTag();
+                            entity.save(tag);
+                            List<CompoundTag> stored = storingData.storedEntities();
+                            stored.add(tag);
+                            entity.discard();
+                            storingData.save(storingKey, yoyoOwner, true);
+                            discard();
+                        }
+                    }
                 }
             }
         }

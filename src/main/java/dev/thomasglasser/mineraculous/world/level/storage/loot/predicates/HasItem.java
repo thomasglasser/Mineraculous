@@ -5,6 +5,10 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Set;
 import java.util.function.Predicate;
+
+import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
+import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,21 +27,12 @@ public record HasItem(ItemPredicate predicate, boolean invert) implements LootIt
             Codec.BOOL.optionalFieldOf("invert", false).forGetter(HasItem::invert)).apply(p_345271_, HasItem::new));
 
     public boolean test(LootContext context) {
+        Predicate<ItemStack> predicate = invert ? this.predicate.negate() : this.predicate;
         Entity entity = context.getParamOrNull(LootContextParams.THIS_ENTITY);
-        if (entity instanceof Player player)
-            return player.getInventory().hasAnyMatching(invert ? predicate.negate() : predicate);
-        else if (entity instanceof InventoryCarrier carrier)
-            return carrier.getInventory().hasAnyMatching(invert ? predicate.negate() : predicate);
-        else if (entity instanceof LivingEntity livingEntity) {
-            Predicate<ItemStack> p = invert ? predicate.negate() : predicate;
-            boolean has = false;
-            for (ItemStack stack : livingEntity.getAllSlots()) {
-                if (p.test(stack)) {
-                    has = true;
-                    break;
-                }
+        for (ItemStack stack : EntityUtils.getInventory(entity)) {
+            if (predicate.test(stack)) {
+                return true;
             }
-            return has;
         }
         return false;
     }
@@ -49,7 +44,7 @@ public record HasItem(ItemPredicate predicate, boolean invert) implements LootIt
 
     @Override
     public Set<LootContextParam<?>> getReferencedContextParams() {
-        return Set.of(LootContextParams.THIS_ENTITY);
+        return ReferenceOpenHashSet.of(LootContextParams.THIS_ENTITY);
     }
 
     public static LootItemCondition.Builder hasItemsMatching(ItemPredicate predicate) {

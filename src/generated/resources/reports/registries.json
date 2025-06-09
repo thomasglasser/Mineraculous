@@ -198,7 +198,7 @@
   ],
   "minecraft:trigger_type": [
     "mineraculous:kamikotized_player",
-    "mineraculous:released_purified_kamiko",
+    "mineraculous:released_purified_entity",
     "mineraculous:transformed_kamikotization",
     "mineraculous:transformed_miraculous",
     "mineraculous:used_kamikotization_power",

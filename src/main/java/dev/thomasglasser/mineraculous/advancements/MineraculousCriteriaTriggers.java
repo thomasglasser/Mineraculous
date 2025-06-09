@@ -19,7 +19,7 @@ public class MineraculousCriteriaTriggers {
     public static final DeferredHolder<CriterionTrigger<?>, TransformMiraculousTrigger> TRANSFORMED_MIRACULOUS = CRITERION_TRIGGERS.register("transformed_miraculous", TransformMiraculousTrigger::new);
     public static final DeferredHolder<CriterionTrigger<?>, UseMiraculousPowerTrigger> USED_MIRACULOUS_POWER = CRITERION_TRIGGERS.register("used_miraculous_power", UseMiraculousPowerTrigger::new);
     public static final DeferredHolder<CriterionTrigger<?>, KamikotizePlayerTrigger> KAMIKOTIZED_PLAYER = CRITERION_TRIGGERS.register("kamikotized_player", KamikotizePlayerTrigger::new);
-    public static final DeferredHolder<CriterionTrigger<?>, ReleasePurifiedEntityTrigger> RELEASED_PURIFIED_KAMIKO = CRITERION_TRIGGERS.register("released_purified_kamiko", ReleasePurifiedEntityTrigger::new);
+    public static final DeferredHolder<CriterionTrigger<?>, ReleasePurifiedEntityTrigger> RELEASED_PURIFIED_ENTITY = CRITERION_TRIGGERS.register("released_purified_entity", ReleasePurifiedEntityTrigger::new);
 
     // Kamikotization
     public static final DeferredHolder<CriterionTrigger<?>, TransformKamikotizationTrigger> TRANSFORMED_KAMIKOTIZATION = CRITERION_TRIGGERS.register("transformed_kamikotization", TransformKamikotizationTrigger::new);

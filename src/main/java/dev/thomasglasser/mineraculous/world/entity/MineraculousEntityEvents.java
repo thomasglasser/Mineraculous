@@ -133,6 +133,11 @@ public class MineraculousEntityEvents {
 
     public static void onAttackEntity(AttackEntityEvent event) {
         Player player = event.getEntity();
+        AbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
+        if (abilityEffectData.spectatingId().isPresent()) {
+            event.setCanceled(true);
+            return;
+        }
         if (player.level() instanceof ServerLevel level) {
             Entity target = event.getTarget();
             // Living entities are handled via LivingDamageEvent.Post
@@ -150,7 +155,7 @@ public class MineraculousEntityEvents {
                 AbilityUtils.performEntityAbilities(attacker, level, target);
             }
             AbilityEffectData abilityEffectData = target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
-            if (abilityEffectData.isSpectating()) {
+            if (abilityEffectData.spectatingId().isPresent()) {
                 abilityEffectData.withSpectationInterrupted().save(target, true);
             }
         }
@@ -163,8 +168,14 @@ public class MineraculousEntityEvents {
     }
 
     public static void onBlockLeftClick(PlayerInteractEvent.LeftClickBlock event) {
+        Player player = event.getEntity();
+        AbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
+        if (abilityEffectData.spectatingId().isPresent()) {
+            event.setCanceled(true);
+            return;
+        }
         if (event.getLevel() instanceof ServerLevel level) {
-            AbilityUtils.performBlockAbilities(event.getEntity(), level, event.getPos());
+            AbilityUtils.performBlockAbilities(player, level, event.getPos());
         }
     }
 

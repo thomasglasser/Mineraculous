@@ -49,15 +49,14 @@ public class MineraculousDataMapProvider extends DataMapProvider {
 
         // Miraculous Buffs
         builder(MineraculousDataMaps.MIRACULOUS_EFFECTS)
-                .add(MobEffects.DAMAGE_RESISTANCE, 1, false)
-                .add(MobEffects.DAMAGE_BOOST, 1, false)
-                .add(MobEffects.MOVEMENT_SPEED, 1, false)
-                .add(MobEffects.DIG_SPEED, 1, false)
-                .add(MobEffects.JUMP, 2, false)
-                .add(MobEffects.REGENERATION, 1, false)
-                .add(MobEffects.HEALTH_BOOST, 1, false)
-                .add(MobEffects.SATURATION, 1, false)
-                .add(MobEffects.ABSORPTION, 1, false)
+                .add(MobEffects.DAMAGE_RESISTANCE, 0, false)
+                .add(MobEffects.DAMAGE_BOOST, 0, false)
+                .add(MobEffects.MOVEMENT_SPEED, 0, false)
+                .add(MobEffects.DIG_SPEED, 0, false)
+                .add(MobEffects.JUMP, 1, false)
+                .add(MobEffects.REGENERATION, 0, false)
+                .add(MobEffects.HEALTH_BOOST, 0, false)
+                .add(MobEffects.SATURATION, 0, false)
                 .build();
         builder(MineraculousDataMaps.MIRACULOUS_ATTRIBUTE_MODIFIERS)
                 .add(Attributes.FALL_DAMAGE_MULTIPLIER, new ModifierSettings(-0.05, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), false)

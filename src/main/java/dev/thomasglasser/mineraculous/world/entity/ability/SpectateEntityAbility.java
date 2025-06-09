@@ -35,28 +35,29 @@ public record SpectateEntityAbility(EntityPredicate validEntities, boolean priva
                 stopSpectation(performer);
                 return true;
             } else if (data.powerActive()) {
-                if (abilityEffectData.isSpectating()) {
+                if (abilityEffectData.spectatingId().isPresent()) {
                     stopSpectation(performer);
                     return true;
                 } else {
                     List<? extends Entity> entities = level.getEntities(EntityTypeTest.forClass(Entity.class), entity -> validEntities.matches(level, performer.position(), entity));
                     if (!entities.isEmpty()) {
-                        abilityEffectData.withSpectation(true, shader, faceMaskTexture, privateChat ? Optional.of(performer.getUUID()) : Optional.empty(), allowRemoteDamage).save(performer, true);
+                        Entity target = entities.getFirst();
+                        abilityEffectData.withSpectation(Optional.of(target.getUUID()), shader, faceMaskTexture, privateChat ? Optional.of(performer.getUUID()) : Optional.empty(), allowRemoteDamage).save(performer, true);
                         if (performer instanceof ServerPlayer player) {
-                            TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.of(entities.getFirst().getId())), player);
+                            TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.of(target.getId())), player);
                         }
                         return true;
                     }
                 }
             } else {
-                return abilityEffectData.isSpectating();
+                return abilityEffectData.spectatingId().isPresent();
             }
         }
         return false;
     }
 
     private void stopSpectation(Entity performer) {
-        performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withSpectation(false, Optional.empty(), Optional.empty(), Optional.empty(), false).save(performer, true);
+        performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withSpectation(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), false).save(performer, true);
         if (performer instanceof ServerPlayer player) {
             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.empty()), player);
         }

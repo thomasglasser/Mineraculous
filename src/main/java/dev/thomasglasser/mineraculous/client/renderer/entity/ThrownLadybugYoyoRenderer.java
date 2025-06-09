@@ -156,7 +156,9 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
                 || lastMaxLength != maxLength;
     }
 
-    // TODO: Fix to make better and account for speed and other things that alter hand pos
+    // TODO:
+    //  Fix to make better and account for speed and other things that alter hand pos
+    //  and fix crashing on a dedicated server
     @SuppressWarnings("ConstantValue")
     public static Vec3 getPlayerHandPos(Player player, float swingAngle, float partialTick, boolean offHand) {
         int armMultiplier = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;

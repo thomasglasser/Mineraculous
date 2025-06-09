@@ -346,8 +346,6 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 }
             }
             recall();
-        } else if (ability == LadybugYoyoItem.Ability.LASSO) {
-            // TODO: Lasso mode more like lead
         } else if (ability == LadybugYoyoItem.Ability.PURIFY && entity instanceof Kamiko kamiko && level() instanceof ServerLevel serverLevel) {
             ResolvableProfile profile = getPickupItemStackOrigin().get(DataComponents.PROFILE);
             Player yoyoOwner = profile != null ? serverLevel.getPlayerByUUID(profile.id().orElse(profile.gameProfile().getId())) : null;
@@ -403,7 +401,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         float f = p.getAttackAnim(0);
         float f1 = Mth.sin(Mth.sqrt(f) * 3.1415927F);
 
-        // TODO: Fix dedicated server crash
+        // TODO: Improve
         Vec3 vec3 = ThrownLadybugYoyoRenderer.getPlayerHandPos(p, f1, 0, !p.getMainHandItem().is(MineraculousItems.LADYBUG_YOYO));
         Vec3 fromProjectileToHand = new Vec3(vec3.x - this.getX(), vec3.y - this.getY(), vec3.z - this.getZ());
         setRenderMaxRopeLength((float) fromProjectileToHand.length());

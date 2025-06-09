@@ -18,7 +18,6 @@ import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownCatStaffRende
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownLadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.BetaTesterLayer;
 import dev.thomasglasser.mineraculous.client.renderer.entity.layers.FaceMaskLayer;
-import dev.thomasglasser.mineraculous.client.renderer.entity.layers.KwamiOnShoulderLayer;
 import dev.thomasglasser.mineraculous.client.renderer.item.MineraculousItemProperties;
 import dev.thomasglasser.mineraculous.client.renderer.item.MiraculousItemRenderer;
 import dev.thomasglasser.mineraculous.client.renderer.item.curio.ContextDependentCurioRenderer;
@@ -215,7 +214,6 @@ public class MineraculousClientEvents {
 
             if (player != null) {
                 player.addLayer(new FaceMaskLayer<>(player, models));
-                player.addLayer(new KwamiOnShoulderLayer<>(player));
                 player.addLayer(new BetaTesterLayer<>(player, models));
             }
         }

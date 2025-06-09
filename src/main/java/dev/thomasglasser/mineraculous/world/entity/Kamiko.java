@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.world.entity;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.network.ClientboundOpenKamikotizationSelectionScreenPayload;
-import dev.thomasglasser.mineraculous.network.ClientboundRequestSyncKamikotizationLooksPayload;
 import dev.thomasglasser.mineraculous.network.ClientboundSyncInventoryPayload;
 import dev.thomasglasser.mineraculous.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
@@ -11,7 +10,6 @@ import dev.thomasglasser.mineraculous.world.damagesource.MineraculousDamageTypes
 import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
 import dev.thomasglasser.mineraculous.world.entity.ability.TemptingAbility;
 import dev.thomasglasser.mineraculous.world.entity.ai.sensing.PlayerItemTemptingSensor;
-import dev.thomasglasser.mineraculous.world.entity.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;

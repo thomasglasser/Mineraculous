@@ -31,28 +31,29 @@ public record KamikoControlAbility(Optional<ResourceLocation> shader, Optional<R
                 stopKamikoControl(performer);
                 return true;
             } else if (data.powerActive()) {
-                if (abilityEffectData.isSpectating()) {
+                if (abilityEffectData.spectatingId().isPresent()) {
                     stopKamikoControl(performer);
                     return true;
                 } else {
                     List<? extends Kamiko> kamikos = level.getEntities(EntityTypeTest.forClass(Kamiko.class), kamiko -> performer.getUUID().equals(kamiko.getOwnerUUID()));
                     if (!kamikos.isEmpty()) {
-                        abilityEffectData.withKamikoControl(true, shader, faceMaskTexture).save(performer, true);
+                        Kamiko target = kamikos.getFirst();
+                        abilityEffectData.withKamikoControl(Optional.of(target.getUUID()), shader, faceMaskTexture).save(performer, true);
                         if (performer instanceof ServerPlayer player) {
-                            TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.of(kamikos.getFirst().getId()), shader), player);
+                            TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.of(target.getId()), shader), player);
                         }
                         return true;
                     }
                 }
             } else {
-                return abilityEffectData.isSpectating();
+                return abilityEffectData.spectatingId().isPresent();
             }
         }
         return false;
     }
 
     private void stopKamikoControl(Entity performer) {
-        performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withKamikoControl(false, Optional.empty(), Optional.empty()).save(performer, true);
+        performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withKamikoControl(Optional.empty(), Optional.empty(), Optional.empty()).save(performer, true);
         if (performer instanceof ServerPlayer player) {
             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.empty()), player);
         }

@@ -84,11 +84,11 @@ public class Abilities {
                                 Optional.empty(),
                                 Optional.of(ItemPredicate.Builder.item().of(MineraculousItemTags.CATACLYSM_IMMUNE).build()))))))));
         context.register(CAT_VISION, new AutomaticNightVisionAbility(Optional.of(ResourceLocation.withDefaultNamespace("shaders/post/creeper.json"))));
-        context.register(PASSIVE_UNLUCK, new PassiveEffectsAbility(HolderSet.direct(MobEffects.UNLUCK), 1));
+        context.register(PASSIVE_UNLUCK, new PassiveEffectsAbility(HolderSet.direct(MobEffects.UNLUCK), 0));
 
         // Ladybug
         context.register(LUCKY_CHARM, new SummonTargetDependentLuckyCharmAbility(true));
         context.register(MIRACULOUS_LADYBUG, RevertLuckyCharmTargetsAbilityEffectsAbility.INSTANCE);
-        context.register(PASSIVE_LUCK, new PassiveEffectsAbility(HolderSet.direct(MobEffects.LUCK), 1));
+        context.register(PASSIVE_LUCK, new PassiveEffectsAbility(HolderSet.direct(MobEffects.LUCK), 0));
     }
 }

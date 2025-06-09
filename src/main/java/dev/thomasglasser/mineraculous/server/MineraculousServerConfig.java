@@ -38,7 +38,7 @@ public class MineraculousServerConfig {
         enableMiraculousTimer = builder
                 .define("enable_miraculous_timer", true);
         miraculousTimerDuration = builder
-                .defineInRange("miraculous_timer_duration", 60 * 5, 10, 60 * 10);
+                .defineInRange("miraculous_timer_duration", 60 * 5, 1, 60 * 10);
         enableLimitedPower = builder
                 .define("enable_limited_power", true);
         enableKamikotizationRejection = builder

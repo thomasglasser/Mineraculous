@@ -17,8 +17,10 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
@@ -61,6 +63,9 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
                     for (Holder<MobEffect> mobEffect : effects) {
                         MobEffectInstance effect = new MobEffectInstance(mobEffect, -1, (data.powerLevel() / 10));
                         livingEntity.addEffect(effect);
+                        for (ServerPlayer player : level.players()) {
+                            player.connection.send(new ClientboundUpdateMobEffectPacket(livingEntity.getId(), effect, false));
+                        }
                     }
                 }
             } else if (target instanceof VehicleEntity vehicle) {

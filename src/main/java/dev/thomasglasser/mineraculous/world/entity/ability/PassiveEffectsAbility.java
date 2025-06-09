@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 public record PassiveEffectsAbility(HolderSet<MobEffect> effects, int startLevel) implements Ability {
     public static final MapCodec<PassiveEffectsAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             HolderSetCodec.create(Registries.MOB_EFFECT, MobEffect.CODEC, false).fieldOf("effects").forGetter(PassiveEffectsAbility::effects),
-            ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("start_level", 1).forGetter(PassiveEffectsAbility::startLevel)).apply(instance, PassiveEffectsAbility::new));
+            ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("start_level", 0).forGetter(PassiveEffectsAbility::startLevel)).apply(instance, PassiveEffectsAbility::new));
 
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {

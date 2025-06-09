@@ -52,7 +52,7 @@ import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.enchantment.Enchantments;
 import org.jetbrains.annotations.Nullable;
 
-public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData> curiosData, boolean transformed, Optional<Either<Integer, Integer>> transformationFrames, Optional<Integer> remainingTicks, int toolId, int powerLevel, boolean powerActive, boolean mainPowerUsed, List<CompoundTag> storedEntities) {
+public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData> curiosData, boolean transformed, Optional<Either<Integer, Integer>> transformationFrames, Optional<Integer> remainingTicks, int toolId, int powerLevel, boolean powerActive, boolean countdownStarted, List<CompoundTag> storedEntities) {
 
     public static final String CHARGED_TRUE = "miraculous.charged.true";
     public static final String CHARGED_FALSE = "miraculous.charged.false";
@@ -68,7 +68,7 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
             Codec.INT.fieldOf("tool_id").forGetter(MiraculousData::toolId),
             Codec.INT.fieldOf("power_level").forGetter(MiraculousData::powerLevel),
             Codec.BOOL.fieldOf("power_active").forGetter(MiraculousData::powerActive),
-            Codec.BOOL.fieldOf("main_power_used").forGetter(MiraculousData::mainPowerUsed),
+            Codec.BOOL.fieldOf("countdown_started").forGetter(MiraculousData::countdownStarted),
             CompoundTag.CODEC.listOf().optionalFieldOf("stored_entities", new ObjectArrayList<>()).forGetter(MiraculousData::storedEntities)).apply(instance, MiraculousData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousData> STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
@@ -80,7 +80,7 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
             ByteBufCodecs.INT, MiraculousData::toolId,
             ByteBufCodecs.INT, MiraculousData::powerLevel,
             ByteBufCodecs.BOOL, MiraculousData::powerActive,
-            ByteBufCodecs.BOOL, MiraculousData::mainPowerUsed,
+            ByteBufCodecs.BOOL, MiraculousData::countdownStarted,
             ByteBufCodecs.COMPOUND_TAG.apply(ByteBufCodecs.list()), MiraculousData::storedEntities,
             MiraculousData::new);
     public MiraculousData() {
@@ -256,23 +256,26 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
 
                 Optional<Integer> remainingTicks = this.remainingTicks;
 
-                if (remainingTicks.isPresent()) {
+                if (remainingTicks.isPresent() && MineraculousServerConfig.get().enableMiraculousTimer.get()) {
                     if (remainingTicks.get() <= 0) {
                         level.playSound(null, entity, value.timerEndSound().value(), entity.getSoundSource(), 1, 1);
                         detransform(entity, level, miraculous, false);
                         return;
                     } else {
                         remainingTicks = remainingTicks.map(i -> i - 1);
-                        int maxTicks = MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND;
                         int ticks = remainingTicks.get();
                         int seconds = ticks / SharedConstants.TICKS_PER_SECOND;
-                        int minutes = seconds / 60;
                         if (seconds < 10) {
-                            if (ticks % 10 == 0) {
+                            if (ticks % 4 == 0) {
                                 level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.timerWarningSound().value(), entity.getSoundSource(), 1, 1);
                             }
-                        } else if (ticks % SharedConstants.TICKS_PER_MINUTE <= minutes * 5 && ticks % 5 == 0) {
-                            level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.timerWarningSound().value(), entity.getSoundSource(), 1, 1);
+                        } else {
+                            int maxSeconds = MineraculousServerConfig.get().miraculousTimerDuration.get();
+                            int threshold = Math.max(maxSeconds / 5, 1);
+                            int frame = seconds / threshold + 1;
+                            if (seconds % threshold == 0 && ticks % (20 / frame + (frame > 3 ? 2 : 3)) == 0) {
+                                level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.timerWarningSound().value(), entity.getSoundSource(), 1, 1);
+                            }
                         }
                     }
                     if (curiosData.isPresent() && entity instanceof LivingEntity livingEntity) {
@@ -280,6 +283,8 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
                         stack.set(MineraculousDataComponents.REMAINING_TICKS, remainingTicks.get());
                         CuriosUtils.setStackInSlot(livingEntity, curiosData.get(), stack);
                     }
+                } else {
+                    remainingTicks = Optional.empty();
                 }
 
                 if (entity instanceof LivingEntity livingEntity) {
@@ -292,21 +297,21 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
                 }
 
                 boolean powerActive = this.powerActive;
-                boolean mainPowerUsed = this.mainPowerUsed;
+                boolean countdownStarted = this.countdownStarted;
                 AbilityData abilityData = new AbilityData(powerLevel, Either.left(miraculous), powerActive);
                 boolean overrideActive = AbilityUtils.performPassiveAbilities(level, entity, abilityData, null, miraculous.value().passiveAbilities());
                 if (powerActive && overrideActive) {
                     powerActive = false;
-                } else if (powerActive && !mainPowerUsed) {
+                } else if (powerActive && !countdownStarted) {
                     boolean consumeMainPower = AbilityUtils.performActiveAbility(level, entity, abilityData, null, Optional.of(miraculous.value().activeAbility()));
                     if (consumeMainPower) {
                         powerActive = false;
-                        mainPowerUsed = true;
+                        countdownStarted = true;
                     }
                     remainingTicks = remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND));
                 }
 
-                tickTransformed(remainingTicks, powerActive, mainPowerUsed).save(miraculous, entity, true);
+                tickTransformed(remainingTicks, powerActive, countdownStarted).save(miraculous, entity, true);
             }
         });
     }
@@ -316,7 +321,7 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
         boolean overrideActive = AbilityUtils.performPassiveAbilities(level, entity, abilityData, abilityContext, miraculous.value().passiveAbilities());
         if (powerActive && overrideActive) {
             withPowerActive(false).save(miraculous, entity, true);
-        } else if (powerActive && !mainPowerUsed) {
+        } else if (powerActive && !countdownStarted) {
             boolean consumeMainPower = AbilityUtils.performActiveAbility(level, entity, abilityData, abilityContext, Optional.of(miraculous.value().activeAbility()));
             if (consumeMainPower) {
                 if (abilityContext != null && entity instanceof ServerPlayer player) {
@@ -392,20 +397,20 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
         return new MiraculousData(kwamiData, curiosData, false, Optional.empty(), Optional.empty(), toolId, powerLevel, false, false, storedEntities);
     }
 
-    private MiraculousData tickTransformed(Optional<Integer> remainingTicks, boolean powerActive, boolean mainPowerUsed) {
-        return new MiraculousData(kwamiData, curiosData, transformed, transformationFrames, remainingTicks, toolId, powerLevel, powerActive, mainPowerUsed, storedEntities);
+    private MiraculousData tickTransformed(Optional<Integer> remainingTicks, boolean powerActive, boolean countdownStarted) {
+        return new MiraculousData(kwamiData, curiosData, transformed, transformationFrames, remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
     }
 
     private MiraculousData decrementTransformationFrames() {
-        return new MiraculousData(kwamiData, curiosData, transformed, transformationFrames.map(either -> either.mapLeft(frames -> frames - 1)), remainingTicks, toolId, powerLevel, powerActive, mainPowerUsed, storedEntities);
+        return new MiraculousData(kwamiData, curiosData, transformed, transformationFrames.map(either -> either.mapLeft(frames -> frames - 1)), remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
     }
 
     private MiraculousData decrementDetransformationFrames() {
-        return new MiraculousData(kwamiData, curiosData, transformed, transformationFrames.map(either -> either.mapRight(frames -> frames - 1)), remainingTicks, toolId, powerLevel, powerActive, mainPowerUsed, storedEntities);
+        return new MiraculousData(kwamiData, curiosData, transformed, transformationFrames.map(either -> either.mapRight(frames -> frames - 1)), remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
     }
 
     private MiraculousData clearTransformationFrames() {
-        return new MiraculousData(kwamiData, curiosData, transformed, Optional.empty(), remainingTicks, toolId, powerLevel, powerActive, mainPowerUsed, storedEntities);
+        return new MiraculousData(kwamiData, curiosData, transformed, Optional.empty(), remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
     }
 
     private MiraculousData usedMainPower(boolean consume) {
@@ -413,7 +418,7 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
     }
 
     private MiraculousData withToolId(int toolId) {
-        return new MiraculousData(kwamiData, curiosData, transformed, transformationFrames, remainingTicks, toolId, powerLevel, powerActive, mainPowerUsed, storedEntities);
+        return new MiraculousData(kwamiData, curiosData, transformed, transformationFrames, remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
     }
 
     public MiraculousData equip(KwamiData kwamiData, CuriosData curiosData) {
@@ -425,15 +430,15 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
     }
 
     public MiraculousData withPowerActive(boolean powerActive) {
-        return new MiraculousData(kwamiData, curiosData, transformed, transformationFrames, remainingTicks, toolId, powerLevel, powerActive, mainPowerUsed, storedEntities);
+        return new MiraculousData(kwamiData, curiosData, transformed, transformationFrames, remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
     }
 
     public MiraculousData withKwamiData(Optional<KwamiData> kwamiData) {
-        return new MiraculousData(kwamiData, curiosData, transformed, transformationFrames, remainingTicks, toolId, powerLevel, powerActive, mainPowerUsed, storedEntities);
+        return new MiraculousData(kwamiData, curiosData, transformed, transformationFrames, remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
     }
 
     public MiraculousData withPowerLevel(int powerLevel) {
-        return new MiraculousData(kwamiData, curiosData, transformed, transformationFrames, remainingTicks, toolId, powerLevel, powerActive, mainPowerUsed, storedEntities);
+        return new MiraculousData(kwamiData, curiosData, transformed, transformationFrames, remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
     }
 
     public void save(Holder<Miraculous> miraculous, Entity entity, boolean sync) {

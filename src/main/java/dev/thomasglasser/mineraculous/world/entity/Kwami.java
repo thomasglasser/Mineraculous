@@ -255,11 +255,9 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (player.getUUID().equals(getOwnerUUID())) {
-            if (player instanceof ServerPlayer serverPlayer) {
-                ItemStack stack = player.getItemInHand(hand);
-                if (stack.isEmpty()) {
-                    // TODO: Put kwami in item mode in hand
-                } else {
+            ItemStack stack = player.getItemInHand(hand);
+            if (!stack.isEmpty()) {
+                if (player instanceof ServerPlayer serverPlayer) {
                     KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
                     if (serverPlayer.serverLevel().players().size() > 1 && stack.is(MineraculousItems.MIRACULOUS) && kwamiData != null && kwamiData.uuid().equals(getUUID())) {
                         TommyLibServices.NETWORK.sendToClient(new ClientboundOpenMiraculousTransferScreenPayload(getId()), serverPlayer);
@@ -279,8 +277,8 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
                         }
                     }
                 }
+                return InteractionResult.sidedSuccess(level().isClientSide);
             }
-            return InteractionResult.sidedSuccess(level().isClientSide);
         }
         return InteractionResult.FAIL;
     }

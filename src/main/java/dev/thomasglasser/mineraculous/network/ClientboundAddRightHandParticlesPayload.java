@@ -34,7 +34,7 @@ public record ClientboundAddRightHandParticlesPayload(int id, ParticleOptions pa
                 randomShiftForward = -randomShiftForward;
             if (level.random.nextBoolean())
                 randomShiftRight = -randomShiftRight;
-            // TODO: Improve particle positioning
+            // TODO: Improve
             Vec3 handPos = ThrownLadybugYoyoRenderer.getPlayerHandPos(player, 0, 0, false);
             entity.level().addParticle(particle, handPos.x + 0.1 + randomShiftForward, handPos.y + -0.1 - randomShiftUp, handPos.z + 0.23 + randomShiftRight, 0, 0, 0);
         }

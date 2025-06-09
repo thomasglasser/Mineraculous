@@ -33,7 +33,6 @@ public record ServerboundOpenVictimKamikotizationChatScreenPayload(UUID targetId
             player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.of(kamikotizationData.kamikoData().owner()), kamikotizationData.kamikoData().faceMaskTexture()).save(player, true);
             TommyLibServices.NETWORK.sendToClient(new ClientboundOpenVictimKamikotizationChatScreenPayload(player.getUUID(), kamikotizationData, slotInfo), target);
             target.level().playSound(null, target.blockPosition(), MineraculousSoundEvents.KAMIKOTIZATION_USE.get(), SoundSource.PLAYERS, 1f, 1f);
-            // TODO: Turn item purple/black?
         }
     }
 

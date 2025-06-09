@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.renderer.texture.DynamicAutoGlowingTexture;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItemDisplayContexts;
@@ -99,20 +100,21 @@ public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
         ItemStack stack = getCurrentItemStack();
         if (stack != null) {
             if (stack.has(MineraculousDataComponents.POWERED)) {
-                int ticks = stack.getOrDefault(MineraculousDataComponents.REMAINING_TICKS, 0);
-                final int second = ticks / SharedConstants.TICKS_PER_SECOND;
-                final int minute = ticks / SharedConstants.TICKS_PER_MINUTE + 1;
                 ResourceLocation powered = super.getTextureLocation(animatable).withPath(path -> path.replace("hidden", "powered"));
-                // TODO: Adapt to config value
-                if (ticks > 0 && ticks < SharedConstants.TICKS_PER_MINUTE * 5) {
-                    // Blinks every other second
-                    if (second % 2 == 0)
-                        return super.getTextureLocation(animatable).withPath(path -> path.replace("hidden", "powered_" + (minute - 1)));
-                    // The first blink level should reference the normal powered model
-                    else if (minute == 5) {
+                Integer remainingTicks = stack.get(MineraculousDataComponents.REMAINING_TICKS);
+                if (remainingTicks != null) {
+                    int seconds = remainingTicks / SharedConstants.TICKS_PER_SECOND;
+                    int maxSeconds = MineraculousServerConfig.get().miraculousTimerDuration.get();
+                    int threshold = Math.max(maxSeconds / 5, 1);
+                    int frame = seconds / threshold + 1;
+                    if (seconds % 2 == 0) {
+                        // Blinks every other second
+                        return super.getTextureLocation(animatable).withPath(path -> path.replace("hidden", "powered_" + (Math.max(frame - 1, 0))));
+                    } else if (frame >= 5) {
+                        // The first blink level should reference the normal powered model
                         return powered;
                     } else {
-                        return super.getTextureLocation(animatable).withPath(path -> path.replace("hidden", "powered_" + minute));
+                        return super.getTextureLocation(animatable).withPath(path -> path.replace("hidden", "powered_" + frame));
                     }
                 } else {
                     return powered;

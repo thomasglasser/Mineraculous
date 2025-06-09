@@ -156,16 +156,6 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                                 thrownYoyo.discard();
                                 throwYoyo(stack, pPlayer, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY), pHand);
                                 pPlayer.getCooldowns().addCooldown(this, 5);
-                            } else if (ability == LadybugYoyoItem.Ability.LASSO) {
-                                List<Entity> entities = serverLevel.getEntities(thrownYoyo.getOwner(), thrownYoyo.getBoundingBox().inflate(2, 1, 2), entity -> entity != thrownYoyo);
-                                for (Entity entity : entities) {
-                                    // TODO: Fix
-//                                    CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(entity);
-//                                    entityData.remove(MineraculousEntityEvents.TAG_YOYO_BOUND_POS);
-//                                    TommyLibServices.ENTITY.setPersistentData(entity, entityData, true);
-                                }
-//                                thrownYoyo.clearBoundPos();
-                                recallYoyo(pPlayer);
                             } else {
                                 recallYoyo(pPlayer);
                             }
@@ -246,18 +236,6 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                                 player.hurtMarked = true;
                                 data.startSafeFall().save(player, true);
                             }
-                        } else if (thrownYoyo.getAbility() == LadybugYoyoItem.Ability.LASSO) {
-                            List<Entity> entities = serverLevel.getEntities(thrownYoyo.getOwner(), thrownYoyo.getBoundingBox().inflate(2, 1, 2), e -> e != thrownYoyo);
-                            for (Entity e : entities) {
-                                // TODO: Fix
-//                                CompoundTag entityData = TommyLibServices.ENTITY.getPersistentData(e);
-//                                entityData.remove(MineraculousEntityEvents.TAG_YOYO_BOUND_POS);
-//                                TommyLibServices.ENTITY.setPersistentData(e, entityData, true);
-                                Vec3 fromEntityToPlayer = new Vec3(entity.getX() - e.getX(), entity.getY() - e.getY(), entity.getZ() - e.getZ());
-                                e.setDeltaMovement(fromEntityToPlayer.scale(0.2));
-                                e.hurtMarked = true;
-                            }
-//                            thrownYoyo.clearBoundPos();
                         }
                         recallYoyo(player);
                     }

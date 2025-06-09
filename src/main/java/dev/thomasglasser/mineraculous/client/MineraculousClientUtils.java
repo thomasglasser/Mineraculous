@@ -79,7 +79,7 @@ public class MineraculousClientUtils {
     }
 
     public static boolean renderDevLayer(AbstractClientPlayer player) {
-        return specialPlayerData.get(player) != null && specialPlayerData.get(player).displayDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD/*TODO:Figure out slot*/);
+        return specialPlayerData.get(player) != null && specialPlayerData.get(player).displayDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
     }
 
     public static boolean renderLegacyDevLayer(AbstractClientPlayer player) {

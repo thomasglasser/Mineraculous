@@ -337,7 +337,7 @@ public class KamikotizationSelectionScreen extends Screen {
                 @Override
                 public boolean canPickUp(Slot slot, Player target, AbstractContainerMenu menu) {
                     ItemStack stack = slot.getItem();
-                    return selectedKamikotization.value().itemPredicate().test(stack) && !stack.has(MineraculousDataComponents.KAMIKOTIZATION);
+                    return !stack.isEmpty() && selectedKamikotization.value().itemPredicate().test(stack) && !stack.has(MineraculousDataComponents.KAMIKOTIZATION);
                 }
 
                 @Override

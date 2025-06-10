@@ -1,12 +1,10 @@
 package dev.thomasglasser.mineraculous.world.level.storage.loot.providers.number;
 
-import com.google.common.collect.Sets;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.world.level.storage.loot.parameters.MineraculousLootContextParams;
-import java.util.Set;
-
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import java.util.Set;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 import net.minecraft.world.level.storage.loot.providers.number.LootNumberProviderType;
@@ -15,8 +13,7 @@ import net.minecraft.world.level.storage.loot.providers.number.NumberProviders;
 
 public record PowerLevelMultiplierGenerator(NumberProvider base) implements NumberProvider {
     public static final MapCodec<PowerLevelMultiplierGenerator> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            NumberProviders.CODEC.fieldOf("base").forGetter(PowerLevelMultiplierGenerator::base)
-    ).apply(instance, PowerLevelMultiplierGenerator::new));
+            NumberProviders.CODEC.fieldOf("base").forGetter(PowerLevelMultiplierGenerator::base)).apply(instance, PowerLevelMultiplierGenerator::new));
 
     @Override
     public LootNumberProviderType getType() {

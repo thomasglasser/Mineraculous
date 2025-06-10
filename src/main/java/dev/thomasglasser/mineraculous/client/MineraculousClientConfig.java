@@ -36,6 +36,7 @@ public class MineraculousClientConfig {
         builder.push(RADIAL_MENU);
         animationSpeed = builder
                 .defineInRange("animation_speed", 10, 1, 20);
+        builder.pop();
 
         configSpec = builder.build();
     }

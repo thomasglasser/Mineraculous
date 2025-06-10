@@ -237,6 +237,7 @@ public class MineraculousClientEvents {
             MiraculousItemRenderer.clearModels();
             MiraculousArmorItemRenderer.clearModels();
             KamikotizationArmorItemRenderer.clearModels();
+            MineraculousClientUtils.refreshCataclysmPixels();
         });
     }
 

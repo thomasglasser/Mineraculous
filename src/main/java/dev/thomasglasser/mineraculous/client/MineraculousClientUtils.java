@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import com.mojang.datafixers.util.Either;
+import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.gui.screens.LookCustomizationScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.MiraculousTransferScreen;
 import dev.thomasglasser.mineraculous.client.gui.screens.RadialMenuScreen;
@@ -30,6 +31,8 @@ import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -43,10 +46,13 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -63,27 +69,28 @@ public class MineraculousClientUtils {
     public static final String CHOOSE = "gui.choose";
     public static final String NAME = "gui.name";
 
-    // Special Player Handling
-    private static final Map<Player, SpecialPlayerData> specialPlayerData = new Reference2ReferenceOpenHashMap<>();
+    private static final Map<Player, SpecialPlayerData> SPECIAL_PLAYER_DATA = new Reference2ReferenceOpenHashMap<>();
+    private static final IntList CATACLYSM_PIXELS = new IntArrayList();
 
+    // Special Player Handling
     public static void setSpecialPlayerData(Player player, SpecialPlayerData data) {
-        specialPlayerData.put(player, data);
+        SPECIAL_PLAYER_DATA.put(player, data);
     }
 
     public static boolean renderBetaTesterLayer(AbstractClientPlayer player) {
-        return specialPlayerData.get(player) != null && specialPlayerData.get(player).displayBeta() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, betaChoice(player).slot());
+        return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayBeta() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, betaChoice(player).slot());
     }
 
     public static BetaTesterCosmeticOptions betaChoice(AbstractClientPlayer player) {
-        return specialPlayerData.get(player) != null ? specialPlayerData.get(player).choice() : BetaTesterCosmeticOptions.DERBY_HAT;
+        return SPECIAL_PLAYER_DATA.get(player) != null ? SPECIAL_PLAYER_DATA.get(player).choice() : BetaTesterCosmeticOptions.DERBY_HAT;
     }
 
     public static boolean renderDevLayer(AbstractClientPlayer player) {
-        return specialPlayerData.get(player) != null && specialPlayerData.get(player).displayDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
+        return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
     }
 
     public static boolean renderLegacyDevLayer(AbstractClientPlayer player) {
-        return specialPlayerData.get(player) != null && specialPlayerData.get(player).displayLegacyDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
+        return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayLegacyDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
     }
 
     public static void syncSpecialPlayerChoices() {
@@ -217,6 +224,42 @@ public class MineraculousClientUtils {
             return VertexMultiConsumer.create(bufferSource.getBuffer(armor ? MineraculousRenderTypes.armorLuckyCharm() : MineraculousRenderTypes.itemLuckyCharm()), buffer);
         }
         return buffer;
+    }
+
+    public static int getCataclysmPixel(RandomSource random) {
+        return CATACLYSM_PIXELS.getInt(random.nextInt(CATACLYSM_PIXELS.size()));
+    }
+
+    public static void refreshCataclysmPixels() {
+        CATACLYSM_PIXELS.clear();
+        try (AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(Mineraculous.modLoc("textures/entity/cataclysm.png"))) {
+            NativeImage image;
+            if (texture instanceof SimpleTexture simpleTexture) {
+                image = simpleTexture.getTextureImage(Minecraft.getInstance().getResourceManager()).getImage();
+            } else if (texture instanceof DynamicTexture dynamicTexture) {
+                image = dynamicTexture.getPixels();
+            } else {
+                throw new IllegalStateException("Invalid cataclysm texture");
+            }
+            if (image != null) {
+                int width = image.getWidth();
+                int height = image.getHeight();
+                for (int x = 0; x < width; x++) {
+                    for (int y = 0; y < height; y++) {
+                        int pixelRGBA = image.getPixelRGBA(x, y);
+                        if (pixelRGBA != 0x00000000)
+                            CATACLYSM_PIXELS.add(pixelRGBA);
+                    }
+                }
+                if (CATACLYSM_PIXELS.isEmpty()) {
+                    throw new IllegalStateException("Cataclysm texture cannot be empty");
+                }
+            } else {
+                throw new IllegalStateException("Invalid cataclysm texture");
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to load cataclysm texture", e);
+        }
     }
 
     // IO

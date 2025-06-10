@@ -2,8 +2,9 @@ package dev.thomasglasser.mineraculous.mixin.minecraft.client.renderer.entity;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.platform.NativeImage;
+import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.world.effect.MineraculousMobEffects;
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -22,6 +23,8 @@ import org.spongepowered.asm.mixin.injection.At;
 public class LivingEntityRendererMixin {
     @Unique
     private static final RandomSource CATACLYSM_RANDOM = RandomSource.create();
+    @Unique
+    private static final List<Vector2i> NON_EMPTY_PIXELS = new ReferenceArrayList<>();
 
     @Unique
     private int mineraculous$lastEntityId;
@@ -45,27 +48,22 @@ public class LivingEntityRendererMixin {
                         return original;
                     }
                     if (image != null) {
-                        List<Vector2i> nonEmpty = new ArrayList<>();
+                        NON_EMPTY_PIXELS.clear();
 
                         int width = image.getWidth();
                         int height = image.getHeight();
                         for (int x = 0; x < width; x++) {
                             for (int y = 0; y < height; y++) {
                                 if (image.getPixelRGBA(x, y) != 0x00000000)
-                                    nonEmpty.add(new Vector2i(x, y));
+                                    NON_EMPTY_PIXELS.add(new Vector2i(x, y));
                             }
                         }
 
-                        int pixelsToCataclysm = (int) (nonEmpty.size() * (((livingEntity.getMaxHealth() - mineraculous$lastHealth) / livingEntity.getMaxHealth())));
+                        int pixelsToCataclysm = (int) (NON_EMPTY_PIXELS.size() * (((livingEntity.getMaxHealth() - mineraculous$lastHealth) / livingEntity.getMaxHealth())));
                         CATACLYSM_RANDOM.setSeed(livingEntity.getUUID().getMostSignificantBits());
                         for (int i = 0; i < pixelsToCataclysm; i++) {
-                            Vector2i pixel = nonEmpty.remove(CATACLYSM_RANDOM.nextInt(nonEmpty.size()));
-                            int cataclysmColor = switch (CATACLYSM_RANDOM.nextInt(4)) {
-                                case 1 -> 0xFF241D28;
-                                case 2 -> 0xFF352E39;
-                                case 3 -> 0xFF403944;
-                                default -> 0xFF211A25;
-                            };
+                            Vector2i pixel = NON_EMPTY_PIXELS.remove(CATACLYSM_RANDOM.nextInt(NON_EMPTY_PIXELS.size()));
+                            int cataclysmColor = MineraculousClientUtils.getCataclysmPixel(CATACLYSM_RANDOM);
                             image.setPixelRGBA(pixel.x, pixel.y, cataclysmColor);
                         }
                         Minecraft.getInstance().getTextureManager().register(result, new DynamicTexture(image));

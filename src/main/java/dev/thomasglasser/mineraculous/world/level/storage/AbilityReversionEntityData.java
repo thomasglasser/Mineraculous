@@ -6,14 +6,11 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
-
 import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -224,7 +221,7 @@ public class AbilityReversionEntityData extends SavedData {
             for (Map.Entry<UUID, CompoundTag> entry : convertedEntities.row(performer).entrySet()) {
                 CompoundTag entityData = new CompoundTag();
                 entityData.putUUID("UUID", entry.getKey());
-                entityData.put("Data",  entry.getValue());
+                entityData.put("Data", entry.getValue());
                 entities.add(entityData);
             }
             compoundTag.put("Entities", entities);

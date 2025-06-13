@@ -30,6 +30,10 @@ public record AbilityEffectData(Optional<Integer> dragTicks, Optional<ResourceLo
         this(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), false, Optional.empty(), false, Optional.empty());
     }
 
+    public AbilityEffectData reset() {
+        return new AbilityEffectData();
+    }
+
     public AbilityEffectData withDragTicks(Optional<Integer> dragTicks) {
         return new AbilityEffectData(dragTicks, shader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, killCredit);
     }
@@ -48,6 +52,10 @@ public record AbilityEffectData(Optional<Integer> dragTicks, Optional<ResourceLo
 
     public AbilityEffectData withKamikoControl(Optional<UUID> spectatingId, Optional<ResourceLocation> shader, Optional<ResourceLocation> faceMaskTexture) {
         return new AbilityEffectData(dragTicks, shader, faceMaskTexture, spectatingId, false, privateChat, allowRemoteDamage, killCredit);
+    }
+
+    public AbilityEffectData stopKamikoControl(Optional<ResourceLocation> faceMaskTexture) {
+        return new AbilityEffectData(dragTicks, Optional.empty(), faceMaskTexture, Optional.empty(), false, privateChat, allowRemoteDamage, killCredit);
     }
 
     public AbilityEffectData withSpectationInterrupted() {

@@ -42,7 +42,8 @@ public record SpectateEntityAbility(EntityPredicate validEntities, boolean priva
                     List<? extends Entity> entities = level.getEntities(EntityTypeTest.forClass(Entity.class), entity -> validEntities.matches(level, performer.position(), entity));
                     if (!entities.isEmpty()) {
                         Entity target = entities.getFirst();
-                        abilityEffectData.withSpectation(Optional.of(target.getUUID()), shader, faceMaskTexture, privateChat ? Optional.of(performer.getUUID()) : Optional.empty(), allowRemoteDamage).save(performer, true);
+                        abilityEffectData.withSpectation(Optional.of(target.getUUID()), shader, faceMaskTexture, privateChat ? Optional.of(target.getUUID()) : Optional.empty(), allowRemoteDamage).save(performer, true);
+                        abilityEffectData.withPrivateChat(Optional.of(performer.getUUID()), faceMaskTexture).save(target, true);
                         if (performer instanceof ServerPlayer player) {
                             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.of(target.getId())), player);
                         }

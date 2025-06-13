@@ -19,6 +19,8 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdData;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
+
+import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -75,6 +77,7 @@ public class MineraculousEntityEvents {
 //                }
 //            });
 //            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.MIRACULOUSES, entity.getData(MineraculousAttachmentTypes.MIRACULOUSES)), entity.level().getServer());
+            entity.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).reset().save(entity, true);
         }
     }
 
@@ -255,14 +258,20 @@ public class MineraculousEntityEvents {
 
     /// Exit
     public static void onEntityLeaveLevel(EntityLeaveLevelEvent event) {
-        Level level = event.getLevel();
         Entity entity = event.getEntity();
-        if (!level.isClientSide) {
+        if (event.getLevel() instanceof ServerLevel level) {
             entity.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).id().ifPresent(id -> {
                 Entity yoyo = event.getLevel().getEntity(id);
                 if (yoyo != null)
                     yoyo.discard();
                 new ThrownLadybugYoyoData().save(entity, true);
+            });
+            AbilityEffectData abilityEffectData = entity.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
+            abilityEffectData.privateChat().ifPresent(id -> {
+                Entity target = level.getEntity(id);
+                if (target != null) {
+                    target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(target, true);
+                }
             });
         }
     }

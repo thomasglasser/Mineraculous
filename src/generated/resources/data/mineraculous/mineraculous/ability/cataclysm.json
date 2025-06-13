@@ -17,6 +17,11 @@
       "apply_sound": "mineraculous:cataclysm_use",
       "damage_type": "mineraculous:cataclysm",
       "drop_item": "mineraculous:cataclysm_dust",
+      "effect_settings": {
+        "ambient": false,
+        "show_icon": true,
+        "show_particles": false
+      },
       "effects": "mineraculous:cataclysm",
       "override_kill_credit": true
     },

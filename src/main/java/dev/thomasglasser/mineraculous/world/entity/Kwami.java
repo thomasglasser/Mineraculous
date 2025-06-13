@@ -4,6 +4,7 @@ import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.network.ClientboundOpenMiraculousTransferScreenPayload;
 import dev.thomasglasser.mineraculous.sounds.MineraculousSoundEvents;
+import dev.thomasglasser.mineraculous.world.entity.ai.behavior.SetWalkTargetToLikedPlayer;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -39,16 +41,18 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.behavior.SetWalkTargetFromLookTarget;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.animal.FlyingAnimal;
-import net.minecraft.world.entity.animal.ShoulderRidingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
@@ -62,19 +66,19 @@ import net.tslat.smartbrainlib.api.core.behaviour.FirstApplicableBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.misc.Idle;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.move.AvoidEntity;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FloatToSurfaceOfFluid;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowOwner;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowTemptation;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomFlyingTarget;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.target.InvalidateAttackTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToBlock;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetPlayerLookTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetRandomLookTarget;
 import net.tslat.smartbrainlib.api.core.navigation.SmoothFlyingPathNavigation;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.ItemTemptingSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyPlayersSensor;
+import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -85,7 +89,7 @@ import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami>, GeoEntity, FlyingAnimal {
+public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoEntity, FlyingAnimal {
     public static final RawAnimation EAT = RawAnimation.begin().thenPlay("misc.eat");
     public static final RawAnimation HOLD = RawAnimation.begin().thenPlay("misc.hold");
     public static final RawAnimation SIT = RawAnimation.begin().thenPlay("misc.sit");
@@ -112,9 +116,9 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
 
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes()
-                .add(Attributes.MOVEMENT_SPEED, 0.3)
                 .add(Attributes.MAX_HEALTH, 1024)
                 .add(Attributes.FLYING_SPEED, 0.3)
+                .add(Attributes.MOVEMENT_SPEED, 0.3)
                 .add(Attributes.FOLLOW_RANGE, 1024);
     }
 
@@ -143,7 +147,11 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
 
     @Override
     protected PathNavigation createNavigation(Level level) {
-        return new SmoothFlyingPathNavigation(this, level);
+        SmoothFlyingPathNavigation navigation = new SmoothFlyingPathNavigation(this, level);
+        navigation.setCanOpenDoors(false);
+        navigation.setCanFloat(true);
+        navigation.setCanPassDoors(true);
+        return navigation;
     }
 
     @Override
@@ -197,6 +205,17 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
     }
 
     @Override
+    public boolean canPickUpLoot() {
+        return !hasItemInSlot(EquipmentSlot.MAINHAND);
+    }
+
+    @Override
+    public boolean canHoldItem(ItemStack stack) {
+        Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+        return stack.is(MineraculousItems.MIRACULOUS) || miraculous != null && miraculous.is(getMiraculous());
+    }
+
+    @Override
     public List<? extends ExtendedSensor<? extends Kwami>> getSensors() {
         return ObjectArrayList.of(
                 new NearbyPlayersSensor<>(),
@@ -214,16 +233,9 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
     @Override
     public BrainActivityGroup<? extends Kwami> getCoreTasks() {
         return BrainActivityGroup.coreTasks(
-                new InvalidateAttackTarget<>() {
-                    @Override
-                    protected boolean canAttack(LivingEntity entity, LivingEntity target) {
-                        return entity.canBeSeenByAnyone();
-                    }
-                }.invalidateIf(EntityUtils.TARGET_TOO_FAR_PREDICATE),
-                new SetWalkTargetToAttackTarget<>(),
-                new MoveToWalkTarget<>(),
+                new FloatToSurfaceOfFluid<>(),
                 new LookAtTarget<>(),
-                new AvoidEntity<>().noCloserThan(5).stopCaringAfter(10).speedModifier(2f).avoiding(livingEntity -> !livingEntity.getUUID().equals(getOwnerUUID())));
+                new MoveToWalkTarget<>());
     }
 
     @Override
@@ -234,22 +246,12 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
                         new SetPlayerLookTarget<>(),
                         new SetRandomLookTarget<>()),
                 new FirstApplicableBehaviour<>(
-                        new FollowOwner<Kwami>().speedMod(10f).stopFollowingWithin(2).teleportToTargetAfter(8).startCondition(kwami -> kwami.getOwner() != null),
+                        new SetWalkTargetToLikedPlayer<>(),
                         new FollowTemptation<>(),
                         new OneRandomBehaviour<>(
+                                new FollowOwner<>().speedMod(10).stopFollowingWithin(2).teleportToTargetAfter(8),
                                 new SetRandomFlyingTarget<>().flightTargetPredicate((entity, pos) -> pos != null && entity.level().getBlockState(BlockPos.containing(pos)).isAir()),
                                 new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)))));
-    }
-
-    @Override
-    public void setTarget(@Nullable LivingEntity target) {
-        super.setTarget(target);
-        getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, target);
-    }
-
-    @Override
-    public @Nullable LivingEntity getTarget() {
-        return getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(super.getTarget());
     }
 
     @Override
@@ -399,12 +401,11 @@ public class Kwami extends ShoulderRidingEntity implements SmartBrainOwner<Kwami
     @Override
     public void playerTouch(Player player) {
         super.playerTouch(player);
-        if (getTarget() == player && getOwner() == null) {
-            setTarget(null);
+        if (player.getUUID().equals(BrainUtils.getMemory(this, MemoryModuleType.LIKED_PLAYER)) && getOwner() == null) {
+            BrainUtils.setMemory(this, MemoryModuleType.LIKED_PLAYER, null);
             setOwnerUUID(player.getUUID());
-            ItemStack stack = this.getMainHandItem();
-            stack.remove(MineraculousDataComponents.POWERED);
-            player.addItem(stack);
+            player.addItem(getMainHandItem());
+            setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         }
     }
 }

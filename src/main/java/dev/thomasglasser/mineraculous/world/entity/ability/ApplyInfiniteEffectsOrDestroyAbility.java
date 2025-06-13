@@ -34,10 +34,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import org.jetbrains.annotations.Nullable;
 
-public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects, Optional<Item> dropItem, Optional<ResourceKey<DamageType>> damageType, boolean overrideKillCredit, boolean allowBlocking, Optional<Holder<SoundEvent>> applySound) implements Ability {
+public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectSettings effectSettings, Optional<Item> dropItem, Optional<ResourceKey<DamageType>> damageType, boolean overrideKillCredit, boolean allowBlocking, Optional<Holder<SoundEvent>> applySound) implements Ability {
 
     public static final MapCodec<ApplyInfiniteEffectsOrDestroyAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             RegistryCodecs.homogeneousList(Registries.MOB_EFFECT).fieldOf("effects").forGetter(ApplyInfiniteEffectsOrDestroyAbility::effects),
+            EffectSettings.CODEC.optionalFieldOf("effect_settings", EffectSettings.DEFAULT).forGetter(ApplyInfiniteEffectsOrDestroyAbility::effectSettings),
             BuiltInRegistries.ITEM.byNameCodec().optionalFieldOf("drop_item").forGetter(ApplyInfiniteEffectsOrDestroyAbility::dropItem),
             ResourceKey.codec(Registries.DAMAGE_TYPE).optionalFieldOf("damage_type").forGetter(ApplyInfiniteEffectsOrDestroyAbility::damageType),
             Codec.BOOL.optionalFieldOf("override_kill_credit", false).forGetter(ApplyInfiniteEffectsOrDestroyAbility::overrideKillCredit),
@@ -64,7 +65,7 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
                     }
                 } else {
                     for (Holder<MobEffect> mobEffect : effects) {
-                        MobEffectInstance effect = new MobEffectInstance(mobEffect, -1, (data.powerLevel() / 10));
+                        MobEffectInstance effect = new MobEffectInstance(mobEffect, -1, (data.powerLevel() / 10), effectSettings.ambient(), effectSettings.showParticles(), effectSettings.showIcon());
                         livingEntity.addEffect(effect);
                         for (ServerPlayer player : level.players()) {
                             player.connection.send(new ClientboundUpdateMobEffectPacket(livingEntity.getId(), effect, false));
@@ -110,5 +111,14 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
     @Override
     public MapCodec<? extends Ability> codec() {
         return AbilitySerializers.APPLY_INFINITE_EFFECTS_OR_DESTROY.get();
+    }
+
+    public record EffectSettings(boolean ambient, boolean showParticles, boolean showIcon) {
+        public static final EffectSettings DEFAULT = new EffectSettings(false, true, true);
+        public static final Codec<EffectSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.BOOL.fieldOf("ambient").forGetter(EffectSettings::ambient),
+                Codec.BOOL.fieldOf("show_particles").forGetter(EffectSettings::showParticles),
+                Codec.BOOL.fieldOf("show_icon").forGetter(EffectSettings::showIcon)
+        ).apply(instance, EffectSettings::new));
     }
 }

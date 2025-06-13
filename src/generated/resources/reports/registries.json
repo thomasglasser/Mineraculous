@@ -186,6 +186,7 @@
     "mineraculous:generic_timer_warning",
     "mineraculous:generic_transform",
     "mineraculous:kamikotization_activate",
+    "mineraculous:kamikotization_begin",
     "mineraculous:kamikotization_detransform",
     "mineraculous:kamikotization_transform",
     "mineraculous:kamikotized_communication_activate",

@@ -82,6 +82,7 @@ public class Abilities {
                         Optional.of(MineraculousSoundEvents.CATACLYSM_USE)))),
                 Optional.of(Holder.direct(new ApplyInfiniteEffectsOrDestroyAbility(
                         HolderSet.direct(MineraculousMobEffects.CATACLYSM),
+                        new ApplyInfiniteEffectsOrDestroyAbility.EffectSettings(false, false, true),
                         Optional.of(MineraculousItems.CATACLYSM_DUST.get()),
                         Optional.of(MineraculousDamageTypes.CATACLYSM),
                         true,

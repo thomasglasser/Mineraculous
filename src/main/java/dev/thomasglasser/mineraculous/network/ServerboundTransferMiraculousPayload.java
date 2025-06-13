@@ -18,8 +18,10 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.tslat.smartbrainlib.util.BrainUtils;
 
 public record ServerboundTransferMiraculousPayload(Optional<UUID> targetId, int kwamiId) implements ExtendedPacketPayload {
     public static final Type<ServerboundTransferMiraculousPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_transfer_miraculous"));
@@ -34,16 +36,13 @@ public record ServerboundTransferMiraculousPayload(Optional<UUID> targetId, int 
         ItemStack miraculous = player.getMainHandItem();
         MinecraftServer server = player.getServer();
         if (player.level().getEntity(kwamiId) instanceof Kwami kwami && server != null) {
-            Player target;
-            if (targetId.isPresent())
-                target = player.level().getPlayerByUUID(targetId.get());
-            else {
+            Player target = targetId.map(id -> player.level().getPlayerByUUID(id)).orElseGet(() -> {
                 List<ServerPlayer> players = new ReferenceArrayList<>(server.getPlayerList().getPlayers());
                 players.removeIf(p -> p == player || EntityUtils.TARGET_TOO_FAR_PREDICATE.test(kwami, p));
-                target = players.get(player.level().random.nextInt(players.size()));
-            }
+                return players.get(player.level().random.nextInt(players.size()));
+            });
             if (target != null) {
-                kwami.setTarget(target);
+                BrainUtils.setMemory(kwami, MemoryModuleType.LIKED_PLAYER, target.getUUID());
                 kwami.setOwnerUUID(null);
                 miraculous.set(MineraculousDataComponents.POWERED.get(), Unit.INSTANCE);
                 kwami.setItemInHand(InteractionHand.MAIN_HAND, miraculous);

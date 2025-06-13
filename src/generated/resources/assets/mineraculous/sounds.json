@@ -18,11 +18,11 @@
     ],
     "subtitle": "subtitles.ability.kamikotization.activate"
   },
-  "ability.kamikotization.use": {
+  "ability.kamikotized_communication.activate": {
     "sounds": [
-      "mineraculous:ability/kamikotization/use"
+      "mineraculous:ability/kamikotized_communication/activate"
     ],
-    "subtitle": "subtitles.ability.kamikotization.use"
+    "subtitle": "subtitles.ability.kamikotized_communication.activate"
   },
   "ability.lucky_charm.activate": {
     "sounds": [

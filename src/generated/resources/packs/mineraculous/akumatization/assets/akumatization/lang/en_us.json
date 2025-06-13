@@ -63,7 +63,7 @@
   "item.mineraculous.kamikotization_mask": "Akumatization Mask",
   "mineraculous.no_kamikotizations": "No Akumatizations found in world, have you installed any addons?",
   "subtitles.ability.kamikotization.activate": "Akuma powers up",
-  "subtitles.ability.kamikotization.use": "Akumatization begins",
+  "subtitles.ability.kamikotized_communication.activate": "Akumatization begins",
   "subtitles.kamikotization.detransform": "Akumatized player detransforms",
   "subtitles.kamikotization.transform": "Akumatized player transforms"
 }

@@ -17,7 +17,7 @@ public class MineraculousSoundDefinitionsProvider extends ExtendedSoundDefinitio
         add(MineraculousSoundEvents.CATACLYSM_ACTIVATE, 2);
         add(MineraculousSoundEvents.CATACLYSM_USE);
         add(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE);
-        add(MineraculousSoundEvents.KAMIKOTIZATION_USE);
+        add(MineraculousSoundEvents.KAMIKOTIZED_COMMUNICATION_ACTIVATE);
         add(MineraculousSoundEvents.LUCKY_CHARM_ACTIVATE);
         add(MineraculousSoundEvents.MIRACULOUS_LADYBUG_ACTIVATE);
 

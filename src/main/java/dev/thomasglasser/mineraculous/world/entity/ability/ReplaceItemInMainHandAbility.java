@@ -12,7 +12,9 @@ import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionItemDa
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.advancements.critereon.ItemPredicate;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -20,13 +22,15 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakOriginal, Optional<ItemPredicate> validItems, Optional<ItemPredicate> invalidItems) implements Ability {
+public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakOriginal, Optional<ItemPredicate> validItems, Optional<ItemPredicate> invalidItems, Optional<Holder<SoundEvent>> applySound) implements Ability {
 
     public static final MapCodec<ReplaceItemInMainHandAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ItemStack.SINGLE_ITEM_CODEC.optionalFieldOf("replacement", ItemStack.EMPTY).forGetter(ReplaceItemInMainHandAbility::replacement),
             Codec.BOOL.optionalFieldOf("break_original", false).forGetter(ReplaceItemInMainHandAbility::breakOriginal),
             ItemPredicate.CODEC.optionalFieldOf("valid_items").forGetter(ReplaceItemInMainHandAbility::validItems),
-            ItemPredicate.CODEC.optionalFieldOf("invalid_items").forGetter(ReplaceItemInMainHandAbility::invalidItems)).apply(instance, ReplaceItemInMainHandAbility::new));
+            ItemPredicate.CODEC.optionalFieldOf("invalid_items").forGetter(ReplaceItemInMainHandAbility::invalidItems),
+            SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(ReplaceItemInMainHandAbility::applySound)
+    ).apply(instance, ReplaceItemInMainHandAbility::new));
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (context == null && performer instanceof LivingEntity livingEntity) {
@@ -46,6 +50,7 @@ public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakO
                 }
             }
             livingEntity.setItemInHand(InteractionHand.MAIN_HAND, replacement);
+            Ability.playSound(level, performer, applySound);
             return true;
         }
         return false;

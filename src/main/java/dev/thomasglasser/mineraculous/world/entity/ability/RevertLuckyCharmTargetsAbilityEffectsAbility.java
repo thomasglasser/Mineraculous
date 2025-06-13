@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.world.entity.ability;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.ability.context.AbilityContext;
@@ -16,17 +17,21 @@ import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharm;
 import dev.thomasglasser.mineraculous.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
+
+import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-public record RevertLuckyCharmTargetsAbilityEffectsAbility() implements Ability {
-    public static final RevertLuckyCharmTargetsAbilityEffectsAbility INSTANCE = new RevertLuckyCharmTargetsAbilityEffectsAbility();
-    public static final MapCodec<RevertLuckyCharmTargetsAbilityEffectsAbility> CODEC = MapCodec.unit(INSTANCE);
+public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<SoundEvent>> revertSound) implements Ability {
+    public static final MapCodec<RevertLuckyCharmTargetsAbilityEffectsAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            SoundEvent.CODEC.optionalFieldOf("revert_sound").forGetter(RevertLuckyCharmTargetsAbilityEffectsAbility::revertSound)
+    ).apply(instance, RevertLuckyCharmTargetsAbilityEffectsAbility::new));
 
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
@@ -74,6 +79,8 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility() implements Ability 
                         }
                     });
                     LuckyCharmIdData.get(level).incrementLuckyCharmId(performerId);
+                    Ability.playSound(level, performer, revertSound);
+                    return true;
                 }
             }
         }

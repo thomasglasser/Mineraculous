@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,7 +23,9 @@ public record ContextDependentAbility(Optional<Holder<Ability>> blockAbility, Op
     public static final MapCodec<ContextDependentAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Ability.CODEC.optionalFieldOf("block").forGetter(ContextDependentAbility::blockAbility),
             Ability.CODEC.optionalFieldOf("entity").forGetter(ContextDependentAbility::entityAbility),
-            Ability.HOLDER_SET_CODEC.optionalFieldOf("passive", HolderSet.empty()).forGetter(ContextDependentAbility::passiveAbilities)).apply(instance, ContextDependentAbility::new));
+            Ability.HOLDER_SET_CODEC.optionalFieldOf("passive", HolderSet.empty()).forGetter(ContextDependentAbility::passiveAbilities)
+            ).apply(instance, ContextDependentAbility::new));
+
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         switch (context) {

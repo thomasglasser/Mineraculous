@@ -21,6 +21,7 @@ import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
@@ -33,14 +34,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import org.jetbrains.annotations.Nullable;
 
-public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects, Optional<Item> dropItem, Optional<ResourceKey<DamageType>> damageType, boolean overrideKillCredit, boolean allowBlocking) implements Ability {
+public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects, Optional<Item> dropItem, Optional<ResourceKey<DamageType>> damageType, boolean overrideKillCredit, boolean allowBlocking, Optional<Holder<SoundEvent>> applySound) implements Ability {
 
     public static final MapCodec<ApplyInfiniteEffectsOrDestroyAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             RegistryCodecs.homogeneousList(Registries.MOB_EFFECT).fieldOf("effects").forGetter(ApplyInfiniteEffectsOrDestroyAbility::effects),
             BuiltInRegistries.ITEM.byNameCodec().optionalFieldOf("drop_item").forGetter(ApplyInfiniteEffectsOrDestroyAbility::dropItem),
             ResourceKey.codec(Registries.DAMAGE_TYPE).optionalFieldOf("damage_type").forGetter(ApplyInfiniteEffectsOrDestroyAbility::damageType),
             Codec.BOOL.optionalFieldOf("override_kill_credit", false).forGetter(ApplyInfiniteEffectsOrDestroyAbility::overrideKillCredit),
-            Codec.BOOL.optionalFieldOf("allow_blocking", true).forGetter(ApplyInfiniteEffectsOrDestroyAbility::allowBlocking)).apply(instance, ApplyInfiniteEffectsOrDestroyAbility::new));
+            Codec.BOOL.optionalFieldOf("allow_blocking", true).forGetter(ApplyInfiniteEffectsOrDestroyAbility::allowBlocking),
+            SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(ApplyInfiniteEffectsOrDestroyAbility::applySound)
+            ).apply(instance, ApplyInfiniteEffectsOrDestroyAbility::new));
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (context instanceof EntityAbilityContext(Entity target)) {
@@ -86,6 +89,7 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
             if (overrideKillCredit) {
                 target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withKillCredit(Optional.of(performer.getUUID())).save(target, true);
             }
+            Ability.playSound(level, performer, applySound);
             return true;
         }
         return false;

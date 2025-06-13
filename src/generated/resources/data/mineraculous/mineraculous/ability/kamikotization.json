@@ -2,6 +2,7 @@
   "type": "mineraculous:context_dependent",
   "entity": {
     "type": "mineraculous:convert_and_tame",
+    "convert_sound": "mineraculous:kamikotization_activate",
     "new_type": "mineraculous:kamiko",
     "valid_entities": {}
   },

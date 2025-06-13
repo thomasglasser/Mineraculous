@@ -29,6 +29,7 @@ import java.util.UUID;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
@@ -38,9 +39,11 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import org.jetbrains.annotations.Nullable;
 
-public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolInHand) implements Ability {
+public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolInHand, Optional<Holder<SoundEvent>> summonSound) implements Ability {
     public static final MapCodec<SummonTargetDependentLuckyCharmAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Codec.BOOL.optionalFieldOf("require_active_tool_in_hand", false).forGetter(SummonTargetDependentLuckyCharmAbility::requireActiveToolInHand)).apply(instance, SummonTargetDependentLuckyCharmAbility::new));
+            Codec.BOOL.optionalFieldOf("require_active_tool_in_hand", false).forGetter(SummonTargetDependentLuckyCharmAbility::requireActiveToolInHand),
+            SoundEvent.CODEC.optionalFieldOf("summon_sound").forGetter(SummonTargetDependentLuckyCharmAbility::summonSound)
+    ).apply(instance, SummonTargetDependentLuckyCharmAbility::new));
 
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
@@ -49,7 +52,7 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             ItemStack stack = livingEntity.getMainHandItem();
             toolInHand = data.power().map(miraculous -> {
                 KwamiData stackKwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
-                return stackKwamiData != null && performer.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).kwamiData().map(kwamiData -> kwamiData.uuid().equals(stackKwamiData.uuid())).orElse(false) && stack.getOrDefault(MineraculousDataComponents.ACTIVE, true);
+                return miraculous.value().tool().is(stack.getItem()) && stackKwamiData != null && performer.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).kwamiData().map(kwamiData -> kwamiData.uuid().equals(stackKwamiData.uuid())).orElse(false) && stack.getOrDefault(MineraculousDataComponents.ACTIVE, true);
             }, kamikotization -> kamikotization == stack.get(MineraculousDataComponents.KAMIKOTIZATION) && stack.getOrDefault(MineraculousDataComponents.ACTIVE, true));
         }
         if (!requireActiveToolInHand || toolInHand) {
@@ -95,6 +98,7 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             LuckyCharmItemSpawner item = LuckyCharmItemSpawner.create(level, result);
             item.setPos(performer.position().add(0, 4, 0));
             level.addFreshEntity(item);
+            Ability.playSound(level, performer, summonSound);
             return true;
         }
         return false;

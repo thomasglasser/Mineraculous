@@ -1,3 +1,4 @@
 {
-  "type": "mineraculous:revert_lucky_charm_targets_ability_effects"
+  "type": "mineraculous:revert_lucky_charm_targets_ability_effects",
+  "revert_sound": "mineraculous:miraculous_ladybug_activate"
 }

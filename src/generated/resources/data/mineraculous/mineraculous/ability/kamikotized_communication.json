@@ -4,6 +4,7 @@
   "face_mask_texture": "mineraculous:textures/entity/player/face_mask/kamiko.png",
   "private_chat": true,
   "shader": "mineraculous:post_effect/kamiko.json",
+  "start_sound": "mineraculous:kamikotized_communication_activate",
   "valid_entities": {
     "type_specific": {
       "type": "mineraculous:kamikotization"

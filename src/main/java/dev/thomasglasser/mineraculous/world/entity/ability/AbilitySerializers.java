@@ -14,7 +14,6 @@ public class AbilitySerializers {
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ContextDependentAbility>> CONTEXT_DEPENDENT = ABILITIES.register("context_dependent", () -> ContextDependentAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ContinuousAbility>> CONTINUOUS = ABILITIES.register("continuous", () -> ContinuousAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ConvertAndTameAbility>> CONVERT_AND_TAME = ABILITIES.register("convert_and_tame", () -> ConvertAndTameAbility.CODEC);
-    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<KamikoControlAbility>> KAMIKO_CONTROL = ABILITIES.register("kamiko_control", () -> KamikoControlAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<PassiveEffectsAbility>> PASSIVE_EFFECTS = ABILITIES.register("passive_effects", () -> PassiveEffectsAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ReplaceAdjacentBlocksAbility>> REPLACE_ADJACENT_BLOCKS = ABILITIES.register("replace_adjacent_blocks", () -> ReplaceAdjacentBlocksAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ReplaceItemInMainHandAbility>> REPLACE_ITEM_IN_MAIN_HAND = ABILITIES.register("replace_item_in_main_hand", () -> ReplaceItemInMainHandAbility.CODEC);

@@ -14,7 +14,7 @@ public class MineraculousSoundEvents {
     public static final DeferredHolder<SoundEvent, SoundEvent> CATACLYSM_USE = register("cataclysm", "ability", "use");
 
     public static final DeferredHolder<SoundEvent, SoundEvent> KAMIKOTIZATION_ACTIVATE = register("kamikotization", "ability", "activate");
-    public static final DeferredHolder<SoundEvent, SoundEvent> KAMIKOTIZATION_USE = register("kamikotization", "ability", "use");
+    public static final DeferredHolder<SoundEvent, SoundEvent> KAMIKOTIZED_COMMUNICATION_ACTIVATE = register("kamikotized_communication", "ability", "activate");
 
     public static final DeferredHolder<SoundEvent, SoundEvent> LUCKY_CHARM_ACTIVATE = register("lucky_charm", "ability", "activate");
 
@@ -36,6 +36,7 @@ public class MineraculousSoundEvents {
     public static final DeferredHolder<SoundEvent, SoundEvent> BUTTERFLY_TRANSFORM = register("butterfly", "miraculous", "transform");
 
     // Kamikotization
+    public static final DeferredHolder<SoundEvent, SoundEvent> KAMIKOTIZATION_BEGIN = register("kamikotization", "begin");
     public static final DeferredHolder<SoundEvent, SoundEvent> KAMIKOTIZATION_TRANSFORM = register("kamikotization", "transform");
     public static final DeferredHolder<SoundEvent, SoundEvent> KAMIKOTIZATION_DETRANSFORM = register("kamikotization", "detransform");
 

@@ -15,31 +15,37 @@ import net.minecraft.SharedConstants;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
-public record ContinuousAbility(Holder<Ability> ability, int ticks) implements AbilityWithSubAbilities {
+public record ContinuousAbility(Holder<Ability> ability, int ticks, Optional<Holder<SoundEvent>> passiveStartSound, Optional<Holder<SoundEvent>> activeStartSound, Optional<Holder<SoundEvent>> finishSound) implements AbilityWithSubAbilities {
     public static final MapCodec<ContinuousAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Ability.CODEC.fieldOf("ability").forGetter(ContinuousAbility::ability),
-            ExtraCodecs.POSITIVE_INT.optionalFieldOf("ticks", SharedConstants.TICKS_PER_SECOND).forGetter(ContinuousAbility::ticks)).apply(instance, ContinuousAbility::new));
+            ExtraCodecs.POSITIVE_INT.optionalFieldOf("ticks", SharedConstants.TICKS_PER_SECOND).forGetter(ContinuousAbility::ticks),
+            SoundEvent.CODEC.optionalFieldOf("passive_start_sound").forGetter(ContinuousAbility::passiveStartSound),
+            SoundEvent.CODEC.optionalFieldOf("active_start_sound").forGetter(ContinuousAbility::activeStartSound),
+            SoundEvent.CODEC.optionalFieldOf("finish_sound").forGetter(ContinuousAbility::finishSound)
+    ).apply(instance, ContinuousAbility::new));
 
-    public ContinuousAbility(Holder<Ability> ability) {
-        this(ability, SharedConstants.TICKS_PER_SECOND);
+    public ContinuousAbility(Holder<Ability> ability, Optional<Holder<SoundEvent>> passiveStartSound, Optional<Holder<SoundEvent>> activeStartSound, Optional<Holder<SoundEvent>> finishSound) {
+        this(ability, SharedConstants.TICKS_PER_SECOND, passiveStartSound, activeStartSound, finishSound);
     }
 
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         boolean consume = ability.value().perform(data, level, performer, context);
         AbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
-        if (context == null && abilityEffectData.dragTicks().isPresent()) {
-            int dragTicks = abilityEffectData.dragTicks().get();
-            dragTicks--;
-            if (dragTicks <= 0) {
-                abilityEffectData.withDragTicks(Optional.empty()).save(performer, true);
+        if (context == null && abilityEffectData.continuousTicks().isPresent()) {
+            int continuousTicks = abilityEffectData.continuousTicks().get();
+            continuousTicks--;
+            if (continuousTicks <= 0) {
+                abilityEffectData.stopContinuousAbility().save(performer, true);
+                Ability.playSound(level, performer, finishSound);
                 return true;
             } else {
-                abilityEffectData.withDragTicks(Optional.of(dragTicks)).save(performer, true);
+                abilityEffectData.withContinuousTicks(Optional.of(continuousTicks)).save(performer, true);
             }
         }
         if (consume) {
@@ -49,10 +55,15 @@ public record ContinuousAbility(Holder<Ability> ability, int ticks) implements A
                 if (data.power().right().isPresent())
                     MineraculousCriteriaTriggers.USED_KAMIKOTIZATION_POWER.get().trigger(serverPlayer, data.power().right().get().getKey(), context.advancementContext());
             }
-            if (abilityEffectData.dragTicks().isEmpty()) {
-                abilityEffectData.withDragTicks(Optional.of(ticks)).save(performer, true);
+            if (abilityEffectData.continuousTicks().isEmpty()) {
+                abilityEffectData.withContinuousTicks(Optional.of(ticks)).save(performer, true);
+                Ability.playSound(level, performer, activeStartSound);
                 return false;
             }
+        }
+        if (!abilityEffectData.playedContinuousAbilityStartSound()) {
+            abilityEffectData.withPlayedContinuousAbilityStartSound(true).save(performer, true);
+            Ability.playSound(level, performer, passiveStartSound);
         }
         return false;
     }

@@ -21,6 +21,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,6 +47,10 @@ public interface Ability {
     default void leaveLevel(AbilityData data, ServerLevel level, Entity performer) {}
 
     MapCodec<? extends Ability> codec();
+
+    static void playSound(ServerLevel level, Entity performer, Optional<Holder<SoundEvent>> sound) {
+        sound.ifPresent(soundEvent -> level.playSound(null, performer.blockPosition(), soundEvent.value(), performer.getSoundSource(), 1, 1));
+    }
 
     static List<Ability> getAll(Ability ability) {
         List<Ability> abilities = new ReferenceArrayList<>();

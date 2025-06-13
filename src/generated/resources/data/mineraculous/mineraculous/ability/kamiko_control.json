@@ -1,5 +1,8 @@
 {
-  "type": "mineraculous:kamiko_control",
+  "type": "mineraculous:spectate_entity",
   "face_mask_texture": "mineraculous:textures/entity/player/face_mask/kamiko.png",
-  "shader": "mineraculous:post_effect/kamiko.json"
+  "shader": "mineraculous:post_effect/kamiko.json",
+  "valid_entities": {
+    "type": "mineraculous:kamiko"
+  }
 }

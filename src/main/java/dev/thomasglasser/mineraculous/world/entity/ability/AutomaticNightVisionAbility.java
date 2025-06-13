@@ -9,63 +9,70 @@ import dev.thomasglasser.mineraculous.world.entity.ability.context.AbilityContex
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
+
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
-public record AutomaticNightVisionAbility(Optional<ResourceLocation> shader) implements Ability {
+public record AutomaticNightVisionAbility(Optional<ResourceLocation> shader, Optional<Holder<SoundEvent>> applySound, Optional<Holder<SoundEvent>> removeSound) implements Ability {
     public static final MapCodec<AutomaticNightVisionAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ResourceLocation.CODEC.optionalFieldOf("shader").forGetter(AutomaticNightVisionAbility::shader)).apply(instance, AutomaticNightVisionAbility::new));
+            ResourceLocation.CODEC.optionalFieldOf("shader").forGetter(AutomaticNightVisionAbility::shader),
+            SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(AutomaticNightVisionAbility::applySound),
+            SoundEvent.CODEC.optionalFieldOf("remove_sound").forGetter(AutomaticNightVisionAbility::removeSound)
+    ).apply(instance, AutomaticNightVisionAbility::new));
 
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (context == null && performer instanceof LivingEntity livingEntity) {
-            checkNightVision(livingEntity, level);
+            checkNightVision(level, livingEntity);
         }
         return false;
     }
 
     @Override
     public void detransform(AbilityData data, ServerLevel level, Entity performer) {
-        if (performer instanceof ServerPlayer serverPlayer) {
-            updateNightVision(serverPlayer, false);
+        if (performer instanceof LivingEntity livingEntity) {
+            updateNightVision(level, livingEntity, false);
         }
     }
 
     @Override
     public void joinLevel(AbilityData data, ServerLevel level, Entity performer) {
         if (performer instanceof LivingEntity livingEntity) {
-            livingEntity.removeEffect(MobEffects.NIGHT_VISION);
+            checkNightVision(level, livingEntity);
         }
     }
 
-    public void checkNightVision(LivingEntity entity, ServerLevel level) {
-        boolean hasNightVision = entity.hasEffect(MobEffects.NIGHT_VISION);
-        if (level.getRawBrightness(entity.blockPosition().above(), level.getSkyDarken()) <= 5) {
+    public void checkNightVision(ServerLevel level, LivingEntity performer) {
+        boolean hasNightVision = performer.hasEffect(MobEffects.NIGHT_VISION);
+        if (level.getRawBrightness(performer.blockPosition().above(), level.getSkyDarken()) <= 5) {
             if (!hasNightVision) {
-                updateNightVision(entity, true);
+                updateNightVision(level, performer, true);
             }
         } else if (hasNightVision) {
-            updateNightVision(entity, false);
+            updateNightVision(level, performer, false);
         }
     }
 
-    private void updateNightVision(LivingEntity entity, boolean giveNightVision) {
+    private void updateNightVision(ServerLevel level, LivingEntity performer, boolean giveNightVision) {
         shader.ifPresent(shader -> {
-            if (entity instanceof ServerPlayer player) {
+            if (performer instanceof ServerPlayer player) {
                 TommyLibServices.NETWORK.sendToClient(new ClientboundToggleNightVisionShaderPayload(giveNightVision, shader), player);
             }
         });
         if (giveNightVision) {
-            MineraculousEntityUtils.applyInfiniteHiddenEffect(entity, MobEffects.NIGHT_VISION, 1);
+            MineraculousEntityUtils.applyInfiniteHiddenEffect(performer, MobEffects.NIGHT_VISION, 1);
         } else {
-            entity.removeEffect(MobEffects.NIGHT_VISION);
+            performer.removeEffect(MobEffects.NIGHT_VISION);
         }
-        entity.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withShader(giveNightVision ? shader : Optional.empty()).save(entity, true);
+        performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withShader(giveNightVision ? shader : Optional.empty()).save(performer, true);
+        Ability.playSound(level, performer, giveNightVision ? applySound : removeSound);
     }
 
     @Override

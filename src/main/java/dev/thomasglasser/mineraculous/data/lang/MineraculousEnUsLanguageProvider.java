@@ -279,7 +279,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousSoundEvents.CATACLYSM_ACTIVATE.get(), "Cataclysm activates");
         add(MineraculousSoundEvents.CATACLYSM_USE.get(), "Cataclysm triggers");
         add(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE.get(), "Kamiko powers up");
-        add(MineraculousSoundEvents.KAMIKOTIZATION_USE.get(), "Kamikotization begins");
+        add(MineraculousSoundEvents.KAMIKOTIZED_COMMUNICATION_ACTIVATE.get(), "Kamikotization begins");
         add(MineraculousSoundEvents.LUCKY_CHARM_ACTIVATE.get(), "Lucky Charm activates");
         add(MineraculousSoundEvents.MIRACULOUS_LADYBUG_ACTIVATE.get(), "Miraculous Ladybugs flourish");
 

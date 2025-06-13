@@ -18,20 +18,24 @@ import java.util.Set;
 import net.minecraft.advancements.critereon.BlockPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean preferSame, Optional<BlockPredicate> validBlocks, Optional<BlockPredicate> invalidBlocks) implements Ability {
+public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean preferSame, Optional<BlockPredicate> validBlocks, Optional<BlockPredicate> invalidBlocks, Optional<Holder<SoundEvent>> applySound) implements Ability {
 
     public static final MapCodec<ReplaceAdjacentBlocksAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             BlockState.CODEC.optionalFieldOf("replacement", Blocks.AIR.defaultBlockState()).forGetter(ReplaceAdjacentBlocksAbility::replacement),
             Codec.BOOL.optionalFieldOf("prefer_same", true).forGetter(ReplaceAdjacentBlocksAbility::preferSame),
             BlockPredicate.CODEC.optionalFieldOf("valid_blocks").forGetter(ReplaceAdjacentBlocksAbility::validBlocks),
-            BlockPredicate.CODEC.optionalFieldOf("invalid_blocks").forGetter(ReplaceAdjacentBlocksAbility::invalidBlocks)).apply(instance, ReplaceAdjacentBlocksAbility::new));
+            BlockPredicate.CODEC.optionalFieldOf("invalid_blocks").forGetter(ReplaceAdjacentBlocksAbility::invalidBlocks),
+            SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(ReplaceAdjacentBlocksAbility::applySound)
+    ).apply(instance, ReplaceAdjacentBlocksAbility::new));
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (context instanceof BlockAbilityContext(BlockPos pos)) {
@@ -45,6 +49,7 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean prefe
                 }
                 AbilityReversionBlockData.get(level).putRevertable(performer.getUUID(), originals);
             }
+            Ability.playSound(level, performer, applySound);
             return true;
         }
         return false;

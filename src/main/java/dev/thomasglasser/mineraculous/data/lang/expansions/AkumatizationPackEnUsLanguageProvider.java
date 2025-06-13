@@ -75,7 +75,7 @@ public class AkumatizationPackEnUsLanguageProvider extends EnUsOverrideLanguageP
     private void addSounds() {
         // Abilities
         add(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE.get(), "Akuma powers up");
-        add(MineraculousSoundEvents.KAMIKOTIZATION_USE.get(), "Akumatization begins");
+        add(MineraculousSoundEvents.KAMIKOTIZED_COMMUNICATION_ACTIVATE.get(), "Akumatization begins");
 
         // Kamikotization
         add(MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM.get(), "Akumatized player transforms");

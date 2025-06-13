@@ -43,8 +43,8 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
             ResourceKey.codec(Registries.DAMAGE_TYPE).optionalFieldOf("damage_type").forGetter(ApplyInfiniteEffectsOrDestroyAbility::damageType),
             Codec.BOOL.optionalFieldOf("override_kill_credit", false).forGetter(ApplyInfiniteEffectsOrDestroyAbility::overrideKillCredit),
             Codec.BOOL.optionalFieldOf("allow_blocking", true).forGetter(ApplyInfiniteEffectsOrDestroyAbility::allowBlocking),
-            SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(ApplyInfiniteEffectsOrDestroyAbility::applySound)
-            ).apply(instance, ApplyInfiniteEffectsOrDestroyAbility::new));
+            SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(ApplyInfiniteEffectsOrDestroyAbility::applySound)).apply(instance, ApplyInfiniteEffectsOrDestroyAbility::new));
+
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (context instanceof EntityAbilityContext(Entity target)) {
@@ -112,13 +112,11 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
     public MapCodec<? extends Ability> codec() {
         return AbilitySerializers.APPLY_INFINITE_EFFECTS_OR_DESTROY.get();
     }
-
     public record EffectSettings(boolean ambient, boolean showParticles, boolean showIcon) {
         public static final EffectSettings DEFAULT = new EffectSettings(false, true, true);
         public static final Codec<EffectSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.BOOL.fieldOf("ambient").forGetter(EffectSettings::ambient),
                 Codec.BOOL.fieldOf("show_particles").forGetter(EffectSettings::showParticles),
-                Codec.BOOL.fieldOf("show_icon").forGetter(EffectSettings::showIcon)
-        ).apply(instance, EffectSettings::new));
+                Codec.BOOL.fieldOf("show_icon").forGetter(EffectSettings::showIcon)).apply(instance, EffectSettings::new));
     }
 }

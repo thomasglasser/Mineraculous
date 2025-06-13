@@ -1,6 +1,8 @@
 package dev.thomasglasser.mineraculous.world.entity.ai.behavior;
 
 import com.mojang.datafixers.util.Pair;
+import java.util.List;
+import java.util.UUID;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
@@ -12,9 +14,6 @@ import net.minecraft.world.entity.player.Player;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
 import net.tslat.smartbrainlib.object.MemoryTest;
 import net.tslat.smartbrainlib.util.BrainUtils;
-
-import java.util.List;
-import java.util.UUID;
 
 public class SetWalkTargetToLikedPlayer<E extends Mob> extends SetWalkTargetToAttackTarget<E> {
     private static final MemoryTest MEMORY_REQUIREMENTS = MemoryTest.builder(3).hasMemory(MemoryModuleType.LIKED_PLAYER).usesMemories(MemoryModuleType.WALK_TARGET, MemoryModuleType.LOOK_TARGET);

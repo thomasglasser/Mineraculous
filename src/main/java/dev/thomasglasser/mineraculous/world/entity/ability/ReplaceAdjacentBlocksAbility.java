@@ -34,8 +34,7 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean prefe
             Codec.BOOL.optionalFieldOf("prefer_same", true).forGetter(ReplaceAdjacentBlocksAbility::preferSame),
             BlockPredicate.CODEC.optionalFieldOf("valid_blocks").forGetter(ReplaceAdjacentBlocksAbility::validBlocks),
             BlockPredicate.CODEC.optionalFieldOf("invalid_blocks").forGetter(ReplaceAdjacentBlocksAbility::invalidBlocks),
-            SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(ReplaceAdjacentBlocksAbility::applySound)
-    ).apply(instance, ReplaceAdjacentBlocksAbility::new));
+            SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(ReplaceAdjacentBlocksAbility::applySound)).apply(instance, ReplaceAdjacentBlocksAbility::new));
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (context instanceof BlockAbilityContext(BlockPos pos)) {

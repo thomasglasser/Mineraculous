@@ -13,6 +13,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.SuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
+import dev.thomasglasser.mineraculous.world.level.storage.YoyoLeashData;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
@@ -31,6 +32,7 @@ public class MineraculousAttachmentTypes {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<AbilityEffectData>> ABILITY_EFFECTS = ATTACHMENT_TYPES.register("ability_effects", () -> AttachmentType.builder(AbilityEffectData::new).build());
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<ReferenceArrayList<UUID>>> INVENTORY_TRACKERS = ATTACHMENT_TYPES.register("inventory_trackers", () -> AttachmentType.builder(() -> new ReferenceArrayList<UUID>()).build());
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<ThrownLadybugYoyoData>> THROWN_LADYBUG_YOYO = ATTACHMENT_TYPES.register("thrown_ladybug_yoyo", () -> AttachmentType.builder(() -> new ThrownLadybugYoyoData()).build());
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<YoyoLeashData>>> YOYO_LEASH = ATTACHMENT_TYPES.register("yoyo_leash", () -> AttachmentType.builder(Optional::<YoyoLeashData>empty).build());
 
     // Miraculous
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<MiraculousesData>> MIRACULOUSES = ATTACHMENT_TYPES.register("miraculouses", () -> AttachmentType.builder(() -> new MiraculousesData()).serialize(MiraculousesData.CODEC).copyOnDeath().build());

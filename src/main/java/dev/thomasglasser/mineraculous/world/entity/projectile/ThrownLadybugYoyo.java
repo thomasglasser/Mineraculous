@@ -14,6 +14,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.AbilityReversionEntity
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
+import dev.thomasglasser.mineraculous.world.level.storage.YoyoLeashData;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
@@ -32,6 +33,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -346,8 +348,8 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 }
             }
             recall();
-        } else {
-            if (ability == LadybugYoyoItem.Ability.PURIFY && level() instanceof ServerLevel level) {
+        } else if (level() instanceof ServerLevel level) {
+            if (ability == LadybugYoyoItem.Ability.PURIFY) {
                 AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
                 if (entityData.isConverted(entity.getUUID())) {
                     ResolvableProfile profile = getPickupItemStackOrigin().get(DataComponents.PROFILE);
@@ -367,6 +369,9 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                         }
                     }
                 }
+            } else if (ability == LadybugYoyoItem.Ability.LASSO && owner != null && entity instanceof Leashable) {
+                new YoyoLeashData(owner.getId()).save(entity, true);
+                recall();
             }
         }
         this.playSound(getHitGroundSoundEvent());

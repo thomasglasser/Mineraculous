@@ -29,8 +29,7 @@ public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakO
             Codec.BOOL.optionalFieldOf("break_original", false).forGetter(ReplaceItemInMainHandAbility::breakOriginal),
             ItemPredicate.CODEC.optionalFieldOf("valid_items").forGetter(ReplaceItemInMainHandAbility::validItems),
             ItemPredicate.CODEC.optionalFieldOf("invalid_items").forGetter(ReplaceItemInMainHandAbility::invalidItems),
-            SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(ReplaceItemInMainHandAbility::applySound)
-    ).apply(instance, ReplaceItemInMainHandAbility::new));
+            SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(ReplaceItemInMainHandAbility::applySound)).apply(instance, ReplaceItemInMainHandAbility::new));
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (context == null && performer instanceof LivingEntity livingEntity) {

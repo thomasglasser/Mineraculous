@@ -19,7 +19,6 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdData;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
-
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.Holder;
@@ -35,7 +34,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
-import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
@@ -96,8 +94,9 @@ public class MineraculousEntityEvents {
             ToolIdData.get(level).tick(entity);
             LuckyCharmIdData.get(level).tick(entity);
 
-            entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.tick(entity, level));
             entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).tick(entity, level);
+            entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.tick(entity, level));
+            entity.getData(MineraculousAttachmentTypes.YOYO_LEASH).ifPresent(data -> data.tick(entity, level));
         }
     }
 

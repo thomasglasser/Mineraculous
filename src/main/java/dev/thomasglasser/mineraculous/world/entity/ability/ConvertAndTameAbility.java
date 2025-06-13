@@ -25,8 +25,7 @@ public record ConvertAndTameAbility(EntityType<?> newType, Optional<EntityPredic
             BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("new_type").forGetter(ConvertAndTameAbility::newType),
             EntityPredicate.CODEC.optionalFieldOf("valid_entities").forGetter(ConvertAndTameAbility::validEntities),
             EntityPredicate.CODEC.optionalFieldOf("invalid_entities").forGetter(ConvertAndTameAbility::invalidEntities),
-            SoundEvent.CODEC.optionalFieldOf("convert_sound").forGetter(ConvertAndTameAbility::convertSound)
-    ).apply(instance, ConvertAndTameAbility::new));
+            SoundEvent.CODEC.optionalFieldOf("convert_sound").forGetter(ConvertAndTameAbility::convertSound)).apply(instance, ConvertAndTameAbility::new));
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (context instanceof EntityAbilityContext(Entity target)) {

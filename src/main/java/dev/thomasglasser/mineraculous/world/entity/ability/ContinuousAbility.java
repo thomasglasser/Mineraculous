@@ -21,14 +21,13 @@ import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
 public record ContinuousAbility(Holder<Ability> ability, int ticks, Optional<Holder<SoundEvent>> passiveStartSound, Optional<Holder<SoundEvent>> activeStartSound, Optional<Holder<SoundEvent>> finishSound) implements AbilityWithSubAbilities {
+
     public static final MapCodec<ContinuousAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Ability.CODEC.fieldOf("ability").forGetter(ContinuousAbility::ability),
             ExtraCodecs.POSITIVE_INT.optionalFieldOf("ticks", SharedConstants.TICKS_PER_SECOND).forGetter(ContinuousAbility::ticks),
             SoundEvent.CODEC.optionalFieldOf("passive_start_sound").forGetter(ContinuousAbility::passiveStartSound),
             SoundEvent.CODEC.optionalFieldOf("active_start_sound").forGetter(ContinuousAbility::activeStartSound),
-            SoundEvent.CODEC.optionalFieldOf("finish_sound").forGetter(ContinuousAbility::finishSound)
-    ).apply(instance, ContinuousAbility::new));
-
+            SoundEvent.CODEC.optionalFieldOf("finish_sound").forGetter(ContinuousAbility::finishSound)).apply(instance, ContinuousAbility::new));
     public ContinuousAbility(Holder<Ability> ability, Optional<Holder<SoundEvent>> passiveStartSound, Optional<Holder<SoundEvent>> activeStartSound, Optional<Holder<SoundEvent>> finishSound) {
         this(ability, SharedConstants.TICKS_PER_SECOND, passiveStartSound, activeStartSound, finishSound);
     }

@@ -21,7 +21,7 @@ public class KamikotizationsEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Generator");
         add(context().pageText(), """
-                A generator for kamikotizations can be found online [here](https://snapshot-jsons.thomasglasser.dev/mineraculous/kamikotization/).
+                A generator for kamikotizations can be found online [here](https://beta-jsons.thomasglasser.dev/mineraculous/kamikotization/).
                 """);
 
         page("guide", () -> BookTextPageModel.create()
@@ -30,7 +30,7 @@ public class KamikotizationsEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Guide");
         add(context().pageText(), """
-                A guide for creating miraculous can be found [here](https://snapshot-jsons.thomasglasser.dev/guides/miraculous/).
+                A guide for creating miraculous can be found [here](https://beta-jsons.thomasglasser.dev/guides/miraculous/).
                 """);
     }
 

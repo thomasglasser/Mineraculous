@@ -33,7 +33,7 @@ public class WikiEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Online Wiki");
         add(context().pageText(), """
-                The wiki is also hosted online [here](https://mineraculous-snapshot.wiki.thomasglasser.dev).
+                The wiki is also hosted online [here](https://mineraculous-beta.wiki.thomasglasser.dev).
                 """);
     }
 

@@ -12,7 +12,7 @@
 			},
 			"bones": [
 				{
-					"name": "left",
+					"name": "left_earring",
 					"pivot": [0.5, -2.3, -0.5],
 					"cubes": [
 						{
@@ -93,7 +93,7 @@
 					]
 				},
 				{
-					"name": "right",
+					"name": "right_earring",
 					"pivot": [0.5, -2.3, -0.5],
 					"cubes": [
 						{

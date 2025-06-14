@@ -7,7 +7,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 public record CuriosData(int slot, String identifier) {
-    public static final CuriosData EMPTY = new CuriosData();
     public static final Codec<CuriosData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.INT.fieldOf("slot").forGetter(CuriosData::slot),
             Codec.STRING.fieldOf("identifier").forGetter(CuriosData::identifier)).apply(instance, CuriosData::new));
@@ -15,8 +14,4 @@ public record CuriosData(int slot, String identifier) {
             ByteBufCodecs.INT, CuriosData::slot,
             ByteBufCodecs.STRING_UTF8, CuriosData::identifier,
             CuriosData::new);
-
-    private CuriosData() {
-        this(-1, "");
-    }
 }

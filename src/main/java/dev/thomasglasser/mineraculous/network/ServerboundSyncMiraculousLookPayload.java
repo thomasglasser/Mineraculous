@@ -2,13 +2,11 @@ package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
-import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedLookDataHolder;
 import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
-import dev.thomasglasser.mineraculous.world.level.storage.MiraculousDataSet;
+import dev.thomasglasser.mineraculous.world.level.storage.ServerLookData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -25,10 +23,10 @@ public record ServerboundSyncMiraculousLookPayload(ResourceKey<Miraculous> mirac
     // ON SERVER
     @Override
     public void handle(Player player) {
-        MiraculousDataSet miraculousDataSet = player.getData(MineraculousAttachmentTypes.MIRACULOUS);
-        miraculousDataSet.put(player, miraculous, miraculousDataSet.get(miraculous).withMiraculousLook(data.look()), false);
-        ((FlattenedLookDataHolder) player.getServer().overworld()).mineraculous$addMiraculousLookData(player.getUUID(), miraculous, data);
-        TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncMiraculousLookPayload(player.getUUID(), miraculous, data, true), player.getServer());
+        if (MineraculousServerConfig.get().isCustomizationAllowed(player)) {
+            ServerLookData.addPlayerMiraculous(player.getUUID(), miraculous, data);
+//            MineraculousEntityEvents.updateAndSyncMiraculousLook((ServerPlayer) player, miraculous, data);
+        }
     }
 
     @Override

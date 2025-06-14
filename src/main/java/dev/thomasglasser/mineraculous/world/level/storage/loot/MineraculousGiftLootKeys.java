@@ -6,9 +6,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.storage.loot.LootTable;
 
 public class MineraculousGiftLootKeys {
-    public static final ResourceKey<LootTable> FROMAGER_GIFT = modLoc("fromager_gift");
+    public static final ResourceKey<LootTable> FROMAGER_GIFT = create("fromager_gift");
 
-    private static ResourceKey<LootTable> modLoc(String name) {
+    private static ResourceKey<LootTable> create(String name) {
         return ResourceKey.create(Registries.LOOT_TABLE, Mineraculous.modLoc("gameplay/hero_of_the_village/" + name));
     }
 }

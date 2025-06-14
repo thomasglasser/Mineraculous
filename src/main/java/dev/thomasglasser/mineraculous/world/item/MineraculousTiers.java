@@ -47,6 +47,6 @@ public enum MineraculousTiers implements Tier {
     }
 
     public Ingredient getRepairIngredient() {
-        return (Ingredient) this.repairIngredient.get();
+        return this.repairIngredient.get();
     }
 }

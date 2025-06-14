@@ -3,8 +3,8 @@ package dev.thomasglasser.mineraculous.data.modonomicons.wiki.miraculous;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeCategoryProvider;
 import com.klikli_dev.modonomicon.api.datagen.ModonomiconProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
-import dev.thomasglasser.mineraculous.world.entity.miraculous.MineraculousMiraculous;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculouses;
 
 public class MiraculousCategoryProvider extends IndexModeCategoryProvider {
     public static final String ID = "miraculous";
@@ -34,7 +34,7 @@ public class MiraculousCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected BookIconModel categoryIcon() {
-        return BookIconModel.create(Miraculous.createMiraculousStack(MineraculousMiraculous.LADYBUG));
+        return BookIconModel.create(Miraculous.createMiraculousStack(registries().holderOrThrow(Miraculouses.LADYBUG)));
     }
 
     @Override

@@ -1,5 +1,7 @@
 {
   "values": [
+    "minecraft:nether_star",
+    "minecraft:totem_of_undying",
     "minecraft:minecart",
     "minecraft:chest_minecart",
     "minecraft:furnace_minecart",
@@ -12,8 +14,6 @@
     "#c:ingots",
     "#c:raw_materials",
     "#c:ores",
-    "#c:buckets",
-    "minecraft:nether_star",
-    "minecraft:totem_of_undying"
+    "#c:buckets"
   ]
 }

@@ -2,7 +2,10 @@ package dev.thomasglasser.mineraculous.data.recipes;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.tags.MineraculousItemTags;
+import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.world.item.crafting.CheeseWedgeRecipe;
+import dev.thomasglasser.mineraculous.world.level.block.AgeingCheese;
+import dev.thomasglasser.mineraculous.world.level.block.AgeingCheeseEdibleFullBlock;
 import dev.thomasglasser.mineraculous.world.level.block.CheeseBlock;
 import dev.thomasglasser.mineraculous.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.data.recipes.ExtendedRecipeProvider;
@@ -20,6 +23,8 @@ import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
 
 public class MineraculousRecipes extends ExtendedRecipeProvider {
     public MineraculousRecipes(PackOutput output, CompletableFuture<HolderLookup.Provider> provider) {
@@ -34,28 +39,36 @@ public class MineraculousRecipes extends ExtendedRecipeProvider {
                 .pattern("III")
                 .define('I', ConventionalItemTags.IRON_INGOTS)
                 .define('C', MineraculousItemTags.CHEESE_BLOCKS)
-                .unlockedBy("has_cheeses", has(MineraculousItemTags.CHEESE_BLOCKS))
+                .unlockedBy("has_cheese_blocks", has(MineraculousItemTags.CHEESE_BLOCKS))
                 .save(recipeOutput);
 
-        cheeseWaxRecipes(recipeOutput, MineraculousBlocks.CHEESE_BLOCKS);
-        cheeseWaxRecipes(recipeOutput, MineraculousBlocks.CAMEMBERT_BLOCKS);
+        // Cheese
+        cheeseWaxRecipes(recipeOutput, MineraculousBlocks.CHEESE, MineraculousBlocks.WAXED_CHEESE);
+        cheeseWaxRecipes(recipeOutput, MineraculousBlocks.CAMEMBERT, MineraculousBlocks.WAXED_CAMEMBERT);
 
         SpecialRecipeBuilder.special(CheeseWedgeRecipe::new).save(recipeOutput, Mineraculous.modLoc("cheese_wedge"));
+
+        trimWithCopy(recipeOutput, MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE, Blocks.RED_CONCRETE);
+        trimWithCopy(recipeOutput, MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE, Blocks.LIME_CONCRETE);
+        trimWithCopy(recipeOutput, MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE, Blocks.PURPLE_CONCRETE);
     }
 
-    protected void cheeseWaxRecipes(RecipeOutput recipeOutput, SortedMap<CheeseBlock.Age, DeferredBlock<CheeseBlock>> waxables) {
-        waxables
-                .forEach(
-                        (age, block) -> {
-                            DeferredBlock<CheeseBlock> waxed = block.get().getWaxedBlock();
-                            if (waxed.get().requiredFeatures().isSubsetOf(FeatureFlags.DEFAULT_FLAGS)) {
-                                ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, waxed)
-                                        .requires(block)
-                                        .requires(Items.HONEYCOMB)
-                                        .group(getItemName(waxed))
-                                        .unlockedBy(getHasName(block), has(block))
-                                        .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(waxed.getId().getNamespace(), getConversionRecipeName(waxed, Items.HONEYCOMB)));
-                            }
-                        });
+    protected void cheeseWaxRecipes(RecipeOutput recipeOutput, SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> waxables, SortedMap<AgeingCheese.Age, DeferredBlock<CheeseBlock>> waxedBlocks) {
+        waxables.forEach((age, block) -> {
+            DeferredBlock<CheeseBlock> waxed = waxedBlocks.get(age);
+            if (waxed.get().requiredFeatures().isSubsetOf(FeatureFlags.DEFAULT_FLAGS)) {
+                ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, waxed)
+                        .requires(block)
+                        .requires(Items.HONEYCOMB)
+                        .group(getItemName(waxed))
+                        .unlockedBy(getHasName(block), has(block))
+                        .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(waxed.getId().getNamespace(), getConversionRecipeName(waxed, Items.HONEYCOMB)));
+            }
+        });
+    }
+
+    private void trimWithCopy(RecipeOutput recipeOutput, ItemLike template, ItemLike copyMaterial) {
+        trimSmithing(recipeOutput, template.asItem(), Mineraculous.modLoc(getItemName(template) + "_smithing_trim"));
+        copySmithingTemplate(recipeOutput, template, copyMaterial);
     }
 }

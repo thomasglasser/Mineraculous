@@ -1,7 +1,10 @@
 {
-  "parent": "mineraculous:miraculous/power_kamiko",
+  "parent": "mineraculous:miraculous/kamikotize_butterfly",
   "criteria": {
     "kamikotize_player": {
+      "conditions": {
+        "self": false
+      },
       "trigger": "mineraculous:kamikotized_player"
     }
   },

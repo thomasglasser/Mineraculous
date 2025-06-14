@@ -9,7 +9,7 @@ import net.minecraft.world.entity.ai.sensing.SensorType;
 public class MineraculousSensorTypes {
     public static final DeferredRegister<SensorType<?>> SENSOR_TYPES = DeferredRegister.create(BuiltInRegistries.SENSOR_TYPE, Mineraculous.MOD_ID);
 
-    public static final DeferredHolder<SensorType<?>, SensorType<PlayerTemptingSensor<?>>> PLAYER_TEMPTING = SENSOR_TYPES.register("player_tempting", () -> new SensorType<>(PlayerTemptingSensor::new));
+    public static final DeferredHolder<SensorType<?>, SensorType<PlayerItemTemptingSensor<?>>> PLAYER_ITEM_TEMPTING = SENSOR_TYPES.register("player_item_tempting", () -> new SensorType<>(PlayerItemTemptingSensor::new));
 
     public static void init() {}
 }

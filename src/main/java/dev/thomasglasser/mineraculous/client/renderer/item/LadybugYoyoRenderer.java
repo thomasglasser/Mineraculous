@@ -47,6 +47,7 @@ public class LadybugYoyoRenderer extends BlockingDefaultedGeoItemRenderer<Ladybu
                 if (initialHand == currentHand) {
                     renderHand(player, this.renderPerspective, poseStack, bufferSource, packedLight);
                 }
+                poseStack.scale(0.001f, 0.001f, 0.001f);
             }
         }
         super.defaultRender(poseStack, animatable, bufferSource, renderType, buffer, yaw, partialTick, packedLight);

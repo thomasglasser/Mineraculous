@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.renderer.item.DefaultedGeoItemRenderer;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.item.MineraculousItems;
@@ -13,14 +14,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -34,6 +32,7 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
 
     private static final int POINTS = 100;
     private static final double CATENARY_CURVE_FACTOR = 2048.0;
+    public static final float RIGHT_SCALE = 0.55f, UP_SCALE = -0.6f;
 
     private final List<RopePoint> points = new ReferenceArrayList<>();
     private Vec3 lastProjectilePos;
@@ -65,12 +64,17 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
             return;
         }
 
-        float attackAnim = projectilePlayer.getAttackAnim(partialTick);
-        float swingAngle = Mth.sin(Mth.sqrt(attackAnim) * Mth.PI);
+        double maxLength;
 
-        double maxLength = animatable.getRenderMaxRopeLength();
-
-        Vec3 playerHandPos = getPlayerHandPos(projectilePlayer, swingAngle, partialTick, !(animatable.getInitialHand() == InteractionHand.MAIN_HAND));
+        Vec3 playerHandPos;
+        boolean offHand = !(animatable.getInitialHand() == InteractionHand.MAIN_HAND);
+        if (projectilePlayer == Minecraft.getInstance().player && Minecraft.getInstance().getEntityRenderDispatcher().options.getCameraType().isFirstPerson()) {
+            playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(offHand, false, partialTick, RIGHT_SCALE, UP_SCALE);
+            maxLength = animatable.getRenderMaxRopeLength(true);
+        } else {
+            playerHandPos = MineraculousClientUtils.getHumanoidEntityHandPos(projectilePlayer, offHand, partialTick, 0.15f, -0.75, 0.35f);
+            maxLength = animatable.getRenderMaxRopeLength(false);
+        }
         Vec3 projectilePos = animatable.getPosition(partialTick);
 
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(ROPE_TEXTURE));
@@ -154,33 +158,6 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
                 || !lastProjectilePos.equals(projectilePos)
                 || !lastPlayerHandPos.equals(playerHandPos)
                 || lastMaxLength != maxLength;
-    }
-
-    // TODO:
-    //  Fix to make better and account for speed and other things that alter hand pos
-    //  and fix crashing on a dedicated server
-    @SuppressWarnings("ConstantValue")
-    public static Vec3 getPlayerHandPos(Player player, float swingAngle, float partialTick, boolean offHand) {
-        int armMultiplier = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
-        if (offHand) {
-            armMultiplier = -armMultiplier;
-        }
-
-        EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-        if (entityRenderDispatcher.options.getCameraType().isFirstPerson() && player == Minecraft.getInstance().player && entityRenderDispatcher.camera != null) {
-            double fovScale = 960.0 / (double) entityRenderDispatcher.options.fov().get();
-            Vec3 handOffset = entityRenderDispatcher.camera.getNearPlane().getPointOnPlane((float) armMultiplier * 0.6f, -0.6f).scale(fovScale).yRot(swingAngle * 0.5F).xRot(-swingAngle * 0.7F);
-            return player.getEyePosition(partialTick).add(handOffset);
-        } else {
-            float bodyRotRad = Mth.lerp(partialTick, player.yBodyRotO, player.yBodyRot) * (Mth.PI / 180F);
-            double sinRot = Mth.sin(bodyRotRad);
-            double cosRot = Mth.cos(bodyRotRad);
-            float scale = player.getScale();
-            double armOffset = (double) armMultiplier * 0.35 * (double) scale;
-            double sideOffset = 0.15 * (double) scale;
-            float crouchOffset = player.isCrouching() ? -0.1875F : 0;
-            return player.getEyePosition(partialTick).add(-cosRot * armOffset - sinRot * sideOffset, (double) crouchOffset - 0.75 * (double) scale, -sinRot * armOffset + cosRot * sideOffset);
-        }
     }
 
     private static void vertex(VertexConsumer vertexConsumer, PoseStack.Pose pose, float x, float y, float z, float u, float v) {

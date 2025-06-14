@@ -46,6 +46,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.SimpleTexture;
@@ -56,10 +57,12 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -209,10 +212,6 @@ public class MineraculousClientUtils {
         return Minecraft.getInstance().cameraEntity;
     }
 
-    public static boolean isCameraEntityOther() {
-        return Minecraft.getInstance().cameraEntity != Minecraft.getInstance().player && Minecraft.getInstance().cameraEntity != null;
-    }
-
     // Rendering
     public static VertexConsumer checkLuckyCharm(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack, boolean armor, boolean entity) {
         if (itemStack.has(MineraculousDataComponents.LUCKY_CHARM)) {
@@ -278,5 +277,55 @@ public class MineraculousClientUtils {
             Minecraft.getInstance().gameRenderer.loadEffect(location);
         else if (current != null)
             Minecraft.getInstance().gameRenderer.postEffect = null;
+    }
+
+    public static Vec3 getFirstPersonHandPosition(boolean offHand, boolean swing, float rightScale, float upScale) {
+        float partialTicks = Minecraft.getInstance().getEntityRenderDispatcher().camera == null ? 0 : Minecraft.getInstance().getEntityRenderDispatcher().camera.getPartialTickTime();
+        return getFirstPersonHandPosition(offHand, swing, partialTicks, rightScale, upScale);
+    }
+
+    public static Vec3 getFirstPersonHandPosition(boolean offHand, boolean swing, float partialTick, float rightScale, float upScale) { //meant to be used only when the local player is in 1st POV
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
+            float attackAnim = player.getAttackAnim(partialTick);
+            float swingAngle = swing ? Mth.sin(Mth.sqrt(attackAnim) * Mth.PI) : 0;
+            int armMultiplier = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
+            if (offHand) {
+                armMultiplier = -armMultiplier;
+            }
+
+            EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+            if (entityRenderDispatcher.camera != null && entityRenderDispatcher.options.getCameraType().isFirstPerson()) {
+                double fovScale = 960.0 / (double) entityRenderDispatcher.options.fov().get();
+                Vec3 handOffset = entityRenderDispatcher.camera.getNearPlane().getPointOnPlane((float) armMultiplier * rightScale, upScale).scale(fovScale).yRot(swingAngle * 0.5F).xRot(-swingAngle * 0.7F);
+                return player.getEyePosition(partialTick).add(handOffset);
+            }
+            return Vec3.ZERO;
+        }
+        return Vec3.ZERO;
+    }
+
+    public static Vec3 getHumanoidEntityHandPos(Entity entity, boolean offHand, double frontCoeff, double heightCoeff, double sideCoeff) {
+        float partialTicks = Minecraft.getInstance().getEntityRenderDispatcher().camera == null ? 0 : Minecraft.getInstance().getEntityRenderDispatcher().camera.getPartialTickTime();
+        return getHumanoidEntityHandPos(entity, offHand, partialTicks, frontCoeff, heightCoeff, sideCoeff);
+    }
+
+    public static Vec3 getHumanoidEntityHandPos(Entity entity, boolean offHand, float partialTick, double frontCoeff, double heightCoeff, double sideCoeff) { //meant only for third person view
+        if (entity instanceof LivingEntity livingEntity) {
+            int armMultiplier = livingEntity.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
+            if (offHand) {
+                armMultiplier = -armMultiplier;
+            }
+
+            float bodyRotRad = Mth.lerp(partialTick, livingEntity.yBodyRotO, livingEntity.yBodyRot) * (Mth.PI / 180F);
+            double sinRot = Mth.sin(bodyRotRad);
+            double cosRot = Mth.cos(bodyRotRad);
+            float scale = livingEntity.getScale();
+            double armOffset = (double) armMultiplier * sideCoeff * (double) scale;
+            double frontOffset = frontCoeff * (double) scale;
+            float crouchOffset = livingEntity.isCrouching() ? -0.1875F : 0;
+            return livingEntity.getEyePosition(partialTick).add(-cosRot * armOffset - sinRot * frontOffset, (double) crouchOffset + heightCoeff * (double) scale, -sinRot * armOffset + cosRot * frontOffset);
+        }
+        return Vec3.ZERO;
     }
 }

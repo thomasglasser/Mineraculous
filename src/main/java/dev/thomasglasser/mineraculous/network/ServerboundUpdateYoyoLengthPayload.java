@@ -5,6 +5,7 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -29,11 +30,11 @@ public record ServerboundUpdateYoyoLengthPayload(boolean increase) implements Ex
             if (increase) {
                 if (distance >= maxRopeLn - 0.2) {
                     thrownYoyo.setServerMaxRopeLength(thrownYoyo.getServerMaxRopeLength() + 0.3f);
-                    thrownYoyo.updateRenderMaxRopeLength(player);
+                    TommyLibServices.NETWORK.sendToAllClients(new ClientboundCalculateYoyoRenderLengthPayload(thrownYoyo.getId(), player.getId()), player.getServer());
                 }
             } else if (distance > 2) {
                 thrownYoyo.setServerMaxRopeLength(thrownYoyo.getServerMaxRopeLength() - 0.2f);
-                thrownYoyo.updateRenderMaxRopeLength(player);
+                TommyLibServices.NETWORK.sendToAllClients(new ClientboundCalculateYoyoRenderLengthPayload(thrownYoyo.getId(), player.getId()), player.getServer());
             }
         }
     }

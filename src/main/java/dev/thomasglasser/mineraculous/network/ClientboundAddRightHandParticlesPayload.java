@@ -1,8 +1,9 @@
 package dev.thomasglasser.mineraculous.network;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownLadybugYoyoRenderer;
+import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -27,17 +28,33 @@ public record ClientboundAddRightHandParticlesPayload(int id, ParticleOptions pa
         Entity entity = player.level().getEntity(id);
         if (entity instanceof LivingEntity livingEntity) {
             Level level = livingEntity.level();
-            double randomShiftForward = 1.0 / level.random.nextInt(8, 15);
-            double randomShiftRight = 1.0 / level.random.nextInt(8, 15);
-            double randomShiftUp = 1.0 / level.random.nextInt(15, 50);
-            if (level.random.nextBoolean())
-                randomShiftForward = -randomShiftForward;
-            if (level.random.nextBoolean())
-                randomShiftRight = -randomShiftRight;
-            // TODO: Improve
-            Vec3 handPos = ThrownLadybugYoyoRenderer.getPlayerHandPos(player, 0, 0, false);
-            entity.level().addParticle(particle, handPos.x + 0.1 + randomShiftForward, handPos.y + -0.1 - randomShiftUp, handPos.z + 0.23 + randomShiftRight, 0, 0, 0);
+            Vec3 handPos;
+            if (entity == Minecraft.getInstance().player && Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+                handPos = MineraculousClientUtils.getFirstPersonHandPosition(false, true, 0.575f, -0.75f);
+            } else
+                handPos = MineraculousClientUtils.getHumanoidEntityHandPos(entity, false, 0, -0.9, 0.35);
+            particles(level, handPos);
+            particles(level, handPos);
         }
+    }
+
+    private void particles(Level level, Vec3 handPos) {
+        double randomShiftForward = 1.0 / level.random.nextInt(8, 15);
+        double randomShiftRight = 1.0 / level.random.nextInt(8, 15);
+        double randomShiftUp = 1.0 / level.random.nextInt(8, 15);
+        if (level.random.nextBoolean())
+            randomShiftForward = -randomShiftForward;
+        if (level.random.nextBoolean())
+            randomShiftRight = -randomShiftRight;
+        if (level.random.nextBoolean())
+            randomShiftUp = -randomShiftUp;
+
+        if (handPos != Vec3.ZERO)
+            level.addParticle(particle,
+                    handPos.x + randomShiftForward,
+                    handPos.y + randomShiftUp,
+                    handPos.z + randomShiftRight,
+                    0, 0, 0);
     }
 
     @Override

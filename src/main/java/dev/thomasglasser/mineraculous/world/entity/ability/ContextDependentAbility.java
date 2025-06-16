@@ -7,7 +7,6 @@ import dev.thomasglasser.mineraculous.world.entity.ability.context.BlockAbilityC
 import dev.thomasglasser.mineraculous.world.entity.ability.context.EntityAbilityContext;
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityData;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -58,7 +57,7 @@ public record ContextDependentAbility(Optional<Holder<Ability>> blockAbility, Op
 
     @Override
     public List<Ability> getMatching(Predicate<Ability> predicate) {
-        List<Ability> abilities = new ArrayList<>();
+        List<Ability> abilities = new ReferenceArrayList<>();
         abilities.add(this);
         blockAbility.ifPresent(ability -> abilities.addAll(Ability.getMatching(predicate, ability.value())));
         entityAbility.ifPresent(ability -> abilities.addAll(Ability.getMatching(predicate, ability.value())));

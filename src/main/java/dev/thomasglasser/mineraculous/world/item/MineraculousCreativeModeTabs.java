@@ -50,12 +50,15 @@ public class MineraculousCreativeModeTabs {
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> KAMIKOTIZABLES = TABS.register("kamikotizables", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(Mineraculous.modLoc("kamikotizables").toLanguageKey("item_group"))).icon(MineraculousArmors.KAMIKOTIZATION.HEAD::toStack).displayItems((parameters, output) -> {
         Set<ItemStack> set = ItemStackLinkedSet.createTypeAndComponentsSet();
 
-        for (CreativeModeTab creativemodetab : parameters.holders().lookupOrThrow(Registries.CREATIVE_MODE_TAB).listElements().map(Holder::value).toList()) {
-            if (creativemodetab.getType() != CreativeModeTab.Type.SEARCH) {
+        for (CreativeModeTab tab : parameters.holders().lookupOrThrow(Registries.CREATIVE_MODE_TAB).listElements().map(Holder::value).toList()) {
+            if (tab.getType() != CreativeModeTab.Type.SEARCH) {
                 LinkedHashSet<Kamikotization> kamikotizations = parameters.holders().lookupOrThrow(MineraculousRegistries.KAMIKOTIZATION).listElements().sorted(Comparator.comparing(Holder.Reference::key)).map(Holder::value).collect(Collectors.toCollection(LinkedHashSet::new));
-                for (ItemStack stack : creativemodetab.getSearchTabDisplayItems()) {
-                    if (kamikotizations.stream().anyMatch(kamikotization -> !kamikotization.itemPredicate().equals(ANY) && kamikotization.itemPredicate().test(stack))) {
-                        set.add(stack);
+                for (ItemStack stack : tab.getSearchTabDisplayItems()) {
+                    for (Kamikotization kamikotization : kamikotizations) {
+                        if (!kamikotization.itemPredicate().equals(ANY) && kamikotization.itemPredicate().test(stack)) {
+                            set.add(stack);
+                            break;
+                        }
                     }
                 }
             }

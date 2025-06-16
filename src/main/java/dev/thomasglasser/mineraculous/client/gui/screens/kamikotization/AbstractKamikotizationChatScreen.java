@@ -1,7 +1,8 @@
 package dev.thomasglasser.mineraculous.client.gui.screens.kamikotization;
 
 import dev.thomasglasser.mineraculous.world.level.storage.AbilityEffectData;
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import java.util.List;
 import java.util.Optional;
 import net.minecraft.client.GuiMessage;
 import net.minecraft.client.GuiMessageTag;
@@ -38,7 +39,7 @@ public abstract class AbstractKamikotizationChatScreen extends ChatScreen {
     @Override
     public void resize(Minecraft minecraft, int width, int height) {
         String s = this.input.getValue();
-        ArrayList<GuiMessage> list = new ArrayList<>();
+        List<GuiMessage> list = new ReferenceArrayList<>();
         for (int i = this.minecraft.gui.getChat().allMessages.size() - 1; i >= 0; i--) {
             list.add(this.minecraft.gui.getChat().allMessages.get(i));
         }

@@ -22,7 +22,7 @@ import dev.thomasglasser.mineraculous.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.ArrayList;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
@@ -140,7 +140,7 @@ public class KamikotizationSelectionScreen extends Screen {
 
     public void renderKamikotization(GuiGraphics guiGraphics) {
         if (selectedKamikotization != null) {
-            List<MutableComponent> components = new ArrayList<>();
+            List<MutableComponent> components = new ReferenceArrayList<>();
             Either<ItemStack, Holder<Ability>> powerSource = selectedKamikotization.value().powerSource();
             if (powerSource.left().isPresent()) {
                 components.add(TOOL.copy().withStyle(ChatFormatting.BOLD));

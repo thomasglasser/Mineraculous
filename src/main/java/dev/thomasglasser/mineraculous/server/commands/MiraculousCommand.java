@@ -7,19 +7,12 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import dev.thomasglasser.mineraculous.core.registries.MineraculousRegistries;
-import dev.thomasglasser.mineraculous.network.ClientboundOpenLookCustomizationScreenPayload;
 import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedMiraculousLookData;
-import dev.thomasglasser.mineraculous.world.level.storage.FlattenedSuitLookData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
-import dev.thomasglasser.mineraculous.world.level.storage.ServerLookData;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.Map;
-import java.util.Optional;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -27,7 +20,6 @@ import net.minecraft.commands.arguments.ResourceKeyArgument;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 
 public class MiraculousCommand {
@@ -58,13 +50,6 @@ public class MiraculousCommand {
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("miraculous")
                 .then(Commands.argument("miraculous", ResourceKeyArgument.key(MineraculousRegistries.MIRACULOUS))
-                        .then(Commands.literal("customize")
-                                .executes(context -> tryOpenCustomizationScreen(context.getSource().getPlayerOrException(), context, true))
-                                .then(Commands.argument("target", EntityArgument.player())
-                                        .executes(context -> {
-                                            ServerPlayer target = EntityArgument.getPlayer(context, "target");
-                                            return tryOpenCustomizationScreen(target, context, target == context.getSource().getPlayer());
-                                        })))
                         .then(Commands.literal("charged")
                                 .requires(source -> source.hasPermission(COMMANDS_ENABLED_PERMISSION_LEVEL))
                                 .then(Commands.literal("query")
@@ -97,15 +82,6 @@ public class MiraculousCommand {
                                                     Entity target = EntityArgument.getEntity(context, "target");
                                                     return setPowerLevel(target, context, target == context.getSource().getEntity());
                                                 }))))));
-    }
-
-    private static int tryOpenCustomizationScreen(ServerPlayer player, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
-        Holder.Reference<Miraculous> miraculous = resolveMiraculous(context, "miraculous");
-        Map<String, FlattenedSuitLookData> serverSuits = ServerLookData.getCommonSuits().get(resolveMiraculous(context, "miraculous").key());
-        Map<String, FlattenedMiraculousLookData> serverMiraculous = ServerLookData.getCommonMiraculouses().get(resolveMiraculous(context, "miraculous").key());
-        context.getSource().sendSuccess(() -> self ? Component.translatable(CUSTOMIZE_OPEN_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key()))) : Component.translatable(CUSTOMIZE_OPEN_SUCCESS_OTHER, Component.translatable(Miraculous.toLanguageKey(miraculous.key())), player.getDisplayName()), true);
-        TommyLibServices.NETWORK.sendToClient(new ClientboundOpenLookCustomizationScreenPayload(context.getSource().getPlayer() == null ? Optional.empty() : Optional.of(context.getSource().getPlayer().getUUID()), true, miraculous, serverSuits, serverMiraculous), player);
-        return 1;
     }
 
     private static int getKwamiCharged(Entity entity, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {

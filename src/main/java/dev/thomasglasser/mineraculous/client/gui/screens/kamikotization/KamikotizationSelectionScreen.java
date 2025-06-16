@@ -139,8 +139,6 @@ public class KamikotizationSelectionScreen extends Screen {
     }
 
     public void renderKamikotization(GuiGraphics guiGraphics) {
-        if (targetPreview.getData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS).isEmpty())
-            targetPreview.setData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS, target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION_LOOKS));
         if (selectedKamikotization != null) {
             List<MutableComponent> components = new ArrayList<>();
             Either<ItemStack, Holder<Ability>> powerSource = selectedKamikotization.value().powerSource();

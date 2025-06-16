@@ -352,7 +352,6 @@
   "gui.kamikotization.no_kamikotizations": "No valid kamikotizations found for %s",
   "gui.kamikotization.passive_abilities": "Passive Abilities:",
   "gui.kamikotization.tool": "Tool:",
-  "gui.look.name": "%s Look Customization",
   "gui.mineraculous.revoke": "Revoke Kamikotization",
   "gui.mineraculous.revoke_with_space": "Revoke Kamikotization (Press Space)",
   "gui.miraculous_transfer.renounce": "Renounce",

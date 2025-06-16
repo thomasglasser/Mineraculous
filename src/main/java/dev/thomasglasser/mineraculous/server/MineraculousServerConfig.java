@@ -1,7 +1,5 @@
 package dev.thomasglasser.mineraculous.server;
 
-import dev.thomasglasser.mineraculous.world.level.storage.ServerLookData;
-import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class MineraculousServerConfig {
@@ -65,10 +63,6 @@ public class MineraculousServerConfig {
 
     public ModConfigSpec getConfigSpec() {
         return configSpec;
-    }
-
-    public boolean isCustomizationAllowed(Player player) {
-        return enableCustomization.get() && (customizationPermissionsMode.get() == PermissionMode.WHITELIST ? ServerLookData.isPlayerInWhitelist(player) : !ServerLookData.isPlayerInBlacklist(player));
     }
 
     public static MineraculousServerConfig get() {

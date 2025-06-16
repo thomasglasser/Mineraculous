@@ -1,14 +1,9 @@
 package dev.thomasglasser.mineraculous.client.renderer.armor;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.client.renderer.texture.DynamicAutoGlowingTexture;
 import dev.thomasglasser.mineraculous.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.world.entity.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.world.item.armor.MiraculousArmorItem;
-import dev.thomasglasser.mineraculous.world.level.storage.SuitLookData;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import net.minecraft.client.Minecraft;
@@ -18,12 +13,9 @@ import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.Animation;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.texture.AutoGlowingTexture;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
@@ -32,7 +24,6 @@ import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmorItem> {
     private static final Map<Holder<Miraculous>, GeoModel<MiraculousArmorItem>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
-    private static final Map<SuitLookData, GeoModel<MiraculousArmorItem>> LOOK_MODELS = new Reference2ReferenceOpenHashMap<>();
 
     public MiraculousArmorItemRenderer() {
         super(null);
@@ -44,28 +35,6 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
                 if (Minecraft.getInstance().getResourceManager().getResource(glowmaskTexture).isPresent() || Minecraft.getInstance().getTextureManager().getTexture(glowmaskTexture, MissingTextureAtlasSprite.getTexture()) != MissingTextureAtlasSprite.getTexture()) {
                     return super.getRenderType(animatable, bufferSource);
                 } else {
-                    ItemStack stack = getCurrentStack();
-                    if (stack != null && getCurrentEntity() instanceof LivingEntity livingEntity) {
-                        String look = /*livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(stack.get(MineraculousDataComponents.MIRACULOUS)).suitLook()*/"";
-                        SuitLookData data = livingEntity.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).get(stack.get(MineraculousDataComponents.MIRACULOUS), look);
-                        if (data != null && texture.equals(data.texture())) {
-                            data.glowmask().ifPresent(glowmask -> {
-                                try {
-                                    DynamicAutoGlowingTexture.register(texture, glowmask);
-                                } catch (IOException e) {
-                                    Mineraculous.LOGGER.error("Failed to register glowmask texture for {}", texture, e);
-                                }
-                            });
-                            try {
-                                byte[] glowmaskFrame = data.glowmaskFrames().get(data.frames().indexOf(texture));
-                                DynamicAutoGlowingTexture.register(texture, glowmaskFrame);
-                            } catch (IndexOutOfBoundsException e) {
-                                return null;
-                            } catch (IOException e) {
-                                Mineraculous.LOGGER.error("Failed to register glowmask frame texture for {}", texture, e);
-                            }
-                        }
-                    }
                     return null;
                 }
             }
@@ -74,7 +43,6 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
 
     public static void clearModels() {
         DEFAULT_MODELS.clear();
-        LOOK_MODELS.clear();
     }
 
     @Override
@@ -107,17 +75,6 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
             if (miraculous != null) {
                 if (!DEFAULT_MODELS.containsKey(miraculous))
                     DEFAULT_MODELS.put(miraculous, createDefaultGeoModel(miraculous));
-                if (getCurrentEntity() instanceof Player player) {
-                    String look = /*player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).suitLook()*/"";
-                    if (!look.isEmpty()) {
-                        SuitLookData data = player.getData(MineraculousAttachmentTypes.MIRACULOUS_SUIT_LOOKS).get(miraculous, look);
-                        if (data != null) {
-                            if (!LOOK_MODELS.containsKey(data))
-                                LOOK_MODELS.put(data, createLookGeoModel(miraculous, data));
-                            return LOOK_MODELS.get(data);
-                        }
-                    }
-                }
                 return DEFAULT_MODELS.get(miraculous);
             }
         }
@@ -136,49 +93,6 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
             @Override
             public @Nullable Animation getAnimation(MiraculousArmorItem animatable, String name) {
                 try {
-                    return super.getAnimation(animatable, name);
-                } catch (RuntimeException e) {
-                    return null;
-                }
-            }
-        };
-    }
-
-    private GeoModel<MiraculousArmorItem> createLookGeoModel(Holder<Miraculous> miraculous, SuitLookData data) {
-        return new GeoModel<>() {
-            private BakedGeoModel currentModel = null;
-
-            @Override
-            public ResourceLocation getModelResource(MiraculousArmorItem animatable) {
-                return DEFAULT_MODELS.get(miraculous).getModelResource(animatable);
-            }
-
-            @Override
-            public ResourceLocation getTextureResource(MiraculousArmorItem animatable) {
-                return data.texture();
-            }
-
-            @Override
-            public ResourceLocation getAnimationResource(MiraculousArmorItem animatable) {
-                return DEFAULT_MODELS.get(miraculous).getAnimationResource(animatable);
-            }
-
-            @Override
-            public BakedGeoModel getBakedModel(ResourceLocation location) {
-                BakedGeoModel baked = data.model().orElseGet(() -> super.getBakedModel(location));
-                if (currentModel != baked) {
-                    currentModel = baked;
-                    getAnimationProcessor().setActiveModel(baked);
-                }
-                return currentModel;
-            }
-
-            @Override
-            public @Nullable Animation getAnimation(MiraculousArmorItem animatable, String name) {
-                try {
-                    if (data.animations().isPresent()) {
-                        return data.animations().get().getAnimation(name);
-                    }
                     return super.getAnimation(animatable, name);
                 } catch (RuntimeException e) {
                     return null;

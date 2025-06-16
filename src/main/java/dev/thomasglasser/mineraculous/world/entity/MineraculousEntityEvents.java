@@ -19,21 +19,20 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.world.level.storage.ToolIdData;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
-import java.util.Optional;
-import java.util.UUID;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
+import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ResolvableProfile;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
@@ -47,6 +46,9 @@ import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
+
+import java.util.Optional;
+import java.util.UUID;
 
 public class MineraculousEntityEvents {
     /// Registration
@@ -87,7 +89,7 @@ public class MineraculousEntityEvents {
     public static void onEntityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
         if (entity.level() instanceof ServerLevel level) {
-            checkBlockingComponent(entity);
+            checkInventoryComponents(entity);
 
             AbilityReversionEntityData.get(level).tick(entity);
             AbilityReversionItemData.get(level).tick(entity);
@@ -100,7 +102,7 @@ public class MineraculousEntityEvents {
         }
     }
 
-    public static void checkBlockingComponent(Entity entity) {
+    public static void checkInventoryComponents(Entity entity) {
         for (ItemStack stack : EntityUtils.getInventory(entity)) {
             if (entity instanceof LivingEntity livingEntity) {
                 boolean blocking = livingEntity.isBlocking() && livingEntity.getUseItem() == stack;
@@ -110,6 +112,10 @@ public class MineraculousEntityEvents {
                     stack.set(MineraculousDataComponents.BLOCKING, Unit.INSTANCE);
             } else if (stack.has(MineraculousDataComponents.BLOCKING)) {
                 stack.remove(MineraculousDataComponents.BLOCKING);
+            }
+            Integer carrierId = stack.get(MineraculousDataComponents.CARRIER);
+            if (carrierId == null || carrierId != entity.getId()) {
+                stack.set(MineraculousDataComponents.CARRIER, entity.getId());
             }
         }
     }
@@ -186,8 +192,33 @@ public class MineraculousEntityEvents {
 
     // Cataclysm
     public static void onEffectRemoved(MobEffectEvent.Remove event) {
-        if (event.getEffect() == MineraculousMobEffects.CATACLYSM && !(event.getEntity() instanceof Player player && player.getAbilities().invulnerable)) {
+        LivingEntity entity = event.getEntity();
+        if (event.getEffect() == MineraculousMobEffects.CATACLYSM && !(entity instanceof Player player && player.getAbilities().invulnerable)) {
             event.setCanceled(true);
+        }
+        if (entity.level() instanceof ServerLevel level) {
+            for (ServerPlayer player : level.players()) {
+                player.connection.send(new ClientboundRemoveMobEffectPacket(entity.getId(), event.getEffect()));
+            }
+        }
+    }
+
+    public static void onEffectAdded(MobEffectEvent.Added event) {
+        LivingEntity entity = event.getEntity();
+        if (entity.level() instanceof ServerLevel level) {
+            for (ServerPlayer player : level.players()) {
+                player.connection.send(new ClientboundUpdateMobEffectPacket(entity.getId(), event.getEffectInstance(), false));
+            }
+        }
+    }
+
+    public static void onEffectExpired(MobEffectEvent.Expired event) {
+        LivingEntity entity = event.getEntity();
+        MobEffectInstance effectInstance = event.getEffectInstance();
+        if (entity.level() instanceof ServerLevel level && effectInstance != null) {
+            for (ServerPlayer player : level.players()) {
+                player.connection.send(new ClientboundRemoveMobEffectPacket(entity.getId(), effectInstance.getEffect()));
+            }
         }
     }
 
@@ -215,8 +246,8 @@ public class MineraculousEntityEvents {
                 entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {
                     Holder<Kamikotization> kamikotization = stack.get(MineraculousDataComponents.KAMIKOTIZATION);
                     if (kamikotization == data.kamikotization()) {
-                        ResolvableProfile profile = stack.get(DataComponents.PROFILE);
-                        if (profile == null || entity instanceof Player player && profile.id().orElse(profile.gameProfile().getId()).equals(player.getUUID())) {
+                        UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
+                        if (ownerId == null || ownerId.equals(entity.getUUID())) {
                             data.detransform(entity, level, entity.position().add(0, 1, 0), true);
                         }
                     }

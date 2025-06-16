@@ -24,16 +24,16 @@ public record ServerboundUpdateYoyoLengthPayload(boolean increase) implements Ex
         ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
         ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
         if (thrownYoyo != null) {
-            float maxRopeLn = thrownYoyo.getServerMaxRopeLength();
+            float maxRopeLn = thrownYoyo.getMaxRopeLength();
             Vec3 fromProjectileToPlayer = new Vec3(player.getX() - thrownYoyo.getX(), player.getY() - thrownYoyo.getY(), player.getZ() - thrownYoyo.getZ());
             double distance = fromProjectileToPlayer.length();
             if (increase) {
                 if (distance >= maxRopeLn - 0.2) {
-                    thrownYoyo.setServerMaxRopeLength(thrownYoyo.getServerMaxRopeLength() + 0.3f);
+                    thrownYoyo.setMaxRopeLength(thrownYoyo.getMaxRopeLength() + 0.3f);
                     TommyLibServices.NETWORK.sendToAllClients(new ClientboundCalculateYoyoRenderLengthPayload(thrownYoyo.getId(), player.getId()), player.getServer());
                 }
             } else if (distance > 2) {
-                thrownYoyo.setServerMaxRopeLength(thrownYoyo.getServerMaxRopeLength() - 0.2f);
+                thrownYoyo.setMaxRopeLength(thrownYoyo.getMaxRopeLength() - 0.2f);
                 TommyLibServices.NETWORK.sendToAllClients(new ClientboundCalculateYoyoRenderLengthPayload(thrownYoyo.getId(), player.getId()), player.getServer());
             }
         }

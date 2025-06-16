@@ -14,6 +14,8 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousLookData;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.io.IOException;
 import java.util.Map;
+import java.util.UUID;
+
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -24,6 +26,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
@@ -189,13 +192,13 @@ public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
     @Nullable
     private MiraculousLookData getMiraculousLookData(ItemStack stack) {
         Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-        ResolvableProfile profile = getCurrentItemStack().get(DataComponents.PROFILE);
-        if (profile != null && Minecraft.getInstance().level != null) {
-            Player player = Minecraft.getInstance().level.getPlayerByUUID(profile.id().orElse(profile.gameProfile().getId()));
-            if (player != null) {
+        UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
+        if (ownerId != null && Minecraft.getInstance().level != null) {
+            Entity owner = Minecraft.getInstance().level.getEntities().get(ownerId);
+            if (owner != null) {
                 String look = /*player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).miraculousLook()*/"";
                 if (!look.isEmpty()) {
-                    return player.getData(MineraculousAttachmentTypes.MIRACULOUS_MIRACULOUS_LOOKS).get(miraculous, look);
+                    return owner.getData(MineraculousAttachmentTypes.MIRACULOUS_MIRACULOUS_LOOKS).get(miraculous, look);
                 }
             }
         }

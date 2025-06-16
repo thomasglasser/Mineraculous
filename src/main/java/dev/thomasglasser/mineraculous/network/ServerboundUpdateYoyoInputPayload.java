@@ -27,7 +27,7 @@ public record ServerboundUpdateYoyoInputPayload(boolean front, boolean back, boo
         ThrownLadybugYoyo thrownYoyo = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).getThrownYoyo(player.level());
         if (thrownYoyo != null) {
             if (thrownYoyo.inGround() && !player.isNoGravity() && !player.getAbilities().flying) {
-                float maxRopeLn = thrownYoyo.getServerMaxRopeLength();
+                float maxRopeLn = thrownYoyo.getMaxRopeLength();
                 Vec3 oX = new Vec3(maxRopeLn, 0, 0);
                 Vec3 oY = new Vec3(0, -1 * maxRopeLn, 0);
                 double y = oX.add(oY.scale(1.7)).normalize().scale(maxRopeLn).y;

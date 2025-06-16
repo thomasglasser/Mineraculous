@@ -67,9 +67,6 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
                     for (Holder<MobEffect> mobEffect : effects) {
                         MobEffectInstance effect = new MobEffectInstance(mobEffect, -1, (data.powerLevel() / 10), effectSettings.ambient(), effectSettings.showParticles(), effectSettings.showIcon());
                         livingEntity.addEffect(effect);
-                        for (ServerPlayer player : level.players()) {
-                            player.connection.send(new ClientboundUpdateMobEffectPacket(livingEntity.getId(), effect, false));
-                        }
                     }
                 }
             } else if (target instanceof VehicleEntity vehicle) {

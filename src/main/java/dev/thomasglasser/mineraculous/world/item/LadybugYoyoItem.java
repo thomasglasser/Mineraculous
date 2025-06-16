@@ -25,6 +25,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -51,7 +52,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -188,8 +188,8 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeCharged) {
         if (stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.PURIFY && level instanceof ServerLevel serverLevel) {
-            ResolvableProfile profile = stack.get(DataComponents.PROFILE);
-            Entity owner = profile != null ? serverLevel.getEntity(profile.id().orElse(profile.gameProfile().getId())) : null;
+            UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
+            Entity owner = ownerId != null ? serverLevel.getEntity(ownerId) : null;
             if (owner != null) {
                 MiraculousesData miraculousesData = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
                 Holder<Miraculous> storingKey = miraculousesData.getFirstTransformedIn(MiraculousTags.CAN_USE_LADYBUG_YOYO);
@@ -284,7 +284,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
             ThrownLadybugYoyo thrown = new ThrownLadybugYoyo(player, level, stack, ability);
             thrown.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F, 1.0F);
             thrown.setInitialDirection(player.getDirection());
-            thrown.setInitialHand(hand);
+            thrown.setHand(hand);
             level.addFreshEntity(thrown);
             thrown.setNoGravity(true);
             level.playSound(null, thrown, SoundEvents.FISHING_BOBBER_THROW, SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -349,9 +349,9 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     public int getColor(ItemStack stack, InteractionHand hand, Player holder) {
         Level level = holder.level();
         int color = level.holderOrThrow(Miraculouses.LADYBUG).value().color().getValue();
-        ResolvableProfile resolvableProfile = stack.get(DataComponents.PROFILE);
-        if (resolvableProfile != null) {
-            Player owner = level.getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
+        UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
+        if (ownerId != null) {
+            Entity owner = level.getEntities().get(ownerId);
             if (owner != null) {
                 Holder<Miraculous> colorKey = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstTransformedIn(MiraculousTags.CAN_USE_LADYBUG_YOYO);
                 if (colorKey != null)
@@ -363,7 +363,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
 
     @Override
     public List<Ability> getOptions(ItemStack stack, InteractionHand hand, Player holder) {
-        if (stack.has(DataComponents.PROFILE))
+        if (stack.has(MineraculousDataComponents.OWNER))
             return Ability.valuesList();
         return Ability.unpoweredValuesList();
     }

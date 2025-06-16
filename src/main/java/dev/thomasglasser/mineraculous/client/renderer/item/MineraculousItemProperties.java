@@ -41,7 +41,7 @@ public class MineraculousItemProperties {
                 ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
                 ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
                 if (thrownYoyo instanceof ThrownLadybugYoyo yoyo) {
-                    if (yoyo.getInitialHand() == InteractionHand.MAIN_HAND ? player.getMainHandItem() == stack : player.getOffhandItem() == stack) {
+                    if (yoyo.getHand() == InteractionHand.MAIN_HAND ? player.getMainHandItem() == stack : player.getOffhandItem() == stack) {
                         return yoyo.inGround() /*|| yoyo.isBound()*/ ? 2 : 1;
                     }
                 }

@@ -9,8 +9,6 @@ import dev.thomasglasser.mineraculous.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.world.item.curio.CuriosData;
 import dev.thomasglasser.mineraculous.world.level.storage.MiraculousData;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import java.util.List;
-import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.Holder;
@@ -24,7 +22,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -34,6 +31,10 @@ import software.bernie.geckolib.animation.AnimatableManager;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Consumer;
 
 public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -68,18 +69,20 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
         if (level instanceof ServerLevel serverLevel) {
-            KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA.get());
-            if (entity instanceof Player player) {
-                ResolvableProfile profile = stack.get(DataComponents.PROFILE);
-                if (profile == null || !profile.id().orElse(profile.gameProfile().getId()).equals(player.getUUID())) {
-                    stack.set(DataComponents.PROFILE, new ResolvableProfile(player.getGameProfile()));
-                    if (kwamiData != null) {
-                        Entity e = serverLevel.getEntity(kwamiData.uuid());
-                        if (e instanceof Kwami kwami) {
+            KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
+            UUID owner = stack.get(MineraculousDataComponents.OWNER);
+            if (owner == null || !owner.equals(entity.getUUID())) {
+                stack.set(MineraculousDataComponents.OWNER, entity.getUUID());
+                if (kwamiData != null) {
+                    if (serverLevel.getEntity(kwamiData.uuid()) instanceof Kwami kwami) {
+                        if (entity instanceof Player player) {
                             kwami.tame(player);
-                        } else if (!stack.has(MineraculousDataComponents.POWERED)) {
-                            stack.remove(MineraculousDataComponents.KWAMI_DATA);
+                        } else {
+                            kwami.setTame(true, true);
+                            kwami.setOwnerUUID(entity.getUUID());
                         }
+                    } else if (!stack.has(MineraculousDataComponents.POWERED)) {
+                        stack.remove(MineraculousDataComponents.KWAMI_DATA);
                     }
                 }
             }

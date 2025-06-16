@@ -12,6 +12,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
+
 public record RightHandParticlesAbility(ParticleOptions particle) implements Ability {
     public static final MapCodec<RightHandParticlesAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ParticleTypes.CODEC.fieldOf("particle").forGetter(RightHandParticlesAbility::particle)).apply(instance, RightHandParticlesAbility::new));
@@ -19,7 +21,7 @@ public record RightHandParticlesAbility(ParticleOptions particle) implements Abi
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (context == null) {
-            TommyLibServices.NETWORK.sendToTrackingClients(new ClientboundAddRightHandParticlesPayload(performer.getId(), particle), performer);
+            TommyLibServices.NETWORK.sendToTrackingClients(new ClientboundAddRightHandParticlesPayload(Optional.of(performer.getId()), particle), performer);
         }
         return false;
     }

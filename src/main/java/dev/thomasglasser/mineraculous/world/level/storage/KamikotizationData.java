@@ -19,9 +19,7 @@ import dev.thomasglasser.mineraculous.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.world.item.component.KamikoData;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.Optional;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -35,10 +33,11 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoData kamikoData, String name, Optional<Either<Integer, Integer>> transformationFrames, int remainingStackCount, boolean powerActive) {
 
@@ -77,9 +76,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         kamikotizationStack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS, Unit.INSTANCE);
         kamikotizationStack.set(MineraculousDataComponents.KAMIKO_DATA, kamikoData);
         kamikotizationStack.set(MineraculousDataComponents.KAMIKOTIZATION, kamikotization);
-        if (entity instanceof Player player) {
-            kamikotizationStack.set(DataComponents.PROFILE, new ResolvableProfile(player.getGameProfile()));
-        }
+        kamikotizationStack.set(MineraculousDataComponents.OWNER, entity.getUUID());
 
         AbilityReversionItemData.get(level).putKamikotized(entity.getUUID(), originalStack);
 

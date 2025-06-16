@@ -29,7 +29,6 @@ import java.util.Optional;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -48,7 +47,6 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.enchantment.Enchantments;
 import org.jetbrains.annotations.Nullable;
 
@@ -385,9 +383,7 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
             ItemStack tool = value.tool();
             if (!tool.isEmpty()) {
                 int id = ToolIdData.get(level).incrementToolId(kwamiData);
-                if (entity instanceof Player player) {
-                    tool.set(DataComponents.PROFILE, new ResolvableProfile(player.getGameProfile()));
-                }
+                tool.set(MineraculousDataComponents.OWNER, entity.getUUID());
                 tool.set(MineraculousDataComponents.KWAMI_DATA, kwamiData);
                 tool.set(MineraculousDataComponents.TOOL_ID, id);
                 value.toolSlot().ifPresentOrElse(slot -> {

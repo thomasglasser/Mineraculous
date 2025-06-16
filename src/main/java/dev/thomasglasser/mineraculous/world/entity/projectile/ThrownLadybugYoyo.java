@@ -16,12 +16,9 @@ import dev.thomasglasser.mineraculous.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.world.level.storage.YoyoLeashData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.List;
-import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -39,7 +36,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -55,13 +51,17 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     private static final EntityDataAccessor<Optional<LadybugYoyoItem.Ability>> DATA_ABILITY = SynchedEntityData.defineId(ThrownLadybugYoyo.class, MineraculousEntityDataSerializers.OPTIONAL_LADYBUG_YOYO_ABILITY.get());
     private static final EntityDataAccessor<Boolean> DATA_IS_RECALLING = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<Float> DATA_SERVER_MAX_ROPE_LENGTH = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> DATA_MAX_ROPE_LENGTH = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Direction> DATA_INITIAL_DIRECTION = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.DIRECTION);
     private static final EntityDataAccessor<Integer> DATA_RECALLING_TICKS = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> DATA_INITIAL_HAND = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_HAND = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -90,10 +90,9 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         builder.define(DATA_ABILITY, Optional.empty());
         builder.define(DATA_IS_RECALLING, false);
         builder.define(DATA_RECALLING_TICKS, 0);
-        builder.define(DATA_SERVER_MAX_ROPE_LENGTH, 0f);
-        //builder.define(DATA_RENDER_MAX_ROPE_LENGTH, 0f);
+        builder.define(DATA_MAX_ROPE_LENGTH, 0f);
         builder.define(DATA_INITIAL_DIRECTION, Direction.UP);
-        builder.define(DATA_INITIAL_HAND, 0);
+        builder.define(DATA_HAND, 0);
     }
 
     public @Nullable LadybugYoyoItem.Ability getAbility() {
@@ -116,12 +115,12 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         this.entityData.set(DATA_RECALLING_TICKS, this.getRecallingTicks() + 1);
     }
 
-    public float getServerMaxRopeLength() {
-        return this.entityData.get(DATA_SERVER_MAX_ROPE_LENGTH);
+    public float getMaxRopeLength() {
+        return this.entityData.get(DATA_MAX_ROPE_LENGTH);
     }
 
-    public void setServerMaxRopeLength(float f) {
-        this.entityData.set(DATA_SERVER_MAX_ROPE_LENGTH, Math.max(f, 1.5f));
+    public void setMaxRopeLength(float f) {
+        this.entityData.set(DATA_MAX_ROPE_LENGTH, Math.max(f, 1.5f));
     }
 
     public float getRenderMaxRopeLength(boolean isFirstPov) {
@@ -144,12 +143,12 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         this.entityData.set(DATA_INITIAL_DIRECTION, dir);
     }
 
-    public InteractionHand getInitialHand() {
-        return InteractionHand.values()[this.entityData.get(DATA_INITIAL_HAND)];
+    public InteractionHand getHand() {
+        return InteractionHand.values()[this.entityData.get(DATA_HAND)];
     }
 
-    public void setInitialHand(InteractionHand hand) {
-        this.entityData.set(DATA_INITIAL_HAND, hand.ordinal());
+    public void setHand(InteractionHand hand) {
+        this.entityData.set(DATA_HAND, hand.ordinal());
     }
 
     @Nullable
@@ -184,7 +183,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 double distance = vec3.length();
                 vec3.normalize();
                 this.setDeltaMovement(vec3.scale(Math.min(Math.max(distance * 0.01 * 2.5, 0.3), 0.5)));
-                if (distance <= 2 || distance > this.getServerMaxRopeLength() + 1 || this.getRecallingTicks() >= 15) {
+                if (distance <= 2 || distance > this.getMaxRopeLength() + 1 || this.getRecallingTicks() >= 15) {
                     this.discard();
                 }
                 this.updateRecallingTicks();
@@ -192,10 +191,10 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
                 double distance = fromProjectileToPlayer.length();
 
-                if (distance > this.getServerMaxRopeLength() && this.getServerMaxRopeLength() > 0 && distance <= 99) {
+                if (distance > this.getMaxRopeLength() && this.getMaxRopeLength() > 0 && distance <= 99) {
                     owner.resetFallDistance();
                     Vec3 constrainedPosition = owner.position()
-                            .add(fromProjectileToPlayer.normalize().scale(this.getServerMaxRopeLength() - distance));
+                            .add(fromProjectileToPlayer.normalize().scale(this.getMaxRopeLength() - distance));
                     normalCollisions(false, owner);
                     if (!owner.level().getBlockState(new BlockPos((int) constrainedPosition.x, (int) (constrainedPosition.y + 0.5), (int) constrainedPosition.z)).isSolid()) {
                         owner.setPos(constrainedPosition.x, constrainedPosition.y, constrainedPosition.z);
@@ -204,10 +203,10 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     Vec3 radialForce = fromProjectileToPlayer.normalize();
                     Vec3 tangentialVelocity = owner.getDeltaMovement().subtract(
                             radialForce.scale(owner.getDeltaMovement().dot(radialForce)));
-                    double dampingFactor = Math.max(1.06, 1 - Math.abs(distance - this.getServerMaxRopeLength()) * 0.02); // Less damping near center
+                    double dampingFactor = Math.max(1.06, 1 - Math.abs(distance - this.getMaxRopeLength()) * 0.02); // Less damping near center
                     Vec3 dampedVelocity = tangentialVelocity.scale(dampingFactor);
 
-                    Vec3 correctiveForce = radialForce.scale((distance - this.getServerMaxRopeLength()) * 0.005);
+                    Vec3 correctiveForce = radialForce.scale((distance - this.getMaxRopeLength()) * 0.005);
                     Vec3 newVelocity = dampedVelocity.add(correctiveForce);
 
                     if (this.getY() > owner.getY()) {
@@ -306,7 +305,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     private void checkInstantRecall(LivingEntity owner) {
         Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
         double distance = fromProjectileToPlayer.length();
-        ItemStack stack = owner.getItemInHand(getInitialHand());
+        ItemStack stack = owner.getItemInHand(getHand());
         boolean flag = distance <= 100
                 && this.level().dimension() == owner.level().dimension()
                 && stack.is(MineraculousItems.LADYBUG_YOYO)
@@ -357,8 +356,8 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
             if (ability == LadybugYoyoItem.Ability.PURIFY) {
                 AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
                 if (entityData.isConverted(entity.getUUID())) {
-                    ResolvableProfile profile = getPickupItemStackOrigin().get(DataComponents.PROFILE);
-                    Player yoyoOwner = profile != null ? level.getPlayerByUUID(profile.id().orElse(profile.gameProfile().getId())) : null;
+                    UUID ownerId = getPickupItemStackOrigin().get(MineraculousDataComponents.OWNER);
+                    Entity yoyoOwner = ownerId != null ? level.getEntities().get(ownerId) : null;
                     if (yoyoOwner != null) {
                         MiraculousesData miraculousesData = yoyoOwner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
                         Holder<Miraculous> storingKey = miraculousesData.getFirstTransformedIn(MiraculousTags.CAN_USE_LADYBUG_YOYO);
@@ -404,7 +403,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     }
 
                     Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
-                    this.setServerMaxRopeLength((float) fromProjectileToPlayer.length() + 1.5f);
+                    this.setMaxRopeLength((float) fromProjectileToPlayer.length() + 1.5f);
                 }
             } else {
                 recall();

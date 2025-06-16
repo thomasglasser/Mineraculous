@@ -10,23 +10,22 @@ import dev.thomasglasser.mineraculous.world.attachment.MineraculousAttachmentTyp
 import dev.thomasglasser.mineraculous.world.entity.ability.Ability;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import java.util.List;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.UUID;
 
 public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Either<ItemStack, Holder<Ability>> powerSource, HolderSet<Ability> passiveAbilities) {
 
@@ -77,14 +76,15 @@ public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Ei
 
     public static void checkBroken(ItemStack stack, ServerLevel level, @Nullable Vec3 kamikoPos) {
         Holder<Kamikotization> kamikotization = stack.get(MineraculousDataComponents.KAMIKOTIZATION);
-        ResolvableProfile profile = stack.get(DataComponents.PROFILE);
-        if (kamikotization != null && profile != null) {
-            if (level.getPlayerByUUID(profile.id().orElse(profile.gameProfile().getId())) instanceof ServerPlayer target) {
-                target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresentOrElse(data -> {
+        UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
+        if (kamikotization != null && ownerId != null) {
+            Entity owner = level.getEntity(ownerId);
+            if (owner != null) {
+                owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresentOrElse(data -> {
                     if (data.remainingStackCount() <= 1) {
-                        data.detransform(target, target.serverLevel(), kamikoPos != null ? kamikoPos : target.position().add(0, 1, 0), false);
+                        data.detransform(owner, level, kamikoPos != null ? kamikoPos : owner.position().add(0, 1, 0), false);
                     } else {
-                        data.decrementRemainingStackCount().save(target, true);
+                        data.decrementRemainingStackCount().save(owner, true);
                     }
                 }, () -> stack.setCount(0));
             }

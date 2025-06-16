@@ -39,6 +39,8 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -279,11 +281,14 @@ public class MineraculousClientUtils {
             Minecraft.getInstance().gameRenderer.postEffect = null;
     }
 
+    @SuppressWarnings("ConstantValue")
     public static Vec3 getFirstPersonHandPosition(boolean offHand, boolean swing, float rightScale, float upScale) {
-        float partialTicks = Minecraft.getInstance().getEntityRenderDispatcher().camera == null ? 0 : Minecraft.getInstance().getEntityRenderDispatcher().camera.getPartialTickTime();
+        Camera camera = Minecraft.getInstance().getEntityRenderDispatcher().camera;
+        float partialTicks = camera == null ? 0 : camera.getPartialTickTime();
         return getFirstPersonHandPosition(offHand, swing, partialTicks, rightScale, upScale);
     }
 
+    @SuppressWarnings("ConstantValue")
     public static Vec3 getFirstPersonHandPosition(boolean offHand, boolean swing, float partialTick, float rightScale, float upScale) { //meant to be used only when the local player is in 1st POV
         Player player = Minecraft.getInstance().player;
         if (player != null) {
@@ -295,7 +300,7 @@ public class MineraculousClientUtils {
             }
 
             EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
-            if (entityRenderDispatcher.camera != null && entityRenderDispatcher.options.getCameraType().isFirstPerson()) {
+            if (entityRenderDispatcher.camera != null) {
                 double fovScale = 960.0 / (double) entityRenderDispatcher.options.fov().get();
                 Vec3 handOffset = entityRenderDispatcher.camera.getNearPlane().getPointOnPlane((float) armMultiplier * rightScale, upScale).scale(fovScale).yRot(swingAngle * 0.5F).xRot(-swingAngle * 0.7F);
                 return player.getEyePosition(partialTick).add(handOffset);
@@ -305,12 +310,14 @@ public class MineraculousClientUtils {
         return Vec3.ZERO;
     }
 
-    public static Vec3 getHumanoidEntityHandPos(Entity entity, boolean offHand, double frontCoeff, double heightCoeff, double sideCoeff) {
-        float partialTicks = Minecraft.getInstance().getEntityRenderDispatcher().camera == null ? 0 : Minecraft.getInstance().getEntityRenderDispatcher().camera.getPartialTickTime();
-        return getHumanoidEntityHandPos(entity, offHand, partialTicks, frontCoeff, heightCoeff, sideCoeff);
+    @SuppressWarnings("ConstantValue")
+    public static Vec3 getHumanoidEntityHandPos(Entity entity, boolean offHand, double frontOffset, double heightOffset, double sideOffset) {
+        Camera camera = Minecraft.getInstance().getEntityRenderDispatcher().camera;
+        float partialTicks = camera == null ? 0 : camera.getPartialTickTime();
+        return getHumanoidEntityHandPos(entity, offHand, partialTicks, frontOffset, heightOffset, sideOffset);
     }
 
-    public static Vec3 getHumanoidEntityHandPos(Entity entity, boolean offHand, float partialTick, double frontCoeff, double heightCoeff, double sideCoeff) { //meant only for third person view
+    public static Vec3 getHumanoidEntityHandPos(Entity entity, boolean offHand, float partialTick, double frontOffset, double heightOffset, double sideOffset) { //meant only for third person view
         if (entity instanceof LivingEntity livingEntity) {
             int armMultiplier = livingEntity.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
             if (offHand) {
@@ -321,10 +328,10 @@ public class MineraculousClientUtils {
             double sinRot = Mth.sin(bodyRotRad);
             double cosRot = Mth.cos(bodyRotRad);
             float scale = livingEntity.getScale();
-            double armOffset = (double) armMultiplier * sideCoeff * (double) scale;
-            double frontOffset = frontCoeff * (double) scale;
+            double armOffset = (double) armMultiplier * sideOffset * (double) scale;
+            double frontOffsetScaled = frontOffset * (double) scale;
             float crouchOffset = livingEntity.isCrouching() ? -0.1875F : 0;
-            return livingEntity.getEyePosition(partialTick).add(-cosRot * armOffset - sinRot * frontOffset, (double) crouchOffset + heightCoeff * (double) scale, -sinRot * armOffset + cosRot * frontOffset);
+            return livingEntity.getEyePosition(partialTick).add(-cosRot * armOffset - sinRot * frontOffsetScaled, (double) crouchOffset + heightOffset * (double) scale, -sinRot * armOffset + cosRot * frontOffsetScaled);
         }
         return Vec3.ZERO;
     }

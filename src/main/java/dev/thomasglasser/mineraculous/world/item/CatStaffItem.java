@@ -20,6 +20,7 @@ import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -53,7 +54,6 @@ import net.minecraft.world.item.ProjectileItem;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
-import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -278,9 +278,9 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     public int getColor(ItemStack stack, InteractionHand hand, Player holder) {
         Level level = holder.level();
         int color = level.holderOrThrow(Miraculouses.CAT).value().color().getValue();
-        ResolvableProfile resolvableProfile = stack.get(DataComponents.PROFILE);
-        if (resolvableProfile != null) {
-            Player owner = level.getPlayerByUUID(resolvableProfile.id().orElse(resolvableProfile.gameProfile().getId()));
+        UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
+        if (ownerId != null) {
+            Entity owner = level.getEntities().get(ownerId);
             if (owner != null) {
                 Holder<Miraculous> colorKey = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getFirstTransformedIn(MiraculousTags.CAN_USE_CAT_STAFF);
                 if (colorKey != null)

@@ -32,7 +32,8 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
 
     private static final int POINTS = 100;
     private static final double CATENARY_CURVE_FACTOR = 2048.0;
-    public static final float RIGHT_SCALE = 0.55f, UP_SCALE = -0.6f;
+    public static final float RIGHT_SCALE = 0.55f;
+    public static final float UP_SCALE = -0.6f;
 
     private final List<RopePoint> points = new ReferenceArrayList<>();
     private Vec3 lastProjectilePos;
@@ -67,7 +68,7 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
         double maxLength;
 
         Vec3 playerHandPos;
-        boolean offHand = !(animatable.getInitialHand() == InteractionHand.MAIN_HAND);
+        boolean offHand = !(animatable.getHand() == InteractionHand.MAIN_HAND);
         if (projectilePlayer == Minecraft.getInstance().player && Minecraft.getInstance().getEntityRenderDispatcher().options.getCameraType().isFirstPerson()) {
             playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(offHand, false, partialTick, RIGHT_SCALE, UP_SCALE);
             maxLength = animatable.getRenderMaxRopeLength(true);

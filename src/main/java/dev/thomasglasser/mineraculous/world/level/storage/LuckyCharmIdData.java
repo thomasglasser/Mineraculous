@@ -7,10 +7,7 @@ import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import java.util.Set;
-import java.util.UUID;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
@@ -18,8 +15,10 @@ import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.saveddata.SavedData;
+
+import java.util.Set;
+import java.util.UUID;
 
 public class LuckyCharmIdData extends SavedData {
     public static final String FILE_ID = "lucky_charm_id";
@@ -50,9 +49,9 @@ public class LuckyCharmIdData extends SavedData {
                         stack.setCount(0);
                     }
                 } else if (stack.has(MineraculousDataComponents.KAMIKOTIZATION)) {
-                    ResolvableProfile profile = stack.get(DataComponents.PROFILE);
-                    if (profile != null) {
-                        int currentId = getLuckyCharmId(profile.id().orElse(profile.gameProfile().getId()));
+                    UUID owner = stack.get(MineraculousDataComponents.OWNER);
+                    if (owner != null) {
+                        int currentId = getLuckyCharmId(owner);
                         if (currentId != stackId) {
                             stack.setCount(0);
                         }

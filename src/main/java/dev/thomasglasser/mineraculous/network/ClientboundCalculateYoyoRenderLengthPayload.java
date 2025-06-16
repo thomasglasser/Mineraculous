@@ -4,6 +4,7 @@ import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.client.renderer.entity.ThrownLadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.world.entity.projectile.ThrownLadybugYoyo;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -14,27 +15,26 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
-public record ClientboundCalculateYoyoRenderLengthPayload(int yoyoID, int pID) implements ExtendedPacketPayload {
+public record ClientboundCalculateYoyoRenderLengthPayload(int yoyoId, int holderId) implements ExtendedPacketPayload {
     public static final Type<ClientboundCalculateYoyoRenderLengthPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_calculate_yoyo_render_length"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundCalculateYoyoRenderLengthPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT, ClientboundCalculateYoyoRenderLengthPayload::yoyoID,
-            ByteBufCodecs.INT, ClientboundCalculateYoyoRenderLengthPayload::pID,
+            ByteBufCodecs.INT, ClientboundCalculateYoyoRenderLengthPayload::yoyoId,
+            ByteBufCodecs.INT, ClientboundCalculateYoyoRenderLengthPayload::holderId,
             ClientboundCalculateYoyoRenderLengthPayload::new);
 
     @Override
     public void handle(Player player) {
-        Entity entity = player.level().getEntity(yoyoID);
-        Player p = (Player) player.level().getEntity(pID); //ladybug
-        if (entity instanceof ThrownLadybugYoyo thrownYoyo) {
+        if (player.level().getEntity(yoyoId) instanceof ThrownLadybugYoyo yoyo) {
+            Entity holder = player.level().getEntity(holderId);
             Vec3 vec3;
-            if (p == Minecraft.getInstance().player) {
+            if (holder == ClientUtils.getLocalPlayer()) {
                 vec3 = MineraculousClientUtils.getFirstPersonHandPosition(true, false, ThrownLadybugYoyoRenderer.RIGHT_SCALE, ThrownLadybugYoyoRenderer.UP_SCALE);
-                Vec3 fromProjectileToHand = new Vec3(vec3.x - thrownYoyo.getX(), vec3.y - thrownYoyo.getY(), vec3.z - thrownYoyo.getZ());
-                thrownYoyo.setFirstPovRenderMaxRopeLength((float) fromProjectileToHand.length());
+                Vec3 fromProjectileToHand = new Vec3(vec3.x - yoyo.getX(), vec3.y - yoyo.getY(), vec3.z - yoyo.getZ());
+                yoyo.setFirstPovRenderMaxRopeLength((float) fromProjectileToHand.length());
             }
-            vec3 = MineraculousClientUtils.getHumanoidEntityHandPos(p, true, 0.15f, -0.75, 0);
-            Vec3 fromProjectileToHand = new Vec3(vec3.x - thrownYoyo.getX(), vec3.y - thrownYoyo.getY(), vec3.z - thrownYoyo.getZ());
-            thrownYoyo.setRenderMaxRopeLength((float) fromProjectileToHand.length());
+            vec3 = MineraculousClientUtils.getHumanoidEntityHandPos(holder, true, 0.15f, -0.75, 0);
+            Vec3 fromProjectileToHand = new Vec3(vec3.x - yoyo.getX(), vec3.y - yoyo.getY(), vec3.z - yoyo.getZ());
+            yoyo.setRenderMaxRopeLength((float) fromProjectileToHand.length());
         }
     }
 

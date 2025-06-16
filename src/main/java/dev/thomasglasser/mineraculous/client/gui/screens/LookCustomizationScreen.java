@@ -36,7 +36,6 @@ import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -45,7 +44,6 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ResolvableProfile;
 import org.lwjgl.glfw.GLFW;
 
 public class LookCustomizationScreen extends Screen {
@@ -109,7 +107,7 @@ public class LookCustomizationScreen extends Screen {
         Minecraft.getInstance().level.addEntity(previewMiraculousPlayer);
         this.previewMiraculousStack = Miraculous.createMiraculousStack(miraculous);
         this.previewMiraculousStack.remove(MineraculousDataComponents.POWERED);
-        this.previewMiraculousStack.set(DataComponents.PROFILE, new ResolvableProfile(profile));
+        this.previewMiraculousStack.set(MineraculousDataComponents.OWNER, profile.getId());
     }
 
     protected Map<String, FlattenedSuitLookData> getFlattenedSuitLooks(Map<String, FlattenedSuitLookData> serverSuits) {

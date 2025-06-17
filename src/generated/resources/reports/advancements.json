@@ -9,7 +9,7 @@
   "mineraculous:miraculous/obtain_camembert",
   "mineraculous:miraculous/transform_butterfly",
   "mineraculous:miraculous/kamikotize_butterfly",
-  "mineraculous:miraculous/kamikotize_player",
+  "mineraculous:miraculous/kamikotize_entity",
   "mineraculous:miraculous/kamikotize_self",
   "mineraculous:miraculous/transform_kamikotization"
 ]

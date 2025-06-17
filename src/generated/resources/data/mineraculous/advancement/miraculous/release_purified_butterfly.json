@@ -15,7 +15,7 @@
           ]
         ]
       },
-      "trigger": "mineraculous:released_purified_entity"
+      "trigger": "mineraculous:released_purified_entities"
     }
   },
   "display": {

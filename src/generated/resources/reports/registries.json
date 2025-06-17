@@ -200,12 +200,12 @@
     "mineraculous:miraculous_ladybug_activate"
   ],
   "minecraft:trigger_type": [
-    "mineraculous:kamikotized_player",
-    "mineraculous:released_purified_entity",
+    "mineraculous:kamikotized_entity",
+    "mineraculous:performed_kamikotization_active_ability",
+    "mineraculous:performed_miraculous_active_ability",
+    "mineraculous:released_purified_entities",
     "mineraculous:transformed_kamikotization",
-    "mineraculous:transformed_miraculous",
-    "mineraculous:used_kamikotization_power",
-    "mineraculous:used_miraculous_power"
+    "mineraculous:transformed_miraculous"
   ],
   "minecraft:trim_pattern": [
     "mineraculous:butterfly",

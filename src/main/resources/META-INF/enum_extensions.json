@@ -5,7 +5,7 @@
       "name": "MINERACULOUS_CATACLYSMED",
       "constructor": "(Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;)V",
       "parameters": {
-        "class": "dev/thomasglasser/mineraculous/client/gui/MineraculousHeartTypes",
+        "class": "dev/thomasglasser/mineraculous/api/client/gui/MineraculousHeartTypes",
         "field": "CATACLYSMED"
       }
     },
@@ -14,7 +14,7 @@
       "name": "MINERACULOUS_CURIOS_OTHER",
       "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
       "parameters": {
-        "class": "dev/thomasglasser/mineraculous/world/item/MineraculousItemDisplayContexts",
+        "class": "dev/thomasglasser/mineraculous/api/world/item/MineraculousItemDisplayContexts",
         "field": "CURIOS_OTHER"
       }
     },
@@ -23,7 +23,7 @@
         "name": "MINERACULOUS_CURIOS_RING",
         "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
         "parameters": {
-          "class": "dev/thomasglasser/mineraculous/world/item/MineraculousItemDisplayContexts",
+          "class": "dev/thomasglasser/mineraculous/api/world/item/MineraculousItemDisplayContexts",
           "field": "CURIOS_RING"
         }
     },
@@ -32,7 +32,7 @@
       "name": "MINERACULOUS_CURIOS_BROOCH",
       "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
       "parameters": {
-        "class": "dev/thomasglasser/mineraculous/world/item/MineraculousItemDisplayContexts",
+        "class": "dev/thomasglasser/mineraculous/api/world/item/MineraculousItemDisplayContexts",
         "field": "CURIOS_BROOCH"
       }
     },
@@ -41,7 +41,7 @@
       "name": "MINERACULOUS_CURIOS_EARRINGS",
       "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
       "parameters": {
-        "class": "dev/thomasglasser/mineraculous/world/item/MineraculousItemDisplayContexts",
+        "class": "dev/thomasglasser/mineraculous/api/world/item/MineraculousItemDisplayContexts",
         "field": "CURIOS_EARRINGS"
       }
     },
@@ -50,7 +50,7 @@
       "name": "MINERACULOUS_CURIOS_BELT",
       "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
       "parameters": {
-        "class": "dev/thomasglasser/mineraculous/world/item/MineraculousItemDisplayContexts",
+        "class": "dev/thomasglasser/mineraculous/api/world/item/MineraculousItemDisplayContexts",
         "field": "CURIOS_BELT"
       }
     }

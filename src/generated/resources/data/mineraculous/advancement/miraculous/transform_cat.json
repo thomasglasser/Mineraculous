@@ -3,7 +3,7 @@
   "criteria": {
     "transform_cat": {
       "conditions": {
-        "type": "mineraculous:cat"
+        "miraculous": "mineraculous:cat"
       },
       "trigger": "mineraculous:transformed_miraculous"
     }

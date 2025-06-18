@@ -4,22 +4,21 @@
     "type": "mineraculous:context_dependent",
     "block": {
       "type": "mineraculous:replace_adjacent_blocks",
-      "apply_sound": "mineraculous:cataclysm_use",
       "invalid_blocks": {
         "blocks": "#mineraculous:cataclysm_immune"
       },
+      "replace_sound": "mineraculous:cataclysm_use",
       "replacement": {
         "Name": "mineraculous:cataclysm_block"
       }
     },
     "entity": {
-      "type": "mineraculous:apply_infinite_effects_or_destroy",
+      "type": "mineraculous:apply_effects_or_destroy",
       "apply_sound": "mineraculous:cataclysm_use",
       "damage_type": "mineraculous:cataclysm",
       "drop_item": "mineraculous:cataclysm_dust",
       "effect_settings": {
-        "ambient": false,
-        "show_icon": true,
+        "show_icon": false,
         "show_particles": false
       },
       "effects": "mineraculous:cataclysm",
@@ -34,11 +33,11 @@
       },
       {
         "type": "mineraculous:replace_item_in_main_hand",
-        "apply_sound": "mineraculous:cataclysm_use",
         "break_original": true,
         "invalid_items": {
           "items": "#mineraculous:cataclysm_immune"
         },
+        "replace_sound": "mineraculous:cataclysm_use",
         "replacement": {
           "id": "mineraculous:cataclysm_dust"
         }

@@ -137,7 +137,7 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
 
                     level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.transformSound(), entity.getSoundSource(), 1, 1);
                     if (entity instanceof LivingEntity livingEntity) {
-                        level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, startLevel) -> MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, level.holderOrThrow(effect), startLevel + (powerLevel / 10)));
+                        level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, startAmplifier) -> MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, level.holderOrThrow(effect), startAmplifier.amplifier() + (powerLevel / 10)));
                         livingEntity.getAttributes().addTransientAttributeModifiers(getMiraculousAttributes(level, powerLevel));
                     }
 
@@ -299,10 +299,10 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
                 }
 
                 if (entity instanceof LivingEntity livingEntity) {
-                    level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((key, startLevel) -> {
+                    level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((key, startAmplifier) -> {
                         Holder<MobEffect> effect = level.holderOrThrow(key);
                         if (!livingEntity.hasEffect(effect)) {
-                            MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, effect, startLevel);
+                            MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, effect, startAmplifier.amplifier() + (powerLevel / 10));
                         }
                     });
                 }
@@ -310,12 +310,10 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
                 boolean powerActive = this.powerActive;
                 boolean countdownStarted = this.countdownStarted;
                 AbilityData abilityData = new AbilityData(powerLevel, Either.left(miraculous), powerActive);
-                boolean overrideActive = AbilityUtils.performPassiveAbilities(level, entity, abilityData, null, miraculous.value().passiveAbilities());
-                if (powerActive && overrideActive) {
+                if (AbilityUtils.performPassiveAbilities(level, entity, abilityData, null, miraculous.value().passiveAbilities()) && powerActive) {
                     powerActive = false;
                 } else if (powerActive && canUseMainPower()) {
-                    boolean consumeMainPower = AbilityUtils.performActiveAbility(level, entity, abilityData, null, Optional.of(miraculous.value().activeAbility()));
-                    if (consumeMainPower) {
+                    if (AbilityUtils.performActiveAbility(level, entity, abilityData, null, Optional.of(miraculous.value().activeAbility()))) {
                         powerActive = false;
                         countdownStarted = powerLevel < MAX_POWER_LEVEL;
                     }
@@ -329,8 +327,7 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
 
     public void performAbilities(ServerLevel level, Entity entity, Holder<Miraculous> miraculous, @Nullable AbilityContext abilityContext) {
         AbilityData abilityData = new AbilityData(powerLevel, Either.left(miraculous), powerActive);
-        boolean overrideActive = AbilityUtils.performPassiveAbilities(level, entity, abilityData, abilityContext, miraculous.value().passiveAbilities());
-        if (powerActive && overrideActive) {
+        if (AbilityUtils.performPassiveAbilities(level, entity, abilityData, abilityContext, miraculous.value().passiveAbilities()) && powerActive) {
             withPowerActive(false).save(miraculous, entity, true);
         } else if (powerActive && canUseMainPower()) {
             boolean consumeMainPower = AbilityUtils.performActiveAbility(level, entity, abilityData, abilityContext, Optional.of(miraculous.value().activeAbility()));

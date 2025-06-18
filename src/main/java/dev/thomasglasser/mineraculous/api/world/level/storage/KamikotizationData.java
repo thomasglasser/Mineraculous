@@ -82,7 +82,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
 
         level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM, entity.getSoundSource(), 1, 1);
         if (entity instanceof LivingEntity livingEntity) {
-            level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, startLevel) -> MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, level.holderOrThrow(effect), startLevel));
+            level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, amplifier) -> MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, level.holderOrThrow(effect), amplifier.amplifier()));
         }
 
         AbilityData abilityData = new AbilityData(0, Either.right(kamikotization), false);
@@ -147,10 +147,10 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
             }
         }), () -> {
             if (entity instanceof LivingEntity livingEntity) {
-                level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((key, startLevel) -> {
+                level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((key, amplifier) -> {
                     Holder<MobEffect> effect = level.holderOrThrow(key);
                     if (!livingEntity.hasEffect(effect)) {
-                        MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, effect, startLevel);
+                        MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, effect, amplifier.amplifier());
                     }
                 });
             }
@@ -161,8 +161,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
 
     public void performAbilities(ServerLevel level, Entity entity, @Nullable AbilityContext abilityContext) {
         AbilityData abilityData = new AbilityData(0, Either.right(kamikotization), powerActive);
-        boolean overrideActive = AbilityUtils.performPassiveAbilities(level, entity, abilityData, abilityContext, kamikotization.value().passiveAbilities());
-        if (powerActive && overrideActive) {
+        if (AbilityUtils.performPassiveAbilities(level, entity, abilityData, abilityContext, kamikotization.value().passiveAbilities()) && powerActive) {
             withPowerActive(false).save(entity, true);
         } else if (powerActive) {
             boolean consumeMainPower = AbilityUtils.performActiveAbility(level, entity, abilityData, abilityContext, kamikotization.value().powerSource().right());

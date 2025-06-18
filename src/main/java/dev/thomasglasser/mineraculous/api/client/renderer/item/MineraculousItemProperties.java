@@ -16,7 +16,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.component.BlockItemStateProperties;
+import org.jetbrains.annotations.ApiStatus;
 
+/**
+ * Item rendering properties used by the mod in models.
+ */
 public class MineraculousItemProperties {
     // Vanilla
     public static final ResourceLocation BLOCKING = ResourceLocation.withDefaultNamespace("blocking");
@@ -29,13 +33,38 @@ public class MineraculousItemProperties {
     public static final ResourceLocation BITES = Mineraculous.modLoc("bites");
     public static final ResourceLocation THROWN = Mineraculous.modLoc("thrown");
 
+    /**
+     * Creates an {@link ItemPropertyFunction} for an {@link Enum} {@link DataComponentType} based on ordinal.
+     * @param component The {@link DataComponentType} to use
+     * @return The created {@link ItemPropertyFunction}
+     * @param <T> The {@link Enum} to use
+     */
+    public static <T extends Enum<T>> ItemPropertyFunction getEnumPropertyFunction(DataComponentType<T> component) {
+        return (stack, level, entity, seed) -> {
+            T value = stack.get(component);
+            if (value == null)
+                return 0;
+            return getPropertyForAbility(value);
+        };
+    }
+
+    /**
+     * Returns the property value for the passed {@link Enum} based on ordinal.
+     * @param value The {@link Enum} value
+     * @return The property value
+     */
+    public static int getPropertyForAbility(Enum<?> value) {
+        return value.ordinal() + 1;
+    }
+
+    @ApiStatus.Internal
     public static void init() {
         // Generic
         ItemProperties.registerGeneric(BLOCKING, (stack, level, entity, seed) -> stack.has(MineraculousDataComponents.BLOCKING) ? 1 : 0);
         ItemProperties.registerGeneric(ACTIVE, (stack, level, entity, seed) -> stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) ? 1 : 0);
 
         // Miraculous Tools
-        ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), ABILITY, getEnumAbilityPropertyFunction(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()));
+        ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), ABILITY, getEnumPropertyFunction(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()));
         ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), THROWN, (stack, level, entity, seed) -> {
             if (entity instanceof Player player) {
                 ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
@@ -48,8 +77,8 @@ public class MineraculousItemProperties {
             }
             return 0;
         });
-        ItemProperties.register(MineraculousItems.CAT_STAFF.get(), ABILITY, getEnumAbilityPropertyFunction(MineraculousDataComponents.CAT_STAFF_ABILITY.get()));
-        ItemProperties.register(MineraculousItems.BUTTERFLY_CANE.get(), ABILITY, getEnumAbilityPropertyFunction(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()));
+        ItemProperties.register(MineraculousItems.CAT_STAFF.get(), ABILITY, getEnumPropertyFunction(MineraculousDataComponents.CAT_STAFF_ABILITY.get()));
+        ItemProperties.register(MineraculousItems.BUTTERFLY_CANE.get(), ABILITY, getEnumPropertyFunction(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()));
 
         // Block Items
         ItemPropertyFunction bitesFunction = (stack, level, entity, seed) -> {
@@ -63,18 +92,5 @@ public class MineraculousItemProperties {
         MineraculousBlocks.CAMEMBERT.values().forEach(block -> ItemProperties.register(block.asItem(), BITES, bitesFunction));
         MineraculousBlocks.WAXED_CHEESE.values().forEach(block -> ItemProperties.register(block.asItem(), BITES, bitesFunction));
         MineraculousBlocks.WAXED_CAMEMBERT.values().forEach(block -> ItemProperties.register(block.asItem(), BITES, bitesFunction));
-    }
-
-    public static <T extends Enum<T>> ItemPropertyFunction getEnumAbilityPropertyFunction(DataComponentType<T> component) {
-        return (stack, level, entity, seed) -> {
-            T value = stack.get(component);
-            if (value == null)
-                return 0;
-            return value.ordinal() + 1;
-        };
-    }
-
-    public static int getPropertyForAbility(Enum<?> value) {
-        return value.ordinal() + 1;
     }
 }

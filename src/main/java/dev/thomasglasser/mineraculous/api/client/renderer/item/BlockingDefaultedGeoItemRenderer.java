@@ -1,12 +1,18 @@
 package dev.thomasglasser.mineraculous.api.client.renderer.item;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.tommylib.api.client.renderer.item.DefaultedGeoItemRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 
+/**
+ * A {@link DefaultedGeoItemRenderer} with a separate model and texture when blocking,
+ * based on the {@link MineraculousDataComponents#BLOCKING} component being present.
+ * @param <T> The item the renderer is for
+ */
 public class BlockingDefaultedGeoItemRenderer<T extends Item & GeoAnimatable> extends DefaultedGeoItemRenderer<T> {
     private final GeoModel<T> blockingModel;
     private final ResourceLocation blockingTexture;

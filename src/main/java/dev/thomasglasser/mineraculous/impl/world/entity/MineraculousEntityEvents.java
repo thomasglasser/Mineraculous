@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
+import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.ability.AbilityUtils;
@@ -9,6 +10,7 @@ import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
+import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionItemData;
@@ -77,7 +79,20 @@ public class MineraculousEntityEvents {
 //                }
 //            });
 //            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.MIRACULOUSES, entity.getData(MineraculousAttachmentTypes.MIRACULOUSES)), entity.level().getServer());
-            entity.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).reset().save(entity, true);
+            MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+            miraculousesData.getTransformed().forEach(miraculous -> {
+                Miraculous value = miraculous.value();
+                MiraculousData miraculousData = miraculousesData.get(miraculous);
+                AbilityData abilityData = new AbilityData(miraculousData.powerLevel(), Either.left(miraculous), miraculousData.powerActive());
+                value.passiveAbilities().forEach(ability -> ability.value().joinLevel(abilityData, level, entity));
+                value.activeAbility().value().joinLevel(abilityData, level, entity);
+            });
+            entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {
+                Kamikotization value = data.kamikotization().value();
+                AbilityData abilityData = new AbilityData(0, Either.right(data.kamikotization()), data.powerActive());
+                value.passiveAbilities().forEach(ability -> ability.value().joinLevel(abilityData, level, entity));
+                value.powerSource().right().ifPresent(ability -> ability.value().joinLevel(abilityData, level, entity));
+            });
         }
     }
 
@@ -138,7 +153,7 @@ public class MineraculousEntityEvents {
     public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
         Player player = event.getEntity();
         if (player.level() instanceof ServerLevel level) {
-            AbilityUtils.performEntityAbilities(player, level, event.getTarget());
+            AbilityUtils.performEntityAbilities(level, player, event.getTarget());
         }
     }
 
@@ -153,7 +168,7 @@ public class MineraculousEntityEvents {
             Entity target = event.getTarget();
             // Living entities are handled via LivingDamageEvent.Post
             if (!(target instanceof LivingEntity)) {
-                AbilityUtils.performEntityAbilities(player, level, target);
+                AbilityUtils.performEntityAbilities(level, player, target);
             }
         }
     }
@@ -163,7 +178,7 @@ public class MineraculousEntityEvents {
             Entity attacker = event.getSource().getEntity();
             LivingEntity target = event.getEntity();
             if (attacker != null) {
-                AbilityUtils.performEntityAbilities(attacker, level, target);
+                AbilityUtils.performEntityAbilities(level, attacker, target);
             }
             AbilityEffectData abilityEffectData = target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
             if (abilityEffectData.spectatingId().isPresent()) {
@@ -174,7 +189,7 @@ public class MineraculousEntityEvents {
 
     public static void onBlockInteract(PlayerInteractEvent.RightClickBlock event) {
         if (event.getLevel() instanceof ServerLevel level) {
-            AbilityUtils.performBlockAbilities(event.getEntity(), level, event.getPos());
+            AbilityUtils.performBlockAbilities(level, event.getEntity(), event.getPos());
         }
     }
 
@@ -186,7 +201,7 @@ public class MineraculousEntityEvents {
             return;
         }
         if (event.getLevel() instanceof ServerLevel level) {
-            AbilityUtils.performBlockAbilities(player, level, event.getPos());
+            AbilityUtils.performBlockAbilities(level, player, event.getPos());
         }
     }
 
@@ -302,6 +317,20 @@ public class MineraculousEntityEvents {
                 if (target != null) {
                     target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(target, true);
                 }
+            });
+            MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+            miraculousesData.getTransformed().forEach(miraculous -> {
+                Miraculous value = miraculous.value();
+                MiraculousData miraculousData = miraculousesData.get(miraculous);
+                AbilityData abilityData = new AbilityData(miraculousData.powerLevel(), Either.left(miraculous), miraculousData.powerActive());
+                value.passiveAbilities().forEach(ability -> ability.value().leaveLevel(abilityData, level, entity));
+                value.activeAbility().value().leaveLevel(abilityData, level, entity);
+            });
+            entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {
+                Kamikotization value = data.kamikotization().value();
+                AbilityData abilityData = new AbilityData(0, Either.right(data.kamikotization()), data.powerActive());
+                value.passiveAbilities().forEach(ability -> ability.value().leaveLevel(abilityData, level, entity));
+                value.powerSource().right().ifPresent(ability -> ability.value().leaveLevel(abilityData, level, entity));
             });
         }
     }

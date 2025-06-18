@@ -17,6 +17,11 @@ import net.minecraft.world.item.ItemStack;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.client.ICurioRenderer;
 
+/**
+ * Renders a curio adapted to its slot {@link ItemDisplayContext}.
+ *
+ * @see MineraculousItemDisplayContexts
+ */
 public class ContextDependentCurioRenderer implements ICurioRenderer {
     ItemInHandRenderer renderer;
 

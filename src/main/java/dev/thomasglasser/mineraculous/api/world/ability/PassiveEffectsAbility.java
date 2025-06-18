@@ -16,17 +16,23 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
-public record PassiveEffectsAbility(HolderSet<MobEffect> effects, int startLevel) implements Ability {
+/**
+ * Applies passive infinite effects while transformed.
+ *
+ * @param effects The effects to apply
+ * @param startAmplifier The amplifier for the effect before considering {@link AbilityData#powerLevel()}
+ */
+public record PassiveEffectsAbility(HolderSet<MobEffect> effects, int startAmplifier) implements Ability {
     public static final MapCodec<PassiveEffectsAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             HolderSetCodec.create(Registries.MOB_EFFECT, MobEffect.CODEC, false).fieldOf("effects").forGetter(PassiveEffectsAbility::effects),
-            ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("start_level", 0).forGetter(PassiveEffectsAbility::startLevel)).apply(instance, PassiveEffectsAbility::new));
+            ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("start_amplifier", 0).forGetter(PassiveEffectsAbility::startAmplifier)).apply(instance, PassiveEffectsAbility::new));
 
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (context == null && performer instanceof LivingEntity livingEntity) {
             for (Holder<MobEffect> effect : effects) {
                 if (!livingEntity.hasEffect(effect)) {
-                    MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, effect, startLevel + (data.powerLevel() / 10));
+                    MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, effect, startAmplifier + (data.powerLevel() / 10));
                 }
             }
         }
@@ -36,7 +42,7 @@ public record PassiveEffectsAbility(HolderSet<MobEffect> effects, int startLevel
     @Override
     public void transform(AbilityData data, ServerLevel level, Entity performer) {
         if (effects.size() > 0 && performer instanceof LivingEntity livingEntity) {
-            effects.forEach(effect -> MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, effect, startLevel + (data.powerLevel() / 10)));
+            effects.forEach(effect -> MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, effect, startAmplifier + (data.powerLevel() / 10)));
         }
     }
 

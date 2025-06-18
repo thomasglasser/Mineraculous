@@ -39,6 +39,11 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Summons an {@link ItemStack} from a {@link LuckyCharms} pool based on related entities.
+ * @param requireActiveToolInHand Whether the performer must have their tool in-hand to summon the {@link ItemStack}
+ * @param summonSound The sound to play when summoning the {@link ItemStack} successfully
+ */
 public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolInHand, Optional<Holder<SoundEvent>> summonSound) implements Ability {
     public static final MapCodec<SummonTargetDependentLuckyCharmAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Codec.BOOL.optionalFieldOf("require_active_tool_in_hand", false).forGetter(SummonTargetDependentLuckyCharmAbility::requireActiveToolInHand),

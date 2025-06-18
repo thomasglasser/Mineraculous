@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.impl.world.item;
 
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
-import dev.thomasglasser.mineraculous.api.client.renderer.item.DefaultedGeoItemRenderer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
@@ -18,6 +17,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownButterflyCane;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
+import dev.thomasglasser.tommylib.api.client.renderer.item.DefaultedGeoItemRenderer;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;

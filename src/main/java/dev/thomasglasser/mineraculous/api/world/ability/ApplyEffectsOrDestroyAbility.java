@@ -20,6 +20,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
@@ -32,16 +33,28 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import org.jetbrains.annotations.Nullable;
 
-public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectSettings effectSettings, Optional<Item> dropItem, Optional<ResourceKey<DamageType>> damageType, boolean overrideKillCredit, boolean allowBlocking, Optional<Holder<SoundEvent>> applySound) implements Ability {
+ /**
+ * Applies the provided {@link MobEffect}s with the provided {@link EffectSettings} or,
+ * if not a {@link LivingEntity}, simply destroys the {@link Entity}.
+ *
+ * @param effects The {@link MobEffect}s to apply
+ * @param effectSettings The {@link EffectSettings} to use when applying the effects
+ * @param damageType The {@link DamageType} to use on the target (for aggro, credit, and destruction)
+ * @param overrideKillCredit Whether the target's kill credit should be overridden and given to the performer
+ * @param allowBlocking Whether the target can block the effects with an active blocking item
+ * @param dropItem The {@link Item} to drop in replacement of the blocking item or non-living {@link Entity}'s drops
+ * @param applySound The sound to play when the ability is performed
+ */
+public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectSettings effectSettings, Optional<ResourceKey<DamageType>> damageType, boolean overrideKillCredit, boolean allowBlocking, Optional<Item> dropItem, Optional<Holder<SoundEvent>> applySound) implements Ability {
 
-    public static final MapCodec<ApplyInfiniteEffectsOrDestroyAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            RegistryCodecs.homogeneousList(Registries.MOB_EFFECT).fieldOf("effects").forGetter(ApplyInfiniteEffectsOrDestroyAbility::effects),
-            EffectSettings.CODEC.optionalFieldOf("effect_settings", EffectSettings.DEFAULT).forGetter(ApplyInfiniteEffectsOrDestroyAbility::effectSettings),
-            BuiltInRegistries.ITEM.byNameCodec().optionalFieldOf("drop_item").forGetter(ApplyInfiniteEffectsOrDestroyAbility::dropItem),
-            ResourceKey.codec(Registries.DAMAGE_TYPE).optionalFieldOf("damage_type").forGetter(ApplyInfiniteEffectsOrDestroyAbility::damageType),
-            Codec.BOOL.optionalFieldOf("override_kill_credit", false).forGetter(ApplyInfiniteEffectsOrDestroyAbility::overrideKillCredit),
-            Codec.BOOL.optionalFieldOf("allow_blocking", true).forGetter(ApplyInfiniteEffectsOrDestroyAbility::allowBlocking),
-            SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(ApplyInfiniteEffectsOrDestroyAbility::applySound)).apply(instance, ApplyInfiniteEffectsOrDestroyAbility::new));
+    public static final MapCodec<ApplyEffectsOrDestroyAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            RegistryCodecs.homogeneousList(Registries.MOB_EFFECT).fieldOf("effects").forGetter(ApplyEffectsOrDestroyAbility::effects),
+            EffectSettings.CODEC.optionalFieldOf("effect_settings", EffectSettings.DEFAULT).forGetter(ApplyEffectsOrDestroyAbility::effectSettings),
+            ResourceKey.codec(Registries.DAMAGE_TYPE).optionalFieldOf("damage_type").forGetter(ApplyEffectsOrDestroyAbility::damageType),
+            Codec.BOOL.optionalFieldOf("override_kill_credit", false).forGetter(ApplyEffectsOrDestroyAbility::overrideKillCredit),
+            Codec.BOOL.optionalFieldOf("allow_blocking", true).forGetter(ApplyEffectsOrDestroyAbility::allowBlocking),
+            BuiltInRegistries.ITEM.byNameCodec().optionalFieldOf("drop_item").forGetter(ApplyEffectsOrDestroyAbility::dropItem),
+            SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(ApplyEffectsOrDestroyAbility::applySound)).apply(instance, ApplyEffectsOrDestroyAbility::new));
 
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
@@ -63,7 +76,7 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
                     }
                 } else {
                     for (Holder<MobEffect> mobEffect : effects) {
-                        MobEffectInstance effect = new MobEffectInstance(mobEffect, -1, (data.powerLevel() / 10), effectSettings.ambient(), effectSettings.showParticles(), effectSettings.showIcon());
+                        MobEffectInstance effect = new MobEffectInstance(mobEffect, effectSettings.duration(), (data.powerLevel() / 10), effectSettings.ambient(), effectSettings.showParticles(), effectSettings.showIcon());
                         livingEntity.addEffect(effect);
                     }
                 }
@@ -105,13 +118,30 @@ public record ApplyInfiniteEffectsOrDestroyAbility(HolderSet<MobEffect> effects,
 
     @Override
     public MapCodec<? extends Ability> codec() {
-        return AbilitySerializers.APPLY_INFINITE_EFFECTS_OR_DESTROY.get();
+        return AbilitySerializers.APPLY_EFFECTS_OR_DESTROY.get();
     }
-    public record EffectSettings(boolean ambient, boolean showParticles, boolean showIcon) {
-        public static final EffectSettings DEFAULT = new EffectSettings(false, true, true);
+
+     /**
+      * Holds the settings for how to provide the specified effects
+      * @param duration The duration of the effects applied (or -1 for infinite)
+      * @param ambient Whether the effect should be ambient, showing up with a different icon and less intrusive particles
+      * @param showParticles Whether the effect particles should be visible
+      * @param showIcon Whether the effect icon should show in the HUD
+      */
+    public record EffectSettings(int duration, boolean ambient, boolean showParticles, boolean showIcon) {
+        public static final EffectSettings DEFAULT = new EffectSettings(-1, false, true);
         public static final Codec<EffectSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.BOOL.fieldOf("ambient").forGetter(EffectSettings::ambient),
-                Codec.BOOL.fieldOf("show_particles").forGetter(EffectSettings::showParticles),
-                Codec.BOOL.fieldOf("show_icon").forGetter(EffectSettings::showIcon)).apply(instance, EffectSettings::new));
+                ExtraCodecs.intRange(-1, Integer.MAX_VALUE).optionalFieldOf("duration", -1).forGetter(EffectSettings::duration),
+                Codec.BOOL.optionalFieldOf("ambient", false).forGetter(EffectSettings::ambient),
+                Codec.BOOL.optionalFieldOf("show_particles", true).forGetter(EffectSettings::showParticles),
+                Codec.BOOL.optionalFieldOf("show_icon").forGetter(settings -> Optional.of(settings.showIcon))).apply(instance, EffectSettings::new));
+
+        public EffectSettings(int duration, boolean ambient, boolean showParticles, Optional<Boolean> showIcon) {
+            this(duration, ambient, showParticles, showIcon.orElse(showParticles));
+        }
+
+        public EffectSettings(int duration, boolean ambient, boolean showParticles) {
+            this(duration, ambient, showParticles, showParticles);
+        }
     }
 }

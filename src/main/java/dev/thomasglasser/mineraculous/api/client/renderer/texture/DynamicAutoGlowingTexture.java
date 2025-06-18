@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.texture.AutoGlowingTexture;
 import software.bernie.geckolib.resource.GeoGlowingTextureMeta;
 
+/// An {@link AutoGlowingTexture} for a {@link DynamicTexture}.
 public class DynamicAutoGlowingTexture extends AutoGlowingTexture {
     private final NativeImage pixels;
 

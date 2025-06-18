@@ -13,6 +13,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Displays the provided {@link ParticleOptions} at the entity's humanoid right hand position.
+ * @param particle The {@link ParticleOptions} to display
+ */
 public record RightHandParticlesAbility(ParticleOptions particle) implements Ability {
     public static final MapCodec<RightHandParticlesAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ParticleTypes.CODEC.fieldOf("particle").forGetter(RightHandParticlesAbility::particle)).apply(instance, RightHandParticlesAbility::new));

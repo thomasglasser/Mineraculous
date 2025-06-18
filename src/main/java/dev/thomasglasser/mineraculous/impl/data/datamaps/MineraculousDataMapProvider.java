@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.data.datamaps;
 
 import dev.thomasglasser.mineraculous.api.datamaps.Ageable;
+import dev.thomasglasser.mineraculous.api.datamaps.EffectAmplifier;
 import dev.thomasglasser.mineraculous.api.datamaps.LuckyCharms;
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.mineraculous.api.datamaps.ModifierSettings;
@@ -32,7 +33,7 @@ public class MineraculousDataMapProvider extends DataMapProvider {
     }
 
     @Override
-    protected void gather() {
+    protected void gather(HolderLookup.Provider provider) {
         // Lucky Charms
         builder(MineraculousDataMaps.MIRACULOUS_LUCKY_CHARMS)
                 .add(Miraculouses.LADYBUG, new LuckyCharms(MineraculousLuckyCharmLootKeys.LADYBUG_MIRACULOUS), false)
@@ -49,14 +50,14 @@ public class MineraculousDataMapProvider extends DataMapProvider {
 
         // Miraculous Buffs
         builder(MineraculousDataMaps.MIRACULOUS_EFFECTS)
-                .add(MobEffects.DAMAGE_RESISTANCE, 0, false)
-                .add(MobEffects.DAMAGE_BOOST, 0, false)
-                .add(MobEffects.MOVEMENT_SPEED, 0, false)
-                .add(MobEffects.DIG_SPEED, 0, false)
-                .add(MobEffects.JUMP, 1, false)
-                .add(MobEffects.REGENERATION, 0, false)
-                .add(MobEffects.HEALTH_BOOST, 0, false)
-                .add(MobEffects.SATURATION, 0, false)
+                .add(MobEffects.DAMAGE_RESISTANCE, new EffectAmplifier(0), false)
+                .add(MobEffects.DAMAGE_BOOST, new EffectAmplifier(0), false)
+                .add(MobEffects.MOVEMENT_SPEED, new EffectAmplifier(0), false)
+                .add(MobEffects.DIG_SPEED, new EffectAmplifier(0), false)
+                .add(MobEffects.JUMP, new EffectAmplifier(1), false)
+                .add(MobEffects.REGENERATION, new EffectAmplifier(0), false)
+                .add(MobEffects.HEALTH_BOOST, new EffectAmplifier(0), false)
+                .add(MobEffects.SATURATION, new EffectAmplifier(0), false)
                 .build();
         builder(MineraculousDataMaps.MIRACULOUS_ATTRIBUTE_MODIFIERS)
                 .add(Attributes.FALL_DAMAGE_MULTIPLIER, new ModifierSettings(-0.05, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL), false)

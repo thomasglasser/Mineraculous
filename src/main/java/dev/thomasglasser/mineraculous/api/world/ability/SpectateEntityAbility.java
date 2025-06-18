@@ -12,6 +12,7 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.EntityPredicate;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -21,10 +22,23 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import org.jetbrains.annotations.Nullable;
 
-public record SpectateEntityAbility(EntityPredicate validEntities, boolean privateChat, boolean allowRemoteDamage, Optional<ResourceLocation> shader, Optional<ResourceLocation> faceMaskTexture, Optional<Holder<SoundEvent>> startSound, Optional<Holder<SoundEvent>> stopSound) implements Ability {
+/**
+ * Toggles spectation of a valid target.
+ *
+ * @param validEntities The {@link EntityPredicate} the entity must match
+ * @param invalidEntities The {@link EntityPredicate} the entity must not match
+ * @param privateChat Whether spectation should disallow messages not from the performer or target
+ * @param allowRemoteDamage Whether spectation should allow remote damage from performer to target on performer swing
+ * @param shader The shader to apply to the performer on spectation
+ * @param faceMaskTexture The face mask texture to apply to the performer on spectation
+ * @param startSound The sound to play when spectation begins
+ * @param stopSound The sound to play when spectation ends
+ */
+public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Optional<EntityPredicate> invalidEntities, boolean privateChat, boolean allowRemoteDamage, Optional<ResourceLocation> shader, Optional<ResourceLocation> faceMaskTexture, Optional<Holder<SoundEvent>> startSound, Optional<Holder<SoundEvent>> stopSound) implements Ability {
 
     public static final MapCodec<SpectateEntityAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            EntityPredicate.CODEC.fieldOf("valid_entities").forGetter(SpectateEntityAbility::validEntities),
+            EntityPredicate.CODEC.optionalFieldOf("valid_entities").forGetter(SpectateEntityAbility::validEntities),
+            EntityPredicate.CODEC.optionalFieldOf("invalid_entities").forGetter(SpectateEntityAbility::invalidEntities),
             Codec.BOOL.optionalFieldOf("private_chat", false).forGetter(SpectateEntityAbility::privateChat),
             Codec.BOOL.optionalFieldOf("allow_remote_damage", false).forGetter(SpectateEntityAbility::allowRemoteDamage),
             ResourceLocation.CODEC.optionalFieldOf("shader").forGetter(SpectateEntityAbility::shader),
@@ -43,7 +57,7 @@ public record SpectateEntityAbility(EntityPredicate validEntities, boolean priva
                     stopSpectation(level, performer);
                     return true;
                 } else {
-                    List<? extends Entity> entities = level.getEntities(EntityTypeTest.forClass(Entity.class), entity -> validEntities.matches(level, performer.position(), entity));
+                    List<? extends Entity> entities = level.getEntities(EntityTypeTest.forClass(Entity.class), entity -> isValidEntity(level, performer, entity));
                     if (!entities.isEmpty()) {
                         Entity target = entities.getFirst();
                         abilityEffectData.withSpectation(Optional.of(target.getUUID()), shader, faceMaskTexture, privateChat ? Optional.of(target.getUUID()) : Optional.empty(), allowRemoteDamage).save(performer, true);
@@ -62,6 +76,10 @@ public record SpectateEntityAbility(EntityPredicate validEntities, boolean priva
             }
         }
         return false;
+    }
+
+    private boolean isValidEntity(ServerLevel level, Entity performer, Entity target) {
+        return performer != target && validEntities.map(predicate -> predicate.matches(level, performer.position(), target)).orElse(true) && invalidEntities.map(predicate -> !predicate.matches(level, performer.position(), target)).orElse(false);
     }
 
     private void stopSpectation(ServerLevel level, Entity performer) {

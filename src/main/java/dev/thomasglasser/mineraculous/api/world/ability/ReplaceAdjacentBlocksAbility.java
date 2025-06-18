@@ -27,14 +27,24 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean preferSame, Optional<BlockPredicate> validBlocks, Optional<BlockPredicate> invalidBlocks, Optional<Holder<SoundEvent>> applySound) implements Ability {
+/**
+ *  Replaces adjacent blocks with the provided {@link BlockState} in a diamond shape,
+ *  preferring the same {@link Block} when enabled.
+ *
+ * @param replacement The {@link BlockState} to replace the target blocks with
+ * @param preferSame Whether the algorithm should choose blocks of the same kind as the target when adjacent
+ * @param validBlocks The {@link BlockPredicate} the target must match
+ * @param invalidBlocks The {@link BlockPredicate} the target must not match
+ * @param replaceSound The sound to play when the blocks are replaced
+ */
+public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean preferSame, Optional<BlockPredicate> validBlocks, Optional<BlockPredicate> invalidBlocks, Optional<Holder<SoundEvent>> replaceSound) implements Ability {
 
     public static final MapCodec<ReplaceAdjacentBlocksAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             BlockState.CODEC.optionalFieldOf("replacement", Blocks.AIR.defaultBlockState()).forGetter(ReplaceAdjacentBlocksAbility::replacement),
             Codec.BOOL.optionalFieldOf("prefer_same", true).forGetter(ReplaceAdjacentBlocksAbility::preferSame),
             BlockPredicate.CODEC.optionalFieldOf("valid_blocks").forGetter(ReplaceAdjacentBlocksAbility::validBlocks),
             BlockPredicate.CODEC.optionalFieldOf("invalid_blocks").forGetter(ReplaceAdjacentBlocksAbility::invalidBlocks),
-            SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(ReplaceAdjacentBlocksAbility::applySound)).apply(instance, ReplaceAdjacentBlocksAbility::new));
+            SoundEvent.CODEC.optionalFieldOf("replace_sound").forGetter(ReplaceAdjacentBlocksAbility::replaceSound)).apply(instance, ReplaceAdjacentBlocksAbility::new));
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (context instanceof BlockAbilityContext(BlockPos pos)) {
@@ -48,7 +58,7 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean prefe
                 }
                 AbilityReversionBlockData.get(level).putRevertable(performer.getUUID(), originals);
             }
-            Ability.playSound(level, performer, applySound);
+            Ability.playSound(level, performer, replaceSound);
             return true;
         }
         return false;

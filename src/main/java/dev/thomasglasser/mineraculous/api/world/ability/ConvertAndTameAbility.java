@@ -19,6 +19,14 @@ import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Converts the target to the provided {@link EntityType} if it matches the provided {@link EntityPredicate}(s).
+ *
+ * @param newType The {@link EntityType} to convert the target to
+ * @param validEntities The {@link EntityPredicate} the target must match
+ * @param invalidEntities The {@link EntityPredicate} the target must not match
+ * @param convertSound The sound to play on successful conversion
+ */
 public record ConvertAndTameAbility(EntityType<?> newType, Optional<EntityPredicate> validEntities, Optional<EntityPredicate> invalidEntities, Optional<Holder<SoundEvent>> convertSound) implements TemptingAbility {
 
     public static final MapCodec<ConvertAndTameAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -61,8 +69,8 @@ public record ConvertAndTameAbility(EntityType<?> newType, Optional<EntityPredic
     }
 
     @Override
-    public boolean shouldTempt(ServerLevel level, Vec3 pos, Entity entity) {
-        return isValidEntity(level, pos, entity);
+    public boolean shouldTempt(ServerLevel level, Entity performer, Entity entity) {
+        return isValidEntity(level, performer.position(), entity);
     }
 
     @Override

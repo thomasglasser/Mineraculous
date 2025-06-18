@@ -16,6 +16,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Performs different abilities depending on the context provided in {@link Ability#perform}.
+ *
+ * @param blockAbility The ability to perform when given a {@link BlockAbilityContext}
+ * @param entityAbility The ability to perform when given an {@link EntityAbilityContext}
+ * @param passiveAbilities The abilities to perform when given a null {@link AbilityContext}
+ */
 public record ContextDependentAbility(Optional<Holder<Ability>> blockAbility, Optional<Holder<Ability>> entityAbility, HolderSet<Ability> passiveAbilities) implements AbilityWithSubAbilities {
 
     public static final MapCodec<ContextDependentAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(

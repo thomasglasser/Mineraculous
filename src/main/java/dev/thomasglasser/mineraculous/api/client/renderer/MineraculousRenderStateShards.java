@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.server.packs.resources.ResourceProvider;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.client.event.RegisterShadersEvent;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
@@ -28,7 +29,7 @@ public class MineraculousRenderStateShards {
             "shield_lucky_charm_texturing", () -> setupLuckyCharmTexturing(16, Mth.PI / 18), RenderSystem::resetTextureMatrix);
 
     @Nullable
-    static ShaderInstance rendertypeGlintTranslucentLightmapShader;
+    private static ShaderInstance rendertypeGlintTranslucentLightmapShader;
 
     @Nullable
     public static ShaderInstance getRendertypeGlintTranslucentLightmapShader() {
@@ -39,6 +40,7 @@ public class MineraculousRenderStateShards {
         RenderSystem.setTextureMatrix(new Matrix4f().rotateZ(rotate).scale(scale));
     }
 
+    @ApiStatus.Internal
     public static void onRegisterShaders(RegisterShadersEvent event) {
         try {
             ResourceProvider resourceProvider = event.getResourceProvider();

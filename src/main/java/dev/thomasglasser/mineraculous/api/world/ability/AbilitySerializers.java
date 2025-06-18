@@ -10,7 +10,7 @@ import org.jetbrains.annotations.ApiStatus;
 public class AbilitySerializers {
     private static final DeferredRegister<MapCodec<? extends Ability>> ABILITIES = DeferredRegister.create(MineraculousRegistries.ABILITY_SERIALIZER, Mineraculous.MOD_ID);
 
-    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ApplyInfiniteEffectsOrDestroyAbility>> APPLY_INFINITE_EFFECTS_OR_DESTROY = ABILITIES.register("apply_infinite_effects_or_destroy", () -> ApplyInfiniteEffectsOrDestroyAbility.CODEC);
+    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ApplyEffectsOrDestroyAbility>> APPLY_EFFECTS_OR_DESTROY = ABILITIES.register("apply_effects_or_destroy", () -> ApplyEffectsOrDestroyAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<AutomaticNightVisionAbility>> AUTOMATIC_NIGHT_VISION = ABILITIES.register("automatic_night_vision", () -> AutomaticNightVisionAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ContextDependentAbility>> CONTEXT_DEPENDENT = ABILITIES.register("context_dependent", () -> ContextDependentAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ContinuousAbility>> CONTINUOUS = ABILITIES.register("continuous", () -> ContinuousAbility.CODEC);

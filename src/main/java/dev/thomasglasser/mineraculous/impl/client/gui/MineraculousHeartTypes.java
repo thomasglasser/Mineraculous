@@ -1,4 +1,4 @@
-package dev.thomasglasser.mineraculous.api.client.gui;
+package dev.thomasglasser.mineraculous.impl.client.gui;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import net.minecraft.client.gui.Gui;

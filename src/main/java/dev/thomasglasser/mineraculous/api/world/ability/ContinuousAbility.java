@@ -20,6 +20,15 @@ import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Performs the provided ability for the provided number of ticks after it consumes.
+ *
+ * @param ability The ability to perform
+ * @param ticks The number of ticks to perform the ability for after it consumes
+ * @param passiveStartSound The sound to play when started
+ * @param activeStartSound The sound to play when the provided ability first consumes
+ * @param finishSound The sound to play when the provided number of ticks has passed after the ability consumes
+ */
 public record ContinuousAbility(Holder<Ability> ability, int ticks, Optional<Holder<SoundEvent>> passiveStartSound, Optional<Holder<SoundEvent>> activeStartSound, Optional<Holder<SoundEvent>> finishSound) implements AbilityWithSubAbilities {
 
     public static final MapCodec<ContinuousAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(

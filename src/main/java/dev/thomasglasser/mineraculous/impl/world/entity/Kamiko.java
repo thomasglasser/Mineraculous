@@ -232,13 +232,13 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
             MiraculousesData miraculousesData = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
             for (Holder<Miraculous> key : miraculousesData.getTransformed()) {
                 MiraculousData data = miraculousesData.get(key);
-                if (Ability.hasMatching(ability -> ability instanceof TemptingAbility temptingAbility && temptingAbility.shouldTempt(level, owner.position(), kamiko), key.value(), data.powerActive())) {
+                if (Ability.hasMatching(ability -> ability instanceof TemptingAbility temptingAbility && temptingAbility.shouldTempt(level, owner, kamiko), key.value(), data.powerActive())) {
                     return true;
                 }
             }
             if (owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
                 KamikotizationData kamikotizationData = owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
-                return Ability.hasMatching(ability -> ability instanceof TemptingAbility temptingAbility && temptingAbility.shouldTempt(level, owner.position(), kamiko), kamikotizationData.kamikotization().value(), kamikotizationData.powerActive());
+                return Ability.hasMatching(ability -> ability instanceof TemptingAbility temptingAbility && temptingAbility.shouldTempt(level, owner, kamiko), kamikotizationData.kamikotization().value(), kamikotizationData.powerActive());
             }
         }
         return false;

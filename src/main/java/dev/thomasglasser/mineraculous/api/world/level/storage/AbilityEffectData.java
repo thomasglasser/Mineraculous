@@ -31,10 +31,6 @@ public record AbilityEffectData(boolean playedContinuousAbilityStartSound, Optio
         this(false, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), false, Optional.empty(), false, Optional.empty());
     }
 
-    public AbilityEffectData reset() {
-        return new AbilityEffectData();
-    }
-
     public AbilityEffectData stopContinuousAbility() {
         return new AbilityEffectData(false, Optional.empty(), shader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, killCredit);
     }

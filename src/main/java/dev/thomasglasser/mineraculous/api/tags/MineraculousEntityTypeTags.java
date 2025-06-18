@@ -7,7 +7,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 
 public class MineraculousEntityTypeTags {
-    // Common
+    /// Entities from any mod that can be considered a butterfly.
     public static final TagKey<EntityType<?>> BUTTERFLIES = createC("butterflies");
 
     private static TagKey<EntityType<?>> create(String name) {

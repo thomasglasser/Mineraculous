@@ -1,12 +1,28 @@
 {
   "values": {
-    "minecraft:haste": 0,
-    "minecraft:health_boost": 0,
-    "minecraft:jump_boost": 1,
-    "minecraft:regeneration": 0,
-    "minecraft:resistance": 0,
-    "minecraft:saturation": 0,
-    "minecraft:speed": 0,
-    "minecraft:strength": 0
+    "minecraft:haste": {
+      "amplifier": 0
+    },
+    "minecraft:health_boost": {
+      "amplifier": 0
+    },
+    "minecraft:jump_boost": {
+      "amplifier": 1
+    },
+    "minecraft:regeneration": {
+      "amplifier": 0
+    },
+    "minecraft:resistance": {
+      "amplifier": 0
+    },
+    "minecraft:saturation": {
+      "amplifier": 0
+    },
+    "minecraft:speed": {
+      "amplifier": 0
+    },
+    "minecraft:strength": {
+      "amplifier": 0
+    }
   }
 }

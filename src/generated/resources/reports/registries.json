@@ -227,7 +227,7 @@
     "mineraculous:passive_unluck"
   ],
   "mineraculous:ability_serializer": [
-    "mineraculous:apply_infinite_effects_or_destroy",
+    "mineraculous:apply_effects_or_destroy",
     "mineraculous:automatic_night_vision",
     "mineraculous:context_dependent",
     "mineraculous:continuous",

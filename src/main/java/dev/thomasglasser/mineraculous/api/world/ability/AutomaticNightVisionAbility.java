@@ -14,21 +14,36 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
-public record AutomaticNightVisionAbility(Optional<ResourceLocation> shader, Optional<Holder<SoundEvent>> applySound, Optional<Holder<SoundEvent>> removeSound) implements Ability {
-
+/**
+ * Applies and removes night vision automatically based on light level.
+ *
+ * @param lightLevel The maximum light level to apply night vision at
+ * @param shader The shader to apply when night vision is applied
+ * @param applySound The sound to play when night vision is applied
+ * @param removeSound The sound to play when night vision is removed
+ */
+public record AutomaticNightVisionAbility(int lightLevel, Optional<ResourceLocation> shader, Optional<Holder<SoundEvent>> applySound, Optional<Holder<SoundEvent>> removeSound) implements Ability {
+    public static final int DEFAULT_LIGHT_LEVEL = 5;
     public static final MapCodec<AutomaticNightVisionAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("light_level", DEFAULT_LIGHT_LEVEL).forGetter(AutomaticNightVisionAbility::lightLevel),
             ResourceLocation.CODEC.optionalFieldOf("shader").forGetter(AutomaticNightVisionAbility::shader),
             SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(AutomaticNightVisionAbility::applySound),
             SoundEvent.CODEC.optionalFieldOf("remove_sound").forGetter(AutomaticNightVisionAbility::removeSound)).apply(instance, AutomaticNightVisionAbility::new));
+
+    public AutomaticNightVisionAbility(Optional<ResourceLocation> shader, Optional<Holder<SoundEvent>> applySound, Optional<Holder<SoundEvent>> removeSound) {
+        this(DEFAULT_LIGHT_LEVEL, shader, applySound, removeSound);
+    }
+
     @Override
     public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
         if (context == null && performer instanceof LivingEntity livingEntity) {
-            checkNightVision(level, livingEntity);
+            checkNightVision(data.powerLevel(), level, livingEntity);
         }
         return false;
     }
@@ -36,36 +51,36 @@ public record AutomaticNightVisionAbility(Optional<ResourceLocation> shader, Opt
     @Override
     public void detransform(AbilityData data, ServerLevel level, Entity performer) {
         if (performer instanceof LivingEntity livingEntity) {
-            updateNightVision(level, livingEntity, false);
+            updateNightVision(data.powerLevel(), level, livingEntity, false);
         }
     }
 
     @Override
     public void joinLevel(AbilityData data, ServerLevel level, Entity performer) {
         if (performer instanceof LivingEntity livingEntity) {
-            checkNightVision(level, livingEntity);
+            checkNightVision(data.powerLevel(), level, livingEntity);
         }
     }
 
-    public void checkNightVision(ServerLevel level, LivingEntity performer) {
+    public void checkNightVision(int powerLevel, ServerLevel level, LivingEntity performer) {
         boolean hasNightVision = performer.hasEffect(MobEffects.NIGHT_VISION);
-        if (level.getRawBrightness(performer.blockPosition().above(), level.getSkyDarken()) <= 5) {
+        if (level.getRawBrightness(performer.blockPosition().above(), level.getSkyDarken()) <= lightLevel) {
             if (!hasNightVision) {
-                updateNightVision(level, performer, true);
+                updateNightVision(powerLevel, level, performer, true);
             }
         } else if (hasNightVision) {
-            updateNightVision(level, performer, false);
+            updateNightVision(powerLevel, level, performer, false);
         }
     }
 
-    private void updateNightVision(ServerLevel level, LivingEntity performer, boolean giveNightVision) {
+    private void updateNightVision(int powerLevel, ServerLevel level, LivingEntity performer, boolean giveNightVision) {
         shader.ifPresent(shader -> {
             if (performer instanceof ServerPlayer player) {
                 TommyLibServices.NETWORK.sendToClient(new ClientboundToggleNightVisionShaderPayload(giveNightVision, shader), player);
             }
         });
         if (giveNightVision) {
-            MineraculousEntityUtils.applyInfiniteHiddenEffect(performer, MobEffects.NIGHT_VISION, 1);
+            MineraculousEntityUtils.applyInfiniteHiddenEffect(performer, MobEffects.NIGHT_VISION, powerLevel / 10);
         } else {
             performer.removeEffect(MobEffects.NIGHT_VISION);
         }

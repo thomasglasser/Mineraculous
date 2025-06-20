@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.api.world.item.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import java.util.Optional;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -9,6 +10,15 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.sounds.SoundEvent;
 
+/**
+ * Specifies settings to use when toggling an item's {@link MineraculousDataComponents#ACTIVE} state
+ *
+ * @param controller The animation controller to use for the item
+ * @param onAnim     The animation to play when the active state is toggled on
+ * @param offAnim    The animation to play when the active state is toggled off
+ * @param onSound    The sound to play when the active state is toggled on
+ * @param offSound   The sound to play when the active state is toggled off
+ */
 public record ActiveSettings(Optional<String> controller, Optional<String> onAnim, Optional<String> offAnim, Optional<Holder<SoundEvent>> onSound, Optional<Holder<SoundEvent>> offSound) {
     public static final Codec<ActiveSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.optionalFieldOf("controller").forGetter(ActiveSettings::controller),

@@ -21,8 +21,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -63,8 +63,8 @@ public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Ei
         return kamikotizations;
     }
 
-    public static ItemStack createItemStack(Item item, Holder<Kamikotization> kamikotization) {
-        ItemStack stack = new ItemStack(item);
+    public static ItemStack createItemStack(ItemLike item, Holder<Kamikotization> kamikotization) {
+        ItemStack stack = item.asItem().getDefaultInstance();
         stack.set(MineraculousDataComponents.KAMIKOTIZATION, kamikotization);
         return stack;
     }

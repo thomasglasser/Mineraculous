@@ -19,6 +19,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
+/**
+ * Holds data for a {@link Kwami}, used for ID and charge.
+ *
+ * @param uuid    The {@link UUID} of the kwami
+ * @param id      The networking id of the kwami
+ * @param charged Whether the kwami is charged
+ */
 public record KwamiData(UUID uuid, int id, boolean charged) {
 
     public static final Codec<KwamiData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -30,6 +37,15 @@ public record KwamiData(UUID uuid, int id, boolean charged) {
             ByteBufCodecs.INT, KwamiData::id,
             ByteBufCodecs.BOOL, KwamiData::charged,
             KwamiData::new);
+    /**
+     * Summons a {@link Kwami} based on the provided {@link KwamiData}, or defaulted if not present.
+     *
+     * @param kwamiData  The kwami data to base the summoned kwami off of
+     * @param level      The level to summon the kwami in
+     * @param miraculous The {@link Miraculous} to assign to the kwami
+     * @param owner      The owner of the summoned kwami
+     * @return The summoned kwami, or null if summoning failed
+     */
     public static Kwami summon(Optional<KwamiData> kwamiData, ServerLevel level, ResourceKey<Miraculous> miraculous, Entity owner) {
         Kwami kwami = MineraculousEntityTypes.KWAMI.get().create(level);
         if (kwami != null) {

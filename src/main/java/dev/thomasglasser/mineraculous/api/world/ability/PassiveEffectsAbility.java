@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Applies passive infinite effects while transformed.
  *
- * @param effects The effects to apply
+ * @param effects        The effects to apply
  * @param startAmplifier The amplifier for the effect before considering {@link AbilityData#powerLevel()}
  */
 public record PassiveEffectsAbility(HolderSet<MobEffect> effects, int startAmplifier) implements Ability {

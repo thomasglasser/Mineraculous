@@ -382,9 +382,9 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     }
 
     @Override
-    public Ability setOption(ItemStack stack, InteractionHand hand, int index, Player holder) {
+    public Ability setOption(ItemStack stack, InteractionHand hand, Player holder, int index) {
         Ability old = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY);
-        Ability selected = RadialMenuProvider.super.setOption(stack, hand, index, holder);
+        Ability selected = RadialMenuProvider.super.setOption(stack, hand, holder, index);
         if (holder.level() instanceof ServerLevel level) {
             String anim = null;
             if (selected == LadybugYoyoItem.Ability.PURIFY)

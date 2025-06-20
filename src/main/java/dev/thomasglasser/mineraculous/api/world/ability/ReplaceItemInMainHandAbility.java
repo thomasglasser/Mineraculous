@@ -25,11 +25,11 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Replaces the item in the entity's main hand with the provided {@link ItemStack}.
  *
- * @param replacement The {@link ItemStack} to replace the main hand item with
+ * @param replacement   The {@link ItemStack} to replace the main hand item with
  * @param breakOriginal Whether the original item should be broken or simply replaced
- * @param validItems The {@link ItemPredicate} the main item must match
- * @param invalidItems The {@link ItemPredicate} the main item must not match
- * @param replaceSound The sound to play when the main hand item is replaced
+ * @param validItems    The {@link ItemPredicate} the main item must match
+ * @param invalidItems  The {@link ItemPredicate} the main item must not match
+ * @param replaceSound  The sound to play when the main hand item is replaced
  */
 public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakOriginal, Optional<ItemPredicate> validItems, Optional<ItemPredicate> invalidItems, Optional<Holder<SoundEvent>> replaceSound) implements Ability {
 

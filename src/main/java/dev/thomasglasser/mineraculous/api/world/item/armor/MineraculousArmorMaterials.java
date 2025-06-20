@@ -19,13 +19,14 @@ import org.jetbrains.annotations.ApiStatus;
 public class MineraculousArmorMaterials {
     private static final DeferredRegister<ArmorMaterial> ARMOR_MATERIALS = DeferredRegister.create(Registries.ARMOR_MATERIAL, Mineraculous.MOD_ID);
 
-    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> MIRACULOUS = register("miraculous", Util.make(new EnumMap<>(ArmorItem.Type.class), p_323379_ -> {
-        p_323379_.put(ArmorItem.Type.BOOTS, 30);
-        p_323379_.put(ArmorItem.Type.LEGGINGS, 30);
-        p_323379_.put(ArmorItem.Type.CHESTPLATE, 30);
-        p_323379_.put(ArmorItem.Type.HELMET, 30);
-        p_323379_.put(ArmorItem.Type.BODY, 30);
-    }), 0, SoundEvents.ARMOR_EQUIP_LEATHER, 20.0F, 0.0F, () -> Ingredient.EMPTY);
+    /// Magical armor, strongest level but unenchantable and unrepairable
+    public static final DeferredHolder<ArmorMaterial, ArmorMaterial> MIRACULOUS = register("miraculous", Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
+        map.put(ArmorItem.Type.BOOTS, 30);
+        map.put(ArmorItem.Type.LEGGINGS, 30);
+        map.put(ArmorItem.Type.CHESTPLATE, 30);
+        map.put(ArmorItem.Type.HELMET, 30);
+        map.put(ArmorItem.Type.BODY, 30);
+    }), 0, Holder.direct(SoundEvents.EMPTY), 20.0F, 0.0F, () -> Ingredient.EMPTY);
 
     private static DeferredHolder<ArmorMaterial, ArmorMaterial> register(
             String name,

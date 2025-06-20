@@ -16,6 +16,7 @@ import org.jetbrains.annotations.ApiStatus;
 public class MineraculousPoiTypes {
     private static final DeferredRegister<PoiType> POI_TYPES = DeferredRegister.create(Registries.POINT_OF_INTEREST_TYPE, Mineraculous.MOD_ID);
 
+    /// POI Type for the {@link MineraculousVillagerProfessions#FROMAGER} {@link VillagerProfession}.
     public static final DeferredHolder<PoiType, PoiType> FROMAGER = registerForVillager("fromager", MineraculousBlocks.CHEESE_POT);
 
     private static Supplier<Set<BlockState>> getBlockStates(DeferredBlock<?> block) {

@@ -1,13 +1,11 @@
 package dev.thomasglasser.mineraculous.api.tags;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.tommylib.api.tags.TagUtils;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.item.Item;
 
 public class MineraculousItemTags {

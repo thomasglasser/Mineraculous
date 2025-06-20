@@ -23,19 +23,19 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Applies and removes night vision automatically based on light level.
  *
- * @param lightLevel The maximum light level to apply night vision at
- * @param shader The shader to apply when night vision is applied
- * @param applySound The sound to play when night vision is applied
+ * @param lightLevel  The maximum light level to apply night vision at
+ * @param shader      The shader to apply when night vision is applied
+ * @param applySound  The sound to play when night vision is applied
  * @param removeSound The sound to play when night vision is removed
  */
 public record AutomaticNightVisionAbility(int lightLevel, Optional<ResourceLocation> shader, Optional<Holder<SoundEvent>> applySound, Optional<Holder<SoundEvent>> removeSound) implements Ability {
+
     public static final int DEFAULT_LIGHT_LEVEL = 5;
     public static final MapCodec<AutomaticNightVisionAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("light_level", DEFAULT_LIGHT_LEVEL).forGetter(AutomaticNightVisionAbility::lightLevel),
             ResourceLocation.CODEC.optionalFieldOf("shader").forGetter(AutomaticNightVisionAbility::shader),
             SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(AutomaticNightVisionAbility::applySound),
             SoundEvent.CODEC.optionalFieldOf("remove_sound").forGetter(AutomaticNightVisionAbility::removeSound)).apply(instance, AutomaticNightVisionAbility::new));
-
     public AutomaticNightVisionAbility(Optional<ResourceLocation> shader, Optional<Holder<SoundEvent>> applySound, Optional<Holder<SoundEvent>> removeSound) {
         this(DEFAULT_LIGHT_LEVEL, shader, applySound, removeSound);
     }

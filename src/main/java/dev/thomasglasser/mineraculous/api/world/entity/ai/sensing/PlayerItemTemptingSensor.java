@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.api.world.entity.ai.sensing;
 
-import java.util.function.BiPredicate;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.player.Player;
@@ -9,6 +8,11 @@ import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.ItemTemptingSensor;
 import net.tslat.smartbrainlib.object.TriPredicate;
 
+/**
+ * An extension of {@link ItemTemptingSensor} that includes the player in the predicate.
+ *
+ * @param <E> The entity being tempted
+ */
 public class PlayerItemTemptingSensor<E extends LivingEntity> extends ItemTemptingSensor<E> {
     protected TriPredicate<E, Player, ItemStack> temptPredicate = (entity, player, stack) -> false;
 
@@ -26,15 +30,14 @@ public class PlayerItemTemptingSensor<E extends LivingEntity> extends ItemTempti
         return MineraculousSensorTypes.PLAYER_ITEM_TEMPTING.get();
     }
 
+    /**
+     * Sets the predicate to tempt the entity with.
+     *
+     * @param predicate The predicate to tempt the entity with
+     * @return The predicated sensor
+     */
     public PlayerItemTemptingSensor<E> temptedWith(final TriPredicate<E, Player, ItemStack> predicate) {
         this.temptPredicate = predicate;
-
-        return this;
-    }
-
-    @Override
-    public ItemTemptingSensor<E> temptedWith(final BiPredicate<E, ItemStack> predicate) {
-        this.temptPredicate = (entity, player, stack) -> predicate.test(entity, stack);
 
         return this;
     }

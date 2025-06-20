@@ -4,7 +4,7 @@ import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
-import dev.thomasglasser.mineraculous.api.world.entity.decoration.MineraculousPaintingVariants;
+import dev.thomasglasser.mineraculous.impl.world.entity.decoration.MineraculousPaintingVariants;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.decoration.PaintingVariant;

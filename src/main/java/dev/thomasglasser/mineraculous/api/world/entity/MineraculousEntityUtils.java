@@ -9,7 +9,6 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import java.util.List;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Position;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
@@ -19,13 +18,28 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class MineraculousEntityUtils {
+    /**
+     * Applies the provided {@link MobEffect} to the provided {@link LivingEntity} at the provided amplifier invisibly for an infinite duration.
+     * 
+     * @param entity    The entity to apply the effect to
+     * @param effect    The effect to apply to the entity
+     * @param amplifier The amplifier to use for the effect
+     */
     public static void applyInfiniteHiddenEffect(LivingEntity entity, Holder<MobEffect> effect, int amplifier) {
-        entity.addEffect(new MobEffectInstance(effect, -1, amplifier, false, false, false));
+        entity.addEffect(new MobEffectInstance(effect, -1, amplifier, false, false));
     }
 
+    /**
+     * Formats the provided {@link Entity}'s display name,
+     * taking {@link MiraculousData} and {@link KamikotizationData} into account.
+     *
+     * @param entity   The entity to check for formatting
+     * @param original The original name of the entity
+     * @return The formatted name of the entity, or the original if no formatting was needed
+     */
     public static Component formatDisplayName(Entity entity, Component original) {
         if (original != null) {
             Style style = original.getStyle();
@@ -47,8 +61,15 @@ public class MineraculousEntityUtils {
         return original;
     }
 
-    public static void tryBreakItemEntity(EntityHitResult entityHitResult, ItemEntity itemEntity, ServerLevel serverLevel, Position pos) {
-        Pair<ItemStack, ItemStack> result = MineraculousItemUtils.tryBreakItem(itemEntity.getItem(), serverLevel, entityHitResult.getLocation(), null);
+    /**
+     * Performs item breaking on an {@link ItemEntity} and spawns a new item for the remaining stack.
+     *
+     * @param itemEntity  The item entity to break
+     * @param serverLevel The level to perform the breaking in
+     */
+    public static void tryBreakItemEntity(ItemEntity itemEntity, ServerLevel serverLevel) {
+        Vec3 position = itemEntity.position();
+        Pair<ItemStack, ItemStack> result = MineraculousItemUtils.tryBreakItem(itemEntity.getItem(), serverLevel, position, null);
         ItemStack stack = result.getFirst();
         ItemStack rest = result.getSecond();
         if (stack.isEmpty()) {
@@ -57,7 +78,7 @@ public class MineraculousEntityUtils {
             itemEntity.setItem(stack);
         }
         if (!rest.isEmpty()) {
-            ItemEntity restEntity = new ItemEntity(serverLevel, pos.x(), pos.y(), pos.z(), rest);
+            ItemEntity restEntity = new ItemEntity(serverLevel, position.x(), position.y(), position.z(), rest);
             serverLevel.addFreshEntity(restEntity);
         }
     }

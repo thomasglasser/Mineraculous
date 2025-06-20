@@ -30,7 +30,7 @@ public class KamikotizationsCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected BookIconModel categoryIcon() {
-        return BookIconModel.create(MineraculousArmors.KAMIKOTIZATION.HEAD);
+        return BookIconModel.create(MineraculousArmors.KAMIKOTIZATION.head());
     }
 
     @Override

@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Displays the provided {@link ParticleOptions} at the entity's humanoid right hand position.
+ * 
  * @param particle The {@link ParticleOptions} to display
  */
 public record RightHandParticlesAbility(ParticleOptions particle) implements Ability {

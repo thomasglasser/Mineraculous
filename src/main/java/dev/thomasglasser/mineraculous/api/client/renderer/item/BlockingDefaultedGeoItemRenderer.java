@@ -11,6 +11,7 @@ import software.bernie.geckolib.model.GeoModel;
 /**
  * A {@link DefaultedGeoItemRenderer} with a separate model and texture when blocking,
  * based on the {@link MineraculousDataComponents#BLOCKING} component being present.
+ * 
  * @param <T> The item the renderer is for
  */
 public class BlockingDefaultedGeoItemRenderer<T extends Item & GeoAnimatable> extends DefaultedGeoItemRenderer<T> {

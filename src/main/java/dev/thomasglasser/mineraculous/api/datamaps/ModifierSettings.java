@@ -6,7 +6,8 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 
 /**
  * Defines how an attribute modifier should be applied.
- * @param amount The amount to apply
+ * 
+ * @param amount    The amount to apply
  * @param operation The operation to use
  */
 public record ModifierSettings(double amount, AttributeModifier.Operation operation) {

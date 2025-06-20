@@ -41,10 +41,7 @@ public class AkumatizationPackEnUsLanguageProvider extends EnUsOverrideLanguageP
         add(MineraculousItems.KAMIKO_SPAWN_EGG.get(), "Akuma Spawn Egg");
 
         // Armor
-        add(MineraculousArmors.KAMIKOTIZATION.HEAD.get(), "Akumatization Mask");
-        add(MineraculousArmors.KAMIKOTIZATION.CHEST.get(), "Akumatization Chestplate");
-        add(MineraculousArmors.KAMIKOTIZATION.LEGS.get(), "Akumatization Leggings");
-        add(MineraculousArmors.KAMIKOTIZATION.FEET.get(), "Akumatization Boots");
+        add(MineraculousArmors.KAMIKOTIZATION, "Akumatization", "Mask", "Chestplate", "Leggings", "Boots");
     }
 
     private void addEntityTypes() {

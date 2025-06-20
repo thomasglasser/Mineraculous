@@ -299,9 +299,9 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
     }
 
     @Override
-    public Ability setOption(ItemStack stack, InteractionHand hand, int index, Player holder) {
+    public Ability setOption(ItemStack stack, InteractionHand hand, Player holder, int index) {
         Ability old = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY);
-        Ability selected = RadialMenuProvider.super.setOption(stack, hand, index, holder);
+        Ability selected = RadialMenuProvider.super.setOption(stack, hand, holder, index);
         if (holder.level() instanceof ServerLevel level) {
             UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
             if (ownerId != null) {

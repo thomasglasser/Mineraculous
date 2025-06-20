@@ -25,6 +25,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ItemLike;
 
 public record Miraculous(TextColor color, String acceptableSlot, Optional<Integer> transformationFrames, ItemStack tool, Optional<String> toolSlot, Holder<Ability> activeAbility, HolderSet<Ability> passiveAbilities, Holder<SoundEvent> transformSound, Holder<SoundEvent> detransformSound, Holder<SoundEvent> timerWarningSound, Holder<SoundEvent> timerEndSound) {
 
@@ -77,14 +78,14 @@ public record Miraculous(TextColor color, String acceptableSlot, Optional<Intege
         return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(key.location().getNamespace(), "kwami_treats/" + key.location().getPath()));
     }
 
-    public static ItemStack createItemStack(Item item, Holder<Miraculous> miraculous) {
-        ItemStack stack = item.getDefaultInstance();
+    public static ItemStack createItemStack(ItemLike item, Holder<Miraculous> miraculous) {
+        ItemStack stack = item.asItem().getDefaultInstance();
         stack.set(MineraculousDataComponents.MIRACULOUS, miraculous);
         return stack;
     }
 
     public static ItemStack createMiraculousStack(Holder<Miraculous> miraculous) {
-        return createItemStack(MineraculousItems.MIRACULOUS.get(), miraculous);
+        return createItemStack(MineraculousItems.MIRACULOUS, miraculous);
     }
 
     public static Component formatItemName(ItemStack stack, Component original) {

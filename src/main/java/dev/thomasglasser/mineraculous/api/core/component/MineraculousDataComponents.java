@@ -6,25 +6,19 @@ import dev.thomasglasser.mineraculous.api.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.api.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.api.world.item.component.LuckyCharm;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionItemData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
-import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
-import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import java.util.UUID;
 import net.minecraft.core.Holder;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.util.Unit;
-import net.minecraft.world.entity.animal.Cat;
 import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousDataComponents {

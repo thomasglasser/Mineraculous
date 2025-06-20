@@ -33,6 +33,7 @@ public class MineraculousRenderTypes {
 
     /**
      * Returns the default lucky charm texture location based on the provided name.
+     * 
      * @param name The name to create the texture location for
      * @return The lucky charm texture location
      */
@@ -42,10 +43,11 @@ public class MineraculousRenderTypes {
 
     /**
      * Returns a lucky charm {@link RenderType} with the provided name, texture, and texturing shard.
-     * @param name The name of the render type
-     * @param texture The texture location of the render type
+     * 
+     * @param name                The name of the render type
+     * @param texture             The texture location of the render type
      * @param texturingStateShard The texturing state shard of the render type
-     * @param offsetZLayering Whether to enable offset z layering
+     * @param offsetZLayering     Whether to enable offset z layering
      * @return The lucky charm {@link RenderType}
      */
     public static RenderType createLuckyCharm(ResourceLocation name, ResourceLocation texture, RenderStateShard.TexturingStateShard texturingStateShard, boolean offsetZLayering) {
@@ -70,9 +72,9 @@ public class MineraculousRenderTypes {
     /**
      * Creates a lucky charm {@link RenderType} with the given name and a default texture derived from the name.
      *
-     * @param name The name of the render type
+     * @param name                The name of the render type
      * @param texturingStateShard The texturing state shard of the render type
-     * @param offsetZLayering Whether to enable offset z layering
+     * @param offsetZLayering     Whether to enable offset z layering
      * @return The lucky charm {@link RenderType}
      */
     public static RenderType createLuckyCharm(ResourceLocation name, RenderStateShard.TexturingStateShard texturingStateShard, boolean offsetZLayering) {

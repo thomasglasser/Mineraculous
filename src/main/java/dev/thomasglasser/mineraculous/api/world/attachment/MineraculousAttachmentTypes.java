@@ -25,15 +25,19 @@ public class MineraculousAttachmentTypes {
     // Shared
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<ArmorData>>> STORED_ARMOR = ATTACHMENT_TYPES.register("stored_armor", () -> AttachmentType.builder(Optional::<ArmorData>empty).serialize(optionalCodec(ArmorData.CODEC)).build());
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<AbilityEffectData>> ABILITY_EFFECTS = ATTACHMENT_TYPES.register("ability_effects", () -> AttachmentType.builder(AbilityEffectData::new).build());
+    /// Stores a list of clients to sync the holder's inventory to
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<ReferenceArrayList<UUID>>> INVENTORY_TRACKERS = ATTACHMENT_TYPES.register("inventory_trackers", () -> AttachmentType.builder(() -> new ReferenceArrayList<UUID>()).build());
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<ThrownLadybugYoyoData>> THROWN_LADYBUG_YOYO = ATTACHMENT_TYPES.register("thrown_ladybug_yoyo", () -> AttachmentType.builder(() -> new ThrownLadybugYoyoData()).build());
+    /// If present, stores the {@link YoyoLeashData} for the actively leashed holder
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<YoyoLeashData>>> YOYO_LEASH = ATTACHMENT_TYPES.register("yoyo_leash", () -> AttachmentType.builder(Optional::<YoyoLeashData>empty).build());
 
     // Miraculous
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<MiraculousesData>> MIRACULOUSES = ATTACHMENT_TYPES.register("miraculouses", () -> AttachmentType.builder(() -> new MiraculousesData()).serialize(MiraculousesData.CODEC).copyOnDeath().build());
 
     // Kamikotization
+    /// If present, stores the holder's actively transformed {@link KamikotizationData}.
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<KamikotizationData>>> KAMIKOTIZATION = ATTACHMENT_TYPES.register("kamikotization", () -> AttachmentType.builder(Optional::<KamikotizationData>empty).serialize(optionalCodec(KamikotizationData.CODEC)).build());
+    /// If present, stores the previously transformed {@link Kamikotization} of the detransformed holder.
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<Holder<Kamikotization>>>> OLD_KAMIKOTIZATION = ATTACHMENT_TYPES.register("old_kamikotization", () -> AttachmentType.builder(Optional::<Holder<Kamikotization>>empty).serialize(optionalCodec(Kamikotization.CODEC)).build());
 
     private static <T> Codec<Optional<T>> optionalCodec(Codec<T> codec) {

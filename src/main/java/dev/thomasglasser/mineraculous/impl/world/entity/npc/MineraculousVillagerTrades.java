@@ -1,5 +1,6 @@
-package dev.thomasglasser.mineraculous.api.world.entity.npc;
+package dev.thomasglasser.mineraculous.impl.world.entity.npc;
 
+import dev.thomasglasser.mineraculous.api.world.entity.npc.MineraculousVillagerProfessions;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
@@ -11,8 +12,8 @@ import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.event.village.VillagerTradesEvent;
 
 public class MineraculousVillagerTrades {
-    public static final int RARE_SUPPLY = 2;
-    public static final int VERY_RARE_SUPPLY = 1;
+    private static final int RARE_SUPPLY = 2;
+    private static final int VERY_RARE_SUPPLY = 1;
 
     public static void onRegisterVillagerTrades(VillagerTradesEvent event) {
         Int2ObjectMap<List<VillagerTrades.ItemListing>> trades = event.getTrades();

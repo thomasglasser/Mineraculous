@@ -3,9 +3,6 @@ package dev.thomasglasser.mineraculous.api.tags;
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
-import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
-import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import net.minecraft.tags.TagKey;
 
 public class MiraculousTags {

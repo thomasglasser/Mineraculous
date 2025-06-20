@@ -35,6 +35,7 @@ public class MineraculousItemProperties {
 
     /**
      * Creates an {@link ItemPropertyFunction} for an {@link Enum} {@link DataComponentType} based on ordinal.
+     * 
      * @param component The {@link DataComponentType} to use
      * @return The created {@link ItemPropertyFunction}
      * @param <T> The {@link Enum} to use
@@ -50,6 +51,7 @@ public class MineraculousItemProperties {
 
     /**
      * Returns the property value for the passed {@link Enum} based on ordinal.
+     * 
      * @param value The {@link Enum} value
      * @return The property value
      */

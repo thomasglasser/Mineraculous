@@ -13,6 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import org.jetbrains.annotations.Nullable;
 
+/// A {@link ThrownSword} that can hit and break {@link ItemEntity}s and has automatic speedy loyalty.
 public abstract class ItemBreakingQuicklyReturningThrownSword extends ThrownSword {
     protected ItemBreakingQuicklyReturningThrownSword(EntityType<? extends ItemBreakingQuicklyReturningThrownSword> entity, Level level) {
         super(entity, level);
@@ -30,7 +31,7 @@ public abstract class ItemBreakingQuicklyReturningThrownSword extends ThrownSwor
     protected void onHitEntity(EntityHitResult entityHitResult) {
         super.onHitEntity(entityHitResult);
         if (entityHitResult.getEntity() instanceof ItemEntity itemEntity && level() instanceof ServerLevel serverLevel) {
-            MineraculousEntityUtils.tryBreakItemEntity(entityHitResult, itemEntity, serverLevel, position());
+            MineraculousEntityUtils.tryBreakItemEntity(itemEntity, serverLevel);
         }
     }
 

@@ -1,8 +1,7 @@
-package dev.thomasglasser.mineraculous.api.world.item.armortrim;
+package dev.thomasglasser.mineraculous.impl.world.item.armortrim;
 
 import dev.thomasglasser.mineraculous.Mineraculous;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
-import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -21,16 +20,12 @@ public class MineraculousTrimPatterns {
     }
 
     public static void bootstrap(BootstrapContext<TrimPattern> context) {
-        register(context, LADYBUG, MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE, false);
-        register(context, CAT, MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE, false);
-        register(context, BUTTERFLY, MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE, false);
+        register(context, LADYBUG, MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE);
+        register(context, CAT, MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE);
+        register(context, BUTTERFLY, MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE);
     }
 
-    public static void register(BootstrapContext<TrimPattern> context, ResourceKey<TrimPattern> pattern, Holder<Item> template, boolean decal) {
-        context.register(pattern, new TrimPattern(pattern.location(), template, description(pattern), decal));
-    }
-
-    public static Component description(ResourceKey<TrimPattern> pattern) {
-        return Component.translatable(Util.makeDescriptionId(pattern.registry().getPath(), pattern.location()));
+    private static void register(BootstrapContext<TrimPattern> context, ResourceKey<TrimPattern> pattern, Holder<Item> template) {
+        context.register(pattern, new TrimPattern(pattern.location(), template, Component.translatable(pattern.location().toLanguageKey(pattern.registry().getPath())), false));
     }
 }

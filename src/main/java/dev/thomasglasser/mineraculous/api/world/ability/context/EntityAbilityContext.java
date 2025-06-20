@@ -5,6 +5,7 @@ import net.minecraft.world.entity.LivingEntity;
 
 /**
  * Used in entity-related ability behavior.
+ * 
  * @param target The entity the ability was performed on
  */
 public record EntityAbilityContext(Entity target) implements AbilityContext {

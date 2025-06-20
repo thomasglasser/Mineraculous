@@ -60,7 +60,7 @@ public class GeneralEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(MineraculousArmors.KAMIKOTIZATION.HEAD.get());
+        return BookIconModel.create(MineraculousArmors.KAMIKOTIZATION.head());
     }
 
     @Override

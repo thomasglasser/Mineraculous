@@ -108,12 +108,12 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                     stack.remove(MineraculousDataComponents.POWERED);
                     Kwami kwami = KwamiData.summon(data.kwamiData(), level, miraculous.getKey(), entity);
                     if (kwami != null) {
-                        kwamiData = data.kwamiData().map(kD -> new KwamiData(kwami.getUUID(), kwami.getId(), kD.charged())).orElse(new KwamiData(kwami.getUUID(), kwami.getId(), kwami.isCharged()));
+                        kwamiData = data.kwamiData().map(kD -> new KwamiData(kwami.getUUID(), kwami.getId(), kD.charged())).orElseGet(() -> new KwamiData(kwami.getUUID(), kwami.getId(), kwami.isCharged()));
                     }
                 }
                 stack.set(MineraculousDataComponents.KWAMI_DATA, kwamiData);
                 if (kwamiData != null) {
-                    data.equip(kwamiData, new CuriosData(slotContext.index(), slotContext.identifier())).save(miraculous, entity, true);
+                    data.equip(kwamiData, new CuriosData(slotContext)).save(miraculous, entity, true);
                 }
             }
         }

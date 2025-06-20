@@ -23,7 +23,7 @@ public record ServerboundSetRadialMenuProviderOptionPayload(InteractionHand hand
     public void handle(Player player) {
         ItemStack stack = player.getItemInHand(hand);
         if (stack.getItem() instanceof RadialMenuProvider<?> provider) {
-            provider.setOption(stack, hand, index, player);
+            provider.setOption(stack, hand, player, index);
         }
     }
 

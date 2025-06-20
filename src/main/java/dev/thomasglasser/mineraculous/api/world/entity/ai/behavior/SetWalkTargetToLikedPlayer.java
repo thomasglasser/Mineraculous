@@ -15,6 +15,11 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAtt
 import net.tslat.smartbrainlib.object.MemoryTest;
 import net.tslat.smartbrainlib.util.BrainUtils;
 
+/**
+ * An extension of {@link SetWalkTargetToAttackTarget} that uses {@link MemoryModuleType#LIKED_PLAYER} instead of {@link MemoryModuleType#ATTACK_TARGET}.
+ *
+ * @param <E> The entity to set the walk target for
+ */
 public class SetWalkTargetToLikedPlayer<E extends Mob> extends SetWalkTargetToAttackTarget<E> {
     private static final MemoryTest MEMORY_REQUIREMENTS = MemoryTest.builder(3).hasMemory(MemoryModuleType.LIKED_PLAYER).usesMemories(MemoryModuleType.WALK_TARGET, MemoryModuleType.LOOK_TARGET);
 

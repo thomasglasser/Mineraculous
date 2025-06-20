@@ -96,13 +96,13 @@ public class MiraculousAdvancements extends ExtendedAdvancementGenerator {
                 .trigger("transform_butterfly", TransformMiraculousTrigger.TriggerInstance.transformed(butterfly.getKey()))
                 .build();
 
-        AdvancementHolder kamikotizeButterfly = builder("kamikotize_butterfly", MineraculousArmors.KAMIKOTIZATION.HEAD.toStack(), "Fly Away My Little Kamiko", "Kamikotize a butterfly")
+        AdvancementHolder kamikotizeButterfly = builder("kamikotize_butterfly", MineraculousArmors.KAMIKOTIZATION.head().toStack(), "Fly Away My Little Kamiko", "Kamikotize a butterfly")
                 .parent(transformButterfly)
                 .experience(10)
                 .trigger("kamikotize_butterfly", PerformMiraculousActiveAbilityTrigger.TriggerInstance.performedActiveAbility(butterfly.getKey(), EntityAbilityContext.ADVANCEMENT_CONTEXT_LIVING))
                 .build();
 
-        AdvancementHolder kamikotizeEntity = builder("kamikotize_entity", MineraculousArmors.KAMIKOTIZATION.HEAD.toStack(), "Sharing the Wealth", "Provide power to another being via kamikotization")
+        AdvancementHolder kamikotizeEntity = builder("kamikotize_entity", MineraculousArmors.KAMIKOTIZATION.head().toStack(), "Sharing the Wealth", "Provide power to another being via kamikotization")
                 .parent(kamikotizeButterfly)
                 .trigger("kamikotize_entity", KamikotizeEntityTrigger.TriggerInstance.kamikotizedEntity(false))
                 .build();
@@ -113,7 +113,7 @@ public class MiraculousAdvancements extends ExtendedAdvancementGenerator {
                 .trigger("kamikotize_self", TransformKamikotizationTrigger.TriggerInstance.transformed(true))
                 .build();
 
-        AdvancementHolder transformKamikotization = builder("transform_kamikotization", MineraculousArmors.KAMIKOTIZATION.HEAD.toStack(), "Powered Up", "Accept a kamikotization from the Butterfly miraculous holder")
+        AdvancementHolder transformKamikotization = builder("transform_kamikotization", MineraculousArmors.KAMIKOTIZATION.head().toStack(), "Powered Up", "Accept a kamikotization from the Butterfly miraculous holder")
                 .parent(root)
                 .experience(5)
                 .trigger("transform_kamikotization", TransformKamikotizationTrigger.TriggerInstance.transformed(false))

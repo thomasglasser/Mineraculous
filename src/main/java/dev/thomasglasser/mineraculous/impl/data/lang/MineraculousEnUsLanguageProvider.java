@@ -11,13 +11,11 @@ import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
 import dev.thomasglasser.mineraculous.api.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.api.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.api.world.entity.npc.MineraculousVillagerProfessions;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
-import dev.thomasglasser.mineraculous.api.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
@@ -38,9 +36,11 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.server.commands.MiraculousCommand;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
+import dev.thomasglasser.mineraculous.impl.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
+import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.mineraculous.impl.world.level.block.AgeingCheeseEdibleFullBlock;
 import dev.thomasglasser.mineraculous.impl.world.level.block.CheeseBlock;
 import dev.thomasglasser.tommylib.api.data.lang.ExtendedEnUsLanguageProvider;
@@ -49,7 +49,6 @@ import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
 import java.util.Map;
 import net.minecraft.data.PackOutput;
-import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemNameBlockItem;
 
 public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvider {
@@ -84,18 +83,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfigs();
     }
 
-    protected void addMiraculousArmor(ArmorSet set) {
-        for (ArmorItem item : set.getAllAsItems()) {
-            String nameForSlot = switch (set.getForItem(item)) {
-                case FEET -> "Boots";
-                case LEGS -> "Leggings";
-                case CHEST -> "Chestplates";
-                case HEAD -> "Mask";
-                default -> null;
-            };
-
-            add(item, set.getDisplayName() + " " + nameForSlot);
-        }
+    protected void addSuitArmor(ArmorSet set, String displayName) {
+        add(set, displayName, "Mask", "Chestplate", "Leggings", "Boots");
     }
 
     protected void cheese(Map<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> wedges, Map<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> waxedWedges, Map<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> blocks, Map<AgeingCheese.Age, DeferredBlock<CheeseBlock>> waxedBlocks, String name) {
@@ -132,8 +121,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addToolAbilities(ButterflyCaneItem.Ability.values());
 
         // Armor
-        addMiraculousArmor(MineraculousArmors.MIRACULOUS);
-        addMiraculousArmor(MineraculousArmors.KAMIKOTIZATION);
+        addSuitArmor(MineraculousArmors.MIRACULOUS, "Miraculous");
+        addSuitArmor(MineraculousArmors.KAMIKOTIZATION, "Kamikotization");
     }
 
     private void addBlocks() {

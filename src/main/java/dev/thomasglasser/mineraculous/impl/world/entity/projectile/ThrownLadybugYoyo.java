@@ -335,7 +335,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
 
             this.dealtDamage = true;
             if (entity instanceof ItemEntity itemEntity && level() instanceof ServerLevel serverLevel) {
-                MineraculousEntityUtils.tryBreakItemEntity(result, itemEntity, serverLevel, position());
+                MineraculousEntityUtils.tryBreakItemEntity(itemEntity, serverLevel);
             } else if (entity.hurt(damagesource, damage)) {
                 if (entity.getType() == EntityType.ENDERMAN) {
                     return;

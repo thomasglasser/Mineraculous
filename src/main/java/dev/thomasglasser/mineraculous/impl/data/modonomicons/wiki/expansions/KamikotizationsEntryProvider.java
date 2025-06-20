@@ -55,7 +55,7 @@ public class KamikotizationsEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(MineraculousArmors.KAMIKOTIZATION.HEAD);
+        return BookIconModel.create(MineraculousArmors.KAMIKOTIZATION.head());
     }
 
     @Override

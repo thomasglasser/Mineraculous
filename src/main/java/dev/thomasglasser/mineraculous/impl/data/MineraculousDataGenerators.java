@@ -7,8 +7,6 @@ import dev.thomasglasser.mineraculous.api.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.damagesource.MineraculousDamageTypes;
-import dev.thomasglasser.mineraculous.api.world.entity.decoration.MineraculousPaintingVariants;
-import dev.thomasglasser.mineraculous.api.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.data.advancements.MineraculousAdvancementProvider;
@@ -31,6 +29,8 @@ import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousPoiTypeTagsProv
 import dev.thomasglasser.mineraculous.impl.data.tags.MiraculousTagsProvider;
 import dev.thomasglasser.mineraculous.impl.data.tags.client.MineraculousResourceLocationClientTagsProvider;
 import dev.thomasglasser.mineraculous.impl.data.worldgen.MineraculousWorldgenModifiers;
+import dev.thomasglasser.mineraculous.impl.world.entity.decoration.MineraculousPaintingVariants;
+import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.tommylib.api.data.DataGenerationUtils;
 import dev.worldgen.lithostitched.registry.LithostitchedRegistryKeys;
 import net.minecraft.advancements.critereon.ItemPredicate;

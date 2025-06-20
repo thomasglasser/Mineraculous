@@ -22,10 +22,10 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Converts the target to the provided {@link EntityType} if it matches the provided {@link EntityPredicate}(s).
  *
- * @param newType The {@link EntityType} to convert the target to
- * @param validEntities The {@link EntityPredicate} the target must match
+ * @param newType         The {@link EntityType} to convert the target to
+ * @param validEntities   The {@link EntityPredicate} the target must match
  * @param invalidEntities The {@link EntityPredicate} the target must not match
- * @param convertSound The sound to play on successful conversion
+ * @param convertSound    The sound to play on successful conversion
  */
 public record ConvertAndTameAbility(EntityType<?> newType, Optional<EntityPredicate> validEntities, Optional<EntityPredicate> invalidEntities, Optional<Holder<SoundEvent>> convertSound) implements TemptingAbility {
 

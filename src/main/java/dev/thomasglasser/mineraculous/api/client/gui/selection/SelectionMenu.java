@@ -6,7 +6,6 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.spectator.SpectatorMenu;
-import net.minecraft.client.gui.spectator.SpectatorMenuItem;
 import net.minecraft.client.gui.spectator.categories.SpectatorPage;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;

@@ -13,6 +13,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceKey;
+import org.jetbrains.annotations.ApiStatus;
 
 public class Miraculouses {
     public static final ResourceKey<Miraculous> BUTTERFLY = create("butterfly");
@@ -23,6 +24,7 @@ public class Miraculouses {
         return ResourceKey.create(MineraculousRegistries.MIRACULOUS, Mineraculous.modLoc(name));
     }
 
+    @ApiStatus.Internal
     public static void bootstrap(BootstrapContext<Miraculous> context) {
         HolderGetter<Ability> abilities = context.lookup(MineraculousRegistries.ABILITY);
 

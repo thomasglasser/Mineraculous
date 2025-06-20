@@ -6,7 +6,6 @@ import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTyp
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousBlockTags;
-import dev.thomasglasser.mineraculous.api.tags.MineraculousEntityTypeTags;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;

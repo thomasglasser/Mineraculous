@@ -38,7 +38,7 @@ public class MineraculousCreativeModeTabs {
         return ItemStack.EMPTY;
     }).withSearchBar().displayItems((parameters, output) -> generateMiraculous(output, parameters.holders().lookupOrThrow(MineraculousRegistries.MIRACULOUS))).build());
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> KAMIKOTIZATION_TOOLS = TABS.register("kamikotization_tools", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(Mineraculous.modLoc("kamikotization_tools").toLanguageKey("item_group"))).icon(MineraculousArmors.KAMIKOTIZATION.HEAD::toStack).displayItems((parameters, output) -> {
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> KAMIKOTIZATION_TOOLS = TABS.register("kamikotization_tools", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(Mineraculous.modLoc("kamikotization_tools").toLanguageKey("item_group"))).icon(MineraculousArmors.KAMIKOTIZATION.head()::toStack).displayItems((parameters, output) -> {
         ReferenceLinkedOpenHashSet<Kamikotization> kamikotizations = parameters.holders().lookupOrThrow(MineraculousRegistries.KAMIKOTIZATION).listElements().sorted(Comparator.comparing(Holder.Reference::key)).map(Holder::value).collect(Collectors.toCollection(ReferenceLinkedOpenHashSet::new));
         for (Kamikotization kamikotization : kamikotizations) {
             if (kamikotization.powerSource().left().isPresent()) {
@@ -48,7 +48,7 @@ public class MineraculousCreativeModeTabs {
     }).withTabsBefore(MIRACULOUS.getKey()).build());
 
     private static final ItemPredicate ANY = ItemPredicate.Builder.item().build();
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> KAMIKOTIZABLES = TABS.register("kamikotizables", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(Mineraculous.modLoc("kamikotizables").toLanguageKey("item_group"))).icon(MineraculousArmors.KAMIKOTIZATION.HEAD::toStack).displayItems((parameters, output) -> {
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> KAMIKOTIZABLES = TABS.register("kamikotizables", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(Mineraculous.modLoc("kamikotizables").toLanguageKey("item_group"))).icon(MineraculousArmors.KAMIKOTIZATION.head()::toStack).displayItems((parameters, output) -> {
         Set<ItemStack> set = ItemStackLinkedSet.createTypeAndComponentsSet();
 
         for (CreativeModeTab tab : parameters.holders().lookupOrThrow(Registries.CREATIVE_MODE_TAB).listElements().map(Holder::value).toList()) {

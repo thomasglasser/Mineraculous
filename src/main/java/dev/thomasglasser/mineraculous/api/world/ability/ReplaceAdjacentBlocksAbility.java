@@ -28,14 +28,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- *  Replaces adjacent blocks with the provided {@link BlockState} in a diamond shape,
- *  preferring the same {@link Block} when enabled.
+ * Replaces adjacent blocks with the provided {@link BlockState} in a diamond shape,
+ * preferring the same {@link Block} when enabled.
  *
- * @param replacement The {@link BlockState} to replace the target blocks with
- * @param preferSame Whether the algorithm should choose blocks of the same kind as the target when adjacent
- * @param validBlocks The {@link BlockPredicate} the target must match
+ * @param replacement   The {@link BlockState} to replace the target blocks with
+ * @param preferSame    Whether the algorithm should choose blocks of the same kind as the target when adjacent
+ * @param validBlocks   The {@link BlockPredicate} the target must match
  * @param invalidBlocks The {@link BlockPredicate} the target must not match
- * @param replaceSound The sound to play when the blocks are replaced
+ * @param replaceSound  The sound to play when the blocks are replaced
  */
 public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean preferSame, Optional<BlockPredicate> validBlocks, Optional<BlockPredicate> invalidBlocks, Optional<Holder<SoundEvent>> replaceSound) implements Ability {
 

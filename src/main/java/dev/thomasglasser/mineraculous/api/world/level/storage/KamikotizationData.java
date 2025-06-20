@@ -179,7 +179,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
             ArmorData armor = new ArmorData(livingEntity.getItemBySlot(EquipmentSlot.HEAD), livingEntity.getItemBySlot(EquipmentSlot.CHEST), livingEntity.getItemBySlot(EquipmentSlot.LEGS), livingEntity.getItemBySlot(EquipmentSlot.FEET));
             livingEntity.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
             for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
-                ItemStack stack = Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.getForSlot(slot).get(), kamikotization);
+                ItemStack stack = Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.getForSlot(slot), kamikotization);
                 stack.enchant(entity.level().holderOrThrow(Enchantments.BINDING_CURSE), 1);
                 stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS, Unit.INSTANCE);
                 livingEntity.setItemSlot(slot, stack);

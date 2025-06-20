@@ -144,7 +144,7 @@ public class MineraculousClientUtils {
     }
 
     public static boolean tryOpenRadialMenuScreenFromProvider(InteractionHand hand, ItemStack stack, RadialMenuProvider<?> provider) {
-        if (hasNoScreenOpen() && provider.canOpenMenu(stack, hand, ClientUtils.getLocalPlayer())) {
+        if (provider.canOpenMenu(stack, hand, ClientUtils.getLocalPlayer())) {
             Minecraft.getInstance().setScreen(new RadialMenuScreen<>(hand, MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU.getKey().getValue(), stack, provider));
             return true;
         }
@@ -155,7 +155,7 @@ public class MineraculousClientUtils {
         TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), true));
         Minecraft.getInstance().setScreen(new ExternalCuriosInventoryScreen(target, true, ((slot, target1, menu) -> {
             if (slot instanceof CurioSlot curioSlot)
-                TommyLibServices.NETWORK.sendToServer(new ServerboundStealCurioPayload(target1.getUUID(), new CuriosData(curioSlot.getSlotIndex(), curioSlot.getIdentifier())));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundStealCurioPayload(target1.getUUID(), new CuriosData(curioSlot.getSlotContext())));
             else
                 TommyLibServices.NETWORK.sendToServer(new ServerboundStealItemPayload(target1.getUUID(), menu.slots.indexOf(slot)));
         }), exit -> {

@@ -311,10 +311,10 @@ public class KamikotizationSelectionScreen extends Screen {
 
     protected void onKamikotizationChanged() {
         if (selectedKamikotization != null) {
-            targetPreview.setItemSlot(EquipmentSlot.HEAD, Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.HEAD.get(), selectedKamikotization));
-            targetPreview.setItemSlot(EquipmentSlot.CHEST, Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.CHEST.get(), selectedKamikotization));
-            targetPreview.setItemSlot(EquipmentSlot.LEGS, Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.LEGS.get(), selectedKamikotization));
-            targetPreview.setItemSlot(EquipmentSlot.FEET, Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.FEET.get(), selectedKamikotization));
+            targetPreview.setItemSlot(EquipmentSlot.HEAD, Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.head(), selectedKamikotization));
+            targetPreview.setItemSlot(EquipmentSlot.CHEST, Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.chest(), selectedKamikotization));
+            targetPreview.setItemSlot(EquipmentSlot.LEGS, Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.legs(), selectedKamikotization));
+            targetPreview.setItemSlot(EquipmentSlot.FEET, Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.feet(), selectedKamikotization));
             name.setValue(selectedKamikotization.value().defaultName());
         }
         refreshArrows();
@@ -342,7 +342,7 @@ public class KamikotizationSelectionScreen extends Screen {
                 public void pickUp(Slot slot, Player target, AbstractContainerMenu menu) {
                     Either<Integer, CuriosData> slotInfo;
                     if (slot instanceof CurioSlot curiosSlot)
-                        slotInfo = Either.right(new CuriosData(curiosSlot.getSlotIndex(), curiosSlot.getIdentifier()));
+                        slotInfo = Either.right(new CuriosData(curiosSlot.getSlotContext()));
                     else
                         slotInfo = Either.left(slot.getSlotIndex());
                     KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, name.getValue(), Optional.empty(), slot.getItem().getCount(), false);

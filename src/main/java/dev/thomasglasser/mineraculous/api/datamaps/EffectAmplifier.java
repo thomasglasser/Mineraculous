@@ -6,6 +6,7 @@ import net.minecraft.util.ExtraCodecs;
 
 /**
  * Specifies an amplifier to apply for an effect.
+ * 
  * @param amplifier The amplifier to apply
  */
 public record EffectAmplifier(int amplifier) {

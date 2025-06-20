@@ -12,7 +12,6 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.EntityPredicate;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -25,14 +24,14 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Toggles spectation of a valid target.
  *
- * @param validEntities The {@link EntityPredicate} the entity must match
- * @param invalidEntities The {@link EntityPredicate} the entity must not match
- * @param privateChat Whether spectation should disallow messages not from the performer or target
+ * @param validEntities     The {@link EntityPredicate} the entity must match
+ * @param invalidEntities   The {@link EntityPredicate} the entity must not match
+ * @param privateChat       Whether spectation should disallow messages not from the performer or target
  * @param allowRemoteDamage Whether spectation should allow remote damage from performer to target on performer swing
- * @param shader The shader to apply to the performer on spectation
- * @param faceMaskTexture The face mask texture to apply to the performer on spectation
- * @param startSound The sound to play when spectation begins
- * @param stopSound The sound to play when spectation ends
+ * @param shader            The shader to apply to the performer on spectation
+ * @param faceMaskTexture   The face mask texture to apply to the performer on spectation
+ * @param startSound        The sound to play when spectation begins
+ * @param stopSound         The sound to play when spectation ends
  */
 public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Optional<EntityPredicate> invalidEntities, boolean privateChat, boolean allowRemoteDamage, Optional<ResourceLocation> shader, Optional<ResourceLocation> faceMaskTexture, Optional<Holder<SoundEvent>> startSound, Optional<Holder<SoundEvent>> stopSound) implements Ability {
 

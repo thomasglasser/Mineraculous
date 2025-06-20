@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
-
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
@@ -29,7 +28,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -47,10 +45,11 @@ public interface Ability {
 
     /**
      * Performs actions based on the given context.
-     * @param data The relevant {@link AbilityData} of the performer
-     * @param level The level the ability is being performed in
+     * 
+     * @param data      The relevant {@link AbilityData} of the performer
+     * @param level     The level the ability is being performed in
      * @param performer The performer of the ability
-     * @param context The context of the ability (null if passive)
+     * @param context   The context of the ability (null if passive)
      * @return Whether the ability should consume the active state (i.e., stop the ability and trigger completion)
      */
     boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context);
@@ -60,8 +59,9 @@ public interface Ability {
      * This can mean different things depending on how its used.
      * It is simply a starting point where the ability becomes relevant and,
      * if passive, starts being performed.
-     * @param data The relevant {@link AbilityData} of the performer
-     * @param level The level the ability is being performed in
+     * 
+     * @param data      The relevant {@link AbilityData} of the performer
+     * @param level     The level the ability is being performed in
      * @param performer The performer of the ability
      */
     default void transform(AbilityData data, ServerLevel level, Entity performer) {}
@@ -71,8 +71,9 @@ public interface Ability {
      * This can mean different things depending on how its used.
      * It is simply a stopping point where the ability is no longer relevant and,
      * if passive, stops being performed.
-     * @param data The relevant {@link AbilityData} of the performer
-     * @param level The level the ability is being performed in
+     * 
+     * @param data      The relevant {@link AbilityData} of the performer
+     * @param level     The level the ability is being performed in
      * @param performer The performer of the ability
      */
     default void detransform(AbilityData data, ServerLevel level, Entity performer) {}
@@ -81,8 +82,9 @@ public interface Ability {
      * Called by {@link RevertLuckyCharmTargetsAbilityEffectsAbility} to revert this ability's trackable effects.
      * These should use {@link AbilityReversionItemData},
      * {@link AbilityReversionEntityData}, and {@link AbilityReversionBlockData} for ease and compat.
-     * @param data The relevant {@link AbilityData} of the performer
-     * @param level The level the ability is being performed in
+     * 
+     * @param data      The relevant {@link AbilityData} of the performer
+     * @param level     The level the ability is being performed in
      * @param performer The performer of the ability
      */
     default void revert(AbilityData data, ServerLevel level, Entity performer) {}
@@ -90,8 +92,9 @@ public interface Ability {
     /**
      * Called when the performer joins a new {@link Level}.
      * Should be used to ensure data is properly handled on dimension change or world entrance.
-     * @param data The relevant {@link AbilityData} of the performer
-     * @param level The level the performer just joined
+     * 
+     * @param data      The relevant {@link AbilityData} of the performer
+     * @param level     The level the performer just joined
      * @param performer The performer of the ability
      */
     default void joinLevel(AbilityData data, ServerLevel level, Entity performer) {}
@@ -99,8 +102,9 @@ public interface Ability {
     /**
      * Called when the performer leaves their current {@link Level}.
      * Should be used to ensure data is properly handled on dimension change or world exit.
-     * @param data The relevant {@link AbilityData} of the performer
-     * @param level The level the performer just left
+     * 
+     * @param data      The relevant {@link AbilityData} of the performer
+     * @param level     The level the performer just left
      * @param performer The performer of the ability
      */
     default void leaveLevel(AbilityData data, ServerLevel level, Entity performer) {}
@@ -108,15 +112,17 @@ public interface Ability {
     /**
      * The dispatch {@link MapCodec} that defines and constructs the ability.
      * Should point to an entry in {@link MineraculousRegistries#ABILITY_SERIALIZER}.
+     * 
      * @return The ability dispatch codec
      */
     MapCodec<? extends Ability> codec();
 
     /**
      * Plays a sound (if present) at the performer's block position with the performer's {@link SoundSource}.
-     * @param level The level the ability is being performed in
+     * 
+     * @param level     The level the ability is being performed in
      * @param performer The performer of the ability
-     * @param sound The optional sound to play if present
+     * @param sound     The optional sound to play if present
      */
     static void playSound(ServerLevel level, Entity performer, Optional<Holder<SoundEvent>> sound) {
         sound.ifPresent(soundEvent -> level.playSound(null, performer.blockPosition(), soundEvent.value(), performer.getSoundSource(), 1, 1));
@@ -124,6 +130,7 @@ public interface Ability {
 
     /**
      * Collects all abilities in an ability, including sub abilities.
+     * 
      * @param ability The ability to collect sub abilities from
      * @return A list with the passed ability and all contained sub abilities
      */
@@ -138,8 +145,9 @@ public interface Ability {
 
     /**
      * Collects all abilities matching the provided predicate in an ability, including sub abilities.
+     * 
      * @param predicate The predicate to filter abilities with
-     * @param ability The ability to test and collect matching sub abilities from
+     * @param ability   The ability to test and collect matching sub abilities from
      * @return A list with any matching of the passed ability and all contained sub abilities
      */
     static List<Ability> getMatching(Predicate<Ability> predicate, Ability ability) {
@@ -153,8 +161,9 @@ public interface Ability {
 
     /**
      * Finds the first ability or sub ability matching the provided predicate from the provided ability.
+     * 
      * @param predicate The predicate to filter abilities with
-     * @param ability The ability to test and test sub abilities from
+     * @param ability   The ability to test and test sub abilities from
      * @return The matching ability or first sub ability matching the provided predicate
      */
     static @Nullable Ability getFirstMatching(Predicate<Ability> predicate, Ability ability) {
@@ -164,8 +173,9 @@ public interface Ability {
 
     /**
      * Checks if the provided ability or any sub ability match the provided predicate.
+     * 
      * @param predicate The predicate to check abilities
-     * @param ability The ability to test and test sub abilities from
+     * @param ability   The ability to test and test sub abilities from
      * @return Whether the ability or any sub abilities match the provided predicate
      */
     static boolean hasMatching(Predicate<Ability> predicate, Ability ability) {

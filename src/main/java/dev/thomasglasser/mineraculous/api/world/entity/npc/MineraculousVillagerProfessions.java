@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 public class MineraculousVillagerProfessions {
     private static final DeferredRegister<VillagerProfession> VILLAGER_PROFESSIONS = DeferredRegister.create(Registries.VILLAGER_PROFESSION, Mineraculous.MOD_ID);
 
+    /// Found in the Creamery, sells cheeses
     public static final DeferredHolder<VillagerProfession, VillagerProfession> FROMAGER = register("fromager", MineraculousPoiTypes.FROMAGER.getKey(), SoundEvents.VILLAGER_WORK_CLERIC);
 
     private static DeferredHolder<VillagerProfession, VillagerProfession> register(String name, ResourceKey<PoiType> jobSite, @Nullable SoundEvent workSound) {

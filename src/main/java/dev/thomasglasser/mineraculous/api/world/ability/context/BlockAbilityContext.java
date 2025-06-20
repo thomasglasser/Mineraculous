@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 
 /**
  * Used in block-related ability behavior.
+ * 
  * @param pos The position the ability was performed on
  */
 public record BlockAbilityContext(BlockPos pos) implements AbilityContext {

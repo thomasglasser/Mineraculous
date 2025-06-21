@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.tags;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import net.minecraft.tags.TagKey;

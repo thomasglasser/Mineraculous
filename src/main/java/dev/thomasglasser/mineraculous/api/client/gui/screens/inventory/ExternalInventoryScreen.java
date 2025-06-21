@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.client.gui.screens.inventory;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;

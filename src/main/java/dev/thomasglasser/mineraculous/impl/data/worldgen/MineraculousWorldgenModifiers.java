@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.data.worldgen;
 
 import com.mojang.datafixers.util.Pair;
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.worldgen.lithostitched.registry.LithostitchedRegistryKeys;
 import dev.worldgen.lithostitched.worldgen.modifier.AddTemplatePoolElementsModifier;
 import dev.worldgen.lithostitched.worldgen.modifier.Modifier;

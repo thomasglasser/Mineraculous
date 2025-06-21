@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.core.particles;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import net.minecraft.core.particles.ParticleType;
@@ -14,7 +14,6 @@ public class MineraculousParticleTypes {
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> BLACK_ORB = PARTICLE_TYPES.register("black_orb", () -> new SimpleParticleType(true));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> KAMIKOTIZATION = PARTICLE_TYPES.register("kamikotization", () -> new SimpleParticleType(true));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SUMMONING_LADYBUG = PARTICLE_TYPES.register("summoning_ladybug", () -> new SimpleParticleType(true));
-    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SPREADING_LADYBUG = PARTICLE_TYPES.register("spreading_ladybug", () -> new SimpleParticleType(true));
 
     @ApiStatus.Internal
     public static void init() {}

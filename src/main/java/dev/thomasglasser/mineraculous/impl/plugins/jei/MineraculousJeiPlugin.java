@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.plugins.jei;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;

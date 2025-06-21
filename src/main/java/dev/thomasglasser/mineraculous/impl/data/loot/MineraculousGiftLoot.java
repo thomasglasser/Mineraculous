@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.data.loot;
 
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.api.world.level.storage.loot.MineraculousGiftLootKeys;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.loot.MineraculousGiftLootKeys;
 import java.util.function.BiConsumer;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.LootTableSubProvider;

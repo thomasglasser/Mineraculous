@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.api.world.entity.npc;
 
 import com.google.common.collect.ImmutableSet;
-import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.api.world.entity.ai.village.poi.MineraculousPoiTypes;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.world.entity.ai.village.poi.MineraculousPoiTypes;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import java.util.function.Predicate;

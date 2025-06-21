@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.damagesource;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import java.util.function.Function;
 
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;

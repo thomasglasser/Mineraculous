@@ -1,9 +1,9 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.api.world.entity.curio.CuriosUtils;
-import dev.thomasglasser.mineraculous.api.world.item.component.KwamiData;
-import dev.thomasglasser.mineraculous.api.world.item.component.LuckyCharm;
+import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
+import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
+import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;

@@ -80,7 +80,7 @@ public interface Ability {
 
     /**
      * Called by {@link RevertLuckyCharmTargetsAbilityEffectsAbility} to revert this ability's trackable effects.
-     * These should use {@link AbilityReversionItemData},
+     * This should use {@link AbilityReversionItemData},
      * {@link AbilityReversionEntityData}, and {@link AbilityReversionBlockData} for ease and compat.
      * 
      * @param data      The relevant {@link AbilityData} of the performer

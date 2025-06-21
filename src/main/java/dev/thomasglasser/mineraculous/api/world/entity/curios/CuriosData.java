@@ -1,4 +1,4 @@
-package dev.thomasglasser.mineraculous.api.world.entity.curio;
+package dev.thomasglasser.mineraculous.api.world.entity.curios;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

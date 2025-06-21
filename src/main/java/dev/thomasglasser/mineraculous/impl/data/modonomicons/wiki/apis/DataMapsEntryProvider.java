@@ -5,7 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.api.world.item.component.LuckyCharm;
+import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import java.util.Optional;
 import net.minecraft.Util;
 import net.minecraft.world.item.ItemStack;

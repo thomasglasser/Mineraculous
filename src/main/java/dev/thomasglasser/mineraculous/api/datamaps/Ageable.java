@@ -7,7 +7,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.Block;
 
 /**
- * Specifies a block to be replaced with upon aging to the next stage, used primarily in {@link AgeingCheese}.
+ * Specifies a block to be replaced with upon aging to the next stage in {@link AgeingCheese}.
  * 
  * @param next The block to be replaced with
  */

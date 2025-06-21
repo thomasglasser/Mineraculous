@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.data.modonomicons;
 
 import com.klikli_dev.modonomicon.api.datagen.BookProvider;
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.WikiBookSubProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;

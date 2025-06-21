@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.data.tags;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousDamageTypeTags;
 import dev.thomasglasser.mineraculous.api.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.tommylib.api.data.tags.ExtendedTagsProvider;

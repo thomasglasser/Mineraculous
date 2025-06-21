@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.ChangeOverTimeBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
+/// Progresses {@link Age} over time according to {@link MineraculousDataMaps#AGEABLES}.
 public interface AgeingCheese extends ChangeOverTimeBlock<AgeingCheese.Age> {
     static Optional<Block> getNext(Block block) {
         Ageable ageable = block.builtInRegistryHolder().getData(MineraculousDataMaps.AGEABLES);

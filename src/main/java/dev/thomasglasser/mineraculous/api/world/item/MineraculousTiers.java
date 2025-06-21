@@ -8,6 +8,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
 
 public enum MineraculousTiers implements Tier {
+    /// Magical tools, strongest level but unenchantable and unrepairable
     MIRACULOUS(BlockTags.INCORRECT_FOR_NETHERITE_TOOL, -1, 18.0F, 8.0F, -1, () -> Ingredient.EMPTY);
 
     private final TagKey<Block> incorrectBlocksForDrops;

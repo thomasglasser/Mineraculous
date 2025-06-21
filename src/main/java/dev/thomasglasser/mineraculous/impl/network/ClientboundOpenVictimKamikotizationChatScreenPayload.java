@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import com.mojang.datafixers.util.Either;
-import dev.thomasglasser.mineraculous.Mineraculous;
-import dev.thomasglasser.mineraculous.api.world.entity.curio.CuriosData;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;

@@ -1,13 +1,13 @@
 package dev.thomasglasser.mineraculous.impl.data.recipes;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.impl.world.item.crafting.CheeseWedgeRecipe;
-import dev.thomasglasser.mineraculous.impl.world.level.block.AgeingCheeseEdibleFullBlock;
-import dev.thomasglasser.mineraculous.impl.world.level.block.CheeseBlock;
+import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
+import dev.thomasglasser.mineraculous.api.world.level.block.CheeseBlock;
 import dev.thomasglasser.tommylib.api.data.recipes.ExtendedRecipeProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;

@@ -1,8 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.world.item.crafting;
 
-import dev.thomasglasser.mineraculous.api.world.item.crafting.MineraculousRecipeSerializers;
-import dev.thomasglasser.mineraculous.impl.world.level.block.AgeingCheeseEdibleFullBlock;
-import dev.thomasglasser.mineraculous.impl.world.level.block.CheeseBlock;
+import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
+import dev.thomasglasser.mineraculous.api.world.level.block.CheeseBlock;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import net.minecraft.core.HolderLookup;

@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.level.storage.loot.parameters;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParam;
 
 public class MineraculousLootContextParams {

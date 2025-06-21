@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import com.google.common.collect.ImmutableList;
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.KamikotizationData;

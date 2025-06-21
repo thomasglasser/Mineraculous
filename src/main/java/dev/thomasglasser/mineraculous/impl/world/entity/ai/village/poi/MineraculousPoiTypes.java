@@ -1,7 +1,7 @@
-package dev.thomasglasser.mineraculous.api.world.entity.ai.village.poi;
+package dev.thomasglasser.mineraculous.impl.world.entity.ai.village.poi;
 
 import com.google.common.collect.ImmutableSet;
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;

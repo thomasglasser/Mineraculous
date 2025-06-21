@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.entity.ai.sensing;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import net.minecraft.core.registries.BuiltInRegistries;

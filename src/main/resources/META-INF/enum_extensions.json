@@ -11,29 +11,20 @@
     },
     {
       "enum": "net/minecraft/world/item/ItemDisplayContext",
-      "name": "MINERACULOUS_CURIOS_OTHER",
+      "name": "MINERACULOUS_CURIOS_BODY",
       "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
       "parameters": {
         "class": "dev/thomasglasser/mineraculous/api/world/item/MineraculousItemDisplayContexts",
-        "field": "CURIOS_OTHER"
+        "field": "CURIOS_BODY"
       }
     },
     {
       "enum": "net/minecraft/world/item/ItemDisplayContext",
-        "name": "MINERACULOUS_CURIOS_RING",
-        "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
-        "parameters": {
-          "class": "dev/thomasglasser/mineraculous/api/world/item/MineraculousItemDisplayContexts",
-          "field": "CURIOS_RING"
-        }
-    },
-    {
-      "enum": "net/minecraft/world/item/ItemDisplayContext",
-      "name": "MINERACULOUS_CURIOS_BROOCH",
+      "name": "MINERACULOUS_CURIOS_HEAD",
       "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
       "parameters": {
         "class": "dev/thomasglasser/mineraculous/api/world/item/MineraculousItemDisplayContexts",
-        "field": "CURIOS_BROOCH"
+        "field": "CURIOS_HEAD"
       }
     },
     {
@@ -47,11 +38,38 @@
     },
     {
       "enum": "net/minecraft/world/item/ItemDisplayContext",
-      "name": "MINERACULOUS_CURIOS_BELT",
+      "name": "MINERACULOUS_CURIOS_LEFT_ARM",
       "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
       "parameters": {
         "class": "dev/thomasglasser/mineraculous/api/world/item/MineraculousItemDisplayContexts",
-        "field": "CURIOS_BELT"
+        "field": "CURIOS_LEFT_ARM"
+      }
+    },
+    {
+      "enum": "net/minecraft/world/item/ItemDisplayContext",
+      "name": "MINERACULOUS_CURIOS_RIGHT_ARM",
+      "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
+      "parameters": {
+        "class": "dev/thomasglasser/mineraculous/api/world/item/MineraculousItemDisplayContexts",
+        "field": "CURIOS_RIGHT_ARM"
+      }
+    },
+    {
+      "enum": "net/minecraft/world/item/ItemDisplayContext",
+      "name": "MINERACULOUS_CURIOS_LEFT_LEG",
+      "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
+      "parameters": {
+        "class": "dev/thomasglasser/mineraculous/api/world/item/MineraculousItemDisplayContexts",
+        "field": "CURIOS_LEFT_LEG"
+      }
+    },
+    {
+      "enum": "net/minecraft/world/item/ItemDisplayContext",
+      "name": "MINERACULOUS_CURIOS_RIGHT_LEG",
+      "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
+      "parameters": {
+        "class": "dev/thomasglasser/mineraculous/api/world/item/MineraculousItemDisplayContexts",
+        "field": "CURIOS_RIGHT_LEG"
       }
     }
   ]

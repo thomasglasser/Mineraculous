@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.client.gui.components.selection.SelectionGui;
 import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenu;
 import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenuItem;
@@ -25,9 +25,8 @@ import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.impl.client.gui.kamiko.categories.KamikoTargetPlayerMenuCategory;
 import dev.thomasglasser.mineraculous.impl.client.model.DerbyHatModel;
 import dev.thomasglasser.mineraculous.impl.client.model.FaceMaskModel;
-import dev.thomasglasser.mineraculous.impl.client.particle.HoveringOrbParticle;
-import dev.thomasglasser.mineraculous.impl.client.particle.KamikotizationParticle;
-import dev.thomasglasser.mineraculous.impl.client.particle.RiseAndSpreadParticle;
+import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
+import dev.thomasglasser.mineraculous.api.client.particle.KamikotizationParticle;
 import dev.thomasglasser.mineraculous.impl.client.renderer.armor.KamikotizationArmorItemRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.armor.MiraculousArmorItemRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.KwamiRenderer;
@@ -199,7 +198,6 @@ public class MineraculousClientEvents {
             flystraighttowardsparticle.pickSprite(sprites);
             return flystraighttowardsparticle;
         });
-        event.registerSpriteSet(MineraculousParticleTypes.SPREADING_LADYBUG.get(), RiseAndSpreadParticle.Provider::new);
     }
 
     static void onRegisterEntitySpectatorShaders(RegisterEntitySpectatorShadersEvent event) {

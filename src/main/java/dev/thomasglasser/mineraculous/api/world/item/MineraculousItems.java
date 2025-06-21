@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.item;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.food.MineraculousFoods;
@@ -11,8 +11,8 @@ import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
-import dev.thomasglasser.mineraculous.impl.world.level.block.AgeingCheeseEdibleFullBlock;
-import dev.thomasglasser.mineraculous.impl.world.level.block.CheeseBlock;
+import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
+import dev.thomasglasser.mineraculous.api.world.level.block.CheeseBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
@@ -22,6 +22,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
@@ -39,18 +40,22 @@ import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousItems {
+    @ApiStatus.Internal
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Mineraculous.MOD_ID);
 
-    // Tools
-    public static final Supplier<Item.Properties> TOOL_PROPERTIES = () -> new Item.Properties().fireResistant().stacksTo(1).rarity(Rarity.EPIC);
-    public static final Supplier<Item.Properties> TOOL_PROPERTIES_WITH_ACTIVE = () -> TOOL_PROPERTIES.get().component(MineraculousDataComponents.ACTIVE, false);
-    public static final DeferredItem<Item> LADYBUG_YOYO = register("ladybug_yoyo", () -> new LadybugYoyoItem(TOOL_PROPERTIES_WITH_ACTIVE.get()));
-    public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(TOOL_PROPERTIES_WITH_ACTIVE.get().component(MineraculousDataComponents.ACTIVE_SETTINGS, CatStaffItem.ACTIVE_SETTINGS)));
-    public static final DeferredItem<Item> BUTTERFLY_CANE = register("butterfly_cane", () -> new ButterflyCaneItem(TOOL_PROPERTIES.get()));
+    // Miraculous Tools
+    /// Default properties for Miraculous tools
+    public static final UnaryOperator<Item.Properties> MIRACULOUS_TOOL_PROPERTIES = properties -> properties.fireResistant().stacksTo(1).rarity(Rarity.EPIC);
+    /// Default properties for Miraculous tools with the {@link MineraculousDataComponents#ACTIVE} component
+    public static final UnaryOperator<Item.Properties> MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE = properties -> MIRACULOUS_TOOL_PROPERTIES.apply(properties).component(MineraculousDataComponents.ACTIVE, false);
+    public static final DeferredItem<Item> LADYBUG_YOYO = register("ladybug_yoyo", () -> new LadybugYoyoItem(MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE.apply(new Item.Properties())));
+    public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE.apply(new Item.Properties()).component(MineraculousDataComponents.ACTIVE_SETTINGS, CatStaffItem.ACTIVE_SETTINGS)));
+    public static final DeferredItem<Item> BUTTERFLY_CANE = register("butterfly_cane", () -> new ButterflyCaneItem(MIRACULOUS_TOOL_PROPERTIES.apply(new Item.Properties())));
 
     // Miraculous
     public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", () -> new MiraculousItem(new Item.Properties()));
 
+    /// Inventory filler used for ability reversion
     public static final DeferredItem<Item> CATACLYSM_DUST = register("cataclysm_dust", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
 
     // Smithing Templates
@@ -61,7 +66,7 @@ public class MineraculousItems {
     // Spawn Eggs
     public static final DeferredItem<SpawnEggItem> KAMIKO_SPAWN_EGG = registerSpawnEgg(MineraculousEntityTypes.KAMIKO, 0xc8e5ea, 0x140325);
 
-    // Cheese
+    // Cheese Wedges
     public static final SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> CHEESE = wedges("cheese", MineraculousFoods.CHEESE, MineraculousBlocks.CHEESE);
     public static final SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> WAXED_CHEESE = waxedWedges("cheese", MineraculousBlocks.WAXED_CHEESE);
     public static final SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> CAMEMBERT = wedges("camembert", MineraculousFoods.CAMEMBERT, MineraculousBlocks.CAMEMBERT);
@@ -91,6 +96,7 @@ public class MineraculousItems {
         return cheeses;
     }
 
+    @ApiStatus.Internal
     public static <T extends Item> DeferredItem<T> register(String name, Supplier<T> item) {
         return ItemUtils.register(ITEMS, name, item);
     }

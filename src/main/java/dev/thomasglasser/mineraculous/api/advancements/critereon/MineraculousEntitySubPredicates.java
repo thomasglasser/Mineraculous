@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.api.advancements.critereon;
 
 import com.mojang.serialization.MapCodec;
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import net.minecraft.advancements.critereon.EntitySubPredicate;

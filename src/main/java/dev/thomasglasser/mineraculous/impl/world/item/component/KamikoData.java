@@ -1,4 +1,4 @@
-package dev.thomasglasser.mineraculous.api.world.item.component;
+package dev.thomasglasser.mineraculous.impl.world.item.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -13,14 +13,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
-/**
- * Holds data for a {@link Kamiko}, used for targeting and kamikotizing.
- *
- * @param uuid            The {@link UUID} of the kamiko
- * @param owner           The {@link UUID} of the kamiko's owner
- * @param nameColor       The color for the target's name
- * @param faceMaskTexture The face mask texture to use for the target
- */
 public record KamikoData(UUID uuid, UUID owner, int nameColor, Optional<ResourceLocation> faceMaskTexture) {
 
     public static final Codec<KamikoData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -34,13 +26,7 @@ public record KamikoData(UUID uuid, UUID owner, int nameColor, Optional<Resource
             ByteBufCodecs.INT, KamikoData::nameColor,
             ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC), KamikoData::faceMaskTexture,
             KamikoData::new);
-    /**
-     * Summons a {@link Kamiko} based on the data.
-     *
-     * @param level    The level to spawn the kamiko in
-     * @param spawnPos The location to spawn the kamiko at
-     * @return The summoned kamiko, or null if summoning was unsuccessful
-     */
+
     public Kamiko summon(ServerLevel level, Vec3 spawnPos) {
         Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(level);
         if (kamiko != null) {

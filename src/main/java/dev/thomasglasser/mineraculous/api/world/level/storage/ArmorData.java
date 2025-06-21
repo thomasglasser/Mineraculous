@@ -1,4 +1,4 @@
-package dev.thomasglasser.mineraculous.impl.world.level.storage;
+package dev.thomasglasser.mineraculous.api.world.level.storage;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

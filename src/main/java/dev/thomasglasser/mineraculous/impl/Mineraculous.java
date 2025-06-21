@@ -1,4 +1,4 @@
-package dev.thomasglasser.mineraculous;
+package dev.thomasglasser.mineraculous.impl;
 
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.MineraculousEntitySubPredicates;
@@ -12,17 +12,17 @@ import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.sensing.MineraculousSensorTypes;
-import dev.thomasglasser.mineraculous.api.world.entity.ai.village.poi.MineraculousPoiTypes;
+import dev.thomasglasser.mineraculous.impl.world.entity.ai.village.poi.MineraculousPoiTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.npc.MineraculousVillagerProfessions;
-import dev.thomasglasser.mineraculous.api.world.item.MineraculousCreativeModeTabs;
+import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmorMaterials;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
-import dev.thomasglasser.mineraculous.api.world.item.crafting.MineraculousRecipeSerializers;
+import dev.thomasglasser.mineraculous.impl.world.item.crafting.MineraculousRecipeSerializers;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.storage.loot.parameters.MineraculousLootContextParamSets;
-import dev.thomasglasser.mineraculous.api.world.level.storage.loot.predicates.MineraculousLootItemConditions;
-import dev.thomasglasser.mineraculous.api.world.level.storage.loot.providers.number.MineraculousNumberProviders;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.loot.predicates.MineraculousLootItemConditions;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.loot.providers.number.MineraculousNumberProviders;
 import dev.thomasglasser.mineraculous.impl.commands.MineraculousCommandEvents;
 import dev.thomasglasser.mineraculous.impl.core.MineraculousCoreEvents;
 import dev.thomasglasser.mineraculous.impl.data.MineraculousDataGenerators;

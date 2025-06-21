@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.item.armortrim;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;

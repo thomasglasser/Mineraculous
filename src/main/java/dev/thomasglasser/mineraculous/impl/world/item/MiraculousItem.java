@@ -2,8 +2,8 @@ package dev.thomasglasser.mineraculous.impl.world.item;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.entity.curio.CuriosData;
-import dev.thomasglasser.mineraculous.api.world.item.component.KwamiData;
+import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
+import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;

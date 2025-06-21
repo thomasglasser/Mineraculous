@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.client.gui;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import net.minecraft.client.gui.Gui;
 import net.neoforged.fml.common.asm.enumextension.EnumProxy;
 

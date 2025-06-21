@@ -1,4 +1,4 @@
-package dev.thomasglasser.mineraculous.impl.world.level.block;
+package dev.thomasglasser.mineraculous.api.world.level.block;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -8,8 +8,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
-public class CataclysmBlock extends Block {
-    public CataclysmBlock(Properties properties) {
+public class CrumblingBlock extends Block {
+    public CrumblingBlock(Properties properties) {
         super(properties.randomTicks());
     }
 

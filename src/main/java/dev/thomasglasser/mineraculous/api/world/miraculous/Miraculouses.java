@@ -1,6 +1,8 @@
 package dev.thomasglasser.mineraculous.api.world.miraculous;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
@@ -13,6 +15,7 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.ApiStatus;
 
 public class Miraculouses {
@@ -23,6 +26,12 @@ public class Miraculouses {
     private static ResourceKey<Miraculous> create(String name) {
         return ResourceKey.create(MineraculousRegistries.MIRACULOUS, Mineraculous.modLoc(name));
     }
+
+    public static final MapCodec<BaseRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Ingredient.CODEC.fieldOf("base").forGetter(BaseRecipe::base)
+    ).apply(instance, BaseRecipe::new));
+
+    public record BaseRecipe(Ingredient base) {}
 
     @ApiStatus.Internal
     public static void bootstrap(BootstrapContext<Miraculous> context) {

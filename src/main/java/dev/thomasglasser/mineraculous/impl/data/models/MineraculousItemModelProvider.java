@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.data.models;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.client.renderer.item.MineraculousItemProperties;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
@@ -38,7 +38,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.GUI).rotation(90, 180, 0).translation(-2.5F, 2.5F, 0).scale(2.5F).end()
                 .end();
         miraculous(Miraculouses.CAT)
-                .transform(MineraculousItemDisplayContexts.CURIOS_RING.getValue()).rotation(90, 0, 270).translation(-1.45F, 9.4F, 0.5F).scale(0.3F).end()
+                .transform(MineraculousItemDisplayContexts.CURIOS_RIGHT_ARM.getValue()).rotation(90, 0, 270).translation(-1.45F, 9.4F, 0.5F).scale(0.3F).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0, 0, 0.5F).scale(0.3F).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).translation(0, 0, 0.5F).scale(0.3F).end()
                 .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(4F, 0, 0).end()
@@ -49,7 +49,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.FIXED).translation(0, -2.5F, 3F).scale(2F).end()
                 .end();
         miraculous(Miraculouses.BUTTERFLY)
-                .transform(MineraculousItemDisplayContexts.CURIOS_BROOCH.getValue()).translation(0.1F, 4, -2.2F).rotation(0, 0, 180).scale(0.2F).end()
+                .transform(MineraculousItemDisplayContexts.CURIOS_BODY.getValue()).translation(0.1F, 4, -2.2F).rotation(0, 0, 180).scale(0.2F).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(90, 0, 0).translation(0, 0.5F, -5).scale(0.5F, 0.5F, 0.5F).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(90, 0, 0).translation(0, 0.5F, -5).scale(0.5F, 0.5F, 0.5F).end()
                 .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(5, -5, 0).scale(0.5F, 0.5F, 0.5F).end()
@@ -89,7 +89,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
 
         ItemModelBuilder inHandLadybugYoyo = withEntityModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_in_hand"))
                 .transforms()
-                .transform(MineraculousItemDisplayContexts.CURIOS_BELT.getValue()).rotation(-90, 0, 0).translation(-2, 10, 3.7f).scale(0.8f).end()
+                .transform(MineraculousItemDisplayContexts.CURIOS_BODY.getValue()).rotation(-90, 0, 0).translation(-2, 10, 3.7f).scale(0.8f).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0, 0, 2).scale(0.6f).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).translation(0, 0, 2).scale(0.6f).end()
                 .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(2, 0, 0).scale(0.6f).end()
@@ -142,7 +142,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
 
         ItemModelBuilder inHandCatStaff = withEntityModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_in_hand"))
                 .transforms()
-                .transform(MineraculousItemDisplayContexts.CURIOS_BELT.getValue()).rotation(0, 180, 90).translation(-4.2f, 8, 2.7f).scale(0.7f).end()
+                .transform(MineraculousItemDisplayContexts.CURIOS_BODY.getValue()).rotation(0, 180, 90).translation(-4.2f, 8, 2.7f).scale(0.7f).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(0, -180, 0).translation(0, -3.5f, 1.25f).scale(0.7f).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(0, -180, 0).translation(0, -3.5f, 1.25f).scale(0.7f).end()
                 .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).rotation(0, 165, 0).translation(0, 1.5f, 1.25f).scale(0.7f).end()

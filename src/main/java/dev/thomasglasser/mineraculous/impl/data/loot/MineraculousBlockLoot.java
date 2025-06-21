@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.impl.data.loot;
 
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.impl.world.level.block.CheeseBlock;
+import dev.thomasglasser.mineraculous.api.world.level.block.CheeseBlock;
 import dev.thomasglasser.tommylib.api.data.loot.ExtendedBlockLootSubProvider;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;

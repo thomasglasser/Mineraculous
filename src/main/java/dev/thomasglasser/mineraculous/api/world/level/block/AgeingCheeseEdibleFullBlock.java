@@ -1,8 +1,7 @@
-package dev.thomasglasser.mineraculous.impl.world.level.block;
+package dev.thomasglasser.mineraculous.api.world.level.block;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;

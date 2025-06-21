@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.client.gui.screens;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundTransferMiraculousPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;

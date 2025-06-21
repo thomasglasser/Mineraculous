@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.impl.data.tags.client;
 import dev.dhyces.trimmed.api.client.ClientKeyResolvers;
 import dev.dhyces.trimmed.api.client.tag.ClientTags;
 import dev.dhyces.trimmed.api.data.tag.ClientTagDataProvider;
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;

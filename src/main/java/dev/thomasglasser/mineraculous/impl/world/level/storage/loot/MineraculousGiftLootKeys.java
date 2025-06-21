@@ -1,6 +1,6 @@
-package dev.thomasglasser.mineraculous.api.world.level.storage.loot;
+package dev.thomasglasser.mineraculous.impl.world.level.storage.loot;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.storage.loot.LootTable;

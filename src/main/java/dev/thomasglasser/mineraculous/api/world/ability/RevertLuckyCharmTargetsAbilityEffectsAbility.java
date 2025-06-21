@@ -7,8 +7,8 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.EffectRevertingItem;
-import dev.thomasglasser.mineraculous.api.world.item.component.KwamiData;
-import dev.thomasglasser.mineraculous.api.world.item.component.LuckyCharm;
+import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
+import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;

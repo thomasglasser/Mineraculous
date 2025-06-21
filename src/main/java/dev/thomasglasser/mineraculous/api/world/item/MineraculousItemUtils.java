@@ -30,7 +30,16 @@ import org.jetbrains.annotations.Nullable;
 public class MineraculousItemUtils {
     public static final String ITEM_UNBREAKABLE_KEY = "mineraculous.item_unbreakable";
 
-    public static Pair<ItemStack, ItemStack> tryBreakItem(ItemStack stack, ServerLevel serverLevel, Vec3 pos, @Nullable LivingEntity breaker) {
+    /**
+     * Tries to break the provided {@link ItemStack}, checking its {@link Kamikotization}.
+     *
+     * @param stack   The stack to break
+     * @param level   The level to break the stack in
+     * @param pos     The position the stack is being broken at
+     * @param breaker The entity breaking the stack if present
+     * @return A pair of the broken stack and remainder stack
+     */
+    public static Pair<ItemStack, ItemStack> tryBreakItem(ItemStack stack, ServerLevel level, Vec3 pos, @Nullable LivingEntity breaker) {
         ItemStack rest = stack.copyWithCount(stack.getCount() - 1);
         stack.setCount(1);
         if (!stack.isDamageableItem()) {
@@ -62,16 +71,25 @@ public class MineraculousItemUtils {
                         damage += 100 * data.get(miraculous).powerLevel();
                     }
                 }
-                hurtAndBreak(stack, damage, serverLevel, breaker, EquipmentSlot.MAINHAND);
+                hurtAndBreak(stack, damage, level, breaker, EquipmentSlot.MAINHAND);
             } else {
-                Kamikotization.checkBroken(stack, serverLevel, pos);
+                Kamikotization.checkBroken(stack, level, pos);
                 stack.shrink(1);
-                serverLevel.playSound(null, new BlockPos((int) pos.x, (int) pos.y, (int) pos.z), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1f, 1f);
+                level.playSound(null, new BlockPos((int) pos.x, (int) pos.y, (int) pos.z), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1f, 1f);
             }
         }
         return Pair.of(stack, rest);
     }
 
+    /**
+     * Damages the provided damageable {@link ItemStack} and breaks it if it should be broken.
+     *
+     * @param stack   The damageable stack to hurt and break
+     * @param damage  The amount of damage to apply to the stack
+     * @param level   The level to damage the stack in
+     * @param breaker The breaker of the stack if present
+     * @param slot    The {@link EquipmentSlot} the stack is in if present
+     */
     public static void hurtAndBreak(ItemStack stack, int damage, ServerLevel level, @Nullable LivingEntity breaker, @Nullable EquipmentSlot slot) {
         if (stack.isDamageableItem()) {
             Consumer<Item> itemConsumer = item -> {

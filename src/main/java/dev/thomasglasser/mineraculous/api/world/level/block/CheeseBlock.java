@@ -1,4 +1,4 @@
-package dev.thomasglasser.mineraculous.impl.world.level.block;
+package dev.thomasglasser.mineraculous.api.world.level.block;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

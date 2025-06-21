@@ -1,4 +1,4 @@
-package dev.thomasglasser.mineraculous.impl.client.particle;
+package dev.thomasglasser.mineraculous.api.client.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;

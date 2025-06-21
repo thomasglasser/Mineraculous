@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.advancements;
 
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.KamikotizeEntityTrigger;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.PerformKamikotizationActiveAbilityTrigger;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.PerformMiraculousActiveAbilityTrigger;

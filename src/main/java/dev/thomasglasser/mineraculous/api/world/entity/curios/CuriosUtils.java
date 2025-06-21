@@ -1,4 +1,4 @@
-package dev.thomasglasser.mineraculous.api.world.entity.curio;
+package dev.thomasglasser.mineraculous.api.world.entity.curios;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;

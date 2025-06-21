@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.api.world.miraculous;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.api.world.item.component.KwamiData;
+import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import java.util.Optional;
 import net.minecraft.server.level.ServerLevel;

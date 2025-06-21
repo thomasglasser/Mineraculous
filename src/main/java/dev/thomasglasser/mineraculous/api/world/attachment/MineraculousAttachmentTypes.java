@@ -1,12 +1,12 @@
 package dev.thomasglasser.mineraculous.api.world.attachment;
 
 import com.mojang.serialization.Codec;
-import dev.thomasglasser.mineraculous.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.MiraculousesData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.ArmorData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.YoyoLeashData;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;

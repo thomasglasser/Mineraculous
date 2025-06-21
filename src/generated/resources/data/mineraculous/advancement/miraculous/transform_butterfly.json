@@ -3,7 +3,7 @@
   "criteria": {
     "transform_butterfly": {
       "conditions": {
-        "type": "mineraculous:butterfly"
+        "miraculous": "mineraculous:butterfly"
       },
       "trigger": "mineraculous:transformed_miraculous"
     }

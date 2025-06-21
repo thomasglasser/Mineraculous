@@ -1,5 +1,7 @@
 {
   "values": {
-    "mineraculous:cat": "mineraculous:gameplay/lucky_charm/miraculous/cat"
+    "mineraculous:butterfly": "mineraculous:gameplay/lucky_charm/miraculous/butterfly",
+    "mineraculous:cat": "mineraculous:gameplay/lucky_charm/miraculous/cat",
+    "mineraculous:ladybug": "mineraculous:gameplay/lucky_charm/miraculous/ladybug"
   }
 }

@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "mineraculous:item/kamikotization/armor"
+    "layer0": "mineraculous:item/kamikotization_armor"
   }
 }

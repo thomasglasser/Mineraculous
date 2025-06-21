@@ -1,0 +1,29 @@
+{
+  "parent": "mineraculous:miraculous/kamikotize_butterfly",
+  "criteria": {
+    "kamikotize_entity": {
+      "conditions": {
+        "self": false
+      },
+      "trigger": "mineraculous:kamikotized_entity"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.mineraculous.miraculous.kamikotize_entity.desc"
+    },
+    "icon": {
+      "count": 1,
+      "id": "mineraculous:kamikotization_mask"
+    },
+    "title": {
+      "translate": "advancement.mineraculous.miraculous.kamikotize_entity.title"
+    }
+  },
+  "requirements": [
+    [
+      "kamikotize_entity"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

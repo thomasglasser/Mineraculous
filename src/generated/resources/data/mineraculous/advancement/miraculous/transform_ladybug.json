@@ -3,7 +3,7 @@
   "criteria": {
     "transform_ladybug": {
       "conditions": {
-        "type": "mineraculous:ladybug"
+        "miraculous": "mineraculous:ladybug"
       },
       "trigger": "mineraculous:transformed_miraculous"
     }

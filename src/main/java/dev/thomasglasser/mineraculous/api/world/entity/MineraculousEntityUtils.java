@@ -49,6 +49,7 @@ public class MineraculousEntityUtils {
                 Holder<Miraculous> miraculous = transformed.getFirst();
                 MiraculousData data = miraculousesData.get(miraculous);
                 Style newStyle = style.withColor(miraculous.value().color());
+                // TODO: Fix name
                 if (/*!data.name().isEmpty()*/false)
                     return Component.literal(/*data.name()*/"").setStyle(newStyle);
                 return Entity.removeAction(original.copy().setStyle(newStyle.withObfuscated(true).withHoverEvent(null)));

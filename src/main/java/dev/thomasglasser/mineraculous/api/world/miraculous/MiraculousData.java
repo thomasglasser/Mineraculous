@@ -1,26 +1,29 @@
-package dev.thomasglasser.mineraculous.api.world.level.storage;
+package dev.thomasglasser.mineraculous.api.world.miraculous;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
+import dev.thomasglasser.mineraculous.api.world.ability.AbilityData;
 import dev.thomasglasser.mineraculous.api.world.ability.AbilityUtils;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
+import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
+import dev.thomasglasser.mineraculous.api.world.ability.handler.MiraculousAbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
-import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
-import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousUtils;
+import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
+import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
@@ -49,8 +52,23 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Performs functions of a {@link Miraculous}.
+ *
+ * @param kwamiData            The current {@link KwamiData} if present
+ * @param curiosData           The current {@link CuriosData} if equipped
+ * @param transformed          Whether the entity is currently transformed
+ * @param transformationFrames The remaining transformation frames for the miraculous if present
+ * @param remainingTicks       The remaining ticks before forced detransformation if present
+ * @param toolId               The current tool ID for the entity for use in {@link ToolIdData}
+ * @param powerLevel           The current power level of the miraculous
+ * @param powerActive          Whether the miraculous holder's power is active
+ * @param countdownStarted     Whether the detransformation countdown has been started
+ * @param storedEntities       Any entities currently stored in the miraculous
+ */
 public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData> curiosData, boolean transformed, Optional<Either<Integer, Integer>> transformationFrames, Optional<Integer> remainingTicks, int toolId, int powerLevel, boolean powerActive, boolean countdownStarted, List<CompoundTag> storedEntities) {
 
     public static final String NAME_NOT_SET = "miraculous_data.name.not_set";
@@ -140,9 +158,9 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
                         livingEntity.getAttributes().addTransientAttributeModifiers(getMiraculousAttributes(level, powerLevel));
                     }
 
-                    AbilityData abilityData = new AbilityData(powerLevel, Either.left(miraculous), false);
-                    value.activeAbility().value().transform(abilityData, level, entity);
-                    value.passiveAbilities().forEach(ability -> ability.value().transform(abilityData, level, entity));
+                    AbilityData data = new AbilityData(powerLevel, false);
+                    value.activeAbility().value().transform(data, level, entity);
+                    value.passiveAbilities().forEach(ability -> ability.value().transform(data, level, entity));
                     AbilityReversionEntityData.get(level).startTracking(entity.getUUID());
 
                     transformationFrames.ifPresentOrElse(frames -> {
@@ -181,7 +199,7 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
                 ItemStack stack = CuriosUtils.getStackInSlot(livingEntity, curiosData.get());
                 stack.remove(MineraculousDataComponents.REMAINING_TICKS);
                 if (removed) {
-                    kwamiData = MiraculousUtils.renounce(stack, level, kwamiData);
+                    kwamiData = KwamiData.renounce(kwamiData, stack, level);
                 } else {
                     stack.remove(MineraculousDataComponents.POWERED);
                 }
@@ -218,9 +236,9 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
             livingEntity.getAttributes().removeAttributeModifiers(getMiraculousAttributes(level, powerLevel));
         }
 
-        AbilityData abilityData = new AbilityData(powerLevel, Either.left(miraculous), powerActive);
-        value.activeAbility().value().detransform(abilityData, level, entity);
-        value.passiveAbilities().forEach(ability -> ability.value().detransform(abilityData, level, entity));
+        AbilityData data = new AbilityData(powerLevel, powerActive);
+        value.activeAbility().value().detransform(data, level, entity);
+        value.passiveAbilities().forEach(ability -> ability.value().detransform(data, level, entity));
 
         if (removed || detransformationFrames.isEmpty()) {
             finishDetransformation(entity, kwamiData, miraculous);
@@ -233,6 +251,7 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
         }
     }
 
+    @ApiStatus.Internal
     public void tick(Entity entity, ServerLevel level, Holder<Miraculous> miraculous) {
         transformationFrames.ifPresentOrElse(either -> either.ifLeft(transformationFrames -> {
             if (transformationFrames > 0) {
@@ -308,11 +327,12 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
 
                 boolean powerActive = this.powerActive;
                 boolean countdownStarted = this.countdownStarted;
-                AbilityData abilityData = new AbilityData(powerLevel, Either.left(miraculous), powerActive);
-                if (AbilityUtils.performPassiveAbilities(level, entity, abilityData, null, miraculous.value().passiveAbilities()) && powerActive) {
+                AbilityData data = new AbilityData(powerLevel, powerActive);
+                AbilityHandler handler = new MiraculousAbilityHandler(miraculous);
+                if (AbilityUtils.performPassiveAbilities(level, entity, data, handler, null, miraculous.value().passiveAbilities()) && powerActive) {
                     powerActive = false;
                 } else if (powerActive && canUseMainPower()) {
-                    if (AbilityUtils.performActiveAbility(level, entity, abilityData, null, Optional.of(miraculous.value().activeAbility()))) {
+                    if (AbilityUtils.performActiveAbility(level, entity, data, handler, null, Optional.of(miraculous.value().activeAbility()))) {
                         powerActive = false;
                         countdownStarted = powerLevel < MAX_POWER_LEVEL;
                     }
@@ -324,15 +344,16 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
         });
     }
 
-    public void performAbilities(ServerLevel level, Entity entity, Holder<Miraculous> miraculous, @Nullable AbilityContext abilityContext) {
-        AbilityData abilityData = new AbilityData(powerLevel, Either.left(miraculous), powerActive);
-        if (AbilityUtils.performPassiveAbilities(level, entity, abilityData, abilityContext, miraculous.value().passiveAbilities()) && powerActive) {
+    public void performAbilities(ServerLevel level, Entity entity, Holder<Miraculous> miraculous, @Nullable AbilityContext context) {
+        AbilityData data = new AbilityData(powerLevel, powerActive);
+        AbilityHandler handler = new MiraculousAbilityHandler(miraculous);
+        if (AbilityUtils.performPassiveAbilities(level, entity, data, handler, context, miraculous.value().passiveAbilities()) && powerActive) {
             withPowerActive(false).save(miraculous, entity, true);
         } else if (powerActive && canUseMainPower()) {
-            boolean consumeMainPower = AbilityUtils.performActiveAbility(level, entity, abilityData, abilityContext, Optional.of(miraculous.value().activeAbility()));
+            boolean consumeMainPower = AbilityUtils.performActiveAbility(level, entity, data, handler, context, Optional.of(miraculous.value().activeAbility()));
             if (consumeMainPower) {
-                if (abilityContext != null && entity instanceof ServerPlayer player) {
-                    MineraculousCriteriaTriggers.PERFORMED_MIRACULOUS_ACTIVE_ABILITY.get().trigger(player, miraculous.getKey(), abilityContext.advancementContext());
+                if (context != null && entity instanceof ServerPlayer player) {
+                    MineraculousCriteriaTriggers.PERFORMED_MIRACULOUS_ACTIVE_ABILITY.get().trigger(player, miraculous.getKey(), context.advancementContext());
                 }
             }
             usedMainPower(consumeMainPower).save(miraculous, entity, true);

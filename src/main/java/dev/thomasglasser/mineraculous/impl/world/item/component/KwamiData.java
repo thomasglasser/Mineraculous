@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.world.item.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
@@ -16,8 +17,10 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 public record KwamiData(UUID uuid, int id, boolean charged) {
 
@@ -30,7 +33,6 @@ public record KwamiData(UUID uuid, int id, boolean charged) {
             ByteBufCodecs.INT, KwamiData::id,
             ByteBufCodecs.BOOL, KwamiData::charged,
             KwamiData::new);
-
     public static Kwami summon(Optional<KwamiData> kwamiData, ServerLevel level, ResourceKey<Miraculous> miraculous, Entity owner) {
         Kwami kwami = MineraculousEntityTypes.KWAMI.get().create(level);
         if (kwami != null) {
@@ -66,5 +68,17 @@ public record KwamiData(UUID uuid, int id, boolean charged) {
             return kwami;
         }
         return null;
+    }
+
+    public static Optional<KwamiData> renounce(Optional<KwamiData> kwamiData, ItemStack stack, ServerLevel level) {
+        stack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
+        stack.remove(MineraculousDataComponents.REMAINING_TICKS);
+        if (kwamiData.isPresent() && level.getEntity(kwamiData.get().uuid()) instanceof Kwami kwami) {
+            KwamiData newData = new KwamiData(kwami.getUUID(), kwami.getId(), kwamiData.get().charged());
+            stack.set(MineraculousDataComponents.KWAMI_DATA, newData);
+            kwami.discard();
+            return Optional.of(newData);
+        }
+        return Optional.empty();
     }
 }

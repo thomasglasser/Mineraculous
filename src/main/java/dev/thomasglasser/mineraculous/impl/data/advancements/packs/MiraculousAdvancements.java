@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.impl.data.advancements.packs;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.KamikotizeEntityTrigger;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.PerformMiraculousActiveAbilityTrigger;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.ReleasePurifiedEntitiesTrigger;
@@ -18,6 +17,7 @@ import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.data.advancements.ExtendedAdvancementGenerator;
 import java.util.Optional;
 import java.util.function.BiConsumer;

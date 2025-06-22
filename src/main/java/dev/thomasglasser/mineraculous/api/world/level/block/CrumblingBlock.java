@@ -8,6 +8,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
+/// Destroyed and dropped on touch or random tick.
 public class CrumblingBlock extends Block {
     public CrumblingBlock(Properties properties) {
         super(properties.randomTicks());

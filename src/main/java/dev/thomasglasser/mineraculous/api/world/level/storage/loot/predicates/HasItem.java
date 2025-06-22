@@ -17,6 +17,12 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType;
 
+/**
+ * Checks if the provided entity has an item matching the provided predicate in their inventory.
+ *
+ * @param predicate The predicate to check for
+ * @param invert    Whether the predicate should be inverted
+ */
 public record HasItem(ItemPredicate predicate, boolean invert) implements LootItemCondition {
     public static final MapCodec<HasItem> CODEC = RecordCodecBuilder.mapCodec(p_345271_ -> p_345271_.group(
             ItemPredicate.CODEC.fieldOf("predicate").forGetter(HasItem::predicate),

@@ -2,8 +2,6 @@ package dev.thomasglasser.mineraculous.impl.world.item.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thomasglasser.mineraculous.api.world.ability.RevertLuckyCharmTargetsAbilityEffectsAbility;
-import dev.thomasglasser.mineraculous.api.world.ability.SummonTargetDependentLuckyCharmAbility;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
 import java.util.UUID;

@@ -1,10 +1,10 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import com.mojang.datafixers.util.Either;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
-import dev.thomasglasser.mineraculous.api.world.level.storage.KamikotizationData;
+import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;

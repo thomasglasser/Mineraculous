@@ -1,62 +1,62 @@
 {
   "variants": {
-    "bites=0,facing=east": {
+    "facing=east,missing_pieces=0": {
       "model": "mineraculous:block/fresh_cheese_block",
       "y": 90
     },
-    "bites=0,facing=north": {
+    "facing=east,missing_pieces=1": {
+      "model": "mineraculous:block/fresh_cheese_block_slice1",
+      "y": 90
+    },
+    "facing=east,missing_pieces=2": {
+      "model": "mineraculous:block/fresh_cheese_block_slice2",
+      "y": 90
+    },
+    "facing=east,missing_pieces=3": {
+      "model": "mineraculous:block/fresh_cheese_block_slice3",
+      "y": 90
+    },
+    "facing=north,missing_pieces=0": {
       "model": "mineraculous:block/fresh_cheese_block"
     },
-    "bites=0,facing=south": {
-      "model": "mineraculous:block/fresh_cheese_block",
-      "y": 180
-    },
-    "bites=0,facing=west": {
-      "model": "mineraculous:block/fresh_cheese_block",
-      "y": 270
-    },
-    "bites=1,facing=east": {
-      "model": "mineraculous:block/fresh_cheese_block_slice1",
-      "y": 90
-    },
-    "bites=1,facing=north": {
+    "facing=north,missing_pieces=1": {
       "model": "mineraculous:block/fresh_cheese_block_slice1"
     },
-    "bites=1,facing=south": {
-      "model": "mineraculous:block/fresh_cheese_block_slice1",
-      "y": 180
-    },
-    "bites=1,facing=west": {
-      "model": "mineraculous:block/fresh_cheese_block_slice1",
-      "y": 270
-    },
-    "bites=2,facing=east": {
-      "model": "mineraculous:block/fresh_cheese_block_slice2",
-      "y": 90
-    },
-    "bites=2,facing=north": {
+    "facing=north,missing_pieces=2": {
       "model": "mineraculous:block/fresh_cheese_block_slice2"
     },
-    "bites=2,facing=south": {
+    "facing=north,missing_pieces=3": {
+      "model": "mineraculous:block/fresh_cheese_block_slice3"
+    },
+    "facing=south,missing_pieces=0": {
+      "model": "mineraculous:block/fresh_cheese_block",
+      "y": 180
+    },
+    "facing=south,missing_pieces=1": {
+      "model": "mineraculous:block/fresh_cheese_block_slice1",
+      "y": 180
+    },
+    "facing=south,missing_pieces=2": {
       "model": "mineraculous:block/fresh_cheese_block_slice2",
       "y": 180
     },
-    "bites=2,facing=west": {
+    "facing=south,missing_pieces=3": {
+      "model": "mineraculous:block/fresh_cheese_block_slice3",
+      "y": 180
+    },
+    "facing=west,missing_pieces=0": {
+      "model": "mineraculous:block/fresh_cheese_block",
+      "y": 270
+    },
+    "facing=west,missing_pieces=1": {
+      "model": "mineraculous:block/fresh_cheese_block_slice1",
+      "y": 270
+    },
+    "facing=west,missing_pieces=2": {
       "model": "mineraculous:block/fresh_cheese_block_slice2",
       "y": 270
     },
-    "bites=3,facing=east": {
-      "model": "mineraculous:block/fresh_cheese_block_slice3",
-      "y": 90
-    },
-    "bites=3,facing=north": {
-      "model": "mineraculous:block/fresh_cheese_block_slice3"
-    },
-    "bites=3,facing=south": {
-      "model": "mineraculous:block/fresh_cheese_block_slice3",
-      "y": 180
-    },
-    "bites=3,facing=west": {
+    "facing=west,missing_pieces=3": {
       "model": "mineraculous:block/fresh_cheese_block_slice3",
       "y": 270
     }

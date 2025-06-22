@@ -7,17 +7,17 @@ import org.jetbrains.annotations.Nullable;
 
 /// @see ContextDependentCurioRenderer
 public class MineraculousItemDisplayContexts {
-    private static final String NONE = "none";
-    private static final String HEAD = "head";
-    private static final String THIRD_PERSON_LEFT_HAND = "thirdpersion_lefthand";
-    private static final String THIRD_PERSON_RIGHT_HAND = "thirdpersion_righthand";
+    private static final String NONE = "NONE";
+    private static final String HEAD = "HEAD";
+    private static final String THIRD_PERSON_LEFT_HAND = "THIRD_PERSON_LEFT_HAND";
+    private static final String THIRD_PERSON_RIGHT_HAND = "THIRD_PERSON_RIGHT_HAND";
 
     /// Default and fallback, aligns with {@link HumanoidModel#body}
-    public static final EnumProxy<ItemDisplayContext> CURIOS_BODY = register("curios_body", "none");
+    public static final EnumProxy<ItemDisplayContext> CURIOS_BODY = register("curios_body", NONE);
     /// Aligns with {@link HumanoidModel#head}
-    public static final EnumProxy<ItemDisplayContext> CURIOS_HEAD = register("curios_head", "head");
+    public static final EnumProxy<ItemDisplayContext> CURIOS_HEAD = register("curios_head", HEAD);
     /// Special-cased to align with and render once on each side of {@link HumanoidModel#head}
-    public static final EnumProxy<ItemDisplayContext> CURIOS_EARRINGS = register("curios_earrings", "head");
+    public static final EnumProxy<ItemDisplayContext> CURIOS_EARRINGS = register("curios_earrings", HEAD);
     /// Aligns with {@link HumanoidModel#leftArm}
     public static final EnumProxy<ItemDisplayContext> CURIOS_LEFT_ARM = register("curios_left_arm", THIRD_PERSON_LEFT_HAND);
     /// Aligns with {@link HumanoidModel#rightArm}

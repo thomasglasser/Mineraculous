@@ -4,8 +4,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
+import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSetCameraEntityPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -45,7 +45,7 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
             SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(SpectateEntityAbility::startSound),
             SoundEvent.CODEC.optionalFieldOf("stop_sound").forGetter(SpectateEntityAbility::stopSound)).apply(instance, SpectateEntityAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null) {
             AbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
             if (abilityEffectData.spectationInterrupted()) {

@@ -1,22 +1,26 @@
-package dev.thomasglasser.mineraculous.api.world.level.storage;
+package dev.thomasglasser.mineraculous.api.world.kamikotization;
 
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
+import dev.thomasglasser.mineraculous.api.world.ability.AbilityData;
 import dev.thomasglasser.mineraculous.api.world.ability.AbilityUtils;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
+import dev.thomasglasser.mineraculous.api.world.ability.handler.KamikotizationAbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
-import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
+import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionItemData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
+import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
@@ -36,8 +40,19 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * Performs functions of a {@link Kamikotization}.
+ *
+ * @param kamikotization       The current Kamikotization
+ * @param kamikoData           The current {@link KamikoData}
+ * @param name                 The name override of the kamikotized entity
+ * @param transformationFrames The remaining transformation frames for the current kamikotization if present
+ * @param remainingStackCount  The remaining number of stacks to be broken for the kamikotization to end
+ * @param powerActive          Whether the kamikotized entity's power is active
+ */
 public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoData kamikoData, String name, Optional<Either<Integer, Integer>> transformationFrames, int remainingStackCount, boolean powerActive) {
 
     public static final Codec<KamikotizationData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -84,9 +99,9 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
             level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, amplifier) -> MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, level.holderOrThrow(effect), amplifier.amplifier()));
         }
 
-        AbilityData abilityData = new AbilityData(0, Either.right(kamikotization), false);
-        value.powerSource().right().ifPresent(ability -> ability.value().transform(abilityData, level, entity));
-        value.passiveAbilities().forEach(ability -> ability.value().transform(abilityData, level, entity));
+        AbilityData data = new AbilityData(0, false);
+        value.powerSource().right().ifPresent(ability -> ability.value().transform(data, level, entity));
+        value.passiveAbilities().forEach(ability -> ability.value().transform(data, level, entity));
         AbilityReversionEntityData.get(level).startTracking(entity.getUUID());
 
         startTransformation(kamikotizationStack.getCount()).save(entity, true);
@@ -110,9 +125,9 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         }
 
         Kamikotization value = kamikotization.value();
-        AbilityData abilityData = new AbilityData(0, Either.right(kamikotization), powerActive);
-        value.powerSource().right().ifPresent(ability -> ability.value().detransform(abilityData, level, entity));
-        value.passiveAbilities().forEach(ability -> ability.value().detransform(abilityData, level, entity));
+        AbilityData data = new AbilityData(0, powerActive);
+        value.powerSource().right().ifPresent(ability -> ability.value().detransform(data, level, entity));
+        value.passiveAbilities().forEach(ability -> ability.value().detransform(data, level, entity));
         if (instant) {
             finishDetransformation(entity);
         } else {
@@ -124,6 +139,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         }
     }
 
+    @ApiStatus.Internal
     public void tick(Entity entity, ServerLevel level) {
         transformationFrames.ifPresentOrElse(either -> either.ifLeft(transformationFrames -> {
             if (transformationFrames > 0) {
@@ -158,15 +174,16 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         });
     }
 
-    public void performAbilities(ServerLevel level, Entity entity, @Nullable AbilityContext abilityContext) {
-        AbilityData abilityData = new AbilityData(0, Either.right(kamikotization), powerActive);
-        if (AbilityUtils.performPassiveAbilities(level, entity, abilityData, abilityContext, kamikotization.value().passiveAbilities()) && powerActive) {
+    public void performAbilities(ServerLevel level, Entity entity, @Nullable AbilityContext context) {
+        AbilityData data = new AbilityData(0, powerActive);
+        KamikotizationAbilityHandler handler = new KamikotizationAbilityHandler(kamikotization);
+        if (AbilityUtils.performPassiveAbilities(level, entity, data, handler, context, kamikotization.value().passiveAbilities()) && powerActive) {
             withPowerActive(false).save(entity, true);
         } else if (powerActive) {
-            boolean consumeMainPower = AbilityUtils.performActiveAbility(level, entity, abilityData, abilityContext, kamikotization.value().powerSource().right());
+            boolean consumeMainPower = AbilityUtils.performActiveAbility(level, entity, data, handler, context, kamikotization.value().powerSource().right());
             if (consumeMainPower) {
-                if (abilityContext != null && entity instanceof ServerPlayer player) {
-                    MineraculousCriteriaTriggers.PERFORMED_KAMIKOTIZATION_ACTIVE_ABILITY.get().trigger(player, kamikotization.getKey(), abilityContext.advancementContext());
+                if (context != null && entity instanceof ServerPlayer player) {
+                    MineraculousCriteriaTriggers.PERFORMED_KAMIKOTIZATION_ACTIVE_ABILITY.get().trigger(player, kamikotization.getKey(), context.advancementContext());
                 }
             }
             withPowerActive(!consumeMainPower).save(entity, true);

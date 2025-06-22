@@ -6,8 +6,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousLootContextParamSets {
+    /// Used in {@link SummonTargetDependentLuckyCharmAbility}.
     public static final LootContextParamSet LUCKY_CHARM = register("lucky_charm", builder -> builder
             .required(LootContextParams.THIS_ENTITY)
             .required(LootContextParams.ORIGIN)
@@ -30,5 +32,6 @@ public class MineraculousLootContextParamSets {
         }
     }
 
+    @ApiStatus.Internal
     public static void init() {}
 }

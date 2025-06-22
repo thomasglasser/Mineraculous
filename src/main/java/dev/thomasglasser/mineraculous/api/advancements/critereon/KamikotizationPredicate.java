@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.level.storage.KamikotizationData;
+import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.EntitySubPredicate;
 import net.minecraft.core.HolderSet;

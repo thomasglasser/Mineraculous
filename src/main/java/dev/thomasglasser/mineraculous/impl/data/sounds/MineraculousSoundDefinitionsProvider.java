@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.data.sounds;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.data.sounds.ExtendedSoundDefinitionsProvider;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;

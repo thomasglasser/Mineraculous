@@ -2,11 +2,11 @@ package dev.thomasglasser.mineraculous.impl.data.blockstates;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
-import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
-import dev.thomasglasser.mineraculous.api.world.level.block.CheeseBlock;
+import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
+import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.data.blockstates.ExtendedBlockStateProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import java.util.Objects;
@@ -42,10 +42,10 @@ public class MineraculousBlockStateProvider extends ExtendedBlockStateProvider {
         });
     }
 
-    protected void cheese(SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> blocks, SortedMap<AgeingCheese.Age, DeferredBlock<CheeseBlock>> waxed, String name) {
+    protected void cheese(SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> blocks, SortedMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> waxed, String name) {
         Table<AgeingCheese.Age, Integer, ModelFile> models = HashBasedTable.create();
         blocks.forEach(((age, block) -> getVariantBuilder(block.get()).forAllStates(blockState -> {
-            int bites = blockState.getValue(CheeseBlock.BITES);
+            int bites = blockState.getValue(block.get().getMissingPiecesProperty());
             String suffix = bites > 0 ? "_slice" + bites : "";
             String ageName = age.getSerializedName();
             BlockModelBuilder model = models()
@@ -57,14 +57,14 @@ public class MineraculousBlockStateProvider extends ExtendedBlockStateProvider {
                     .texture("particle", modBlockLoc("cheese/" + ageName + "_" + name + "_side"));
             models.put(age, bites, model);
             return ConfiguredModel.builder()
-                    .rotationY((int) (blockState.getValue(CheeseBlock.FACING).getOpposite()).toYRot())
+                    .rotationY((int) (blockState.getValue(PieceBlock.FACING).getOpposite()).toYRot())
                     .modelFile(model)
                     .build();
         })));
         waxed.forEach(((age, block) -> getVariantBuilder(block.get()).forAllStates(blockState -> {
-            int bites = blockState.getValue(CheeseBlock.BITES);
+            int bites = blockState.getValue(block.get().getMissingPiecesProperty());
             return ConfiguredModel.builder()
-                    .rotationY((int) (blockState.getValue(CheeseBlock.FACING).getOpposite()).toYRot())
+                    .rotationY((int) (blockState.getValue(PieceBlock.FACING).getOpposite()).toYRot())
                     .modelFile(Objects.requireNonNull(models.get(age, bites)))
                     .build();
         })));

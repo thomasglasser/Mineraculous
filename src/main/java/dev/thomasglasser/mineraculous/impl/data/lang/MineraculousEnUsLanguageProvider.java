@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.impl.data.lang;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalInventoryScreen;
 import dev.thomasglasser.mineraculous.api.packs.MineraculousPacks;
@@ -12,15 +11,17 @@ import dev.thomasglasser.mineraculous.api.world.damagesource.MineraculousDamageT
 import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.npc.MineraculousVillagerProfessions;
-import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
+import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.api.world.level.storage.MiraculousData;
+import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
+import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
@@ -40,9 +41,8 @@ import dev.thomasglasser.mineraculous.impl.world.entity.decoration.MineraculousP
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
+import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
-import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
-import dev.thomasglasser.mineraculous.api.world.level.block.CheeseBlock;
 import dev.thomasglasser.tommylib.api.data.lang.ExtendedEnUsLanguageProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
@@ -87,7 +87,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(set, displayName, "Mask", "Chestplate", "Leggings", "Boots");
     }
 
-    protected void cheese(Map<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> wedges, Map<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> waxedWedges, Map<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> blocks, Map<AgeingCheese.Age, DeferredBlock<CheeseBlock>> waxedBlocks, String name) {
+    protected void cheese(Map<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> wedges, Map<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> waxedWedges, Map<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> blocks, Map<AgeingCheese.Age, DeferredBlock<PieceBlock>> waxedBlocks, String name) {
         for (AgeingCheese.Age age : AgeingCheese.Age.values()) {
             String ageName = capitalize(age.getSerializedName()).replace('_', '-');
             add(wedges.get(age).get(), "Wedge of " + ageName + " " + name);

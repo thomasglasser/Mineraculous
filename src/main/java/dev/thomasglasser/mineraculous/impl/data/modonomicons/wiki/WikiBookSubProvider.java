@@ -4,7 +4,6 @@ import com.klikli_dev.modonomicon.api.datagen.SingleBookSubProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookModel;
 import com.klikli_dev.modonomicon.book.BookDisplayMode;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
-import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.apis.ApisCategoryProvider;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.decorations.DecorationsCategoryProvider;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.dependencies.DependenciesCategoryProvider;
@@ -15,6 +14,7 @@ import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.itemstealingan
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.kamikotizations.KamikotizationsCategoryProvider;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.miraculous.MiraculousCategoryProvider;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.support.SupportCategoryProvider;
+import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
 import java.util.function.BiConsumer;
 import net.minecraft.resources.ResourceLocation;
 

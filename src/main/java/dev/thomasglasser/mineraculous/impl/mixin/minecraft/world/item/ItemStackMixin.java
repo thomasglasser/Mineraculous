@@ -1,11 +1,15 @@
 package dev.thomasglasser.mineraculous.impl.mixin.minecraft.world.item;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import java.util.function.Consumer;
 import net.minecraft.core.component.DataComponentHolder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -33,5 +37,16 @@ public abstract class ItemStackMixin implements DataComponentHolder {
     @Inject(method = "hurtAndBreak(ILnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LivingEntity;Ljava/util/function/Consumer;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;shrink(I)V"))
     private void checkKamikotizationStack(int p_220158_, ServerLevel level, LivingEntity breaker, Consumer<Item> p_348596_, CallbackInfo ci) {
         Kamikotization.checkBroken(mineraculous$instance, level, breaker);
+    }
+
+    @WrapOperation(method = "isSameItemSameComponents", at = @At(value = "INVOKE", target = "Ljava/util/Objects;equals(Ljava/lang/Object;Ljava/lang/Object;)Z"))
+    private static boolean checkSameBesidesCarrier(Object a, Object b, Operation<Boolean> original) {
+        if (original.call(a, b))
+            return true;
+
+        if (!(a instanceof PatchedDataComponentMap self) || !(b instanceof PatchedDataComponentMap other))
+            return false;
+
+        return MineraculousItemUtils.isSameComponentsBesides(self, other, MineraculousDataComponents.CARRIER);
     }
 }

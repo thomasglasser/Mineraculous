@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.api.world.effect;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.world.damagesource.MineraculousDamageTypes;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;

@@ -24,6 +24,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.entity.PartEntity;
 import org.jetbrains.annotations.Nullable;
 
+/// Data for reverting trackable entity changes
 public class AbilityReversionEntityData extends SavedData {
     public static final String FILE_ID = "ability_reversion_entity";
     private final Map<UUID, List<UUID>> trackedAndRelatedEntities = new Object2ObjectOpenHashMap<>();

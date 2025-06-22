@@ -8,10 +8,9 @@ import dev.thomasglasser.mineraculous.api.datamaps.ModifierSettings;
 import dev.thomasglasser.mineraculous.api.world.entity.npc.MineraculousVillagerProfessions;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
+import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.loot.MineraculousGiftLootKeys;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.loot.MineraculousLuckyCharmLootKeys;
-import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
-import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -69,8 +68,8 @@ public class MineraculousDataMapProvider extends DataMapProvider {
         MineraculousBlocks.CAMEMBERT.forEach((age, block) -> waxables.add(block, new Waxable(MineraculousBlocks.WAXED_CAMEMBERT.get(age).get()), false));
 
         Builder<Ageable, Block> ageables = builder(MineraculousDataMaps.AGEABLES);
-        for (int i = 0; i < AgeingCheeseEdibleFullBlock.Age.values().length - 1; i++) {
-            AgeingCheese.Age age = AgeingCheeseEdibleFullBlock.Age.values()[i];
+        for (int i = 0; i < AgeingCheese.Age.values().length - 1; i++) {
+            AgeingCheese.Age age = AgeingCheese.Age.values()[i];
             AgeingCheese.Age next = age.getNext();
             ageables.add(MineraculousBlocks.CHEESE.get(age), new Ageable(MineraculousBlocks.CHEESE.get(next).get()), false);
             ageables.add(MineraculousBlocks.CAMEMBERT.get(age), new Ageable(MineraculousBlocks.CAMEMBERT.get(next).get()), false);

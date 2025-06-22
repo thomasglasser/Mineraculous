@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage.loot.predicates;
 
 import com.mojang.serialization.MapCodec;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.world.level.storage.loot.predicates.HasItem;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import net.minecraft.core.registries.Registries;

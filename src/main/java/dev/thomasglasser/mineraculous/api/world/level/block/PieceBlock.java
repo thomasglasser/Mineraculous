@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.level.block;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -12,7 +13,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
@@ -25,27 +25,48 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class CheeseBlock extends HorizontalDirectionalBlock {
-    public static final MapCodec<CheeseBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("wedge").forGetter(CheeseBlock::getWedge),
-            propertiesCodec()).apply(instance, CheeseBlock::new));
-    public static final int MAX_BITES = 3;
-    public static final IntegerProperty BITES = IntegerProperty.create("bites", 0, MAX_BITES);
-    protected static final VoxelShape SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 3.0, 12.0);
+/// A block composed of pieces that can be missing
+public class PieceBlock extends HorizontalDirectionalBlock {
+    public static final MapCodec<PieceBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            Codec.INT.fieldOf("max_pieces").forGetter(PieceBlock::getMaxPieces),
+            BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("piece").forGetter(PieceBlock::getPiece),
+            propertiesCodec()).apply(instance, PieceBlock::new));
+    public static final String MISSING_PIECES = "missing_pieces";
 
-    protected final Holder<Item> wedge;
+    private final int maxPieces;
+    private final Holder<Item> piece;
+    private final IntegerProperty missingPiecesProperty;
 
-    public CheeseBlock(Holder<Item> wedge, Properties properties) {
+    public PieceBlock(int maxPieces, Holder<Item> piece, Properties properties) {
         super(properties);
-        this.wedge = wedge;
-        this.registerDefaultState(this.stateDefinition.any().setValue(BITES, 0).setValue(FACING, Direction.NORTH));
+        this.maxPieces = maxPieces;
+        this.missingPiecesProperty = IntegerProperty.create(MISSING_PIECES, 0, maxPieces - 1);
+        this.piece = piece;
+        StateDefinition.Builder<Block, BlockState> builder = new StateDefinition.Builder<>(this);
+        this.createBlockStateDefinition(builder);
+        this.stateDefinition = builder.create(Block::defaultBlockState, BlockState::new);
+        this.registerDefaultState(this.stateDefinition.any().setValue(missingPiecesProperty, 0).setValue(FACING, Direction.NORTH));
+    }
+
+    public int getMaxPieces() {
+        return maxPieces;
+    }
+
+    public int getMaxMissingPieces() {
+        return maxPieces - 1;
+    }
+
+    public Holder<Item> getPiece() {
+        return piece;
+    }
+
+    public IntegerProperty getMissingPiecesProperty() {
+        return missingPiecesProperty;
     }
 
     @Override
-    protected MapCodec<? extends CheeseBlock> codec() {
+    protected MapCodec<? extends PieceBlock> codec() {
         return CODEC;
     }
 
@@ -55,20 +76,14 @@ public class CheeseBlock extends HorizontalDirectionalBlock {
         return this.defaultBlockState().setValue(FACING, opposite);
     }
 
-    public static int getOutputSignal(int eaten) {
-        return (4 - eaten) * 2;
-    }
-
+    @Override
     protected boolean hasAnalogOutputSignal(BlockState state) {
         return true;
     }
 
+    @Override
     protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
         return false;
-    }
-
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
     }
 
     @Override
@@ -76,23 +91,28 @@ public class CheeseBlock extends HorizontalDirectionalBlock {
         return direction == Direction.DOWN && !state.canSurvive(level, pos) ? Blocks.AIR.defaultBlockState() : super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
 
+    @Override
     protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         return level.getBlockState(pos.below()).isSolid();
     }
 
+    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(BITES);
-        builder.add(FACING);
+        if (missingPiecesProperty != null) {
+            builder.add(missingPiecesProperty);
+            builder.add(FACING);
+        }
     }
 
+    @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
-        return getOutputSignal(state.getValue(BITES));
+        return maxPieces - state.getValue(missingPiecesProperty);
     }
 
     @Override
     public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
-        if (state.getValue(BITES) == MAX_BITES) {
-            return wedge.value().getDefaultInstance();
+        if (state.getValue(missingPiecesProperty) == getMaxMissingPieces()) {
+            return piece.value().getDefaultInstance();
         } else {
             ItemStack cloneItemStack = super.getCloneItemStack(state, target, level, pos, player);
             cloneItemStack.update(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY, properties -> {
@@ -106,9 +126,5 @@ public class CheeseBlock extends HorizontalDirectionalBlock {
             });
             return cloneItemStack;
         }
-    }
-
-    public Holder<Item> getWedge() {
-        return wedge;
     }
 }

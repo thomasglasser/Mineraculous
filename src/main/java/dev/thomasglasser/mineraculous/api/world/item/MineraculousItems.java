@@ -1,18 +1,18 @@
 package dev.thomasglasser.mineraculous.api.world.item;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.food.MineraculousFoods;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
+import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
+import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
-import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
-import dev.thomasglasser.mineraculous.api.world.level.block.CheeseBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
@@ -73,10 +73,10 @@ public class MineraculousItems {
     public static final SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> WAXED_CAMEMBERT = waxedWedges("camembert", MineraculousBlocks.WAXED_CAMEMBERT);
 
     private static SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> wedges(String name, FoodProperties foodProperties, SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> blocks) {
-        Item.Properties properties = new Item.Properties().stacksTo(16).food(foodProperties).component(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY.with(CheeseBlock.BITES, CheeseBlock.MAX_BITES));
         SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> cheeses = new Reference2ObjectLinkedOpenHashMap<>(AgeingCheese.Age.values().length);
         for (AgeingCheese.Age age : AgeingCheese.Age.values()) {
-            cheeses.put(age, register(age.getSerializedName() + "_" + name + "_wedge", () -> new ItemNameBlockItem(blocks.get(age).get(), properties) {
+            DeferredBlock<AgeingCheeseEdibleFullBlock> block = blocks.get(age);
+            cheeses.put(age, register(age.getSerializedName() + "_" + name + "_wedge", () -> new ItemNameBlockItem(block.get(), new Item.Properties().stacksTo(16).food(foodProperties).component(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY.with(block.get().getMissingPiecesProperty(), block.get().getMaxMissingPieces()))) {
                 @Override
                 public void registerBlocks(Map<Block, Item> blockToItemMap, Item item) {}
             }));
@@ -84,11 +84,11 @@ public class MineraculousItems {
         return cheeses;
     }
 
-    private static SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> waxedWedges(String name, SortedMap<AgeingCheese.Age, DeferredBlock<CheeseBlock>> blocks) {
-        Item.Properties properties = new Item.Properties().stacksTo(16).component(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY.with(CheeseBlock.BITES, CheeseBlock.MAX_BITES));
+    private static SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> waxedWedges(String name, SortedMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> blocks) {
         SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> cheeses = new Reference2ObjectLinkedOpenHashMap<>(AgeingCheese.Age.values().length);
         for (AgeingCheese.Age age : AgeingCheese.Age.values()) {
-            cheeses.put(age, register("waxed_" + age.getSerializedName() + "_" + name + "_wedge", () -> new ItemNameBlockItem(blocks.get(age).get(), properties) {
+            DeferredBlock<PieceBlock> block = blocks.get(age);
+            cheeses.put(age, register("waxed_" + age.getSerializedName() + "_" + name + "_wedge", () -> new ItemNameBlockItem(block.get(), new Item.Properties().stacksTo(16).component(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY.with(block.get().getMissingPiecesProperty(), block.get().getMaxMissingPieces()))) {
                 @Override
                 public void registerBlocks(Map<Block, Item> blockToItemMap, Item item) {}
             }));

@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import java.util.Optional;
 import net.minecraft.core.Holder;
@@ -27,6 +28,21 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
+/**
+ * Data-driven entity transformation provided by a {@link MiraculousItem}.
+ *
+ * @param color                The color of the Miraculous and holder name
+ * @param acceptableSlot       The Curios slot the {@link MiraculousItem} can be placed in to transform
+ * @param transformationFrames The number of frames it takes to transform
+ * @param tool                 The tool to give when transformed
+ * @param toolSlot             The Curios slot to place the tool when given
+ * @param activeAbility        The {@link Ability} that provides the main power
+ * @param passiveAbilities     Passive {@link Ability}s
+ * @param transformSound       The sound to play when transforming
+ * @param detransformSound     The sound to play when detransforming
+ * @param timerWarningSound    The sound to play when the detransformation timer hits a milestone
+ * @param timerEndSound        The sound to play when the detransformation timer is over
+ */
 public record Miraculous(TextColor color, String acceptableSlot, Optional<Integer> transformationFrames, ItemStack tool, Optional<String> toolSlot, Holder<Ability> activeAbility, HolderSet<Ability> passiveAbilities, Holder<SoundEvent> transformSound, Holder<SoundEvent> detransformSound, Holder<SoundEvent> timerWarningSound, Holder<SoundEvent> timerEndSound) {
 
     public static final Codec<Miraculous> DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(

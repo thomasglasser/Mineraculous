@@ -1,5 +1,7 @@
 package dev.thomasglasser.mineraculous.api.world.level.storage;
 
+import dev.thomasglasser.mineraculous.api.world.ability.Ability;
+import dev.thomasglasser.mineraculous.api.world.ability.ContinuousAbility;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetFaceMaskTexturePayload;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
@@ -14,6 +16,19 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 
+/**
+ * Holds information used by existing {@link Ability}s.
+ *
+ * @param playedContinuousAbilityStartSound Whether the start sound of the current {@link ContinuousAbility} has been played
+ * @param continuousTicks                   The current tick count of the current {@link ContinuousAbility} if present
+ * @param shader                            The shader to force on the entity if present
+ * @param faceMaskTexture                   The face mask texture to force on the entity if present
+ * @param spectatingId                      The spectated entity to force on the entity if present
+ * @param spectationInterrupted             Whether spectation should be interrupted for the entity
+ * @param privateChat                       The entity to have private chat with if present
+ * @param allowRemoteDamage                 Whether remote damage should be allowed from the entity to the spectated entity
+ * @param killCredit                        The overridden kill credit for the entity if present
+ */
 public record AbilityEffectData(boolean playedContinuousAbilityStartSound, Optional<Integer> continuousTicks, Optional<ResourceLocation> shader, Optional<ResourceLocation> faceMaskTexture, Optional<UUID> spectatingId, boolean spectationInterrupted, Optional<UUID> privateChat, boolean allowRemoteDamage, Optional<UUID> killCredit) {
 
     public static final StreamCodec<ByteBuf, AbilityEffectData> STREAM_CODEC = TommyLibExtraStreamCodecs.composite(

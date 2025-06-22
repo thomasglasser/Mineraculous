@@ -3,8 +3,8 @@ package dev.thomasglasser.mineraculous.api.world.ability;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
+import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityData;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
@@ -28,7 +28,7 @@ public record PassiveEffectsAbility(HolderSet<MobEffect> effects, int startAmpli
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("start_amplifier", 0).forGetter(PassiveEffectsAbility::startAmplifier)).apply(instance, PassiveEffectsAbility::new));
 
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null && performer instanceof LivingEntity livingEntity) {
             for (Holder<MobEffect> effect : effects) {
                 if (!livingEntity.hasEffect(effect)) {

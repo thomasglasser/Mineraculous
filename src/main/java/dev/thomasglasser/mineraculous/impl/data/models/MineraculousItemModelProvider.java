@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.impl.data.models;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.client.renderer.item.MineraculousItemProperties;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
@@ -8,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.tommylib.api.data.models.ExtendedItemModelProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
@@ -185,15 +185,15 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
     private ItemModelBuilder withBitesOverrides(DeferredBlock<?> block, ItemModelBuilder builder) {
         return builder
                 .override()
-                .predicate(MineraculousItemProperties.BITES, 1)
+                .predicate(MineraculousItemProperties.MISSING_PIECES, 1)
                 .model(withExistingParent(block.getId().getPath() + "_slice1", block.getId().withPrefix("block/").withSuffix("_slice1")))
                 .end()
                 .override()
-                .predicate(MineraculousItemProperties.BITES, 2)
+                .predicate(MineraculousItemProperties.MISSING_PIECES, 2)
                 .model(withExistingParent(block.getId().getPath() + "_slice2", block.getId().withPrefix("block/").withSuffix("_slice2")))
                 .end()
                 .override()
-                .predicate(MineraculousItemProperties.BITES, 3)
+                .predicate(MineraculousItemProperties.MISSING_PIECES, 3)
                 .model(withExistingParent(block.getId().getPath() + "_slice3", block.getId().withPrefix("block/").withSuffix("_slice3")))
                 .end();
     }

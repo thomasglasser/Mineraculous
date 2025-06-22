@@ -1,12 +1,12 @@
 package dev.thomasglasser.mineraculous.api.advancements;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.KamikotizeEntityTrigger;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.PerformKamikotizationActiveAbilityTrigger;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.PerformMiraculousActiveAbilityTrigger;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.ReleasePurifiedEntitiesTrigger;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.TransformKamikotizationTrigger;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.TransformMiraculousTrigger;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import net.minecraft.advancements.CriterionTrigger;

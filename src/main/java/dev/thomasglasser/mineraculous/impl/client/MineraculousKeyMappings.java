@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
@@ -9,10 +8,10 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
-import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.MiraculousData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
+import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundPutMiraculousToolInHandPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRenounceMiraculousPayload;
@@ -25,6 +24,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
+import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.ExtendedKeyMapping;

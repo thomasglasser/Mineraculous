@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization;
 
 import com.mojang.datafixers.util.Either;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalInventoryScreen;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
@@ -9,11 +8,11 @@ import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
-import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
+import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.KamikotizationData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.MiraculousesData;
+import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundOpenPerformerKamikotizationChatScreenPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundOpenVictimKamikotizationChatScreenPayload;
@@ -21,6 +20,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundRequestInventorySy
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSpawnTamedKamikoPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStartKamikotizationTransformationPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundTriggerKamikotizationAdvancementsPayload;
+import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;

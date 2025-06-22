@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.context.BlockAbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.context.EntityAbilityContext;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityData;
+import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -30,17 +30,17 @@ public record ContextDependentAbility(Optional<Holder<Ability>> blockAbility, Op
             Ability.CODEC.optionalFieldOf("entity").forGetter(ContextDependentAbility::entityAbility),
             Ability.HOLDER_SET_CODEC.optionalFieldOf("passive", HolderSet.empty()).forGetter(ContextDependentAbility::passiveAbilities)).apply(instance, ContextDependentAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         switch (context) {
             case BlockAbilityContext blockAbilityContext when blockAbility.isPresent() -> {
-                return blockAbility.get().value().perform(data, level, performer, blockAbilityContext);
+                return blockAbility.get().value().perform(data, level, performer, handler, blockAbilityContext);
             }
             case EntityAbilityContext entityAbilityContext when entityAbility.isPresent() -> {
-                return entityAbility.get().value().perform(data, level, performer, entityAbilityContext);
+                return entityAbility.get().value().perform(data, level, performer, handler, entityAbilityContext);
             }
             case null -> {
                 for (Holder<Ability> holder : passiveAbilities) {
-                    if (holder.value().perform(data, level, performer, null)) {
+                    if (holder.value().perform(data, level, performer, handler, null)) {
                         return true;
                     }
                 }

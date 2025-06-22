@@ -2,10 +2,9 @@ package dev.thomasglasser.mineraculous.api.world.ability;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
+import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
@@ -42,8 +41,8 @@ public record ContinuousAbility(Holder<Ability> ability, int ticks, Optional<Hol
     }
 
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
-        boolean consume = ability.value().perform(data, level, performer, context);
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+        boolean consume = ability.value().perform(data, level, performer, handler, context);
         AbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
         if (context == null && abilityEffectData.continuousTicks().isPresent()) {
             int continuousTicks = abilityEffectData.continuousTicks().get();
@@ -57,11 +56,8 @@ public record ContinuousAbility(Holder<Ability> ability, int ticks, Optional<Hol
             }
         }
         if (consume) {
-            if (performer instanceof ServerPlayer serverPlayer && context != null) {
-                if (data.power().left().isPresent())
-                    MineraculousCriteriaTriggers.PERFORMED_MIRACULOUS_ACTIVE_ABILITY.get().trigger(serverPlayer, data.power().left().get().getKey(), context.advancementContext());
-                if (data.power().right().isPresent())
-                    MineraculousCriteriaTriggers.PERFORMED_KAMIKOTIZATION_ACTIVE_ABILITY.get().trigger(serverPlayer, data.power().right().get().getKey(), context.advancementContext());
+            if (performer instanceof ServerPlayer player && context != null) {
+                handler.triggerPerformAdvancement(player, context);
             }
             if (abilityEffectData.continuousTicks().isEmpty()) {
                 abilityEffectData.withContinuousTicks(Optional.of(ticks)).save(performer, true);

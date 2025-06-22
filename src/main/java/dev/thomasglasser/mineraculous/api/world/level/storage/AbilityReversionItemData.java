@@ -30,6 +30,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.saveddata.SavedData;
 
+/// Data for reverting trackable item changes
 public class AbilityReversionItemData extends SavedData {
     public static final String FILE_ID = "ability_reversion_item";
     private final Table<UUID, UUID, ItemStack> revertableItems = HashBasedTable.create();

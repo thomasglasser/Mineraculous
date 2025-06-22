@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
+import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
-import dev.thomasglasser.mineraculous.api.world.level.storage.KamikotizationData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.Optional;
 import java.util.UUID;

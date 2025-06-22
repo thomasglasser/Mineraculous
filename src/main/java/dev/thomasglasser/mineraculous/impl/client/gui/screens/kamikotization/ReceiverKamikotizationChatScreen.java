@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization;
 
 import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.KamikotizationData;
+import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundCloseKamikotizationChatScreenPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStartKamikotizationTransformationPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundTriggerKamikotizationAdvancementsPayload;

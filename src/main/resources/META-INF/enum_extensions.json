@@ -5,7 +5,7 @@
       "name": "MINERACULOUS_CATACLYSMED",
       "constructor": "(Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/resources/ResourceLocation;)V",
       "parameters": {
-        "class": "dev/thomasglasser/mineraculous/api/client/gui/MineraculousHeartTypes",
+        "class": "dev/thomasglasser/mineraculous/impl/client/gui/MineraculousHeartTypes",
         "field": "CATACLYSMED"
       }
     },

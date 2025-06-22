@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
 
+/// Data for reverting trackable block changes
 public class AbilityReversionBlockData extends SavedData {
     public static final String FILE_ID = "ability_reversion_block";
     private final Table<UUID, BlockPos, BlockState> revertableBlocks = HashBasedTable.create();

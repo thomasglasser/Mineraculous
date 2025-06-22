@@ -1,11 +1,11 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import com.google.common.collect.ImmutableList;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.KamikotizationData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.MiraculousesData;
+import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.YoyoLeashData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;

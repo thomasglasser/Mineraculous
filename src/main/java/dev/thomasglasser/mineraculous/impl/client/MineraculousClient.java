@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderStateShards;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.SpecialPlayerData;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
 import net.minecraft.client.Minecraft;

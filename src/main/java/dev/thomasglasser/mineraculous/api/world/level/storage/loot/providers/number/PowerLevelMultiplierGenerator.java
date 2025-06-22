@@ -12,6 +12,12 @@ import net.minecraft.world.level.storage.loot.providers.number.LootNumberProvide
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProviders;
 
+/**
+ * Generates a number with the provided {@link NumberProvider}
+ * and multiplies it by the provided power level parameter divided by 10.
+ *
+ * @param base The base number provider to generate the result with
+ */
 public record PowerLevelMultiplierGenerator(NumberProvider base) implements NumberProvider {
     public static final MapCodec<PowerLevelMultiplierGenerator> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             NumberProviders.CODEC.fieldOf("base").forGetter(PowerLevelMultiplierGenerator::base)).apply(instance, PowerLevelMultiplierGenerator::new));

@@ -5,9 +5,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
+import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionItemData;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,7 +40,7 @@ public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakO
             ItemPredicate.CODEC.optionalFieldOf("invalid_items").forGetter(ReplaceItemInMainHandAbility::invalidItems),
             SoundEvent.CODEC.optionalFieldOf("replace_sound").forGetter(ReplaceItemInMainHandAbility::replaceSound)).apply(instance, ReplaceItemInMainHandAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null && performer instanceof LivingEntity livingEntity) {
             ItemStack stack = livingEntity.getMainHandItem();
             if (stack.isEmpty() || validItems.map(predicate -> !predicate.test(stack)).orElse(false) || invalidItems.map(predicate -> predicate.test(stack)).orElse(false)) {

@@ -2,9 +2,6 @@ package dev.thomasglasser.mineraculous.api.world.damagesource;
 
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import java.util.function.Function;
-
-import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
-import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;

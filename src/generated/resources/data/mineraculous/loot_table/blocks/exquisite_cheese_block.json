@@ -19,7 +19,7 @@
                   "block": "mineraculous:exquisite_cheese_block",
                   "condition": "minecraft:block_state_property",
                   "properties": {
-                    "bites": "3"
+                    "missing_pieces": "3"
                   }
                 }
               ],
@@ -32,7 +32,7 @@
                   "block": "mineraculous:exquisite_cheese_block",
                   "function": "minecraft:copy_state",
                   "properties": [
-                    "bites"
+                    "missing_pieces"
                   ]
                 }
               ],

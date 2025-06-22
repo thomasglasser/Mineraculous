@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.data;
 
 import com.mojang.datafixers.util.Either;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
@@ -9,6 +8,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.data.advancements.MineraculousAdvancementProvider;
 import dev.thomasglasser.mineraculous.impl.data.blockstates.MineraculousBlockStateProvider;
 import dev.thomasglasser.mineraculous.impl.data.curios.MineraculousCuriosProvider;

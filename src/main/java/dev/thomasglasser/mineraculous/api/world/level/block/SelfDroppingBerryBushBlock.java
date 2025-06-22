@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 
+/// A {@link SweetBerryBushBlock} that generically clones and drops itself as an item.
 public class SelfDroppingBerryBushBlock extends SweetBerryBushBlock {
     public SelfDroppingBerryBushBlock(Properties properties) {
         super(properties);
@@ -20,7 +21,7 @@ public class SelfDroppingBerryBushBlock extends SweetBerryBushBlock {
 
     @Override
     public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state) {
-        return asItem().getDefaultInstance();
+        return MineraculousBlocks.HIBISCUS_BUSH.asItem().getDefaultInstance();
     }
 
     @Override

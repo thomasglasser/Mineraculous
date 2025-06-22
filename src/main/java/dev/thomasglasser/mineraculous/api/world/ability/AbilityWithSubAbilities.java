@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.ability;
 
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityData;
 import java.util.List;
 import java.util.function.Predicate;
 import net.minecraft.server.level.ServerLevel;

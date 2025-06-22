@@ -28,7 +28,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Data-driven entity transformation initiated by {@link Kamiko} control.
+ * Data-driven entity transformation provided by {@link Kamiko} control.
  *
  * @param defaultName      The default name of the kamikotized entity
  * @param itemPredicate    The predicate for which items be used to transform

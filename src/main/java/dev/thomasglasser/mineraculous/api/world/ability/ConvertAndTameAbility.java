@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.context.EntityAbilityContext;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityData;
+import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.EntityPredicate;
@@ -35,7 +35,7 @@ public record ConvertAndTameAbility(EntityType<?> newType, Optional<EntityPredic
             EntityPredicate.CODEC.optionalFieldOf("invalid_entities").forGetter(ConvertAndTameAbility::invalidEntities),
             SoundEvent.CODEC.optionalFieldOf("convert_sound").forGetter(ConvertAndTameAbility::convertSound)).apply(instance, ConvertAndTameAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context) {
+    public boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context instanceof EntityAbilityContext(Entity target)) {
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
             if (isValidEntity(level, target.position(), target) && !entityData.isConverted(target.getUUID())) {

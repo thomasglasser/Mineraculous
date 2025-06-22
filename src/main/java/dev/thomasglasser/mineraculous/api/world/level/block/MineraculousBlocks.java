@@ -1,10 +1,9 @@
 package dev.thomasglasser.mineraculous.api.world.level.block;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
-import dev.thomasglasser.mineraculous.impl.world.entity.ai.village.poi.MineraculousPoiTypes;
 import dev.thomasglasser.mineraculous.api.world.food.MineraculousFoods;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
@@ -36,15 +35,14 @@ public class MineraculousBlocks {
     /// No function currently, only used in {@link MineraculousPoiTypes#FROMAGER}.
     public static final DeferredBlock<Block> CHEESE_POT = registerWithItem("cheese_pot", () -> new Block(BlockBehaviour.Properties.of().strength(0.5f).noOcclusion().sound(SoundType.METAL).mapColor(MapColor.GOLD)));
 
-
     public static final DeferredBlock<SelfDroppingBerryBushBlock> HIBISCUS_BUSH = registerWithSeparatelyNamedItem("hibiscus_bush", "hibiscus", () -> new SelfDroppingBerryBushBlock(BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).randomTicks().noCollission().sound(SoundType.SWEET_BERRY_BUSH).pushReaction(PushReaction.DESTROY)));
 
     // Cheese
     public static final SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> CHEESE = cheeses("cheese", MineraculousFoods.CHEESE, MapColor.GOLD, () -> MineraculousItems.CHEESE);
     public static final SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> CAMEMBERT = cheeses("camembert", MineraculousFoods.CAMEMBERT, MapColor.TERRACOTTA_WHITE, () -> MineraculousItems.CAMEMBERT);
 
-    public static final SortedMap<AgeingCheese.Age, DeferredBlock<CheeseBlock>> WAXED_CHEESE = waxedCheeses("cheese", MapColor.GOLD, () -> MineraculousItems.WAXED_CHEESE);
-    public static final SortedMap<AgeingCheese.Age, DeferredBlock<CheeseBlock>> WAXED_CAMEMBERT = waxedCheeses("camembert", MapColor.TERRACOTTA_WHITE, () -> MineraculousItems.WAXED_CAMEMBERT);
+    public static final SortedMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> WAXED_CHEESE = waxedCheeses("cheese", MapColor.GOLD, () -> MineraculousItems.WAXED_CHEESE);
+    public static final SortedMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> WAXED_CAMEMBERT = waxedCheeses("camembert", MapColor.TERRACOTTA_WHITE, () -> MineraculousItems.WAXED_CAMEMBERT);
 
     private static SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> cheeses(String name, FoodProperties foodProperties, MapColor color, Supplier<SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>>> wedges) {
         BlockBehaviour.Properties blockProperties = BlockBehaviour.Properties.of().strength(0.5f).sound(SoundType.SPONGE).mapColor(color).randomTicks();
@@ -56,12 +54,12 @@ public class MineraculousBlocks {
         return cheeses;
     }
 
-    private static SortedMap<AgeingCheese.Age, DeferredBlock<CheeseBlock>> waxedCheeses(String name, MapColor color, Supplier<SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>>> wedges) {
+    private static SortedMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> waxedCheeses(String name, MapColor color, Supplier<SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>>> wedges) {
         BlockBehaviour.Properties blockProperties = BlockBehaviour.Properties.of().strength(0.75f).sound(SoundType.SPONGE).mapColor(color);
         Item.Properties itemProperties = new Item.Properties().stacksTo(4);
-        SortedMap<AgeingCheese.Age, DeferredBlock<CheeseBlock>> cheeses = new Reference2ObjectLinkedOpenHashMap<>(AgeingCheese.Age.values().length);
+        SortedMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> cheeses = new Reference2ObjectLinkedOpenHashMap<>(AgeingCheese.Age.values().length);
         for (AgeingCheese.Age age : AgeingCheese.Age.values()) {
-            cheeses.put(age, registerWithItem("waxed_" + age.getSerializedName() + "_" + name + "_block", () -> new CheeseBlock(wedges.get().get(age), blockProperties), itemProperties));
+            cheeses.put(age, registerWithItem("waxed_" + age.getSerializedName() + "_" + name + "_block", () -> new PieceBlock(AgeingCheeseEdibleFullBlock.MAX_PIECES, wedges.get().get(age), blockProperties), itemProperties));
         }
         return cheeses;
     }

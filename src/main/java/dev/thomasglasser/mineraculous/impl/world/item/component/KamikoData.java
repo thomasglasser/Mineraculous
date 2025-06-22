@@ -26,7 +26,6 @@ public record KamikoData(UUID uuid, UUID owner, int nameColor, Optional<Resource
             ByteBufCodecs.INT, KamikoData::nameColor,
             ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC), KamikoData::faceMaskTexture,
             KamikoData::new);
-
     public Kamiko summon(ServerLevel level, Vec3 spawnPos) {
         Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(level);
         if (kamiko != null) {

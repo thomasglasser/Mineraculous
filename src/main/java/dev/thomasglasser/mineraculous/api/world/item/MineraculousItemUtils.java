@@ -4,13 +4,17 @@ import com.mojang.datafixers.util.Pair;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.level.storage.MiraculousesData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 public class MineraculousItemUtils {
@@ -120,5 +125,41 @@ public class MineraculousItemUtils {
                 itemConsumer.accept(item);
             }
         }
+    }
+
+    /**
+     * Perform an {@link Object#equals(Object)} check on two {@link PatchedDataComponentMap}s,
+     * ignoring the provided {@link DataComponentType}.
+     * <p>
+     * This is typically only called by an internal mixin
+     * <p>
+     * Pulled from GeckoLib
+     */
+    @ApiStatus.Internal
+    public static boolean isSameComponentsBesides(PatchedDataComponentMap self, PatchedDataComponentMap other, DataComponentType<?> type) {
+        boolean patched = false;
+
+        if (self.has(type)) {
+            PatchedDataComponentMap prevMap = self;
+            boolean copyOnWrite = prevMap.copyOnWrite;
+            (self = self.copy()).remove(type);
+            self.copyOnWrite = copyOnWrite;
+            patched = true;
+        }
+
+        if (other.has(type)) {
+            PatchedDataComponentMap prevMap = other;
+            boolean copyOnWrite = prevMap.copyOnWrite;
+            (other = other.copy()).remove(type);
+            other.copyOnWrite = copyOnWrite;
+            patched = true;
+        }
+
+        return patched && Objects.equals(self, other);
+    }
+
+    @ApiStatus.Internal
+    public static <T> boolean isSameComponentsBesides(PatchedDataComponentMap self, PatchedDataComponentMap other, Supplier<DataComponentType<T>> type) {
+        return isSameComponentsBesides(self, other, type.get());
     }
 }

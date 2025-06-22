@@ -1,9 +1,9 @@
 package dev.thomasglasser.mineraculous.impl.data.loot;
 
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.loot.MineraculousLuckyCharmLootKeys;
 import dev.thomasglasser.mineraculous.api.world.level.storage.loot.predicates.HasItem;
 import dev.thomasglasser.mineraculous.api.world.level.storage.loot.providers.number.PowerLevelMultiplierGenerator;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.loot.MineraculousLuckyCharmLootKeys;
 import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;
 import java.util.function.BiConsumer;
 import net.minecraft.advancements.critereon.EntityPredicate;

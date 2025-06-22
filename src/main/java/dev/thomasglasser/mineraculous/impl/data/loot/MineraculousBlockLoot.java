@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.impl.data.loot;
 
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.api.world.level.block.CheeseBlock;
+import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
 import dev.thomasglasser.tommylib.api.data.loot.ExtendedBlockLootSubProvider;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
@@ -36,11 +36,11 @@ public class MineraculousBlockLoot extends ExtendedBlockLootSubProvider {
 
         dropOther(MineraculousBlocks.CATACLYSM_BLOCK.get(), MineraculousItems.CATACLYSM_DUST.get());
 
-        MineraculousBlocks.CHEESE.values().forEach(block -> cheese(block.get(), block.get().getWedge().value()));
-        MineraculousBlocks.CAMEMBERT.values().forEach(block -> cheese(block.get(), block.get().getWedge().value()));
+        MineraculousBlocks.CHEESE.values().forEach(block -> cheese(block.get(), block.get().getPiece().value()));
+        MineraculousBlocks.CAMEMBERT.values().forEach(block -> cheese(block.get(), block.get().getPiece().value()));
 
-        MineraculousBlocks.WAXED_CHEESE.values().forEach(block -> cheese(block.get(), block.get().getWedge().value()));
-        MineraculousBlocks.WAXED_CAMEMBERT.values().forEach(block -> cheese(block.get(), block.get().getWedge().value()));
+        MineraculousBlocks.WAXED_CHEESE.values().forEach(block -> cheese(block.get(), block.get().getPiece().value()));
+        MineraculousBlocks.WAXED_CAMEMBERT.values().forEach(block -> cheese(block.get(), block.get().getPiece().value()));
 
         add(MineraculousBlocks.HIBISCUS_BUSH.get(),
                 block -> applyExplosionDecay(
@@ -64,12 +64,12 @@ public class MineraculousBlockLoot extends ExtendedBlockLootSubProvider {
                                                 .apply(ApplyBonusCount.addUniformBonusCount(enchantments.getOrThrow(Enchantments.FORTUNE))))));
     }
 
-    protected void cheese(CheeseBlock block, ItemLike wedge) {
+    protected void cheese(PieceBlock block, ItemLike wedge) {
         add(block, LootTable.lootTable().withPool(
                 applyExplosionCondition(block, LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(wedge)
-                                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(CheeseBlock.BITES, CheeseBlock.MAX_BITES)))
-                                .otherwise(LootItem.lootTableItem(block).apply(CopyBlockState.copyState(block).copy(CheeseBlock.BITES)))))));
+                                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block).setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(block.getMissingPiecesProperty(), block.getMaxMissingPieces())))
+                                .otherwise(LootItem.lootTableItem(block).apply(CopyBlockState.copyState(block).copy(block.getMissingPiecesProperty())))))));
     }
 }

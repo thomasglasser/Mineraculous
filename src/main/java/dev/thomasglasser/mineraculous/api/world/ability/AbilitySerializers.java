@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.api.world.ability;
 
 import com.mojang.serialization.MapCodec;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import org.jetbrains.annotations.ApiStatus;

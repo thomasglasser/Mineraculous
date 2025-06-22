@@ -1,13 +1,13 @@
 package dev.thomasglasser.mineraculous.impl.data.recipes;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
-import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.impl.world.item.crafting.CheeseWedgeRecipe;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
-import dev.thomasglasser.mineraculous.api.world.level.block.CheeseBlock;
+import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
+import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.world.item.crafting.CheeseWedgeRecipe;
 import dev.thomasglasser.tommylib.api.data.recipes.ExtendedRecipeProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;
@@ -53,9 +53,9 @@ public class MineraculousRecipes extends ExtendedRecipeProvider {
         trimWithCopy(recipeOutput, MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE, Blocks.PURPLE_CONCRETE);
     }
 
-    protected void cheeseWaxRecipes(RecipeOutput recipeOutput, SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> waxables, SortedMap<AgeingCheese.Age, DeferredBlock<CheeseBlock>> waxedBlocks) {
+    protected void cheeseWaxRecipes(RecipeOutput recipeOutput, SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> waxables, SortedMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> waxedBlocks) {
         waxables.forEach((age, block) -> {
-            DeferredBlock<CheeseBlock> waxed = waxedBlocks.get(age);
+            DeferredBlock<PieceBlock> waxed = waxedBlocks.get(age);
             if (waxed.get().requiredFeatures().isSubsetOf(FeatureFlags.DEFAULT_FLAGS)) {
                 ShapelessRecipeBuilder.shapeless(RecipeCategory.FOOD, waxed)
                         .requires(block)

@@ -1,11 +1,10 @@
-package dev.thomasglasser.mineraculous.api.world.level.storage;
+package dev.thomasglasser.mineraculous.api.world.miraculous;
 
 import com.google.common.collect.Maps;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mojang.serialization.codecs.UnboundedMapCodec;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
@@ -21,8 +20,10 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
+/// Holds all {@link MiraculousData}s for an entity
 public class MiraculousesData {
     public static final UnboundedMapCodec<Holder<Miraculous>, MiraculousData> MAP_CODEC = Codec.unboundedMap(Miraculous.CODEC, MiraculousData.CODEC);
     public static final Codec<MiraculousesData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -45,6 +46,7 @@ public class MiraculousesData {
         this.map = new Reference2ObjectOpenHashMap<>(map);
     }
 
+    @ApiStatus.Internal
     public void tick(Entity entity, ServerLevel level) {
         forEach((miraculous, data) -> data.tick(entity, level, miraculous));
     }

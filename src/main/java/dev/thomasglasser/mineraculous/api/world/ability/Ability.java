@@ -5,8 +5,8 @@ import com.mojang.serialization.MapCodec;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousBuiltInRegistries;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
+import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBlockData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionItemData;
@@ -45,18 +45,19 @@ public interface Ability {
 
     /**
      * Performs actions based on the given context.
-     * 
+     *
      * @param data      The relevant {@link AbilityData} of the performer
      * @param level     The level the ability is being performed in
      * @param performer The performer of the ability
+     * @param handler   The handler of the ability
      * @param context   The context of the ability (null if passive)
      * @return Whether the ability should consume the active state (i.e., stop the ability and trigger completion)
      */
-    boolean perform(AbilityData data, ServerLevel level, Entity performer, @Nullable AbilityContext context);
+    boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context);
 
     /**
      * Called when the performer transforms.
-     * This can mean different things depending on how its used.
+     * This can mean different things depending on how it's used.
      * It is simply a starting point where the ability becomes relevant and,
      * if passive, starts being performed.
      * 

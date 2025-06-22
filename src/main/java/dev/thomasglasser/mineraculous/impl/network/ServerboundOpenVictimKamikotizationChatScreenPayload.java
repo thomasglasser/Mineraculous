@@ -1,11 +1,11 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import com.mojang.datafixers.util.Either;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.KamikotizationData;
+import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;

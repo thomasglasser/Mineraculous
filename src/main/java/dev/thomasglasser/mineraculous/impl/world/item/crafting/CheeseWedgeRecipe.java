@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.item.crafting;
 
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
-import dev.thomasglasser.mineraculous.api.world.level.block.CheeseBlock;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import net.minecraft.core.HolderLookup;
@@ -30,17 +29,17 @@ public class CheeseWedgeRecipe extends CustomRecipe {
         }
         if (items.size() == 1) {
             ItemStack only = items.getFirst();
-            if (only.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof AgeingCheeseEdibleFullBlock) {
-                Integer bites = only.getOrDefault(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY).get(CheeseBlock.BITES);
-                return bites == null || bites < CheeseBlock.MAX_BITES;
+            if (only.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof AgeingCheeseEdibleFullBlock cheeseBlock) {
+                Integer bites = only.getOrDefault(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY).get(cheeseBlock.getMissingPiecesProperty());
+                return bites == null || bites < cheeseBlock.getMaxMissingPieces();
             }
         } else if (items.size() > 1) {
             ItemStack first = items.getFirst();
-            if (first.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof AgeingCheeseEdibleFullBlock) {
+            if (first.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof AgeingCheeseEdibleFullBlock cheeseBlock) {
                 for (ItemStack stack : items) {
                     if (stack.is(first.getItem())) {
-                        Integer bites = stack.getOrDefault(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY).get(CheeseBlock.BITES);
-                        if (bites == null || bites != CheeseBlock.MAX_BITES) {
+                        Integer bites = stack.getOrDefault(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY).get(cheeseBlock.getMissingPiecesProperty());
+                        if (bites == null || bites != cheeseBlock.getMaxMissingPieces()) {
                             return false;
                         }
                     }
@@ -62,16 +61,16 @@ public class CheeseWedgeRecipe extends CustomRecipe {
         if (items.size() == 1) {
             ItemStack only = items.getFirst();
             if (only.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof AgeingCheeseEdibleFullBlock cheese) {
-                Integer bites = only.getOrDefault(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY).get(CheeseBlock.BITES);
+                Integer bites = only.getOrDefault(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY).get(cheese.getMissingPiecesProperty());
                 if (bites == null)
                     bites = 0;
-                return new ItemStack(cheese.getWedge(), 4 - bites);
+                return new ItemStack(cheese.getPiece(), 4 - bites);
             }
         } else if (items.size() > 1) {
             if (items.getFirst().getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof AgeingCheeseEdibleFullBlock cheese) {
                 int bites = items.size();
                 ItemStack result = cheese.asItem().getDefaultInstance();
-                result.set(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY.with(CheeseBlock.BITES, 4 - bites));
+                result.set(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY.with(cheese.getMissingPiecesProperty(), 4 - bites));
                 return result;
             }
         }

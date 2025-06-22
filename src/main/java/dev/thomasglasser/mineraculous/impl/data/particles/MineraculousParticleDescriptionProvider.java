@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.data.particles;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.common.data.ParticleDescriptionProvider;

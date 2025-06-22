@@ -33,7 +33,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 /// Data for reverting trackable item changes
 public class AbilityReversionItemData extends SavedData {
     public static final String FILE_ID = "ability_reversion_item";
-    private final Table<UUID, UUID, ItemStack> revertableItems = HashBasedTable.create();
+    private final Table<UUID, UUID, ItemStack> revertibleItems = HashBasedTable.create();
     private final Map<UUID, ItemStack> revertedItems = new Object2ObjectOpenHashMap<>();
     private final Map<UUID, ItemStack> kamikotizedItems = new Object2ObjectOpenHashMap<>();
 
@@ -106,20 +106,20 @@ public class AbilityReversionItemData extends SavedData {
     }
 
     public void markReverted(UUID owner) {
-        if (revertableItems.containsRow(owner)) {
-            revertedItems.putAll(revertableItems.row(owner));
-            revertableItems.row(owner).clear();
+        if (revertibleItems.containsRow(owner)) {
+            revertedItems.putAll(revertibleItems.row(owner));
+            revertibleItems.row(owner).clear();
         }
         setDirty();
     }
 
-    public void putRevertable(UUID owner, UUID item, ItemStack stack) {
-        revertableItems.put(owner, item, stack.copy());
+    public void putRevertible(UUID owner, UUID item, ItemStack stack) {
+        revertibleItems.put(owner, item, stack.copy());
         setDirty();
     }
 
     public void putRemovable(UUID owner, UUID item) {
-        putRevertable(owner, item, ItemStack.EMPTY);
+        putRevertible(owner, item, ItemStack.EMPTY);
     }
 
     public void revertKamikotized(UUID owner, ServerLevel level) {
@@ -140,21 +140,21 @@ public class AbilityReversionItemData extends SavedData {
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        ListTag revertableItems = new ListTag();
-        for (UUID uuid : this.revertableItems.rowKeySet()) {
+        ListTag revertibleItems = new ListTag();
+        for (UUID uuid : this.revertibleItems.rowKeySet()) {
             CompoundTag compoundTag = new CompoundTag();
             compoundTag.putUUID("UUID", uuid);
-            ListTag revertable = new ListTag();
-            for (Map.Entry<UUID, ItemStack> entry1 : this.revertableItems.row(uuid).entrySet()) {
+            ListTag revertible = new ListTag();
+            for (Map.Entry<UUID, ItemStack> entry1 : this.revertibleItems.row(uuid).entrySet()) {
                 CompoundTag compoundTag1 = new CompoundTag();
                 compoundTag1.putUUID("UUID", entry1.getKey());
                 compoundTag1.put("ItemStack", entry1.getValue().saveOptional(registries));
-                revertable.add(compoundTag1);
+                revertible.add(compoundTag1);
             }
-            compoundTag.put("Items", revertable);
-            revertableItems.add(compoundTag);
+            compoundTag.put("Items", revertible);
+            revertibleItems.add(compoundTag);
         }
-        tag.put("RevertableItems", revertableItems);
+        tag.put("RevertibleItems", revertibleItems);
         ListTag revertedItems = new ListTag();
         for (Map.Entry<UUID, ItemStack> entry : this.revertedItems.entrySet()) {
             CompoundTag compoundTag = new CompoundTag();
@@ -176,16 +176,16 @@ public class AbilityReversionItemData extends SavedData {
 
     public static AbilityReversionItemData load(CompoundTag tag, HolderLookup.Provider registries) {
         AbilityReversionItemData miraculousRecoveryEntityData = new AbilityReversionItemData();
-        ListTag revertableItems = tag.getList("RevertableItems", 10);
-        for (int i = 0; i < revertableItems.size(); ++i) {
-            CompoundTag compoundTag = revertableItems.getCompound(i);
+        ListTag revertibleItems = tag.getList("RevertibleItems", 10);
+        for (int i = 0; i < revertibleItems.size(); ++i) {
+            CompoundTag compoundTag = revertibleItems.getCompound(i);
             UUID owner = compoundTag.getUUID("UUID");
             ListTag recoverable = compoundTag.getList("Items", 10);
             for (int j = 0; j < recoverable.size(); ++j) {
                 CompoundTag compoundTag1 = recoverable.getCompound(j);
                 UUID item = compoundTag1.getUUID("UUID");
                 ItemStack itemStack = ItemStack.parseOptional(registries, compoundTag1.getCompound("ItemStack"));
-                miraculousRecoveryEntityData.revertableItems.put(owner, item, itemStack);
+                miraculousRecoveryEntityData.revertibleItems.put(owner, item, itemStack);
             }
         }
         ListTag revertedItems = tag.getList("RevertedItems", 10);

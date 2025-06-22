@@ -49,7 +49,7 @@ public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakO
             ItemStack replacement = this.replacement.copy();
             UUID id = UUID.randomUUID();
             replacement.set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
-            AbilityReversionItemData.get(level).putRevertable(performer.getUUID(), id, stack);
+            AbilityReversionItemData.get(level).putRevertible(performer.getUUID(), id, stack);
             if (breakOriginal) {
                 if (stack.isDamageableItem()) {
                     MineraculousItemUtils.hurtAndBreak(stack, stack.getMaxDamage(), level, livingEntity, EquipmentSlot.MAINHAND);

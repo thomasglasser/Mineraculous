@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 public class AbilityReversionEntityData extends SavedData {
     public static final String FILE_ID = "ability_reversion_entity";
     private final Map<UUID, List<UUID>> trackedAndRelatedEntities = new Object2ObjectOpenHashMap<>();
-    private final Map<UUID, List<CompoundTag>> revertableEntities = new Object2ObjectOpenHashMap<>();
+    private final Map<UUID, List<CompoundTag>> revertibleEntities = new Object2ObjectOpenHashMap<>();
     private final Table<UUID, UUID, CompoundTag> convertedEntities = HashBasedTable.create();
 
     public static AbilityReversionEntityData get(ServerLevel level) {
@@ -91,8 +91,8 @@ public class AbilityReversionEntityData extends SavedData {
     }
 
     public void revert(UUID owner, ServerLevel level, Consumer<Entity> onReverted) {
-        if (revertableEntities.containsKey(owner)) {
-            for (CompoundTag entityData : revertableEntities.get(owner)) {
+        if (revertibleEntities.containsKey(owner)) {
+            for (CompoundTag entityData : revertibleEntities.get(owner)) {
                 UUID entityId = entityData.getUUID("UUID");
                 Entity entity = level.getEntity(entityId);
                 if (entity == null || entity.isRemoved()) {
@@ -104,29 +104,29 @@ public class AbilityReversionEntityData extends SavedData {
                 }
                 onReverted.accept(entity);
             }
-            revertableEntities.remove(owner);
+            revertibleEntities.remove(owner);
             setDirty();
         }
     }
 
-    public void putRevertable(UUID owner, Entity entity) {
+    public void putRevertible(UUID owner, Entity entity) {
         putRelatedEntity(owner, entity.getUUID());
         if (entity instanceof PartEntity<?> partEntity) {
-            putRevertable(owner, partEntity.getParent());
+            putRevertible(owner, partEntity.getParent());
             return;
         }
         if (!entity.getType().canSerialize())
             return;
-        if (!revertableEntities.containsKey(owner))
-            revertableEntities.put(owner, new ReferenceArrayList<>());
+        if (!revertibleEntities.containsKey(owner))
+            revertibleEntities.put(owner, new ReferenceArrayList<>());
         CompoundTag entityData = new CompoundTag();
         entity.save(entityData);
-        revertableEntities.get(owner).add(entityData);
+        revertibleEntities.get(owner).add(entityData);
         setDirty();
     }
 
     public UUID getCause(Entity entity, ServerLevel level) {
-        for (Map.Entry<UUID, List<CompoundTag>> entry : revertableEntities.entrySet()) {
+        for (Map.Entry<UUID, List<CompoundTag>> entry : revertibleEntities.entrySet()) {
             for (CompoundTag entityData : entry.getValue()) {
                 UUID id = entityData.getUUID("UUID");
                 Entity entity1 = level.getEntity(id);
@@ -204,16 +204,16 @@ public class AbilityReversionEntityData extends SavedData {
             listTag.add(compoundTag);
         }
         tag.put("TrackedAndRelatedEntities", listTag);
-        ListTag revertable = new ListTag();
-        for (Map.Entry<UUID, List<CompoundTag>> entry : revertableEntities.entrySet()) {
+        ListTag revertible = new ListTag();
+        for (Map.Entry<UUID, List<CompoundTag>> entry : revertibleEntities.entrySet()) {
             CompoundTag compoundTag = new CompoundTag();
             compoundTag.putUUID("UUID", entry.getKey());
             ListTag entities = new ListTag();
             entities.addAll(entry.getValue());
             compoundTag.put("Entities", entities);
-            revertable.add(compoundTag);
+            revertible.add(compoundTag);
         }
-        tag.put("RevertableEntities", revertable);
+        tag.put("RevertibleEntities", revertible);
         ListTag converted = new ListTag();
         for (UUID performer : convertedEntities.rowKeySet()) {
             CompoundTag compoundTag = new CompoundTag();
@@ -244,15 +244,15 @@ public class AbilityReversionEntityData extends SavedData {
                 relatedEntityList.add(relatedEntities.getUUID(key));
             abilityReversionEntityData.trackedAndRelatedEntities.put(trackedEntity, relatedEntityList);
         }
-        ListTag recoverableEntities = tag.getList("RevertableEntities", ListTag.TAG_COMPOUND);
-        for (int i = 0; i < recoverableEntities.size(); i++) {
-            CompoundTag compoundTag = recoverableEntities.getCompound(i);
+        ListTag revertibleEntities = tag.getList("RevertibleEntities", ListTag.TAG_COMPOUND);
+        for (int i = 0; i < revertibleEntities.size(); i++) {
+            CompoundTag compoundTag = revertibleEntities.getCompound(i);
             UUID owner = compoundTag.getUUID("UUID");
             ListTag entities = compoundTag.getList("Entities", ListTag.TAG_COMPOUND);
             List<CompoundTag> entityList = new ObjectArrayList<>();
             for (int j = 0; j < entities.size(); j++)
                 entityList.add(entities.getCompound(j));
-            abilityReversionEntityData.revertableEntities.put(owner, entityList);
+            abilityReversionEntityData.revertibleEntities.put(owner, entityList);
         }
         ListTag converted = tag.getList("ConvertedEntities", ListTag.TAG_COMPOUND);
         for (int i = 0; i < converted.size(); i++) {

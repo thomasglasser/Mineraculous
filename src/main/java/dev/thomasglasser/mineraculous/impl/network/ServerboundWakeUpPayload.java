@@ -11,7 +11,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
 public record ServerboundWakeUpPayload(UUID targetId, boolean showStealingWarning) implements ExtendedPacketPayload {
-    public static final String STEALING_WARNING_KEY = "mineraculous.stealing_warning";
+    public static final Component STEALING_WARNING = Component.translatable("mineraculous.stealing_warning");
 
     public static final Type<ServerboundWakeUpPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_wake_up"));
     public static final StreamCodec<ByteBuf, ServerboundWakeUpPayload> CODEC = StreamCodec.composite(
@@ -26,7 +26,7 @@ public record ServerboundWakeUpPayload(UUID targetId, boolean showStealingWarnin
         if (target != null) {
             target.stopSleepInBed(true, true);
             if (showStealingWarning) {
-                target.displayClientMessage(Component.translatable(STEALING_WARNING_KEY), true);
+                target.displayClientMessage(STEALING_WARNING, true);
             }
         }
     }

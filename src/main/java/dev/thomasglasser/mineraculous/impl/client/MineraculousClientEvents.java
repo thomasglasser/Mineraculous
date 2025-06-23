@@ -1,8 +1,5 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
-import dev.thomasglasser.mineraculous.api.client.gui.components.selection.SelectionGui;
-import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenu;
-import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenuItem;
 import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.KamikotizationParticle;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
@@ -10,21 +7,17 @@ import dev.thomasglasser.mineraculous.api.client.renderer.item.MineraculousItemP
 import dev.thomasglasser.mineraculous.api.client.renderer.item.curio.ContextDependentCurioRenderer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
-import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousHeartTypes;
-import dev.thomasglasser.mineraculous.impl.client.gui.kamiko.categories.KamikoTargetPlayerMenuCategory;
 import dev.thomasglasser.mineraculous.impl.client.model.DerbyHatModel;
 import dev.thomasglasser.mineraculous.impl.client.model.FaceMaskModel;
 import dev.thomasglasser.mineraculous.impl.client.renderer.armor.KamikotizationArmorItemRenderer;
@@ -38,9 +31,6 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTes
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.FaceMaskLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundJumpMidSwingingPayload;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundRevertConvertedEntityPayload;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundSetSpectationInterruptedPayload;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundStartKamikotizationDetransformationPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSwingOffhandPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
@@ -49,31 +39,23 @@ import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUti
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Map;
-import java.util.Optional;
 import java.util.SortedMap;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.ChatScreen;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.FlyStraightTowardsParticle;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Holder;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -103,12 +85,6 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 public class MineraculousClientEvents {
-    public static final String REVOKE = "gui.mineraculous.revoke";
-    public static final String REVOKE_WITH_SPACE = "gui.mineraculous.revoke_with_space";
-
-    private static SelectionGui kamikoGui;
-    private static Button revokeButton;
-
     // Setup
     static void onFMLClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
@@ -253,94 +229,10 @@ public class MineraculousClientEvents {
 
     // GUI
     static void onRegisterGuiLayers(RegisterGuiLayersEvent event) {
-        event.registerAboveAll(Mineraculous.modLoc("stealing_progress_bar"), MineraculousClientEvents::renderStealingProgressBar);
-        event.registerAboveAll(Mineraculous.modLoc("revoke_button"), MineraculousClientEvents::renderRevokeButton);
-        kamikoGui = new SelectionGui(Minecraft.getInstance(), gui -> new SelectionMenu(gui, new KamikoTargetPlayerMenuCategory()) {
-            @Override
-            public void selectSlot(int slot) {
-                SelectionMenuItem selectionMenuItem = this.getItem(slot);
-                if (selectionMenuItem != SelectionMenu.CLOSE_ITEM && Minecraft.getInstance().level.registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).size() == 0) {
-                    Minecraft.getInstance().player.displayClientMessage(Component.translatable(Kamikotization.NO_KAMIKOTIZATIONS), true);
-                } else {
-                    super.selectSlot(slot);
-                }
-            }
-        });
-        event.registerAboveAll(Mineraculous.modLoc("kamiko_hotbar"), ((guiGraphics, deltaTracker) -> kamikoGui.renderHotbar(guiGraphics)));
-        event.registerAboveAll(Mineraculous.modLoc("kamiko_tooltip"), ((guiGraphics, deltaTracker) -> kamikoGui.renderTooltip(guiGraphics)));
-    }
-
-    private static void renderStealingProgressBar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-        LocalPlayer player = Minecraft.getInstance().player;
-        int width = MineraculousKeyMappings.getTakeTicks();
-        if (player != null && width > 0) {
-            int x = (guiGraphics.guiWidth() - 18) / 2;
-            int y = (guiGraphics.guiHeight() + 12) / 2;
-            guiGraphics.fill(RenderType.guiOverlay(), x, y, x + 20, y + 5, -16777216);
-            guiGraphics.fill(RenderType.guiOverlay(), x, y, (int) (x + (width / 5.0)), y + 5, 0xFFFFFFF | -16777216);
-        }
-    }
-
-    private static void renderRevokeButton(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
-        if (revokeButton == null) {
-            revokeButton = new Button(Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 - 100, Minecraft.getInstance().getWindow().getGuiScaledHeight() - 35, 200, 20, Component.translatable(REVOKE), button -> {
-                Entity cameraEntity = MineraculousClientUtils.getCameraEntity();
-                if (cameraEntity instanceof Player target) {
-                    KamikotizationData kamikotizationData = target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).orElseThrow();
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationDetransformationPayload(Optional.of(target.getUUID()), kamikotizationData, false));
-                    AbilityEffectData.removeFaceMaskTexture(target, kamikotizationData.kamikoData().faceMaskTexture());
-                } else if (cameraEntity instanceof Kamiko kamiko) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundRevertConvertedEntityPayload(kamiko.getOwner().getId(), kamiko.getId()));
-                }
-                TommyLibServices.NETWORK.sendToServer(new ServerboundSetSpectationInterruptedPayload(Optional.empty()));
-            }, Button.DEFAULT_NARRATION) {
-                @Override
-                public Component getMessage() {
-                    if (MineraculousClientUtils.hasNoScreenOpen())
-                        return Component.translatable(REVOKE_WITH_SPACE);
-                    else
-                        return Component.translatable(REVOKE);
-                }
-
-                @Override
-                public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-                    if (active) {
-                        if (keyCode == GLFW.GLFW_KEY_SPACE) {
-                            revokeButton.onPress();
-                            return true;
-                        }
-                    }
-                    return super.keyPressed(keyCode, scanCode, modifiers);
-                }
-            };
-        }
-
-        if (isInKamikoView() && !kamikoGui.isMenuActive()) {
-            if (MineraculousClientUtils.hasNoScreenOpen()) {
-                revokeButton.setPosition(revokeButton.getX(), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 60);
-                revokeButton.active = true;
-            } else if (Minecraft.getInstance().screen instanceof ChatScreen) {
-                revokeButton.setPosition(revokeButton.getX(), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 35);
-                revokeButton.active = true;
-            } else
-                revokeButton.active = false;
-        } else
-            revokeButton.active = false;
-
-        if (revokeButton.active) {
-            int mouseX = (int) (Minecraft.getInstance().mouseHandler.xpos()
-                    * (double) Minecraft.getInstance().getWindow().getGuiScaledWidth()
-                    / (double) Minecraft.getInstance().getWindow().getScreenWidth());
-            int mouseY = (int) (Minecraft.getInstance().mouseHandler.ypos()
-                    * (double) Minecraft.getInstance().getWindow().getGuiScaledHeight()
-                    / (double) Minecraft.getInstance().getWindow().getScreenHeight());
-            revokeButton.render(guiGraphics, mouseX, mouseY, 0);
-        }
-    }
-
-    private static boolean isInKamikoView() {
-        LocalPlayer player = Minecraft.getInstance().player;
-        return player != null && !player.isSpectator() && player.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() && MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko && kamiko.isOwnedBy(player) && kamikoGui != null;
+        event.registerAboveAll(Mineraculous.modLoc("stealing_progress_bar"), MineraculousGuis::renderStealingProgressBar);
+        event.registerAboveAll(Mineraculous.modLoc("revoke_button"), MineraculousGuis::renderRevokeButton);
+        event.registerAboveAll(Mineraculous.modLoc("kamiko_hotbar"), ((guiGraphics, deltaTracker) -> MineraculousGuis.getKamikoGui().renderHotbar(guiGraphics)));
+        event.registerAboveAll(Mineraculous.modLoc("kamiko_tooltip"), ((guiGraphics, deltaTracker) -> MineraculousGuis.getKamikoGui().renderTooltip(guiGraphics)));
     }
 
     // Tick
@@ -374,30 +266,32 @@ public class MineraculousClientEvents {
 
     // Input
     static void onKeyInput(InputEvent.Key event) {
-        if (isInKamikoView()) {
+        if (MineraculousClientUtils.isInKamikoView()) {
             for (int i = 0; i < 9; i++) {
                 if (Minecraft.getInstance().options.keyHotbarSlots[i].consumeClick()) {
-                    kamikoGui.onHotbarSelected(i);
+                    MineraculousGuis.getKamikoGui().onHotbarSelected(i);
                 }
             }
-            if (event.getKey() == GLFW.GLFW_KEY_SPACE && MineraculousClientUtils.hasNoScreenOpen() && revokeButton != null && revokeButton.active) {
+            Button revokeButton = MineraculousGuis.getRevokeButton();
+            if (event.getKey() == GLFW.GLFW_KEY_SPACE && MineraculousClientUtils.hasNoScreenOpen() && revokeButton.active) {
                 revokeButton.onPress();
             }
         }
     }
 
     static void onMouseScrollingInput(InputEvent.MouseScrollingEvent event) {
-        if (isInKamikoView()) {
+        if (MineraculousClientUtils.isInKamikoView()) {
             int i = (int) (event.getScrollDeltaY() == 0 ? -event.getScrollDeltaX() : event.getScrollDeltaY());
-            kamikoGui.onMouseScrolled(i);
+            MineraculousGuis.getKamikoGui().onMouseScrolled(i);
         }
     }
 
     static void onPostMouseButtonInput(InputEvent.MouseButton.Post event) {
-        if (isInKamikoView() && event.getButton() == GLFW.GLFW_MOUSE_BUTTON_MIDDLE) {
-            kamikoGui.onMouseMiddleClick();
+        if (MineraculousClientUtils.isInKamikoView() && event.getButton() == GLFW.GLFW_MOUSE_BUTTON_MIDDLE) {
+            MineraculousGuis.getKamikoGui().onMouseMiddleClick();
         }
-        if (revokeButton != null && revokeButton.active) {
+        Button revokeButton = MineraculousGuis.getRevokeButton();
+        if (revokeButton.active) {
             int mouseX = (int) (Minecraft.getInstance().mouseHandler.xpos()
                     * (double) Minecraft.getInstance().getWindow().getGuiScaledWidth()
                     / (double) Minecraft.getInstance().getWindow().getScreenWidth());

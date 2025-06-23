@@ -104,7 +104,7 @@ public class MineraculousCoreEvents {
     // Start
     public static void onServerStarted(ServerStartedEvent event) {
         if (event.getServer().registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).size() == 0) {
-            Mineraculous.LOGGER.warn(Component.translatable(Kamikotization.NO_KAMIKOTIZATIONS).getString());
+            Mineraculous.LOGGER.warn(Kamikotization.NO_KAMIKOTIZATIONS.getString());
         }
     }
 

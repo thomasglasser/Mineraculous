@@ -7,7 +7,7 @@ import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.impl.client.MineraculousClientEvents;
+import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.KamikotizationSelectionScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
@@ -56,8 +56,8 @@ public class AkumatizationPackEnUsLanguageProvider extends EnUsOverrideLanguageP
 
     private void addGuis() {
         // Kamiko Gui
-        add(MineraculousClientEvents.REVOKE, "Revoke Akumatization");
-        add(MineraculousClientEvents.REVOKE_WITH_SPACE, "Revoke Akumatization (Press Space)");
+        add(MineraculousGuis.REVOKE, "Revoke Akumatization");
+        add(MineraculousGuis.REVOKE_WITH_SPACE, "Revoke Akumatization (Press Space)");
         add(Kamiko.CANT_KAMIKOTIZE_TRANSFORMED, "Akumatizing transformed players is not currently supported.");
         add(Kamikotization.NO_KAMIKOTIZATIONS, "No Akumatizations found in world, have you installed any addons?");
 

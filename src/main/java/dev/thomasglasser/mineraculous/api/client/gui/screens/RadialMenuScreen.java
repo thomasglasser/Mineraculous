@@ -179,7 +179,7 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
             float textX = width / 2f + radius * Mth.cos(angle);
             float textY = height / 2f - radius * Mth.sin(angle);
 
-            pGuiGraphics.drawCenteredString(font, Component.translatable(option.translationKey()), (int) textX, (int) textY, 0xFFFFFF);
+            pGuiGraphics.drawCenteredString(font, option.displayName(), (int) textX, (int) textY, 0xFFFFFF);
         }
     }
 

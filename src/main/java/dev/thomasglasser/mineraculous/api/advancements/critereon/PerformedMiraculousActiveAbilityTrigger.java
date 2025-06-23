@@ -20,7 +20,7 @@ import net.minecraft.server.level.ServerPlayer;
  * Advancement trigger for when an entity performs their active {@link Miraculous} {@link Ability},
  * with a field for {@link Miraculous} key and an optional field for contexts.
  */
-public class PerformMiraculousActiveAbilityTrigger extends SimpleCriterionTrigger<PerformMiraculousActiveAbilityTrigger.TriggerInstance> {
+public class PerformedMiraculousActiveAbilityTrigger extends SimpleCriterionTrigger<PerformedMiraculousActiveAbilityTrigger.TriggerInstance> {
     @Override
     public Codec<TriggerInstance> codec() {
         return TriggerInstance.CODEC;
@@ -46,10 +46,10 @@ public class PerformMiraculousActiveAbilityTrigger extends SimpleCriterionTrigge
         }
 
         public static Criterion<TriggerInstance> performedActiveAbility(ResourceKey<Miraculous> miraculous, Optional<List<String>> contexts) {
-            return criterion(Optional.empty(), miraculous, contexts);
+            return performedActiveAbility(Optional.empty(), miraculous, contexts);
         }
 
-        public static Criterion<TriggerInstance> criterion(Optional<ContextAwarePredicate> player, ResourceKey<Miraculous> miraculous, Optional<List<String>> contexts) {
+        public static Criterion<TriggerInstance> performedActiveAbility(Optional<ContextAwarePredicate> player, ResourceKey<Miraculous> miraculous, Optional<List<String>> contexts) {
             return MineraculousCriteriaTriggers.PERFORMED_MIRACULOUS_ACTIVE_ABILITY.get().createCriterion(new TriggerInstance(player, miraculous, contexts));
         }
 

@@ -21,7 +21,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
  * {@link Kamikotization} key,
  * and whether the kamikotizer is the kamikotized.
  */
-public class KamikotizeEntityTrigger extends SimpleCriterionTrigger<KamikotizeEntityTrigger.TriggerInstance> {
+public class KamikotizedEntityTrigger extends SimpleCriterionTrigger<KamikotizedEntityTrigger.TriggerInstance> {
     @Override
     public Codec<TriggerInstance> codec() {
         return TriggerInstance.CODEC;
@@ -39,38 +39,38 @@ public class KamikotizeEntityTrigger extends SimpleCriterionTrigger<KamikotizeEn
                 ResourceKey.codec(MineraculousRegistries.KAMIKOTIZATION).optionalFieldOf("kamikotization").forGetter(TriggerInstance::kamikotization),
                 Codec.BOOL.optionalFieldOf("self").forGetter(TriggerInstance::self)).apply(instance, TriggerInstance::new));
         public static Criterion<TriggerInstance> kamikotizedEntity() {
-            return criterion(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
+            return kamikotizedEntity(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
         }
 
         public static Criterion<TriggerInstance> kamikotizedEntity(ContextAwarePredicate target) {
-            return criterion(Optional.empty(), Optional.of(target), Optional.empty(), Optional.empty());
+            return kamikotizedEntity(Optional.empty(), Optional.of(target), Optional.empty(), Optional.empty());
         }
 
         public static Criterion<TriggerInstance> kamikotizedEntity(ResourceKey<Kamikotization> kamikotization) {
-            return criterion(Optional.empty(), Optional.empty(), Optional.of(kamikotization), Optional.empty());
+            return kamikotizedEntity(Optional.empty(), Optional.empty(), Optional.of(kamikotization), Optional.empty());
         }
 
         public static Criterion<TriggerInstance> kamikotizedEntity(boolean self) {
-            return criterion(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(self));
+            return kamikotizedEntity(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(self));
         }
 
         public static Criterion<TriggerInstance> kamikotizedEntity(ContextAwarePredicate target, ResourceKey<Kamikotization> kamikotization) {
-            return criterion(Optional.empty(), Optional.of(target), Optional.of(kamikotization), Optional.empty());
+            return kamikotizedEntity(Optional.empty(), Optional.of(target), Optional.of(kamikotization), Optional.empty());
         }
 
         public static Criterion<TriggerInstance> kamikotizedEntity(ContextAwarePredicate target, boolean self) {
-            return criterion(Optional.empty(), Optional.of(target), Optional.empty(), Optional.of(self));
+            return kamikotizedEntity(Optional.empty(), Optional.of(target), Optional.empty(), Optional.of(self));
         }
 
         public static Criterion<TriggerInstance> kamikotizedEntity(ResourceKey<Kamikotization> kamikotization, boolean self) {
-            return criterion(Optional.empty(), Optional.empty(), Optional.of(kamikotization), Optional.of(self));
+            return kamikotizedEntity(Optional.empty(), Optional.empty(), Optional.of(kamikotization), Optional.of(self));
         }
 
         public static Criterion<TriggerInstance> kamikotizedEntity(ContextAwarePredicate target, ResourceKey<Kamikotization> kamikotization, boolean self) {
-            return criterion(Optional.empty(), Optional.of(target), Optional.of(kamikotization), Optional.of(self));
+            return kamikotizedEntity(Optional.empty(), Optional.of(target), Optional.of(kamikotization), Optional.of(self));
         }
 
-        public static Criterion<TriggerInstance> criterion(Optional<ContextAwarePredicate> player, Optional<ContextAwarePredicate> target, Optional<ResourceKey<Kamikotization>> kamikotization, Optional<Boolean> self) {
+        public static Criterion<TriggerInstance> kamikotizedEntity(Optional<ContextAwarePredicate> player, Optional<ContextAwarePredicate> target, Optional<ResourceKey<Kamikotization>> kamikotization, Optional<Boolean> self) {
             return MineraculousCriteriaTriggers.KAMIKOTIZED_ENTITY.get().createCriterion(new TriggerInstance(player, target, kamikotization, self));
         }
 

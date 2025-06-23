@@ -36,6 +36,7 @@ import java.util.Map;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -78,8 +79,8 @@ public class MineraculousKeyMappings {
                             private Integer color;
 
                             @Override
-                            public String translationKey() {
-                                return Miraculous.toLanguageKey(miraculous.getKey());
+                            public Component displayName() {
+                                return Component.translatable(Miraculous.toLanguageKey(miraculous.getKey()));
                             }
 
                             @Override

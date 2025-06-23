@@ -20,7 +20,7 @@ import net.minecraft.server.level.ServerPlayer;
  * Advancement trigger for when an entity performs their active {@link Kamikotization} {@link Ability},
  * with a field for {@link Kamikotization} key and an optional field for contexts.
  */
-public class PerformKamikotizationActiveAbilityTrigger extends SimpleCriterionTrigger<PerformKamikotizationActiveAbilityTrigger.TriggerInstance> {
+public class PerformedKamikotizationActiveAbilityTrigger extends SimpleCriterionTrigger<PerformedKamikotizationActiveAbilityTrigger.TriggerInstance> {
     @Override
     public Codec<TriggerInstance> codec() {
         return TriggerInstance.CODEC;
@@ -46,10 +46,10 @@ public class PerformKamikotizationActiveAbilityTrigger extends SimpleCriterionTr
         }
 
         public static Criterion<TriggerInstance> performedActiveAbility(ResourceKey<Kamikotization> kamikotization, Optional<List<String>> contexts) {
-            return criterion(Optional.empty(), kamikotization, contexts);
+            return performedActiveAbility(Optional.empty(), kamikotization, contexts);
         }
 
-        public static Criterion<TriggerInstance> criterion(Optional<ContextAwarePredicate> player, ResourceKey<Kamikotization> type, Optional<List<String>> contexts) {
+        public static Criterion<TriggerInstance> performedActiveAbility(Optional<ContextAwarePredicate> player, ResourceKey<Kamikotization> type, Optional<List<String>> contexts) {
             return MineraculousCriteriaTriggers.PERFORMED_KAMIKOTIZATION_ACTIVE_ABILITY.get().createCriterion(new TriggerInstance(player, type, contexts));
         }
 

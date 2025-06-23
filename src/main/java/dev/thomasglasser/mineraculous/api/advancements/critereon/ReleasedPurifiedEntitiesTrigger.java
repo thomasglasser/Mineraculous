@@ -22,7 +22,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
  * Advancement trigger for when purified entities are released (from the {@link LadybugYoyoItem} by default),
  * with optional fields for entity predicates and count.
  */
-public class ReleasePurifiedEntitiesTrigger extends SimpleCriterionTrigger<ReleasePurifiedEntitiesTrigger.TriggerInstance> {
+public class ReleasedPurifiedEntitiesTrigger extends SimpleCriterionTrigger<ReleasedPurifiedEntitiesTrigger.TriggerInstance> {
     @Override
     public Codec<TriggerInstance> codec() {
         return TriggerInstance.CODEC;
@@ -44,22 +44,22 @@ public class ReleasePurifiedEntitiesTrigger extends SimpleCriterionTrigger<Relea
                 ExtraCodecs.POSITIVE_INT.optionalFieldOf("count").forGetter(TriggerInstance::count))
                 .apply(instance, TriggerInstance::new));
         public static Criterion<TriggerInstance> releasedPurifiedEntities() {
-            return criterion(Optional.empty(), ImmutableList.of(), Optional.empty());
+            return releasedPurifiedEntities(Optional.empty(), ImmutableList.of(), Optional.empty());
         }
 
         public static Criterion<TriggerInstance> releasedPurifiedEntities(int count) {
-            return criterion(Optional.empty(), ImmutableList.of(), Optional.of(count));
+            return releasedPurifiedEntities(Optional.empty(), ImmutableList.of(), Optional.of(count));
         }
 
         public static Criterion<TriggerInstance> releasedPurifiedEntities(EntityPredicate.Builder... released) {
-            return criterion(Optional.empty(), EntityPredicate.wrap(released), Optional.empty());
+            return releasedPurifiedEntities(Optional.empty(), EntityPredicate.wrap(released), Optional.empty());
         }
 
         public static Criterion<TriggerInstance> releasedPurifiedEntities(int count, EntityPredicate.Builder... released) {
-            return criterion(Optional.empty(), EntityPredicate.wrap(released), Optional.of(count));
+            return releasedPurifiedEntities(Optional.empty(), EntityPredicate.wrap(released), Optional.of(count));
         }
 
-        private static Criterion<TriggerInstance> criterion(Optional<ContextAwarePredicate> player, List<ContextAwarePredicate> released, Optional<Integer> count) {
+        private static Criterion<TriggerInstance> releasedPurifiedEntities(Optional<ContextAwarePredicate> player, List<ContextAwarePredicate> released, Optional<Integer> count) {
             return MineraculousCriteriaTriggers.RELEASED_PURIFIED_ENTITIES.get().createCriterion(new TriggerInstance(player, released, count));
         }
 

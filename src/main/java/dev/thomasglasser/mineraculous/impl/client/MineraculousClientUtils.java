@@ -8,10 +8,12 @@ import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.MiraculousTransferScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.AbstractKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.KamikotizationSelectionScreen;
@@ -23,6 +25,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundRequestInventorySy
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealCurioPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateSpecialPlayerDataPayload;
+import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -45,6 +48,7 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.SimpleTexture;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -63,8 +67,8 @@ import org.joml.Vector3f;
 import top.theillusivec4.curios.common.inventory.CurioSlot;
 
 public class MineraculousClientUtils {
-    public static final String CHOOSE = "gui.choose";
-    public static final String NAME = "gui.name";
+    public static final Component GUI_CHOOSE = Component.translatable("gui.choose");
+    public static final Component GUI_NAME = Component.translatable("gui.name");
 
     private static final Map<Player, SpecialPlayerData> SPECIAL_PLAYER_DATA = new Reference2ReferenceOpenHashMap<>();
     private static final IntList CATACLYSM_PIXELS = new IntArrayList();
@@ -200,6 +204,11 @@ public class MineraculousClientUtils {
 
     public static Entity getCameraEntity() {
         return Minecraft.getInstance().cameraEntity;
+    }
+
+    public static boolean isInKamikoView() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        return player != null && !player.isSpectator() && player.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() && MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko && kamiko.isOwnedBy(player) && MineraculousGuis.getKamikoGui() != null;
     }
 
     // Rendering

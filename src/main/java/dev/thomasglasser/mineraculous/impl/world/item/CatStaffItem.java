@@ -325,15 +325,15 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
         private static final List<Ability> VALUES_LIST = new ReferenceArrayList<>(values());
 
-        private final String translationKey;
+        private final Component displayName;
 
         Ability() {
-            this.translationKey = MineraculousItems.CAT_STAFF.getId().toLanguageKey("ability", getSerializedName());
+            this.displayName = Component.translatable(MineraculousItems.CAT_STAFF.getId().toLanguageKey("ability", getSerializedName()));
         }
 
         @Override
-        public String translationKey() {
-            return translationKey;
+        public Component displayName() {
+            return displayName;
         }
 
         @Override

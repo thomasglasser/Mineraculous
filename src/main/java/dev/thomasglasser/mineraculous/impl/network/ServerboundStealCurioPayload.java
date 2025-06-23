@@ -11,7 +11,6 @@ import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.UUID;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -40,7 +39,7 @@ public record ServerboundStealCurioPayload(UUID target, CuriosData data) impleme
                 target.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).detransform(target, (ServerLevel) player.level(), miraculous, true);
             }
             if (EnchantmentHelper.has(stack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE)) {
-                player.displayClientMessage(Component.translatable(ExternalInventoryScreen.ITEM_BOUND_KEY), true);
+                player.displayClientMessage(ExternalInventoryScreen.ITEM_BOUND_KEY, true);
             } else {
                 CuriosUtils.setStackInSlot(target, this.data, ItemStack.EMPTY);
                 if (player.getMainHandItem().isEmpty()) {

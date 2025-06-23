@@ -97,7 +97,7 @@ public class KamikotizationSelectionScreen extends Screen {
             }
             this.topLeftX = (this.width - BACKGROUND_WIDTH) / 2;
             this.topLeftY = (this.height - BACKGROUND_HEIGHT) / 2;
-            this.name = new EditBox(this.font, topLeftX + 130, topLeftY + 7, 92, 17, Component.translatable(MineraculousClientUtils.NAME));
+            this.name = new EditBox(this.font, topLeftX + 130, topLeftY + 7, 92, 17, MineraculousClientUtils.GUI_NAME);
             this.name.setCanLoseFocus(true);
             this.name.setTextColor(-1);
             this.name.setTextColorUneditable(-1);
@@ -106,7 +106,7 @@ public class KamikotizationSelectionScreen extends Screen {
             this.name.setValue("");
             this.addWidget(this.name);
             this.name.setEditable(true);
-            selectOrDone = Button.builder(Component.translatable(MineraculousClientUtils.CHOOSE), button -> onClose(false)).build();
+            selectOrDone = Button.builder(MineraculousClientUtils.GUI_CHOOSE, button -> onClose(false)).build();
             selectOrDone.setX(((this.width - BACKGROUND_WIDTH) / 2) + 50);
             selectOrDone.setY(((this.height - BACKGROUND_HEIGHT) / 2) + 175);
             addRenderableWidget(selectOrDone);

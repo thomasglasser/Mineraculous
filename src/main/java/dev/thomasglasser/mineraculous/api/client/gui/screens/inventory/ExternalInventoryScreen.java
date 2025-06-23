@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.CrafterScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -19,7 +20,7 @@ import net.minecraft.world.inventory.Slot;
  * performing logic provided by the pickup and close handlers when triggered.
  */
 public class ExternalInventoryScreen extends InventoryScreen {
-    public static final String ITEM_BOUND_KEY = "mineraculous.item_bound";
+    public static final Component ITEM_BOUND_KEY = Component.translatable("mineraculous.item_bound");
 
     public static final ResourceLocation EXTERNAL_INVENTORY_LOCATION = Mineraculous.modLoc("textures/gui/container/external_inventory.png");
 

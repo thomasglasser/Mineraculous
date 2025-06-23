@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.api.client.gui.screens;
 
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -7,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
  * defining translation key and optional color override.
  */
 public interface RadialMenuOption {
-    String translationKey();
+    Component displayName();
 
     default @Nullable Integer colorOverride() {
         return null;

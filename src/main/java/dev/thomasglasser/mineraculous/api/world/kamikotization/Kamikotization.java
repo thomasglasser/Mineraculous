@@ -17,6 +17,7 @@ import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryFileCodec;
@@ -38,7 +39,7 @@ import org.jetbrains.annotations.Nullable;
 public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Either<ItemStack, Holder<Ability>> powerSource, HolderSet<Ability> passiveAbilities) {
 
     public static final int TRANSFORMATION_FRAMES = 10;
-    public static final String NO_KAMIKOTIZATIONS = "mineraculous.no_kamikotizations";
+    public static final Component NO_KAMIKOTIZATIONS = Component.translatable("mineraculous.no_kamikotizations");
 
     public static final Codec<Kamikotization> DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("default_name").forGetter(Kamikotization::defaultName),

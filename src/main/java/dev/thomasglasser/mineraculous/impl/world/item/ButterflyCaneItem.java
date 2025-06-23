@@ -33,6 +33,7 @@ import net.minecraft.core.Position;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
@@ -353,15 +354,15 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
         private static final List<Ability> VALUES_LIST = new ReferenceArrayList<>(values());
         private static final List<Ability> UNPOWERED_VALUES_LIST = new ReferenceArrayList<>(Arrays.asList(BLADE, BLOCK, THROW));
 
-        private final String translationKey;
+        private final Component displayName;
 
         Ability() {
-            this.translationKey = MineraculousItems.BUTTERFLY_CANE.getId().toLanguageKey("ability", getSerializedName());
+            this.displayName = Component.translatable(MineraculousItems.BUTTERFLY_CANE.getId().toLanguageKey("ability", getSerializedName()));
         }
 
         @Override
-        public String translationKey() {
-            return translationKey;
+        public Component displayName() {
+            return displayName;
         }
 
         @Override

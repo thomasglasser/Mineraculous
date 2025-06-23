@@ -23,9 +23,9 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
-import dev.thomasglasser.mineraculous.impl.client.MineraculousClientEvents;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
+import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.kamiko.categories.KamikoTargetPlayerMenuCategory;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.MiraculousEligiblePlayerEntry;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.MiraculousTransferScreen;
@@ -98,12 +98,12 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     protected void add(RadialMenuOption option, String name) {
-        add(option.translationKey(), name);
+        add(option.displayName(), name);
     }
 
     protected <T extends Enum<T> & RadialMenuOption> void addToolAbilities(T[] options) {
         for (T option : options) {
-            add(option.translationKey(), capitalize(option.name()));
+            add(option.displayName(), capitalize(option.name()));
         }
     }
 
@@ -208,11 +208,11 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
     private void addGuis() {
         // General
-        add(MineraculousClientUtils.CHOOSE, "Choose");
-        add(MineraculousClientUtils.NAME, "Name");
+        add(MineraculousClientUtils.GUI_CHOOSE, "Choose");
+        add(MineraculousClientUtils.GUI_NAME, "Name");
 
         // Taking/Breaking
-        add(ServerboundWakeUpPayload.STEALING_WARNING_KEY, "You may not rest now, there are thieves nearby.");
+        add(ServerboundWakeUpPayload.STEALING_WARNING, "You may not rest now, there are thieves nearby.");
         add(ExternalInventoryScreen.ITEM_BOUND_KEY, "This item is bound to the player.");
         add(MineraculousItemUtils.ITEM_UNBREAKABLE_KEY, "This item is unbreakable by normal means.");
 
@@ -222,8 +222,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(Kamikotization.NO_KAMIKOTIZATIONS, "No Kamikotizations found in world, have you installed any addons?");
 
         // Kamikotization View
-        add(MineraculousClientEvents.REVOKE, "Revoke Kamikotization");
-        add(MineraculousClientEvents.REVOKE_WITH_SPACE, "Revoke Kamikotization (Press Space)");
+        add(MineraculousGuis.REVOKE, "Revoke Kamikotization");
+        add(MineraculousGuis.REVOKE_WITH_SPACE, "Revoke Kamikotization (Press Space)");
 
         // Kamikotization Selection Screen
         add(KamikotizationSelectionScreen.TITLE, "Kamikotization");

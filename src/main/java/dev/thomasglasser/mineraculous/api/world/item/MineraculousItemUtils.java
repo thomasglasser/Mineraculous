@@ -33,7 +33,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 public class MineraculousItemUtils {
-    public static final String ITEM_UNBREAKABLE_KEY = "mineraculous.item_unbreakable";
+    public static final Component ITEM_UNBREAKABLE_KEY = Component.translatable("mineraculous.item_unbreakable");
 
     /**
      * Tries to break the provided {@link ItemStack}, checking its {@link Kamikotization}.
@@ -65,7 +65,7 @@ public class MineraculousItemUtils {
         }
         if (stack.has(DataComponents.UNBREAKABLE)) {
             if (breaker instanceof Player player) {
-                player.displayClientMessage(Component.translatable(ITEM_UNBREAKABLE_KEY), true);
+                player.displayClientMessage(ITEM_UNBREAKABLE_KEY, true);
             }
         } else {
             if (stack.isDamageableItem()) {

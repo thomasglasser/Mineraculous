@@ -13,7 +13,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
 public class ReceiverKamikotizationChatScreen extends AbstractKamikotizationChatScreen {
-    public static final String ACCEPT = "gui.kamikotization.chat.accept";
+    public static final Component ACCEPT = Component.translatable("gui.kamikotization.chat.accept");
 
     private final UUID other;
     private final KamikotizationData kamikotizationData;
@@ -31,7 +31,7 @@ public class ReceiverKamikotizationChatScreen extends AbstractKamikotizationChat
     @Override
     protected void init() {
         super.init();
-        this.accept = Button.builder(Component.translatable(ACCEPT), button -> onClose(false, true))
+        this.accept = Button.builder(ACCEPT, button -> onClose(false, true))
                 .bounds(this.width / 2 - 100, this.height - 40, 200, 20)
                 .build();
         this.addRenderableWidget(this.accept);

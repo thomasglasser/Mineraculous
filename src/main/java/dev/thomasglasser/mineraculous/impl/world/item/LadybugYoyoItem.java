@@ -414,15 +414,15 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         private static final List<Ability> VALUES_LIST = new ReferenceArrayList<>(values());
         private static final List<Ability> UNPOWERED_VALUES_LIST = new ReferenceArrayList<>(Arrays.asList(BLOCK, LASSO, TRAVEL));
 
-        private final String translationKey;
+        private final Component displayName;
 
         Ability() {
-            this.translationKey = MineraculousItems.LADYBUG_YOYO.getId().toLanguageKey("ability", getSerializedName());
+            this.displayName = Component.translatable(MineraculousItems.LADYBUG_YOYO.getId().toLanguageKey("ability", getSerializedName()));
         }
 
         @Override
-        public String translationKey() {
-            return translationKey;
+        public Component displayName() {
+            return displayName;
         }
 
         @Override

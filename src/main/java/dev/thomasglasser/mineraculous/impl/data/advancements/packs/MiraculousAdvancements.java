@@ -1,10 +1,10 @@
 package dev.thomasglasser.mineraculous.impl.data.advancements.packs;
 
-import dev.thomasglasser.mineraculous.api.advancements.critereon.KamikotizeEntityTrigger;
-import dev.thomasglasser.mineraculous.api.advancements.critereon.PerformMiraculousActiveAbilityTrigger;
-import dev.thomasglasser.mineraculous.api.advancements.critereon.ReleasePurifiedEntitiesTrigger;
-import dev.thomasglasser.mineraculous.api.advancements.critereon.TransformKamikotizationTrigger;
-import dev.thomasglasser.mineraculous.api.advancements.critereon.TransformMiraculousTrigger;
+import dev.thomasglasser.mineraculous.api.advancements.critereon.KamikotizedEntityTrigger;
+import dev.thomasglasser.mineraculous.api.advancements.critereon.PerformedMiraculousActiveAbilityTrigger;
+import dev.thomasglasser.mineraculous.api.advancements.critereon.ReleasedPurifiedEntitiesTrigger;
+import dev.thomasglasser.mineraculous.api.advancements.critereon.TransformedKamikotizationTrigger;
+import dev.thomasglasser.mineraculous.api.advancements.critereon.TransformedMiraculousTrigger;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousDamageTypeTags;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousEntityTypeTags;
@@ -54,28 +54,28 @@ public class MiraculousAdvancements extends ExtendedAdvancementGenerator {
         AdvancementHolder transformLadybug = builder("transform_ladybug", Miraculous.createMiraculousStack(ladybug), "Spots On!", "Transform using the Ladybug miraculous")
                 .parent(root)
                 .experience(10)
-                .trigger("transform_ladybug", TransformMiraculousTrigger.TriggerInstance.transformed(ladybug.getKey()))
+                .trigger("transform_ladybug", TransformedMiraculousTrigger.TriggerInstance.transformed(ladybug.getKey()))
                 .build();
 
         AdvancementHolder releasePurifiedButterfly = builder("release_purified_butterfly", MineraculousItems.LADYBUG_YOYO.toStack(), "Bye Bye, Little Butterfly", "Purify and release a butterfly")
                 .parent(transformLadybug)
-                .trigger("release_purified_butterfly", ReleasePurifiedEntitiesTrigger.TriggerInstance.releasedPurifiedEntities(EntityPredicate.Builder.entity().of(MineraculousEntityTypeTags.BUTTERFLIES)))
+                .trigger("release_purified_butterfly", ReleasedPurifiedEntitiesTrigger.TriggerInstance.releasedPurifiedEntities(EntityPredicate.Builder.entity().of(MineraculousEntityTypeTags.BUTTERFLIES)))
                 .build();
 
         AdvancementHolder transformCat = builder("transform_cat", Miraculous.createMiraculousStack(cat), "Claws Out!", "Transform using the Cat miraculous")
                 .parent(root)
                 .experience(10)
-                .trigger("transform_cat", TransformMiraculousTrigger.TriggerInstance.transformed(cat.getKey()))
+                .trigger("transform_cat", TransformedMiraculousTrigger.TriggerInstance.transformed(cat.getKey()))
                 .build();
 
         AdvancementHolder cataclysmBlock = builder("cataclysm_block", MineraculousBlocks.CATACLYSM_BLOCK.toStack(), "My Castle Crumbled Overnight", "Cataclysm a block and watch it spread")
                 .parent(transformCat)
-                .trigger("cataclysm_block", PerformMiraculousActiveAbilityTrigger.TriggerInstance.performedActiveAbility(cat.getKey(), BlockAbilityContext.ADVANCEMENT_CONTEXT))
+                .trigger("cataclysm_block", PerformedMiraculousActiveAbilityTrigger.TriggerInstance.performedActiveAbility(cat.getKey(), BlockAbilityContext.ADVANCEMENT_CONTEXT))
                 .build();
 
         AdvancementHolder cataclysmLivingEntity = builder("cataclysm_living_entity", MineraculousItems.CATACLYSM_DUST.toStack(), "What Have I Done?!", "Cataclysm a living entity")
                 .parent(transformCat)
-                .trigger("cataclysm_entity", PerformMiraculousActiveAbilityTrigger.TriggerInstance.performedActiveAbility(cat.getKey(), EntityAbilityContext.ADVANCEMENT_CONTEXT_LIVING))
+                .trigger("cataclysm_entity", PerformedMiraculousActiveAbilityTrigger.TriggerInstance.performedActiveAbility(cat.getKey(), EntityAbilityContext.ADVANCEMENT_CONTEXT_LIVING))
                 .build();
 
         AdvancementHolder cataclysmKillLivingEntity = builder("cataclysm_kill_living_entity", MineraculousItems.CATACLYSM_DUST.toStack(), "Dead and Gone and Buried", "Cataclysm an entity that dies before it is cured")
@@ -93,30 +93,30 @@ public class MiraculousAdvancements extends ExtendedAdvancementGenerator {
         AdvancementHolder transformButterfly = builder("transform_butterfly", Miraculous.createMiraculousStack(butterfly), "Wings Rise!", "Transform using the Butterfly miraculous")
                 .parent(root)
                 .experience(10)
-                .trigger("transform_butterfly", TransformMiraculousTrigger.TriggerInstance.transformed(butterfly.getKey()))
+                .trigger("transform_butterfly", TransformedMiraculousTrigger.TriggerInstance.transformed(butterfly.getKey()))
                 .build();
 
         AdvancementHolder kamikotizeButterfly = builder("kamikotize_butterfly", MineraculousArmors.KAMIKOTIZATION.head().toStack(), "Fly Away My Little Kamiko", "Kamikotize a butterfly")
                 .parent(transformButterfly)
                 .experience(10)
-                .trigger("kamikotize_butterfly", PerformMiraculousActiveAbilityTrigger.TriggerInstance.performedActiveAbility(butterfly.getKey(), EntityAbilityContext.ADVANCEMENT_CONTEXT_LIVING))
+                .trigger("kamikotize_butterfly", PerformedMiraculousActiveAbilityTrigger.TriggerInstance.performedActiveAbility(butterfly.getKey(), EntityAbilityContext.ADVANCEMENT_CONTEXT_LIVING))
                 .build();
 
         AdvancementHolder kamikotizeEntity = builder("kamikotize_entity", MineraculousArmors.KAMIKOTIZATION.head().toStack(), "Sharing the Wealth", "Provide power to another being via kamikotization")
                 .parent(kamikotizeButterfly)
-                .trigger("kamikotize_entity", KamikotizeEntityTrigger.TriggerInstance.kamikotizedEntity(false))
+                .trigger("kamikotize_entity", KamikotizedEntityTrigger.TriggerInstance.kamikotizedEntity(false))
                 .build();
 
         AdvancementHolder kamikotizeSelf = builder("kamikotize_self", Miraculous.createMiraculousStack(butterfly), "Deception", "Use the butterfly miraculous to kamikotize yourself")
                 .parent(kamikotizeEntity)
                 .experience(5)
-                .trigger("kamikotize_self", TransformKamikotizationTrigger.TriggerInstance.transformed(true))
+                .trigger("kamikotize_self", TransformedKamikotizationTrigger.TriggerInstance.transformed(true))
                 .build();
 
         AdvancementHolder transformKamikotization = builder("transform_kamikotization", MineraculousArmors.KAMIKOTIZATION.head().toStack(), "Powered Up", "Accept a kamikotization from the Butterfly miraculous holder")
                 .parent(root)
                 .experience(5)
-                .trigger("transform_kamikotization", TransformKamikotizationTrigger.TriggerInstance.transformed(false))
+                .trigger("transform_kamikotization", TransformedKamikotizationTrigger.TriggerInstance.transformed(false))
                 .build();
     }
 }

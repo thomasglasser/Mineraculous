@@ -5,7 +5,6 @@ import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.UUID;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -29,7 +28,7 @@ public record ServerboundStealItemPayload(UUID target, int slot) implements Exte
         if (target != null) {
             ItemStack stack = target.inventoryMenu.slots.get(this.slot).getItem();
             if (EnchantmentHelper.has(stack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE)) {
-                player.displayClientMessage(Component.translatable(ExternalInventoryScreen.ITEM_BOUND_KEY), true);
+                player.displayClientMessage(ExternalInventoryScreen.ITEM_BOUND_KEY, true);
             } else {
                 target.getInventory().removeItem(stack);
                 if (player.getMainHandItem().isEmpty()) {

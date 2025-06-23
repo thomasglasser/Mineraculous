@@ -17,7 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
  * Advancement trigger for when an entity transforms via {@link Miraculous},
  * with an optional field for {@link Miraculous} key.
  */
-public class TransformMiraculousTrigger extends SimpleCriterionTrigger<TransformMiraculousTrigger.TriggerInstance> {
+public class TransformedMiraculousTrigger extends SimpleCriterionTrigger<TransformedMiraculousTrigger.TriggerInstance> {
     @Override
     public Codec<TriggerInstance> codec() {
         return TriggerInstance.CODEC;
@@ -34,14 +34,14 @@ public class TransformMiraculousTrigger extends SimpleCriterionTrigger<Transform
                 .apply(instance, TriggerInstance::new));
 
         public static Criterion<TriggerInstance> transformed() {
-            return criterion(Optional.empty(), Optional.empty());
+            return transformed(Optional.empty(), Optional.empty());
         }
 
         public static Criterion<TriggerInstance> transformed(ResourceKey<Miraculous> miraculous) {
-            return criterion(Optional.empty(), Optional.of(miraculous));
+            return transformed(Optional.empty(), Optional.of(miraculous));
         }
 
-        public static Criterion<TriggerInstance> criterion(Optional<ContextAwarePredicate> player, Optional<ResourceKey<Miraculous>> type) {
+        public static Criterion<TriggerInstance> transformed(Optional<ContextAwarePredicate> player, Optional<ResourceKey<Miraculous>> type) {
             return MineraculousCriteriaTriggers.TRANSFORMED_MIRACULOUS.get().createCriterion(new TriggerInstance(player, type));
         }
 

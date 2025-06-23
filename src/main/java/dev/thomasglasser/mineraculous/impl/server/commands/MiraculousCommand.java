@@ -28,8 +28,8 @@ public class MiraculousCommand {
     public static final String CUSTOMIZE_OPEN_SUCCESS_SELF = "commands.miraculous.customize.open.success.self";
     public static final String CUSTOMIZE_OPEN_SUCCESS_OTHER = "commands.miraculous.customize.open.success.other";
     // Charged
-    public static final String CHARGED_TRUE = "commands.miraculous.charged.true";
-    public static final String CHARGED_FALSE = "commands.miraculous.charged.false";
+    public static final Component CHARGED_TRUE = Component.translatable("commands.miraculous.charged.true");
+    public static final Component CHARGED_FALSE = Component.translatable("commands.miraculous.charged.false");
     public static final String CHARGED_QUERY_SUCCESS_SELF = "commands.miraculous.charged.query.success.self";
     public static final String CHARGED_QUERY_SUCCESS_OTHER = "commands.miraculous.charged.query.success.other";
     public static final String CHARGED_SET_SUCCESS_SELF = "commands.miraculous.charged.set.success.self";
@@ -96,7 +96,7 @@ public class MiraculousCommand {
             if (kwamiData != null) {
                 Kwami kwami = ((ServerLevel) entity.level()).getEntity(kwamiData.uuid()) instanceof Kwami k ? k : null;
                 if (kwami != null) {
-                    context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_QUERY_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key())), Component.translatable(kwami.isCharged() ? CHARGED_TRUE : CHARGED_FALSE)) : Component.translatable(CHARGED_QUERY_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculous.key())), Component.translatable(kwami.isCharged() ? CHARGED_TRUE : CHARGED_FALSE)), true);
+                    context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_QUERY_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key())), kwami.isCharged() ? CHARGED_TRUE : CHARGED_FALSE) : Component.translatable(CHARGED_QUERY_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculous.key())), kwami.isCharged() ? CHARGED_TRUE : CHARGED_FALSE), true);
                     return 1;
                 } else {
                     context.getSource().sendFailure(self ? Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key()))) : Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculous.key()))));
@@ -123,7 +123,7 @@ public class MiraculousCommand {
                 Kwami kwami = ((ServerLevel) entity.level()).getEntity(kwamiData.uuid()) instanceof Kwami k ? k : null;
                 if (kwami != null) {
                     kwami.setCharged(charged);
-                    context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key())), charged ? Component.translatable(CHARGED_TRUE) : Component.translatable(CHARGED_FALSE)) : Component.translatable(CHARGED_SET_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculous.key())), charged ? Component.translatable(CHARGED_TRUE) : Component.translatable(CHARGED_FALSE)), true);
+                    context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key())), charged ? CHARGED_TRUE : CHARGED_FALSE) : Component.translatable(CHARGED_SET_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculous.key())), charged ? CHARGED_TRUE : CHARGED_FALSE), true);
                     return 1;
                 } else {
                     context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key()))));

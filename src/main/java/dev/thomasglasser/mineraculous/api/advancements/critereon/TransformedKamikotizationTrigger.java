@@ -17,7 +17,7 @@ import net.minecraft.server.level.ServerPlayer;
  * Advancement trigger for when an entity transforms via {@link Kamikotization},
  * with optional fields for the {@link Kamikotization} key and whether the kamikotizer is the kamikotized.
  */
-public class TransformKamikotizationTrigger extends SimpleCriterionTrigger<TransformKamikotizationTrigger.TriggerInstance> {
+public class TransformedKamikotizationTrigger extends SimpleCriterionTrigger<TransformedKamikotizationTrigger.TriggerInstance> {
     @Override
     public Codec<TriggerInstance> codec() {
         return TriggerInstance.CODEC;
@@ -35,22 +35,22 @@ public class TransformKamikotizationTrigger extends SimpleCriterionTrigger<Trans
                 Codec.BOOL.optionalFieldOf("self").forGetter(TriggerInstance::self))
                 .apply(instance, TriggerInstance::new));
         public static Criterion<TriggerInstance> transformed() {
-            return criterion(Optional.empty(), Optional.empty(), Optional.empty());
+            return transformed(Optional.empty(), Optional.empty(), Optional.empty());
         }
 
         public static Criterion<TriggerInstance> transformed(ResourceKey<Kamikotization> type) {
-            return criterion(Optional.empty(), Optional.of(type), Optional.empty());
+            return transformed(Optional.empty(), Optional.of(type), Optional.empty());
         }
 
         public static Criterion<TriggerInstance> transformed(boolean self) {
-            return criterion(Optional.empty(), Optional.empty(), Optional.of(self));
+            return transformed(Optional.empty(), Optional.empty(), Optional.of(self));
         }
 
         public static Criterion<TriggerInstance> transformed(ResourceKey<Kamikotization> type, boolean self) {
-            return criterion(Optional.empty(), Optional.of(type), Optional.of(self));
+            return transformed(Optional.empty(), Optional.of(type), Optional.of(self));
         }
 
-        public static Criterion<TriggerInstance> criterion(Optional<ContextAwarePredicate> player, Optional<ResourceKey<Kamikotization>> type, Optional<Boolean> self) {
+        public static Criterion<TriggerInstance> transformed(Optional<ContextAwarePredicate> player, Optional<ResourceKey<Kamikotization>> type, Optional<Boolean> self) {
             return MineraculousCriteriaTriggers.TRANSFORMED_KAMIKOTIZATION.get().createCriterion(new TriggerInstance(player, type, self));
         }
 

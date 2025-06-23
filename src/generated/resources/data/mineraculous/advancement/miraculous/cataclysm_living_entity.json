@@ -3,12 +3,12 @@
   "criteria": {
     "cataclysm_entity": {
       "conditions": {
-        "type": "mineraculous:cat",
         "contexts": [
           "living_entity"
-        ]
+        ],
+        "miraculous": "mineraculous:cat"
       },
-      "trigger": "mineraculous:used_miraculous_power"
+      "trigger": "mineraculous:performed_miraculous_active_ability"
     }
   },
   "display": {

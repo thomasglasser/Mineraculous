@@ -4,19 +4,19 @@
     {
       "model": "mineraculous:item/fresh_camembert_block_slice1",
       "predicate": {
-        "mineraculous:bites": 1.0
+        "mineraculous:missing_pieces": 1.0
       }
     },
     {
       "model": "mineraculous:item/fresh_camembert_block_slice2",
       "predicate": {
-        "mineraculous:bites": 2.0
+        "mineraculous:missing_pieces": 2.0
       }
     },
     {
       "model": "mineraculous:item/fresh_camembert_block_slice3",
       "predicate": {
-        "mineraculous:bites": 3.0
+        "mineraculous:missing_pieces": 3.0
       }
     }
   ]

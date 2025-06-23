@@ -6,43 +6,43 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "mineraculous:fresh_wedge_of_cheese"
+          "name": "mineraculous:fresh_cheese_block"
         },
         {
           "type": "minecraft:item",
-          "name": "mineraculous:aged_wedge_of_cheese"
+          "name": "mineraculous:aged_cheese_block"
         },
         {
           "type": "minecraft:item",
-          "name": "mineraculous:ripened_wedge_of_cheese"
+          "name": "mineraculous:ripened_cheese_block"
         },
         {
           "type": "minecraft:item",
-          "name": "mineraculous:exquisite_wedge_of_cheese"
+          "name": "mineraculous:exquisite_cheese_block"
         },
         {
           "type": "minecraft:item",
-          "name": "mineraculous:time_honored_wedge_of_cheese"
+          "name": "mineraculous:time_honored_cheese_block"
         },
         {
           "type": "minecraft:item",
-          "name": "mineraculous:fresh_wedge_of_camembert"
+          "name": "mineraculous:fresh_camembert_block"
         },
         {
           "type": "minecraft:item",
-          "name": "mineraculous:aged_wedge_of_camembert"
+          "name": "mineraculous:aged_camembert_block"
         },
         {
           "type": "minecraft:item",
-          "name": "mineraculous:ripened_wedge_of_camembert"
+          "name": "mineraculous:ripened_camembert_block"
         },
         {
           "type": "minecraft:item",
-          "name": "mineraculous:exquisite_wedge_of_camembert"
+          "name": "mineraculous:exquisite_camembert_block"
         },
         {
           "type": "minecraft:item",
-          "name": "mineraculous:time_honored_wedge_of_camembert"
+          "name": "mineraculous:time_honored_camembert_block"
         }
       ],
       "rolls": 1.0

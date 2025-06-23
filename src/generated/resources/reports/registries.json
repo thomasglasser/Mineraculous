@@ -50,8 +50,10 @@
   ],
   "minecraft:data_component_type": [
     "mineraculous:active",
+    "mineraculous:active_settings",
     "mineraculous:blocking",
     "mineraculous:butterfly_cane_ability",
+    "mineraculous:carrier",
     "mineraculous:cat_staff_ability",
     "mineraculous:detransformation_frames",
     "mineraculous:hide_enchantments",
@@ -61,6 +63,7 @@
     "mineraculous:ladybug_yoyo_ability",
     "mineraculous:lucky_charm",
     "mineraculous:miraculous",
+    "mineraculous:owner",
     "mineraculous:powered",
     "mineraculous:recoverable_item_id",
     "mineraculous:remaining_ticks",
@@ -80,9 +83,9 @@
   ],
   "minecraft:item": [
     "mineraculous:aged_camembert_block",
+    "mineraculous:aged_camembert_wedge",
     "mineraculous:aged_cheese_block",
-    "mineraculous:aged_wedge_of_camembert",
-    "mineraculous:aged_wedge_of_cheese",
+    "mineraculous:aged_cheese_wedge",
     "mineraculous:butterfly_armor_trim_smithing_template",
     "mineraculous:butterfly_cane",
     "mineraculous:cat_armor_trim_smithing_template",
@@ -91,13 +94,13 @@
     "mineraculous:cataclysm_dust",
     "mineraculous:cheese_pot",
     "mineraculous:exquisite_camembert_block",
+    "mineraculous:exquisite_camembert_wedge",
     "mineraculous:exquisite_cheese_block",
-    "mineraculous:exquisite_wedge_of_camembert",
-    "mineraculous:exquisite_wedge_of_cheese",
+    "mineraculous:exquisite_cheese_wedge",
     "mineraculous:fresh_camembert_block",
+    "mineraculous:fresh_camembert_wedge",
     "mineraculous:fresh_cheese_block",
-    "mineraculous:fresh_wedge_of_camembert",
-    "mineraculous:fresh_wedge_of_cheese",
+    "mineraculous:fresh_cheese_wedge",
     "mineraculous:hibiscus",
     "mineraculous:kamiko_spawn_egg",
     "mineraculous:kamikotization_boots",
@@ -112,33 +115,33 @@
     "mineraculous:miraculous_leggings",
     "mineraculous:miraculous_mask",
     "mineraculous:ripened_camembert_block",
+    "mineraculous:ripened_camembert_wedge",
     "mineraculous:ripened_cheese_block",
-    "mineraculous:ripened_wedge_of_camembert",
-    "mineraculous:ripened_wedge_of_cheese",
+    "mineraculous:ripened_cheese_wedge",
     "mineraculous:time_honored_camembert_block",
+    "mineraculous:time_honored_camembert_wedge",
     "mineraculous:time_honored_cheese_block",
-    "mineraculous:time_honored_wedge_of_camembert",
-    "mineraculous:time_honored_wedge_of_cheese",
+    "mineraculous:time_honored_cheese_wedge",
     "mineraculous:waxed_aged_camembert_block",
+    "mineraculous:waxed_aged_camembert_wedge",
     "mineraculous:waxed_aged_cheese_block",
-    "mineraculous:waxed_aged_wedge_of_camembert",
-    "mineraculous:waxed_aged_wedge_of_cheese",
+    "mineraculous:waxed_aged_cheese_wedge",
     "mineraculous:waxed_exquisite_camembert_block",
+    "mineraculous:waxed_exquisite_camembert_wedge",
     "mineraculous:waxed_exquisite_cheese_block",
-    "mineraculous:waxed_exquisite_wedge_of_camembert",
-    "mineraculous:waxed_exquisite_wedge_of_cheese",
+    "mineraculous:waxed_exquisite_cheese_wedge",
     "mineraculous:waxed_fresh_camembert_block",
+    "mineraculous:waxed_fresh_camembert_wedge",
     "mineraculous:waxed_fresh_cheese_block",
-    "mineraculous:waxed_fresh_wedge_of_camembert",
-    "mineraculous:waxed_fresh_wedge_of_cheese",
+    "mineraculous:waxed_fresh_cheese_wedge",
     "mineraculous:waxed_ripened_camembert_block",
+    "mineraculous:waxed_ripened_camembert_wedge",
     "mineraculous:waxed_ripened_cheese_block",
-    "mineraculous:waxed_ripened_wedge_of_camembert",
-    "mineraculous:waxed_ripened_wedge_of_cheese",
+    "mineraculous:waxed_ripened_cheese_wedge",
     "mineraculous:waxed_time_honored_camembert_block",
+    "mineraculous:waxed_time_honored_camembert_wedge",
     "mineraculous:waxed_time_honored_cheese_block",
-    "mineraculous:waxed_time_honored_wedge_of_camembert",
-    "mineraculous:waxed_time_honored_wedge_of_cheese"
+    "mineraculous:waxed_time_honored_cheese_wedge"
   ],
   "minecraft:loot_condition_type": [
     "mineraculous:has_item"
@@ -147,7 +150,7 @@
     "mineraculous:power_level_multiplier"
   ],
   "minecraft:mob_effect": [
-    "mineraculous:cataclysmed"
+    "mineraculous:cataclysm"
   ],
   "minecraft:painting_variant": [
     "mineraculous:butterfly",
@@ -160,7 +163,6 @@
   "minecraft:particle_type": [
     "mineraculous:black_orb",
     "mineraculous:kamikotization",
-    "mineraculous:spreading_ladybug",
     "mineraculous:summoning_ladybug"
   ],
   "minecraft:point_of_interest_type": [
@@ -170,7 +172,7 @@
     "mineraculous:crafting_special_cheesewedge"
   ],
   "minecraft:sensor_type": [
-    "mineraculous:player_tempting"
+    "mineraculous:player_item_tempting"
   ],
   "minecraft:sound_event": [
     "mineraculous:butterfly_transform",
@@ -181,14 +183,15 @@
     "mineraculous:cataclysm_use",
     "mineraculous:generic_detransform",
     "mineraculous:generic_shield",
-    "mineraculous:generic_timer_beep",
     "mineraculous:generic_timer_end",
+    "mineraculous:generic_timer_warning",
     "mineraculous:generic_transform",
     "mineraculous:kamikotization_activate",
+    "mineraculous:kamikotization_begin",
     "mineraculous:kamikotization_detransform",
     "mineraculous:kamikotization_transform",
-    "mineraculous:kamikotization_use",
-    "mineraculous:kwami_hungry",
+    "mineraculous:kamikotized_communication_activate",
+    "mineraculous:kwami_hurt",
     "mineraculous:kwami_summon",
     "mineraculous:ladybug_transform",
     "mineraculous:ladybug_yoyo_shield",
@@ -196,12 +199,17 @@
     "mineraculous:miraculous_ladybug_activate"
   ],
   "minecraft:trigger_type": [
-    "mineraculous:kamikotized_player",
-    "mineraculous:released_purified_kamiko",
+    "mineraculous:kamikotized_entity",
+    "mineraculous:performed_kamikotization_active_ability",
+    "mineraculous:performed_miraculous_active_ability",
+    "mineraculous:released_purified_entities",
     "mineraculous:transformed_kamikotization",
-    "mineraculous:transformed_miraculous",
-    "mineraculous:used_kamikotization_power",
-    "mineraculous:used_miraculous_power"
+    "mineraculous:transformed_miraculous"
+  ],
+  "minecraft:trim_pattern": [
+    "mineraculous:butterfly",
+    "mineraculous:cat",
+    "mineraculous:ladybug"
   ],
   "minecraft:villager_profession": [
     "mineraculous:fromager"
@@ -218,19 +226,18 @@
     "mineraculous:passive_unluck"
   ],
   "mineraculous:ability_serializer": [
-    "mineraculous:apply_effects_while_transformed",
-    "mineraculous:apply_infinite_effects_or_destroy",
-    "mineraculous:context_aware",
-    "mineraculous:drag",
-    "mineraculous:empty",
-    "mineraculous:lucky_charm_world_recovery",
-    "mineraculous:night_vision",
-    "mineraculous:random_spread",
-    "mineraculous:replace_items_in_hand",
+    "mineraculous:apply_effects_or_destroy",
+    "mineraculous:automatic_night_vision",
+    "mineraculous:context_dependent",
+    "mineraculous:continuous",
+    "mineraculous:convert_and_tame",
+    "mineraculous:passive_effects",
+    "mineraculous:replace_adjacent_blocks",
+    "mineraculous:replace_item_in_main_hand",
+    "mineraculous:revert_lucky_charm_targets_ability_effects",
     "mineraculous:right_hand_particles",
-    "mineraculous:set_camera_entity",
-    "mineraculous:set_owner",
-    "mineraculous:summon_lucky_charm"
+    "mineraculous:spectate_entity",
+    "mineraculous:summon_target_dependent_lucky_charm"
   ],
   "mineraculous:kamikotization": [
     "mineraculous:cat",
@@ -243,17 +250,18 @@
     "mineraculous:ladybug"
   ],
   "neoforge:attachment_types": [
+    "mineraculous:ability_effects",
+    "mineraculous:inventory_trackers",
     "mineraculous:kamikotization",
-    "mineraculous:kamikotization_looks",
-    "mineraculous:miraculous",
-    "mineraculous:miraculous_miraculous_looks",
-    "mineraculous:miraculous_suit_looks",
+    "mineraculous:miraculouses",
     "mineraculous:old_kamikotization",
     "mineraculous:stored_armor",
-    "mineraculous:thrown_ladybug_yoyo"
+    "mineraculous:thrown_ladybug_yoyo",
+    "mineraculous:yoyo_leash"
   ],
   "neoforge:entity_data_serializers": [
-    "mineraculous:ladybug_yoyo_ability",
-    "mineraculous:miraculous"
+    "mineraculous:miraculous",
+    "mineraculous:optional_ladybug_yoyo_ability",
+    "mineraculous:optional_resource_location"
   ]
 }

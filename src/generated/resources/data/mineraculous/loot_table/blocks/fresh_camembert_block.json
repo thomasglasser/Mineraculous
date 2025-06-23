@@ -19,11 +19,11 @@
                   "block": "mineraculous:fresh_camembert_block",
                   "condition": "minecraft:block_state_property",
                   "properties": {
-                    "bites": "3"
+                    "missing_pieces": "3"
                   }
                 }
               ],
-              "name": "mineraculous:fresh_wedge_of_camembert"
+              "name": "mineraculous:fresh_camembert_wedge"
             },
             {
               "type": "minecraft:item",
@@ -32,7 +32,7 @@
                   "block": "mineraculous:fresh_camembert_block",
                   "function": "minecraft:copy_state",
                   "properties": [
-                    "bites"
+                    "missing_pieces"
                   ]
                 }
               ],

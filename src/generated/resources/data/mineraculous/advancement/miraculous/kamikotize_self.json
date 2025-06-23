@@ -1,5 +1,5 @@
 {
-  "parent": "mineraculous:miraculous/kamikotize_player",
+  "parent": "mineraculous:miraculous/kamikotize_entity",
   "criteria": {
     "kamikotize_self": {
       "conditions": {

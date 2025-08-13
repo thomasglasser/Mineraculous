@@ -96,7 +96,7 @@ public class ExternalCuriosInventoryScreen extends CuriosScreen {
     }
 
     @Override
-    protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
+    public void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
         if (this.minecraft != null && this.minecraft.player != null) {
             if (scrollCooldown > 0 && this.minecraft.player.tickCount % 5 == 0) {
                 scrollCooldown--;

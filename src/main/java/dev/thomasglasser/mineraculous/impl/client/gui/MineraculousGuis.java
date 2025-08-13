@@ -85,6 +85,7 @@ public class MineraculousGuis {
                     return super.keyPressed(keyCode, scanCode, modifiers);
                 }
             };
+            revokeButton.active = false;
         }
         return revokeButton;
     }
@@ -109,10 +110,12 @@ public class MineraculousGuis {
             } else if (Minecraft.getInstance().screen instanceof ChatScreen) {
                 revokeButton.setPosition(revokeButton.getX(), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 35);
                 revokeButton.active = true;
-            } else
+            } else {
                 revokeButton.active = false;
-        } else
+            }
+        } else {
             revokeButton.active = false;
+        }
 
         if (revokeButton.active) {
             int mouseX = (int) (Minecraft.getInstance().mouseHandler.xpos()

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "mineraculous:item/time_honored_cheese_wedge"
+  }
+}

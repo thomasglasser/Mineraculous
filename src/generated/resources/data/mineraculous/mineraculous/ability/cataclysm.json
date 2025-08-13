@@ -1,36 +1,28 @@
 {
-  "type": "mineraculous:drag",
+  "type": "mineraculous:continuous",
   "ability": {
-    "type": "mineraculous:context_aware",
+    "type": "mineraculous:context_dependent",
     "block": {
-      "type": "mineraculous:random_spread",
+      "type": "mineraculous:replace_adjacent_blocks",
       "invalid_blocks": {
         "blocks": "#mineraculous:cataclysm_immune"
       },
-      "start_sound": "mineraculous:cataclysm_use",
-      "state": {
+      "replace_sound": "mineraculous:cataclysm_use",
+      "replacement": {
         "Name": "mineraculous:cataclysm_block"
       }
     },
     "entity": {
-      "type": "mineraculous:apply_infinite_effects_or_destroy",
-      "blame_tag": "Cataclysmed",
+      "type": "mineraculous:apply_effects_or_destroy",
+      "apply_sound": "mineraculous:cataclysm_use",
       "damage_type": "mineraculous:cataclysm",
       "drop_item": "mineraculous:cataclysm_dust",
-      "effects": "mineraculous:cataclysmed",
-      "start_sound": "mineraculous:cataclysm_use"
-    },
-    "item": {
-      "type": "mineraculous:replace_items_in_hand",
-      "hurt_and_break": true,
-      "invalid_items": {
-        "items": "#mineraculous:cataclysm_immune"
+      "effect_settings": {
+        "show_icon": false,
+        "show_particles": false
       },
-      "replacement": {
-        "count": 1,
-        "id": "mineraculous:cataclysm_dust"
-      },
-      "start_sound": "mineraculous:cataclysm_use"
+      "effects": "mineraculous:cataclysm",
+      "override_kill_credit": true
     },
     "passive": [
       {
@@ -38,8 +30,19 @@
         "particle": {
           "type": "mineraculous:black_orb"
         }
+      },
+      {
+        "type": "mineraculous:replace_item_in_main_hand",
+        "break_original": true,
+        "invalid_items": {
+          "items": "#mineraculous:cataclysm_immune"
+        },
+        "replace_sound": "mineraculous:cataclysm_use",
+        "replacement": {
+          "id": "mineraculous:cataclysm_dust"
+        }
       }
     ]
   },
-  "start_sound": "mineraculous:cataclysm_activate"
+  "passive_start_sound": "mineraculous:cataclysm_activate"
 }

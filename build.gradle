@@ -5,7 +5,7 @@ plugins {
 	id 'java-library'
 	id 'maven-publish'
 	id 'signing'
-	id 'dev.lukebemish.immaculate' version '0.1.8'
+	id 'dev.lukebemish.immaculate' version '0.1.+'
 	id 'idea'
 	id 'net.neoforged.moddev' version "${mdg_version}"
 }
@@ -161,7 +161,7 @@ dependencies {
 	implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 	implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${smartbrainlib_version}"
 	implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
-	implementation "maven.modrinth:lithostitched:${lithostitched_version}-neoforge"
+	implementation "maven.modrinth:lithostitched:${lithostitched_version}-neoforge-${previous_minecraft_version}"
 
 	implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
 	implementation "com.klikli_dev:modonomicon-${minecraft_version}-neoforge:${modonomicon_version}"
@@ -213,7 +213,7 @@ tasks.processResources.dependsOn generateModMetadata
 
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
-build.dependsOn immaculateCheck
+compileJava.dependsOn immaculateCheck
 
 immaculate {
 	workflows.register('java') {
@@ -229,7 +229,6 @@ immaculate {
 			version '3.37.0'
 			config = rootProject.file('codeformat/formatter-config.xml')
 		}
-
 
 		// courtesy of diffplug/spotless#240
 		// https://github.com/diffplug/spotless/issues/240#issuecomment-385206606

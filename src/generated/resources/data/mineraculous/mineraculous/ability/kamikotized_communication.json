@@ -1,13 +1,13 @@
 {
-  "type": "mineraculous:set_camera_entity",
-  "entity": {
-    "type": "minecraft:player",
+  "type": "mineraculous:spectate_entity",
+  "allow_remote_damage": true,
+  "face_mask_texture": "mineraculous:textures/entity/player/face_mask/kamiko.png",
+  "private_chat": true,
+  "shader": "mineraculous:post_effect/kamiko.json",
+  "start_sound": "mineraculous:kamikotized_communication_activate",
+  "valid_entities": {
     "type_specific": {
       "type": "mineraculous:kamikotization"
     }
-  },
-  "must_be_tamed": false,
-  "override_active": true,
-  "shader": "mineraculous:post_effect/kamiko.json",
-  "toggle_tag": "ShowKamikoMask"
+  }
 }

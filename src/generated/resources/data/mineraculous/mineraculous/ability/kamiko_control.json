@@ -1,9 +1,8 @@
 {
-  "type": "mineraculous:set_camera_entity",
-  "entity": {
+  "type": "mineraculous:spectate_entity",
+  "face_mask_texture": "mineraculous:textures/entity/player/face_mask/kamiko.png",
+  "shader": "mineraculous:post_effect/kamiko.json",
+  "valid_entities": {
     "type": "mineraculous:kamiko"
-  },
-  "override_active": true,
-  "override_owner": true,
-  "toggle_tag": "ShowKamikoMask"
+  }
 }

@@ -1,4 +1,4 @@
 {
-  "type": "mineraculous:apply_effects_while_transformed",
+  "type": "mineraculous:passive_effects",
   "effects": "minecraft:unluck"
 }

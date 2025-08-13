@@ -5,7 +5,7 @@
   "description": "book.mineraculous.wiki.food.cheese.description",
   "hide_while_locked": false,
   "icon": {
-    "item": "mineraculous:fresh_cheese_block"
+    "item": "mineraculous:fresh_cheese_wedge"
   },
   "name": "book.mineraculous.wiki.food.cheese.name",
   "pages": [

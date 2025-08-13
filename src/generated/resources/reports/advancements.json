@@ -1,15 +1,15 @@
 [
-  "mineraculous:miraculous/cataclysm_block",
-  "mineraculous:miraculous/cataclysm_kill_living_entity",
-  "mineraculous:miraculous/cataclysm_living_entity",
-  "mineraculous:miraculous/kamikotize_player",
-  "mineraculous:miraculous/kamikotize_self",
-  "mineraculous:miraculous/obtain_camembert",
-  "mineraculous:miraculous/power_kamiko",
-  "mineraculous:miraculous/release_purified_kamiko",
   "mineraculous:miraculous/root",
-  "mineraculous:miraculous/transform_butterfly",
+  "mineraculous:miraculous/transform_ladybug",
+  "mineraculous:miraculous/release_purified_butterfly",
   "mineraculous:miraculous/transform_cat",
-  "mineraculous:miraculous/transform_kamikotization",
-  "mineraculous:miraculous/transform_ladybug"
+  "mineraculous:miraculous/cataclysm_block",
+  "mineraculous:miraculous/cataclysm_living_entity",
+  "mineraculous:miraculous/cataclysm_kill_living_entity",
+  "mineraculous:miraculous/obtain_camembert",
+  "mineraculous:miraculous/transform_butterfly",
+  "mineraculous:miraculous/kamikotize_butterfly",
+  "mineraculous:miraculous/kamikotize_entity",
+  "mineraculous:miraculous/kamikotize_self",
+  "mineraculous:miraculous/transform_kamikotization"
 ]

@@ -156,6 +156,11 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                 entity.resetFallDistance();
         }
 
+        if (stack.has(MineraculousDataComponents.BLOCKING) && entity.getXRot() <= -75 && entity.getDeltaMovement().y <= 0) {
+            entity.setDeltaMovement(entity.getDeltaMovement().x, -0.1, entity.getDeltaMovement().z);
+            entity.resetFallDistance();
+        }
+
         super.inventoryTick(stack, level, entity, slotId, isSelected);
     }
 
@@ -191,7 +196,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         super.onUseTick(level, livingEntity, stack, remainingUseDuration);
         if (stack.has(MineraculousDataComponents.BLOCKING) && remainingUseDuration % 10 == 0) {
-            livingEntity.playSound(MineraculousSoundEvents.GENERIC_SHIELD.get());
+            livingEntity.playSound(MineraculousSoundEvents.GENERIC_SPIN.get());
         }
     }
 
@@ -239,6 +244,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
         return switch (ability) {
             case BLOCK -> itemAbility == ItemAbilities.SHIELD_BLOCK;
+            case THROW -> itemAbility == ItemAbilities.TRIDENT_THROW;
             case null, default -> false;
         };
     }

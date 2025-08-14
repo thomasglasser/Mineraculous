@@ -22,8 +22,8 @@ public class MineraculousSoundEvents {
     public static final DeferredHolder<SoundEvent, SoundEvent> MIRACULOUS_LADYBUG_ACTIVATE = register("miraculous_ladybug", "ability", "activate");
 
     // Items
-    public static final DeferredHolder<SoundEvent, SoundEvent> GENERIC_SHIELD = register("generic", "item", "shield");
-    public static final DeferredHolder<SoundEvent, SoundEvent> LADYBUG_YOYO_SHIELD = register("ladybug_yoyo", "item", "shield");
+    public static final DeferredHolder<SoundEvent, SoundEvent> GENERIC_SPIN = register("generic", "item", "spin");
+    public static final DeferredHolder<SoundEvent, SoundEvent> LADYBUG_YOYO_SPIN = register("ladybug_yoyo", "item", "spin");
     public static final DeferredHolder<SoundEvent, SoundEvent> CAT_STAFF_EXTEND = register("cat_staff", "item", "extend");
     public static final DeferredHolder<SoundEvent, SoundEvent> CAT_STAFF_RETRACT = register("cat_staff", "item", "retract");
 

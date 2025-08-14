@@ -60,17 +60,17 @@
     ],
     "subtitle": "subtitles.item.cat_staff.retract"
   },
-  "item.generic.shield": {
+  "item.generic.spin": {
     "sounds": [
-      "mineraculous:item/generic/shield"
+      "mineraculous:item/generic/spin"
     ],
-    "subtitle": "subtitles.item.generic.shield"
+    "subtitle": "subtitles.item.generic.spin"
   },
-  "item.ladybug_yoyo.shield": {
+  "item.ladybug_yoyo.spin": {
     "sounds": [
-      "mineraculous:item/ladybug_yoyo/shield"
+      "mineraculous:item/ladybug_yoyo/spin"
     ],
-    "subtitle": "subtitles.item.ladybug_yoyo.shield"
+    "subtitle": "subtitles.item.ladybug_yoyo.spin"
   },
   "kamikotization.detransform": {
     "sounds": [

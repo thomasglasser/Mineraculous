@@ -22,8 +22,8 @@ public class MineraculousSoundDefinitionsProvider extends ExtendedSoundDefinitio
         add(MineraculousSoundEvents.MIRACULOUS_LADYBUG_ACTIVATE);
 
         // Miraculous Tools
-        add(MineraculousSoundEvents.GENERIC_SHIELD);
-        add(MineraculousSoundEvents.LADYBUG_YOYO_SHIELD);
+        add(MineraculousSoundEvents.GENERIC_SPIN);
+        add(MineraculousSoundEvents.LADYBUG_YOYO_SPIN);
         add(MineraculousSoundEvents.CAT_STAFF_EXTEND);
         add(MineraculousSoundEvents.CAT_STAFF_RETRACT);
 

@@ -182,7 +182,7 @@
     "mineraculous:cataclysm_activate",
     "mineraculous:cataclysm_use",
     "mineraculous:generic_detransform",
-    "mineraculous:generic_shield",
+    "mineraculous:generic_spin",
     "mineraculous:generic_timer_end",
     "mineraculous:generic_timer_warning",
     "mineraculous:generic_transform",
@@ -194,7 +194,7 @@
     "mineraculous:kwami_hurt",
     "mineraculous:kwami_summon",
     "mineraculous:ladybug_transform",
-    "mineraculous:ladybug_yoyo_shield",
+    "mineraculous:ladybug_yoyo_spin",
     "mineraculous:lucky_charm_activate",
     "mineraculous:miraculous_ladybug_activate"
   ],

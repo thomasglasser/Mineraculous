@@ -138,6 +138,11 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
             }
         }
 
+        if (stack.has(MineraculousDataComponents.BLOCKING) && entity.getXRot() <= -75 && entity.getDeltaMovement().y <= 0) {
+            entity.setDeltaMovement(entity.getDeltaMovement().x, -0.1, entity.getDeltaMovement().z);
+            entity.resetFallDistance();
+        }
+
         super.inventoryTick(stack, level, entity, slotId, isSelected);
     }
 
@@ -164,9 +169,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                         } else {
                             data.clearId().save(pPlayer, true);
                         }
-                    } else if (ability == Ability.BLOCK) {
-                        pPlayer.startUsingItem(pHand);
-                    } else if (ability == Ability.PURIFY) {
+                    } else if (ability == Ability.BLOCK || ability == Ability.PURIFY) {
                         pPlayer.startUsingItem(pHand);
                     } else {
                         throwYoyo(stack, pPlayer, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY), pHand);
@@ -183,7 +186,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         super.onUseTick(level, livingEntity, stack, remainingUseDuration);
         if (stack.has(MineraculousDataComponents.BLOCKING) && remainingUseDuration % 7 == 0) {
-            livingEntity.playSound(MineraculousSoundEvents.LADYBUG_YOYO_SHIELD.get());
+            livingEntity.playSound(MineraculousSoundEvents.LADYBUG_YOYO_SPIN.get());
         }
     }
 

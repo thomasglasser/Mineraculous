@@ -14,6 +14,7 @@ import dev.thomasglasser.mineraculous.impl.client.gui.kamiko.categories.KamikoTa
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRevertConvertedEntityPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetSpectationInterruptedPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStartKamikotizationDetransformationPayload;
+import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
@@ -96,8 +97,9 @@ public class MineraculousGuis {
         if (player != null && width > 0) {
             int x = (guiGraphics.guiWidth() - 18) / 2;
             int y = (guiGraphics.guiHeight() + 12) / 2;
+            int max = MineraculousServerConfig.get().stealingDuration.get();
             guiGraphics.fill(RenderType.guiOverlay(), x, y, x + 20, y + 5, -16777216);
-            guiGraphics.fill(RenderType.guiOverlay(), x, y, (int) (x + (width / 5.0)), y + 5, 0xFFFFFFF | -16777216);
+            guiGraphics.fill(RenderType.guiOverlay(), x, y, x + (width / max), y + 5, 0xFFFFFFF | -16777216);
         }
     }
 

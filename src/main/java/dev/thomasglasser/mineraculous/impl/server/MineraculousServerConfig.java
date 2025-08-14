@@ -49,7 +49,7 @@ public class MineraculousServerConfig {
 
         builder.push(STEALING);
         stealingDuration = builder
-                .defineInRange("stealing_duration", 5, 1, Integer.MAX_VALUE);
+                .defineInRange("stealing_duration", 3, 1, Integer.MAX_VALUE);
         enableUniversalStealing = builder
                 .define("enable_universal_stealing", true);
         enableSleepStealing = builder

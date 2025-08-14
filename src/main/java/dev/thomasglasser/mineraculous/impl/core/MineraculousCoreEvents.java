@@ -20,6 +20,7 @@ import net.minecraft.core.Position;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.ProjectileDispenseBehavior;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PathPackResources;
@@ -28,6 +29,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.entries.LootPoolEntryContainer;
 import net.neoforged.fml.ModList;
@@ -110,13 +112,26 @@ public class MineraculousCoreEvents {
 
     // Misc
     public static void onLootTableLoad(LootTableLoadEvent event) {
-        if (event.getName().equals(BuiltInLootTables.SNIFFER_DIGGING.location())) {
-            LootPool main = event.getTable().getPool("main");
-            if (main != null) {
-                ReferenceArrayList<LootPoolEntryContainer> entries = new ReferenceArrayList<>(main.entries);
-                entries.add(LootItem.lootTableItem(MineraculousBlocks.HIBISCUS_BUSH.asItem()).build());
-                main.entries = entries;
+        ResourceLocation name = event.getName();
+        LootTable table = event.getTable();
+        if (name.equals(BuiltInLootTables.SNIFFER_DIGGING.location())) {
+            addLootToTable(table, LootItem.lootTableItem(MineraculousBlocks.HIBISCUS_BUSH.asItem()));
+        } else if (name.equals(BuiltInLootTables.DESERT_PYRAMID_ARCHAEOLOGY.location())) {
+            addLootToTable(table,
+                    LootItem.lootTableItem(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE),
+                    LootItem.lootTableItem(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE),
+                    LootItem.lootTableItem(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE));
+        }
+    }
+
+    public static void addLootToTable(LootTable table, LootPoolEntryContainer.Builder<?>... entries) {
+        LootPool main = table.getPool("main");
+        if (main != null) {
+            ReferenceArrayList<LootPoolEntryContainer> list = new ReferenceArrayList<>(main.entries);
+            for (LootPoolEntryContainer.Builder<?> entry : entries) {
+                list.add(entry.build());
             }
+            main.entries = list;
         }
     }
 }

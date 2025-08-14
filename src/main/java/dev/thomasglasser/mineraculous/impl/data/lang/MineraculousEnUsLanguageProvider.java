@@ -269,8 +269,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousSoundEvents.MIRACULOUS_LADYBUG_ACTIVATE.get(), "Miraculous Ladybugs flourish");
 
         // Miraculous Tools
-        add(MineraculousSoundEvents.GENERIC_SHIELD.get(), "Weapon whirs");
-        add(MineraculousSoundEvents.LADYBUG_YOYO_SHIELD.get(), "Yoyo whirs");
+        add(MineraculousSoundEvents.GENERIC_SPIN.get(), "Weapon whirs");
+        add(MineraculousSoundEvents.LADYBUG_YOYO_SPIN.get(), "Yoyo whirs");
         add(MineraculousSoundEvents.CAT_STAFF_EXTEND.get(), "Staff extends");
         add(MineraculousSoundEvents.CAT_STAFF_RETRACT.get(), "Staff retracts");
 

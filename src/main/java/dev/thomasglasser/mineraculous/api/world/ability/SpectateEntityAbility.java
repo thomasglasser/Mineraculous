@@ -78,7 +78,7 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
     }
 
     private boolean isValidEntity(ServerLevel level, Entity performer, Entity target) {
-        return performer != target && validEntities.map(predicate -> predicate.matches(level, performer.position(), target)).orElse(true) && invalidEntities.map(predicate -> !predicate.matches(level, performer.position(), target)).orElse(false);
+        return performer != target && validEntities.map(predicate -> predicate.matches(level, performer.position(), target)).orElse(true) && invalidEntities.map(predicate -> !predicate.matches(level, performer.position(), target)).orElse(true);
     }
 
     private void stopSpectation(ServerLevel level, Entity performer) {

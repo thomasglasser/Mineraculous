@@ -12,7 +12,10 @@
     "minecraft.world.entity.EntityMixin",
     "minecraft.world.entity.player.PlayerMixin",
     "minecraft.world.item.BlockItemMixin",
+    "minecraft.world.item.BucketItemMixin",
     "minecraft.world.item.ItemStackMixin",
+    "minecraft.world.item.SpawnEggItemMixin",
+    "minecraft.world.item.context.BlockPlaceContextMixin",
     "minecraft.world.level.storage.loot.entries.TagEntryMixin",
     "neoforge.common.extensions.IItemExtensionMixin"
   ],

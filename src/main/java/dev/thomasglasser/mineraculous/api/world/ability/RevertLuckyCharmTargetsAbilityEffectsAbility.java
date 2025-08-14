@@ -54,8 +54,8 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                                         if (tool.getItem() instanceof EffectRevertingItem item) {
                                             item.revert(related);
                                         }
-                                    }).ifRight(ability -> ability.value().revert(data, level, related));
-                                    value.passiveAbilities().forEach(ability -> ability.value().revert(data, level, related));
+                                    }).ifRight(ability -> ability.value().revert(abilityData, level, related));
+                                    value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related));
                                     AbilityReversionItemData.get(level).revertKamikotized(relatedId, level);
                                 });
                                 MiraculousesData miraculousesData = related.getData(MineraculousAttachmentTypes.MIRACULOUSES);

@@ -3,17 +3,6 @@
   "pools": [
     {
       "bonus_rolls": 0.0,
-      "conditions": [
-        {
-          "condition": "minecraft:entity_properties",
-          "entity": "this",
-          "predicate": {
-            "effects": {
-              "minecraft:mining_fatigue": {}
-            }
-          }
-        }
-      ],
       "entries": [
         {
           "type": "minecraft:item",
@@ -88,6 +77,17 @@
         },
         {
           "type": "minecraft:item",
+          "conditions": [
+            {
+              "condition": "minecraft:entity_properties",
+              "entity": "this",
+              "predicate": {
+                "effects": {
+                  "minecraft:mining_fatigue": {}
+                }
+              }
+            }
+          ],
           "functions": [
             {
               "add": false,

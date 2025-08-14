@@ -84,8 +84,8 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
                                                         .when(HasItem.hasItemsMatching(ItemPredicate.Builder.item().of(Blocks.CONDUIT))))
                                         .add(
                                                 LootItem.lootTableItem(Items.MILK_BUCKET)
-                                                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1))))
-                                        .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, EntityPredicate.Builder.entity().effects(MobEffectsPredicate.Builder.effects().and(MobEffects.DIG_SLOWDOWN))))));
+                                                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(1)))
+                                                        .when(LootItemEntityPropertyCondition.hasProperties(LootContext.EntityTarget.THIS, EntityPredicate.Builder.entity().effects(MobEffectsPredicate.Builder.effects().and(MobEffects.DIG_SLOWDOWN)))))));
         biConsumer.accept(
                 MineraculousLuckyCharmLootKeys.RAID,
                 LootTable.lootTable()

@@ -1,0 +1,16 @@
+{
+  "type": "mineraculous:lucky_charm",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mineraculous:great_sword"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "mineraculous:gameplay/lucky_charm/miraculous/ladybug"
+}

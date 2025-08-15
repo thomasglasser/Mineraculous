@@ -118,6 +118,7 @@ public class MineraculousClientEvents {
             event.insertAfter(Items.SHIELD.getDefaultInstance(), MineraculousItems.LADYBUG_YOYO.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             event.insertAfter(MineraculousItems.LADYBUG_YOYO.toStack(), MineraculousItems.CAT_STAFF.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             event.insertAfter(MineraculousItems.CAT_STAFF.toStack(), MineraculousItems.BUTTERFLY_CANE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.BUTTERFLY_CANE.toStack(), MineraculousItems.GREAT_SWORD.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         } else if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
             addCheeses(event, Items.PUMPKIN_PIE.getDefaultInstance(), MineraculousItems.CHEESE);
             addCheeses(event, MineraculousItems.CHEESE.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousBlocks.CHEESE);

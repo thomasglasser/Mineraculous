@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.data.loot;
 
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.level.storage.loot.predicates.HasItem;
 import dev.thomasglasser.mineraculous.api.world.level.storage.loot.providers.number.PowerLevelMultiplierGenerator;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.loot.MineraculousLuckyCharmLootKeys;
@@ -34,6 +35,14 @@ public record MineraculousLuckyCharmLoot(HolderLookup.Provider registries) imple
     @Override
     public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> biConsumer) {
         // Miraculouses
+        biConsumer.accept(
+                MineraculousLuckyCharmLootKeys.LADYBUG_MIRACULOUS,
+                LootTable.lootTable()
+                        .withPool(
+                                LootPool.lootPool()
+                                        .setRolls(ConstantValue.exactly(1))
+                                        .add(
+                                                LootItem.lootTableItem(MineraculousItems.GREAT_SWORD))));
         biConsumer.accept(
                 MineraculousLuckyCharmLootKeys.CAT_MIRACULOUS,
                 LootTable.lootTable()

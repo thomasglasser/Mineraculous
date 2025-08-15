@@ -47,6 +47,7 @@ public class MineraculousItemTags {
     public static final TagKey<Item> TOUGH = create("tough");
 
     // Lucky Charms
+    public static final TagKey<Item> LUCKY_CHARM_SHADER_IMMUNE = create("lucky_charm_shader_immune");
     /// Lucky charm options when no specific pool is specified.
     public static final TagKey<Item> GENERIC_LUCKY_CHARMS = create("lucky_charms/generic");
     /// Items passed in a {@link Warden} lucky charm to distract it.

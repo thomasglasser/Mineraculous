@@ -141,6 +141,9 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
 
     private void addAbilities() {
         // Lucky Charm
+        tag(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE)
+                .add(MineraculousItems.GREAT_SWORD);
+
         tag(MineraculousItemTags.GENERIC_LUCKY_CHARMS)
                 .add(Items.APPLE)
                 .addTag(ConventionalItemTags.TOOLS)
@@ -156,5 +159,8 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         tag(MineraculousItemTags.CATACLYSM_IMMUNE)
                 .add(MineraculousItems.CATACLYSM_DUST.get())
                 .addOptionalTag(ConventionalItemTags.UNBREAKABLE_BLOCKS);
+
+        tag(ItemTags.SWORDS)
+                .add(MineraculousItems.GREAT_SWORD);
     }
 }

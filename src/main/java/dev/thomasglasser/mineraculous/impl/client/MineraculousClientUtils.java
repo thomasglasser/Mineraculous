@@ -8,6 +8,7 @@ import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
@@ -213,7 +214,7 @@ public class MineraculousClientUtils {
 
     // Rendering
     public static VertexConsumer checkLuckyCharm(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack, boolean armor, boolean entity) {
-        if (itemStack.has(MineraculousDataComponents.LUCKY_CHARM)) {
+        if (itemStack.has(MineraculousDataComponents.LUCKY_CHARM) && !itemStack.is(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE)) {
             if (entity) {
                 return itemStack.is(Items.SHIELD)
                         ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.shieldLuckyCharm()), buffer)

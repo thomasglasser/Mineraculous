@@ -33,6 +33,8 @@ import net.minecraft.world.item.ItemNameBlockItem;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.armortrim.TrimPattern;
 import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.block.Block;
@@ -55,6 +57,7 @@ public class MineraculousItems {
     // Miraculous
     public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", () -> new MiraculousItem(new Item.Properties()));
 
+    public static final DeferredItem<SwordItem> GREAT_SWORD = register("great_sword", () -> new SwordItem(MineraculousTiers.MIRACULOUS, new Item.Properties().attributes(SwordItem.createAttributes(Tiers.DIAMOND, 6, -3))));
     /// Inventory filler used for ability reversion
     public static final DeferredItem<Item> CATACLYSM_DUST = register("cataclysm_dust", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
 

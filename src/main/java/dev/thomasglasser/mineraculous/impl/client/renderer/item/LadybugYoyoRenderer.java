@@ -58,6 +58,11 @@ public class LadybugYoyoRenderer extends BlockingDefaultedGeoItemRenderer<Ladybu
                         }
                     }
                     return;
+                } else if (carrier.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent()) {
+                    if (MineraculousClientUtils.isFirstPerson() && MineraculousClientUtils.getCameraEntity() == carrier && carrier instanceof AbstractClientPlayer player) {
+                        renderHand(player, this.renderPerspective, poseStack, bufferSource, packedLight);
+                    }
+                    return;
                 }
             }
         }

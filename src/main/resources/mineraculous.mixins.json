@@ -1,6 +1,9 @@
 {
   "required": true,
   "minVersion": "0.8",
+  "mixinextras": {
+    "minVersion": "0.5.0"
+  },
   "package": "dev.thomasglasser.mineraculous.impl.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
@@ -10,6 +13,7 @@
     "minecraft.server.level.ServerPlayer$2Mixin",
     "minecraft.server.network.ServerGamePacketListenerImplMixin",
     "minecraft.world.entity.EntityMixin",
+    "minecraft.world.entity.LeashableMixin",
     "minecraft.world.entity.player.PlayerMixin",
     "minecraft.world.item.BlockItemMixin",
     "minecraft.world.item.BucketItemMixin",
@@ -26,6 +30,7 @@
     "minecraft.client.renderer.BlockEntityWithoutLevelRendererMixin",
     "minecraft.client.renderer.GameRendererMixin",
     "minecraft.client.renderer.entity.ArrowRendererMixin",
+    "minecraft.client.renderer.entity.EntityRendererMixin",
     "minecraft.client.renderer.entity.ItemRendererMixin",
     "minecraft.client.renderer.entity.LivingEntityRendererMixin",
     "minecraft.client.renderer.entity.ThrownTridentRendererMixin",

@@ -222,7 +222,7 @@ public class MineraculousKeyMappings {
         if (player != null) {
             ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
             ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
-            if (thrownYoyo != null) {
+            if (thrownYoyo != null || player.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent()) {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoLengthPayload(increase));
             }
         }

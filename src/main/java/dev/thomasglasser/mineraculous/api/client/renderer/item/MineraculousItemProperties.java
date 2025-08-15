@@ -84,11 +84,13 @@ public class MineraculousItemProperties {
         ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), THROWN, (stack, level, entity, seed) -> {
             if (entity instanceof Player player) {
                 ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
-                ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
-                if (thrownYoyo instanceof ThrownLadybugYoyo yoyo) {
+                ThrownLadybugYoyo yoyo = data.getThrownYoyo(player.level());
+                if (yoyo != null) {
                     if (yoyo.getHand() == InteractionHand.MAIN_HAND ? player.getMainHandItem() == stack : player.getOffhandItem() == stack) {
-                        return yoyo.inGround() /*|| yoyo.isBound()*/ ? 2 : 1;
+                        return yoyo.inGround() ? 2 : 1;
                     }
+                } else if (player.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent()) {
+                    return 1;
                 }
             }
             return 0;

@@ -17,10 +17,12 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerChoicesPayload;
+import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
+import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import java.util.Optional;
@@ -86,11 +88,27 @@ public class MineraculousEntityEvents {
     }
 
     /// Life
-    public static void onEntityTick(EntityTickEvent.Post event) {
+    public static void onPreEntityTick(EntityTickEvent.Pre event) {
         Entity entity = event.getEntity();
         if (entity.level() instanceof ServerLevel level) {
-            checkInventoryComponents(entity);
+            entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER).ifPresent(holderId -> {
+                Entity holder = level.getEntity(holderId);
+                if (holder == null) {
+                    entity.setData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER, Optional.empty());
+                    TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.YOYO_LEASH_HOLDER, Optional.<UUID>empty()), entity.getServer());
+                } else if (!entity.isAlive() || !holder.isAlive()) {
+                    LadybugYoyoItem.removeLeash(holder);
+                }
+            });
+        }
+    }
 
+    public static void onPostEntityTick(EntityTickEvent.Post event) {
+        Entity entity = event.getEntity();
+
+        checkInventoryComponents(entity);
+
+        if (entity.level() instanceof ServerLevel level) {
             AbilityReversionEntityData.get(level).tick(entity);
             AbilityReversionItemData.get(level).tick(entity);
             ToolIdData.get(level).tick(entity);
@@ -98,24 +116,30 @@ public class MineraculousEntityEvents {
 
             entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).tick(entity, level);
             entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.tick(entity, level));
-            entity.getData(MineraculousAttachmentTypes.YOYO_LEASH).ifPresent(data -> data.tick(entity, level));
+
+            ItemStack weaponItem = entity.getWeaponItem();
+            if (entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent() && (weaponItem == null || !weaponItem.is(MineraculousItems.LADYBUG_YOYO))) {
+                LadybugYoyoItem.removeLeash(entity);
+            }
         }
     }
 
     public static void checkInventoryComponents(Entity entity) {
         for (ItemStack stack : EntityUtils.getInventory(entity)) {
-            if (entity instanceof LivingEntity livingEntity) {
-                boolean blocking = livingEntity.isBlocking() && livingEntity.getUseItem() == stack;
-                if (!blocking && stack.has(MineraculousDataComponents.BLOCKING))
+            if (!stack.isEmpty()) {
+                if (entity instanceof LivingEntity livingEntity) {
+                    boolean blocking = livingEntity.isBlocking() && livingEntity.getUseItem() == stack;
+                    if (!blocking && stack.has(MineraculousDataComponents.BLOCKING))
+                        stack.remove(MineraculousDataComponents.BLOCKING);
+                    else if (blocking && !stack.has(MineraculousDataComponents.BLOCKING))
+                        stack.set(MineraculousDataComponents.BLOCKING, Unit.INSTANCE);
+                } else if (stack.has(MineraculousDataComponents.BLOCKING)) {
                     stack.remove(MineraculousDataComponents.BLOCKING);
-                else if (blocking && !stack.has(MineraculousDataComponents.BLOCKING))
-                    stack.set(MineraculousDataComponents.BLOCKING, Unit.INSTANCE);
-            } else if (stack.has(MineraculousDataComponents.BLOCKING)) {
-                stack.remove(MineraculousDataComponents.BLOCKING);
-            }
-            Integer carrierId = stack.get(MineraculousDataComponents.CARRIER);
-            if (carrierId == null || carrierId != entity.getId()) {
-                stack.set(MineraculousDataComponents.CARRIER, entity.getId());
+                }
+                Integer carrierId = stack.get(MineraculousDataComponents.CARRIER);
+                if (carrierId == null || carrierId != entity.getId()) {
+                    stack.set(MineraculousDataComponents.CARRIER, entity.getId());
+                }
             }
         }
     }
@@ -316,6 +340,13 @@ public class MineraculousEntityEvents {
                 AbilityData abilityData = new AbilityData(0, data.powerActive());
                 value.passiveAbilities().forEach(ability -> ability.value().leaveLevel(abilityData, level, entity));
                 value.powerSource().right().ifPresent(ability -> ability.value().leaveLevel(abilityData, level, entity));
+            });
+            entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).ifPresent(data -> LadybugYoyoItem.removeLeash(entity));
+            entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER).ifPresent(holderId -> {
+                Entity holder = level.getEntity(holderId);
+                if (holder != null) {
+                    LadybugYoyoItem.removeLeash(holder);
+                }
             });
         }
     }

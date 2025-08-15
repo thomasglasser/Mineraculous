@@ -253,11 +253,12 @@
     "mineraculous:ability_effects",
     "mineraculous:inventory_trackers",
     "mineraculous:kamikotization",
+    "mineraculous:lasso_ladybug_yoyo",
     "mineraculous:miraculouses",
     "mineraculous:old_kamikotization",
     "mineraculous:stored_armor",
     "mineraculous:thrown_ladybug_yoyo",
-    "mineraculous:yoyo_leash"
+    "mineraculous:yoyo_leash_holder"
   ],
   "neoforge:entity_data_serializers": [
     "mineraculous:miraculous",

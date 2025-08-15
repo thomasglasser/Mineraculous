@@ -36,6 +36,10 @@ public record ServerboundUpdateYoyoLengthPayload(boolean increase) implements Ex
                 thrownYoyo.setMaxRopeLength(thrownYoyo.getMaxRopeLength() - 0.2f);
                 TommyLibServices.NETWORK.sendToAllClients(new ClientboundCalculateYoyoRenderLengthPayload(thrownYoyo.getId(), player.getId()), player.getServer());
             }
+        } else {
+            player.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).ifPresent(leashingData -> {
+                leashingData.withMaxRopeLength(leashingData.maxRopeLength() + (increase ? 0.5f : -0.5f)).save(player, true);
+            });
         }
     }
 

@@ -18,14 +18,17 @@ import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
+import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiPredicate;
@@ -50,6 +53,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -148,39 +152,53 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player pPlayer, InteractionHand pHand) {
-        ItemStack stack = pPlayer.getItemInHand(pHand);
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
+        ItemStack stack = player.getItemInHand(usedHand);
         if (!stack.getOrDefault(MineraculousDataComponents.ACTIVE, false))
             return InteractionResultHolder.fail(stack);
-        Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get());
+        Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY);
         if (ability != null) {
-            if (!pPlayer.getCooldowns().isOnCooldown(this)) {
+            if (!player.getCooldowns().isOnCooldown(this)) {
                 if (level instanceof ServerLevel serverLevel) {
-                    ThrownLadybugYoyoData data = pPlayer.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
+                    ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
                     if (data.id().isPresent()) {
                         ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(serverLevel);
                         if (thrownYoyo != null) {
                             if (thrownYoyo.isRecalling() && ability == thrownYoyo.getAbility()) {
                                 thrownYoyo.discard();
-                                throwYoyo(stack, pPlayer, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY), pHand);
-                                pPlayer.getCooldowns().addCooldown(this, 5);
+                                throwYoyo(stack, player, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY), usedHand);
+                                player.getCooldowns().addCooldown(this, 5);
                             } else {
-                                recallYoyo(pPlayer);
+                                recallYoyo(player);
                             }
                         } else {
-                            data.clearId().save(pPlayer, true);
+                            data.clearId().save(player, true);
                         }
                     } else if (ability == Ability.BLOCK || ability == Ability.PURIFY) {
-                        pPlayer.startUsingItem(pHand);
-                    } else {
-                        throwYoyo(stack, pPlayer, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY), pHand);
-                        pPlayer.getCooldowns().addCooldown(this, 5);
+                        player.startUsingItem(usedHand);
+                    } else if (ability == Ability.LASSO && player.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent()) {
+                        removeLeash(player);
+                    } else if (usedHand == InteractionHand.MAIN_HAND || ability != Ability.LASSO) {
+                        throwYoyo(stack, player, ability, usedHand);
+                        player.getCooldowns().addCooldown(this, 5);
                     }
                 }
             }
             return InteractionResultHolder.consume(stack);
         }
-        return super.use(level, pPlayer, pHand);
+        return super.use(level, player, usedHand);
+    }
+
+    public static void removeLeash(Entity holder) {
+        holder.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).ifPresent(data -> {
+            Entity leashed = holder.level().getEntity(data.leashedId());
+            if (leashed instanceof Leashable leashable) {
+                leashable.dropLeash(true, false);
+                leashed.setData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER, Optional.empty());
+                TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(leashed.getId(), MineraculousAttachmentTypes.YOYO_LEASH_HOLDER, Optional.<UUID>empty()), leashed.getServer());
+            }
+            LeashingLadybugYoyoData.remove(holder, true);
+        });
     }
 
     @Override
@@ -248,7 +266,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                         }
                         recallYoyo(player);
                     }
-                } else {
+                } else if (entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isEmpty()) {
                     throwYoyo(stack, player, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()) == Ability.PURIFY ? Ability.PURIFY : null, hand);
                     player.getCooldowns().addCooldown(this, 5);
                 }

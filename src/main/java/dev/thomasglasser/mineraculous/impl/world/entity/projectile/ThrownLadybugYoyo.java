@@ -13,8 +13,9 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundCalculateYoyoRenderLengthPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.YoyoLeashData;
+import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
 import java.util.Optional;
@@ -372,8 +373,16 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                         }
                     }
                 }
-            } else if (ability == LadybugYoyoItem.Ability.LASSO && owner != null && entity instanceof Leashable) {
-                new YoyoLeashData(owner.getId()).save(entity, true);
+            } else if (ability == LadybugYoyoItem.Ability.LASSO && owner != null && entity instanceof Leashable leashable) {
+                if (leashable.getLeashHolder() != owner && entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER).isEmpty()) {
+                    if (leashable.isLeashed()) {
+                        leashable.dropLeash(true, true);
+                    }
+                    leashable.setLeashedTo(owner, true);
+                    entity.setData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER, Optional.of(owner.getUUID()));
+                    TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.YOYO_LEASH_HOLDER, Optional.of(owner.getUUID())), owner.getServer());
+                    new LeashingLadybugYoyoData(entity.getId()).save(owner, true);
+                }
                 recall();
             }
         }

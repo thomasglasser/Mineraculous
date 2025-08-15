@@ -118,7 +118,7 @@ public class Abilities {
                 Optional.of(MineraculousSoundEvents.CATACLYSM_ACTIVATE),
                 Optional.empty(),
                 Optional.empty()));
-        context.register(CAT_VISION, new AutomaticNightVisionAbility(Optional.of(ResourceLocation.withDefaultNamespace("shaders/post/creeper.json")), Optional.empty(), Optional.empty()));
+        context.register(CAT_VISION, new AutomaticNightVisionAbility(Optional.of(Mineraculous.modLoc("shaders/post/cat_vision.json")), Optional.empty(), Optional.empty()));
         context.register(PASSIVE_UNLUCK, new PassiveEffectsAbility(HolderSet.direct(MobEffects.UNLUCK), 0));
 
         // Ladybug

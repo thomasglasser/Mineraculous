@@ -122,7 +122,7 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
         }
         kwamiData.ifPresentOrElse(kwamiData -> {
             if (level.getEntity(kwamiData.uuid()) instanceof Kwami kwami) {
-                if (kwami.isCharged()) {
+                if (kwami.isCharged() && kwami.getMainHandItem().isEmpty()) {
                     kwami.setCharged(false);
                     kwami.discard();
 

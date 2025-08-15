@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.MiniHolidayHatGeoLayer;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.Map;
@@ -51,6 +52,7 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
                 };
             }
         });
+        addRenderLayer(new MiniHolidayHatGeoLayer<>(this, HEAD));
     }
 
     @Override

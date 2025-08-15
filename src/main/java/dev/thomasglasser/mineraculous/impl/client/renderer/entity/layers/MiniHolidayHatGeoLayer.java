@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
-import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;

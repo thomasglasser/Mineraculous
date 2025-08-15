@@ -35,6 +35,7 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
@@ -133,7 +134,8 @@ public class Mineraculous {
 
     public enum Dependencies {
         CURIOS("curios"),
-        MODONOMICON("modonomicon");
+        MODONOMICON("modonomicon"),
+        TOMMYTECH("tommytech");
 
         private String id;
 
@@ -147,6 +149,10 @@ public class Mineraculous {
 
         public ResourceLocation modLoc(String s) {
             return ResourceLocation.fromNamespaceAndPath(getId(), s);
+        }
+
+        public boolean isLoaded() {
+            return ModList.get().isLoaded(getId());
         }
     }
 }

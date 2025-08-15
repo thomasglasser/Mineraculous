@@ -53,7 +53,7 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
     }
 
     public RadialMenuScreen(InteractionHand hand, int heldKey, ItemStack stack, RadialMenuProvider<T> provider) {
-        this(heldKey, provider.getOptions(stack, hand, ClientUtils.getLocalPlayer()), provider.getColor(stack, hand, ClientUtils.getLocalPlayer()), (selected, index) -> {
+        this(heldKey, provider.getEnabledOptions(stack, hand, ClientUtils.getLocalPlayer()), provider.getColor(stack, hand, ClientUtils.getLocalPlayer()), (selected, index) -> {
             if (stack.get(provider.getComponentType(stack, hand, ClientUtils.getLocalPlayer())) != selected)
                 TommyLibServices.NETWORK.sendToServer(new ServerboundSetRadialMenuProviderOptionPayload(hand, index));
         });

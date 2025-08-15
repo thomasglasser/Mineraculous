@@ -14,6 +14,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownButterflyCane;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
@@ -21,9 +22,9 @@ import dev.thomasglasser.tommylib.api.client.renderer.item.DefaultedGeoItemRende
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -300,9 +301,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
 
     @Override
     public List<Ability> getOptions(ItemStack stack, InteractionHand hand, Player holder) {
-        if (stack.has(MineraculousDataComponents.OWNER))
-            return Ability.valuesList();
-        return Ability.unpoweredValuesList();
+        return Ability.valuesList();
     }
 
     @Override
@@ -356,18 +355,24 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
     public enum Ability implements RadialMenuOption, StringRepresentable {
         BLADE,
         BLOCK,
-        KAMIKO_STORE,
+        KAMIKO_STORE((stack, player) -> stack.has(MineraculousDataComponents.OWNER)),
+        PHONE((stack, player) -> Mineraculous.Dependencies.TOMMYTECH.isLoaded()),
         THROW;
 
         public static final Codec<Ability> CODEC = StringRepresentable.fromEnum(Ability::values);
         public static final StreamCodec<ByteBuf, Ability> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(Ability::of, Ability::getSerializedName);
 
         private static final List<Ability> VALUES_LIST = new ReferenceArrayList<>(values());
-        private static final List<Ability> UNPOWERED_VALUES_LIST = new ReferenceArrayList<>(Arrays.asList(BLADE, BLOCK, THROW));
 
+        private final BiPredicate<ItemStack, Player> enabledPredicate;
         private final Component displayName;
 
         Ability() {
+            this((stack, player) -> true);
+        }
+
+        Ability(BiPredicate<ItemStack, Player> enabledPredicate) {
+            this.enabledPredicate = enabledPredicate;
             this.displayName = Component.translatable(MineraculousItems.BUTTERFLY_CANE.getId().toLanguageKey("ability", getSerializedName()));
         }
 
@@ -377,16 +382,17 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
         }
 
         @Override
+        public boolean isEnabled(ItemStack stack, Player holder) {
+            return enabledPredicate.test(stack, holder);
+        }
+
+        @Override
         public String getSerializedName() {
             return name().toLowerCase();
         }
 
         public static List<Ability> valuesList() {
             return VALUES_LIST;
-        }
-
-        public static List<Ability> unpoweredValuesList() {
-            return UNPOWERED_VALUES_LIST;
         }
 
         public static Ability of(String name) {

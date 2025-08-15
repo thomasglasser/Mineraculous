@@ -14,6 +14,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
@@ -24,10 +25,10 @@ import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -368,9 +369,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
 
     @Override
     public List<Ability> getOptions(ItemStack stack, InteractionHand hand, Player holder) {
-        if (stack.has(MineraculousDataComponents.OWNER))
-            return Ability.valuesList();
-        return Ability.unpoweredValuesList();
+        return Ability.valuesList();
     }
 
     @Override
@@ -408,18 +407,24 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     public enum Ability implements RadialMenuOption, StringRepresentable {
         BLOCK,
         LASSO,
-        PURIFY,
+        PHONE((stack, player) -> Mineraculous.Dependencies.TOMMYTECH.isLoaded()),
+        PURIFY((stack, player) -> stack.has(MineraculousDataComponents.OWNER)),
         TRAVEL;
 
         public static final Codec<Ability> CODEC = StringRepresentable.fromEnum(Ability::values);
         public static final StreamCodec<ByteBuf, Ability> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(Ability::of, Ability::getSerializedName);
 
         private static final List<Ability> VALUES_LIST = new ReferenceArrayList<>(values());
-        private static final List<Ability> UNPOWERED_VALUES_LIST = new ReferenceArrayList<>(Arrays.asList(BLOCK, LASSO, TRAVEL));
 
+        private final BiPredicate<ItemStack, Player> enabledPredicate;
         private final Component displayName;
 
         Ability() {
+            this((stack, player) -> true);
+        }
+
+        Ability(BiPredicate<ItemStack, Player> enabledPredicate) {
+            this.enabledPredicate = enabledPredicate;
             this.displayName = Component.translatable(MineraculousItems.LADYBUG_YOYO.getId().toLanguageKey("ability", getSerializedName()));
         }
 
@@ -429,16 +434,17 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         }
 
         @Override
+        public boolean isEnabled(ItemStack stack, Player holder) {
+            return enabledPredicate.test(stack, holder);
+        }
+
+        @Override
         public String getSerializedName() {
             return name().toLowerCase();
         }
 
         public static List<Ability> valuesList() {
             return VALUES_LIST;
-        }
-
-        public static List<Ability> unpoweredValuesList() {
-            return UNPOWERED_VALUES_LIST;
         }
 
         public static Ability of(String name) {

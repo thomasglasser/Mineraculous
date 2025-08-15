@@ -13,6 +13,7 @@ import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.item.component.ActiveSettings;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
@@ -24,6 +25,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
@@ -323,6 +325,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     public enum Ability implements RadialMenuOption, StringRepresentable {
         BLOCK,
         PERCH,
+        PHONE((stack, player) -> Mineraculous.Dependencies.TOMMYTECH.isLoaded()),
         THROW,
         TRAVEL;
 
@@ -331,15 +334,26 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
         private static final List<Ability> VALUES_LIST = new ReferenceArrayList<>(values());
 
+        private final BiPredicate<ItemStack, Player> enabledPredicate;
         private final Component displayName;
 
         Ability() {
+            this((stack, player) -> true);
+        }
+
+        Ability(BiPredicate<ItemStack, Player> enabledPredicate) {
+            this.enabledPredicate = enabledPredicate;
             this.displayName = Component.translatable(MineraculousItems.CAT_STAFF.getId().toLanguageKey("ability", getSerializedName()));
         }
 
         @Override
         public Component displayName() {
             return displayName;
+        }
+
+        @Override
+        public boolean isEnabled(ItemStack stack, Player holder) {
+            return enabledPredicate.test(stack, holder);
         }
 
         @Override

@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.api.world.item;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.core.component.DataComponentType;
@@ -52,6 +53,20 @@ public interface RadialMenuProvider<T extends RadialMenuOption> {
     List<T> getOptions(ItemStack stack, InteractionHand hand, Player holder);
 
     /**
+     * Provides a filtered list of {@link RadialMenuOption}s available for the provided {@link ItemStack} and {@link Player} holder based on {@link RadialMenuOption#isEnabled}.
+     *
+     * @param stack  The {@link ItemStack} being used in the screen
+     * @param hand   The {@link InteractionHand} holding the provided item
+     * @param holder The {@link Player} holding the provided item
+     * @return The filtered list of options available
+     */
+    default List<T> getEnabledOptions(ItemStack stack, InteractionHand hand, Player holder) {
+        List<T> filtered = new ReferenceArrayList<>(getOptions(stack, hand, holder));
+        filtered.removeIf(option -> !option.isEnabled(stack, holder));
+        return filtered;
+    }
+
+    /**
      * Handles the {@link MineraculousKeyMappings#OPEN_ITEM_RADIAL_MENU} key press when the menu cannot be opened.
      *
      * @param stack  The {@link ItemStack} being used in the screen
@@ -79,11 +94,11 @@ public interface RadialMenuProvider<T extends RadialMenuOption> {
      * @param stack  The {@link ItemStack} being used in the screen
      * @param hand   The {@link InteractionHand} holding the provided item
      * @param holder The {@link Player} holding the provided item
-     * @param index  The index of the selected option in {@link RadialMenuProvider#getOptions}
+     * @param index  The index of the selected option in {@link RadialMenuProvider#getEnabledOptions}
      * @return The selected {@link RadialMenuOption}
      */
     default T setOption(ItemStack stack, InteractionHand hand, Player holder, int index) {
-        T value = getOptions(stack, hand, holder).get(index);
+        T value = getEnabledOptions(stack, hand, holder).get(index);
         stack.set(getComponentType(stack, hand, holder).get(), value);
         return value;
     }

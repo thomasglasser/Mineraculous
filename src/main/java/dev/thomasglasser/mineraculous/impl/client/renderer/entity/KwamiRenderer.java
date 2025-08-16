@@ -1,33 +1,51 @@
 package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.MiniHolidayHatGeoLayer;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.Map;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.EnderDragonRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+import software.bernie.geckolib.animation.Animation;
+import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 import software.bernie.geckolib.renderer.specialty.DynamicGeoEntityRenderer;
+import software.bernie.geckolib.util.Color;
 
 public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> {
     private static final String HEAD = "head";
     private static final String LEFT_HAND = "left_hand";
     private static final String RIGHT_HAND = "right_hand";
 
-    private final Map<ResourceKey<Miraculous>, GeoModel<T>> models = new Reference2ReferenceOpenHashMap<>();
+    private final Map<Holder<Miraculous>, GeoModel<T>> models = new Reference2ReferenceOpenHashMap<>();
 
     public KwamiRenderer(EntityRendererProvider.Context renderManager) {
-        super(renderManager, null);
+        super(renderManager, new DefaultedEntityGeoModel<>(Mineraculous.modLoc("summoning_cube")) {
+            @Override
+            public @Nullable Animation getAnimation(T animatable, String name) {
+                return null;
+            }
+        });
         withScale(0.5f);
         addRenderLayer(new BlockAndItemGeoLayer<>(this, (bone, entity) -> switch (bone.getName()) {
             case LEFT_HAND -> animatable.isLeftHanded() ? animatable.getMainHandItem() : animatable.getOffhandItem();
@@ -56,10 +74,65 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
     }
 
     @Override
+    public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
+        if (animatable.getSummonTicks() > 0) {
+            float completion = animatable.tickCount / 50f;
+            int color = animatable.getMiraculous().value().color().getValue();
+            renderRays(poseStack, completion, bufferSource.getBuffer(RenderType.dragonRays()), color);
+            renderRays(poseStack, completion, bufferSource.getBuffer(RenderType.dragonRaysDepth()), color);
+        }
+        super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
+    }
+
+    private static void renderRays(PoseStack poseStack, float completion, VertexConsumer buffer, int color) {
+        poseStack.pushPose();
+        poseStack.scale(0.1f, 0.1f, 0.1f);
+        poseStack.translate(0.0f, 5, 0.0f);
+        float fade = Math.min(completion > 0.8F ? (completion - 0.8F) / 0.2F : 0.0F, 1.0F);
+        int centerColor = FastColor.ARGB32.colorFromFloat(1.0F - fade, 1.0F, 1.0F, 1.0F);
+        RandomSource random = RandomSource.create(432L);
+        Vector3f origin = new Vector3f();
+        Vector3f left = new Vector3f();
+        Vector3f right = new Vector3f();
+        Vector3f front = new Vector3f();
+        Quaternionf rotation = new Quaternionf();
+        int rayCount = Mth.floor((completion + completion * completion) / 2.0F * 60.0F);
+
+        for (int i = 0; i < rayCount; i++) {
+            rotation.rotationXYZ(
+                    random.nextFloat() * (float) (Math.PI * 2),
+                    random.nextFloat() * (float) (Math.PI * 2),
+                    random.nextFloat() * (float) (Math.PI * 2))
+                    .rotateXYZ(
+                            random.nextFloat() * (float) (Math.PI * 2),
+                            random.nextFloat() * (float) (Math.PI * 2),
+                            random.nextFloat() * (float) (Math.PI * 2) + completion * (float) (Math.PI / 2));
+            poseStack.mulPose(rotation);
+            float rayLength = random.nextFloat() * 20.0F + 5.0F + fade * 10.0F;
+            float rayRadius = random.nextFloat() * 2.0F + 1.0F + fade * 2.0F;
+            left.set(-EnderDragonRenderer.HALF_SQRT_3 * rayRadius, rayLength, -0.5F * rayRadius);
+            right.set(EnderDragonRenderer.HALF_SQRT_3 * rayRadius, rayLength, -0.5F * rayRadius);
+            front.set(0.0F, rayLength, rayRadius);
+            PoseStack.Pose pose = poseStack.last();
+            buffer.addVertex(pose, origin).setColor(centerColor);
+            buffer.addVertex(pose, left).setColor(color);
+            buffer.addVertex(pose, right).setColor(color);
+            buffer.addVertex(pose, origin).setColor(centerColor);
+            buffer.addVertex(pose, right).setColor(color);
+            buffer.addVertex(pose, front).setColor(color);
+            buffer.addVertex(pose, origin).setColor(centerColor);
+            buffer.addVertex(pose, front).setColor(color);
+            buffer.addVertex(pose, left).setColor(color);
+        }
+
+        poseStack.popPose();
+    }
+
+    @Override
     public GeoModel<T> getGeoModel() {
         T animatable = getAnimatable();
-        if (animatable != null) {
-            ResourceKey<Miraculous> miraculous = animatable.getMiraculous();
+        if (animatable != null && animatable.getSummonTicks() <= 0) {
+            Holder<Miraculous> miraculous = animatable.getMiraculous();
             if (miraculous != null) {
                 if (!models.containsKey(miraculous))
                     models.put(miraculous, createGeoModel(miraculous));
@@ -69,8 +142,8 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
         return super.getGeoModel();
     }
 
-    private GeoModel<T> createGeoModel(ResourceKey<Miraculous> miraculous) {
-        return new DefaultedEntityGeoModel<>(ResourceLocation.fromNamespaceAndPath(miraculous.location().getNamespace(), "miraculous/" + miraculous.location().getPath())) {
+    private GeoModel<T> createGeoModel(Holder<Miraculous> miraculous) {
+        return new DefaultedEntityGeoModel<>(miraculous.getKey().location().withPrefix("miraculous/")) {
             private ResourceLocation hungryTexture;
 
             @Override
@@ -83,5 +156,13 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
                 return super.getTextureResource(animatable);
             }
         };
+    }
+
+    @Override
+    public Color getRenderColor(T animatable, float partialTick, int packedLight) {
+        if (animatable.getSummonTicks() > 0) {
+            return new Color(animatable.getMiraculous().value().color().getValue());
+        }
+        return super.getRenderColor(animatable, partialTick, packedLight);
     }
 }

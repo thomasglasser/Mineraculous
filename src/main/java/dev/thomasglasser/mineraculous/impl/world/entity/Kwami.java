@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.behavior.SetWalkTargetToLikedPlayer;
@@ -31,7 +30,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -93,8 +91,9 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     public static final RawAnimation HOLD = RawAnimation.begin().thenPlay("misc.hold");
     public static final RawAnimation SIT = RawAnimation.begin().thenPlay("misc.sit");
 
+    private static final EntityDataAccessor<Integer> DATA_SUMMON_TICKS = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
-    private static final EntityDataAccessor<ResourceKey<Miraculous>> DATA_MIRACULOUS = SynchedEntityData.defineId(Kwami.class, MineraculousEntityDataSerializers.MIRACULOUS.get());
+    private static final EntityDataAccessor<Holder<Miraculous>> DATA_MIRACULOUS = SynchedEntityData.defineId(Kwami.class, MineraculousEntityDataSerializers.MIRACULOUS.get());
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -124,8 +123,17 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
+        builder.define(DATA_SUMMON_TICKS, 0);
         builder.define(DATA_CHARGED, true);
-        builder.define(DATA_MIRACULOUS, Miraculouses.LADYBUG);
+        builder.define(DATA_MIRACULOUS, level().holderOrThrow(Miraculouses.LADYBUG));
+    }
+
+    public int getSummonTicks() {
+        return entityData.get(DATA_SUMMON_TICKS);
+    }
+
+    public void setSummonTicks(int ticks) {
+        entityData.set(DATA_SUMMON_TICKS, ticks);
     }
 
     public void setCharged(boolean charged) {
@@ -136,11 +144,11 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         return entityData.get(DATA_CHARGED);
     }
 
-    public void setMiraculous(ResourceKey<Miraculous> type) {
+    public void setMiraculous(Holder<Miraculous> type) {
         entityData.set(DATA_MIRACULOUS, type);
     }
 
-    public ResourceKey<Miraculous> getMiraculous() {
+    public Holder<Miraculous> getMiraculous() {
         return entityData.get(DATA_MIRACULOUS);
     }
 
@@ -167,6 +175,14 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     @Override
     protected Brain.Provider<?> brainProvider() {
         return new SmartBrainProvider<>(this);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (getSummonTicks() > 0) {
+            setSummonTicks(getSummonTicks() - 1);
+        }
     }
 
     @Override
@@ -310,7 +326,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     public boolean isFood(ItemStack stack) {
         if (getMiraculous() != null) {
             if (foodTag == null)
-                foodTag = Miraculous.createFoodsTag(getMiraculous());
+                foodTag = Miraculous.createFoodsTag(getMiraculous().getKey());
             return stack.is(foodTag);
         }
         return false;
@@ -319,7 +335,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     public boolean isTreat(ItemStack stack) {
         if (getMiraculous() != null) {
             if (treatTag == null)
-                treatTag = Miraculous.createTreatsTag(getMiraculous());
+                treatTag = Miraculous.createTreatsTag(getMiraculous().getKey());
             return stack.is(treatTag);
         }
         return false;
@@ -374,22 +390,24 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     @Override
     protected Component getTypeName() {
         if (name == null)
-            name = Component.translatable(Miraculous.toLanguageKey(getMiraculous())).append(" ").append(super.getTypeName());
+            name = Component.translatable(Miraculous.toLanguageKey(getMiraculous().getKey())).append(" ").append(super.getTypeName());
         return name;
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        compound.putInt("SummonTicks", getSummonTicks());
         compound.putBoolean("Charged", isCharged());
-        compound.put("Miraculous", ResourceKey.codec(MineraculousRegistries.MIRACULOUS).encodeStart(NbtOps.INSTANCE, getMiraculous()).getOrThrow());
+        compound.put("Miraculous", Miraculous.CODEC.encodeStart(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), getMiraculous()).getOrThrow());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        setSummonTicks(compound.getInt("SummonTicks"));
         setCharged(compound.getBoolean("Charged"));
-        setMiraculous(ResourceKey.codec(MineraculousRegistries.MIRACULOUS).parse(NbtOps.INSTANCE, compound.get("Miraculous")).getOrThrow());
+        setMiraculous(Miraculous.CODEC.parse(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), compound.get("Miraculous")).getOrThrow());
     }
 
     @Override

@@ -11,16 +11,20 @@ import io.netty.buffer.ByteBuf;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 public record KwamiData(UUID uuid, int id, boolean charged) {
 
@@ -33,9 +37,10 @@ public record KwamiData(UUID uuid, int id, boolean charged) {
             ByteBufCodecs.INT, KwamiData::id,
             ByteBufCodecs.BOOL, KwamiData::charged,
             KwamiData::new);
-    public static Kwami summon(Optional<KwamiData> kwamiData, ServerLevel level, ResourceKey<Miraculous> miraculous, Entity owner) {
+    public static Kwami summon(Optional<KwamiData> kwamiData, ServerLevel level, Holder<Miraculous> miraculous, Entity owner) {
         Kwami kwami = MineraculousEntityTypes.KWAMI.get().create(level);
         if (kwami != null) {
+            kwami.setSummonTicks((int) (SharedConstants.TICKS_PER_SECOND * 1.5));
             kwami.setMiraculous(miraculous);
             KwamiData data = kwamiData.orElse(null);
             if (data != null) {
@@ -56,7 +61,8 @@ public record KwamiData(UUID uuid, int id, boolean charged) {
                 case SOUTH -> -1;
                 default -> 0;
             };
-            kwami.teleportTo(level, owner.getX() + xOffset, owner.getY() + 1, owner.getZ() + zOffset, Set.of(), direction.toYRot(), 0.0F);
+            kwami.teleportTo(level, owner.getX(), owner.getY(), owner.getZ(), Set.of(), direction.toYRot(), 0.0F);
+            kwami.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new Vec3(owner.getX() + xOffset, owner.getY() + 1, owner.getZ() + zOffset), 4, 1));
             if (owner instanceof Player player) {
                 kwami.tame(player);
             } else {

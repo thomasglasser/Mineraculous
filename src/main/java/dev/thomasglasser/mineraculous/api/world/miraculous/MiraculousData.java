@@ -122,7 +122,7 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
         }
         kwamiData.ifPresentOrElse(kwamiData -> {
             if (level.getEntity(kwamiData.uuid()) instanceof Kwami kwami) {
-                if (kwami.isCharged() && kwami.getMainHandItem().isEmpty()) {
+                if (kwami.isCharged() && kwami.getMainHandItem().isEmpty() && kwami.getSummonTicks() <= 0) {
                     kwami.setCharged(false);
                     kwami.discard();
 
@@ -180,7 +180,7 @@ public record MiraculousData(Optional<KwamiData> kwamiData, Optional<CuriosData>
     }
 
     public void detransform(Entity entity, ServerLevel level, Holder<Miraculous> miraculous, boolean removed) {
-        Kwami kwami = KwamiData.summon(kwamiData, level, miraculous.getKey(), entity);
+        Kwami kwami = KwamiData.summon(kwamiData, level, miraculous, entity);
         if (kwami != null) {
             kwami.setCharged(false);
         } else {

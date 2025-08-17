@@ -4,7 +4,7 @@ import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import java.util.List;
 import java.util.function.Predicate;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 
 /**
  * An {@link Ability} that delegates to or holds other {@link Ability}s.
@@ -13,7 +13,7 @@ import net.minecraft.world.entity.Entity;
 public interface AbilityWithSubAbilities extends Ability {
     @Override
     @OverridingMethodsMustInvokeSuper
-    default void transform(AbilityData data, ServerLevel level, Entity performer) {
+    default void transform(AbilityData data, ServerLevel level, LivingEntity performer) {
         for (Ability ability : getAll()) {
             if (ability != this) {
                 ability.transform(data, level, performer);
@@ -23,7 +23,7 @@ public interface AbilityWithSubAbilities extends Ability {
 
     @Override
     @OverridingMethodsMustInvokeSuper
-    default void detransform(AbilityData data, ServerLevel level, Entity performer) {
+    default void detransform(AbilityData data, ServerLevel level, LivingEntity performer) {
         for (Ability ability : getAll()) {
             if (ability != this) {
                 ability.detransform(data, level, performer);
@@ -33,7 +33,7 @@ public interface AbilityWithSubAbilities extends Ability {
 
     @Override
     @OverridingMethodsMustInvokeSuper
-    default void revert(AbilityData data, ServerLevel level, Entity performer) {
+    default void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
         for (Ability ability : getAll()) {
             if (ability != this) {
                 ability.revert(data, level, performer);
@@ -43,7 +43,7 @@ public interface AbilityWithSubAbilities extends Ability {
 
     @Override
     @OverridingMethodsMustInvokeSuper
-    default void joinLevel(AbilityData data, ServerLevel level, Entity performer) {
+    default void joinLevel(AbilityData data, ServerLevel level, LivingEntity performer) {
         for (Ability ability : getAll()) {
             if (ability != this) {
                 ability.joinLevel(data, level, performer);
@@ -53,7 +53,7 @@ public interface AbilityWithSubAbilities extends Ability {
 
     @Override
     @OverridingMethodsMustInvokeSuper
-    default void leaveLevel(AbilityData data, ServerLevel level, Entity performer) {
+    default void leaveLevel(AbilityData data, ServerLevel level, LivingEntity performer) {
         for (Ability ability : getAll()) {
             if (ability != this) {
                 ability.leaveLevel(data, level, performer);

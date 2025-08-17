@@ -4,7 +4,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.RevertLuckyCharmTargetsA
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBlockData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionItemData;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 
 /// Enables an item to revert trackable effects via {@link RevertLuckyCharmTargetsAbilityEffectsAbility}.
 public interface EffectRevertingItem {
@@ -15,5 +15,5 @@ public interface EffectRevertingItem {
      *
      * @param entity The entity to revert effects for
      */
-    void revert(Entity entity);
+    void revert(LivingEntity entity);
 }

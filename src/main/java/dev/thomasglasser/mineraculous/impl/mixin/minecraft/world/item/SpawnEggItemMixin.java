@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.impl.mixin.minecraft.world.item;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import dev.thomasglasser.mineraculous.impl.world.entity.MineraculousEntityUtils;
+import dev.thomasglasser.mineraculous.impl.world.entity.MineraculousInternalEntityUtils;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -26,7 +26,7 @@ public class SpawnEggItemMixin {
     private <T extends Entity> T checkAndTrackLuckyCharmEntityOn(EntityType<T> instance, ServerLevel serverLevel, @Nullable ItemStack stack, @Nullable Player player, BlockPos pos, MobSpawnType spawnType, boolean shouldOffsetY, boolean shouldOffsetYMore, Operation<T> original) {
         T spawned = original.call(instance, serverLevel, stack, player, pos, spawnType, shouldOffsetY, shouldOffsetYMore);
         if (stack != null) {
-            MineraculousEntityUtils.checkAndTrackLuckyCharmEntity(player, spawned, serverLevel, stack);
+            MineraculousInternalEntityUtils.checkAndTrackLuckyCharmEntity(player, spawned, serverLevel, stack);
         }
         return spawned;
     }
@@ -35,13 +35,13 @@ public class SpawnEggItemMixin {
     private <T extends Entity> T checkAndTrackLuckyCharmEntity(EntityType<T> instance, ServerLevel serverLevel, @Nullable ItemStack stack, @Nullable Player player, BlockPos pos, MobSpawnType spawnType, boolean shouldOffsetY, boolean shouldOffsetYMore, Operation<T> original) {
         T spawned = original.call(instance, serverLevel, stack, player, pos, spawnType, shouldOffsetY, shouldOffsetYMore);
         if (stack != null) {
-            MineraculousEntityUtils.checkAndTrackLuckyCharmEntity(player, spawned, serverLevel, stack);
+            MineraculousInternalEntityUtils.checkAndTrackLuckyCharmEntity(player, spawned, serverLevel, stack);
         }
         return spawned;
     }
 
     @Inject(method = "spawnOffspringFromSpawnEgg", at = @At("TAIL"))
     private void checkAndTrackLuckyCharmOffspring(Player player, Mob parent, EntityType<? extends Mob> entityType, ServerLevel serverLevel, Vec3 pos, ItemStack stack, CallbackInfoReturnable<Optional<Mob>> cir) {
-        cir.getReturnValue().ifPresent(offspring -> MineraculousEntityUtils.checkAndTrackLuckyCharmEntity(player, offspring, serverLevel, stack));
+        cir.getReturnValue().ifPresent(offspring -> MineraculousInternalEntityUtils.checkAndTrackLuckyCharmEntity(player, offspring, serverLevel, stack));
     }
 }

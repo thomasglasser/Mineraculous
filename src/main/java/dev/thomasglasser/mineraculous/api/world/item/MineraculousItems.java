@@ -55,7 +55,7 @@ public class MineraculousItems {
     public static final DeferredItem<Item> BUTTERFLY_CANE = register("butterfly_cane", () -> new ButterflyCaneItem(MIRACULOUS_TOOL_PROPERTIES.apply(new Item.Properties())));
 
     // Miraculous
-    public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", () -> new MiraculousItem(new Item.Properties()));
+    public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", () -> new MiraculousItem(new Item.Properties().component(MineraculousDataComponents.CHARGED, true)));
 
     public static final DeferredItem<SwordItem> GREAT_SWORD = register("great_sword", () -> new SwordItem(MineraculousTiers.MIRACULOUS, new Item.Properties().attributes(SwordItem.createAttributes(Tiers.DIAMOND, 6, -3))));
     /// Inventory filler used for ability reversion

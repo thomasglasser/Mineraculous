@@ -9,7 +9,6 @@ import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
-import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
@@ -50,6 +49,10 @@ public class MineraculousDataComponents {
     // Miraculous Item
     /// If present, the item is in its powered form.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> POWERED = DATA_COMPONENTS.registerUnit("powered", true, true);
+    /// If present, whether the item is charged.
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> CHARGED = DATA_COMPONENTS.registerBoolean("charged", true, true);
+    /// The {@link KwamiData} holding information about the {@link Kwami} associated with the stack.
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> KWAMI_ID = DATA_COMPONENTS.register("kwami_data", UUIDUtil.STREAM_CODEC, UUIDUtil.CODEC, false);
     /// If present, the remaining transformation frames in an ongoing transformation.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TRANSFORMATION_FRAMES = DATA_COMPONENTS.registerInteger("transformation_frames", true, true);
     /// If present, the remaining detransformation frames in an ongoing detransformation.
@@ -70,8 +73,8 @@ public class MineraculousDataComponents {
 
     // Miraculous
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Holder<Miraculous>>> MIRACULOUS = DATA_COMPONENTS.register("miraculous", Miraculous.STREAM_CODEC, Miraculous.CODEC, false);
-    /// The {@link KwamiData} holding information about the {@link Kwami} associated with the stack.
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<KwamiData>> KWAMI_DATA = DATA_COMPONENTS.register("kwami_data", KwamiData.STREAM_CODEC, KwamiData.CODEC, false);
+    /// If present, the unique ID for the related miraculous.
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> MIRACULOUS_ID = DATA_COMPONENTS.register("miraculous_id", UUIDUtil.STREAM_CODEC, UUIDUtil.CODEC, false);
     /// The {@link Integer} id of used for tool recalling via {@link ToolIdData}.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TOOL_ID = DATA_COMPONENTS.registerInteger("tool_id", true, false);
 

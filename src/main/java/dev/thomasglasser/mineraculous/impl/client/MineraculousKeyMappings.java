@@ -9,7 +9,6 @@ import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundMiraculousTransformPayload;
@@ -22,9 +21,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundTryBreakItemPayloa
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoLengthPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
-import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
-import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.ExtendedKeyMapping;
@@ -98,23 +95,7 @@ public class MineraculousKeyMappings {
                 if (options.size() > 1) {
                     Minecraft.getInstance().setScreen(new RadialMenuScreen<>(TRANSFORM.getKey().getValue(), options, -1, (selected, i) -> {
                         Holder<Miraculous> miraculous = miraculousOptions.get(selected);
-                        if (miraculous != null) {
-                            ItemStack stack = miraculousStacks.get(miraculous);
-                            MiraculousData data = miraculousesData.get(miraculous);
-                            if (data != null) {
-                                KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
-                                if (kwamiData != null) {
-                                    if (kwamiData.charged()) {
-                                        TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, data, true));
-                                    } else {
-                                        Kwami kwami = player.level().getEntity(kwamiData.id()) instanceof Kwami k ? k : null;
-                                        if (kwami != null) {
-                                            kwami.playHurtSound(player.level().damageSources().starve());
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), true));
                     }));
                 } else if (options.size() == 1) {
                     Holder<Miraculous> miraculous = miraculousOptions.get(options.getFirst());

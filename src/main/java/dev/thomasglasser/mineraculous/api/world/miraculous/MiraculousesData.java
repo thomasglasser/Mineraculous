@@ -20,6 +20,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,7 +48,7 @@ public class MiraculousesData {
     }
 
     @ApiStatus.Internal
-    public void tick(Entity entity, ServerLevel level) {
+    public void tick(LivingEntity entity, ServerLevel level) {
         forEach((miraculous, data) -> data.tick(entity, level, miraculous));
     }
 

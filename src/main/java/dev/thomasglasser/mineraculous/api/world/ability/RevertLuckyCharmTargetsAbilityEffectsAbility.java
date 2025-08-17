@@ -35,9 +35,9 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
             SoundEvent.CODEC.optionalFieldOf("revert_sound").forGetter(RevertLuckyCharmTargetsAbilityEffectsAbility::revertSound)).apply(instance, RevertLuckyCharmTargetsAbilityEffectsAbility::new));
 
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context) {
-        if (context == null && data.powerActive() && performer instanceof LivingEntity livingEntity) {
-            ItemStack stack = livingEntity.getMainHandItem();
+    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+        if (context == null && data.powerActive()) {
+            ItemStack stack = performer.getMainHandItem();
             LuckyCharm luckyCharm = stack.get(MineraculousDataComponents.LUCKY_CHARM);
             if (luckyCharm != null) {
                 UUID performerId = handler.getMatchingBlame(stack, performer);
@@ -45,8 +45,8 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                     luckyCharm.target().ifPresent(target -> {
                         AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
                         for (UUID relatedId : entityData.getAndClearTrackedAndRelatedEntities(target)) {
-                            Entity related = level.getEntity(relatedId);
-                            if (related != null) {
+                            Entity r = level.getEntity(relatedId);
+                            if (r instanceof LivingEntity related) {
                                 related.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization).or(() -> related.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION)).ifPresent(kamikotization -> {
                                     Kamikotization value = kamikotization.value();
                                     AbilityData abilityData = new AbilityData(0, false);

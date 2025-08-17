@@ -13,7 +13,7 @@ import java.util.function.Predicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -30,7 +30,7 @@ public record ContextDependentAbility(Optional<Holder<Ability>> blockAbility, Op
             Ability.CODEC.optionalFieldOf("entity").forGetter(ContextDependentAbility::entityAbility),
             Ability.HOLDER_SET_CODEC.optionalFieldOf("passive", HolderSet.empty()).forGetter(ContextDependentAbility::passiveAbilities)).apply(instance, ContextDependentAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         switch (context) {
             case BlockAbilityContext blockAbilityContext when blockAbility.isPresent() -> {
                 return blockAbility.get().value().perform(data, level, performer, handler, blockAbilityContext);

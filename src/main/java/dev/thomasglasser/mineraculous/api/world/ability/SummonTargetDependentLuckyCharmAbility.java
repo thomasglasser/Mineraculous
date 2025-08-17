@@ -51,10 +51,10 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             SoundEvent.CODEC.optionalFieldOf("summon_sound").forGetter(SummonTargetDependentLuckyCharmAbility::summonSound)).apply(instance, SummonTargetDependentLuckyCharmAbility::new));
 
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         boolean canPerform = !requireActiveToolInHand;
-        if (requireActiveToolInHand && performer instanceof LivingEntity livingEntity) {
-            canPerform = handler.isActiveTool(livingEntity.getMainHandItem(), livingEntity) || handler.isActiveTool(livingEntity.getOffhandItem(), livingEntity);
+        if (requireActiveToolInHand) {
+            canPerform = handler.isActiveTool(performer.getMainHandItem(), performer) || handler.isActiveTool(performer.getOffhandItem(), performer);
         }
         if (canPerform) {
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
@@ -68,13 +68,9 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
                         .withParameter(LootContextParams.THIS_ENTITY, performer)
                         .withParameter(LootContextParams.ORIGIN, performer.position())
                         .withParameter(MineraculousLootContextParams.POWER_LEVEL, data.powerLevel())
-                        .withOptionalParameter(LootContextParams.ATTACKING_ENTITY, target);
-
-                if (performer instanceof LivingEntity livingEntity) {
-                    paramsBuilder = paramsBuilder
-                            .withOptionalParameter(LootContextParams.TOOL, livingEntity.getMainHandItem())
-                            .withOptionalParameter(LootContextParams.DAMAGE_SOURCE, livingEntity.getLastDamageSource());
-                }
+                        .withOptionalParameter(LootContextParams.ATTACKING_ENTITY, target)
+                        .withOptionalParameter(LootContextParams.TOOL, performer.getMainHandItem())
+                        .withOptionalParameter(LootContextParams.DAMAGE_SOURCE, performer.getLastDamageSource());
 
                 LootParams params = paramsBuilder
                         .create(MineraculousLootContextParamSets.LUCKY_CHARM);
@@ -97,15 +93,13 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
         return false;
     }
 
-    private @Nullable Entity determineTarget(ServerLevel level, @Nullable UUID trackedId, Entity performer) {
+    private @Nullable Entity determineTarget(ServerLevel level, @Nullable UUID trackedId, LivingEntity performer) {
         Entity target = trackedId != null ? level.getEntity(trackedId) : null;
-        if (performer instanceof LivingEntity livingEntity) {
-            if (target == null) {
-                target = livingEntity.getKillCredit();
-            }
-            if (target == null) {
-                target = livingEntity.getLastHurtMob();
-            }
+        if (target == null) {
+            target = performer.getKillCredit();
+        }
+        if (target == null) {
+            target = performer.getLastHurtMob();
         }
         if (target instanceof OwnableEntity ownable && ownable.getOwnerUUID() != null) {
             Entity owner = level.getEntity(ownable.getOwnerUUID());
@@ -142,7 +136,7 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
     }
 
     @Override
-    public void revert(AbilityData data, ServerLevel level, Entity performer) {
+    public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
         AbilityReversionBlockData.get(level).revert(performer.getUUID(), level);
         AbilityReversionEntityData.get(level).revert(performer.getUUID(), level, entity -> {});
     }

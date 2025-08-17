@@ -1,14 +1,10 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
-import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
-import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -16,7 +12,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.saveddata.SavedData;
 
@@ -33,26 +28,21 @@ public class LuckyCharmIdData extends SavedData {
     }
 
     public void tick(Entity entity) {
-        Set<ItemStack> stacks = new ReferenceOpenHashSet<>();
-        stacks.addAll(EntityUtils.getInventory(entity));
-        if (entity instanceof LivingEntity livingEntity) {
-            stacks.addAll(CuriosUtils.getAllItems(livingEntity).values());
-        }
-        for (ItemStack stack : stacks) {
+        for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
             LuckyCharm luckyCharm = stack.get(MineraculousDataComponents.LUCKY_CHARM);
             if (luckyCharm != null) {
-                int stackId = luckyCharm.id();
-                KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
-                if (kwamiData != null) {
-                    int currentId = getLuckyCharmId(kwamiData.uuid());
-                    if (currentId != stackId) {
+                int charmId = luckyCharm.id();
+                UUID stackId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
+                if (stackId != null) {
+                    int currentId = getLuckyCharmId(stackId);
+                    if (currentId != charmId) {
                         stack.setCount(0);
                     }
                 } else if (stack.has(MineraculousDataComponents.KAMIKOTIZATION)) {
                     UUID owner = stack.get(MineraculousDataComponents.OWNER);
                     if (owner != null) {
                         int currentId = getLuckyCharmId(owner);
-                        if (currentId != stackId) {
+                        if (currentId != charmId) {
                             stack.setCount(0);
                         }
                     }

@@ -57,7 +57,7 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
             SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(ApplyEffectsOrDestroyAbility::applySound)).apply(instance, ApplyEffectsOrDestroyAbility::new));
 
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context instanceof EntityAbilityContext(Entity target)) {
             AbilityReversionEntityData.get(level).putRevertible(performer.getUUID(), target);
             DamageSource source = damageType.map(key -> performer.damageSources().source(key, performer)).orElseGet(() -> performer.damageSources().indirectMagic(performer, performer));
@@ -92,9 +92,7 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
             } else {
                 target.hurt(source, 1024);
             }
-            if (performer instanceof LivingEntity livingEntity) {
-                livingEntity.setLastHurtMob(target);
-            }
+            performer.setLastHurtMob(target);
             if (overrideKillCredit) {
                 target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withKillCredit(Optional.of(performer.getUUID())).save(target, true);
             }
@@ -105,7 +103,7 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
     }
 
     @Override
-    public void revert(AbilityData data, ServerLevel level, Entity performer) {
+    public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
         AbilityReversionEntityData.get(level).revert(performer.getUUID(), level, entity -> {
             if (entity instanceof LivingEntity livingEntity) {
                 for (Holder<MobEffect> effect : effects) {

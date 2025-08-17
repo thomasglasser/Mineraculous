@@ -1,10 +1,9 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
-import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import net.minecraft.core.Holder;
@@ -28,7 +27,7 @@ public record ServerboundRenounceMiraculousPayload(InteractionHand hand) impleme
         ItemStack stack = player.getItemInHand(hand);
         Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
         if (miraculous != null) {
-            KwamiData.renounce(player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).kwamiData(), stack, (ServerLevel) player.level());
+            MineraculousEntityUtils.renounceKwami(stack.get(MineraculousDataComponents.KWAMI_ID), stack, (ServerLevel) player.level());
         }
     }
 

@@ -6,21 +6,23 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
-import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
+import java.util.UUID;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceKeyArgument;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 
 public class MiraculousCommand {
     public static final int COMMANDS_ENABLED_PERMISSION_LEVEL = 2;
@@ -46,6 +48,8 @@ public class MiraculousCommand {
     public static final String EXCEPTION_MIRACULOUS_INVALID = "commands.miraculous.miraculous.invalid";
     public static final DynamicCommandExceptionType ERROR_INVALID_MIRACULOUS = new DynamicCommandExceptionType(
             arg -> Component.translatableEscape(EXCEPTION_MIRACULOUS_INVALID, arg));
+    private static final DynamicCommandExceptionType ERROR_NOT_LIVING_ENTITY = new DynamicCommandExceptionType(
+            p_304174_ -> Component.translatableEscape("commands.attribute.failed.entity", p_304174_));
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("miraculous")
@@ -91,10 +95,10 @@ public class MiraculousCommand {
         if (data.transformed()) {
             context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_TRANSFORMED, entity.getDisplayName()));
             return 0;
-        } else {
-            KwamiData kwamiData = data.kwamiData().orElse(null);
-            if (kwamiData != null) {
-                Kwami kwami = ((ServerLevel) entity.level()).getEntity(kwamiData.uuid()) instanceof Kwami k ? k : null;
+        } else if (entity instanceof LivingEntity livingEntity) {
+            UUID kwamiId = data.curiosData().map(curiosData -> CuriosUtils.getStackInSlot(livingEntity, curiosData).get(MineraculousDataComponents.KWAMI_ID)).orElse(null);
+            if (kwamiId != null) {
+                Kwami kwami = context.getSource().getLevel().getEntity(kwamiId) instanceof Kwami k ? k : null;
                 if (kwami != null) {
                     context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_QUERY_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key())), kwami.isCharged() ? CHARGED_TRUE : CHARGED_FALSE) : Component.translatable(CHARGED_QUERY_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculous.key())), kwami.isCharged() ? CHARGED_TRUE : CHARGED_FALSE), true);
                     return 1;
@@ -106,6 +110,8 @@ public class MiraculousCommand {
                 context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key()))));
                 return 0;
             }
+        } else {
+            throw ERROR_NOT_LIVING_ENTITY.create(entity.getName().getString());
         }
     }
 
@@ -116,11 +122,11 @@ public class MiraculousCommand {
         if (data.transformed()) {
             context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_TRANSFORMED, entity.getDisplayName()));
             return 0;
-        } else {
-            KwamiData kwamiData = data.kwamiData().orElse(null);
-            if (kwamiData != null) {
+        } else if (entity instanceof LivingEntity livingEntity) {
+            UUID kwamiId = data.curiosData().map(curiosData -> CuriosUtils.getStackInSlot(livingEntity, curiosData).get(MineraculousDataComponents.KWAMI_ID)).orElse(null);
+            if (kwamiId != null) {
                 boolean charged = BoolArgumentType.getBool(context, "charged");
-                Kwami kwami = ((ServerLevel) entity.level()).getEntity(kwamiData.uuid()) instanceof Kwami k ? k : null;
+                Kwami kwami = context.getSource().getLevel().getEntity(kwamiId) instanceof Kwami k ? k : null;
                 if (kwami != null) {
                     kwami.setCharged(charged);
                     context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_SET_SUCCESS_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key())), charged ? CHARGED_TRUE : CHARGED_FALSE) : Component.translatable(CHARGED_SET_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(Miraculous.toLanguageKey(miraculous.key())), charged ? CHARGED_TRUE : CHARGED_FALSE), true);
@@ -133,6 +139,8 @@ public class MiraculousCommand {
                 context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(Miraculous.toLanguageKey(miraculous.key()))));
                 return 0;
             }
+        } else {
+            throw ERROR_NOT_LIVING_ENTITY.create(entity.getName().getString());
         }
     }
 

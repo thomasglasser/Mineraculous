@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
@@ -35,7 +36,7 @@ public record ConvertAndTameAbility(EntityType<?> newType, Optional<EntityPredic
             EntityPredicate.CODEC.optionalFieldOf("invalid_entities").forGetter(ConvertAndTameAbility::invalidEntities),
             SoundEvent.CODEC.optionalFieldOf("convert_sound").forGetter(ConvertAndTameAbility::convertSound)).apply(instance, ConvertAndTameAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context instanceof EntityAbilityContext(Entity target)) {
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
             if (isValidEntity(level, target.position(), target) && !entityData.isConverted(target.getUUID())) {
@@ -64,12 +65,12 @@ public record ConvertAndTameAbility(EntityType<?> newType, Optional<EntityPredic
     }
 
     @Override
-    public void revert(AbilityData data, ServerLevel level, Entity performer) {
+    public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
         AbilityReversionEntityData.get(level).revertConversions(performer.getUUID(), level);
     }
 
     @Override
-    public boolean shouldTempt(ServerLevel level, Entity performer, Entity entity) {
+    public boolean shouldTempt(ServerLevel level, LivingEntity performer, Entity entity) {
         return isValidEntity(level, performer.position(), entity);
     }
 

@@ -26,7 +26,7 @@ import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,7 +53,7 @@ public interface Ability {
      * @param context   The context of the ability (null if passive)
      * @return Whether the ability should consume the active state (i.e., stop the ability and trigger completion)
      */
-    boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context);
+    boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context);
 
     /**
      * Called when the performer transforms.
@@ -65,7 +65,7 @@ public interface Ability {
      * @param level     The level the ability is being performed in
      * @param performer The performer of the ability
      */
-    default void transform(AbilityData data, ServerLevel level, Entity performer) {}
+    default void transform(AbilityData data, ServerLevel level, LivingEntity performer) {}
 
     /**
      * Called when the performer detransforms.
@@ -77,7 +77,7 @@ public interface Ability {
      * @param level     The level the ability is being performed in
      * @param performer The performer of the ability
      */
-    default void detransform(AbilityData data, ServerLevel level, Entity performer) {}
+    default void detransform(AbilityData data, ServerLevel level, LivingEntity performer) {}
 
     /**
      * Called by {@link RevertLuckyCharmTargetsAbilityEffectsAbility} to revert this ability's trackable effects.
@@ -88,7 +88,7 @@ public interface Ability {
      * @param level     The level the ability is being performed in
      * @param performer The performer of the ability
      */
-    default void revert(AbilityData data, ServerLevel level, Entity performer) {}
+    default void revert(AbilityData data, ServerLevel level, LivingEntity performer) {}
 
     /**
      * Called when the performer joins a new {@link Level}.
@@ -98,7 +98,7 @@ public interface Ability {
      * @param level     The level the performer just joined
      * @param performer The performer of the ability
      */
-    default void joinLevel(AbilityData data, ServerLevel level, Entity performer) {}
+    default void joinLevel(AbilityData data, ServerLevel level, LivingEntity performer) {}
 
     /**
      * Called when the performer leaves their current {@link Level}.
@@ -108,7 +108,7 @@ public interface Ability {
      * @param level     The level the performer just left
      * @param performer The performer of the ability
      */
-    default void leaveLevel(AbilityData data, ServerLevel level, Entity performer) {}
+    default void leaveLevel(AbilityData data, ServerLevel level, LivingEntity performer) {}
 
     /**
      * The dispatch {@link MapCodec} that defines and constructs the ability.
@@ -125,7 +125,7 @@ public interface Ability {
      * @param performer The performer of the ability
      * @param sound     The optional sound to play if present
      */
-    static void playSound(ServerLevel level, Entity performer, Optional<Holder<SoundEvent>> sound) {
+    static void playSound(ServerLevel level, LivingEntity performer, Optional<Holder<SoundEvent>> sound) {
         sound.ifPresent(soundEvent -> level.playSound(null, performer.blockPosition(), soundEvent.value(), performer.getSoundSource(), 1, 1));
     }
 

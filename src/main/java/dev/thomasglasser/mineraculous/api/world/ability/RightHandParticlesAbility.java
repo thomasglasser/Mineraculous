@@ -10,7 +10,7 @@ import java.util.Optional;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -23,7 +23,7 @@ public record RightHandParticlesAbility(ParticleOptions particle) implements Abi
             ParticleTypes.CODEC.fieldOf("particle").forGetter(RightHandParticlesAbility::particle)).apply(instance, RightHandParticlesAbility::new));
 
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null) {
             TommyLibServices.NETWORK.sendToTrackingClients(new ClientboundAddRightHandParticlesPayload(Optional.of(performer.getId()), particle), performer);
         }

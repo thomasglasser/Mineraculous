@@ -55,6 +55,7 @@
     "mineraculous:butterfly_cane_ability",
     "mineraculous:carrier",
     "mineraculous:cat_staff_ability",
+    "mineraculous:charged",
     "mineraculous:detransformation_frames",
     "mineraculous:hide_enchantments",
     "mineraculous:kamiko_data",
@@ -63,6 +64,7 @@
     "mineraculous:ladybug_yoyo_ability",
     "mineraculous:lucky_charm",
     "mineraculous:miraculous",
+    "mineraculous:miraculous_id",
     "mineraculous:owner",
     "mineraculous:powered",
     "mineraculous:recoverable_item_id",
@@ -264,6 +266,7 @@
   "neoforge:entity_data_serializers": [
     "mineraculous:miraculous",
     "mineraculous:optional_ladybug_yoyo_ability",
-    "mineraculous:optional_resource_location"
+    "mineraculous:optional_resource_location",
+    "mineraculous:uuid"
   ]
 }

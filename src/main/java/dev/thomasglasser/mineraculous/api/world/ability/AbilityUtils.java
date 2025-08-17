@@ -14,6 +14,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
 public class AbilityUtils {
@@ -28,7 +29,7 @@ public class AbilityUtils {
      * @param passiveAbilities The abilities to perform
      * @return Whether the passive abilities consumed (i.e., they overrode the active ability)
      */
-    public static boolean performPassiveAbilities(ServerLevel level, Entity performer, AbilityData data, AbilityHandler handler, @Nullable AbilityContext context, HolderSet<Ability> passiveAbilities) {
+    public static boolean performPassiveAbilities(ServerLevel level, LivingEntity performer, AbilityData data, AbilityHandler handler, @Nullable AbilityContext context, HolderSet<Ability> passiveAbilities) {
         for (Holder<Ability> ability : passiveAbilities) {
             if (ability.value().perform(data, level, performer, handler, context)) {
                 return true;
@@ -48,7 +49,7 @@ public class AbilityUtils {
      * @param activeAbility The ability to perform
      * @return Whether the active ability consumed (i.e., was used up)
      */
-    public static boolean performActiveAbility(ServerLevel level, Entity performer, AbilityData abilityData, AbilityHandler handler, @Nullable AbilityContext context, Optional<Holder<Ability>> activeAbility) {
+    public static boolean performActiveAbility(ServerLevel level, LivingEntity performer, AbilityData abilityData, AbilityHandler handler, @Nullable AbilityContext context, Optional<Holder<Ability>> activeAbility) {
         if (abilityData.powerActive()) {
             return activeAbility.map(ability -> ability.value().perform(abilityData, level, performer, handler, context)).orElse(false);
         }
@@ -62,7 +63,7 @@ public class AbilityUtils {
      * @param performer The performer of the abilities
      * @param target    The target to make the context for
      */
-    public static void performEntityAbilities(ServerLevel level, Entity performer, Entity target) {
+    public static void performEntityAbilities(ServerLevel level, LivingEntity performer, Entity target) {
         performAbilitiesInternal(level, performer, new EntityAbilityContext(target));
     }
 
@@ -73,11 +74,11 @@ public class AbilityUtils {
      * @param performer The performer of the abilities
      * @param pos       The {@link BlockPos} to make the context for
      */
-    public static void performBlockAbilities(ServerLevel level, Entity performer, BlockPos pos) {
+    public static void performBlockAbilities(ServerLevel level, LivingEntity performer, BlockPos pos) {
         performAbilitiesInternal(level, performer, new BlockAbilityContext(pos));
     }
 
-    private static void performAbilitiesInternal(ServerLevel level, Entity performer, @Nullable AbilityContext context) {
+    private static void performAbilitiesInternal(ServerLevel level, LivingEntity performer, @Nullable AbilityContext context) {
         MiraculousesData miraculousesData = performer.getData(MineraculousAttachmentTypes.MIRACULOUSES);
         miraculousesData.getTransformed().forEach(miraculous -> miraculousesData.get(miraculous).performAbilities(level, performer, miraculous, context));
         performer.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.performAbilities(level, performer, context));

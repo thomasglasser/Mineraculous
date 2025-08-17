@@ -4,7 +4,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import java.util.UUID;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +28,7 @@ public interface AbilityHandler {
      * @return The blame UUID, or null if there isn't one
      */
     @Nullable
-    UUID getAndAssignBlame(ItemStack stack, Entity performer);
+    UUID getAndAssignBlame(ItemStack stack, LivingEntity performer);
 
     /**
      * Determines the blame {@link UUID} and returns it if it matches the blame of the provided {@link ItemStack}.
@@ -38,7 +38,7 @@ public interface AbilityHandler {
      * @return The blame UUID if it matches, or null
      */
     @Nullable
-    UUID getMatchingBlame(ItemStack stack, Entity performer);
+    UUID getMatchingBlame(ItemStack stack, LivingEntity performer);
 
     /**
      * Checks if the provided {@link ItemStack} is the provided performer's active tool
@@ -47,5 +47,5 @@ public interface AbilityHandler {
      * @param performer The performer to get the tool predicate from
      * @return Whether the provided stack is the performer's active tool
      */
-    boolean isActiveTool(ItemStack stack, Entity performer);
+    boolean isActiveTool(ItemStack stack, LivingEntity performer);
 }

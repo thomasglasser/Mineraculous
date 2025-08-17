@@ -2,12 +2,13 @@ package dev.thomasglasser.mineraculous.impl.world.item;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
-import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -68,12 +69,12 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
         if (level instanceof ServerLevel serverLevel) {
-            KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
             UUID owner = stack.get(MineraculousDataComponents.OWNER);
             if (owner == null || !owner.equals(entity.getUUID())) {
                 stack.set(MineraculousDataComponents.OWNER, entity.getUUID());
-                if (kwamiData != null) {
-                    if (serverLevel.getEntity(kwamiData.uuid()) instanceof Kwami kwami) {
+                UUID kwamiId = stack.get(MineraculousDataComponents.KWAMI_ID);
+                if (kwamiId != null) {
+                    if (serverLevel.getEntity(kwamiId) instanceof Kwami kwami) {
                         if (entity instanceof Player player) {
                             kwami.tame(player);
                         } else {
@@ -81,11 +82,11 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                             kwami.setOwnerUUID(entity.getUUID());
                         }
                     } else if (!stack.has(MineraculousDataComponents.POWERED)) {
-                        stack.remove(MineraculousDataComponents.KWAMI_DATA);
+                        stack.remove(MineraculousDataComponents.KWAMI_ID);
                     }
                 }
             }
-            if (!stack.has(MineraculousDataComponents.POWERED) && !stack.has(MineraculousDataComponents.KWAMI_DATA)) {
+            if (!stack.has(MineraculousDataComponents.POWERED) && !stack.has(MineraculousDataComponents.KWAMI_ID)) {
                 stack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
             }
         }
@@ -102,19 +103,22 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
         Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
         if (entity.level() instanceof ServerLevel level && miraculous != null && !(stack.is(prevStack.getItem()) && miraculous == prevStack.get(MineraculousDataComponents.MIRACULOUS))) {
             MiraculousData data = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous);
-            KwamiData kwamiData = data.kwamiData().orElse(null);
             if (!data.transformed()) {
+                UUID miraculousId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
+                if (miraculousId == null) {
+                    miraculousId = UUID.randomUUID();
+                    stack.set(MineraculousDataComponents.MIRACULOUS_ID, miraculousId);
+                }
                 if (stack.has(MineraculousDataComponents.POWERED)) {
                     stack.remove(MineraculousDataComponents.POWERED);
-                    Kwami kwami = KwamiData.summon(data.kwamiData(), level, miraculous, entity);
+                    Kwami kwami = MineraculousEntityUtils.summonKwami(stack.getOrDefault(MineraculousDataComponents.CHARGED, true), miraculousId, level, miraculous, entity);
                     if (kwami != null) {
-                        kwamiData = data.kwamiData().map(kD -> new KwamiData(kwami.getUUID(), kwami.getId(), kD.charged())).orElseGet(() -> new KwamiData(kwami.getUUID(), kwami.getId(), kwami.isCharged()));
+                        stack.set(MineraculousDataComponents.KWAMI_ID, kwami.getUUID());
+                    } else {
+                        Mineraculous.LOGGER.error("Kwami could not be created for entity {}", entity.getName().plainCopy().getString());
                     }
                 }
-                stack.set(MineraculousDataComponents.KWAMI_DATA, kwamiData);
-                if (kwamiData != null) {
-                    data.equip(kwamiData, new CuriosData(slotContext)).save(miraculous, entity, true);
-                }
+                data.equip(new CuriosData(slotContext)).save(miraculous, entity, true);
             }
         }
     }

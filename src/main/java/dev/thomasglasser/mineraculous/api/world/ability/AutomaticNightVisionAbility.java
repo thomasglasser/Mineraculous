@@ -16,7 +16,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,25 +40,21 @@ public record AutomaticNightVisionAbility(int lightLevel, Optional<ResourceLocat
     }
 
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context) {
-        if (context == null && performer instanceof LivingEntity livingEntity) {
-            checkNightVision(data.powerLevel(), level, livingEntity);
+    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+        if (context == null) {
+            checkNightVision(data.powerLevel(), level, performer);
         }
         return false;
     }
 
     @Override
-    public void detransform(AbilityData data, ServerLevel level, Entity performer) {
-        if (performer instanceof LivingEntity livingEntity) {
-            updateNightVision(data.powerLevel(), level, livingEntity, false);
-        }
+    public void detransform(AbilityData data, ServerLevel level, LivingEntity performer) {
+        updateNightVision(data.powerLevel(), level, performer, false);
     }
 
     @Override
-    public void joinLevel(AbilityData data, ServerLevel level, Entity performer) {
-        if (performer instanceof LivingEntity livingEntity) {
-            checkNightVision(data.powerLevel(), level, livingEntity);
-        }
+    public void joinLevel(AbilityData data, ServerLevel level, LivingEntity performer) {
+        checkNightVision(data.powerLevel(), level, performer);
     }
 
     public void checkNightVision(int powerLevel, ServerLevel level, LivingEntity performer) {

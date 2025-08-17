@@ -72,7 +72,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
             KamikotizationData::new);
 
     private static final int TRANSFORMATION_FRAMES = 10;
-    public ItemStack transform(Entity entity, ServerLevel level, ItemStack originalStack) {
+    public ItemStack transform(LivingEntity entity, ServerLevel level, ItemStack originalStack) {
         if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
             Mineraculous.LOGGER.error("Tried to kamikotize currently powered entity: {}", entity.getName().plainCopy().getString());
             return originalStack;
@@ -95,9 +95,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         AbilityReversionItemData.get(level).putKamikotized(entity.getUUID(), originalStack);
 
         level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM, entity.getSoundSource(), 1, 1);
-        if (entity instanceof LivingEntity livingEntity) {
-            level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, amplifier) -> MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, level.holderOrThrow(effect), amplifier.amplifier()));
-        }
+        level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, amplifier) -> MineraculousEntityUtils.applyInfiniteHiddenEffect(entity, level.holderOrThrow(effect), amplifier.amplifier()));
 
         AbilityData data = new AbilityData(0, false);
         value.powerSource().right().ifPresent(ability -> ability.value().transform(data, level, entity));
@@ -113,16 +111,14 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         return kamikotizationStack;
     }
 
-    public void detransform(Entity entity, ServerLevel level, Vec3 kamikoSpawnPos, boolean instant) {
+    public void detransform(LivingEntity entity, ServerLevel level, Vec3 kamikoSpawnPos, boolean instant) {
         Kamiko kamiko = kamikoData.summon(level, kamikoSpawnPos);
         if (kamiko == null) {
             Mineraculous.LOGGER.error("Kamiko could not be created for player {}", entity.getName().plainCopy().getString());
         }
 
         level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM, entity.getSoundSource(), 1, 1);
-        if (entity instanceof LivingEntity livingEntity) {
-            level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).keySet().forEach(effect -> livingEntity.removeEffect(level.holderOrThrow(effect)));
-        }
+        level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).keySet().forEach(effect -> entity.removeEffect(level.holderOrThrow(effect)));
 
         Kamikotization value = kamikotization.value();
         AbilityData data = new AbilityData(0, powerActive);
@@ -140,7 +136,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
     }
 
     @ApiStatus.Internal
-    public void tick(Entity entity, ServerLevel level) {
+    public void tick(LivingEntity entity, ServerLevel level) {
         transformationFrames.ifPresentOrElse(either -> either.ifLeft(transformationFrames -> {
             if (transformationFrames > 0) {
                 if (entity.tickCount % 2 == 0) {
@@ -161,20 +157,18 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
                 finishDetransformation(entity);
             }
         }), () -> {
-            if (entity instanceof LivingEntity livingEntity) {
-                level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((key, amplifier) -> {
-                    Holder<MobEffect> effect = level.holderOrThrow(key);
-                    if (!livingEntity.hasEffect(effect)) {
-                        MineraculousEntityUtils.applyInfiniteHiddenEffect(livingEntity, effect, amplifier.amplifier());
-                    }
-                });
-            }
+            level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((key, amplifier) -> {
+                Holder<MobEffect> effect = level.holderOrThrow(key);
+                if (!entity.hasEffect(effect)) {
+                    MineraculousEntityUtils.applyInfiniteHiddenEffect(entity, effect, amplifier.amplifier());
+                }
+            });
 
             performAbilities(level, entity, null);
         });
     }
 
-    public void performAbilities(ServerLevel level, Entity entity, @Nullable AbilityContext context) {
+    public void performAbilities(ServerLevel level, LivingEntity entity, @Nullable AbilityContext context) {
         AbilityData data = new AbilityData(0, powerActive);
         KamikotizationAbilityHandler handler = new KamikotizationAbilityHandler(kamikotization);
         if (AbilityUtils.performPassiveAbilities(level, entity, data, handler, context, kamikotization.value().passiveAbilities()) && powerActive) {
@@ -190,23 +184,19 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         }
     }
 
-    private void finishTransformation(Entity entity) {
-        if (entity instanceof LivingEntity livingEntity) {
-            ArmorData armor = new ArmorData(livingEntity.getItemBySlot(EquipmentSlot.HEAD), livingEntity.getItemBySlot(EquipmentSlot.CHEST), livingEntity.getItemBySlot(EquipmentSlot.LEGS), livingEntity.getItemBySlot(EquipmentSlot.FEET));
-            livingEntity.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
-            for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
-                ItemStack stack = Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.getForSlot(slot), kamikotization);
-                stack.enchant(entity.level().holderOrThrow(Enchantments.BINDING_CURSE), 1);
-                stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS, Unit.INSTANCE);
-                livingEntity.setItemSlot(slot, stack);
-            }
+    private void finishTransformation(LivingEntity entity) {
+        ArmorData armor = new ArmorData(entity.getItemBySlot(EquipmentSlot.HEAD), entity.getItemBySlot(EquipmentSlot.CHEST), entity.getItemBySlot(EquipmentSlot.LEGS), entity.getItemBySlot(EquipmentSlot.FEET));
+        entity.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
+        for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
+            ItemStack stack = Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.getForSlot(slot), kamikotization);
+            stack.enchant(entity.level().holderOrThrow(Enchantments.BINDING_CURSE), 1);
+            stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS, Unit.INSTANCE);
+            entity.setItemSlot(slot, stack);
         }
     }
 
-    private void finishDetransformation(Entity entity) {
-        if (entity instanceof LivingEntity livingEntity) {
-            livingEntity.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(data -> data.equipAndClear(livingEntity));
-        }
+    private void finishDetransformation(LivingEntity entity) {
+        entity.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(data -> data.equipAndClear(entity));
         remove(entity, true);
     }
 

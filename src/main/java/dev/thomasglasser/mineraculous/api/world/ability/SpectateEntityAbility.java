@@ -18,6 +18,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,7 +46,7 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
             SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(SpectateEntityAbility::startSound),
             SoundEvent.CODEC.optionalFieldOf("stop_sound").forGetter(SpectateEntityAbility::stopSound)).apply(instance, SpectateEntityAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null) {
             AbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
             if (abilityEffectData.spectationInterrupted()) {
@@ -77,11 +78,11 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
         return false;
     }
 
-    private boolean isValidEntity(ServerLevel level, Entity performer, Entity target) {
+    private boolean isValidEntity(ServerLevel level, LivingEntity performer, Entity target) {
         return performer != target && validEntities.map(predicate -> predicate.matches(level, performer.position(), target)).orElse(true) && invalidEntities.map(predicate -> !predicate.matches(level, performer.position(), target)).orElse(true);
     }
 
-    private void stopSpectation(ServerLevel level, Entity performer) {
+    private void stopSpectation(ServerLevel level, LivingEntity performer) {
         performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withSpectation(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), false).save(performer, true);
         if (performer instanceof ServerPlayer player) {
             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.empty()), player);
@@ -90,12 +91,12 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
     }
 
     @Override
-    public void detransform(AbilityData data, ServerLevel level, Entity performer) {
+    public void detransform(AbilityData data, ServerLevel level, LivingEntity performer) {
         stopSpectation(level, performer);
     }
 
     @Override
-    public void leaveLevel(AbilityData data, ServerLevel level, Entity performer) {
+    public void leaveLevel(AbilityData data, ServerLevel level, LivingEntity performer) {
         stopSpectation(level, performer);
     }
 

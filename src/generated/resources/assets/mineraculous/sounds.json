@@ -125,5 +125,11 @@
       "mineraculous:miraculous/ladybug/transform"
     ],
     "subtitle": "subtitles.miraculous.ladybug.transform"
+  },
+  "miraculous.rabbit.transform": {
+    "sounds": [
+      "mineraculous:miraculous/rabbit/transform"
+    ],
+    "subtitle": "subtitles.miraculous.rabbit.transform"
   }
 }

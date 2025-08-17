@@ -8,6 +8,7 @@ import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
+import dev.thomasglasser.mineraculous.impl.world.item.RabbitUmbrellaItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
@@ -61,6 +62,8 @@ public class MineraculousDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<LadybugYoyoItem.Ability>> LADYBUG_YOYO_ABILITY = DATA_COMPONENTS.register("ladybug_yoyo_ability", LadybugYoyoItem.Ability.STREAM_CODEC, LadybugYoyoItem.Ability.CODEC, true);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<CatStaffItem.Ability>> CAT_STAFF_ABILITY = DATA_COMPONENTS.register("cat_staff_ability", CatStaffItem.Ability.STREAM_CODEC, CatStaffItem.Ability.CODEC, true);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ButterflyCaneItem.Ability>> BUTTERFLY_CANE_ABILITY = DATA_COMPONENTS.register("butterfly_cane_ability", ButterflyCaneItem.Ability.STREAM_CODEC, ButterflyCaneItem.Ability.CODEC, true);
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<RabbitUmbrellaItem.Ability>> RABBIT_UMBRELLA_ABILITY = DATA_COMPONENTS.register("rabbit_umbrella_ability", RabbitUmbrellaItem.Ability.STREAM_CODEC, RabbitUmbrellaItem.Ability.CODEC, true);
 
     // Abilities
     /// The {@link LuckyCharm} data associated with the summoned stack.

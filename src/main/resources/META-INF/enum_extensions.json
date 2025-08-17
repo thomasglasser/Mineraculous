@@ -38,6 +38,15 @@
     },
     {
       "enum": "net/minecraft/world/item/ItemDisplayContext",
+      "name": "MINERACULOUS_CURIOS_POCKET",
+      "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
+      "parameters": {
+        "class": "dev/thomasglasser/mineraculous/api/world/item/MineraculousItemDisplayContexts",
+        "field": "CURIOS_POCKET"
+      }
+    },
+    {
+      "enum": "net/minecraft/world/item/ItemDisplayContext",
       "name": "MINERACULOUS_CURIOS_LEFT_ARM",
       "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
       "parameters": {

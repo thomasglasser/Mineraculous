@@ -35,6 +35,7 @@ public class MineraculousSoundDefinitionsProvider extends ExtendedSoundDefinitio
         add(MineraculousSoundEvents.LADYBUG_TRANSFORM);
         add(MineraculousSoundEvents.CAT_TRANSFORM);
         add(MineraculousSoundEvents.BUTTERFLY_TRANSFORM);
+        add(MineraculousSoundEvents.RABBIT_TRANSFORM);
 
         // Kamikotization
         add(MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM);

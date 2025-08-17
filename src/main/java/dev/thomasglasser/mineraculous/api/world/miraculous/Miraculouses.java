@@ -22,6 +22,8 @@ public class Miraculouses {
     public static final ResourceKey<Miraculous> CAT = create("cat");
     /// Red, earring-powered, with {@link Abilities#LUCKY_CHARM}.
     public static final ResourceKey<Miraculous> LADYBUG = create("ladybug");
+    // Light-Blue, pocket-watch-powered with {@link Abilities#BURROW}
+    public static final ResourceKey<Miraculous> RABBIT = create("rabbit");
 
     private static ResourceKey<Miraculous> create(String name) {
         return ResourceKey.create(MineraculousRegistries.MIRACULOUS, Mineraculous.modLoc(name));
@@ -30,7 +32,19 @@ public class Miraculouses {
     @ApiStatus.Internal
     public static void bootstrap(BootstrapContext<Miraculous> context) {
         HolderGetter<Ability> abilities = context.lookup(MineraculousRegistries.ABILITY);
-
+        context.register(RABBIT, new Miraculous(
+                TextColor.fromRgb(0x78ddff),
+                MineraculousCuriosProvider.SLOT_POCKET,
+                Optional.of(7),
+                MineraculousItems.RABBIT_UMBRELLA.toStack(),
+                Optional.of("belt"),
+                abilities.getOrThrow(Abilities.BURROW),
+                HolderSet.direct(
+                        abilities.getOrThrow(Abilities.PASSIVE_LUCK)),
+                MineraculousSoundEvents.BUTTERFLY_TRANSFORM,
+                MineraculousSoundEvents.GENERIC_DETRANSFORM,
+                MineraculousSoundEvents.GENERIC_TIMER_WARNING,
+                MineraculousSoundEvents.GENERIC_TIMER_END));
         context.register(BUTTERFLY, new Miraculous(
                 TextColor.fromRgb(0x641d9a),
                 MineraculousCuriosProvider.SLOT_BROOCH,

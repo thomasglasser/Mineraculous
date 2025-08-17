@@ -42,6 +42,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
+import dev.thomasglasser.mineraculous.impl.world.item.RabbitUmbrellaItem;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.tommylib.api.data.lang.ExtendedEnUsLanguageProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
@@ -111,6 +112,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousItems.LADYBUG_YOYO.get(), "Ladybug Yoyo");
         add(MineraculousItems.CAT_STAFF.get(), "Cat Staff");
         add(MineraculousItems.BUTTERFLY_CANE.get(), "Butterfly Cane");
+        add(MineraculousItems.RABBIT_UMBRELLA.get(), "Rabbit Umbrella");
         add(MineraculousItems.MIRACULOUS.get(), "Miraculous");
         add(MineraculousItems.GREAT_SWORD.get(), "Great Sword");
         add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
@@ -119,6 +121,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         // Tool Abilities
         addToolAbilities(LadybugYoyoItem.Ability.values());
         addToolAbilities(CatStaffItem.Ability.values());
+        addToolAbilities(RabbitUmbrellaItem.Ability.values());
         addToolAbilities(ButterflyCaneItem.Ability.values());
 
         // Armor
@@ -143,6 +146,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), "Ladybug Yoyo");
         add(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), "Cat Staff");
         add(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), "Butterfly Cane");
+        add(MineraculousEntityTypes.THROWN_RABBIT_UMBRELLA.get(), "Rabbit Umbrella");
     }
 
     private void addTabs() {
@@ -192,6 +196,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(Miraculouses.BUTTERFLY, "Butterfly");
         add(Miraculouses.CAT, "Cat");
         add(Miraculouses.LADYBUG, "Ladybug");
+        add(Miraculouses.RABBIT, "Rabbit");
     }
 
     private void addAbilities() {
@@ -257,6 +262,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
     private void addCuriosSlots() {
         addCuriosSlot(MineraculousCuriosProvider.SLOT_BROOCH);
+        addCuriosSlot(MineraculousCuriosProvider.SLOT_POCKET);
+        addCuriosSlot(MineraculousCuriosProvider.SLOT_BACK);
+        addCuriosSlot(MineraculousCuriosProvider.SLOT_BELT);
         addCuriosSlot(MineraculousCuriosProvider.SLOT_EARRINGS);
     }
 

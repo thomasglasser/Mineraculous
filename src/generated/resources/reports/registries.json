@@ -65,6 +65,7 @@
     "mineraculous:miraculous",
     "mineraculous:owner",
     "mineraculous:powered",
+    "mineraculous:rabbit_umbrella_ability",
     "mineraculous:recoverable_item_id",
     "mineraculous:remaining_ticks",
     "mineraculous:tool_id",
@@ -79,7 +80,8 @@
     "mineraculous:lucky_charm_item_spawner",
     "mineraculous:thrown_butterfly_cane",
     "mineraculous:thrown_cat_staff",
-    "mineraculous:thrown_ladybug_yoyo"
+    "mineraculous:thrown_ladybug_yoyo",
+    "mineraculous:thrown_rabbit_umbrella"
   ],
   "minecraft:item": [
     "mineraculous:aged_camembert_block",
@@ -115,6 +117,7 @@
     "mineraculous:miraculous_chestplate",
     "mineraculous:miraculous_leggings",
     "mineraculous:miraculous_mask",
+    "mineraculous:rabbit_umbrella",
     "mineraculous:ripened_camembert_block",
     "mineraculous:ripened_camembert_wedge",
     "mineraculous:ripened_cheese_block",
@@ -197,7 +200,8 @@
     "mineraculous:ladybug_transform",
     "mineraculous:ladybug_yoyo_spin",
     "mineraculous:lucky_charm_activate",
-    "mineraculous:miraculous_ladybug_activate"
+    "mineraculous:miraculous_ladybug_activate",
+    "mineraculous:rabbit_transform"
   ],
   "minecraft:trigger_type": [
     "mineraculous:kamikotized_entity",
@@ -216,6 +220,7 @@
     "mineraculous:fromager"
   ],
   "mineraculous:ability": [
+    "mineraculous:burrow",
     "mineraculous:cat_vision",
     "mineraculous:cataclysm",
     "mineraculous:kamiko_control",
@@ -248,7 +253,8 @@
   "mineraculous:miraculous": [
     "mineraculous:butterfly",
     "mineraculous:cat",
-    "mineraculous:ladybug"
+    "mineraculous:ladybug",
+    "mineraculous:rabbit"
   ],
   "neoforge:attachment_types": [
     "mineraculous:ability_effects",

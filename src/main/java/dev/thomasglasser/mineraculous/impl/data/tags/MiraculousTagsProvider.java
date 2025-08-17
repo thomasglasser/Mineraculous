@@ -31,5 +31,8 @@ public class MiraculousTagsProvider extends ExtendedTagsProvider<Miraculous> {
 
         tag(MiraculousTags.CAN_USE_LADYBUG_YOYO)
                 .add(Miraculouses.LADYBUG);
+
+        tag(MiraculousTags.CAN_USE_RABBIT_UMBRELLA)
+                .add(Miraculouses.RABBIT);
     }
 }

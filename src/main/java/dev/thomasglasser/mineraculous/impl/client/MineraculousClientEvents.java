@@ -28,6 +28,7 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.LuckyCharmItem
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownButterflyCaneRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownCatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownLadybugYoyoRenderer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownRabbitUmbrellaRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.FaceMaskLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.LegacyDevTeamLayer;
@@ -166,6 +167,7 @@ public class MineraculousClientEvents {
         event.registerEntityRenderer(MineraculousEntityTypes.LUCKY_CHARM_ITEM_SPAWNER.get(), LuckyCharmItemSpawnerRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), ThrownCatStaffRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), ThrownButterflyCaneRenderer::new);
+        event.registerEntityRenderer(MineraculousEntityTypes.THROWN_RABBIT_UMBRELLA.get(), ThrownRabbitUmbrellaRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), ThrownLadybugYoyoRenderer::new);
     }
 

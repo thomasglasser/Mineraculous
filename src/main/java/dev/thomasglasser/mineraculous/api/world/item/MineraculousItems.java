@@ -12,6 +12,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
+import dev.thomasglasser.mineraculous.impl.world.item.RabbitUmbrellaItem;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
@@ -53,6 +54,7 @@ public class MineraculousItems {
     public static final DeferredItem<Item> LADYBUG_YOYO = register("ladybug_yoyo", () -> new LadybugYoyoItem(MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE.apply(new Item.Properties())));
     public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE.apply(new Item.Properties()).component(MineraculousDataComponents.ACTIVE_SETTINGS, CatStaffItem.ACTIVE_SETTINGS)));
     public static final DeferredItem<Item> BUTTERFLY_CANE = register("butterfly_cane", () -> new ButterflyCaneItem(MIRACULOUS_TOOL_PROPERTIES.apply(new Item.Properties())));
+    public static final DeferredItem<Item> RABBIT_UMBRELLA = register("rabbit_umbrella", () -> new RabbitUmbrellaItem(MIRACULOUS_TOOL_PROPERTIES.apply(new Item.Properties())));
 
     // Miraculous
     public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", () -> new MiraculousItem(new Item.Properties()));

@@ -53,6 +53,8 @@ public class Abilities {
     public static final ResourceKey<Ability> LUCKY_CHARM = create("lucky_charm");
     /// Reverts target and related ability effects when lucky charm in hand.
     public static final ResourceKey<Ability> MIRACULOUS_LADYBUG = create("miraculous_ladybug");
+
+    public static final ResourceKey<Ability> BURROW = create("burrow");
     /// Passively applies {@link MobEffects#LUCK}.
     public static final ResourceKey<Ability> PASSIVE_LUCK = create("passive_luck");
 
@@ -125,5 +127,8 @@ public class Abilities {
         context.register(LUCKY_CHARM, new SummonTargetDependentLuckyCharmAbility(true, Optional.of(MineraculousSoundEvents.LUCKY_CHARM_ACTIVATE)));
         context.register(MIRACULOUS_LADYBUG, new RevertLuckyCharmTargetsAbilityEffectsAbility(Optional.of(MineraculousSoundEvents.MIRACULOUS_LADYBUG_ACTIVATE)));
         context.register(PASSIVE_LUCK, new PassiveEffectsAbility(HolderSet.direct(MobEffects.LUCK), 0));
+
+        // RABBIT
+        context.register(BURROW, new ApplyEffectsOrDestroyAbility(HolderSet.direct(MobEffects.DIG_SPEED), new ApplyEffectsOrDestroyAbility.EffectSettings(-1, false, false), Optional.empty(), false, false, Optional.empty(), Optional.empty()));
     }
 }

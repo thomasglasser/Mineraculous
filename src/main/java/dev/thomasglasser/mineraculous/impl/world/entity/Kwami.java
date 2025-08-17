@@ -289,7 +289,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                     UUID stackId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
                     if (serverPlayer.serverLevel().players().size() > 1 && stack.is(MineraculousItems.MIRACULOUS) && stackId != null && stackId.equals(getMiraculousId())) {
                         TommyLibServices.NETWORK.sendToClient(new ClientboundOpenMiraculousTransferScreenPayload(getId()), serverPlayer);
-                    } else if (!isCharged()) {
+                    } else if (!isCharged() && getMainHandItem().isEmpty()) {
                         if (isTreat(stack) || isFood(stack)) {
                             setItemInHand(InteractionHand.MAIN_HAND, stack.copyWithCount(1));
                             FoodProperties foodProperties = stack.get(DataComponents.FOOD);

@@ -50,7 +50,7 @@ public class Miraculouses {
                 MineraculousCuriosProvider.SLOT_RING,
                 Optional.of(9),
                 MineraculousItems.CAT_STAFF.toStack(),
-                Optional.of("belt"),
+                Optional.of(MineraculousCuriosProvider.SLOT_BELT),
                 abilities.getOrThrow(Abilities.CATACLYSM),
                 HolderSet.direct(
                         abilities.getOrThrow(Abilities.CAT_VISION),
@@ -64,7 +64,7 @@ public class Miraculouses {
                 MineraculousCuriosProvider.SLOT_EARRINGS,
                 Optional.of(9),
                 MineraculousItems.LADYBUG_YOYO.toStack(),
-                Optional.of("belt"),
+                Optional.of(MineraculousCuriosProvider.SLOT_BELT),
                 abilities.getOrThrow(Abilities.LUCKY_CHARM),
                 HolderSet.direct(
                         abilities.getOrThrow(Abilities.MIRACULOUS_LADYBUG),

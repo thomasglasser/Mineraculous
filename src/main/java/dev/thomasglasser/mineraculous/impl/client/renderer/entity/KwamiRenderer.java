@@ -6,9 +6,13 @@ import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.MiniHolidayHatGeoLayer;
+import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.Map;
+import net.minecraft.SharedConstants;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EnderDragonRenderer;
@@ -36,6 +40,8 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
     private static final String HEAD = "head";
     private static final String LEFT_HAND = "left_hand";
     private static final String RIGHT_HAND = "right_hand";
+
+    private static final Int2ObjectOpenHashMap<Color> COLORS = new Int2ObjectOpenHashMap<>();
 
     private final Map<Holder<Miraculous>, GeoModel<T>> models = new Reference2ReferenceOpenHashMap<>();
 
@@ -75,20 +81,21 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
 
     @Override
     public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
-        if (animatable.getSummonTicks() > 0) {
-            float completion = animatable.tickCount / 50f;
+        boolean summoning = animatable.getSummonTicks() > 0;
+        if (summoning) {
+            float progress = (float) animatable.getSummonTicks() / (SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt());
             int color = animatable.getMiraculous().value().color().getValue();
-            renderRays(poseStack, completion, bufferSource.getBuffer(RenderType.dragonRays()), color);
-            renderRays(poseStack, completion, bufferSource.getBuffer(RenderType.dragonRaysDepth()), color);
+            renderRays(poseStack, progress, bufferSource.getBuffer(RenderType.dragonRays()), color);
+            renderRays(poseStack, progress, bufferSource.getBuffer(RenderType.dragonRaysDepth()), color);
         }
-        super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
+        super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, summoning ? LightTexture.FULL_BRIGHT : packedLight, packedOverlay, colour);
     }
 
-    private static void renderRays(PoseStack poseStack, float completion, VertexConsumer buffer, int color) {
+    private static void renderRays(PoseStack poseStack, float progress, VertexConsumer buffer, int color) {
         poseStack.pushPose();
         poseStack.scale(0.1f, 0.1f, 0.1f);
         poseStack.translate(0.0f, 5, 0.0f);
-        float fade = Math.min(completion > 0.8F ? (completion - 0.8F) / 0.2F : 0.0F, 1.0F);
+        float fade = Math.min(progress > 0.8F ? (progress - 0.8F) / 0.2F : 0.0F, 1.0F);
         int centerColor = FastColor.ARGB32.colorFromFloat(1.0F - fade, 1.0F, 1.0F, 1.0F);
         RandomSource random = RandomSource.create(432L);
         Vector3f origin = new Vector3f();
@@ -96,7 +103,7 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
         Vector3f right = new Vector3f();
         Vector3f front = new Vector3f();
         Quaternionf rotation = new Quaternionf();
-        int rayCount = Mth.floor((completion + completion * completion) / 2.0F * 60.0F);
+        int rayCount = Mth.floor((progress + progress * progress) / 2.0F * 60.0F);
 
         for (int i = 0; i < rayCount; i++) {
             rotation.rotationXYZ(
@@ -106,7 +113,7 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
                     .rotateXYZ(
                             random.nextFloat() * (float) (Math.PI * 2),
                             random.nextFloat() * (float) (Math.PI * 2),
-                            random.nextFloat() * (float) (Math.PI * 2) + completion * (float) (Math.PI / 2));
+                            random.nextFloat() * (float) (Math.PI * 2) + progress * (float) (Math.PI / 2));
             poseStack.mulPose(rotation);
             float rayLength = random.nextFloat() * 20.0F + 5.0F + fade * 10.0F;
             float rayRadius = random.nextFloat() * 2.0F + 1.0F + fade * 2.0F;
@@ -161,7 +168,7 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
     @Override
     public Color getRenderColor(T animatable, float partialTick, int packedLight) {
         if (animatable.getSummonTicks() > 0) {
-            return new Color(animatable.getMiraculous().value().color().getValue());
+            return COLORS.computeIfAbsent(animatable.getMiraculous().value().color().getValue(), Color::new);
         }
         return super.getRenderColor(animatable, partialTick, packedLight);
     }

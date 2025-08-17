@@ -6,6 +6,7 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public record KwamiData(UUID uuid, int id, boolean charged) {
     public static Kwami summon(Optional<KwamiData> kwamiData, ServerLevel level, Holder<Miraculous> miraculous, Entity owner) {
         Kwami kwami = MineraculousEntityTypes.KWAMI.get().create(level);
         if (kwami != null) {
-            kwami.setSummonTicks((int) (SharedConstants.TICKS_PER_SECOND * 1.5));
+            kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt());
             kwami.setMiraculous(miraculous);
             KwamiData data = kwamiData.orElse(null);
             if (data != null) {
@@ -61,6 +62,7 @@ public record KwamiData(UUID uuid, int id, boolean charged) {
                 case SOUTH -> -1;
                 default -> 0;
             };
+            // TODO: Spin around and land in front facing owner
             kwami.teleportTo(level, owner.getX(), owner.getY(), owner.getZ(), Set.of(), direction.toYRot(), 0.0F);
             kwami.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new Vec3(owner.getX() + xOffset, owner.getY() + 1, owner.getZ() + zOffset), 4, 1));
             if (owner instanceof Player player) {

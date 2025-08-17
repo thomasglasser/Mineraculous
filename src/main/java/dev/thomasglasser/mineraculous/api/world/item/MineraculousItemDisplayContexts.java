@@ -19,8 +19,6 @@ public class MineraculousItemDisplayContexts {
     /// Special-cased to align with and render once on each side of {@link HumanoidModel#head}
     public static final EnumProxy<ItemDisplayContext> CURIOS_EARRINGS = register("curios_earrings", HEAD);
 
-    public static final EnumProxy<ItemDisplayContext> CURIOS_POCKET = register("curios_pocket", NONE);
-
     /// Aligns with {@link HumanoidModel#leftArm}
     public static final EnumProxy<ItemDisplayContext> CURIOS_LEFT_ARM = register("curios_left_arm", THIRD_PERSON_LEFT_HAND);
     /// Aligns with {@link HumanoidModel#rightArm}

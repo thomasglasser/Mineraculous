@@ -35,7 +35,7 @@ public class Miraculouses {
         context.register(RABBIT, new Miraculous(
                 TextColor.fromRgb(0x78ddff),
                 MineraculousCuriosProvider.SLOT_POCKET,
-                Optional.of(7),
+                Optional.empty(),
                 MineraculousItems.RABBIT_UMBRELLA.toStack(),
                 Optional.of("belt"),
                 abilities.getOrThrow(Abilities.BURROW),

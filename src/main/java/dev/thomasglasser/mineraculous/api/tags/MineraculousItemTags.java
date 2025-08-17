@@ -23,9 +23,9 @@ public class MineraculousItemTags {
     /// Items that can be used to immediately charge the ladybug kwami.
     public static final TagKey<Item> LADYBUG_KWAMI_TREATS = Miraculous.createTreatsTag(Miraculouses.LADYBUG);
 
-    /// Items that can be used to have a chance to charge the butterfly kwami.
+    /// Items that can be used to have a chance to charge the rabbit kwami.
     public static final TagKey<Item> RABBIT_KWAMI_FOODS = Miraculous.createFoodsTag(Miraculouses.RABBIT);
-    /// Items that can be used to immediately charge the butterfly kwami.
+    /// Items that can be used to immediately charge the rabbit kwami.
     public static final TagKey<Item> RABBIT_KWAMI_TREATS = Miraculous.createTreatsTag(Miraculouses.RABBIT);
 
     // Blocks

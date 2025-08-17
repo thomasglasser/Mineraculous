@@ -1,0 +1,51 @@
+{
+	"format_version": "1.21.20",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.rabbit_umbrella",
+				"texture_width": 64,
+				"texture_height": 64,
+				"visible_bounds_width": 6,
+				"visible_bounds_height": 9,
+				"visible_bounds_offset": [0, 0.5, 0]
+			},
+			"bones": [
+				{
+					"name": "umbrella2",
+					"pivot": [0, 33.5, 0]
+				},
+				{
+					"name": "hook",
+					"parent": "umbrella2",
+					"pivot": [-3.06396, 9.48388, -0.005],
+					"cubes": [
+						{"origin": [-2.87403, 1.33582, -1], "size": [4.5, 2, 2], "inflate": -0.025, "uv": [0, 27]},
+						{"origin": [0.23907, 3.37422, -1], "size": [3.9, 2, 2], "inflate": -0.075, "pivot": [2.48907, 3.37422, 0], "rotation": [0, 0, -67.5], "uv": [0, 31]},
+						{"origin": [0.6725, 6.37337, -1.025], "size": [2.125, 2, 2], "inflate": -0.125, "pivot": [2.4225, 6.37337, -0.025], "rotation": [0, 0, -116], "uv": [32, 8]},
+						{"origin": [-4.46006, 3.43955, -1], "size": [3, 2, 2], "pivot": [-3.71006, 3.43955, 0], "rotation": [0, 0, 67.5], "uv": [32, 4]}
+					]
+				},
+				{
+					"name": "handle",
+					"parent": "umbrella2",
+					"pivot": [-2.97208, 9.40746, 0],
+					"cubes": [
+						{"origin": [-22.47208, 14.65746, -1], "size": [24.5, 2, 2], "inflate": -0.25, "pivot": [-3.97208, 14.65746, 0], "rotation": [0, 0, 90], "uv": [0, 0]}
+					]
+				},
+				{
+					"name": "umbrella",
+					"parent": "handle",
+					"pivot": [-3, 63.3, 0],
+					"cubes": [
+						{"origin": [-5, 25, -2], "size": [4, 15.75, 4], "inflate": 1.65, "uv": [0, 4]},
+						{"origin": [-5, 23.7, -2], "size": [4, 9.75, 4], "inflate": 1.875, "uv": [48, 14]},
+						{"origin": [-5, 42.75, -2], "size": [4, 13.5, 4], "inflate": 0.5, "uv": [16, 4]},
+						{"origin": [-5, 54, -2], "size": [4, 12.5, 4], "inflate": -0.5, "uv": [16, 21]}
+					]
+				}
+			]
+		}
+	]
+}

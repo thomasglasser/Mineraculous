@@ -204,6 +204,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addCapitalized(Abilities.KAMIKO_CONTROL);
         addCapitalized(Abilities.KAMIKOTIZED_COMMUNICATION);
         addCapitalized(Abilities.CATACLYSM);
+        addCapitalized(Abilities.BURROW);
         addCapitalized(Abilities.CAT_VISION);
         addCapitalized(Abilities.MIRACULOUS_LADYBUG);
     }

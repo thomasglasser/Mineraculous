@@ -20,7 +20,6 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -36,6 +35,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -45,7 +45,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -66,6 +65,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     private boolean dealtDamage;
+    private boolean freshlyHitGround = false;
     public float renderMaxRopeLength = 0;
     public float firstPovRenderMaxRopeLength = 0;
 
@@ -176,7 +176,11 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         }
         if (entity instanceof LivingEntity owner) {
             checkInstantRecall(owner);
-
+            if (this.freshlyHitGround && !this.isRecalling()) {
+                Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
+                this.setMaxRopeLength((float) fromProjectileToPlayer.length());
+                this.freshlyHitGround = false;
+            }
             if (this.isRecalling()) {
                 this.setNoPhysics(true);
                 Vec3 vec3 = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
@@ -189,20 +193,18 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 this.updateRecallingTicks();
             } else if (this.inGround()) {
                 Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
-                double distance = fromProjectileToPlayer.length();
-
+                float distance = (float) fromProjectileToPlayer.length();
                 if (distance > this.getMaxRopeLength() && this.getMaxRopeLength() > 0 && distance <= 99) {
                     owner.resetFallDistance();
-                    Vec3 constrainedPosition = owner.position()
-                            .add(fromProjectileToPlayer.normalize().scale(this.getMaxRopeLength() - distance));
-                    normalCollisions(false, owner);
-                    if (!owner.level().getBlockState(new BlockPos((int) constrainedPosition.x, (int) (constrainedPosition.y + 0.5), (int) constrainedPosition.z)).isSolid()) {
-                        owner.setPos(constrainedPosition.x, constrainedPosition.y, constrainedPosition.z);
-                    }
+
+                    Vec3 constrainedMovement = fromProjectileToPlayer.normalize().scale(this.getMaxRopeLength() - distance);
+                    owner.move(MoverType.SELF, constrainedMovement);
 
                     Vec3 radialForce = fromProjectileToPlayer.normalize();
+
                     Vec3 tangentialVelocity = owner.getDeltaMovement().subtract(
                             radialForce.scale(owner.getDeltaMovement().dot(radialForce)));
+
                     double dampingFactor = Math.max(1.06, 1 - Math.abs(distance - this.getMaxRopeLength()) * 0.02); // Less damping near center
                     Vec3 dampedVelocity = tangentialVelocity.scale(dampingFactor);
 
@@ -228,70 +230,6 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         }
 
         super.tick();
-    }
-
-    public void normalCollisions(boolean sliding, LivingEntity owner) {
-        // stop if collided with object
-        if (owner.horizontalCollision) {
-            if (owner.getDeltaMovement().x == 0) {
-                if (!sliding || tryStepUp(new Vec3(owner.getDeltaMovement().x, 0, 0), owner)) {
-                    owner.setDeltaMovement(0, owner.getDeltaMovement().y, owner.getDeltaMovement().z);
-                }
-            }
-            if (owner.getDeltaMovement().z == 0) {
-                if (!sliding || tryStepUp(new Vec3(0, 0, owner.getDeltaMovement().z), owner)) {
-                    owner.setDeltaMovement(owner.getDeltaMovement().x, owner.getDeltaMovement().y, 0);
-                }
-            }
-        }
-
-        if (sliding && !owner.horizontalCollision) {
-            if (owner.position().x - owner.xOld == 0) {
-                owner.setDeltaMovement(0, owner.getDeltaMovement().y, owner.getDeltaMovement().z);
-            }
-            if (owner.position().z - owner.zOld == 0) {
-                owner.setDeltaMovement(owner.getDeltaMovement().x, owner.getDeltaMovement().y, 0);
-            }
-        }
-
-        if (owner.verticalCollision) {
-            if (owner.onGround()) {
-                if (!sliding && owner.getDeltaMovement().y > 0) {
-                    owner.setDeltaMovement(owner.getDeltaMovement().x, owner.getDeltaMovement().y, owner.getDeltaMovement().z);
-                } else {
-                    if (owner.getDeltaMovement().y < 0) {
-                        owner.setDeltaMovement(owner.getDeltaMovement().x, 0, owner.getDeltaMovement().z);
-                    }
-                }
-            } else {
-                if (owner.getDeltaMovement().y > 0) {
-                    if (owner.yOld == owner.position().y) {
-                        owner.setDeltaMovement(owner.getDeltaMovement().x, 0, owner.getDeltaMovement().z);
-                    }
-                }
-            }
-        }
-    }
-
-    public boolean tryStepUp(Vec3 collisionMotion, LivingEntity owner) {
-        if (collisionMotion.length() == 0) {
-            return false;
-        }
-        Vec3 moveOffset = collisionMotion.normalize().scale(0.05).add(0, 0.5 + 0.01, 0);
-        Iterable<VoxelShape> collisions = owner.level().getCollisions(owner, owner.getBoundingBox().move(moveOffset.x, moveOffset.y, moveOffset.z));
-        if (!collisions.iterator().hasNext()) {
-            if (!owner.onGround()) {
-                Vec3 pos = new Vec3(owner.getX(), owner.getY(), owner.getZ());
-                pos.add(moveOffset);
-                owner.setPos(pos);
-                owner.xOld = pos.x;
-                owner.yOld = pos.y;
-                owner.zOld = pos.z;
-            }
-            owner.horizontalCollision = false;
-            return false;
-        }
-        return true;
     }
 
     public void recall() {
@@ -409,9 +347,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     if (owner instanceof Player player) {
                         TommyLibServices.NETWORK.sendToAllClients(new ClientboundCalculateYoyoRenderLengthPayload(this.getId(), player.getId()), player.getServer());
                     }
-
-                    Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
-                    this.setMaxRopeLength((float) fromProjectileToPlayer.length() + 1.5f);
+                    this.freshlyHitGround = true;
                 }
             } else {
                 recall();

@@ -262,7 +262,8 @@ public class MineraculousClientEvents {
                 boolean back = player.input.down;
                 boolean left = player.input.left;
                 boolean right = player.input.right;
-                if (front || back || left || right) {
+                boolean hasInput = front || back || left || right;
+                if (hasInput) {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoInputPayload(front, back, left, right));
                 }
             }

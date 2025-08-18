@@ -53,7 +53,7 @@ public interface Ability {
      * @param context   The context of the ability (null if passive)
      * @return Whether the ability should consume the active state (i.e., stop the ability and trigger completion)
      */
-    boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context);
+    State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context);
 
     /**
      * Called when the performer transforms.
@@ -243,5 +243,19 @@ public interface Ability {
 
     static boolean hasMatching(Predicate<Ability> predicate, Kamikotization kamikotization, boolean includeActive) {
         return hasMatching(predicate, kamikotization.powerSource().right().filter(a -> includeActive), kamikotization.passiveAbilities());
+    }
+
+    enum State {
+        SUCCESS,
+        CONTINUE,
+        FAIL;
+
+        public boolean shouldConsume() {
+            return this == FAIL || this == SUCCESS;
+        }
+
+        public boolean isSuccess() {
+            return this == SUCCESS;
+        }
     }
 }

@@ -36,7 +36,7 @@ public record ConvertAndTameAbility(EntityType<?> newType, Optional<EntityPredic
             EntityPredicate.CODEC.optionalFieldOf("invalid_entities").forGetter(ConvertAndTameAbility::invalidEntities),
             SoundEvent.CODEC.optionalFieldOf("convert_sound").forGetter(ConvertAndTameAbility::convertSound)).apply(instance, ConvertAndTameAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context instanceof EntityAbilityContext(Entity target)) {
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
             if (isValidEntity(level, target.position(), target) && !entityData.isConverted(target.getUUID())) {
@@ -53,11 +53,11 @@ public record ConvertAndTameAbility(EntityType<?> newType, Optional<EntityPredic
                     target.discard();
                     level.addFreshEntity(newEntity);
                     Ability.playSound(level, performer, convertSound);
-                    return true;
+                    return State.SUCCESS;
                 }
             }
         }
-        return false;
+        return State.FAIL;
     }
 
     private boolean isValidEntity(ServerLevel level, Vec3 pos, Entity entity) {

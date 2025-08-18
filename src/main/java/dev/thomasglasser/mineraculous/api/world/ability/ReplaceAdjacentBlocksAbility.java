@@ -46,7 +46,7 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean prefe
             BlockPredicate.CODEC.optionalFieldOf("invalid_blocks").forGetter(ReplaceAdjacentBlocksAbility::invalidBlocks),
             SoundEvent.CODEC.optionalFieldOf("replace_sound").forGetter(ReplaceAdjacentBlocksAbility::replaceSound)).apply(instance, ReplaceAdjacentBlocksAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context instanceof BlockAbilityContext(BlockPos pos)) {
             if (canBlockBeReplaced(level, pos)) {
                 Set<BlockPos> affected = getAffectedBlocks(level, pos, Math.max(data.powerLevel(), 1) * 100);
@@ -59,9 +59,9 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean prefe
                 AbilityReversionBlockData.get(level).putRevertible(performer.getUUID(), originals);
             }
             Ability.playSound(level, performer, replaceSound);
-            return true;
+            return State.SUCCESS;
         }
-        return false;
+        return State.FAIL;
     }
 
     private boolean canBlockBeReplaced(ServerLevel level, BlockPos pos) {

@@ -29,13 +29,14 @@ public class AbilityUtils {
      * @param passiveAbilities The abilities to perform
      * @return Whether the passive abilities consumed (i.e., they overrode the active ability)
      */
-    public static boolean performPassiveAbilities(ServerLevel level, LivingEntity performer, AbilityData data, AbilityHandler handler, @Nullable AbilityContext context, HolderSet<Ability> passiveAbilities) {
+    public static Ability.State performPassiveAbilities(ServerLevel level, LivingEntity performer, AbilityData data, AbilityHandler handler, @Nullable AbilityContext context, HolderSet<Ability> passiveAbilities) {
         for (Holder<Ability> ability : passiveAbilities) {
-            if (ability.value().perform(data, level, performer, handler, context)) {
-                return true;
+            Ability.State state = ability.value().perform(data, level, performer, handler, context);
+            if (state.shouldConsume()) {
+                return state;
             }
         }
-        return false;
+        return Ability.State.CONTINUE;
     }
 
     /**
@@ -49,11 +50,11 @@ public class AbilityUtils {
      * @param activeAbility The ability to perform
      * @return Whether the active ability consumed (i.e., was used up)
      */
-    public static boolean performActiveAbility(ServerLevel level, LivingEntity performer, AbilityData abilityData, AbilityHandler handler, @Nullable AbilityContext context, Optional<Holder<Ability>> activeAbility) {
+    public static Ability.State performActiveAbility(ServerLevel level, LivingEntity performer, AbilityData abilityData, AbilityHandler handler, @Nullable AbilityContext context, Optional<Holder<Ability>> activeAbility) {
         if (abilityData.powerActive()) {
-            return activeAbility.map(ability -> ability.value().perform(abilityData, level, performer, handler, context)).orElse(false);
+            return activeAbility.map(ability -> ability.value().perform(abilityData, level, performer, handler, context)).orElse(Ability.State.FAIL);
         }
-        return false;
+        return Ability.State.FAIL;
     }
 
     /**

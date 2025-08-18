@@ -30,7 +30,7 @@ public record ContextDependentAbility(Optional<Holder<Ability>> blockAbility, Op
             Ability.CODEC.optionalFieldOf("entity").forGetter(ContextDependentAbility::entityAbility),
             Ability.HOLDER_SET_CODEC.optionalFieldOf("passive", HolderSet.empty()).forGetter(ContextDependentAbility::passiveAbilities)).apply(instance, ContextDependentAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         switch (context) {
             case BlockAbilityContext blockAbilityContext when blockAbility.isPresent() -> {
                 return blockAbility.get().value().perform(data, level, performer, handler, blockAbilityContext);
@@ -40,14 +40,16 @@ public record ContextDependentAbility(Optional<Holder<Ability>> blockAbility, Op
             }
             case null -> {
                 for (Holder<Ability> holder : passiveAbilities) {
-                    if (holder.value().perform(data, level, performer, handler, null)) {
-                        return true;
+                    State state = holder.value().perform(data, level, performer, handler, null);
+                    if (state.shouldConsume()) {
+                        return state;
                     }
                 }
+                return State.CONTINUE;
             }
             default -> {}
         }
-        return false;
+        return State.FAIL;
     }
 
     @Override

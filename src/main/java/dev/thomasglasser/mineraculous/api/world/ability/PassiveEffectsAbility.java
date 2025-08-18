@@ -27,15 +27,16 @@ public record PassiveEffectsAbility(HolderSet<MobEffect> effects, int startAmpli
             ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("start_amplifier", 0).forGetter(PassiveEffectsAbility::startAmplifier)).apply(instance, PassiveEffectsAbility::new));
 
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null) {
             for (Holder<MobEffect> effect : effects) {
                 if (!performer.hasEffect(effect)) {
                     MineraculousEntityUtils.applyInfiniteHiddenEffect(performer, effect, startAmplifier + (data.powerLevel() / 10));
                 }
             }
+            return State.CONTINUE;
         }
-        return false;
+        return State.FAIL;
     }
 
     @Override

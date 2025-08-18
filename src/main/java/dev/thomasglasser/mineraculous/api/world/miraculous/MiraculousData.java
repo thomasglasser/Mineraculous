@@ -8,6 +8,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
+import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.ability.AbilityData;
 import dev.thomasglasser.mineraculous.api.world.ability.AbilityUtils;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
@@ -173,72 +174,84 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         }, () -> Mineraculous.LOGGER.error("Tried to transform entity {} with no curios data", entity.getName().plainCopy().getString()));
     }
 
-    public void detransform(LivingEntity entity, ServerLevel level, Holder<Miraculous> miraculous, boolean removed) {
+    public void detransform(LivingEntity entity, ServerLevel level, Holder<Miraculous> miraculous, ItemStack stack, boolean removed) {
         Miraculous value = miraculous.value();
-
         Optional<Integer> detransformationFrames = value.transformationFrames();
+        ItemStack miraculousStack;
 
-        curiosData.ifPresentOrElse(curiosData -> {
-            ItemStack miraculousStack = CuriosUtils.getStackInSlot(entity, curiosData);
-            miraculousStack.remove(MineraculousDataComponents.REMAINING_TICKS);
+        if (stack != null) {
+            miraculousStack = stack;
+        } else if (curiosData.isPresent()) {
+            miraculousStack = CuriosUtils.getStackInSlot(entity, curiosData.get());
+            if (miraculousStack.isEmpty()) {
+                Mineraculous.LOGGER.error("Tried to detransform entity {} with no miraculous in {} curios", entity.getName().plainCopy().getString(), curiosData.get().identifier());
+                return;
+            }
+        } else {
+            Mineraculous.LOGGER.error("Tried to detransform entity {} with no curios data", entity.getName().plainCopy().getString());
+            return;
+        }
 
-            if (removed) {
-                MineraculousEntityUtils.renounceKwami(miraculousStack.get(MineraculousDataComponents.KWAMI_ID), miraculousStack, level);
+        miraculousStack.remove(MineraculousDataComponents.REMAINING_TICKS);
+
+        if (removed) {
+            MineraculousEntityUtils.renounceKwami(miraculousStack.get(MineraculousDataComponents.KWAMI_ID), miraculousStack, level);
+        } else {
+            miraculousStack.remove(MineraculousDataComponents.POWERED);
+        }
+
+        miraculousStack.set(MineraculousDataComponents.CHARGED, false);
+
+        detransformationFrames.ifPresentOrElse(frames -> {
+            for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
+                entity.getItemBySlot(slot).set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, frames);
+            }
+        }, () -> entity.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(armorData -> armorData.equipAndClear(entity)));
+
+        UUID miraculousId = miraculousStack.get(MineraculousDataComponents.MIRACULOUS_ID);
+        if (miraculousId != null) {
+            for (ItemStack i : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
+                UUID stackId = i.get(MineraculousDataComponents.MIRACULOUS_ID);
+                if (i.has(MineraculousDataComponents.TOOL_ID) && stackId != null && stackId.equals(miraculousId)) {
+                    i.setCount(0);
+                }
+            }
+        } else {
+            Mineraculous.LOGGER.error("Tried to detransform entity {} with no miraculous id", entity.getName().plainCopy().getString());
+        }
+
+        level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.detransformSound(), entity.getSoundSource(), 1, 1);
+        for (ResourceKey<MobEffect> effect : level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).keySet()) {
+            entity.removeEffect(level.holderOrThrow(effect));
+        }
+        entity.getAttributes().removeAttributeModifiers(getMiraculousAttributes(level, powerLevel));
+
+        AbilityData data = new AbilityData(powerLevel, powerActive);
+        value.activeAbility().value().detransform(data, level, entity);
+        value.passiveAbilities().forEach(ability -> ability.value().detransform(data, level, entity));
+
+        if (!removed) {
+            Kwami kwami = MineraculousEntityUtils.summonKwami(false, miraculousId, level, miraculous, entity);
+            if (kwami == null) {
+                Mineraculous.LOGGER.error("Kwami could not be created for entity {}", entity.getName().plainCopy().getString());
+            }
+            miraculousStack.set(MineraculousDataComponents.KWAMI_ID, kwami == null ? null : kwami.getUUID());
+            if (detransformationFrames.isEmpty()) {
+                finishDetransformation(entity, miraculous);
             } else {
-                miraculousStack.remove(MineraculousDataComponents.POWERED);
+                startDetransformation(detransformationFrames.get()).save(miraculous, entity, true);
             }
+        } else {
+            finishRemovedDetransformation(entity, miraculous);
+        }
 
-            miraculousStack.set(MineraculousDataComponents.CHARGED, false);
+        if (stack == null) {
+            CuriosUtils.setStackInSlot(entity, curiosData.get(), miraculousStack);
+        }
 
-            detransformationFrames.ifPresentOrElse(frames -> {
-                for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
-                    entity.getItemBySlot(slot).set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, frames);
-                }
-            }, () -> entity.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(armorData -> armorData.equipAndClear(entity)));
-
-            UUID miraculousId = miraculousStack.get(MineraculousDataComponents.MIRACULOUS_ID);
-            if (miraculousId != null) {
-                for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
-                    UUID stackId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
-                    if (stack.has(MineraculousDataComponents.TOOL_ID) && stackId != null && stackId.equals(miraculousId)) {
-                        stack.setCount(0);
-                    }
-                }
-            } else {
-                Mineraculous.LOGGER.error("Tried to detransform entity {} with no miraculous id", entity.getName().plainCopy().getString());
-            }
-
-            level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.detransformSound(), entity.getSoundSource(), 1, 1);
-            for (ResourceKey<MobEffect> effect : level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).keySet()) {
-                entity.removeEffect(level.holderOrThrow(effect));
-            }
-            entity.getAttributes().removeAttributeModifiers(getMiraculousAttributes(level, powerLevel));
-
-            AbilityData data = new AbilityData(powerLevel, powerActive);
-            value.activeAbility().value().detransform(data, level, entity);
-            value.passiveAbilities().forEach(ability -> ability.value().detransform(data, level, entity));
-
-            if (!removed) {
-                Kwami kwami = MineraculousEntityUtils.summonKwami(false, miraculousId, level, miraculous, entity);
-                if (kwami == null) {
-                    Mineraculous.LOGGER.error("Kwami could not be created for entity {}", entity.getName().plainCopy().getString());
-                }
-                miraculousStack.set(MineraculousDataComponents.KWAMI_ID, kwami == null ? null : kwami.getUUID());
-                if (detransformationFrames.isEmpty()) {
-                    finishDetransformation(entity, miraculous);
-                } else {
-                    startDetransformation(detransformationFrames.get()).save(miraculous, entity, true);
-                }
-            } else {
-                finishRemovedDetransformation(entity, miraculous);
-            }
-
-            CuriosUtils.setStackInSlot(entity, curiosData, miraculousStack);
-
-            if (entity instanceof Player player) {
-                player.refreshDisplayName();
-            }
-        }, () -> Mineraculous.LOGGER.error("Tried to detransform entity {} with no curios data", entity.getName().plainCopy().getString()));
+        if (entity instanceof Player player) {
+            player.refreshDisplayName();
+        }
     }
 
     @ApiStatus.Internal
@@ -272,7 +285,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                 if (remainingTicks.isPresent() && MineraculousServerConfig.get().enableMiraculousTimer.get()) {
                     if (remainingTicks.get() <= 0) {
                         level.playSound(null, entity, value.timerEndSound().value(), entity.getSoundSource(), 1, 1);
-                        detransform(entity, level, miraculous, false);
+                        detransform(entity, level, miraculous, null, false);
                         return;
                     } else {
                         remainingTicks = remainingTicks.map(i -> i - 1);
@@ -311,14 +324,22 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                 boolean countdownStarted = this.countdownStarted;
                 AbilityData data = new AbilityData(powerLevel, powerActive);
                 AbilityHandler handler = new MiraculousAbilityHandler(miraculous);
-                if (AbilityUtils.performPassiveAbilities(level, entity, data, handler, null, miraculous.value().passiveAbilities()) && powerActive) {
-                    powerActive = false;
-                } else if (powerActive && canUseMainPower()) {
-                    if (AbilityUtils.performActiveAbility(level, entity, data, handler, null, Optional.of(miraculous.value().activeAbility()))) {
+                Ability.State passiveState = AbilityUtils.performPassiveAbilities(level, entity, data, handler, null, miraculous.value().passiveAbilities());
+                if (powerActive) {
+                    if (passiveState.isSuccess()) {
                         powerActive = false;
-                        countdownStarted = powerLevel < MAX_POWER_LEVEL;
+                    } else if (canUseMainPower()) {
+                        Ability.State state = AbilityUtils.performActiveAbility(level, entity, data, handler, null, Optional.of(miraculous.value().activeAbility()));
+                        if (state.shouldConsume()) {
+                            powerActive = false;
+                            if (state.isSuccess()) {
+                                countdownStarted = powerLevel < MAX_POWER_LEVEL;
+                            }
+                        }
+                        remainingTicks = remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND));
+                    } else if (passiveState.shouldConsume()) {
+                        powerActive = false;
                     }
-                    remainingTicks = remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND));
                 }
 
                 tickTransformed(remainingTicks, powerActive, countdownStarted).save(miraculous, entity, true);
@@ -329,16 +350,17 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
     public void performAbilities(ServerLevel level, LivingEntity entity, Holder<Miraculous> miraculous, @Nullable AbilityContext context) {
         AbilityData data = new AbilityData(powerLevel, powerActive);
         AbilityHandler handler = new MiraculousAbilityHandler(miraculous);
-        if (AbilityUtils.performPassiveAbilities(level, entity, data, handler, context, miraculous.value().passiveAbilities()) && powerActive) {
+        Ability.State state = AbilityUtils.performPassiveAbilities(level, entity, data, handler, context, miraculous.value().passiveAbilities());
+        if (state.isSuccess() && powerActive) {
             withPowerActive(false).save(miraculous, entity, true);
         } else if (powerActive && canUseMainPower()) {
-            boolean consumeMainPower = AbilityUtils.performActiveAbility(level, entity, data, handler, context, Optional.of(miraculous.value().activeAbility()));
-            if (consumeMainPower) {
+            boolean success = AbilityUtils.performActiveAbility(level, entity, data, handler, context, Optional.of(miraculous.value().activeAbility())).isSuccess();
+            if (success) {
                 if (context != null && entity instanceof ServerPlayer player) {
                     MineraculousCriteriaTriggers.PERFORMED_MIRACULOUS_ACTIVE_ABILITY.get().trigger(player, miraculous.getKey(), context.advancementContext());
                 }
             }
-            usedMainPower(consumeMainPower).save(miraculous, entity, true);
+            usedMainPower(success).save(miraculous, entity, true);
         }
     }
 

@@ -41,8 +41,8 @@ public record ContinuousAbility(Holder<Ability> ability, int ticks, Optional<Hol
     }
 
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
-        boolean consume = ability.value().perform(data, level, performer, handler, context);
+    public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+        boolean success = ability.value().perform(data, level, performer, handler, context).isSuccess();
         AbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
         if (context == null && abilityEffectData.continuousTicks().isPresent()) {
             int continuousTicks = abilityEffectData.continuousTicks().get();
@@ -50,26 +50,26 @@ public record ContinuousAbility(Holder<Ability> ability, int ticks, Optional<Hol
             if (continuousTicks <= 0) {
                 abilityEffectData.stopContinuousAbility().save(performer, true);
                 Ability.playSound(level, performer, finishSound);
-                return true;
+                return State.SUCCESS;
             } else {
                 abilityEffectData.withContinuousTicks(Optional.of(continuousTicks)).save(performer, true);
             }
         }
-        if (consume) {
+        if (success) {
             if (performer instanceof ServerPlayer player && context != null) {
                 handler.triggerPerformAdvancement(player, context);
             }
             if (abilityEffectData.continuousTicks().isEmpty()) {
                 abilityEffectData.withContinuousTicks(Optional.of(ticks)).save(performer, true);
                 Ability.playSound(level, performer, activeStartSound);
-                return false;
+                return State.CONTINUE;
             }
         }
         if (!abilityEffectData.playedContinuousAbilityStartSound()) {
             abilityEffectData.withPlayedContinuousAbilityStartSound(true).save(performer, true);
             Ability.playSound(level, performer, passiveStartSound);
         }
-        return false;
+        return State.CONTINUE;
     }
 
     @Override

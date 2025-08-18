@@ -51,12 +51,8 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             SoundEvent.CODEC.optionalFieldOf("summon_sound").forGetter(SummonTargetDependentLuckyCharmAbility::summonSound)).apply(instance, SummonTargetDependentLuckyCharmAbility::new));
 
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
-        boolean canPerform = !requireActiveToolInHand;
-        if (requireActiveToolInHand) {
-            canPerform = handler.isActiveTool(performer.getMainHandItem(), performer) || handler.isActiveTool(performer.getOffhandItem(), performer);
-        }
-        if (canPerform) {
+    public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+        if (!requireActiveToolInHand || (handler.isActiveTool(performer.getMainHandItem(), performer) || handler.isActiveTool(performer.getOffhandItem(), performer))) {
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
             Entity target = determineTarget(level, entityData.getTrackedEntity(performer.getUUID()), performer);
             if (target != null) {
@@ -88,9 +84,9 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             item.setPos(performer.position().add(0, 4, 0));
             level.addFreshEntity(item);
             Ability.playSound(level, performer, summonSound);
-            return true;
+            return State.SUCCESS;
         }
-        return false;
+        return State.FAIL;
     }
 
     private @Nullable Entity determineTarget(ServerLevel level, @Nullable UUID trackedId, LivingEntity performer) {

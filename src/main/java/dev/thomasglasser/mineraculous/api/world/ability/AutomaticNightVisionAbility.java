@@ -40,11 +40,11 @@ public record AutomaticNightVisionAbility(int lightLevel, Optional<ResourceLocat
     }
 
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null) {
             checkNightVision(data.powerLevel(), level, performer);
         }
-        return false;
+        return State.CONTINUE;
     }
 
     @Override

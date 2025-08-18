@@ -46,16 +46,16 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
             SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(SpectateEntityAbility::startSound),
             SoundEvent.CODEC.optionalFieldOf("stop_sound").forGetter(SpectateEntityAbility::stopSound)).apply(instance, SpectateEntityAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null) {
             AbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
             if (abilityEffectData.spectationInterrupted()) {
                 stopSpectation(level, performer);
-                return true;
+                return State.SUCCESS;
             } else if (data.powerActive()) {
                 if (abilityEffectData.spectatingId().isPresent()) {
                     stopSpectation(level, performer);
-                    return true;
+                    return State.SUCCESS;
                 } else {
                     List<? extends Entity> entities = level.getEntities(EntityTypeTest.forClass(Entity.class), entity -> isValidEntity(level, performer, entity));
                     if (!entities.isEmpty()) {
@@ -68,14 +68,15 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
                             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.of(target.getId())), player);
                         }
                         Ability.playSound(level, performer, startSound);
-                        return true;
+                        return State.SUCCESS;
                     }
+                    return State.CONTINUE;
                 }
             } else {
-                return abilityEffectData.spectatingId().isPresent();
+                return abilityEffectData.spectatingId().isPresent() ? State.SUCCESS : State.CONTINUE;
             }
         }
-        return false;
+        return State.FAIL;
     }
 
     private boolean isValidEntity(ServerLevel level, LivingEntity performer, Entity target) {

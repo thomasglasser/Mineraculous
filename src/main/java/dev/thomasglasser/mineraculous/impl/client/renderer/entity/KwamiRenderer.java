@@ -85,8 +85,8 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
         if (summoning) {
             float progress = (float) animatable.getSummonTicks() / (SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt());
             int color = animatable.getMiraculous().value().color().getValue();
+            renderRays(poseStack, progress, bufferSource.getBuffer(RenderType.lightning()), color);
             renderRays(poseStack, progress, bufferSource.getBuffer(RenderType.dragonRays()), color);
-            renderRays(poseStack, progress, bufferSource.getBuffer(RenderType.dragonRaysDepth()), color);
         }
         super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, summoning ? LightTexture.FULL_BRIGHT : packedLight, packedOverlay, colour);
     }

@@ -216,15 +216,9 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                 double t = Math.min(summonRadius / SUMMON_MAX_RADIUS, 1.0);
                 double y = startY + (ownerEyePos.y - startY) * t - this.getBbHeight() / 2;
 
-                double x = ownerPos.x + summonRadius * Math.cos(summonAngle);
-                double z = ownerPos.z + summonRadius * Math.sin(summonAngle);
-
-                this.moveTo(x, y, z, yaw, pitch);
-            } else {
-                float yawRad = (float) Math.toRadians(owner.getYRot());
-                double x = ownerEyePos.x - Math.sin(yawRad);
-                double z = ownerEyePos.z + Math.cos(yawRad);
-                double y = ownerEyePos.y - this.getBbHeight() / 2.0; // center vertically
+                float baseYawRad = (float) Math.toRadians(180 + owner.getYRot());
+                double x = ownerPos.x + summonRadius * Math.cos(summonAngle + baseYawRad);
+                double z = ownerPos.z + summonRadius * Math.sin(summonAngle + baseYawRad);
 
                 this.moveTo(x, y, z, yaw, pitch);
             }

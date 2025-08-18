@@ -62,7 +62,7 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
                         Entity target = entities.getFirst();
                         abilityEffectData.withSpectation(Optional.of(target.getUUID()), shader, faceMaskTexture, privateChat ? Optional.of(target.getUUID()) : Optional.empty(), allowRemoteDamage).save(performer, true);
                         if (privateChat) {
-                            abilityEffectData.withPrivateChat(Optional.of(performer.getUUID()), faceMaskTexture).save(target, true);
+                            target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.of(performer.getUUID()), faceMaskTexture).save(target, true);
                         }
                         if (performer instanceof ServerPlayer player) {
                             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.of(target.getId())), player);
@@ -84,7 +84,9 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
     }
 
     private void stopSpectation(ServerLevel level, LivingEntity performer) {
-        performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withSpectation(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), false).save(performer, true);
+        AbilityEffectData data = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
+        data.spectatingId().map(level::getEntity).ifPresent(spectating -> spectating.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(spectating, true));
+        data.withSpectation(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), false).save(performer, true);
         if (performer instanceof ServerPlayer player) {
             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.empty()), player);
         }

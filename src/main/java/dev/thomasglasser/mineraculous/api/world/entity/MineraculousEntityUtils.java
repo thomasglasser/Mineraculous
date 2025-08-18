@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.SharedConstants;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -28,8 +27,6 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.memory.WalkTarget;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -132,20 +129,7 @@ public class MineraculousEntityUtils {
             kwami.setMiraculous(miraculous);
             kwami.setMiraculousId(miraculousId);
             kwami.setCharged(charged);
-            Direction direction = owner.getDirection().getOpposite();
-            int xOffset = switch (direction) {
-                case WEST -> 1;
-                case EAST -> -1;
-                default -> 0;
-            };
-            int zOffset = switch (direction) {
-                case NORTH -> 1;
-                case SOUTH -> -1;
-                default -> 0;
-            };
-            // TODO: Spin around and land in front facing owner
-            kwami.teleportTo(level, owner.getX(), owner.getY(), owner.getZ(), Set.of(), direction.toYRot(), 0.0F);
-            kwami.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(new Vec3(owner.getX() + xOffset, owner.getY() + 1, owner.getZ() + zOffset), 4, 1));
+            kwami.setPos(owner.position());
             if (owner instanceof Player player) {
                 kwami.tame(player);
             } else {

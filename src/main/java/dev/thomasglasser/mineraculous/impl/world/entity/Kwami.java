@@ -58,6 +58,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
@@ -90,7 +91,10 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoEntity, FlyingAnimal {
     public static final RawAnimation EAT = RawAnimation.begin().thenPlay("misc.eat");
     public static final RawAnimation HOLD = RawAnimation.begin().thenPlay("misc.hold");
-    public static final RawAnimation SIT = RawAnimation.begin().thenPlay("misc.sit");
+
+    private static final double SUMMON_RADIUS_STEP = 0.07;
+    private static final double SUMMON_ANGLE_STEP = 0.5;
+    private static final double SUMMON_MAX_RADIUS = 1.5;
 
     private static final EntityDataAccessor<Integer> DATA_SUMMON_TICKS = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
@@ -103,6 +107,8 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private TagKey<Item> foodTag;
     private TagKey<Item> treatTag;
 
+    private double summonAngle;
+    private double summonRadius;
     private int eatTicks = 0;
 
     public Kwami(EntityType<? extends Kwami> entityType, Level level) {
@@ -188,18 +194,54 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         return new SmartBrainProvider<>(this);
     }
 
-    @Override
-    public void tick() {
-        super.tick();
-        if (getSummonTicks() > 0) {
-            setSummonTicks(getSummonTicks() - 1);
+    private void tickSummon() {
+        setSummonTicks(getSummonTicks() - 1);
+        LivingEntity owner = getOwner();
+        if (owner != null) {
+            Vec3 ownerEyePos = owner.getEyePosition();
+
+            Vec3 lookVec = ownerEyePos.subtract(this.position());
+            float yaw = (float) (Math.toDegrees(Math.atan2(lookVec.z, lookVec.x)) - 90.0F);
+            float pitch = (float) (-Math.toDegrees(Math.atan2(lookVec.y, Math.sqrt(lookVec.x * lookVec.x + lookVec.z * lookVec.z))));
+
+            if (this.getY() < ownerEyePos.y - this.getBbHeight() / 2) {
+                summonRadius += SUMMON_RADIUS_STEP;
+                summonAngle += SUMMON_ANGLE_STEP;
+                if (summonRadius > SUMMON_MAX_RADIUS) {
+                    summonRadius = SUMMON_MAX_RADIUS;
+                }
+
+                Vec3 ownerPos = owner.position();
+                double startY = ownerPos.y + owner.getBbHeight() / 2;
+                double t = Math.min(summonRadius / SUMMON_MAX_RADIUS, 1.0);
+                double y = startY + (ownerEyePos.y - startY) * t - this.getBbHeight() / 2;
+
+                double x = ownerPos.x + summonRadius * Math.cos(summonAngle);
+                double z = ownerPos.z + summonRadius * Math.sin(summonAngle);
+
+                this.moveTo(x, y, z, yaw, pitch);
+            } else {
+                float yawRad = (float) Math.toRadians(owner.getYRot());
+                double x = ownerEyePos.x - Math.sin(yawRad);
+                double z = ownerEyePos.z + Math.cos(yawRad);
+                double y = ownerEyePos.y - this.getBbHeight() / 2.0; // center vertically
+
+                this.moveTo(x, y, z, yaw, pitch);
+            }
         }
     }
 
     @Override
     protected void customServerAiStep() {
+        if (getSummonTicks() > 0) {
+            tickSummon();
+            return;
+        }
+
         super.customServerAiStep();
+
         tickBrain(this);
+
         ItemStack mainHandItem = getMainHandItem();
         if (eatTicks > 0 && (isFood(mainHandItem) || isTreat(mainHandItem))) {
             eatTicks--;

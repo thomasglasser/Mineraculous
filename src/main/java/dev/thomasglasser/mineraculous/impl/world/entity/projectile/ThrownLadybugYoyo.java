@@ -205,24 +205,6 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     Vec3 tangentialVelocity = owner.getDeltaMovement().subtract(
                             radialForce.scale(owner.getDeltaMovement().dot(radialForce)));
 
-                    /* if (!ownerInput.equals(Vec3.ZERO) && tangentialVelocity.lengthSqr() > 1e-6) {
-                        // Rope direction (to detect bottom vs top)
-                        Vec3 ropeDir = fromProjectileToPlayer.normalize();
-                        double cosAngle = ropeDir.dot(new Vec3(0, -1, 0));
-                    
-                        // Pump factor: max at bottom, fades near top
-                        double pumpFactor = Math.max(0, Math.pow(1 - cosAngle * cosAngle, 2.0));
-                    
-                        double inertiaBoost = 1.0 + (10.0 * pumpFactor);
-                        tangentialVelocity = tangentialVelocity.scale(inertiaBoost);
-                    
-                        if (pumpFactor > 0.8) {
-                            tangentialVelocity = tangentialVelocity.scale(10);
-                        }
-                    
-                        owner.addDeltaMovement(ownerInput.scale(1));
-                    }*/
-
                     double dampingFactor = Math.max(1.06, 1 - Math.abs(distance - this.getMaxRopeLength()) * 0.02); // Less damping near center
                     Vec3 dampedVelocity = tangentialVelocity.scale(dampingFactor);
 

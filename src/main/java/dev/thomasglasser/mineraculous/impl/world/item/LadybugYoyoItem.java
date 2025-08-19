@@ -252,6 +252,10 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     public boolean onEntitySwing(ItemStack stack, LivingEntity entity, InteractionHand hand) {
         if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
             if (entity.level() instanceof ServerLevel serverLevel) {
+                boolean shouldThrow = true;
+                if (stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.LASSO)
+                    shouldThrow = false;
+
                 ThrownLadybugYoyoData data = entity.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
                 if (data.id().isPresent()) {
                     ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(serverLevel);
@@ -267,7 +271,8 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                         recallYoyo(player);
                     }
                 } else if (entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isEmpty()) {
-                    throwYoyo(stack, player, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()) == Ability.PURIFY ? Ability.PURIFY : null, hand);
+                    //Added shouldThrow to avoid throwing when interacting with an entity in order to remove the leash, otherwise the entity gets hurt for some reason.
+                    if (shouldThrow) throwYoyo(stack, player, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()) == Ability.PURIFY ? Ability.PURIFY : null, hand);
                     player.getCooldowns().addCooldown(this, 5);
                 }
             }

@@ -28,7 +28,7 @@ public record ServerboundMiraculousTransformPayload(Holder<Miraculous> miraculou
         if (transform) {
             data.transform(player, level, miraculous);
         } else {
-            data.detransform(player, level, miraculous, false);
+            data.detransform(player, level, miraculous, null, false);
         }
     }
 

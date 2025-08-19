@@ -26,6 +26,7 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Optional;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
@@ -37,11 +38,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Summons an {@link ItemStack} from a {@link LuckyCharms} pool based on related entities.
- * 
+ *
  * @param requireActiveToolInHand Whether the performer must have their tool in-hand to summon the {@link ItemStack}
  * @param summonSound             The sound to play when summoning the {@link ItemStack} successfully
  */
@@ -51,12 +53,8 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             SoundEvent.CODEC.optionalFieldOf("summon_sound").forGetter(SummonTargetDependentLuckyCharmAbility::summonSound)).apply(instance, SummonTargetDependentLuckyCharmAbility::new));
 
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
-        boolean canPerform = !requireActiveToolInHand;
-        if (requireActiveToolInHand) {
-            canPerform = handler.isActiveTool(performer.getMainHandItem(), performer) || handler.isActiveTool(performer.getOffhandItem(), performer);
-        }
-        if (canPerform) {
+    public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+        if (!requireActiveToolInHand || (handler.isActiveTool(performer.getMainHandItem(), performer) || handler.isActiveTool(performer.getOffhandItem(), performer))) {
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
             Entity target = determineTarget(level, entityData.getTrackedEntity(performer.getUUID()), performer);
             if (target != null) {
@@ -85,12 +83,20 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             UUID uuid = handler.getAndAssignBlame(stack, performer);
             stack.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.ofNullable(target).map(Entity::getUUID), uuid, uuid != null ? LuckyCharmIdData.get(level).incrementLuckyCharmId(uuid) : 0));
             LuckyCharmItemSpawner item = LuckyCharmItemSpawner.create(level, stack);
-            item.setPos(performer.position().add(0, 4, 0));
+            BlockPos.MutableBlockPos spawnPos = performer.blockPosition().above().mutable();
+            for (int i = 0; i < 4; i++) {
+                if (level.getBlockState(spawnPos.above()).isAir()) {
+                    spawnPos.move(0, 1, 0);
+                } else {
+                    break;
+                }
+            }
+            item.moveTo(Vec3.atCenterOf(spawnPos));
             level.addFreshEntity(item);
             Ability.playSound(level, performer, summonSound);
-            return true;
+            return State.SUCCESS;
         }
-        return false;
+        return State.FAIL;
     }
 
     private @Nullable Entity determineTarget(ServerLevel level, @Nullable UUID trackedId, LivingEntity performer) {

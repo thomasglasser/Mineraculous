@@ -178,11 +178,12 @@ public class AbilityReversionEntityData extends SavedData {
     }
 
     public void revertConversions(UUID performer, ServerLevel level) {
-        Collection<CompoundTag> conversions = convertedEntities.row(performer).values();
+        Map<UUID, CompoundTag> row = convertedEntities.row(performer);
+        Collection<CompoundTag> conversions = row.values();
         for (CompoundTag entityData : conversions) {
             revertConversion(entityData, level);
-            convertedEntities.remove(performer, entityData.getUUID("UUID"));
         }
+        row.clear();
     }
 
     public @Nullable Entity revertConversion(UUID performer, UUID entity, ServerLevel level) {

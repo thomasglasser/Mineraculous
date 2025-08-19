@@ -42,6 +42,7 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyo
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -58,6 +59,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -340,15 +342,17 @@ public class MineraculousClientEvents {
             event.setType(MineraculousHeartTypes.CATACLYSMED.getValue());
     }
 
-    static void onClientChatReceived(ClientChatReceivedEvent event) {
+    static void onClientChatReceived(ClientChatReceivedEvent.Player event) {
         ClientLevel level = Minecraft.getInstance().level;
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (level != null && player != null) {
-            player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().ifPresent(chatter -> {
-                if (!(event.getSender().equals(chatter) || event.getSender().equals(player.getUUID()) || (event instanceof ClientChatReceivedEvent.System system && system.isOverlay()))) {
-                    event.setCanceled(true);
-                }
-            });
+        Player receiver = Minecraft.getInstance().player;
+        UUID senderId = event.getSender();
+        if (level != null && receiver != null) {
+            Player sender = level.getPlayerByUUID(event.getSender());
+            if (receiver != sender &&
+                    (receiver.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().map(chatter -> !chatter.equals(senderId)).orElse(false) ||
+                            (sender != null && sender.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().map(chatter -> !chatter.equals(receiver.getUUID())).orElse(false)))) {
+                event.setCanceled(true);
+            }
         }
     }
 }

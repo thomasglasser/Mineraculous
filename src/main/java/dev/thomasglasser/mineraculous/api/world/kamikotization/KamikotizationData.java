@@ -171,16 +171,16 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
     public void performAbilities(ServerLevel level, LivingEntity entity, @Nullable AbilityContext context) {
         AbilityData data = new AbilityData(0, powerActive);
         KamikotizationAbilityHandler handler = new KamikotizationAbilityHandler(kamikotization);
-        if (AbilityUtils.performPassiveAbilities(level, entity, data, handler, context, kamikotization.value().passiveAbilities()) && powerActive) {
+        if (AbilityUtils.performPassiveAbilities(level, entity, data, handler, context, kamikotization.value().passiveAbilities()).isSuccess() && powerActive) {
             withPowerActive(false).save(entity, true);
         } else if (powerActive) {
-            boolean consumeMainPower = AbilityUtils.performActiveAbility(level, entity, data, handler, context, kamikotization.value().powerSource().right());
-            if (consumeMainPower) {
+            boolean success = AbilityUtils.performActiveAbility(level, entity, data, handler, context, kamikotization.value().powerSource().right()).isSuccess();
+            if (success) {
                 if (context != null && entity instanceof ServerPlayer player) {
                     MineraculousCriteriaTriggers.PERFORMED_KAMIKOTIZATION_ACTIVE_ABILITY.get().trigger(player, kamikotization.getKey(), context.advancementContext());
                 }
             }
-            withPowerActive(!consumeMainPower).save(entity, true);
+            withPowerActive(!success).save(entity, true);
         }
     }
 

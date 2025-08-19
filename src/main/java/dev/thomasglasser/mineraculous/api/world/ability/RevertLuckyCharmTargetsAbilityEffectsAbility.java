@@ -35,7 +35,7 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
             SoundEvent.CODEC.optionalFieldOf("revert_sound").forGetter(RevertLuckyCharmTargetsAbilityEffectsAbility::revertSound)).apply(instance, RevertLuckyCharmTargetsAbilityEffectsAbility::new));
 
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null && data.powerActive()) {
             ItemStack stack = performer.getMainHandItem();
             LuckyCharm luckyCharm = stack.get(MineraculousDataComponents.LUCKY_CHARM);
@@ -70,11 +70,11 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                     });
                     LuckyCharmIdData.get(level).incrementLuckyCharmId(performerId);
                     Ability.playSound(level, performer, revertSound);
-                    return true;
+                    return State.SUCCESS;
                 }
             }
         }
-        return false;
+        return State.FAIL;
     }
 
     @Override

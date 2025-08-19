@@ -130,7 +130,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
         if (miraculous != null && entity.level() instanceof ServerLevel level && !(stack.is(newStack.getItem()) && miraculous == newStack.get(MineraculousDataComponents.MIRACULOUS))) {
             MiraculousData data = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous);
             if (data.transformed()) {
-                data.detransform(entity, level, miraculous, true);
+                data.detransform(entity, level, miraculous, stack, true);
             } else {
                 data.unequip().save(miraculous, entity, true);
             }

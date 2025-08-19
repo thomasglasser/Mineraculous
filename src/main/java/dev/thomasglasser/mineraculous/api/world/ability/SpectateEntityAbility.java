@@ -46,36 +46,37 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
             SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(SpectateEntityAbility::startSound),
             SoundEvent.CODEC.optionalFieldOf("stop_sound").forGetter(SpectateEntityAbility::stopSound)).apply(instance, SpectateEntityAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null) {
             AbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
             if (abilityEffectData.spectationInterrupted()) {
                 stopSpectation(level, performer);
-                return true;
+                return State.SUCCESS;
             } else if (data.powerActive()) {
                 if (abilityEffectData.spectatingId().isPresent()) {
                     stopSpectation(level, performer);
-                    return true;
+                    return State.SUCCESS;
                 } else {
                     List<? extends Entity> entities = level.getEntities(EntityTypeTest.forClass(Entity.class), entity -> isValidEntity(level, performer, entity));
                     if (!entities.isEmpty()) {
                         Entity target = entities.getFirst();
                         abilityEffectData.withSpectation(Optional.of(target.getUUID()), shader, faceMaskTexture, privateChat ? Optional.of(target.getUUID()) : Optional.empty(), allowRemoteDamage).save(performer, true);
                         if (privateChat) {
-                            abilityEffectData.withPrivateChat(Optional.of(performer.getUUID()), faceMaskTexture).save(target, true);
+                            target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.of(performer.getUUID()), faceMaskTexture).save(target, true);
                         }
                         if (performer instanceof ServerPlayer player) {
                             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.of(target.getId())), player);
                         }
                         Ability.playSound(level, performer, startSound);
-                        return true;
+                        return State.SUCCESS;
                     }
+                    return State.CONTINUE;
                 }
             } else {
-                return abilityEffectData.spectatingId().isPresent();
+                return abilityEffectData.spectatingId().isPresent() ? State.SUCCESS : State.CONTINUE;
             }
         }
-        return false;
+        return State.FAIL;
     }
 
     private boolean isValidEntity(ServerLevel level, LivingEntity performer, Entity target) {
@@ -83,7 +84,9 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
     }
 
     private void stopSpectation(ServerLevel level, LivingEntity performer) {
-        performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withSpectation(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), false).save(performer, true);
+        AbilityEffectData data = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
+        data.spectatingId().map(level::getEntity).ifPresent(spectating -> spectating.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(spectating, true));
+        data.withSpectation(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), false).save(performer, true);
         if (performer instanceof ServerPlayer player) {
             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.empty()), player);
         }

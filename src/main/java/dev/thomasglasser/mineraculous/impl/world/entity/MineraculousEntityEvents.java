@@ -263,7 +263,7 @@ public class MineraculousEntityEvents {
                 if (miraculous != null) {
                     MiraculousData data = miraculousesData.get(miraculous);
                     if (data.transformed()) {
-                        data.detransform(entity, level, miraculous, true);
+                        data.detransform(entity, level, miraculous, stack, true);
                     } else {
                         MineraculousEntityUtils.renounceKwami(stack.get(MineraculousDataComponents.KWAMI_ID), stack, level);
                     }

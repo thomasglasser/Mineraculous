@@ -23,11 +23,12 @@ public record RightHandParticlesAbility(ParticleOptions particle) implements Abi
             ParticleTypes.CODEC.fieldOf("particle").forGetter(RightHandParticlesAbility::particle)).apply(instance, RightHandParticlesAbility::new));
 
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null) {
             TommyLibServices.NETWORK.sendToTrackingClients(new ClientboundAddRightHandParticlesPayload(Optional.of(performer.getId()), particle), performer);
+            return State.CONTINUE;
         }
-        return false;
+        return State.FAIL;
     }
 
     @Override

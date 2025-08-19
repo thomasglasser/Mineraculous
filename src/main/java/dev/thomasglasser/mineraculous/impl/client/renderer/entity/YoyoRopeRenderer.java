@@ -2,6 +2,8 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -12,7 +14,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -25,15 +26,15 @@ public class YoyoRopeRenderer {
     public static final float RIGHT_SCALE = 0.55f;
     public static final float UP_SCALE = -0.6f;
 
-    public static void render(LivingEntity animatable, Player projectilePlayer, double maxLength, PoseStack poseStack, MultiBufferSource bufferSource, float partialTick) {
+    public static void render(LivingEntity entity, Player ropeOwner, double maxLength, PoseStack poseStack, MultiBufferSource bufferSource, float partialTick) {
         Vec3 playerHandPos;
-        boolean offHand = !(projectilePlayer.getMainArm() == HumanoidArm.RIGHT);
-        if (projectilePlayer == Minecraft.getInstance().player && Minecraft.getInstance().getEntityRenderDispatcher().options.getCameraType().isFirstPerson())
-            playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(offHand, false, partialTick, RIGHT_SCALE, UP_SCALE);
-        else
-            playerHandPos = MineraculousClientUtils.getHumanoidEntityHandPos(projectilePlayer, offHand, partialTick, 0.15f, -0.75, 0.35f);
-        Vec3 projectilePos = animatable.getPosition(partialTick);
-        renderRope(playerHandPos, projectilePos, maxLength, poseStack, bufferSource);
+        if (ropeOwner == Minecraft.getInstance().player && Minecraft.getInstance().getEntityRenderDispatcher().options.getCameraType().isFirstPerson()) {
+            playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(false, false, partialTick, RIGHT_SCALE, UP_SCALE);
+        } else {
+            playerHandPos = MineraculousClientUtils.getHumanoidEntityHandPos(ropeOwner, false, partialTick, 0.15f, -0.75, 0.35f);
+        }
+        Vec3 entityPos = entity.getPosition(partialTick);
+        renderRope(playerHandPos, entityPos, maxLength, poseStack, bufferSource);
     }
 
     public static void renderRope(Vec3 playerHandPos, Vec3 projectilePos, double maxLength, PoseStack poseStack, MultiBufferSource bufferSource) {

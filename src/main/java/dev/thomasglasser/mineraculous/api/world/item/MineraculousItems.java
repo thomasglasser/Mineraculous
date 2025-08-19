@@ -50,9 +50,9 @@ public class MineraculousItems {
     public static final UnaryOperator<Item.Properties> MIRACULOUS_TOOL_PROPERTIES = properties -> properties.fireResistant().stacksTo(1).rarity(Rarity.EPIC);
     /// Default properties for Miraculous tools with the {@link MineraculousDataComponents#ACTIVE} component
     public static final UnaryOperator<Item.Properties> MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE = properties -> MIRACULOUS_TOOL_PROPERTIES.apply(properties).component(MineraculousDataComponents.ACTIVE, false);
-    public static final DeferredItem<Item> LADYBUG_YOYO = register("ladybug_yoyo", () -> new LadybugYoyoItem(MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE.apply(new Item.Properties())));
+    public static final DeferredItem<LadybugYoyoItem> LADYBUG_YOYO = register("ladybug_yoyo", () -> new LadybugYoyoItem(MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE.apply(new Item.Properties())));
     public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE.apply(new Item.Properties()).component(MineraculousDataComponents.ACTIVE_SETTINGS, CatStaffItem.ACTIVE_SETTINGS)));
-    public static final DeferredItem<Item> BUTTERFLY_CANE = register("butterfly_cane", () -> new ButterflyCaneItem(MIRACULOUS_TOOL_PROPERTIES.apply(new Item.Properties())));
+    public static final DeferredItem<ButterflyCaneItem> BUTTERFLY_CANE = register("butterfly_cane", () -> new ButterflyCaneItem(MIRACULOUS_TOOL_PROPERTIES.apply(new Item.Properties())));
 
     // Miraculous
     public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", () -> new MiraculousItem(new Item.Properties().component(MineraculousDataComponents.CHARGED, true)));

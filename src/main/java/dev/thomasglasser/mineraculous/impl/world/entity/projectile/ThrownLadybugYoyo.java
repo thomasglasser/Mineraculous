@@ -55,6 +55,8 @@ import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
+    public static final float MIN_MAX_ROPE_LENGTH = 1.5f;
+
     private static final EntityDataAccessor<Optional<LadybugYoyoItem.Ability>> DATA_ABILITY = SynchedEntityData.defineId(ThrownLadybugYoyo.class, MineraculousEntityDataSerializers.OPTIONAL_LADYBUG_YOYO_ABILITY.get());
     private static final EntityDataAccessor<Boolean> DATA_IS_RECALLING = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> DATA_MAX_ROPE_LENGTH = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.FLOAT);
@@ -120,7 +122,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     }
 
     public void setMaxRopeLength(float f) {
-        this.entityData.set(DATA_MAX_ROPE_LENGTH, Math.max(f, 1.5f));
+        this.entityData.set(DATA_MAX_ROPE_LENGTH, Math.max(f, MIN_MAX_ROPE_LENGTH));
     }
 
     public float getRenderMaxRopeLength(boolean isFirstPov) {
@@ -312,13 +314,13 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     }
                 }
             } else if (ability == LadybugYoyoItem.Ability.LASSO && owner != null && entity instanceof Leashable leashable) {
-                if (leashable.getLeashHolder() != owner && entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER).isEmpty()) {
+                if (leashable.getLeashHolder() != owner && !entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE)) {
                     if (leashable.isLeashed()) {
                         leashable.dropLeash(true, true);
                     }
                     leashable.setLeashedTo(owner, true);
-                    entity.setData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER, Optional.of(owner.getUUID()));
-                    TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.YOYO_LEASH_HOLDER, Optional.of(owner.getUUID())), owner.getServer());
+                    entity.setData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE, true);
+                    TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE, true), owner.getServer());
                     new LeashingLadybugYoyoData(entity.getId()).save(owner, true);
                 }
                 recall();

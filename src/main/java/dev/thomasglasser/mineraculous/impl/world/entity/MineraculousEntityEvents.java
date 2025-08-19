@@ -18,11 +18,11 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerChoicesPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickLadybugYoyoPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
-import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,10 +36,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
@@ -89,16 +91,16 @@ public class MineraculousEntityEvents {
     /// Life
     public static void onPreEntityTick(EntityTickEvent.Pre event) {
         Entity entity = event.getEntity();
-        if (entity.level() instanceof ServerLevel level) {
-            entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER).ifPresent(holderId -> {
-                Entity holder = level.getEntity(holderId);
-                if (holder == null) {
-                    entity.setData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER, Optional.empty());
-                    TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.YOYO_LEASH_HOLDER, Optional.<UUID>empty()), entity.getServer());
-                } else if (!entity.isAlive() || !holder.isAlive()) {
-                    LadybugYoyoItem.removeLeash(holder);
+        Level level = entity.level();
+        if (!level.isClientSide()) {
+            if (entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE) && entity instanceof Leashable leashable) {
+                Entity holder = leashable.getLeashHolder();
+                if (!entity.isAlive() || holder == null || !holder.isAlive()) {
+                    LadybugYoyoItem.removeLeashFrom(entity);
                 }
-            });
+            } else if (entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).map(data -> level.getEntity(data.leashedId())).orElse(null) instanceof Leashable leashable && leashable.getLeashHolder() != entity) {
+                LadybugYoyoItem.removeHeldLeash(entity);
+            }
         }
     }
 
@@ -120,7 +122,7 @@ public class MineraculousEntityEvents {
 
             ItemStack weaponItem = entity.getWeaponItem();
             if (entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent() && (weaponItem == null || !weaponItem.is(MineraculousItems.LADYBUG_YOYO))) {
-                LadybugYoyoItem.removeLeash(entity);
+                LadybugYoyoItem.removeHeldLeash(entity);
             }
         }
     }
@@ -212,6 +214,19 @@ public class MineraculousEntityEvents {
         }
         if (event.getLevel() instanceof ServerLevel level) {
             AbilityUtils.performBlockAbilities(level, player, event.getPos());
+        }
+        ItemStack mainHandItem = player.getMainHandItem();
+        if (mainHandItem.is(MineraculousItems.LADYBUG_YOYO)) {
+            MineraculousItems.LADYBUG_YOYO.get().onLeftClick(mainHandItem, player);
+            event.setCanceled(true);
+        }
+    }
+
+    public static void onEmptyLeftClick(PlayerInteractEvent.LeftClickEmpty event) {
+        Player player = event.getEntity();
+        ItemStack mainHandItem = player.getMainHandItem();
+        if (mainHandItem.is(MineraculousItems.LADYBUG_YOYO)) {
+            TommyLibServices.NETWORK.sendToServer(ServerboundEmptyLeftClickLadybugYoyoPayload.INSTANCE);
         }
     }
 
@@ -344,13 +359,10 @@ public class MineraculousEntityEvents {
                     value.powerSource().right().ifPresent(ability -> ability.value().leaveLevel(abilityData, level, livingEntity));
                 });
             }
-            entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).ifPresent(data -> LadybugYoyoItem.removeLeash(entity));
-            entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER).ifPresent(holderId -> {
-                Entity holder = level.getEntity(holderId);
-                if (holder != null) {
-                    LadybugYoyoItem.removeLeash(holder);
-                }
-            });
+            entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).ifPresent(data -> LadybugYoyoItem.removeHeldLeash(entity));
+            if (entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE)) {
+                LadybugYoyoItem.removeLeashFrom(entity);
+            }
         }
     }
 

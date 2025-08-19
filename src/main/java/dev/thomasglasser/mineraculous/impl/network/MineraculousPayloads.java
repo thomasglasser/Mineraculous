@@ -12,7 +12,6 @@ import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.network.NeoForgeNetworkUtils;
 import dev.thomasglasser.tommylib.api.network.PayloadInfo;
 import java.util.List;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
@@ -50,6 +49,7 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundUpdateYoyoLengthPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateYoyoLengthPayload.CODEC),
             new PayloadInfo<>(ServerboundSetFaceMaskTexturePayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetFaceMaskTexturePayload.CODEC),
             new PayloadInfo<>(ServerboundSetSpectationInterruptedPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetSpectationInterruptedPayload.CODEC),
+            new PayloadInfo<>(ServerboundEmptyLeftClickLadybugYoyoPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundEmptyLeftClickLadybugYoyoPayload.CODEC),
 
             // Clientbound
             new PayloadInfo<>(ClientboundCalculateYoyoRenderLengthPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundCalculateYoyoRenderLengthPayload.CODEC),
@@ -75,7 +75,7 @@ public class MineraculousPayloads {
         NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO.get(), ThrownLadybugYoyoData.STREAM_CODEC);
         NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.MIRACULOUSES.get(), MiraculousesData.STREAM_CODEC);
         NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.KAMIKOTIZATION.get(), ByteBufCodecs.optional(KamikotizationData.STREAM_CODEC));
-        NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER.get(), ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC));
+        NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE.get(), ByteBufCodecs.BOOL);
         NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO.get(), ByteBufCodecs.optional(LeashingLadybugYoyoData.STREAM_CODEC));
     }
 }

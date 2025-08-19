@@ -18,7 +18,7 @@ public interface LeashableMixin {
     @Expression("(double)f > 10.0")
     @ModifyExpressionValue(method = "tickLeash", at = @At("MIXINEXTRAS:EXPRESSION"))
     private static <E extends Entity & Leashable> boolean overrideSnapping(boolean original, E entity) {
-        if (entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER).isPresent()) {
+        if (entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE)) {
             return false;
         }
         return original;
@@ -28,7 +28,7 @@ public interface LeashableMixin {
     @Expression("(double)f > 6.0")
     @ModifyExpressionValue(method = "tickLeash", at = @At("MIXINEXTRAS:EXPRESSION"))
     private static <E extends Entity & Leashable> boolean overrideElasticPull(boolean original, E entity, @Local float f) {
-        if (entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER).isPresent()) {
+        if (entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE)) {
             Entity leashHolder = entity.getLeashHolder();
             if (leashHolder != null) {
                 Optional<LeashingLadybugYoyoData> optionalData = leashHolder.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO);

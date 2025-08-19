@@ -2,8 +2,6 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
-import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -14,7 +12,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
@@ -23,10 +21,10 @@ public class YoyoRopeRenderer {
 
     private static final int POINTS = 100;
     private static final double CATENARY_CURVE_FACTOR = 2048.0;
-    public static final float RIGHT_SCALE = 0.55f;
-    public static final float UP_SCALE = -0.6f;
+    private static final float RIGHT_SCALE = 0.55f;
+    private static final float UP_SCALE = -0.6f;
 
-    public static void render(LivingEntity entity, Player ropeOwner, double maxLength, PoseStack poseStack, MultiBufferSource bufferSource, float partialTick) {
+    public static void render(Entity entity, Player ropeOwner, double maxLength, PoseStack poseStack, MultiBufferSource bufferSource, float partialTick) {
         Vec3 playerHandPos;
         if (ropeOwner == Minecraft.getInstance().player && Minecraft.getInstance().getEntityRenderDispatcher().options.getCameraType().isFirstPerson()) {
             playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(false, false, partialTick, RIGHT_SCALE, UP_SCALE);

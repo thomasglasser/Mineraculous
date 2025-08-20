@@ -224,7 +224,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         // Kamikotization View
         add(MineraculousGuis.REVOKE, "Revoke Kamikotization");
-        add(MineraculousGuis.REVOKE_WITH_SPACE, "Revoke Kamikotization (Press Space)");
+        add(MineraculousGuis.PRESS_ENTER, "(Press Enter)");
 
         // Kamikotization Selection Screen
         add(KamikotizationSelectionScreen.TITLE, "Kamikotization");

@@ -55,7 +55,6 @@
   "gui.kamikotization.name": "Akumatization",
   "gui.kamikotization.no_kamikotizations": "No valid akumatizations found for %s",
   "gui.mineraculous.revoke": "Revoke Akumatization",
-  "gui.mineraculous.revoke_with_space": "Revoke Akumatization (Press Space)",
   "item.mineraculous.kamiko_spawn_egg": "Akuma Spawn Egg",
   "item.mineraculous.kamikotization_boots": "Akumatization Boots",
   "item.mineraculous.kamikotization_chestplate": "Akumatization Chestplate",

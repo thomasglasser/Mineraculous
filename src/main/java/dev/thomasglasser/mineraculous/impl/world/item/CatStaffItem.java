@@ -193,8 +193,6 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
             if (ability == Ability.PERCH) {
                 PerchCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF);
 
-                float groundRYClient = perchData.yGroundLevel();
-                int perchTickClient = perchData.tick();
                 //SERVER & CLIENT
                 boolean isFalling = perchData.isFalling();
                 float length = perchData.length();
@@ -202,60 +200,12 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                 //SERVER
                 boolean catStaffPerchPerching = perchData.perching();
                 float initRot;
-                float yBeforeFalling = perchData.yBeforeFalling();
                 float catStaffPerchGroundRY;
-                Vector3f initialFallDirection = perchData.initialFallDirection();
 
-                if (!isFalling) {
-                    //CONSTRAINED MOVEMENT
-                    Vector3f staffPosition = new Vector3f(initPos);
-                    staffPosition = new Vector3f(staffPosition.x, 0, staffPosition.z);
-                    Vec3 fromPlayerToStaff = new Vec3(staffPosition.x - player.getX(), 0, staffPosition.z - player.getZ());
-                    if (perchData.perching()) {
-                        if (fromPlayerToStaff.length() > PERCH_STAFF_DISTANCE) {
-                            Vec3 constrain = new Vec3((double) staffPosition.x - player.getX(), 0, (double) staffPosition.z - player.getZ());
-                            constrain = constrain.normalize();
-                            constrain = constrain.scale(fromPlayerToStaff.length() - PERCH_STAFF_DISTANCE);
-                            constrain = constrain.add(player.getX(), player.getY(), player.getZ());
-                            player.setPos(constrain);
-                        }
-                        if (fromPlayerToStaff.length() <= PERCH_STAFF_DISTANCE) {
-                            Vec3 constrain = new Vec3((double) staffPosition.x - player.getX(), 0, (double) staffPosition.z - player.getZ());
-                            constrain = constrain.normalize();
-                            constrain = constrain.scale(fromPlayerToStaff.length() - PERCH_STAFF_DISTANCE);
-                            constrain = constrain.add(player.getX(), player.getY(), player.getZ());
-                            player.setPos(constrain);
-                        }
-                    }
-                }
+                constrainPerchMovement(player, perchData);
 
                 if (level.isClientSide()) {
-                    if (!isFalling) {
-                        float d = 0;
-                        boolean upOrDownKeyPressed = false;
-                        boolean shouldNotFall = (groundRYClient == length);
-                        if (MineraculousKeyMappings.WEAPON_DOWN_ARROW.isDown()) {
-                            d -= 0.3f;
-                            upOrDownKeyPressed = true;
-                        } if (MineraculousKeyMappings.WEAPON_UP_ARROW.isDown() && Math.abs(groundRYClient) < MineraculousServerConfig.get().maxCatStaffLength.get()) {
-                            d += 0.3f;
-                            upOrDownKeyPressed = true;
-                        } if (perchTickClient > 30) {
-                            if (upOrDownKeyPressed) {
-                                Vec3 vec3 = new Vec3(0, d, 0);
-                                player.setDeltaMovement(vec3);
-                                player.hurtMarked = true;
-                                TommyLibServices.NETWORK.sendToServer(new ServerboundSetDeltaMovementPayload(vec3, true));
-                            } else if (shouldNotFall) {
-                                player.setDeltaMovement(Vec3.ZERO);
-                                player.hurtMarked = true;
-                                TommyLibServices.NETWORK.sendToServer(new ServerboundSetDeltaMovementPayload(Vec3.ZERO, true));
-                            }
-                        } else {
-                            Vec3 vec3 = new Vec3(0, player.getDeltaMovement().y, 0);
-                            player.setDeltaMovement(vec3);
-                        }
-                    }
+                    handleVerticalPerchMovement(player, perchData);
                     handlePerchMovementInput(player, perchData);
                 } else {
                     if (!catStaffPerchPerching) {
@@ -279,6 +229,9 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
                     //TICKING LOGIC:
                     int t = perchData.tick();
+                    if (t <= 30) {
+                        t = t + 1;
+                    }
                     if (t > 10 && t < 30) {
                         if (player.getDeltaMovement().y >= -0.1)
                             player.setDeltaMovement(0, 0.8, 0);
@@ -286,34 +239,12 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                             player.setDeltaMovement(0, -player.getDeltaMovement().y, 0);
                         player.hurtMarked = true;
                     }
-                    if (t <= 30) {
-                        t = t + 1;
-                    }
 
                     //JUST FOR THE RENDERER
-                    boolean nRender = t > 10;
+                    boolean shouldRender = t > 10; //tells clients if they should render
 
                     if (isFalling) {
-                        Vector3f staffOrigin = new Vector3f(initPos.x, yBeforeFalling + length, initPos.z);
-                        Vec3 fromPlayerToStaff = new Vec3(staffOrigin.x - player.getX(), staffOrigin.y - player.getY(), staffOrigin.z - player.getZ());
-                        length = -length;
-                        if (fromPlayerToStaff.length() < length) {
-                            Vec3 constrain = new Vec3(fromPlayerToStaff.toVector3f());
-                            constrain = constrain.normalize();
-                            constrain = constrain.scale(fromPlayerToStaff.length() - length);
-                            constrain = constrain.add(player.getX(), player.getY(), player.getZ());
-                            player.setPos(constrain);
-
-                            Vec3 towards = new Vec3(initialFallDirection);
-                            towards = MineraculousMathUtils.projectOnCircle(fromPlayerToStaff, towards);
-                            towards = towards.normalize();
-                            player.setDeltaMovement(towards);
-                            player.hurtMarked = true;
-                        }
-
-                        if (fromPlayerToStaff.length() > length + 1) {
-                            stack.set(MineraculousDataComponents.CAT_STAFF_ABILITY.get(), Ability.BLOCK);
-                        }
+                        perchFallingBehaviour(stack, player, perchData);
                     } else {
                         //GROUND DETECTION
                         int y = entity.getBlockY();
@@ -322,7 +253,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         }
                         y++;
                         catStaffPerchGroundRY = (float) y - (float) entity.getY();
-                        yBeforeFalling = (float) player.getY();
+                        float yBeforeFalling = (float) player.getY();
 
                         //THIS MAKES THE STAFF EXTEND ITS LENGTH:
                         if (catStaffPerchGroundRY < length) {
@@ -333,7 +264,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         }
 
                         //SAVING DATA
-                        PerchCatStaffData newPerchData = new PerchCatStaffData(length, catStaffPerchGroundRY, catStaffPerchPerching, t, nRender, initPos, isFalling, yBeforeFalling, perchData.initialFallDirection());
+                        PerchCatStaffData newPerchData = new PerchCatStaffData(length, catStaffPerchGroundRY, catStaffPerchPerching, t, shouldRender, initPos, isFalling, yBeforeFalling, perchData.initialFallDirection());
                         player.setData(MineraculousAttachmentTypes.PERCH_CAT_STAFF, newPerchData);
                         newPerchData.save(player, true);
                     }
@@ -342,31 +273,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
             if (ability == Ability.TRAVEL) {
                 if (!level.isClientSide) {
                     TravelCatStaffData travelCatStaffData = player.getData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF);
-                    if (travelCatStaffData.traveling()) {
-                        float length = travelCatStaffData.length();
-                        boolean didLaunch = travelCatStaffData.launch();
-                        BlockPos targetPos = travelCatStaffData.blockPos();
-                        float targetDistance = new Vector3f((float) (player.getX() - targetPos.getX()),
-                                (float) (player.getY() - targetPos.getY()),
-                                (float) (player.getZ() - targetPos.getZ())).length();
-                        if (length < targetDistance && length <= MineraculousServerConfig.get().maxCatStaffLength.get()) length += 8;
-                        if (length > targetDistance) length = targetDistance;
-                        if (length == targetDistance && !didLaunch) {
-                            player.setDeltaMovement(new Vec3(travelCatStaffData.initialLookingAngle()).normalize().scale(4));
-                            player.hurtMarked = true;
-                            player.getCooldowns().addCooldown(stack.getItem(), 40);
-                            didLaunch = true;
-                        }
-                        if (didLaunch && player.getDeltaMovement().y < 0.5) {
-                            player.setData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF, new TravelCatStaffData());
-                            TravelCatStaffData.remove(player, true);
-                        } else {
-                            //SAVE DATA
-                            TravelCatStaffData newTravelData = new TravelCatStaffData(length, targetPos, true, travelCatStaffData.initialLookingAngle(), travelCatStaffData.y(), travelCatStaffData.initBodAngle(), didLaunch);
-                            player.setData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF, newTravelData);
-                            newTravelData.save(player, true);
-                        }
-                    }
+                    travelBehaviour(stack, player, travelCatStaffData);
                 }
 
                 if (player.getCooldowns().isOnCooldown(stack.getItem()))
@@ -380,6 +287,124 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         }
 
         super.inventoryTick(stack, level, entity, slotId, isSelected);
+    }
+
+    private static void travelBehaviour(ItemStack stack, Player player, TravelCatStaffData travelCatStaffData) {
+        if (travelCatStaffData.traveling()) {
+            float length = travelCatStaffData.length();
+            boolean didLaunch = travelCatStaffData.launch();
+            BlockPos targetPos = travelCatStaffData.blockPos();
+            float targetDistance = new Vector3f((float) (player.getX() - targetPos.getX()),
+                    (float) (player.getY() - targetPos.getY()),
+                    (float) (player.getZ() - targetPos.getZ())).length();
+            if (length < targetDistance && length <= MineraculousServerConfig.get().maxCatStaffLength.get()) length += 8;
+            if (length > targetDistance) length = targetDistance;
+            if (length == targetDistance && !didLaunch) {
+                player.setDeltaMovement(new Vec3(travelCatStaffData.initialLookingAngle()).normalize().scale(4));
+                player.hurtMarked = true;
+                player.getCooldowns().addCooldown(stack.getItem(), 40);
+                didLaunch = true;
+            }
+            if (didLaunch && player.getDeltaMovement().y < 0.5) {
+                player.setData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF, new TravelCatStaffData());
+                TravelCatStaffData.remove(player, true);
+            } else {
+                //SAVE DATA
+                TravelCatStaffData newTravelData = new TravelCatStaffData(length, targetPos, true, travelCatStaffData.initialLookingAngle(), travelCatStaffData.y(), travelCatStaffData.initBodAngle(), didLaunch);
+                player.setData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF, newTravelData);
+                newTravelData.save(player, true);
+            }
+        }
+    }
+
+    private static void perchFallingBehaviour(ItemStack stack, Player player, PerchCatStaffData perchData) {
+        Vector3f initPos = perchData.initPos();
+        float yBeforeFalling = perchData.yBeforeFalling();
+        float length = perchData.length();
+        Vector3f initialFallDirection = perchData.initialFallDirection();
+
+        Vector3f staffOrigin = new Vector3f(initPos.x, yBeforeFalling + length, initPos.z);
+        Vec3 fromPlayerToStaff = new Vec3(staffOrigin.x - player.getX(), staffOrigin.y - player.getY(), staffOrigin.z - player.getZ());
+        length = -length;
+        if (fromPlayerToStaff.length() < length) {
+            Vec3 constrain = new Vec3(fromPlayerToStaff.toVector3f());
+            constrain = constrain.normalize();
+            constrain = constrain.scale(fromPlayerToStaff.length() - length);
+            constrain = constrain.add(player.getX(), player.getY(), player.getZ());
+            player.setPos(constrain);
+
+            Vec3 towards = new Vec3(initialFallDirection);
+            towards = MineraculousMathUtils.projectOnCircle(fromPlayerToStaff, towards);
+            towards = towards.normalize();
+            player.setDeltaMovement(towards);
+            player.hurtMarked = true;
+        }
+
+        if (fromPlayerToStaff.length() > length + 1) {
+            stack.set(MineraculousDataComponents.CAT_STAFF_ABILITY.get(), Ability.BLOCK);
+        }
+    }
+
+    private static void constrainPerchMovement(Player player, PerchCatStaffData perchData) {
+        boolean isFalling = perchData.isFalling();
+        Vector3f initPos = perchData.initPos();
+        if (!isFalling) {
+            //CONSTRAINED MOVEMENT
+            Vector3f staffPosition = new Vector3f(initPos);
+            staffPosition = new Vector3f(staffPosition.x, 0, staffPosition.z);
+            Vec3 fromPlayerToStaff = new Vec3(staffPosition.x - player.getX(), 0, staffPosition.z - player.getZ());
+            if (perchData.perching()) {
+                if (fromPlayerToStaff.length() > PERCH_STAFF_DISTANCE) {
+                    Vec3 constrain = new Vec3((double) staffPosition.x - player.getX(), 0, (double) staffPosition.z - player.getZ());
+                    constrain = constrain.normalize();
+                    constrain = constrain.scale(fromPlayerToStaff.length() - PERCH_STAFF_DISTANCE);
+                    constrain = constrain.add(player.getX(), player.getY(), player.getZ());
+                    player.setPos(constrain);
+                }
+                if (fromPlayerToStaff.length() <= PERCH_STAFF_DISTANCE) {
+                    Vec3 constrain = new Vec3((double) staffPosition.x - player.getX(), 0, (double) staffPosition.z - player.getZ());
+                    constrain = constrain.normalize();
+                    constrain = constrain.scale(fromPlayerToStaff.length() - PERCH_STAFF_DISTANCE);
+                    constrain = constrain.add(player.getX(), player.getY(), player.getZ());
+                    player.setPos(constrain);
+                }
+            }
+        }
+    }
+
+    private static void handleVerticalPerchMovement(Player player, PerchCatStaffData perchData) {
+        boolean isFalling = perchData.isFalling();
+        float groundRYClient = perchData.yGroundLevel();
+        float length = perchData.length();
+        int perchTickClient = perchData.tick();
+        if (!isFalling) {
+            float d = 0;
+            boolean upOrDownKeyPressed = false;
+            boolean shouldNotFall = (groundRYClient == length);
+            if (MineraculousKeyMappings.WEAPON_DOWN_ARROW.isDown()) {
+                d -= 0.3f;
+                upOrDownKeyPressed = true;
+            }
+            if (MineraculousKeyMappings.WEAPON_UP_ARROW.isDown() && Math.abs(groundRYClient) < MineraculousServerConfig.get().maxCatStaffLength.get()) {
+                d += 0.3f;
+                upOrDownKeyPressed = true;
+            }
+            if (perchTickClient > 30) {
+                if (upOrDownKeyPressed) {
+                    Vec3 vec3 = new Vec3(0, d, 0);
+                    player.setDeltaMovement(vec3);
+                    player.hurtMarked = true;
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetDeltaMovementPayload(vec3, true));
+                } else if (shouldNotFall) {
+                    player.setDeltaMovement(Vec3.ZERO);
+                    player.hurtMarked = true;
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetDeltaMovementPayload(Vec3.ZERO, true));
+                }
+            } else {
+                Vec3 vec3 = new Vec3(0, player.getDeltaMovement().y, 0);
+                player.setDeltaMovement(vec3);
+            }
+        }
     }
 
     private static void handlePerchMovementInput(Player player, PerchCatStaffData perchData) {

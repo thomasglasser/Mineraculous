@@ -159,8 +159,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousKeyMappings.TOGGLE_ACTIVE, "De/Activate Item");
         add(MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU, "Open Item Radial Menu");
         add(MineraculousKeyMappings.TAKE_BREAK_ITEM, "Take/Break Item");
-        add(MineraculousKeyMappings.UNWIND_YOYO, "Unwind YoYo");
-        add(MineraculousKeyMappings.WIND_YOYO, "Wind YoYo");
+        add(MineraculousKeyMappings.WEAPON_DOWN_ARROW, "Unwind YoYo/Decrease Cat Staff Length");
+        add(MineraculousKeyMappings.WEAPON_UP_ARROW, "Wind YoYo/Increase Cat Staff Length");
     }
 
     private void addCommands() {
@@ -345,6 +345,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfig(MineraculousServerConfig.get().enableKamikotizationRejection, "Enable Kamikotization Rejection", "Enable rejection of kamikotization by the victim");
         addConfig(MineraculousServerConfig.get().luckyCharmSummonTimeMin, "Minimum Lucky Charm Summon Time", "The minimum amount of time (in seconds) that it takes for a lucky charm to be summoned");
         addConfig(MineraculousServerConfig.get().luckyCharmSummonTimeMax, "Maximum Lucky Charm Summon Time", "The maximum amount of time (in seconds) that it takes for a lucky charm to be summoned");
+        addConfig(MineraculousServerConfig.get().maxCatStaffLength, "Maximum Cat Staff Length", "Amount of blocks the cat staff can extend while using perch and travel mode");
 
         addConfigSection(MineraculousServerConfig.STEALING, "Stealing", "Settings for item stealing");
         addConfig(MineraculousServerConfig.get().stealingDuration, "Stealing Duration", "Duration in seconds that the key must be held to steal an item");

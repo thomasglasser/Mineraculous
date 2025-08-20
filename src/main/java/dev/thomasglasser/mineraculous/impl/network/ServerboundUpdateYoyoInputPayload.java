@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
@@ -44,7 +45,7 @@ public record ServerboundUpdateYoyoInputPayload(boolean front, boolean back, boo
                     if (right) movement = movement.add(rightVec);
 
                     movement = movement.normalize();
-                    movement = projectOnCircle(fromProjectileToPlayer.scale(-1), movement);
+                    movement = MineraculousMathUtils.projectOnCircle(fromProjectileToPlayer.scale(-1), movement);
 
                     Vec3 ropeDir = fromProjectileToPlayer.normalize();
                     double cosAngle = ropeDir.dot(new Vec3(0, -1, 0));
@@ -67,17 +68,6 @@ public record ServerboundUpdateYoyoInputPayload(boolean front, boolean back, boo
                 }
             }
         }
-    }
-
-    private Vec3 projectOnCircle(Vec3 fromPointToCenter, Vec3 vec3) {
-        Vec3 crossProd = fromPointToCenter.cross(vec3);
-        Vec3 t = crossProd.cross(fromPointToCenter);
-
-        double cosTheta = t.dot(vec3) / (t.length() * vec3.length());
-        double tln = cosTheta * vec3.length();
-        t = t.normalize().scale(tln);
-
-        return t;
     }
 
     @Override

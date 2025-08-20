@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.KamikotizationParticle;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
@@ -31,12 +32,14 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownLadybugY
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.FaceMaskLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.LegacyDevTeamLayer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundJumpMidSwingingPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSwingOffhandPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
+import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -48,7 +51,10 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.FlyStraightTowardsParticle;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -81,6 +87,8 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
 import org.lwjgl.glfw.GLFW;
@@ -324,6 +332,55 @@ public class MineraculousClientEvents {
     static void onRenderHand(RenderHandEvent event) {
         if (MineraculousClientUtils.getCameraEntity() != Minecraft.getInstance().player) {
             event.setCanceled(true);
+        }
+    }
+
+    public static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
+        Player player = event.getEntity();
+        PoseStack poseStack = event.getPoseStack();
+        MultiBufferSource bufferSource = event.getMultiBufferSource();
+        int light = event.getPackedLight();
+
+        ItemStack leftH = player.getOffhandItem();
+        ItemStack rightH = player.getMainHandItem();
+
+        boolean lHCatStaff = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+        boolean rHCatStaff = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+        if (lHCatStaff || rHCatStaff) {
+            player.noCulling = true;
+            CatStaffRenderer.renderCatStaffPerch(player, poseStack, bufferSource, light, event.getPartialTick());
+        }
+        boolean lHCatStaffTravel = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
+        boolean rHCatStaffTravel = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
+        if (lHCatStaffTravel || rHCatStaffTravel) {
+            player.noCulling = true;
+            CatStaffRenderer.renderCatStaffTravel(player, poseStack, bufferSource, light, event.getPartialTick());
+        }
+    }
+
+    public static void onRenderLevelStage(RenderLevelStageEvent event) {
+        AbstractClientPlayer player = Minecraft.getInstance().player;
+        RenderLevelStageEvent.Stage stage = event.getStage();
+        EntityRenderDispatcher renderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+        PoseStack poseStack = event.getPoseStack();
+        MultiBufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+        float partialTicks = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPartialTickTime();
+
+        ItemStack leftH = player.getOffhandItem();
+        ItemStack rightH = player.getMainHandItem();
+
+        int light = renderDispatcher.getPackedLightCoords(player, partialTicks);
+        boolean lHCatStaffPerch = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+        boolean rHCatStaffPerch = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+        if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson() && (lHCatStaffPerch || rHCatStaffPerch)) {
+            poseStack.translate(0, -1.6d, 0);
+            CatStaffRenderer.renderCatStaffPerch(player, poseStack, bufferSource, light, partialTicks);
+        }
+        boolean lHCatStaffTravel = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
+        boolean rHCatStaffTravel = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
+        if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson() && (lHCatStaffTravel || rHCatStaffTravel)) {
+            poseStack.translate(0, -1.6d, 0);
+            CatStaffRenderer.renderCatStaffTravel(player, poseStack, bufferSource, light, partialTicks);
         }
     }
 

@@ -12,6 +12,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundCalculateYoyoRenderLengthPayload;
+import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
@@ -86,6 +87,10 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         new ThrownLadybugYoyoData(this.getId()).save(owner, !level.isClientSide);
     }
 
+    public static float clampMaxRopeLength(float maxRopeLength) {
+        return Math.min(Math.max(maxRopeLength, MIN_MAX_ROPE_LENGTH), MineraculousServerConfig.get().maxToolLength.getAsInt());
+    }
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
@@ -121,8 +126,8 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         return this.entityData.get(DATA_MAX_ROPE_LENGTH);
     }
 
-    public void setMaxRopeLength(float f) {
-        this.entityData.set(DATA_MAX_ROPE_LENGTH, Math.max(f, MIN_MAX_ROPE_LENGTH));
+    public void setMaxRopeLength(float maxRopeLength) {
+        this.entityData.set(DATA_MAX_ROPE_LENGTH, clampMaxRopeLength(maxRopeLength));
     }
 
     public float getRenderMaxRopeLength(boolean isFirstPov) {
@@ -246,7 +251,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
         double distance = fromProjectileToPlayer.length();
         ItemStack stack = owner.getItemInHand(getHand());
-        boolean flag = distance <= 100
+        boolean flag = distance <= MineraculousServerConfig.get().maxToolLength.getAsInt() + 1
                 && this.level().dimension() == owner.level().dimension()
                 && stack.is(MineraculousItems.LADYBUG_YOYO)
                 && stack.getOrDefault(MineraculousDataComponents.ACTIVE, false)

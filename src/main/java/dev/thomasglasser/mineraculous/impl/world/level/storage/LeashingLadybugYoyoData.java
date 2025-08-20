@@ -20,7 +20,7 @@ public record LeashingLadybugYoyoData(int leashedId, float maxRopeLength) {
 
     public LeashingLadybugYoyoData(int leashedId, float maxRopeLength) {
         this.leashedId = leashedId;
-        this.maxRopeLength = Math.max(maxRopeLength, ThrownLadybugYoyo.MIN_MAX_ROPE_LENGTH);
+        this.maxRopeLength = ThrownLadybugYoyo.clampMaxRopeLength(maxRopeLength);
     }
 
     public LeashingLadybugYoyoData(int leashedId) {
@@ -28,7 +28,7 @@ public record LeashingLadybugYoyoData(int leashedId, float maxRopeLength) {
     }
 
     public LeashingLadybugYoyoData withMaxRopeLength(float maxRopeLength) {
-        return new LeashingLadybugYoyoData(leashedId, Math.max(maxRopeLength, ThrownLadybugYoyo.MIN_MAX_ROPE_LENGTH));
+        return new LeashingLadybugYoyoData(leashedId, ThrownLadybugYoyo.clampMaxRopeLength(maxRopeLength));
     }
 
     public void save(Entity entity, boolean syncToClient) {

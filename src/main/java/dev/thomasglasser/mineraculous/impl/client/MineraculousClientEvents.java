@@ -34,7 +34,6 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.FaceMas
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.LegacyDevTeamLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundJumpMidSwingingPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSwingOffhandPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
@@ -264,19 +263,10 @@ public class MineraculousClientEvents {
     private static void checkYoyoInput(LocalPlayer player) {
         ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
         ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
+
+        MineraculousClientUtils.InputState input = MineraculousClientUtils.captureInput();
         if (thrownYoyo != null) {
-            if (player.input.jumping) {
-                TommyLibServices.NETWORK.sendToServer(ServerboundJumpMidSwingingPayload.INSTANCE);
-            } else {
-                boolean front = player.input.up;
-                boolean back = player.input.down;
-                boolean left = player.input.left;
-                boolean right = player.input.right;
-                boolean hasInput = front || back || left || right;
-                if (hasInput) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoInputPayload(front, back, left, right));
-                }
-            }
+            TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoInputPayload(input));
         }
     }
 
@@ -335,27 +325,40 @@ public class MineraculousClientEvents {
         }
     }
 
+    public static void perchRenderTrigger(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick) {
+        ItemStack leftH = player.getOffhandItem();
+        ItemStack rightH = player.getMainHandItem();
+
+        boolean lHCatStaffPerch = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+        boolean rHCatStaffPerch = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+
+        if (lHCatStaffPerch || rHCatStaffPerch) {
+            CatStaffRenderer.renderCatStaffPerch(player, poseStack, bufferSource, light, partialTick);
+        }
+    }
+
+    public static void travelRenderTrigger(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick) {
+        ItemStack leftH = player.getOffhandItem();
+        ItemStack rightH = player.getMainHandItem();
+
+        boolean lHCatStaffTravel = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
+        boolean rHCatStaffTravel = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
+
+        if (lHCatStaffTravel || rHCatStaffTravel) {
+            CatStaffRenderer.renderCatStaffTravel(player, poseStack, bufferSource, light, partialTick);
+        }
+    }
+
     public static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
         Player player = event.getEntity();
         PoseStack poseStack = event.getPoseStack();
         MultiBufferSource bufferSource = event.getMultiBufferSource();
         int light = event.getPackedLight();
+        float partialTick = event.getPartialTick();
 
-        ItemStack leftH = player.getOffhandItem();
-        ItemStack rightH = player.getMainHandItem();
-
-        boolean lHCatStaff = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
-        boolean rHCatStaff = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
-        if (lHCatStaff || rHCatStaff) {
-            player.noCulling = true;
-            CatStaffRenderer.renderCatStaffPerch(player, poseStack, bufferSource, light, event.getPartialTick());
-        }
-        boolean lHCatStaffTravel = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
-        boolean rHCatStaffTravel = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
-        if (lHCatStaffTravel || rHCatStaffTravel) {
-            player.noCulling = true;
-            CatStaffRenderer.renderCatStaffTravel(player, poseStack, bufferSource, light, event.getPartialTick());
-        }
+        player.noCulling = true;
+        perchRenderTrigger(player, poseStack, bufferSource, light, partialTick);
+        travelRenderTrigger(player, poseStack, bufferSource, light, partialTick);
     }
 
     public static void onRenderLevelStage(RenderLevelStageEvent event) {
@@ -364,23 +367,13 @@ public class MineraculousClientEvents {
         EntityRenderDispatcher renderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
         PoseStack poseStack = event.getPoseStack();
         MultiBufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        float partialTicks = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPartialTickTime();
+        float partialTick = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPartialTickTime();
+        int light = renderDispatcher.getPackedLightCoords(player, partialTick);
 
-        ItemStack leftH = player.getOffhandItem();
-        ItemStack rightH = player.getMainHandItem();
-
-        int light = renderDispatcher.getPackedLightCoords(player, partialTicks);
-        boolean lHCatStaffPerch = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
-        boolean rHCatStaffPerch = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
-        if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson() && (lHCatStaffPerch || rHCatStaffPerch)) {
+        if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson()) {
             poseStack.translate(0, -1.6d, 0);
-            CatStaffRenderer.renderCatStaffPerch(player, poseStack, bufferSource, light, partialTicks);
-        }
-        boolean lHCatStaffTravel = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
-        boolean rHCatStaffTravel = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
-        if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson() && (lHCatStaffTravel || rHCatStaffTravel)) {
-            poseStack.translate(0, -1.6d, 0);
-            CatStaffRenderer.renderCatStaffTravel(player, poseStack, bufferSource, light, partialTicks);
+            perchRenderTrigger(player, poseStack, bufferSource, light, partialTick);
+            travelRenderTrigger(player, poseStack, bufferSource, light, partialTick);
         }
     }
 

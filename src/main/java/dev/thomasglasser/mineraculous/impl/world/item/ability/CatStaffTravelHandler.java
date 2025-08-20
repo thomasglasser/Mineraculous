@@ -25,6 +25,8 @@ public class CatStaffTravelHandler {
     }
 
     public static void init(Level level, Player player) {
+        if (level.isClientSide) return;
+
         TravelCatStaffData travelCatStaffData = player.getData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF);
         if (travelCatStaffData.traveling()) return;
 

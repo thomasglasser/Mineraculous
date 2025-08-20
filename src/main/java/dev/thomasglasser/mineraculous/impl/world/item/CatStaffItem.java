@@ -16,13 +16,13 @@ import dev.thomasglasser.mineraculous.api.world.item.component.ActiveSettings;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelHandler;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchCatStaffData;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
-import dev.thomasglasser.tommylib.api.client.renderer.item.GlowingDefaultedGeoItemRenderer;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
@@ -140,7 +140,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
             @Override
             public BlockEntityWithoutLevelRenderer getBewlr() {
-                if (bewlr == null) bewlr = new GlowingDefaultedGeoItemRenderer<>(MineraculousItems.CAT_STAFF.getId());
+                if (bewlr == null) bewlr = new CatStaffRenderer();
                 return bewlr;
             }
         });
@@ -160,7 +160,6 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
         boolean isActive = stack.getOrDefault(MineraculousDataComponents.ACTIVE, false);
         if (!isActive) {
-            super.inventoryTick(stack, level, entity, slotId, isSelected);
             return;
         }
 
@@ -168,7 +167,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
         if (ability == null) return;
 
-        if (!inHand) {
+        if (!level.isClientSide && !inHand) {
             clearPerch(player);
             clearTravel(player);
             return;
@@ -178,8 +177,10 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
             case PERCH -> new CatStaffPerchHandler().tick(stack, level, player);
             case TRAVEL -> new CatStaffTravelHandler().tick(stack, level, player);
             default -> {
-                clearPerch(player);
-                clearTravel(player);
+                if (!level.isClientSide) {
+                    clearPerch(player);
+                    clearTravel(player);
+                }
             }
         }
 

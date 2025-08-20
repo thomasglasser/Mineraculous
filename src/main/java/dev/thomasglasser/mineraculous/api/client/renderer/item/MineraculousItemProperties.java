@@ -95,15 +95,7 @@ public class MineraculousItemProperties {
             }
             return 0;
         });
-        ItemProperties.register(MineraculousItems.CAT_STAFF.get(), ABILITY, ((stack, level, entity, seed) -> {
-            if (stack.has(MineraculousDataComponents.ACTIVE)) {
-                if (entity != null && (entity.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF).tick() > 10 || entity.getData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF).traveling())) {
-                    return 2;
-                }
-                return 1;
-            }
-            return 0;
-        }));
+        ItemProperties.register(MineraculousItems.CAT_STAFF.get(), ABILITY, getEnumPropertyFunction(MineraculousDataComponents.CAT_STAFF_ABILITY.get()));
         ItemProperties.register(MineraculousItems.BUTTERFLY_CANE.get(), ABILITY, getEnumPropertyFunction(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()));
     }
 }

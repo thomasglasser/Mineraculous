@@ -2,26 +2,71 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
+import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelCatStaffData;
+import dev.thomasglasser.tommylib.api.client.renderer.item.GlowingDefaultedGeoItemRenderer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public class CatStaffRenderer {
+public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffItem> {
     public static final ResourceLocation EXTENDED_TEXTURE = Mineraculous.modLoc("textures/misc/cat_staff.png");
 
     private static final float PIXEL = 1 / 16f;
+
+    public CatStaffRenderer() {
+        super(MineraculousItems.CAT_STAFF.getId());
+    }
+
+    @Override
+    public void defaultRender(PoseStack poseStack, CatStaffItem animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
+        ItemStack stack = getCurrentItemStack();
+        Integer carrierId = stack.get(MineraculousDataComponents.CARRIER);
+        if (carrierId != null && Minecraft.getInstance().level != null) {
+            Entity carrier = Minecraft.getInstance().level.getEntity(carrierId);
+            if (carrier != null) {
+                CatStaffItem.Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
+                if (ability == null) return;
+                if (ability == CatStaffItem.Ability.PERCH || ability == CatStaffItem.Ability.TRAVEL) {
+                    TravelCatStaffData travelCatStaffData = carrier.getData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF);
+                    PerchCatStaffData perchCatStaffData = carrier.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF);
+                    if (travelCatStaffData.traveling() || perchCatStaffData.perching()) {
+                        boolean firstPersonHand = this.renderPerspective == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
+                        boolean thirdPersonHand = this.renderPerspective == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
+
+                        if (MineraculousClientUtils.isFirstPerson() &&
+                                MineraculousClientUtils.getCameraEntity() == carrier &&
+                                firstPersonHand) {
+                            poseStack.scale(0.0000001f, 0.0000001f, 0.0000001f);
+                        }
+
+                        if (thirdPersonHand) poseStack.scale(0.0000001f, 0.0000001f, 0.0000001f);
+
+                    }
+                }
+            }
+        }
+        super.defaultRender(poseStack, animatable, bufferSource, renderType, buffer, yaw, partialTick, packedLight);
+    }
 
     public static void renderCatStaffPerch(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTicks) {
         PerchCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF);

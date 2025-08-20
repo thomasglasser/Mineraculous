@@ -1,14 +1,11 @@
 package dev.thomasglasser.mineraculous.impl.world.item.ability;
 
-import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetDeltaMovementPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
-import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchCatStaffData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.core.BlockPos;
@@ -41,36 +38,38 @@ public class CatStaffPerchHandler {
     }
 
     public static void itemUsed(Level level, Player player, PerchCatStaffData perchCatStaffData) {
-        boolean perching = perchCatStaffData.perching();
-        if (perching) {
-            Vector3f initPos = perchCatStaffData.initPos();
-            float groundRY = perchCatStaffData.yGroundLevel();
-            float length = perchCatStaffData.length();
-            boolean falling = perchCatStaffData.isFalling();
-            int t = perchCatStaffData.tick();
-            boolean nRender = perchCatStaffData.canRender();
-            float yBeforeFalling = perchCatStaffData.yBeforeFalling();
-            if (groundRY == length && t >= MAX_TICKS && !falling) {
-                if (!level.isClientSide) {
-                    Vector3f lookAngle = new Vector3f((float) player.getLookAngle().x, 0f, (float) player.getLookAngle().z);
-                    PerchCatStaffData newPerchData = new PerchCatStaffData(length, groundRY, perching, t, nRender, initPos, true, yBeforeFalling, lookAngle);
-                    player.setData(MineraculousAttachmentTypes.PERCH_CAT_STAFF, newPerchData);
-                    newPerchData.save(player, true);
+        if (!level.isClientSide) {
+            boolean perching = perchCatStaffData.perching();
+            if (perching) {
+                Vector3f initPos = perchCatStaffData.initPos();
+                float groundRY = perchCatStaffData.yGroundLevel();
+                float length = perchCatStaffData.length();
+                boolean falling = perchCatStaffData.isFalling();
+                int t = perchCatStaffData.tick();
+                boolean nRender = perchCatStaffData.canRender();
+                float yBeforeFalling = perchCatStaffData.yBeforeFalling();
+                if (groundRY == length && t >= MAX_TICKS && !falling) {
+                    if (!level.isClientSide) {
+                        Vector3f lookAngle = new Vector3f((float) player.getLookAngle().x, 0f, (float) player.getLookAngle().z);
+                        PerchCatStaffData newPerchData = new PerchCatStaffData(length, groundRY, perching, t, nRender, initPos, true, yBeforeFalling, lookAngle);
+                        player.setData(MineraculousAttachmentTypes.PERCH_CAT_STAFF, newPerchData);
+                        newPerchData.save(player, true);
+                    }
                 }
-            }
-        } else {
-            Vector4f init = PerchCatStaffData.initialize(player);
-            Vec3 direction = new Vec3(init.x, init.y, init.z);
-            float initRot = init.w;
-            Vector3f initPos = new Vector3f((float) direction.x, initRot, (float) direction.z);
-            float length = 0f;
-            boolean isFalling = false;
-            perching = true;
+            } else {
+                Vector4f init = PerchCatStaffData.initialize(player);
+                Vec3 direction = new Vec3(init.x, init.y, init.z);
+                float initRot = init.w;
+                Vector3f initPos = new Vector3f((float) direction.x, initRot, (float) direction.z);
+                float length = 0f;
+                boolean isFalling = false;
+                perching = true;
 
-            PerchCatStaffData newPerchData = new PerchCatStaffData(
-                    length, 0, perching, 0, false,
-                    initPos, isFalling, 0, new Vector3f(0, 0, 0));
-            newPerchData.save(player, true);
+                PerchCatStaffData newPerchData = new PerchCatStaffData(
+                        length, 0, perching, 0, false,
+                        initPos, isFalling, 0, new Vector3f(0, 0, 0));
+                newPerchData.save(player, true);
+            }
         }
     }
 

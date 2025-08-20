@@ -31,6 +31,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
+import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
@@ -50,6 +51,8 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -325,8 +328,15 @@ public class MineraculousClientUtils {
         return Vec3.ZERO;
     }
 
-    //TODO USE THIS AND REFACTOR WASD SWINGING WITH YOYO (after merge maybe?)
     public record InputState(boolean front, boolean back, boolean left, boolean right, boolean jump) {
+
+        public static final StreamCodec<ByteBuf, InputState> CODEC = StreamCodec.composite(
+                ByteBufCodecs.BOOL, InputState::front,
+                ByteBufCodecs.BOOL, InputState::back,
+                ByteBufCodecs.BOOL, InputState::left,
+                ByteBufCodecs.BOOL, InputState::right,
+                ByteBufCodecs.BOOL, InputState::jump,
+                InputState::new);
         public boolean hasInput() {
             return front || back || left || right || jump;
         }

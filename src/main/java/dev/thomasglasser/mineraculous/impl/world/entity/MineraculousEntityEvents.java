@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.AbilityUtils;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
@@ -17,14 +18,12 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerChoicesPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickLadybugYoyoPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
-import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
-import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.Holder;
@@ -37,10 +36,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
@@ -65,20 +66,20 @@ public class MineraculousEntityEvents {
     /// Entrance
     public static void onEntityJoinLevel(EntityJoinLevelEvent event) {
         Entity entity = event.getEntity();
-        if (event.getLevel() instanceof ServerLevel level) {
+        if (event.getLevel() instanceof ServerLevel level && entity instanceof LivingEntity livingEntity) {
             MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
             miraculousesData.getTransformed().forEach(miraculous -> {
                 Miraculous value = miraculous.value();
                 MiraculousData miraculousData = miraculousesData.get(miraculous);
                 AbilityData abilityData = new AbilityData(miraculousData.powerLevel(), miraculousData.powerActive());
-                value.passiveAbilities().forEach(ability -> ability.value().joinLevel(abilityData, level, entity));
-                value.activeAbility().value().joinLevel(abilityData, level, entity);
+                value.passiveAbilities().forEach(ability -> ability.value().joinLevel(abilityData, level, livingEntity));
+                value.activeAbility().value().joinLevel(abilityData, level, livingEntity);
             });
             entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {
                 Kamikotization value = data.kamikotization().value();
                 AbilityData abilityData = new AbilityData(0, data.powerActive());
-                value.passiveAbilities().forEach(ability -> ability.value().joinLevel(abilityData, level, entity));
-                value.powerSource().right().ifPresent(ability -> ability.value().joinLevel(abilityData, level, entity));
+                value.passiveAbilities().forEach(ability -> ability.value().joinLevel(abilityData, level, livingEntity));
+                value.powerSource().right().ifPresent(ability -> ability.value().joinLevel(abilityData, level, livingEntity));
             });
         }
     }
@@ -90,16 +91,16 @@ public class MineraculousEntityEvents {
     /// Life
     public static void onPreEntityTick(EntityTickEvent.Pre event) {
         Entity entity = event.getEntity();
-        if (entity.level() instanceof ServerLevel level) {
-            entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER).ifPresent(holderId -> {
-                Entity holder = level.getEntity(holderId);
-                if (holder == null) {
-                    entity.setData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER, Optional.empty());
-                    TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.YOYO_LEASH_HOLDER, Optional.<UUID>empty()), entity.getServer());
-                } else if (!entity.isAlive() || !holder.isAlive()) {
-                    LadybugYoyoItem.removeLeash(holder);
+        Level level = entity.level();
+        if (!level.isClientSide()) {
+            if (entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE) && entity instanceof Leashable leashable) {
+                Entity holder = leashable.getLeashHolder();
+                if (!entity.isAlive() || holder == null || !holder.isAlive()) {
+                    LadybugYoyoItem.removeLeashFrom(entity);
                 }
-            });
+            } else if (entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).map(data -> level.getEntity(data.leashedId())).orElse(null) instanceof Leashable leashable && leashable.getLeashHolder() != entity) {
+                LadybugYoyoItem.removeHeldLeash(entity);
+            }
         }
     }
 
@@ -114,18 +115,20 @@ public class MineraculousEntityEvents {
             ToolIdData.get(level).tick(entity);
             LuckyCharmIdData.get(level).tick(entity);
 
-            entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).tick(entity, level);
-            entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.tick(entity, level));
+            if (entity instanceof LivingEntity livingEntity) {
+                entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).tick(livingEntity, level);
+                entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.tick(livingEntity, level));
+            }
 
             ItemStack weaponItem = entity.getWeaponItem();
             if (entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent() && (weaponItem == null || !weaponItem.is(MineraculousItems.LADYBUG_YOYO))) {
-                LadybugYoyoItem.removeLeash(entity);
+                LadybugYoyoItem.removeHeldLeash(entity);
             }
         }
     }
 
     public static void checkInventoryComponents(Entity entity) {
-        for (ItemStack stack : EntityUtils.getInventory(entity)) {
+        for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
             if (!stack.isEmpty()) {
                 if (entity instanceof LivingEntity livingEntity) {
                     boolean blocking = livingEntity.isBlocking() && livingEntity.getUseItem() == stack;
@@ -186,8 +189,8 @@ public class MineraculousEntityEvents {
         if (event.getEntity().level() instanceof ServerLevel level) {
             Entity attacker = event.getSource().getEntity();
             LivingEntity target = event.getEntity();
-            if (attacker != null) {
-                AbilityUtils.performEntityAbilities(level, attacker, target);
+            if (attacker instanceof LivingEntity livingAttacker) {
+                AbilityUtils.performEntityAbilities(level, livingAttacker, target);
             }
             AbilityEffectData abilityEffectData = target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
             if (abilityEffectData.spectatingId().isPresent()) {
@@ -211,6 +214,19 @@ public class MineraculousEntityEvents {
         }
         if (event.getLevel() instanceof ServerLevel level) {
             AbilityUtils.performBlockAbilities(level, player, event.getPos());
+        }
+        ItemStack mainHandItem = player.getMainHandItem();
+        if (mainHandItem.is(MineraculousItems.LADYBUG_YOYO)) {
+            MineraculousItems.LADYBUG_YOYO.get().onLeftClick(mainHandItem, player);
+            event.setCanceled(true);
+        }
+    }
+
+    public static void onEmptyLeftClick(PlayerInteractEvent.LeftClickEmpty event) {
+        Player player = event.getEntity();
+        ItemStack mainHandItem = player.getMainHandItem();
+        if (mainHandItem.is(MineraculousItems.LADYBUG_YOYO)) {
+            TommyLibServices.NETWORK.sendToServer(ServerboundEmptyLeftClickLadybugYoyoPayload.INSTANCE);
         }
     }
 
@@ -257,14 +273,14 @@ public class MineraculousEntityEvents {
         LivingEntity entity = event.getEntity();
         if (entity.level() instanceof ServerLevel level) {
             MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-            for (ItemStack stack : EntityUtils.getInventory(entity)) {
+            for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
                 Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
                 if (miraculous != null) {
                     MiraculousData data = miraculousesData.get(miraculous);
                     if (data.transformed()) {
-                        data.detransform(entity, level, miraculous, true);
+                        data.detransform(entity, level, miraculous, stack, true);
                     } else {
-                        data.withKwamiData(KwamiData.renounce(data.kwamiData(), stack, level)).save(miraculous, entity, true);
+                        MineraculousEntityUtils.renounceKwami(stack.get(MineraculousDataComponents.KWAMI_ID), stack, level);
                     }
                 }
                 entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {
@@ -327,27 +343,26 @@ public class MineraculousEntityEvents {
                     target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(target, true);
                 }
             });
-            MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-            miraculousesData.getTransformed().forEach(miraculous -> {
-                Miraculous value = miraculous.value();
-                MiraculousData miraculousData = miraculousesData.get(miraculous);
-                AbilityData abilityData = new AbilityData(miraculousData.powerLevel(), miraculousData.powerActive());
-                value.passiveAbilities().forEach(ability -> ability.value().leaveLevel(abilityData, level, entity));
-                value.activeAbility().value().leaveLevel(abilityData, level, entity);
-            });
-            entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {
-                Kamikotization value = data.kamikotization().value();
-                AbilityData abilityData = new AbilityData(0, data.powerActive());
-                value.passiveAbilities().forEach(ability -> ability.value().leaveLevel(abilityData, level, entity));
-                value.powerSource().right().ifPresent(ability -> ability.value().leaveLevel(abilityData, level, entity));
-            });
-            entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).ifPresent(data -> LadybugYoyoItem.removeLeash(entity));
-            entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER).ifPresent(holderId -> {
-                Entity holder = level.getEntity(holderId);
-                if (holder != null) {
-                    LadybugYoyoItem.removeLeash(holder);
-                }
-            });
+            if (entity instanceof LivingEntity livingEntity) {
+                MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                miraculousesData.getTransformed().forEach(miraculous -> {
+                    Miraculous value = miraculous.value();
+                    MiraculousData miraculousData = miraculousesData.get(miraculous);
+                    AbilityData abilityData = new AbilityData(miraculousData.powerLevel(), miraculousData.powerActive());
+                    value.passiveAbilities().forEach(ability -> ability.value().leaveLevel(abilityData, level, livingEntity));
+                    value.activeAbility().value().leaveLevel(abilityData, level, livingEntity);
+                });
+                entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {
+                    Kamikotization value = data.kamikotization().value();
+                    AbilityData abilityData = new AbilityData(0, data.powerActive());
+                    value.passiveAbilities().forEach(ability -> ability.value().leaveLevel(abilityData, level, livingEntity));
+                    value.powerSource().right().ifPresent(ability -> ability.value().leaveLevel(abilityData, level, livingEntity));
+                });
+            }
+            entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).ifPresent(data -> LadybugYoyoItem.removeHeldLeash(entity));
+            if (entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE)) {
+                LadybugYoyoItem.removeLeashFrom(entity);
+            }
         }
     }
 

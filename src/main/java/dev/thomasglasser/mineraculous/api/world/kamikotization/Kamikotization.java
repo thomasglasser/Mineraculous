@@ -8,8 +8,8 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
-import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +23,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryFileCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.phys.Vec3;
@@ -71,7 +72,7 @@ public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Ei
     public static List<Holder<Kamikotization>> getFor(Entity entity) {
         List<Holder<Kamikotization>> kamikotizations = new ReferenceArrayList<>();
         entity.level().registryAccess().lookupOrThrow(MineraculousRegistries.KAMIKOTIZATION).listElements().forEach(kamikotization -> {
-            for (ItemStack stack : EntityUtils.getInventory(entity)) {
+            for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
                 if (!stack.isEmpty() && !stack.has(MineraculousDataComponents.KAMIKOTIZATION) && kamikotization.value().itemPredicate().test(stack)) {
                     kamikotizations.add(kamikotization);
                     break;
@@ -118,8 +119,8 @@ public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Ei
         Holder<Kamikotization> kamikotization = stack.get(MineraculousDataComponents.KAMIKOTIZATION);
         UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
         if (kamikotization != null && ownerId != null) {
-            Entity owner = level.getEntity(ownerId);
-            if (owner != null) {
+            Entity o = level.getEntity(ownerId);
+            if (o instanceof LivingEntity owner) {
                 owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresentOrElse(data -> {
                     if (data.remainingStackCount() <= 1) {
                         data.detransform(owner, level, kamikoPos != null ? kamikoPos : owner.position().add(0, 1, 0), false);

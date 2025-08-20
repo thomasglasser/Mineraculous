@@ -79,6 +79,7 @@ public class Abilities {
                 Optional.empty(),
                 false,
                 false,
+                true,
                 Optional.of(Kamiko.SPECTATOR_SHADER),
                 Optional.of(KAMIKO_FACE_MASK_TEXTURE),
                 Optional.empty(),
@@ -86,6 +87,7 @@ public class Abilities {
         context.register(KAMIKOTIZED_COMMUNICATION, new SpectateEntityAbility(
                 Optional.of(EntityPredicate.Builder.entity().subPredicate(KamikotizationPredicate.ANY).build()),
                 Optional.empty(),
+                true,
                 true,
                 true,
                 Optional.of(Kamiko.SPECTATOR_SHADER),

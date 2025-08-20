@@ -1,5 +1,6 @@
 {
   "type": "mineraculous:spectate_entity",
+  "allow_kamikotization_revocation": true,
   "face_mask_texture": "mineraculous:textures/entity/player/face_mask/kamiko.png",
   "shader": "mineraculous:shaders/post/kamiko.json",
   "valid_entities": {

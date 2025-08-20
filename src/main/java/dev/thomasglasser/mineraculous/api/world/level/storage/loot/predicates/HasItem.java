@@ -3,8 +3,8 @@ package dev.thomasglasser.mineraculous.api.world.level.storage.loot.predicates;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.loot.predicates.MineraculousLootItemConditions;
-import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -31,7 +31,7 @@ public record HasItem(ItemPredicate predicate, boolean invert) implements LootIt
     public boolean test(LootContext context) {
         Predicate<ItemStack> predicate = invert ? this.predicate.negate() : this.predicate;
         Entity entity = context.getParamOrNull(LootContextParams.THIS_ENTITY);
-        for (ItemStack stack : EntityUtils.getInventory(entity)) {
+        for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
             if (predicate.test(stack)) {
                 return true;
             }

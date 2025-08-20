@@ -49,7 +49,7 @@ public record Miraculous(TextColor color, String acceptableSlot, Optional<Intege
             TextColor.CODEC.fieldOf("color").forGetter(Miraculous::color),
             Codec.STRING.fieldOf("acceptable_slot").forGetter(Miraculous::acceptableSlot),
             ExtraCodecs.POSITIVE_INT.optionalFieldOf("transformation_frames").forGetter(Miraculous::transformationFrames),
-            ItemStack.SINGLE_ITEM_CODEC.optionalFieldOf("tool", ItemStack.EMPTY).forGetter(Miraculous::tool),
+            ItemStack.SINGLE_ITEM_CODEC.fieldOf("tool").forGetter(Miraculous::tool),
             Codec.STRING.optionalFieldOf("tool_slot").forGetter(Miraculous::toolSlot),
             Ability.CODEC.fieldOf("active_ability").forGetter(Miraculous::activeAbility),
             Ability.HOLDER_SET_CODEC.optionalFieldOf("passive_abilities", HolderSet.empty()).forGetter(Miraculous::passiveAbilities),

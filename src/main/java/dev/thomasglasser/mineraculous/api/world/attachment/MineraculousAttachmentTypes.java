@@ -29,7 +29,7 @@ public class MineraculousAttachmentTypes {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<ReferenceArrayList<UUID>>> INVENTORY_TRACKERS = ATTACHMENT_TYPES.register("inventory_trackers", () -> AttachmentType.builder(() -> new ReferenceArrayList<UUID>()).build());
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<ThrownLadybugYoyoData>> THROWN_LADYBUG_YOYO = ATTACHMENT_TYPES.register("thrown_ladybug_yoyo", () -> AttachmentType.builder(() -> new ThrownLadybugYoyoData()).build());
     /// If true, overrides leash rendering and snapping
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<UUID>>> YOYO_LEASH_HOLDER = ATTACHMENT_TYPES.register("yoyo_leash_holder", () -> AttachmentType.builder(Optional::<UUID>empty).build());
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> YOYO_LEASH_OVERRIDE = ATTACHMENT_TYPES.register("yoyo_leash_override", () -> AttachmentType.builder(() -> false).build());
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<LeashingLadybugYoyoData>>> LEASHING_LADYBUG_YOYO = ATTACHMENT_TYPES.register("lasso_ladybug_yoyo", () -> AttachmentType.builder(Optional::<LeashingLadybugYoyoData>empty).build());
 
     // Miraculous

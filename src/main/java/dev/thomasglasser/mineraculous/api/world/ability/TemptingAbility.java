@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.api.world.ability;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 
 /**
  * An {@link Ability} that is able to tempt an entity.
@@ -16,5 +17,5 @@ public interface TemptingAbility extends Ability {
      * @param entity    The entity that could be tempted
      * @return Whether the entity should be tempted to the performer
      */
-    boolean shouldTempt(ServerLevel level, Entity performer, Entity entity);
+    boolean shouldTempt(ServerLevel level, LivingEntity performer, Entity entity);
 }

@@ -18,71 +18,77 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Toggles spectation of a valid target.
  *
- * @param validEntities     The {@link EntityPredicate} the entity must match
- * @param invalidEntities   The {@link EntityPredicate} the entity must not match
- * @param privateChat       Whether spectation should disallow messages not from the performer or target
- * @param allowRemoteDamage Whether spectation should allow remote damage from performer to target on performer swing
- * @param shader            The shader to apply to the performer on spectation
- * @param faceMaskTexture   The face mask texture to apply to the performer on spectation
- * @param startSound        The sound to play when spectation begins
- * @param stopSound         The sound to play when spectation ends
+ * @param validEntities                 The {@link EntityPredicate} the entity must match
+ * @param invalidEntities               The {@link EntityPredicate} the entity must not match
+ * @param privateChat                   Whether spectation should disallow messages not from the performer or target
+ * @param allowRemoteDamage             Whether spectation should allow remote damage from performer to target on performer swing
+ * @param allowKamikotizationRevocation Whether spectation should allow revoking kamikotization via a button on the performer's screen
+ * @param shader                        The shader to apply to the performer on spectation
+ * @param faceMaskTexture               The face mask texture to apply to the performer on spectation
+ * @param startSound                    The sound to play when spectation begins
+ * @param stopSound                     The sound to play when spectation ends
  */
-public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Optional<EntityPredicate> invalidEntities, boolean privateChat, boolean allowRemoteDamage, Optional<ResourceLocation> shader, Optional<ResourceLocation> faceMaskTexture, Optional<Holder<SoundEvent>> startSound, Optional<Holder<SoundEvent>> stopSound) implements Ability {
+public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Optional<EntityPredicate> invalidEntities, boolean privateChat, boolean allowRemoteDamage, boolean allowKamikotizationRevocation, Optional<ResourceLocation> shader, Optional<ResourceLocation> faceMaskTexture, Optional<Holder<SoundEvent>> startSound, Optional<Holder<SoundEvent>> stopSound) implements Ability {
 
     public static final MapCodec<SpectateEntityAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             EntityPredicate.CODEC.optionalFieldOf("valid_entities").forGetter(SpectateEntityAbility::validEntities),
             EntityPredicate.CODEC.optionalFieldOf("invalid_entities").forGetter(SpectateEntityAbility::invalidEntities),
             Codec.BOOL.optionalFieldOf("private_chat", false).forGetter(SpectateEntityAbility::privateChat),
             Codec.BOOL.optionalFieldOf("allow_remote_damage", false).forGetter(SpectateEntityAbility::allowRemoteDamage),
+            Codec.BOOL.optionalFieldOf("allow_kamikotization_revocation", false).forGetter(SpectateEntityAbility::allowKamikotizationRevocation),
             ResourceLocation.CODEC.optionalFieldOf("shader").forGetter(SpectateEntityAbility::shader),
             ResourceLocation.CODEC.optionalFieldOf("face_mask_texture").forGetter(SpectateEntityAbility::faceMaskTexture),
             SoundEvent.CODEC.optionalFieldOf("start_sound").forGetter(SpectateEntityAbility::startSound),
             SoundEvent.CODEC.optionalFieldOf("stop_sound").forGetter(SpectateEntityAbility::stopSound)).apply(instance, SpectateEntityAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null) {
             AbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
             if (abilityEffectData.spectationInterrupted()) {
                 stopSpectation(level, performer);
-                return true;
+                return State.SUCCESS;
             } else if (data.powerActive()) {
                 if (abilityEffectData.spectatingId().isPresent()) {
                     stopSpectation(level, performer);
-                    return true;
+                    return State.SUCCESS;
                 } else {
                     List<? extends Entity> entities = level.getEntities(EntityTypeTest.forClass(Entity.class), entity -> isValidEntity(level, performer, entity));
                     if (!entities.isEmpty()) {
                         Entity target = entities.getFirst();
-                        abilityEffectData.withSpectation(Optional.of(target.getUUID()), shader, faceMaskTexture, privateChat ? Optional.of(target.getUUID()) : Optional.empty(), allowRemoteDamage).save(performer, true);
+                        abilityEffectData.withSpectation(Optional.of(target.getUUID()), shader, faceMaskTexture, privateChat ? Optional.of(target.getUUID()) : Optional.empty(), allowRemoteDamage, allowKamikotizationRevocation).save(performer, true);
                         if (privateChat) {
-                            abilityEffectData.withPrivateChat(Optional.of(performer.getUUID()), faceMaskTexture).save(target, true);
+                            target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.of(performer.getUUID()), faceMaskTexture).save(target, true);
                         }
                         if (performer instanceof ServerPlayer player) {
                             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.of(target.getId())), player);
                         }
                         Ability.playSound(level, performer, startSound);
-                        return true;
+                        return State.SUCCESS;
                     }
+                    return State.CONTINUE;
                 }
             } else {
-                return abilityEffectData.spectatingId().isPresent();
+                return abilityEffectData.spectatingId().isPresent() ? State.SUCCESS : State.CONTINUE;
             }
         }
-        return false;
+        return State.FAIL;
     }
 
-    private boolean isValidEntity(ServerLevel level, Entity performer, Entity target) {
+    private boolean isValidEntity(ServerLevel level, LivingEntity performer, Entity target) {
         return performer != target && validEntities.map(predicate -> predicate.matches(level, performer.position(), target)).orElse(true) && invalidEntities.map(predicate -> !predicate.matches(level, performer.position(), target)).orElse(true);
     }
 
-    private void stopSpectation(ServerLevel level, Entity performer) {
-        performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withSpectation(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), false).save(performer, true);
+    private void stopSpectation(ServerLevel level, LivingEntity performer) {
+        AbilityEffectData data = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
+        data.spectatingId().map(level::getEntity).ifPresent(spectating -> spectating.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(spectating, true));
+        data.withSpectation(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), false, false).save(performer, true);
         if (performer instanceof ServerPlayer player) {
             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.empty()), player);
         }
@@ -90,12 +96,12 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
     }
 
     @Override
-    public void detransform(AbilityData data, ServerLevel level, Entity performer) {
+    public void detransform(AbilityData data, ServerLevel level, LivingEntity performer) {
         stopSpectation(level, performer);
     }
 
     @Override
-    public void leaveLevel(AbilityData data, ServerLevel level, Entity performer) {
+    public void leaveLevel(AbilityData data, ServerLevel level, LivingEntity performer) {
         stopSpectation(level, performer);
     }
 

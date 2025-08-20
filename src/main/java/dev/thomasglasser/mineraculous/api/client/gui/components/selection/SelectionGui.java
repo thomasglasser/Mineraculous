@@ -8,6 +8,7 @@ import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenuList
 import dev.thomasglasser.mineraculous.api.client.gui.selection.categories.SelectionPage;
 import java.util.function.Function;
 import net.minecraft.Util;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.spectator.SpectatorGui;
@@ -47,7 +48,7 @@ public class SelectionGui implements SelectionMenuListener {
         return Mth.clamp((float) fadeOutProgress / SpectatorGui.FADE_OUT_TIME, 0, 1);
     }
 
-    public void renderHotbar(GuiGraphics guiGraphics) {
+    public void renderHotbar(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         if (this.menu != null) {
             float alpha = this.getHotbarAlpha();
             if (alpha <= 0) {
@@ -99,7 +100,7 @@ public class SelectionGui implements SelectionMenuListener {
         }
     }
 
-    public void renderTooltip(GuiGraphics guiGraphics) {
+    public void renderTooltip(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         int bigAlpha = (int) (this.getHotbarAlpha() * 255);
         if (bigAlpha > 3 && this.menu != null) {
             SelectionMenuItem selectionMenuItem = this.menu.getSelectedItem();

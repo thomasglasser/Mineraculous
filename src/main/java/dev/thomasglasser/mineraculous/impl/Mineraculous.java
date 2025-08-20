@@ -119,6 +119,7 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingAttack);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onBlockInteract);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onBlockLeftClick);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEmptyLeftClick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEffectRemoved);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEffectAdded);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEffectExpired);

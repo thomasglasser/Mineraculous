@@ -21,7 +21,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -46,7 +46,7 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean prefe
             BlockPredicate.CODEC.optionalFieldOf("invalid_blocks").forGetter(ReplaceAdjacentBlocksAbility::invalidBlocks),
             SoundEvent.CODEC.optionalFieldOf("replace_sound").forGetter(ReplaceAdjacentBlocksAbility::replaceSound)).apply(instance, ReplaceAdjacentBlocksAbility::new));
     @Override
-    public boolean perform(AbilityData data, ServerLevel level, Entity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+    public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context instanceof BlockAbilityContext(BlockPos pos)) {
             if (canBlockBeReplaced(level, pos)) {
                 Set<BlockPos> affected = getAffectedBlocks(level, pos, Math.max(data.powerLevel(), 1) * 100);
@@ -59,9 +59,9 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean prefe
                 AbilityReversionBlockData.get(level).putRevertible(performer.getUUID(), originals);
             }
             Ability.playSound(level, performer, replaceSound);
-            return true;
+            return State.SUCCESS;
         }
-        return false;
+        return State.FAIL;
     }
 
     private boolean canBlockBeReplaced(ServerLevel level, BlockPos pos) {
@@ -99,7 +99,7 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean prefe
     }
 
     @Override
-    public void revert(AbilityData data, ServerLevel level, Entity performer) {
+    public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
         AbilityReversionBlockData.get(level).revert(performer.getUUID(), level);
     }
 

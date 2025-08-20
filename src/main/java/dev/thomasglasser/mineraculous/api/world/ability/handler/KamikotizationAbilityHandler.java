@@ -7,7 +7,7 @@ import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import java.util.UUID;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,13 +23,13 @@ public record KamikotizationAbilityHandler(Holder<Kamikotization> kamikotization
     }
 
     @Override
-    public UUID getAndAssignBlame(ItemStack stack, Entity performer) {
+    public UUID getAndAssignBlame(ItemStack stack, LivingEntity performer) {
         stack.set(MineraculousDataComponents.KAMIKOTIZATION, kamikotization);
         return performer.getUUID();
     }
 
     @Override
-    public @Nullable UUID getMatchingBlame(ItemStack stack, Entity performer) {
+    public @Nullable UUID getMatchingBlame(ItemStack stack, LivingEntity performer) {
         if (kamikotization == stack.get(MineraculousDataComponents.KAMIKOTIZATION)) {
             return performer.getUUID();
         }
@@ -37,7 +37,7 @@ public record KamikotizationAbilityHandler(Holder<Kamikotization> kamikotization
     }
 
     @Override
-    public boolean isActiveTool(ItemStack stack, Entity performer) {
+    public boolean isActiveTool(ItemStack stack, LivingEntity performer) {
         return kamikotization == stack.get(MineraculousDataComponents.KAMIKOTIZATION) && stack.getOrDefault(MineraculousDataComponents.ACTIVE, true);
     }
 }

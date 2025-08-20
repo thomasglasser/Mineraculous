@@ -10,7 +10,6 @@ import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundOpenMiraculousTransferScreenPayload;
-import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
@@ -19,8 +18,10 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
@@ -57,6 +58,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
@@ -89,11 +91,15 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoEntity, FlyingAnimal {
     public static final RawAnimation EAT = RawAnimation.begin().thenPlay("misc.eat");
     public static final RawAnimation HOLD = RawAnimation.begin().thenPlay("misc.hold");
-    public static final RawAnimation SIT = RawAnimation.begin().thenPlay("misc.sit");
+
+    private static final double SUMMON_RADIUS_STEP = 0.07;
+    private static final double SUMMON_ANGLE_STEP = 0.5;
+    private static final double SUMMON_MAX_RADIUS = 1.5;
 
     private static final EntityDataAccessor<Integer> DATA_SUMMON_TICKS = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Holder<Miraculous>> DATA_MIRACULOUS = SynchedEntityData.defineId(Kwami.class, MineraculousEntityDataSerializers.MIRACULOUS.get());
+    private static final EntityDataAccessor<UUID> DATA_MIRACULOUS_ID = SynchedEntityData.defineId(Kwami.class, MineraculousEntityDataSerializers.UUID.get());
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -101,6 +107,8 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private TagKey<Item> foodTag;
     private TagKey<Item> treatTag;
 
+    private double summonAngle;
+    private double summonRadius;
     private int eatTicks = 0;
 
     public Kwami(EntityType<? extends Kwami> entityType, Level level) {
@@ -126,6 +134,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         builder.define(DATA_SUMMON_TICKS, 0);
         builder.define(DATA_CHARGED, true);
         builder.define(DATA_MIRACULOUS, level().holderOrThrow(Miraculouses.LADYBUG));
+        builder.define(DATA_MIRACULOUS_ID, Util.NIL_UUID);
     }
 
     public int getSummonTicks() {
@@ -136,20 +145,28 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         entityData.set(DATA_SUMMON_TICKS, ticks);
     }
 
+    public boolean isCharged() {
+        return entityData.get(DATA_CHARGED);
+    }
+
     public void setCharged(boolean charged) {
         entityData.set(DATA_CHARGED, charged);
     }
 
-    public boolean isCharged() {
-        return entityData.get(DATA_CHARGED);
+    public Holder<Miraculous> getMiraculous() {
+        return entityData.get(DATA_MIRACULOUS);
     }
 
     public void setMiraculous(Holder<Miraculous> type) {
         entityData.set(DATA_MIRACULOUS, type);
     }
 
-    public Holder<Miraculous> getMiraculous() {
-        return entityData.get(DATA_MIRACULOUS);
+    public UUID getMiraculousId() {
+        return entityData.get(DATA_MIRACULOUS_ID);
+    }
+
+    public void setMiraculousId(UUID id) {
+        entityData.set(DATA_MIRACULOUS_ID, id);
     }
 
     @Override
@@ -177,18 +194,48 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         return new SmartBrainProvider<>(this);
     }
 
-    @Override
-    public void tick() {
-        super.tick();
-        if (getSummonTicks() > 0) {
-            setSummonTicks(getSummonTicks() - 1);
+    private void tickSummon() {
+        setSummonTicks(getSummonTicks() - 1);
+        LivingEntity owner = getOwner();
+        if (owner != null) {
+            Vec3 ownerEyePos = owner.getEyePosition();
+
+            Vec3 lookVec = ownerEyePos.subtract(this.position());
+            float yaw = (float) (Math.toDegrees(Math.atan2(lookVec.z, lookVec.x)) - 90.0F);
+            float pitch = (float) (-Math.toDegrees(Math.atan2(lookVec.y, Math.sqrt(lookVec.x * lookVec.x + lookVec.z * lookVec.z))));
+
+            if (this.getY() < ownerEyePos.y - this.getBbHeight() / 2) {
+                summonRadius += SUMMON_RADIUS_STEP;
+                summonAngle += SUMMON_ANGLE_STEP;
+                if (summonRadius > SUMMON_MAX_RADIUS) {
+                    summonRadius = SUMMON_MAX_RADIUS;
+                }
+
+                Vec3 ownerPos = owner.position();
+                double startY = ownerPos.y + owner.getBbHeight() / 2;
+                double t = Math.min(summonRadius / SUMMON_MAX_RADIUS, 1.0);
+                double y = startY + (ownerEyePos.y - startY) * t - this.getBbHeight() / 2;
+
+                float baseYawRad = (float) Math.toRadians(180 + owner.getYRot());
+                double x = ownerPos.x + summonRadius * Math.cos(summonAngle + baseYawRad);
+                double z = ownerPos.z + summonRadius * Math.sin(summonAngle + baseYawRad);
+
+                this.moveTo(x, y, z, yaw, pitch);
+            }
         }
     }
 
     @Override
     protected void customServerAiStep() {
+        if (getSummonTicks() > 0) {
+            tickSummon();
+            return;
+        }
+
         super.customServerAiStep();
+
         tickBrain(this);
+
         ItemStack mainHandItem = getMainHandItem();
         if (eatTicks > 0 && (isFood(mainHandItem) || isTreat(mainHandItem))) {
             eatTicks--;
@@ -234,11 +281,11 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     public List<? extends ExtendedSensor<? extends Kwami>> getSensors() {
         return ObjectArrayList.of(
                 new NearbyPlayersSensor<>(),
-                new ItemTemptingSensor<Kwami>().temptedWith((entity, stack) -> {
+                new ItemTemptingSensor<Kwami>().temptedWith((kwami, stack) -> {
                     if (stack.is(MineraculousItems.MIRACULOUS)) {
-                        KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
-                        return kwamiData != null && kwamiData.uuid().equals(entity.getUUID());
-                    } else if (!entity.isCharged()) {
+                        UUID stackId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
+                        return stackId != null && stackId.equals(kwami.getMiraculousId());
+                    } else if (!kwami.isCharged()) {
                         return isFood(stack) || isTreat(stack);
                     }
                     return false;
@@ -275,10 +322,10 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
             ItemStack stack = player.getItemInHand(hand);
             if (!stack.isEmpty()) {
                 if (player instanceof ServerPlayer serverPlayer) {
-                    KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
-                    if (serverPlayer.serverLevel().players().size() > 1 && stack.is(MineraculousItems.MIRACULOUS) && kwamiData != null && kwamiData.uuid().equals(getUUID())) {
+                    UUID stackId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
+                    if (serverPlayer.serverLevel().players().size() > 1 && stack.is(MineraculousItems.MIRACULOUS) && stackId != null && stackId.equals(getMiraculousId())) {
                         TommyLibServices.NETWORK.sendToClient(new ClientboundOpenMiraculousTransferScreenPayload(getId()), serverPlayer);
-                    } else if (!isCharged()) {
+                    } else if (!isCharged() && getMainHandItem().isEmpty()) {
                         if (isTreat(stack) || isFood(stack)) {
                             setItemInHand(InteractionHand.MAIN_HAND, stack.copyWithCount(1));
                             FoodProperties foodProperties = stack.get(DataComponents.FOOD);
@@ -361,8 +408,8 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         LivingEntity owner = getOwner();
         if (owner != null) {
             Predicate<ItemStack> isMyMiraculous = stack -> {
-                KwamiData kwamiData = stack.get(MineraculousDataComponents.KWAMI_DATA);
-                return kwamiData != null && kwamiData.uuid().equals(getUUID());
+                UUID stackId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
+                return stackId != null && stackId.equals(getMiraculousId());
             };
             List<ItemStack> inventoryMiraculouses = new ReferenceArrayList<>();
             for (ItemStack stack : EntityUtils.getInventory(owner)) {
@@ -380,7 +427,6 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
             allMiraculouses.addAll(curiosMiraculouses.values());
             for (ItemStack stack : allMiraculouses) {
                 stack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
-                stack.remove(MineraculousDataComponents.KWAMI_DATA);
             }
             curiosMiraculouses.forEach((data, stack) -> CuriosUtils.setStackInSlot(owner, data, stack));
         }
@@ -400,6 +446,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         compound.putInt("SummonTicks", getSummonTicks());
         compound.putBoolean("Charged", isCharged());
         compound.put("Miraculous", Miraculous.CODEC.encodeStart(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), getMiraculous()).getOrThrow());
+        compound.putUUID("MiraculousId", getMiraculousId());
     }
 
     @Override
@@ -408,6 +455,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         setSummonTicks(compound.getInt("SummonTicks"));
         setCharged(compound.getBoolean("Charged"));
         setMiraculous(Miraculous.CODEC.parse(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), compound.get("Miraculous")).getOrThrow());
+        setMiraculousId(compound.getUUID("MiraculousId"));
     }
 
     @Override
@@ -421,6 +469,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         if (player.getUUID().equals(BrainUtils.getMemory(this, MemoryModuleType.LIKED_PLAYER)) && getOwner() == null) {
             BrainUtils.setMemory(this, MemoryModuleType.LIKED_PLAYER, null);
             setOwnerUUID(player.getUUID());
+            getMainHandItem().remove(MineraculousDataComponents.POWERED);
             player.addItem(getMainHandItem());
             setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         }

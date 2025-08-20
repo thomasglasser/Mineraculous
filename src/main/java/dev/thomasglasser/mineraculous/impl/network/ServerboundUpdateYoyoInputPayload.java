@@ -28,52 +28,42 @@ public record ServerboundUpdateYoyoInputPayload(boolean front, boolean back, boo
         if (thrownYoyo != null) {
             if (thrownYoyo.inGround() && !player.isNoGravity() && !player.getAbilities().flying) {
                 float maxRopeLn = thrownYoyo.getMaxRopeLength();
-                Vec3 oX = new Vec3(maxRopeLn, 0, 0);
-                Vec3 oY = new Vec3(0, -1 * maxRopeLn, 0);
-                double y = oX.add(oY.scale(1.7)).normalize().scale(maxRopeLn).y;
                 Vec3 fromProjectileToPlayer = new Vec3(player.getX() - thrownYoyo.getX(), player.getY() - thrownYoyo.getY(), player.getZ() - thrownYoyo.getZ());
-                if (fromProjectileToPlayer.length() >= maxRopeLn - 0.2 && !player.onGround()) {
-                    if (player.getY() < y + thrownYoyo.getY() + 3 && !player.isCrouching()) {
-                        Vec3 movement = new Vec3(0, 0, 0);
-                        if (front) {
-                            Vec3 up = new Vec3(player.getLookAngle().normalize().x, 0, player.getLookAngle().normalize().z);
-                            up = up.normalize();
-                            movement = movement.add(up);
-                        }
-                        if (back) {
-                            Vec3 down = new Vec3(player.getLookAngle().normalize().x, 0, player.getLookAngle().normalize().z);
-                            down = down.scale(-1d);
-                            down = down.normalize();
-                            movement = movement.add(down);
-                        }
-                        if (left) {
-                            Vec3 vertical = new Vec3(0, 1, 0);
-                            Vec3 up = new Vec3(player.getLookAngle().normalize().x, 0, player.getLookAngle().normalize().z);
-                            up.normalize();
-                            Vec3 left = new Vec3(vertical.cross(up).toVector3f());
-                            left = left.normalize();
-                            movement = movement.add(left);
-                        }
-                        if (right) {
-                            Vec3 vertical = new Vec3(0, 1, 0);
-                            Vec3 up = new Vec3(player.getLookAngle().normalize().x, 0, player.getLookAngle().normalize().z);
-                            up = up.normalize();
-                            Vec3 right = new Vec3(up.cross(vertical).toVector3f());
-                            right = right.normalize();
-                            movement = movement.add(right);
-                        }
-                        movement = movement.normalize();
-                        movement.scale(0.2);
+                if (fromProjectileToPlayer.length() >= maxRopeLn && !player.onGround() && player.getY() < thrownYoyo.getY()) {
+                    Vec3 movement = new Vec3(0, 0, 0);
 
-                        movement = projectOnCircle(fromProjectileToPlayer.scale(-1), movement);
-                        if (movement.y + player.getY() > y + thrownYoyo.getY()) {
-                            double newY = movement.y - (y + thrownYoyo.getY());
-                            newY = newY < 0 ? 0 : newY;
-                            movement = new Vec3(movement.x, newY, movement.z);
-                        }
-                        player.setDeltaMovement(movement);
-                        player.hurtMarked = true;
-                    }
+                    double yawRad = Math.toRadians(player.getYRot());
+                    Vec3 forwardVec = new Vec3(-Math.sin(yawRad), 0, Math.cos(yawRad));
+                    Vec3 backVec = forwardVec.scale(-1);
+                    Vec3 leftVec = new Vec3(forwardVec.z, 0, -forwardVec.x);
+                    Vec3 rightVec = leftVec.scale(-1);
+
+                    if (front) movement = movement.add(forwardVec);
+                    if (back) movement = movement.add(backVec);
+                    if (left) movement = movement.add(leftVec);
+                    if (right) movement = movement.add(rightVec);
+
+                    movement = movement.normalize();
+                    movement = projectOnCircle(fromProjectileToPlayer.scale(-1), movement);
+
+                    Vec3 ropeDir = fromProjectileToPlayer.normalize();
+                    double cosAngle = ropeDir.dot(new Vec3(0, -1, 0));
+
+                    // Pump factor: max at bottom, fades near top
+                    double pumpFactor = Math.max(0.2, Math.pow(cosAngle * cosAngle, 2));
+                    double inertiaBoost = pumpFactor / 10;
+
+                    double distance = fromProjectileToPlayer.length();
+                    double dampingFactor = Math.max(1.06, 1 - Math.abs(distance - thrownYoyo.getMaxRopeLength()) * 0.02); // Less damping near center
+                    Vec3 dampedVelocity = movement.scale(dampingFactor);
+
+                    Vec3 radialForce = fromProjectileToPlayer.normalize();
+
+                    Vec3 correctiveForce = radialForce.scale((distance - thrownYoyo.getMaxRopeLength()) * 0.005);
+                    Vec3 newVelocity = dampedVelocity.add(correctiveForce);
+
+                    player.addDeltaMovement(newVelocity.scale(inertiaBoost));
+                    player.hurtMarked = true;
                 }
             }
         }

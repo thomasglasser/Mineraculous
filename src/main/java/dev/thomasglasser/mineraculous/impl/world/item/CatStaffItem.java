@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.projectile.ItemBreakingQuicklyReturningThrownSword;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousTiers;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
@@ -225,7 +226,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                 if (i >= 10) {
                     if (!level.isClientSide) {
                         stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(entityLiving.getUsedItemHand()));
-                        ThrownCatStaff thrown = new ThrownCatStaff(level, entityLiving, stack);
+                        ItemBreakingQuicklyReturningThrownSword thrown = new ThrownCatStaff(level, entityLiving, stack);
                         thrown.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F, 1.0F);
                         if (player.hasInfiniteMaterials()) {
                             thrown.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
@@ -236,9 +237,13 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         if (!player.hasInfiniteMaterials()) {
                             player.getInventory().removeItem(stack);
                         }
+                        level.addFreshEntity(thrown);
+                        level.playSound(null, thrown, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                        if (!player.hasInfiniteMaterials()) {
+                            player.getInventory().removeItem(stack);
+                        }
+                        player.awardStat(Stats.ITEM_USED.get(this));
                     }
-
-                    player.awardStat(Stats.ITEM_USED.get(this));
                 }
             } else if (ability == Ability.PERCH) {
                 PerchCatStaffData perchCatStaffData = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF);

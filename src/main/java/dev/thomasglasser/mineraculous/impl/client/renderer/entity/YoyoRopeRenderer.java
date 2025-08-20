@@ -32,6 +32,9 @@ public class YoyoRopeRenderer {
             playerHandPos = MineraculousClientUtils.getHumanoidEntityHandPos(ropeOwner, false, partialTick, 0.15f, -0.75, 0.35f);
         }
         Vec3 entityPos = entity.getPosition(partialTick);
+        double offset = entity.getBbHeight() / 2;
+        entityPos = entityPos.add(0, offset, 0);
+        poseStack.translate(0, offset, 0);
         renderRope(playerHandPos, entityPos, maxLength, poseStack, bufferSource);
     }
 

@@ -1,5 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
+import static dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler.PERCH_STAFF_DISTANCE;
+
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundCatStaffPerchPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -8,7 +10,10 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public record PerchCatStaffData(
         float length,
@@ -47,5 +52,24 @@ public record PerchCatStaffData(
         entity.setData(MineraculousAttachmentTypes.PERCH_CAT_STAFF, data);
         if (syncToClient)
             TommyLibServices.NETWORK.sendToAllClients(new ClientboundCatStaffPerchPayload(entity.getId(), data), entity.getServer());
+    }
+
+    public static Vector4f initialize(Entity entity) {
+        if (entity instanceof Player player) {
+            float initRot = player.getYRot();
+            if (initRot < 0) //simplify:
+                initRot += 360.0f;
+            if (initRot >= 360.0f)
+                initRot -= 360.0f;
+            double cos = Math.cos(Math.toRadians(initRot)); //z
+            double sin = -Math.sin(Math.toRadians(initRot)); //x
+            Vec3 direction = new Vec3(sin, 0, cos);
+            Vec3 playerPos = new Vec3(player.getX(), 0, player.getZ());
+            direction = direction.normalize();
+            direction = direction.scale(PERCH_STAFF_DISTANCE);
+            direction = direction.add(playerPos);
+            return new Vector4f((float) direction.x, (float) direction.y, (float) direction.z, initRot);
+        }
+        return new Vector4f(0, 0, 0, 0);
     }
 }

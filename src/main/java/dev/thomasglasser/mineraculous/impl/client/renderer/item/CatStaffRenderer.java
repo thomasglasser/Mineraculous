@@ -19,7 +19,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class CatStaffRenderer {
-    public static final ResourceLocation EXTENDED_TEXTURE = Mineraculous.modLoc("textures/misc/cat_staff_perching.png");
+    public static final ResourceLocation EXTENDED_TEXTURE = Mineraculous.modLoc("textures/misc/cat_staff.png");
 
     private static final float PIXEL = 1 / 16f;
 

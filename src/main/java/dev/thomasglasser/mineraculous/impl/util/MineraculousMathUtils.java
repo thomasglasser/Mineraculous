@@ -13,13 +13,4 @@ public class MineraculousMathUtils {
 
         return t;
     }
-
-    public static double normalizeDegreesLikeEntityRot(double degrees) {
-        degrees = degrees % 360;
-        if (degrees > 180)
-            degrees = degrees - 360;
-        if (degrees < -180)
-            degrees = degrees + 360;
-        return degrees;
-    }
 }

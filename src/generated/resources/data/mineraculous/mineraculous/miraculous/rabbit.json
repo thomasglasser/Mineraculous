@@ -1,0 +1,12 @@
+{
+  "acceptable_slot": "pocket",
+  "active_ability": "mineraculous:burrow",
+  "color": "#78DDFF",
+  "passive_abilities": "mineraculous:passive_luck",
+  "tool": {
+    "id": "mineraculous:rabbit_umbrella"
+  },
+  "tool_slot": "belt",
+  "transform_sound": "mineraculous:butterfly_transform",
+  "transformation_frames": 7
+}

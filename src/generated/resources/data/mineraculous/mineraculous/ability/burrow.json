@@ -1,0 +1,9 @@
+{
+  "type": "mineraculous:apply_effects_or_destroy",
+  "allow_blocking": false,
+  "effect_settings": {
+    "show_icon": false,
+    "show_particles": false
+  },
+  "effects": "minecraft:haste"
+}

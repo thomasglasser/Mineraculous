@@ -1,0 +1,121 @@
+{
+  "base": {
+    "parent": "minecraft:builtin/entity",
+    "display": {
+      "firstperson_lefthand": {
+        "rotation": [
+          -46.79,
+          78.28,
+          78.28
+        ],
+        "scale": [
+          0.43945,
+          0.43945,
+          0.43945
+        ],
+        "translation": [
+          4.75,
+          -7.25,
+          -0.25
+        ]
+      },
+      "firstperson_righthand": {
+        "rotation": [
+          -46.79,
+          78.28,
+          78.28
+        ],
+        "scale": [
+          0.43945,
+          0.43945,
+          0.43945
+        ],
+        "translation": [
+          4.75,
+          -7.25,
+          -0.25
+        ]
+      },
+      "head": {
+        "translation": [
+          0,
+          -21,
+          0
+        ]
+      },
+      "mineraculous:curios_body": {
+        "rotation": [
+          0,
+          0,
+          45
+        ],
+        "scale": [
+          0.44531,
+          0.44531,
+          0.44531
+        ],
+        "translation": [
+          0,
+          0,
+          4
+        ]
+      },
+      "thirdperson_lefthand": {
+        "rotation": [
+          -16.96,
+          79.64,
+          36.05
+        ],
+        "scale": [
+          0.44531,
+          0.44531,
+          0.44531
+        ],
+        "translation": [
+          0,
+          -6,
+          -0.25
+        ]
+      },
+      "thirdperson_righthand": {
+        "rotation": [
+          -16.96,
+          79.64,
+          36.05
+        ],
+        "scale": [
+          0.44531,
+          0.44531,
+          0.44531
+        ],
+        "translation": [
+          0,
+          -6,
+          -0.25
+        ]
+      }
+    }
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "fixed": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/rabbit_umbrella_blade"
+      }
+    },
+    "ground": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/rabbit_umbrella_blade"
+      }
+    },
+    "gui": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/rabbit_umbrella_blade"
+      }
+    }
+  }
+}

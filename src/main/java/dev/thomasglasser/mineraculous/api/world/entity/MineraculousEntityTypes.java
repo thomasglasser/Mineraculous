@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.impl.world.entity.LuckyCharmItemSpawner;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownButterflyCane;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
+import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownRabbitUmbrella;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import net.minecraft.world.entity.Entity;
@@ -29,6 +30,7 @@ public class MineraculousEntityTypes {
     public static final DeferredHolder<EntityType<?>, EntityType<ThrownLadybugYoyo>> THROWN_LADYBUG_YOYO = registerThrown("thrown_ladybug_yoyo", ThrownLadybugYoyo::new);
     public static final DeferredHolder<EntityType<?>, EntityType<ThrownCatStaff>> THROWN_CAT_STAFF = registerThrown("thrown_cat_staff", ThrownCatStaff::new);
     public static final DeferredHolder<EntityType<?>, EntityType<ThrownButterflyCane>> THROWN_BUTTERFLY_CANE = registerThrown("thrown_butterfly_cane", ThrownButterflyCane::new);
+    public static final DeferredHolder<EntityType<?>, EntityType<ThrownRabbitUmbrella>> THROWN_RABBIT_UMBRELLA = registerThrown("thrown_rabbit_umbrella", ThrownRabbitUmbrella::new);
 
     private static <T extends Entity> DeferredHolder<EntityType<?>, EntityType<T>> registerThrown(String name, EntityType.EntityFactory<T> factory) {
         return ENTITY_TYPES.register(name, factory, MobCategory.MISC, builder -> builder

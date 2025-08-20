@@ -97,5 +97,6 @@ public class MineraculousItemProperties {
         });
         ItemProperties.register(MineraculousItems.CAT_STAFF.get(), ABILITY, getEnumPropertyFunction(MineraculousDataComponents.CAT_STAFF_ABILITY.get()));
         ItemProperties.register(MineraculousItems.BUTTERFLY_CANE.get(), ABILITY, getEnumPropertyFunction(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()));
+        ItemProperties.register(MineraculousItems.RABBIT_UMBRELLA.get(), ABILITY, getEnumPropertyFunction(MineraculousDataComponents.RABBIT_UMBRELLA_ABILITY.get()));
     }
 }

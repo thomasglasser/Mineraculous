@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
+import dev.thomasglasser.mineraculous.impl.world.item.RabbitUmbrellaItem;
 import dev.thomasglasser.tommylib.api.data.models.ExtendedItemModelProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import net.minecraft.client.renderer.block.model.BlockModel;
@@ -58,6 +59,17 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.GUI).rotation(0, 180, 0).translation(0, -11, 0).end()
                 .transform(ItemDisplayContext.HEAD).translation(0, -7.5F, -6.5F).end()
                 .transform(ItemDisplayContext.FIXED).translation(0, -10.5F, 0).end()
+                .end();
+        miraculous(Miraculouses.RABBIT)
+                .transform(MineraculousItemDisplayContexts.CURIOS_BODY.getValue()).translation(1.9f, 11.7f, -2.5f).rotation(0, 0, 180).scale(0.355078125F, 0.355078125F, 0.355078125F).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(0, 0, 0).translation(0, -3.5F, 0).scale(0.3F, 0.3F, 0.3F).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(0, 0, 0).translation(0, -3.5F, 0).scale(0.3F, 0.3F, 0.3F).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(0f, -0.25f, 0f).rotation(0, 142, 8).scale(0.6171875F, 0.6171875F, 0.6171875F).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).translation(0f, -0.25f, 0f).rotation(0, 142, 8).scale(0.6171875F, 0.6171875F, 0.6171875F).end()
+                .transform(ItemDisplayContext.GROUND).translation(0f, 0f, 3.5f).end()
+                .transform(ItemDisplayContext.GUI).rotation(18, 150, 0).translation(0, -7, 0).end()
+                .transform(ItemDisplayContext.HEAD).translation(0, -7.5F, -6.5F).end()
+                .transform(ItemDisplayContext.FIXED).translation(0f, -8.25f, -0.5f).end()
                 .end();
 
         MineraculousArmors.MIRACULOUS.getAll().forEach(item -> singleTexture(item.getId().getPath(), mcItemLoc("generated"), "layer0", modItemLoc("miraculous/armor")));
@@ -175,6 +187,26 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .override()
                 .predicate(MineraculousItemProperties.ABILITY, 2)
                 .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE, inHandButterflyCane, inventoryButterflyCane))
+                .end();
+        ItemModelBuilder inHandRabbitUmbrella = withEntityModel(MineraculousItems.RABBIT_UMBRELLA.getId().withSuffix("_in_hand"))
+                .transforms()
+                .transform(MineraculousItemDisplayContexts.CURIOS_BODY.getValue()).rotation(0, 0, 45).translation(0, 0, 4f).scale(0.44531f).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0f, -6f, -0.25f).rotation(-16.96f, 79.64f, 36.05f).scale(0.44531f).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).translation(0f, -6f, -0.25f).rotation(-16.96f, 79.64f, 36.05f).scale(0.44531f).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(4.75f, -7.25f, -0.25f).rotation(-46.79f, 78.28f, 78.28f).scale(0.43945f).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).translation(4.75f, -7.25f, -0.25f).rotation(-46.79f, 78.28f, 78.28f).scale(0.43945f).end()
+                .transform(ItemDisplayContext.HEAD).translation(0, -21, 0).end()
+                .end();
+        ItemModelBuilder inventoryRabbitUmbrella = basicInventoryItem(MineraculousItems.RABBIT_UMBRELLA);
+        ItemModelBuilder inventoryRabbitUmbrellaBlade = basicInventoryItem(MineraculousItems.RABBIT_UMBRELLA.getId().withSuffix("_blade"));
+        withSeparateInventoryModel(MineraculousItems.RABBIT_UMBRELLA, inHandRabbitUmbrella, inventoryRabbitUmbrella)
+                .override()
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(RabbitUmbrellaItem.Ability.BLADE))
+                .model(withSeparateInventoryModel(MineraculousItems.RABBIT_UMBRELLA.getId().withSuffix("_blade"), inHandRabbitUmbrella, inventoryRabbitUmbrellaBlade))
+                .end()
+                .override()
+                .predicate(MineraculousItemProperties.ABILITY, 2)
+                .model(withSeparateInventoryModel(MineraculousItems.RABBIT_UMBRELLA, inHandRabbitUmbrella, inventoryRabbitUmbrella))
                 .end();
     }
 

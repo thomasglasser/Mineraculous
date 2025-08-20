@@ -78,6 +78,12 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
                 .add(Items.COOKIE)
                 .add(Items.CAKE);
 
+        tag(MineraculousItemTags.RABBIT_KWAMI_FOODS)
+                .add(Items.POTATO);
+        tag(MineraculousItemTags.RABBIT_KWAMI_TREATS)
+                .add(Items.CARROT)
+                .add(Items.GOLDEN_CARROT);
+
         // Cat
         tag(MineraculousItemTags.CAT_KWAMI_FOODS)
                 .addTag(MineraculousItemTags.CHEESES_FOODS);
@@ -132,11 +138,16 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         curios(MineraculousItems.MIRACULOUS.get(),
                 MineraculousCuriosProvider.SLOT_BROOCH,
                 MineraculousCuriosProvider.SLOT_RING,
+                MineraculousCuriosProvider.SLOT_POCKET,
                 MineraculousCuriosProvider.SLOT_EARRINGS);
 
         curios(MineraculousCuriosProvider.SLOT_BELT,
                 MineraculousItems.CAT_STAFF.get(),
+                MineraculousItems.RABBIT_UMBRELLA.get(),
                 MineraculousItems.LADYBUG_YOYO.get());
+        curios(MineraculousCuriosProvider.SLOT_BACK,
+                MineraculousItems.BUTTERFLY_CANE.get(),
+                MineraculousItems.RABBIT_UMBRELLA.get());
     }
 
     private void addAbilities() {

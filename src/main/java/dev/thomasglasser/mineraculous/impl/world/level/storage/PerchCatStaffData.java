@@ -10,12 +10,21 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import org.joml.Vector3f;
 
-public record PerchCatStaffData(float length, float yGroundLevel, boolean startEdge, int tick, boolean canRender, Vector3f initPos, boolean isFalling, float yBeforeFalling, Vector3f initialFallDirection) {
+public record PerchCatStaffData(
+        float length,
+        float yGroundLevel,
+        boolean perching,
+        int tick,
+        boolean canRender,
+        Vector3f initPos,
+        boolean isFalling,
+        float yBeforeFalling,
+        Vector3f initialFallDirection) {
 
     public static final StreamCodec<ByteBuf, PerchCatStaffData> STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
             ByteBufCodecs.FLOAT, PerchCatStaffData::length,
             ByteBufCodecs.FLOAT, PerchCatStaffData::yGroundLevel,
-            ByteBufCodecs.BOOL, PerchCatStaffData::startEdge,
+            ByteBufCodecs.BOOL, PerchCatStaffData::perching,
             ByteBufCodecs.INT, PerchCatStaffData::tick,
             ByteBufCodecs.BOOL, PerchCatStaffData::canRender,
             ByteBufCodecs.VECTOR3F, PerchCatStaffData::initPos, //y stores rotation

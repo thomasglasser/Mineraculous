@@ -1,5 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
+import static dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer.triggerPerchRenderer;
+import static dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer.triggerTravelRenderer;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.KamikotizationParticle;
@@ -32,13 +35,11 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownLadybugY
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.FaceMaskLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.LegacyDevTeamLayer;
-import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSwingOffhandPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
-import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -94,9 +95,6 @@ import org.lwjgl.glfw.GLFW;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
-
-import static dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer.triggerPerchRenderer;
-import static dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer.triggerTravelRenderer;
 
 public class MineraculousClientEvents {
     // Setup
@@ -268,8 +266,9 @@ public class MineraculousClientEvents {
         ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
 
         MineraculousClientUtils.InputState input = MineraculousClientUtils.captureInput();
-        if (thrownYoyo != null) {
-            TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoInputPayload(input));
+        if (thrownYoyo != null && input.hasInput()) {
+            int inputInt = input.packInputs();
+            TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoInputPayload(inputInt));
         }
     }
 

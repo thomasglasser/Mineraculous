@@ -330,38 +330,22 @@ public class MineraculousClientUtils {
 
     public record InputState(boolean front, boolean back, boolean left, boolean right, boolean jump) {
 
-        public static final StreamCodec<ByteBuf, InputState> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.BOOL, InputState::front,
-                ByteBufCodecs.BOOL, InputState::back,
-                ByteBufCodecs.BOOL, InputState::left,
-                ByteBufCodecs.BOOL, InputState::right,
-                ByteBufCodecs.BOOL, InputState::jump,
-                InputState::new);
+        int packInputs() {
+            int bits = 0;
+            if (front)  bits |= 1 << 0;
+            if (back)   bits |= 1 << 1;
+            if (left)   bits |= 1 << 2;
+            if (right)  bits |= 1 << 3;
+            if (jump)   bits |= 1 << 4;
+            return bits;
+        }
+
         public boolean hasInput() {
             return front || back || left || right || jump;
         }
 
-        public boolean hasMovementInput() {
-            return front || back || left || right;
-        }
-
-        public Vec3 getMovementVector() {
-            AbstractClientPlayer player = Minecraft.getInstance().player;
-            Vec3 movement = new Vec3(0f, 0f, 0f);
-            if (player != null) {
-                double yawRad = Math.toRadians(player.getYRot());
-                Vec3 frontMovement = new Vec3(-Math.sin(yawRad), 0, Math.cos(yawRad)).normalize();
-                Vec3 leftMovement = new Vec3(frontMovement.z, 0, -frontMovement.x).normalize();
-                Vec3 backMovement = frontMovement.scale(-1).normalize();
-                Vec3 rightMovement = leftMovement.scale(-1).normalize();
-
-                if (front) movement = movement.add(frontMovement);
-                if (back) movement = movement.add(backMovement);
-                if (left) movement = movement.add(leftMovement);
-                if (right) movement = movement.add(rightMovement);
-                movement = movement.normalize();
-            }
-            return movement;
+        public Boolean[] getMovementBools(){
+            return new Boolean[] { front, back, left, right };
         }
     }
 

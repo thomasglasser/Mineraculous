@@ -254,15 +254,15 @@
   ],
   "neoforge:attachment_types": [
     "mineraculous:ability_effects",
-    "mineraculous:cat_staff_perch",
-    "mineraculous:cat_staff_travel",
     "mineraculous:inventory_trackers",
     "mineraculous:kamikotization",
     "mineraculous:lasso_ladybug_yoyo",
     "mineraculous:miraculouses",
     "mineraculous:old_kamikotization",
+    "mineraculous:perch_cat_staff",
     "mineraculous:stored_armor",
     "mineraculous:thrown_ladybug_yoyo",
+    "mineraculous:travel_cat_staff",
     "mineraculous:yoyo_leash_override"
   ],
   "neoforge:entity_data_serializers": [

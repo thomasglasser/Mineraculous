@@ -10,8 +10,6 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchCatStaffData
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
@@ -164,7 +162,7 @@ public class CatStaffPerchHandler {
     private static float detectGround(Level level, LivingEntity livingEntity) {
         float toReturn;
         int y = livingEntity.getBlockY();
-        while (level.getBlockState(new BlockPos(livingEntity.getBlockX(), y, livingEntity.getBlockZ())).isEmpty() && Math.abs(livingEntity.getBlockY() - y) <= MineraculousServerConfig.get().maxCatStaffLength.get()) {
+        while (level.getBlockState(new BlockPos(livingEntity.getBlockX(), y, livingEntity.getBlockZ())).isEmpty() && Math.abs(livingEntity.getBlockY() - y) <= MineraculousServerConfig.get().maxToolLength.get()) {
             y--;
         }
         y++;
@@ -195,7 +193,7 @@ public class CatStaffPerchHandler {
                 d -= 0.3f;
                 upOrDownKeyPressed = true;
             }
-            if (MineraculousKeyMappings.ASCEND_TOOL.isDown() && Math.abs(groundRYClient) < MineraculousServerConfig.get().maxCatStaffLength.get()) {
+            if (MineraculousKeyMappings.ASCEND_TOOL.isDown() && Math.abs(groundRYClient) < MineraculousServerConfig.get().maxToolLength.get()) {
                 d += 0.3f;
                 upOrDownKeyPressed = true;
             }
@@ -222,7 +220,7 @@ public class CatStaffPerchHandler {
             Vector3f staffPosition = new Vector3f(initPos.x, 0, initPos.z);
             if (tick > MAX_TICKS && input.hasInput()) {
                 Vec3 staffPositionRelativeToThePlayer = new Vec3(staffPosition.x - livingEntity.getX(), 0, staffPosition.z - livingEntity.getZ());
-                movement = input.getMovementVector();
+                movement = MineraculousMathUtils.getMovementVector(livingEntity, input.getMovementBools());
                 movement = MineraculousMathUtils.projectOnCircle(staffPositionRelativeToThePlayer, movement);
                 if (movement.length() > MOVEMENT_THRESHOLD)
                     movement = movement.scale(MOVEMENT_SCALE);

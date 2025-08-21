@@ -36,7 +36,7 @@ public class CatStaffTravelHandler {
         BlockHitResult result = level.clip(new ClipContext(
                 livingEntity.getEyePosition(),
                 livingEntity.getEyePosition()
-                        .add(lookAngle.scale(-MineraculousServerConfig.get().maxCatStaffLength.get())),
+                        .add(lookAngle.scale(-MineraculousServerConfig.get().maxToolLength.get())),
                 ClipContext.Block.OUTLINE,
                 ClipContext.Fluid.ANY,
                 livingEntity));
@@ -103,7 +103,7 @@ public class CatStaffTravelHandler {
     }
 
     private static float adjustLength(float length, float targetDistance) {
-        if (length < targetDistance && length <= MineraculousServerConfig.get().maxCatStaffLength.get()) length += 8;
+        if (length < targetDistance && length <= MineraculousServerConfig.get().maxToolLength.get()) length += 8;
         if (length > targetDistance) length = targetDistance;
         return length;
     }

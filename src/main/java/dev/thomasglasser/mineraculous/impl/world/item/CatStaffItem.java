@@ -250,7 +250,6 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                 player.awardStat(Stats.ITEM_USED.get(this));
             }
         }
-
     }
 
     @Override

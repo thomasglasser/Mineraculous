@@ -9,17 +9,32 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyo
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-public record ServerboundUpdateYoyoInputPayload(MineraculousClientUtils.InputState inputState) implements ExtendedPacketPayload {
+public record ServerboundUpdateYoyoInputPayload(int input) implements ExtendedPacketPayload {
     public static final Type<ServerboundUpdateYoyoInputPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_update_yoyo_input"));
     public static final StreamCodec<ByteBuf, ServerboundUpdateYoyoInputPayload> CODEC = StreamCodec.composite(
-            MineraculousClientUtils.InputState.STREAM_CODEC, ServerboundUpdateYoyoInputPayload::inputState,
+            ByteBufCodecs.INT, ServerboundUpdateYoyoInputPayload::input,
             ServerboundUpdateYoyoInputPayload::new);
+
+    // bit masks
+    private static final int UP     = 1 << 0;
+    private static final int DOWN   = 1 << 1;
+    private static final int LEFT   = 1 << 2;
+    private static final int RIGHT  = 1 << 3;
+    private static final int JUMP   = 1 << 4;
+
+    // helpers
+    public boolean up()    { return (input & UP) != 0; }
+    public boolean down()  { return (input & DOWN) != 0; }
+    public boolean left()  { return (input & LEFT) != 0; }
+    public boolean right() { return (input & RIGHT) != 0; }
+    public boolean jump()  { return (input & JUMP) != 0; }
 
     // ON SERVER
     @Override
@@ -32,7 +47,7 @@ public record ServerboundUpdateYoyoInputPayload(MineraculousClientUtils.InputSta
             double distance = fromProjectileToPlayer.length();
             float maxRopeLn = thrownYoyo.getMaxRopeLength();
             if (thrownYoyo.inGround() && !player.isNoGravity() && !player.getAbilities().flying && distance >= maxRopeLn && !player.onGround()) {
-                if (inputState.jump()) { //JUMP
+                if (jump()) { //JUMP
                     if (!level.getBlockState(new BlockPos((int) player.getX(), (int) player.getY() - 1, (int) player.getZ())).isSolid()) {
                         double yawRad = Math.toRadians(player.getYRot());
                         Vec3 forwardVec = new Vec3(-Math.sin(yawRad), 0, Math.cos(yawRad));
@@ -42,10 +57,10 @@ public record ServerboundUpdateYoyoInputPayload(MineraculousClientUtils.InputSta
                         data.startSafeFall().save(player, true);
                         thrownYoyo.recall();
                     }
-                } else if (inputState.hasMovementInput()) { //WASD
+                } else if (up() || down() || left() || right()) { //WASD
                     if (player.getY() < thrownYoyo.getY()) {
 
-                        Vec3 movement = inputState.getMovementVector();
+                        Vec3 movement = MineraculousMathUtils.getMovementVector(player, up(), down(), left(), right());
                         movement = MineraculousMathUtils.projectOnCircle(fromProjectileToPlayer.scale(-1), movement);
 
                         Vec3 ropeDir = fromProjectileToPlayer.normalize();

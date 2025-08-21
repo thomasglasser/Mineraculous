@@ -114,15 +114,10 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
             float top = player.getBbHeight() + 0.2f + bodyDirectionF.y;
             float nLength = length + bodyDirectionF.y;
             if (perchData.isFalling()) {
-                Vec3 vertical = new Vec3(0, 1, 0);
-                Vec3 movement = new Vec3(perchData.initialFallDirection());
-                Vec3 left = new Vec3(vertical.cross(movement).toVector3f());
-                left = left.normalize();
+                Vector3f vertical = new Vector3f(0, 1, 0);
                 Vec3 staffOriginToPlayer = new Vec3(bodyDirectionF.x, nLength, bodyDirectionF.z);
-                double cosTheta = new Vec3(bodyDirectionF.x, 0, bodyDirectionF.z).length() / staffOriginToPlayer.length();
-                double theta = Math.acos(cosTheta);
-                theta = Math.PI / 2 - theta;
-                Quaternionf q = new Quaternionf(left.x * Math.sin(theta / 2), left.y * Math.sin(theta / 2), left.z * Math.sin(theta / 2), Math.cos(theta / 2));
+                Vector3f rot = staffOriginToPlayer.add(0, 1, 0).normalize().scale(-1).toVector3f();
+                Quaternionf q = new Quaternionf().rotateTo(vertical, rot);
                 poseStack.rotateAround(q, bodyDirectionF.x, bodyDirectionF.y + length, bodyDirectionF.z);
 
             }
@@ -151,18 +146,15 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         d2 = Mth.lerp(partialTicks, player.yo, player.getY());
         if (travelCatStaffData.traveling()) {
             //ROTATE
-            Vec3 vertical = new Vec3(0, 1, 0);
-            Vector3f initialLookingAngle = travelCatStaffData.initialLookingAngle();
-            Vec3 direction = new Vec3(initialLookingAngle.x, 0 - d2, initialLookingAngle.z);
-            Vec3 left = new Vec3(vertical.cross(direction).toVector3f());
-            left = left.normalize();
-            Vec3 staffOriginToPlayer = new Vec3(target.getX() - d0, target.getY() - d2, target.getZ() - d1);
-            Vector3f bodyDirectionF = new Vector3f((float) staffOriginToPlayer.x, (float) staffOriginToPlayer.y + 1, (float) staffOriginToPlayer.z);
-            double cosTheta = new Vec3(staffOriginToPlayer.x, 0, staffOriginToPlayer.z).length() / staffOriginToPlayer.length();
-            double theta = Math.acos(cosTheta);
-            if (player.getY() < target.getY()) theta = -theta;
-            theta = Math.PI / 2 - theta;
-            Quaternionf q = new Quaternionf(left.x * Math.sin(theta / 2), left.y * Math.sin(theta / 2), left.z * Math.sin(theta / 2), Math.cos(theta / 2));
+            Vec3 staffOriginToPlayer = new Vec3(
+                    target.getX() - d0,
+                    target.getY() - d2,
+                    target.getZ() - d1
+            );
+            Vector3f bodyDirectionF = staffOriginToPlayer.add(0, 1, 0).toVector3f();
+            Vector3f vertical = new Vector3f(0, 1, 0);
+            Vector3f rot = staffOriginToPlayer.add(0, 1, 0).normalize().scale(-1).toVector3f();
+            Quaternionf q = new Quaternionf().rotateTo(vertical, rot);
             poseStack.rotateAround(q, bodyDirectionF.x, bodyDirectionF.y, bodyDirectionF.z);
 
             //SIDES

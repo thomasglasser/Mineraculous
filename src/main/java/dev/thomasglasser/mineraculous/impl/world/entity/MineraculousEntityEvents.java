@@ -120,13 +120,12 @@ public class MineraculousEntityEvents {
                 entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).tick(livingEntity, level);
                 entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.tick(livingEntity, level));
 
-                if (!level.isClientSide)
-                    if (!(livingEntity.getOffhandItem().is(MineraculousItems.CAT_STAFF) || livingEntity.getMainHandItem().is(MineraculousItems.CAT_STAFF))) {
-                        if (!livingEntity.hasData(MineraculousAttachmentTypes.PERCH_CAT_STAFF)) {
-                            livingEntity.setData(MineraculousAttachmentTypes.PERCH_CAT_STAFF, new PerchCatStaffData());
-                            PerchCatStaffData.remove(livingEntity, true);
-                        }
+                if (!(livingEntity.getOffhandItem().is(MineraculousItems.CAT_STAFF) || livingEntity.getMainHandItem().is(MineraculousItems.CAT_STAFF))) {
+                    if (!livingEntity.hasData(MineraculousAttachmentTypes.PERCH_CAT_STAFF)) {
+                        livingEntity.setData(MineraculousAttachmentTypes.PERCH_CAT_STAFF, new PerchCatStaffData());
+                        PerchCatStaffData.remove(livingEntity, true);
                     }
+                }
             }
 
             ItemStack weaponItem = entity.getWeaponItem();

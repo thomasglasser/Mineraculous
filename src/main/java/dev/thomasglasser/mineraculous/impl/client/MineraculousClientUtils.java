@@ -31,7 +31,6 @@ import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
-import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
@@ -51,8 +50,6 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -329,14 +326,13 @@ public class MineraculousClientUtils {
     }
 
     public record InputState(boolean front, boolean back, boolean left, boolean right, boolean jump) {
-
         int packInputs() {
             int bits = 0;
-            if (front)  bits |= 1 << 0;
-            if (back)   bits |= 1 << 1;
-            if (left)   bits |= 1 << 2;
-            if (right)  bits |= 1 << 3;
-            if (jump)   bits |= 1 << 4;
+            if (front) bits |= 1 << 0;
+            if (back) bits |= 1 << 1;
+            if (left) bits |= 1 << 2;
+            if (right) bits |= 1 << 3;
+            if (jump) bits |= 1 << 4;
             return bits;
         }
 
@@ -344,7 +340,7 @@ public class MineraculousClientUtils {
             return front || back || left || right || jump;
         }
 
-        public Boolean[] getMovementBools(){
+        public Boolean[] getMovementBools() {
             return new Boolean[] { front, back, left, right };
         }
     }

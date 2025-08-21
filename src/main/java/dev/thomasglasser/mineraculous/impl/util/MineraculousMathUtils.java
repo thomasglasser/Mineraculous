@@ -1,12 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.util;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-
-import java.lang.foreign.PaddingLayout;
 
 public class MineraculousMathUtils {
     public static Vec3 projectOnCircle(Vec3 fromPointToCenter, Vec3 vec3) {

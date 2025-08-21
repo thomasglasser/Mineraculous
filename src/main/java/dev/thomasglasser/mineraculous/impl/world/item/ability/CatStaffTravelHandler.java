@@ -5,6 +5,7 @@ import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelCatStaffData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
@@ -93,6 +94,26 @@ public class CatStaffTravelHandler {
                     travelData.initBodAngle(), didLaunch);
             newTravelData.save(livingEntity, true);
         }
+        applyCollisionDamage(livingEntity);
+    }
+
+    private static void applyCollisionDamage(LivingEntity entity) {
+        Vec3 velocity = entity.getDeltaMovement();
+        double horizontalSpeedBefore = velocity.horizontalDistance();
+
+        entity.move(MoverType.SELF, velocity);
+
+        if (entity.horizontalCollision || entity.minorHorizontalCollision) {
+            double horizontalSpeedAfter = entity.getDeltaMovement().horizontalDistance();
+            double lostSpeed = horizontalSpeedBefore - horizontalSpeedAfter;
+            float damage = (float) (lostSpeed * 10.0 - 3.0);
+
+            if (damage > 0.0F) {
+                TravelCatStaffData.remove(entity, true);
+                entity.hurt(entity.damageSources().flyIntoWall(), damage);
+            }
+        }
+        if (entity.verticalCollision || entity.verticalCollisionBelow) TravelCatStaffData.remove(entity, true);
     }
 
     private static void launchLivingEntity(ItemStack stack, LivingEntity livingEntity, TravelCatStaffData travelCatStaffData) {

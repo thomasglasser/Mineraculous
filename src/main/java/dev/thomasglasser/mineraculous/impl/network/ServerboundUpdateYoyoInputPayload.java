@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
-import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
@@ -23,18 +22,32 @@ public record ServerboundUpdateYoyoInputPayload(int input) implements ExtendedPa
             ServerboundUpdateYoyoInputPayload::new);
 
     // bit masks
-    private static final int UP     = 1 << 0;
-    private static final int DOWN   = 1 << 1;
-    private static final int LEFT   = 1 << 2;
-    private static final int RIGHT  = 1 << 3;
-    private static final int JUMP   = 1 << 4;
+    private static final int UP = 1 << 0;
+    private static final int DOWN = 1 << 1;
+    private static final int LEFT = 1 << 2;
+    private static final int RIGHT = 1 << 3;
+    private static final int JUMP = 1 << 4;
 
     // helpers
-    public boolean up()    { return (input & UP) != 0; }
-    public boolean down()  { return (input & DOWN) != 0; }
-    public boolean left()  { return (input & LEFT) != 0; }
-    public boolean right() { return (input & RIGHT) != 0; }
-    public boolean jump()  { return (input & JUMP) != 0; }
+    public boolean up() {
+        return (input & UP) != 0;
+    }
+
+    public boolean down() {
+        return (input & DOWN) != 0;
+    }
+
+    public boolean left() {
+        return (input & LEFT) != 0;
+    }
+
+    public boolean right() {
+        return (input & RIGHT) != 0;
+    }
+
+    public boolean jump() {
+        return (input & JUMP) != 0;
+    }
 
     // ON SERVER
     @Override

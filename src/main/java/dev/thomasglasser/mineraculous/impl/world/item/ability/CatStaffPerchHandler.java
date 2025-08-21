@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.impl.world.item.ability;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundCancelCatStaffPerchPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetDeltaMovementPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
@@ -10,6 +11,7 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchCatStaffData
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
@@ -48,12 +50,11 @@ public class CatStaffPerchHandler {
                 boolean nRender = perchCatStaffData.canRender();
                 float yBeforeFalling = perchCatStaffData.yBeforeFalling();
                 if (groundRY == length && t >= MAX_TICKS && !falling) {
-                    if (!level.isClientSide) {
-                        Vector3f lookAngle = new Vector3f((float) livingEntity.getLookAngle().x, 0f, (float) livingEntity.getLookAngle().z);
-                        PerchCatStaffData newPerchData = new PerchCatStaffData(length, groundRY, perching, t, nRender, initPos, true, yBeforeFalling, lookAngle);
-                        livingEntity.setData(MineraculousAttachmentTypes.PERCH_CAT_STAFF, newPerchData);
-                        newPerchData.save(livingEntity, true);
-                    }
+                    double yawRad = Math.toRadians(livingEntity.getYRot());
+                    Vector3f lookAngle = new Vec3(-Math.sin(yawRad), 0, Math.cos(yawRad)).normalize().toVector3f();
+                    PerchCatStaffData newPerchData = new PerchCatStaffData(length, groundRY, perching, t, nRender, initPos, true, yBeforeFalling, lookAngle);
+                    livingEntity.setData(MineraculousAttachmentTypes.PERCH_CAT_STAFF, newPerchData);
+                    newPerchData.save(livingEntity, true);
                 }
             } else {
                 Vector4f init = PerchCatStaffData.initialize(livingEntity);
@@ -139,23 +140,41 @@ public class CatStaffPerchHandler {
 
         Vector3f staffOrigin = new Vector3f(initPos.x, yBeforeFalling + length, initPos.z);
         Vec3 fromPlayerToStaff = new Vec3(staffOrigin.x - livingEntity.getX(), staffOrigin.y - livingEntity.getY(), staffOrigin.z - livingEntity.getZ());
-        length = -length;
-        if (fromPlayerToStaff.length() < length) {
-            Vec3 constrain = new Vec3(fromPlayerToStaff.toVector3f());
-            constrain = constrain.normalize();
-            constrain = constrain.scale(fromPlayerToStaff.length() - length);
-            constrain = constrain.add(livingEntity.getX(), livingEntity.getY(), livingEntity.getZ());
-            livingEntity.setPos(constrain);
 
-            Vec3 towards = new Vec3(initialFallDirection);
-            towards = MineraculousMathUtils.projectOnCircle(fromPlayerToStaff, towards);
-            towards = towards.normalize();
+        float distance = (float) fromPlayerToStaff.length();
+        Vec3 towards = new Vec3(initialFallDirection);
+        towards = MineraculousMathUtils.projectOnCircle(fromPlayerToStaff, towards);
+        towards = towards.normalize().scale(2);
+
+        if (distance <= -length) {
+            Vec3 constrain = fromPlayerToStaff.normalize().scale(distance + length);
+            livingEntity.move(MoverType.SELF, constrain);
             livingEntity.setDeltaMovement(towards);
             livingEntity.hurtMarked = true;
         }
 
-        if (fromPlayerToStaff.length() > length + 1) {
+        applyCollisionDamage(livingEntity);
+
+        if (distance > -length + 1 || staffOrigin.y + 1 > livingEntity.getY()) {
             PerchCatStaffData.remove(livingEntity, true);
+        }
+    }
+
+    private static void applyCollisionDamage(LivingEntity entity) {
+        Vec3 velocity = entity.getDeltaMovement();
+        double horizontalSpeedBefore = velocity.horizontalDistance();
+
+        entity.move(MoverType.SELF, velocity);
+
+        if (entity.horizontalCollision || entity.minorHorizontalCollision) {
+            double horizontalSpeedAfter = entity.getDeltaMovement().horizontalDistance();
+            double lostSpeed = horizontalSpeedBefore - horizontalSpeedAfter;
+            float damage = (float) (lostSpeed * 10.0 - 3.0);
+
+            if (damage > 0.0F) {
+                PerchCatStaffData.remove(entity, true);
+                entity.hurt(entity.damageSources().flyIntoWall(), damage);
+            }
         }
     }
 
@@ -214,8 +233,10 @@ public class CatStaffPerchHandler {
         MineraculousClientUtils.InputState input = MineraculousClientUtils.captureInput();
         Vec3 movement = Vec3.ZERO;
         if (isFalling) {
-            if (input.jump())
+            if (input.jump()) {
+                TommyLibServices.NETWORK.sendToServer(new ServerboundCancelCatStaffPerchPayload());
                 movement = new Vec3(livingEntity.getDeltaMovement().x, 1.5, livingEntity.getDeltaMovement().z);
+            }
         } else {
             Vector3f staffPosition = new Vector3f(initPos.x, 0, initPos.z);
             if (tick > MAX_TICKS && input.hasInput()) {

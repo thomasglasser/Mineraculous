@@ -31,6 +31,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
+import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
@@ -50,6 +51,8 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -323,5 +326,47 @@ public class MineraculousClientUtils {
             return livingEntity.getEyePosition(partialTick).add(-cosRot * armOffset - sinRot * frontOffsetScaled, (double) crouchOffset + heightOffset * (double) scale, -sinRot * armOffset + cosRot * frontOffsetScaled);
         }
         return Vec3.ZERO;
+    }
+
+    public record InputState(boolean front, boolean back, boolean left, boolean right, boolean jump) {
+
+        public static final StreamCodec<ByteBuf, InputState> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.BOOL, InputState::front,
+                ByteBufCodecs.BOOL, InputState::back,
+                ByteBufCodecs.BOOL, InputState::left,
+                ByteBufCodecs.BOOL, InputState::right,
+                ByteBufCodecs.BOOL, InputState::jump,
+                InputState::new);
+        public boolean hasInput() {
+            return front || back || left || right || jump;
+        }
+
+        public boolean hasMovementInput() {
+            return front || back || left || right;
+        }
+
+        public Vec3 getMovementVector() {
+            AbstractClientPlayer player = Minecraft.getInstance().player;
+            Vec3 movement = new Vec3(0f, 0f, 0f);
+            if (player != null) {
+                double yawRad = Math.toRadians(player.getYRot());
+                Vec3 frontMovement = new Vec3(-Math.sin(yawRad), 0, Math.cos(yawRad)).normalize();
+                Vec3 leftMovement = new Vec3(frontMovement.z, 0, -frontMovement.x).normalize();
+                Vec3 backMovement = frontMovement.scale(-1).normalize();
+                Vec3 rightMovement = leftMovement.scale(-1).normalize();
+
+                if (front) movement = movement.add(frontMovement);
+                if (back) movement = movement.add(backMovement);
+                if (left) movement = movement.add(leftMovement);
+                if (right) movement = movement.add(rightMovement);
+                movement = movement.normalize();
+            }
+            return movement;
+        }
+    }
+
+    public static InputState captureInput() {
+        var input = Minecraft.getInstance().player.input;
+        return new InputState(input.up, input.down, input.left, input.right, input.jumping);
     }
 }

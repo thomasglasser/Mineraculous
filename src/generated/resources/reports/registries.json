@@ -254,6 +254,8 @@
   ],
   "neoforge:attachment_types": [
     "mineraculous:ability_effects",
+    "mineraculous:cat_staff_perch",
+    "mineraculous:cat_staff_travel",
     "mineraculous:inventory_trackers",
     "mineraculous:kamikotization",
     "mineraculous:lasso_ladybug_yoyo",

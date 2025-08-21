@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.projectile.ItemBreakingQuicklyReturningThrownSword;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousTiers;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
@@ -114,17 +115,15 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, CONTROLLER_USE, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
-            if (stack != null) {
-                if (stack.has(MineraculousDataComponents.BLOCKING))
-                    return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
+            if (stack != null && stack.has(MineraculousDataComponents.BLOCKING)) {
+                return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
             }
             return PlayState.STOP;
         }));
         controllers.add(new AnimationController<>(this, CONTROLLER_EXTEND, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
-            if (stack != null) {
-                if (!stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && !state.isCurrentAnimation(RETRACT))
-                    return state.setAndContinue(DefaultAnimations.IDLE);
+            if (stack != null && !stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && !state.isCurrentAnimation(RETRACT)) {
+                return state.setAndContinue(DefaultAnimations.IDLE);
             }
             return PlayState.STOP;
         })
@@ -182,10 +181,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
             }
         }
 
-        if (stack.has(MineraculousDataComponents.BLOCKING) && entity.getXRot() <= -75 && entity.getDeltaMovement().y <= 0) {
-            entity.setDeltaMovement(entity.getDeltaMovement().x, -0.1, entity.getDeltaMovement().z);
-            entity.resetFallDistance();
-        }
+        MineraculousItemUtils.checkHelicopterSlowFall(stack, entity);
 
         super.inventoryTick(stack, level, entity, slotId, isSelected);
     }
@@ -254,11 +250,12 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        if (stack.has(MineraculousDataComponents.BLOCKING))
-            return UseAnim.BLOCK;
-        else if (stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == Ability.THROW)
-            return UseAnim.SPEAR;
-        return UseAnim.NONE;
+        Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
+        return switch (ability) {
+            case BLOCK -> UseAnim.BLOCK;
+            case THROW -> UseAnim.SPEAR;
+            case null, default -> UseAnim.NONE;
+        };
     }
 
     @Override
@@ -350,7 +347,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     public enum Ability implements RadialMenuOption, StringRepresentable {
         BLOCK,
         PERCH,
-        PHONE((stack, player) -> Mineraculous.Dependencies.TOMMYTECH.isLoaded()),
+        PHONE((stack, player) -> /*Mineraculous.Dependencies.TOMMYTECH.isLoaded()*/true),
         THROW,
         TRAVEL;
 

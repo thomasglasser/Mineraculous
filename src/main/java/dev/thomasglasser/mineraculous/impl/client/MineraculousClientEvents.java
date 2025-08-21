@@ -35,6 +35,7 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownLadybugY
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.FaceMaskLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.LegacyDevTeamLayer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSwingOffhandPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
@@ -55,6 +56,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -89,6 +91,8 @@ import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
 import org.lwjgl.glfw.GLFW;
@@ -240,6 +244,24 @@ public class MineraculousClientEvents {
         event.registerRenderBuffer(MineraculousRenderTypes.armorLuckyCharm());
         event.registerRenderBuffer(MineraculousRenderTypes.entityLuckyCharm());
         event.registerRenderBuffer(MineraculousRenderTypes.shieldLuckyCharm());
+    }
+
+    static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
+        // Miraculous Tools
+        event.registerItem(new IClientItemExtensions() {
+            private BlockEntityWithoutLevelRenderer renderer;
+
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                if (renderer == null) renderer = new LadybugYoyoRenderer();
+                return renderer;
+            }
+
+            @Override
+            public ResourceLocation getScopeOverlayTexture(ItemStack stack) {
+                return LadybugYoyoRenderer.SPYGLASS_SCOPE_LOCATION;
+            }
+        }, MineraculousItems.LADYBUG_YOYO);
     }
 
     // GUI

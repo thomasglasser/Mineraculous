@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
@@ -14,16 +15,12 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
-import dev.thomasglasser.mineraculous.impl.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
-import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -31,9 +28,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiPredicate;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -76,14 +71,18 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Ability> {
+public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Ability> {
     public static final String CONTROLLER_USE = "use_controller";
     public static final String CONTROLLER_OPEN = "open_controller";
     public static final String ANIMATION_OPEN_OUT = "open_out";
+    public static final String ANIMATION_OPEN_DOWN = "open_down";
     public static final String ANIMATION_CLOSE_IN = "close_in";
+    public static final String ANIMATION_CLOSE_UP = "close_up";
 
     private static final RawAnimation OPEN_OUT = RawAnimation.begin().thenPlay("misc.open_out");
+    private static final RawAnimation OPEN_DOWN = RawAnimation.begin().thenPlay("misc.open_down");
     private static final RawAnimation CLOSE_IN = RawAnimation.begin().thenPlay("misc.close_in");
+    private static final RawAnimation CLOSE_UP = RawAnimation.begin().thenPlay("misc.close_up");
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -107,20 +106,9 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         }));
         controllers.add(new AnimationController<>(this, CONTROLLER_OPEN, state -> PlayState.CONTINUE)
                 .triggerableAnim(ANIMATION_OPEN_OUT, OPEN_OUT)
-                .triggerableAnim(ANIMATION_CLOSE_IN, CLOSE_IN));
-    }
-
-    @Override
-    public void createBewlrProvider(Consumer<BewlrProvider> provider) {
-        provider.accept(new BewlrProvider() {
-            private BlockEntityWithoutLevelRenderer bewlr;
-
-            @Override
-            public BlockEntityWithoutLevelRenderer getBewlr() {
-                if (bewlr == null) bewlr = new LadybugYoyoRenderer();
-                return bewlr;
-            }
-        });
+                .triggerableAnim(ANIMATION_OPEN_DOWN, OPEN_DOWN)
+                .triggerableAnim(ANIMATION_CLOSE_IN, CLOSE_IN)
+                .triggerableAnim(ANIMATION_CLOSE_UP, CLOSE_UP));
     }
 
     @Override
@@ -140,10 +128,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
             }
         }
 
-        if (stack.has(MineraculousDataComponents.BLOCKING) && entity.getXRot() <= -75 && entity.getDeltaMovement().y <= 0) {
-            entity.setDeltaMovement(entity.getDeltaMovement().x, -0.1, entity.getDeltaMovement().z);
-            entity.resetFallDistance();
-        }
+        MineraculousItemUtils.checkHelicopterSlowFall(stack, entity);
 
         super.inventoryTick(stack, level, entity, slotId, isSelected);
     }
@@ -175,6 +160,9 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                         player.startUsingItem(usedHand);
                     } else if (ability == Ability.LASSO && player.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent()) {
                         removeHeldLeash(player);
+                    } else if (ability == Ability.SPYGLASS) {
+                        level.playSound(null, player, SoundEvents.SPYGLASS_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
+                        player.startUsingItem(usedHand);
                     } else if (usedHand == InteractionHand.MAIN_HAND || ability != Ability.LASSO) {
                         throwYoyo(stack, player, ability, usedHand);
                         player.getCooldowns().addCooldown(this, 5);
@@ -332,13 +320,18 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.BLOCK;
+        Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY);
+        return switch (ability) {
+            case BLOCK -> UseAnim.BLOCK;
+            case SPYGLASS -> UseAnim.SPYGLASS;
+            case null, default -> UseAnim.NONE;
+        };
     }
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
         Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY);
-        if (ability == Ability.BLOCK) {
+        if (ability == Ability.BLOCK || ability == Ability.SPYGLASS) {
             return 72000;
         } else if (ability == Ability.PURIFY) {
             return 100;
@@ -351,6 +344,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get());
         return switch (ability) {
             case BLOCK -> itemAbility == ItemAbilities.SHIELD_BLOCK;
+            case SPYGLASS -> itemAbility == ItemAbilities.SPYGLASS_SCOPE;
             case null, default -> false;
         };
     }
@@ -422,8 +416,12 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
             String anim = null;
             if (selected == LadybugYoyoItem.Ability.PURIFY)
                 anim = ANIMATION_OPEN_OUT;
+            else if (selected == Ability.PHONE || selected == Ability.SPYGLASS)
+                anim = ANIMATION_OPEN_DOWN;
             else if (old == Ability.PURIFY)
                 anim = ANIMATION_CLOSE_IN;
+            else if (old == Ability.PHONE || old == Ability.SPYGLASS)
+                anim = ANIMATION_CLOSE_UP;
             if (anim != null)
                 triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_OPEN, anim);
         }
@@ -438,8 +436,9 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
     public enum Ability implements RadialMenuOption, StringRepresentable {
         BLOCK,
         LASSO,
-        PHONE((stack, player) -> Mineraculous.Dependencies.TOMMYTECH.isLoaded()),
+        PHONE((stack, player) -> /*Mineraculous.Dependencies.TOMMYTECH.isLoaded()*/true),
         PURIFY((stack, player) -> stack.has(MineraculousDataComponents.OWNER)),
+        SPYGLASS,
         TRAVEL;
 
         public static final Codec<Ability> CODEC = StringRepresentable.fromEnum(Ability::values);

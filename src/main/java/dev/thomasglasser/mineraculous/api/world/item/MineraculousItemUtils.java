@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.api.world.item;
 
 import com.mojang.datafixers.util.Pair;
+import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
@@ -20,6 +21,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -156,6 +158,19 @@ public class MineraculousItemUtils {
         }
 
         return patched && Objects.equals(self, other);
+    }
+
+    /**
+     * Slows fall and cancels damage for the entity blocking with the item pointed upwards.
+     *
+     * @param stack  The stack being used to block
+     * @param entity The entity blocking
+     */
+    public static void checkHelicopterSlowFall(ItemStack stack, Entity entity) {
+        if (stack.has(MineraculousDataComponents.BLOCKING) && entity.getXRot() <= -75 && entity.getDeltaMovement().y <= 0) {
+            entity.setDeltaMovement(entity.getDeltaMovement().x, -0.1, entity.getDeltaMovement().z);
+            entity.resetFallDistance();
+        }
     }
 
     @ApiStatus.Internal

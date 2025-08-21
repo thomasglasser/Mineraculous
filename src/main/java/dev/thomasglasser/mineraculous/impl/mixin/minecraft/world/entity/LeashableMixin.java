@@ -11,6 +11,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Leashable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(Leashable.class)
 public interface LeashableMixin {
@@ -37,6 +38,14 @@ public interface LeashableMixin {
                     return f > data.maxRopeLength();
                 }
             }
+        }
+        return original;
+    }
+
+    @ModifyVariable(method = "dropLeash(Lnet/minecraft/world/entity/Entity;ZZ)V", at = @At("HEAD"), index = 2, argsOnly = true)
+    private static <E extends Entity & Leashable> boolean neverDropYoyoLeash(boolean original, @Local(argsOnly = true) E entity) {
+        if (entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE)) {
+            return false;
         }
         return original;
     }

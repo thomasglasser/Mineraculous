@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousTiers;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
@@ -14,7 +15,6 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownButterflyCane;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
@@ -111,10 +111,12 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, CONTROLLER_USE, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
-            if (stack.has(MineraculousDataComponents.BLOCKING))
-                return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
-            else if (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == Ability.BLADE && !state.isCurrentAnimation(UNSHEATHE))
-                return state.setAndContinue(BLADE_IDLE);
+            if (stack != null) {
+                if (stack.has(MineraculousDataComponents.BLOCKING))
+                    return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
+                else if (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == Ability.BLADE && !state.isCurrentAnimation(UNSHEATHE))
+                    return state.setAndContinue(BLADE_IDLE);
+            }
             return PlayState.STOP;
         })
                 .triggerableAnim(ANIMATION_OPEN, OPEN)
@@ -148,10 +150,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
 
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        if (stack.has(MineraculousDataComponents.BLOCKING) && entity.getXRot() <= -75 && entity.getDeltaMovement().y <= 0) {
-            entity.setDeltaMovement(entity.getDeltaMovement().x, -0.1, entity.getDeltaMovement().z);
-            entity.resetFallDistance();
-        }
+        MineraculousItemUtils.checkHelicopterSlowFall(stack, entity);
 
         super.inventoryTick(stack, level, entity, slotId, isSelected);
     }
@@ -258,12 +257,12 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        if (stack.has(MineraculousDataComponents.BLOCKING))
-            return UseAnim.BLOCK;
         Ability ability = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY);
-        if (ability == Ability.BLADE || ability == Ability.THROW)
-            return UseAnim.SPEAR;
-        return UseAnim.NONE;
+        return switch (ability) {
+            case BLOCK -> UseAnim.BLOCK;
+            case BLADE, THROW -> UseAnim.SPEAR;
+            case null, default -> UseAnim.NONE;
+        };
     }
 
     @Override
@@ -356,7 +355,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
         BLADE,
         BLOCK,
         KAMIKO_STORE((stack, player) -> stack.has(MineraculousDataComponents.OWNER)),
-        PHONE((stack, player) -> Mineraculous.Dependencies.TOMMYTECH.isLoaded()),
+        PHONE((stack, player) -> /*Mineraculous.Dependencies.TOMMYTECH.isLoaded()*/true),
         THROW;
 
         public static final Codec<Ability> CODEC = StringRepresentable.fromEnum(Ability::values);

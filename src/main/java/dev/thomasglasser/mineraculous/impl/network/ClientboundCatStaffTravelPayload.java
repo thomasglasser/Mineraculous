@@ -11,17 +11,18 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
-public record ClientboundCatStaffTravelPayload(int senderID, TravelCatStaffData data) implements ExtendedPacketPayload {
+public record ClientboundCatStaffTravelPayload(int entityId, TravelCatStaffData data) implements ExtendedPacketPayload {
     public static final Type<ClientboundCatStaffTravelPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_cat_staff_travel"));
     public static final StreamCodec<ByteBuf, ClientboundCatStaffTravelPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT, ClientboundCatStaffTravelPayload::senderID,
+            ByteBufCodecs.INT, ClientboundCatStaffTravelPayload::entityId,
             TravelCatStaffData.STREAM_CODEC, ClientboundCatStaffTravelPayload::data,
             ClientboundCatStaffTravelPayload::new);
 
     @Override
     public void handle(Player player) {
-        Entity sender = player.level().getEntity(senderID);
-        sender.setData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF, data);
+        Entity entity = player.level().getEntity(entityId);
+        if (entity != null)
+            entity.setData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF, data);
     }
 
     @Override

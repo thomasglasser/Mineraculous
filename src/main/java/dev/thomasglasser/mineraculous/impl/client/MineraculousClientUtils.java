@@ -330,7 +330,7 @@ public class MineraculousClientUtils {
 
     public record InputState(boolean front, boolean back, boolean left, boolean right, boolean jump) {
 
-        public static final StreamCodec<ByteBuf, InputState> CODEC = StreamCodec.composite(
+        public static final StreamCodec<ByteBuf, InputState> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.BOOL, InputState::front,
                 ByteBufCodecs.BOOL, InputState::back,
                 ByteBufCodecs.BOOL, InputState::left,

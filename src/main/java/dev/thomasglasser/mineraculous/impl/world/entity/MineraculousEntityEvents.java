@@ -117,13 +117,14 @@ public class MineraculousEntityEvents {
             if (entity instanceof LivingEntity livingEntity) {
                 entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).tick(livingEntity, level);
                 entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.tick(livingEntity, level));
-            }
 
-            if (entity instanceof ServerPlayer serverPlayer) {
-                if (!(serverPlayer.getOffhandItem().is(MineraculousItems.CAT_STAFF) || serverPlayer.getMainHandItem().is(MineraculousItems.CAT_STAFF))) {
-                    serverPlayer.setData(MineraculousAttachmentTypes.PERCH_CAT_STAFF, new PerchCatStaffData());
-                    PerchCatStaffData.remove(serverPlayer, true);
-                }
+                if (!level.isClientSide)
+                    if (!(livingEntity.getOffhandItem().is(MineraculousItems.CAT_STAFF) || livingEntity.getMainHandItem().is(MineraculousItems.CAT_STAFF))) {
+                        if (!livingEntity.hasData(MineraculousAttachmentTypes.PERCH_CAT_STAFF)) {
+                            livingEntity.setData(MineraculousAttachmentTypes.PERCH_CAT_STAFF, new PerchCatStaffData());
+                            PerchCatStaffData.remove(livingEntity, true);
+                        }
+                    }
             }
 
             ItemStack weaponItem = entity.getWeaponItem();

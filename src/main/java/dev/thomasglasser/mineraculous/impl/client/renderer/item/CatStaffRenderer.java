@@ -68,7 +68,31 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         super.defaultRender(poseStack, animatable, bufferSource, renderType, buffer, yaw, partialTick, packedLight);
     }
 
-    public static void renderCatStaffPerch(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTicks) {
+    public static void triggerPerchRenderer(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick) {
+        ItemStack offhandItem = player.getOffhandItem();
+        ItemStack mainHandItem = player.getMainHandItem();
+
+        boolean lHCatStaffPerch = offhandItem.is(MineraculousItems.CAT_STAFF) && offhandItem.has(MineraculousDataComponents.ACTIVE) && offhandItem.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+        boolean rHCatStaffPerch = mainHandItem.is(MineraculousItems.CAT_STAFF) && mainHandItem.has(MineraculousDataComponents.ACTIVE) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+
+        if (lHCatStaffPerch || rHCatStaffPerch) {
+            CatStaffRenderer.renderCatStaffPerch(player, poseStack, bufferSource, light, partialTick);
+        }
+    }
+
+    public static void triggerTravelRenderer(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick) {
+        ItemStack offhandItem = player.getOffhandItem();
+        ItemStack mainHandItem = player.getMainHandItem();
+
+        boolean lHCatStaffTravel = offhandItem.is(MineraculousItems.CAT_STAFF) && offhandItem.has(MineraculousDataComponents.ACTIVE) && offhandItem.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
+        boolean rHCatStaffTravel = mainHandItem.is(MineraculousItems.CAT_STAFF) && mainHandItem.has(MineraculousDataComponents.ACTIVE) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
+
+        if (lHCatStaffTravel || rHCatStaffTravel) {
+            CatStaffRenderer.renderCatStaffTravel(player, poseStack, bufferSource, light, partialTick);
+        }
+    }
+
+    private static void renderCatStaffPerch(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTicks) {
         PerchCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF);
         float length = perchData.length();
         boolean catStaffPerchRender = perchData.canRender();
@@ -113,7 +137,7 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         poseStack.popPose();
     }
 
-    public static void renderCatStaffTravel(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTicks) {
+    private static void renderCatStaffTravel(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTicks) {
         TravelCatStaffData travelCatStaffData = player.getData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF);
         float length = travelCatStaffData.length();
         BlockPos target = travelCatStaffData.blockPos();

@@ -95,6 +95,9 @@ import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
+import static dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer.triggerPerchRenderer;
+import static dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer.triggerTravelRenderer;
+
 public class MineraculousClientEvents {
     // Setup
     static void onFMLClientSetup(FMLClientSetupEvent event) {
@@ -325,30 +328,6 @@ public class MineraculousClientEvents {
         }
     }
 
-    public static void perchRenderTrigger(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick) {
-        ItemStack leftH = player.getOffhandItem();
-        ItemStack rightH = player.getMainHandItem();
-
-        boolean lHCatStaffPerch = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
-        boolean rHCatStaffPerch = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
-
-        if (lHCatStaffPerch || rHCatStaffPerch) {
-            CatStaffRenderer.renderCatStaffPerch(player, poseStack, bufferSource, light, partialTick);
-        }
-    }
-
-    public static void travelRenderTrigger(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick) {
-        ItemStack leftH = player.getOffhandItem();
-        ItemStack rightH = player.getMainHandItem();
-
-        boolean lHCatStaffTravel = leftH.is(MineraculousItems.CAT_STAFF) && leftH.has(MineraculousDataComponents.ACTIVE) && leftH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
-        boolean rHCatStaffTravel = rightH.is(MineraculousItems.CAT_STAFF) && rightH.has(MineraculousDataComponents.ACTIVE) && rightH.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
-
-        if (lHCatStaffTravel || rHCatStaffTravel) {
-            CatStaffRenderer.renderCatStaffTravel(player, poseStack, bufferSource, light, partialTick);
-        }
-    }
-
     public static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
         Player player = event.getEntity();
         PoseStack poseStack = event.getPoseStack();
@@ -357,8 +336,8 @@ public class MineraculousClientEvents {
         float partialTick = event.getPartialTick();
 
         player.noCulling = true;
-        perchRenderTrigger(player, poseStack, bufferSource, light, partialTick);
-        travelRenderTrigger(player, poseStack, bufferSource, light, partialTick);
+        triggerPerchRenderer(player, poseStack, bufferSource, light, partialTick);
+        triggerTravelRenderer(player, poseStack, bufferSource, light, partialTick);
     }
 
     public static void onRenderLevelStage(RenderLevelStageEvent event) {
@@ -372,8 +351,8 @@ public class MineraculousClientEvents {
 
         if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson()) {
             poseStack.translate(0, -1.6d, 0);
-            perchRenderTrigger(player, poseStack, bufferSource, light, partialTick);
-            travelRenderTrigger(player, poseStack, bufferSource, light, partialTick);
+            triggerPerchRenderer(player, poseStack, bufferSource, light, partialTick);
+            triggerTravelRenderer(player, poseStack, bufferSource, light, partialTick);
         }
     }
 

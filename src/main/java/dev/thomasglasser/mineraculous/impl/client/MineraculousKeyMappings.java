@@ -46,8 +46,8 @@ public class MineraculousKeyMappings {
     public static final ExtendedKeyMapping TOGGLE_ACTIVE = register("toggle_active", InputConstants.KEY_I, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleToggleActive);
     public static final ExtendedKeyMapping OPEN_ITEM_RADIAL_MENU = register("open_item_radial_menu", InputConstants.KEY_R, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleOpenItemRadialMenu);
     public static final ExtendedKeyMapping TAKE_BREAK_ITEM = register("take_break_item", InputConstants.KEY_B, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleTakeBreakItem, MineraculousKeyMappings::handleNoTakeBreakItem);
-    public static final ExtendedKeyMapping WEAPON_DOWN_ARROW = register("weapon_down_arrow", InputConstants.KEY_DOWN, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateWeaponMovements(true));
-    public static final ExtendedKeyMapping WEAPON_UP_ARROW = register("weapon_up_arrow", InputConstants.KEY_UP, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateWeaponMovements(false));
+    public static final ExtendedKeyMapping DESCEND_TOOL = register("descend_tool", InputConstants.KEY_DOWN, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateWeaponMovements(true));
+    public static final ExtendedKeyMapping ASCEND_TOOL = register("ascend_tool", InputConstants.KEY_UP, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateWeaponMovements(false));
 
     public static ExtendedKeyMapping register(String name, int key, String category, Runnable onClick) {
         return ClientUtils.registerKeyMapping(Mineraculous.modLoc(name), key, category, onClick);

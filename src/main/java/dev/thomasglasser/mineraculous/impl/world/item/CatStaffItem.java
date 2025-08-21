@@ -1,8 +1,5 @@
 package dev.thomasglasser.mineraculous.impl.world.item;
 
-import static dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler.clearPerch;
-import static dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelHandler.clearTravel;
-
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
@@ -23,6 +20,7 @@ import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaf
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelHandler;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelCatStaffData;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
@@ -154,8 +152,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        if (!(entity instanceof Player player)) {
-            super.inventoryTick(stack, level, entity, slotId, isSelected);
+        if (!(entity instanceof LivingEntity livingEntity)) {
             return;
         }
 
@@ -164,23 +161,23 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
             return;
         }
 
-        boolean inHand = player.getMainHandItem() == stack || player.getOffhandItem() == stack;
+        boolean inHand = livingEntity.getMainHandItem() == stack || livingEntity.getOffhandItem() == stack;
         Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
         if (ability == null) return;
 
         if (!level.isClientSide && !inHand) {
-            clearPerch(player);
-            clearTravel(player);
+            PerchCatStaffData.remove(livingEntity, true);
+            TravelCatStaffData.remove(livingEntity, true);
             return;
         }
 
         switch (ability) {
-            case PERCH -> new CatStaffPerchHandler().tick(stack, level, player);
-            case TRAVEL -> new CatStaffTravelHandler().tick(stack, level, player);
+            case PERCH -> CatStaffPerchHandler.tick(level, livingEntity);
+            case TRAVEL -> CatStaffTravelHandler.tick(stack, level, livingEntity);
             default -> {
                 if (!level.isClientSide) {
-                    clearPerch(player);
-                    clearTravel(player);
+                    PerchCatStaffData.remove(livingEntity, true);
+                    TravelCatStaffData.remove(livingEntity, true);
                 }
             }
         }
@@ -220,20 +217,20 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
     public void releaseUsing(ItemStack stack, Level level, LivingEntity entityLiving, int timeLeft) {
         Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
-        if (entityLiving instanceof Player player) {
-            if (ability == Ability.THROW) {
-                int i = this.getUseDuration(stack, entityLiving) - timeLeft;
-                if (i >= 10) {
-                    if (!level.isClientSide) {
-                        stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(entityLiving.getUsedItemHand()));
-                        ItemBreakingQuicklyReturningThrownSword thrown = new ThrownCatStaff(level, entityLiving, stack);
-                        thrown.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F, 1.0F);
-                        if (player.hasInfiniteMaterials()) {
-                            thrown.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
-                        }
+        if (ability == Ability.THROW) {
+            int i = this.getUseDuration(stack, entityLiving) - timeLeft;
+            if (i >= 10) {
+                if (!level.isClientSide) {
+                    stack.hurtAndBreak(1, entityLiving, LivingEntity.getSlotForHand(entityLiving.getUsedItemHand()));
+                    ItemBreakingQuicklyReturningThrownSword thrown = new ThrownCatStaff(level, entityLiving, stack);
+                    thrown.shootFromRotation(entityLiving, entityLiving.getXRot(), entityLiving.getYRot(), 0.0F, 2.5F, 1.0F);
+                    if (entityLiving.hasInfiniteMaterials()) {
+                        thrown.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
+                    }
 
-                        level.addFreshEntity(thrown);
-                        level.playSound(null, thrown, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                    level.addFreshEntity(thrown);
+                    level.playSound(null, thrown, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                    if (entityLiving instanceof Player player) {
                         if (!player.hasInfiniteMaterials()) {
                             player.getInventory().removeItem(stack);
                         }
@@ -245,12 +242,15 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                         player.awardStat(Stats.ITEM_USED.get(this));
                     }
                 }
-            } else if (ability == Ability.PERCH) {
-                PerchCatStaffData perchCatStaffData = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF);
-                CatStaffPerchHandler.itemUsed(level, player, perchCatStaffData);
+            }
+        } else if (ability == Ability.PERCH) {
+            PerchCatStaffData perchCatStaffData = entityLiving.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF);
+            CatStaffPerchHandler.itemUsed(level, entityLiving, perchCatStaffData);
+            if (entityLiving instanceof Player player) {
                 player.awardStat(Stats.ITEM_USED.get(this));
             }
         }
+
     }
 
     @Override

@@ -18,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 public record ServerboundUpdateYoyoInputPayload(MineraculousClientUtils.InputState inputState) implements ExtendedPacketPayload {
     public static final Type<ServerboundUpdateYoyoInputPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_update_yoyo_input"));
     public static final StreamCodec<ByteBuf, ServerboundUpdateYoyoInputPayload> CODEC = StreamCodec.composite(
-            MineraculousClientUtils.InputState.CODEC, ServerboundUpdateYoyoInputPayload::inputState,
+            MineraculousClientUtils.InputState.STREAM_CODEC, ServerboundUpdateYoyoInputPayload::inputState,
             ServerboundUpdateYoyoInputPayload::new);
 
     // ON SERVER

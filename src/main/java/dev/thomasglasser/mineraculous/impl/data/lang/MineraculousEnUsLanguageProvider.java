@@ -159,8 +159,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousKeyMappings.TOGGLE_ACTIVE, "De/Activate Item");
         add(MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU, "Open Item Radial Menu");
         add(MineraculousKeyMappings.TAKE_BREAK_ITEM, "Take/Break Item");
-        add(MineraculousKeyMappings.WEAPON_DOWN_ARROW, "Unwind YoYo/Decrease Cat Staff Length");
-        add(MineraculousKeyMappings.WEAPON_UP_ARROW, "Wind YoYo/Increase Cat Staff Length");
+        add(MineraculousKeyMappings.DESCEND_TOOL, "Descend Tool");
+        add(MineraculousKeyMappings.ASCEND_TOOL, "ASCEND_TOOL");
     }
 
     private void addCommands() {

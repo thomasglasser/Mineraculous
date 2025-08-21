@@ -57,7 +57,6 @@ public class AkumatizationPackEnUsLanguageProvider extends EnUsOverrideLanguageP
     private void addGuis() {
         // Kamiko Gui
         add(MineraculousGuis.REVOKE, "Revoke Akumatization");
-        add(MineraculousGuis.REVOKE_WITH_SPACE, "Revoke Akumatization (Press Space)");
         add(Kamiko.CANT_KAMIKOTIZE_TRANSFORMED, "Akumatizing transformed players is not currently supported.");
         add(Kamikotization.NO_KAMIKOTIZATIONS, "No Akumatizations found in world, have you installed any addons?");
 

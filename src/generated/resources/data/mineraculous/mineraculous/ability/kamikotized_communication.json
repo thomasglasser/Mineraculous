@@ -1,5 +1,6 @@
 {
   "type": "mineraculous:spectate_entity",
+  "allow_kamikotization_revocation": true,
   "allow_remote_damage": true,
   "face_mask_texture": "mineraculous:textures/entity/player/face_mask/kamiko.png",
   "private_chat": true,

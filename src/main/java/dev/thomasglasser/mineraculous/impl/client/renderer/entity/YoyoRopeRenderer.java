@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
@@ -21,10 +21,10 @@ public class YoyoRopeRenderer {
 
     private static final int POINTS = 100;
     private static final double CATENARY_CURVE_FACTOR = 2048.0;
-    public static final float RIGHT_SCALE = 0.55f;
-    public static final float UP_SCALE = -0.6f;
+    private static final float RIGHT_SCALE = 0.55f;
+    private static final float UP_SCALE = -0.6f;
 
-    public static void render(LivingEntity entity, Player ropeOwner, double maxLength, PoseStack poseStack, MultiBufferSource bufferSource, float partialTick) {
+    public static void render(Entity entity, Player ropeOwner, double maxLength, PoseStack poseStack, MultiBufferSource bufferSource, float partialTick) {
         Vec3 playerHandPos;
         if (ropeOwner == Minecraft.getInstance().player && Minecraft.getInstance().getEntityRenderDispatcher().options.getCameraType().isFirstPerson()) {
             playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(false, false, partialTick, RIGHT_SCALE, UP_SCALE);
@@ -32,6 +32,9 @@ public class YoyoRopeRenderer {
             playerHandPos = MineraculousClientUtils.getHumanoidEntityHandPos(ropeOwner, false, partialTick, 0.15f, -0.75, 0.35f);
         }
         Vec3 entityPos = entity.getPosition(partialTick);
+        double offset = entity.getBbHeight() / 2;
+        entityPos = entityPos.add(0, offset, 0);
+        poseStack.translate(0, offset, 0);
         renderRope(playerHandPos, entityPos, maxLength, poseStack, bufferSource);
     }
 

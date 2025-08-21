@@ -248,8 +248,8 @@ public class MineraculousClientEvents {
     static void onRegisterGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAboveAll(Mineraculous.modLoc("stealing_progress_bar"), MineraculousGuis::renderStealingProgressBar);
         event.registerAboveAll(Mineraculous.modLoc("revoke_button"), MineraculousGuis::renderRevokeButton);
-        event.registerAboveAll(Mineraculous.modLoc("kamiko_hotbar"), ((guiGraphics, deltaTracker) -> MineraculousGuis.getKamikoGui().renderHotbar(guiGraphics)));
-        event.registerAboveAll(Mineraculous.modLoc("kamiko_tooltip"), ((guiGraphics, deltaTracker) -> MineraculousGuis.getKamikoGui().renderTooltip(guiGraphics)));
+        event.registerAboveAll(Mineraculous.modLoc("kamiko_hotbar"), MineraculousGuis.getKamikoGui()::renderHotbar);
+        event.registerAboveAll(Mineraculous.modLoc("kamiko_tooltip"), MineraculousGuis.getKamikoGui()::renderTooltip);
     }
 
     // Tick
@@ -281,8 +281,12 @@ public class MineraculousClientEvents {
                     MineraculousGuis.getKamikoGui().onHotbarSelected(i);
                 }
             }
+        }
+
+        if (MineraculousGuis.checkRevokeButtonActive()) {
             Button revokeButton = MineraculousGuis.getRevokeButton();
-            if (event.getKey() == GLFW.GLFW_KEY_SPACE && MineraculousClientUtils.hasNoScreenOpen() && revokeButton.active) {
+            int key = event.getKey();
+            if ((key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER) && MineraculousClientUtils.hasNoScreenOpen() && revokeButton.active) {
                 revokeButton.onPress();
             }
         }

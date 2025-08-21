@@ -11,6 +11,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
 public record ServerboundStartKamikotizationDetransformationPayload(Optional<UUID> targetId, KamikotizationData data, boolean instant) implements ExtendedPacketPayload {
@@ -25,9 +26,15 @@ public record ServerboundStartKamikotizationDetransformationPayload(Optional<UUI
     // ON SERVER
     @Override
     public void handle(Player player) {
-        Player target = targetId.map(id -> player.level().getPlayerByUUID(id)).orElse(player);
+        ServerLevel level = (ServerLevel) player.level();
+        LivingEntity target;
+        if (targetId.isPresent()) {
+            target = level.getEntity(targetId.get()) instanceof LivingEntity l ? l : null;
+        } else {
+            target = player;
+        }
         if (target != null) {
-            data.detransform(player, (ServerLevel) player.level(), player.position().add(0, 1, 0), instant);
+            data.detransform(target, level, target.position().add(0, 1, 0), instant);
         }
     }
 

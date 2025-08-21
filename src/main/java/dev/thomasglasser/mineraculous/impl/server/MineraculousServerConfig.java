@@ -18,7 +18,7 @@ public class MineraculousServerConfig {
     public final ModConfigSpec.BooleanValue enableKamikotizationRejection;
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMin;
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMax;
-    public final ModConfigSpec.IntValue maxCatStaffLength;
+    public final ModConfigSpec.IntValue maxToolLength;
 
     // Stealing
     public static final String STEALING = "stealing";
@@ -49,8 +49,8 @@ public class MineraculousServerConfig {
                 .defineInRange("lucky_charm_summon_time_min", 3, 0, Integer.MAX_VALUE);
         luckyCharmSummonTimeMax = builder
                 .defineInRange("lucky_charm_summon_time_max", 6, 0, Integer.MAX_VALUE);
-        maxCatStaffLength = builder
-                .defineInRange("max_cat_staff_length", 64, 32, 128);
+        maxToolLength = builder
+                .defineInRange("max_tool_length", 128, 32, 512);
         builder.pop();
 
         builder.push(STEALING);

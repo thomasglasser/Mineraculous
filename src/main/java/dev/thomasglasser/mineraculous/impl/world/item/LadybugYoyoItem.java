@@ -28,14 +28,12 @@ import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -61,7 +59,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.ItemAbilities;
@@ -177,7 +174,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                     } else if (ability == Ability.BLOCK || ability == Ability.PURIFY) {
                         player.startUsingItem(usedHand);
                     } else if (ability == Ability.LASSO && player.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent()) {
-                        removeLeash(player);
+                        removeHeldLeash(player);
                     } else if (usedHand == InteractionHand.MAIN_HAND || ability != Ability.LASSO) {
                         throwYoyo(stack, player, ability, usedHand);
                         player.getCooldowns().addCooldown(this, 5);
@@ -189,16 +186,31 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         return super.use(level, player, usedHand);
     }
 
-    public static void removeLeash(Entity holder) {
+    public static void removeHeldLeash(Entity holder) {
         holder.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).ifPresent(data -> {
             Entity leashed = holder.level().getEntity(data.leashedId());
-            if (leashed instanceof Leashable leashable) {
-                leashable.dropLeash(true, false);
-                leashed.setData(MineraculousAttachmentTypes.YOYO_LEASH_HOLDER, Optional.empty());
-                TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(leashed.getId(), MineraculousAttachmentTypes.YOYO_LEASH_HOLDER, Optional.<UUID>empty()), leashed.getServer());
+            if (leashed != null) {
+                removeLeash(leashed, holder);
             }
-            LeashingLadybugYoyoData.remove(holder, true);
         });
+    }
+
+    public static void removeLeashFrom(Entity leashed) {
+        if (leashed instanceof Leashable leashable) {
+            Entity holder = leashable.getLeashHolder();
+            if (holder != null) {
+                removeLeash(leashed, holder);
+            }
+        }
+    }
+
+    public static void removeLeash(Entity leashed, Entity holder) {
+        if (leashed instanceof Leashable leashable) {
+            leashable.dropLeash(true, false);
+        }
+        leashed.setData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE, false);
+        TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(leashed.getId(), MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE, false), leashed.getServer());
+        LeashingLadybugYoyoData.remove(holder, true);
     }
 
     @Override
@@ -248,15 +260,10 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
         super.releaseUsing(stack, level, livingEntity, timeCharged);
     }
 
-    @Override
-    public boolean onEntitySwing(ItemStack stack, LivingEntity entity, InteractionHand hand) {
+    public boolean onLeftClick(ItemStack stack, LivingEntity entity) {
         if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
-            if (entity.level() instanceof ServerLevel serverLevel) {
-                boolean shouldThrow = true;
-                if (stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.LASSO)
-                    shouldThrow = false;
-
-                ThrownLadybugYoyoData data = entity.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
+            if (player.level() instanceof ServerLevel serverLevel) {
+                ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
                 if (data.id().isPresent()) {
                     ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(serverLevel);
                     if (thrownYoyo != null) {
@@ -270,9 +277,15 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
                         }
                         recallYoyo(player);
                     }
-                } else if (entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isEmpty()) {
-                    //Added shouldThrow to avoid throwing when interacting with an entity in order to remove the leash, otherwise the entity gets hurt for some reason.
-                    if (shouldThrow) throwYoyo(stack, player, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()) == Ability.PURIFY ? Ability.PURIFY : null, hand);
+                } else if (player.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent()) {
+                    Entity leashed = serverLevel.getEntity(player.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).get().leashedId());
+                    if (leashed != null) {
+                        Vec3 fromLeashedToHolder = new Vec3(player.getX() - leashed.getX(), player.getY() - leashed.getY(), player.getZ() - leashed.getZ());
+                        leashed.setDeltaMovement(fromLeashedToHolder.scale(0.25).add(leashed.getDeltaMovement()));
+                        leashed.hurtMarked = true;
+                    }
+                } else {
+                    throwYoyo(stack, player, stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()) == Ability.PURIFY ? Ability.PURIFY : null, InteractionHand.MAIN_HAND);
                     player.getCooldowns().addCooldown(this, 5);
                 }
             }
@@ -283,12 +296,7 @@ public class LadybugYoyoItem extends Item implements ModeledItem, GeoItem, ICuri
 
     @Override
     public boolean onLeftClickEntity(ItemStack stack, Player player, Entity entity) {
-        return stack.getOrDefault(MineraculousDataComponents.ACTIVE, false);
-    }
-
-    @Override
-    public boolean canAttackBlock(BlockState state, Level level, BlockPos pos, Player player) {
-        return false;
+        return onLeftClick(stack, player);
     }
 
     public void recallYoyo(Player player) {

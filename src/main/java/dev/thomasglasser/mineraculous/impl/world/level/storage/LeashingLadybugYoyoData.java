@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
@@ -19,7 +20,7 @@ public record LeashingLadybugYoyoData(int leashedId, float maxRopeLength) {
 
     public LeashingLadybugYoyoData(int leashedId, float maxRopeLength) {
         this.leashedId = leashedId;
-        this.maxRopeLength = Math.max(maxRopeLength, 1.5F);
+        this.maxRopeLength = ThrownLadybugYoyo.clampMaxRopeLength(maxRopeLength);
     }
 
     public LeashingLadybugYoyoData(int leashedId) {
@@ -27,7 +28,7 @@ public record LeashingLadybugYoyoData(int leashedId, float maxRopeLength) {
     }
 
     public LeashingLadybugYoyoData withMaxRopeLength(float maxRopeLength) {
-        return new LeashingLadybugYoyoData(leashedId, maxRopeLength);
+        return new LeashingLadybugYoyoData(leashedId, ThrownLadybugYoyo.clampMaxRopeLength(maxRopeLength));
     }
 
     public void save(Entity entity, boolean syncToClient) {

@@ -263,8 +263,6 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
     private void addCuriosSlots() {
         addCuriosSlot(MineraculousCuriosProvider.SLOT_BROOCH);
-        addCuriosSlot(MineraculousCuriosProvider.SLOT_POCKET);
-        addCuriosSlot(MineraculousCuriosProvider.SLOT_BACK);
         addCuriosSlot(MineraculousCuriosProvider.SLOT_BELT);
         addCuriosSlot(MineraculousCuriosProvider.SLOT_EARRINGS);
     }

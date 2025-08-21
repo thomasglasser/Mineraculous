@@ -10,9 +10,7 @@ import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousTiers;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
-import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownRabbitUmbrella;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
@@ -35,7 +33,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -76,19 +73,9 @@ public class RabbitUmbrellaItem extends SwordItem implements GeoItem, ModeledIte
     public static final String CONTROLLER_USE = "use_controller";
     public static final String ANIMATION_SHEATHE = "sheathe";
     public static final String ANIMATION_UNSHEATHE = "unsheathe";
-
-    public static final RawAnimation BLADE_IDLE = RawAnimation.begin().thenPlay("misc.blade_idle");
-
-    private static final RawAnimation OPEN = RawAnimation.begin().thenPlay("misc.open");
-    private static final RawAnimation CLOSE = RawAnimation.begin().thenPlay("misc.close");
     private static final RawAnimation SHEATH = RawAnimation.begin().thenPlay("attack.sheathe");
     private static final RawAnimation UNSHEATHE = RawAnimation.begin().thenPlay("attack.unsheathe");
 
-    private static final ItemAttributeModifiers BLADE = ItemAttributeModifiers.builder()
-            .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 15, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-            .add(Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, 0.5, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-            .add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(BASE_ENTITY_INTERACTION_RANGE_ID, 2, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
-            .build();
     private static final ItemAttributeModifiers COVERED = ItemAttributeModifiers.builder()
             .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 8, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
             .build();
@@ -107,8 +94,6 @@ public class RabbitUmbrellaItem extends SwordItem implements GeoItem, ModeledIte
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
             if (stack.has(MineraculousDataComponents.BLOCKING))
                 return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
-            else if (stack.get(MineraculousDataComponents.RABBIT_UMBRELLA_ABILITY) == Ability.BLADE && !state.isCurrentAnimation(UNSHEATHE))
-                return state.setAndContinue(BLADE_IDLE);
             return PlayState.STOP;
         })
                 .triggerableAnim(ANIMATION_SHEATHE, SHEATH)
@@ -153,7 +138,7 @@ public class RabbitUmbrellaItem extends SwordItem implements GeoItem, ModeledIte
         ItemStack stack = player.getItemInHand(hand);
         if (stack.has(MineraculousDataComponents.RABBIT_UMBRELLA_ABILITY.get())) {
             Ability ability = stack.get(MineraculousDataComponents.RABBIT_UMBRELLA_ABILITY.get());
-            if (ability == Ability.BLOCK || ability == Ability.THROW || ability == Ability.BLADE) {
+            if (ability == Ability.BLOCK || ability == Ability.THROW) {
                 player.startUsingItem(hand);
             }
             return InteractionResultHolder.consume(stack);
@@ -172,7 +157,7 @@ public class RabbitUmbrellaItem extends SwordItem implements GeoItem, ModeledIte
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeLeft) {
         if (livingEntity instanceof Player player) {
-            if (stack.get(MineraculousDataComponents.RABBIT_UMBRELLA_ABILITY.get()) == Ability.THROW || stack.get(MineraculousDataComponents.RABBIT_UMBRELLA_ABILITY.get()) == Ability.BLADE) {
+            if (stack.get(MineraculousDataComponents.RABBIT_UMBRELLA_ABILITY.get()) == Ability.THROW) {
                 int i = this.getUseDuration(stack, livingEntity) - timeLeft;
                 if (i >= 10) {
                     if (!level.isClientSide) {
@@ -206,7 +191,7 @@ public class RabbitUmbrellaItem extends SwordItem implements GeoItem, ModeledIte
         if (stack.has(MineraculousDataComponents.BLOCKING))
             return UseAnim.BLOCK;
         Ability ability = stack.get(MineraculousDataComponents.RABBIT_UMBRELLA_ABILITY);
-        if (ability == Ability.BLADE || ability == Ability.THROW)
+        if (ability == Ability.THROW)
             return UseAnim.SPEAR;
         return UseAnim.NONE;
     }
@@ -219,13 +204,6 @@ public class RabbitUmbrellaItem extends SwordItem implements GeoItem, ModeledIte
             case THROW -> itemAbility == ItemAbilities.TRIDENT_THROW;
             case null, default -> false;
         };
-    }
-
-    @Override
-    public ItemAttributeModifiers getDefaultAttributeModifiers(ItemStack stack) {
-        if (stack.get(MineraculousDataComponents.RABBIT_UMBRELLA_ABILITY) == Ability.BLADE)
-            return BLADE;
-        return COVERED;
     }
 
     @Override
@@ -255,46 +233,11 @@ public class RabbitUmbrellaItem extends SwordItem implements GeoItem, ModeledIte
     }
 
     @Override
-    public Ability setOption(ItemStack stack, InteractionHand hand, Player holder, int index) {
-        Ability old = stack.get(MineraculousDataComponents.RABBIT_UMBRELLA_ABILITY);
-        Ability selected = RadialMenuProvider.super.setOption(stack, hand, holder, index);
-        if (holder.level() instanceof ServerLevel level) {
-            UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
-            if (ownerId != null) {
-                Entity owner = level.getEntities().get(ownerId);
-                if (owner != null) {
-                    MiraculousesData miraculousesData = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                    MiraculousData storingData = miraculousesData.get(miraculousesData.getFirstTransformedIn(MiraculousTags.CAN_USE_RABBIT_UMBRELLA));
-                    String anim = null;
-                    if (selected == Ability.BLADE)
-                        anim = ANIMATION_UNSHEATHE;
-                    else if (old == Ability.BLADE)
-                        anim = ANIMATION_SHEATHE;
-                    if (anim != null) {
-                        triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_USE, anim);
-                    }
-                }
-            } else {
-                String anim = null;
-                if (selected == Ability.BLADE)
-                    anim = ANIMATION_UNSHEATHE;
-                else if (old == Ability.BLADE)
-                    anim = ANIMATION_SHEATHE;
-                if (anim != null) {
-                    triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_USE, anim);
-                }
-            }
-        }
-        return selected;
-    }
-
-    @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
         return slotChanged && super.shouldCauseReequipAnimation(oldStack, newStack, true);
     }
 
     public enum Ability implements RadialMenuOption, StringRepresentable {
-        BLADE,
         BLOCK,
         PHONE((stack, player) -> Mineraculous.Dependencies.TOMMYTECH.isLoaded()),
         THROW;

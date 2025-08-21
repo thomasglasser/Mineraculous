@@ -35,8 +35,6 @@ public class MineraculousSoundEvents {
     public static final DeferredHolder<SoundEvent, SoundEvent> LADYBUG_TRANSFORM = register("ladybug", "miraculous", "transform");
     public static final DeferredHolder<SoundEvent, SoundEvent> CAT_TRANSFORM = register("cat", "miraculous", "transform");
     public static final DeferredHolder<SoundEvent, SoundEvent> BUTTERFLY_TRANSFORM = register("butterfly", "miraculous", "transform");
-    public static final DeferredHolder<SoundEvent, SoundEvent> RABBIT_TRANSFORM = register("rabbit", "miraculous", "transform");
-
     // Kamikotization
     public static final DeferredHolder<SoundEvent, SoundEvent> KAMIKOTIZATION_BEGIN = register("kamikotization", "begin");
     public static final DeferredHolder<SoundEvent, SoundEvent> KAMIKOTIZATION_TRANSFORM = register("kamikotization", "transform");

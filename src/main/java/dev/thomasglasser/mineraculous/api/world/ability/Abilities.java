@@ -53,7 +53,7 @@ public class Abilities {
     public static final ResourceKey<Ability> LUCKY_CHARM = create("lucky_charm");
     /// Reverts target and related ability effects when lucky charm in hand.
     public static final ResourceKey<Ability> MIRACULOUS_LADYBUG = create("miraculous_ladybug");
-
+    // Applies Haste Potion Effect for fast digging.
     public static final ResourceKey<Ability> BURROW = create("burrow");
     /// Passively applies {@link MobEffects#LUCK}.
     public static final ResourceKey<Ability> PASSIVE_LUCK = create("passive_luck");

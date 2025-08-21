@@ -37,11 +37,11 @@ public class Miraculouses {
                 MineraculousCuriosProvider.SLOT_POCKET,
                 Optional.empty(),
                 MineraculousItems.RABBIT_UMBRELLA.toStack(),
-                Optional.of("belt"),
+                Optional.of(MineraculousCuriosProvider.SLOT_BELT),
                 abilities.getOrThrow(Abilities.BURROW),
                 HolderSet.direct(
                         abilities.getOrThrow(Abilities.PASSIVE_LUCK)),
-                MineraculousSoundEvents.BUTTERFLY_TRANSFORM,
+                MineraculousSoundEvents.GENERIC_TRANSFORM,
                 MineraculousSoundEvents.GENERIC_DETRANSFORM,
                 MineraculousSoundEvents.GENERIC_TIMER_WARNING,
                 MineraculousSoundEvents.GENERIC_TIMER_END));

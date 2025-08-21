@@ -43,8 +43,6 @@ public class MineraculousCuriosProvider extends CuriosDataProvider {
                 .icon(slotIcon(SLOT_EARRINGS));
         createSlot(SLOT_POCKET)
                 .icon(slotIcon(SLOT_BROOCH));
-        createSlot(SLOT_BACK)
-                .icon(slotIcon(SLOT_BROOCH));
     }
 
     private ResourceLocation slotIcon(String name) {

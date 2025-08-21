@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
+import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.tommylib.api.data.models.ExtendedItemModelProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import net.minecraft.client.renderer.block.model.BlockModel;
@@ -97,6 +98,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.HEAD).translation(0, 6.25f, 0).end()
                 .end();
         ItemModelBuilder inventoryLadybugYoyo = basicInventoryItem(MineraculousItems.LADYBUG_YOYO);
+        ItemModelBuilder activeLadybugYoyo = withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_active"), inHandLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_active")));
         ItemModelBuilder inHandBlockingLadybugYoyo = withEntityModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_blocking_in_hand"))
                 .transforms()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0, -2, 1).scale(0.6f).end()
@@ -125,7 +127,28 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO, inHandLadybugYoyo, inventoryLadybugYoyo)
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)
-                .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_active"), inHandLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_active"))))
+                .model(activeLadybugYoyo)
+                .end()
+                .override()
+                .predicate(MineraculousItemProperties.ACTIVE, 1)
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.PHONE))
+                .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_phone"), inHandLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_phone"))))
+                .end()
+                // TODO: Replace with purify specific texture
+                .override()
+                .predicate(MineraculousItemProperties.ACTIVE, 1)
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.PHONE) + 1)
+                .model(activeLadybugYoyo)
+                .end()
+                .override()
+                .predicate(MineraculousItemProperties.ACTIVE, 1)
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.SPYGLASS))
+                .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_spyglass"), inHandLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_spyglass"))))
+                .end()
+                .override()
+                .predicate(MineraculousItemProperties.ACTIVE, 1)
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.SPYGLASS) + 1)
+                .model(activeLadybugYoyo)
                 .end()
                 .override()
                 .predicate(MineraculousItemProperties.THROWN, 1)

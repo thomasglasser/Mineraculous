@@ -90,7 +90,7 @@ public class MineraculousItemProperties {
                         return yoyo.inGround() ? 2 : 1;
                     }
                 } else if (player.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent()) {
-                    return 1;
+                    return 2;
                 }
             }
             return 0;

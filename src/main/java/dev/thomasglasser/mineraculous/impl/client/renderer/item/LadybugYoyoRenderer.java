@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.client.renderer.item.BlockingDefaulted
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
@@ -16,6 +17,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -25,6 +27,10 @@ import org.joml.AxisAngle4d;
 import org.joml.Quaternionf;
 
 public class LadybugYoyoRenderer extends BlockingDefaultedGeoItemRenderer<LadybugYoyoItem> {
+    public static final ResourceLocation SPYGLASS_SCOPE_LOCATION = Mineraculous.modLoc("textures/misc/ladybug_yoyo_spyglass_scope.png");
+    public static final ResourceLocation SPYGLASS_LOCATION = Mineraculous.modLoc("textures/item/geo/ladybug_yoyo_spyglass.png");
+    public static final ResourceLocation PHONE_LOCATION = Mineraculous.modLoc("textures/item/geo/ladybug_yoyo_phone.png");
+
     // Hand Rendering Constants
     private static final Quaternionf HAND_XP_ROT = Axis.XP.rotationDegrees(-40);
     private static final Quaternionf RIGHT_HAND_YP_ROT = Axis.YP.rotationDegrees(110);
@@ -35,6 +41,20 @@ public class LadybugYoyoRenderer extends BlockingDefaultedGeoItemRenderer<Ladybu
 
     public LadybugYoyoRenderer() {
         super(MineraculousItems.LADYBUG_YOYO.getId());
+    }
+
+    @Override
+    public ResourceLocation getTextureLocation(LadybugYoyoItem animatable) {
+        ItemStack stack = getCurrentItemStack();
+        if (stack != null) {
+            LadybugYoyoItem.Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY);
+            if (ability == LadybugYoyoItem.Ability.PHONE) {
+                return PHONE_LOCATION;
+            } else if (ability == LadybugYoyoItem.Ability.SPYGLASS) {
+                return SPYGLASS_LOCATION;
+            }
+        }
+        return super.getTextureLocation(animatable);
     }
 
     @Override

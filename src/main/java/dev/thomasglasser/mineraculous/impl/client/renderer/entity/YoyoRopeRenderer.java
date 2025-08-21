@@ -25,6 +25,7 @@ public class YoyoRopeRenderer {
     private static final float UP_SCALE = -0.6f;
 
     public static void render(Entity entity, Player ropeOwner, double maxLength, PoseStack poseStack, MultiBufferSource bufferSource, float partialTick) {
+        poseStack.pushPose();
         Vec3 playerHandPos;
         if (ropeOwner == Minecraft.getInstance().player && Minecraft.getInstance().getEntityRenderDispatcher().options.getCameraType().isFirstPerson()) {
             playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(false, false, partialTick, RIGHT_SCALE, UP_SCALE);
@@ -36,6 +37,7 @@ public class YoyoRopeRenderer {
         entityPos = entityPos.add(0, offset, 0);
         poseStack.translate(0, offset, 0);
         renderRope(playerHandPos, entityPos, maxLength, poseStack, bufferSource);
+        poseStack.popPose();
     }
 
     public static void renderRope(Vec3 playerHandPos, Vec3 projectilePos, double maxLength, PoseStack poseStack, MultiBufferSource bufferSource) {

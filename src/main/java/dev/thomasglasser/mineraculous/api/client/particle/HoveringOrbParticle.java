@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.api.client.particle;
 
+import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousParticleRenderTypes;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
@@ -22,7 +23,12 @@ public class HoveringOrbParticle extends TextureSheetParticle {
 
     @Override
     public ParticleRenderType getRenderType() {
-        return ParticleRenderType.PARTICLE_SHEET_TRANSLUCENT;
+        return MineraculousParticleRenderTypes.ADDITIVE_PARTICLE;
+    }
+
+    @Override
+    public int getLightColor(float partialTick) {
+        return 0xF000F0;
     }
 
     public static class Provider implements ParticleProvider<SimpleParticleType> {

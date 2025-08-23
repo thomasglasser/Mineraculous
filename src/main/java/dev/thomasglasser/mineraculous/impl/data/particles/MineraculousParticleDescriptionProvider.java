@@ -13,6 +13,7 @@ public class MineraculousParticleDescriptionProvider extends ParticleDescription
 
     @Override
     protected void addDescriptions() {
+        sprite(MineraculousParticleTypes.STARLIGHT.get(), Mineraculous.modLoc("starlight"));
         sprite(MineraculousParticleTypes.BLACK_ORB.get(), Mineraculous.modLoc("black_orb"));
         sprite(MineraculousParticleTypes.KAMIKOTIZATION.get(), Mineraculous.modLoc("kamikotization"));
         sprite(MineraculousParticleTypes.SUMMONING_LADYBUG.get(), Mineraculous.modLoc("ladybug"));

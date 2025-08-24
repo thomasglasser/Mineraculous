@@ -4,18 +4,13 @@ import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTyp
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.List;
 
 public class MiraculousLadybug extends PathfinderMob {
     private Vec3 target = Vec3.ZERO;
@@ -42,7 +37,7 @@ public class MiraculousLadybug extends PathfinderMob {
         AABB field = new AABB(min.x, min.y, min.z, max.x, max.y, max.z);
         List<Entity> nearby = this.level().getEntities(this, field, (Entity entity) -> !(entity instanceof MiraculousLadybug));
         this.target = this.level().getNearestEntity(nearby, TargetingConditions.DEFAULT, ));
-*/
+        */
         //this.target = new Vec3(117, 78, 305);
         if (target != null) {
             Vec3 diff = target.subtract(this.position());

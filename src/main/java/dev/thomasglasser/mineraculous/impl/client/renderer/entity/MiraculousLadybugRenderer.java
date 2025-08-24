@@ -2,17 +2,10 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 
 import static dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes.ladybugMain;
 import static dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes.ladybugOutline;
-import static net.minecraft.client.renderer.RenderStateShard.CULL;
-import static net.minecraft.client.renderer.RenderStateShard.OVERLAY;
-import static net.minecraft.client.renderer.RenderStateShard.POLYGON_OFFSET_LAYERING;
-import static net.minecraft.client.renderer.RenderStateShard.TRANSLUCENT_TRANSPARENCY;
 
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
-import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderStateShards;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
@@ -21,7 +14,6 @@ import java.util.Random;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

@@ -1,16 +1,16 @@
 package dev.thomasglasser.mineraculous.api.client.renderer;
 
+import static net.minecraft.client.renderer.RenderStateShard.CULL;
+import static net.minecraft.client.renderer.RenderStateShard.OVERLAY;
+import static net.minecraft.client.renderer.RenderStateShard.POLYGON_OFFSET_LAYERING;
+import static net.minecraft.client.renderer.RenderStateShard.TRANSLUCENT_TRANSPARENCY;
+
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
-
-import static net.minecraft.client.renderer.RenderStateShard.CULL;
-import static net.minecraft.client.renderer.RenderStateShard.OVERLAY;
-import static net.minecraft.client.renderer.RenderStateShard.POLYGON_OFFSET_LAYERING;
-import static net.minecraft.client.renderer.RenderStateShard.TRANSLUCENT_TRANSPARENCY;
 
 public class MineraculousRenderTypes {
     private static final ResourceLocation ENTITY_LUCKY_CHARM_TEXTURE = createLuckyCharmTexture("entity");

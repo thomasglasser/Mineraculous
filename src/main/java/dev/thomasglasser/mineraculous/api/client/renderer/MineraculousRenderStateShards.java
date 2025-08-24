@@ -15,6 +15,7 @@ import org.joml.Matrix4f;
 
 public class MineraculousRenderStateShards {
     public static final RenderStateShard.ShaderStateShard RENDERTYPE_GLINT_TRANSLUCENT_LIGHTMAP_SHADER = new RenderStateShard.ShaderStateShard(MineraculousRenderStateShards::getRendertypeGlintTranslucentLightmapShader);
+    public static final RenderStateShard.ShaderStateShard RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_NO_LIGHTMAP_SHADER = new RenderStateShard.ShaderStateShard(MineraculousRenderStateShards::getRendertypeEntityTranslucentEmissiveNoLightmapShader);
 
     public static final RenderStateShard.TexturingStateShard ITEM_LUCKY_CHARM_TEXTURING = new RenderStateShard.TexturingStateShard(
             "item_lucky_charm_texturing", () -> setupLuckyCharmTexturing(4, Mth.PI / 12), RenderSystem::resetTextureMatrix);
@@ -30,10 +31,17 @@ public class MineraculousRenderStateShards {
 
     @Nullable
     private static ShaderInstance rendertypeGlintTranslucentLightmapShader;
+    @Nullable
+    private static ShaderInstance rendertypeEntityTranslucentEmissiveNoLightmapShader;
 
     @Nullable
     public static ShaderInstance getRendertypeGlintTranslucentLightmapShader() {
         return rendertypeGlintTranslucentLightmapShader;
+    }
+
+    @Nullable
+    public static ShaderInstance getRendertypeEntityTranslucentEmissiveNoLightmapShader() {
+        return rendertypeEntityTranslucentEmissiveNoLightmapShader;
     }
 
     private static void setupLuckyCharmTexturing(float scale, float rotate) {
@@ -47,6 +55,9 @@ public class MineraculousRenderStateShards {
             event.registerShader(
                     new ShaderInstance(resourceProvider, Mineraculous.modLoc("rendertype_glint_translucent_lightmap"), DefaultVertexFormat.POSITION_TEX_LIGHTMAP_COLOR),
                     instance -> rendertypeGlintTranslucentLightmapShader = instance);
+            event.registerShader(
+                    new ShaderInstance(resourceProvider, Mineraculous.modLoc("rendertype_entity_translucent_emissive_nolightmap"), DefaultVertexFormat.NEW_ENTITY),
+                    instance -> rendertypeEntityTranslucentEmissiveNoLightmapShader = instance);
         } catch (IOException e) {
             Mineraculous.LOGGER.error("Failed to register shaders", e);
         }

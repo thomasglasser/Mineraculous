@@ -1,10 +1,10 @@
 package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 
+import static dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes.ladybugMain;
+import static dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes.ladybugOutline;
 import static net.minecraft.client.renderer.RenderStateShard.CULL;
-import static net.minecraft.client.renderer.RenderStateShard.LIGHTMAP;
 import static net.minecraft.client.renderer.RenderStateShard.OVERLAY;
 import static net.minecraft.client.renderer.RenderStateShard.POLYGON_OFFSET_LAYERING;
-import static net.minecraft.client.renderer.RenderStateShard.RENDERTYPE_EYES_SHADER;
 import static net.minecraft.client.renderer.RenderStateShard.TRANSLUCENT_TRANSPARENCY;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -12,9 +12,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
+import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderStateShards;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
 import java.util.ArrayList;
+import java.util.Random;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -33,23 +36,16 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
     public MiraculousLadybugRenderer(EntityRendererProvider.Context context) {
         super(context);
-        for (int i = 1; i <= 10; i++) {
-            double r = 0.1 + (Math.random() * (0.3 - 0.1));
-            magicLadybugs.add(new MagicLadybug(
-                    new Vec3(Math.random() * 10.0 - 0.5, Math.random() * 2.0 - 1.0, Math.random() * 2.0 - 1.0),
-                    r, 20));
-        }
     }
 
     private static final ResourceLocation LADYBUG_TEXTURE = Mineraculous.modLoc("textures/particle/ladybug.png");
     private static final ResourceLocation LADYBUG_OUTLINE_TEXTURE = Mineraculous.modLoc("textures/particle/ladybug_glow.png");
+    private static final int LADYBUG_DENSITY = 10;
 
     @Override
-    public void render(MiraculousLadybug entity, float entityYaw, float partialTick, PoseStack poseStack,
-            MultiBufferSource bufferSource, int packedLight) {
+    public void render(MiraculousLadybug entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         Vec3 lookVec = entity.getLookAngle().normalize().scale(-1); // direction to point the swarm
 
-        // quaternion rotation from +X → lookVec
         Vec3 base = new Vec3(1, 0, 0);
         Vec3 axis = base.cross(lookVec).normalize();
         double angle = Math.acos(base.dot(lookVec));
@@ -58,25 +54,28 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
             rotation = new Quaternionf().fromAxisAngleRad(axis.toVector3f(), (float) angle);
         }
 
-        if (magicLadybugs.size() < 200) {
+        int maxLbCount = MineraculousClientConfig.get().magicLadybugsCount.get() * 100;
+
+        if (magicLadybugs.size() < maxLbCount) {
             for (int i = 1; i <= 10; i++) {
-                double r = 0.1 + (Math.random() * (0.3 - 0.1));
-                MagicLadybug it = new MagicLadybug(
-                        new Vec3(Math.random() * 10.0 - 0.5, Math.random(), Math.random()), r, 20);
-
-                double min = Math.min(cometFunction(it.localPos.horizontalDistance()), -cometFunction(it.localPos.horizontalDistance()));
-                double max = Math.max(cometFunction(it.localPos.horizontalDistance()), -cometFunction(it.localPos.horizontalDistance()));
-
-                double randomY = min + (Math.random() * (max - min));
-                double randomZ = min + (Math.random() * (max - min));
-                it.localPos = new Vec3(it.localPos.x, randomY, randomZ);
-                magicLadybugs.add(it);
+                summonMagicLadybug();
             }
         }
 
-        // update local movement (always along +X)
+        if (magicLadybugs.size() > maxLbCount) {
+            magicLadybugs.clear();
+        }
+
+        Random random = new Random();
+
         for (MagicLadybug it : magicLadybugs) {
             it.move(new Vec3(0.1, 0, 0));
+            double shakeStrength = MineraculousClientConfig.get().magicLadybugsShakeStrength.get() / 100f;
+            double dx = 0;
+            double dy = (random.nextDouble() - 0.5) * shakeStrength;
+            double dz = (random.nextDouble() - 0.5) * shakeStrength;
+
+            it.move(new Vec3(dx, dy, dz));
 
             if (it.localPos.y > cometFunction(it.localPos.x))
                 it.localPos = new Vec3(it.localPos.x, cometFunction(it.localPos.x), it.localPos.z);
@@ -89,10 +88,26 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         }
 
         poseStack.translate(-0.5, 0, -0.5);
-        MagicLadybug.render(magicLadybugs, bufferSource, poseStack, rotation);
+        MagicLadybug.render(magicLadybugs, bufferSource, poseStack, rotation, partialTick);
         poseStack.translate(0.5, 0, 0.5);
 
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+    }
+
+    private void summonMagicLadybug() {
+        double size = 0.1 + (Math.random() * (0.3 - 0.1));
+        int maxLbCount = MineraculousClientConfig.get().magicLadybugsCount.get() * 100;
+        int lbLifetime = maxLbCount / LADYBUG_DENSITY;
+        MagicLadybug it = new MagicLadybug(
+                new Vec3(Math.random() * 2 - 0.5, Math.random(), Math.random()), size, lbLifetime);
+
+        double min = Math.min(cometFunction(it.localPos.horizontalDistance()), -cometFunction(it.localPos.horizontalDistance()));
+        double max = Math.max(cometFunction(it.localPos.horizontalDistance()), -cometFunction(it.localPos.horizontalDistance()));
+
+        double randomY = min + (Math.random() * (max - min));
+        double randomZ = min + (Math.random() * (max - min));
+        it.localPos = new Vec3(it.localPos.x, randomY, randomZ);
+        magicLadybugs.add(it);
     }
 
     @Override
@@ -103,6 +118,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
     private class MagicLadybug {
         private Vec3 localPos;   // path-space position
         private Vec3 worldPos;   // rotated each frame
+        private Vec3 prevLocalPos;
         private final double size;
         private double life;
 
@@ -111,17 +127,20 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
         private MagicLadybug(Vec3 pos, double size, double life) {
             this.localPos = pos;
+            this.prevLocalPos = localPos;
             this.worldPos = pos;
             this.size = size;
             this.life = life;
         }
 
         private void move(Vec3 vec) {
+            this.prevLocalPos = this.localPos;
             this.localPos = this.localPos.add(vec);
         }
 
-        private void updateWorldPos(Quaternionf rotation) {
-            Vector3f local = new Vector3f((float) localPos.x, (float) localPos.y, (float) localPos.z);
+        private void updateWorldPos(Quaternionf rotation, float partialTick) {
+            Vec3 lerped = prevLocalPos.lerp(localPos, partialTick);
+            Vector3f local = new Vector3f((float) lerped.x, (float) lerped.y, (float) lerped.z);
             local.rotate(rotation);
             this.worldPos = new Vec3(local.x, local.y, local.z);
         }
@@ -177,10 +196,9 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
             if (life > 0) life--;
         }
 
-        private static void render(ArrayList<MagicLadybug> list, MultiBufferSource multiBufferSource,
-                PoseStack poseStack, Quaternionf rotation) {
+        private static void render(ArrayList<MagicLadybug> list, MultiBufferSource multiBufferSource, PoseStack poseStack, Quaternionf rotation, float partialTick) {
             for (MagicLadybug iterator : list) {
-                iterator.updateWorldPos(rotation);
+                iterator.updateWorldPos(rotation, partialTick);
                 iterator.renderOutline(multiBufferSource, poseStack);
             }
 
@@ -189,46 +207,6 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
             }
             list.removeIf(bug -> bug.life <= 0);
         }
-    }
-
-    //TODO move this
-    public static RenderType ladybugOutline(ResourceLocation texture) {
-        return RenderType.create(
-                "ladybug_outline",
-                DefaultVertexFormat.NEW_ENTITY,
-                VertexFormat.Mode.QUADS,
-                256,
-                true,
-                true,
-                RenderType.CompositeState.builder()
-                        .setShaderState(RENDERTYPE_EYES_SHADER)
-                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                        .setTextureState(new RenderStateShard.TextureStateShard(texture, true, true))
-                        .setCullState(CULL)
-                        .setLightmapState(LIGHTMAP)
-                        .setOverlayState(OVERLAY)
-                        .setLayeringState(POLYGON_OFFSET_LAYERING)
-                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                        .createCompositeState(false));
-    }
-
-    public static RenderType ladybugMain(ResourceLocation texture) {
-        return RenderType.create(
-                "ladybug_main",
-                DefaultVertexFormat.NEW_ENTITY,
-                VertexFormat.Mode.QUADS,
-                256,
-                true,
-                true,
-                RenderType.CompositeState.builder()
-                        .setShaderState(RENDERTYPE_EYES_SHADER)
-                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                        .setTextureState(new RenderStateShard.TextureStateShard(texture, false, true))
-                        .setCullState(CULL)
-                        .setLightmapState(LIGHTMAP)
-                        .setOverlayState(OVERLAY)
-                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                        .createCompositeState(false));
     }
 
     private double cometFunction(double x) {

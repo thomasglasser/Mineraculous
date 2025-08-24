@@ -363,5 +363,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         addConfigSection(MineraculousClientConfig.RADIAL_MENU, "Tool Wheel", "Settings for the tool wheel");
         addConfig(MineraculousClientConfig.get().animationSpeed, "Animation Speed", "The speed at which the tool wheel opens");
+
+        addConfigSection(MineraculousClientConfig.MIRACULOUS_LADYBUG, "Miraculous Ladybug", "Settings for Miraculous Ladybug ability visuals");
+        addConfig(MineraculousClientConfig.get().magicLadybugsCount, "Magic Ladybugs Amount", "Proportional to the maximum amount of ladybugs gathered together.");
+        addConfig(MineraculousClientConfig.get().magicLadybugsShakeStrength, "Shaking Strength", "Magic ladybugs' shaking strength");
     }
 }

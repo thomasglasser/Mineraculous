@@ -60,6 +60,7 @@ public class MineraculousEntityEvents {
     /// Registration
     public static void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
         event.put(MineraculousEntityTypes.KWAMI.get(), Kwami.createAttributes().build());
+        event.put(MineraculousEntityTypes.MIRACULOUS_LADYBUG.get(), MiraculousLadybug.createAttributes().build());
         event.put(MineraculousEntityTypes.KAMIKO.get(), Kamiko.createAttributes().build());
     }
 

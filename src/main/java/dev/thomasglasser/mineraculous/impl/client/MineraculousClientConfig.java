@@ -17,6 +17,11 @@ public class MineraculousClientConfig {
     public static final String RADIAL_MENU = "radial_menu";
     public final ModConfigSpec.IntValue animationSpeed;
 
+    //Miraculous Ladybug
+    public static final String MIRACULOUS_LADYBUG = "miraculous_ladybug";
+    public final ModConfigSpec.IntValue magicLadybugsCount;
+    public final ModConfigSpec.IntValue magicLadybugsShakeStrength;
+
     private final ModConfigSpec configSpec;
 
     public MineraculousClientConfig() {
@@ -38,6 +43,12 @@ public class MineraculousClientConfig {
                 .defineInRange("animation_speed", 10, 1, 20);
         builder.pop();
 
+        builder.push(MIRACULOUS_LADYBUG);
+        magicLadybugsCount = builder
+                .defineInRange("magic_ladybugs_amount", 8, 2, 10);
+        magicLadybugsShakeStrength = builder
+                .defineInRange("magic_ladybugs_shake_strength", 20, 0, 30);
+        builder.pop();
         configSpec = builder.build();
     }
 

@@ -7,6 +7,11 @@ import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
+import static net.minecraft.client.renderer.RenderStateShard.CULL;
+import static net.minecraft.client.renderer.RenderStateShard.OVERLAY;
+import static net.minecraft.client.renderer.RenderStateShard.POLYGON_OFFSET_LAYERING;
+import static net.minecraft.client.renderer.RenderStateShard.TRANSLUCENT_TRANSPARENCY;
+
 public class MineraculousRenderTypes {
     private static final ResourceLocation ENTITY_LUCKY_CHARM_TEXTURE = createLuckyCharmTexture("entity");
 
@@ -91,5 +96,42 @@ public class MineraculousRenderTypes {
 
     private static RenderType createLuckyCharm(String name, RenderStateShard.TexturingStateShard texturingStateShard, boolean offsetZLayering) {
         return createLuckyCharm(Mineraculous.modLoc(name), texturingStateShard, offsetZLayering);
+    }
+
+    public static RenderType ladybugOutline(ResourceLocation texture) {
+        return RenderType.create(
+                "ladybug_outline",
+                DefaultVertexFormat.NEW_ENTITY,
+                VertexFormat.Mode.QUADS,
+                256,
+                true,
+                true,
+                RenderType.CompositeState.builder()
+                        .setShaderState(MineraculousRenderStateShards.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_NO_LIGHTMAP_SHADER)
+                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setTextureState(new RenderStateShard.TextureStateShard(texture, true, true))
+                        .setCullState(CULL)
+                        .setOverlayState(OVERLAY)
+                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+                        .createCompositeState(false));
+    }
+
+    public static RenderType ladybugMain(ResourceLocation texture) {
+        return RenderType.create(
+                "ladybug_main",
+                DefaultVertexFormat.NEW_ENTITY,
+                VertexFormat.Mode.QUADS,
+                256,
+                true,
+                true,
+                RenderType.CompositeState.builder()
+                        .setShaderState(MineraculousRenderStateShards.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_NO_LIGHTMAP_SHADER)
+                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
+                        .setCullState(CULL)
+                        .setOverlayState(OVERLAY)
+                        .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
+                        .setLayeringState(POLYGON_OFFSET_LAYERING)
+                        .createCompositeState(false));
     }
 }

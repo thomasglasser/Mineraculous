@@ -8,6 +8,7 @@ import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.ActiveItem;
+import dev.thomasglasser.mineraculous.api.world.item.LeftClickTrackingItem;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
@@ -73,7 +74,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Ability>, ActiveItem {
+public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Ability>, ActiveItem, LeftClickTrackingItem {
     public static final String CONTROLLER_USE = "use_controller";
     public static final String CONTROLLER_OPEN = "open_controller";
     public static final String ANIMATION_OPEN_OUT = "open_out";
@@ -250,6 +251,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
         super.releaseUsing(stack, level, livingEntity, timeCharged);
     }
 
+    @Override
     public boolean onLeftClick(ItemStack stack, LivingEntity entity) {
         if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
             if (player.level() instanceof ServerLevel serverLevel) {

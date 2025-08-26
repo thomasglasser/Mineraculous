@@ -49,7 +49,7 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundUpdateYoyoLengthPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateYoyoLengthPayload.CODEC),
             new PayloadInfo<>(ServerboundSetFaceMaskTexturePayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetFaceMaskTexturePayload.CODEC),
             new PayloadInfo<>(ServerboundSetSpectationInterruptedPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetSpectationInterruptedPayload.CODEC),
-            new PayloadInfo<>(ServerboundEmptyLeftClickLadybugYoyoPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundEmptyLeftClickLadybugYoyoPayload.CODEC),
+            new PayloadInfo<>(ServerboundEmptyLeftClickItemPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundEmptyLeftClickItemPayload.CODEC),
             new PayloadInfo<>(ServerboundStartKamikotizationDetransformationPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundStartKamikotizationDetransformationPayload.CODEC),
 
             // Clientbound

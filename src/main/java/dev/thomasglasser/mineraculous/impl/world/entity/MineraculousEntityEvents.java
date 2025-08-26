@@ -18,7 +18,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerChoicesPayload;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickLadybugYoyoPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItemPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
@@ -223,10 +223,9 @@ public class MineraculousEntityEvents {
     }
 
     public static void onEmptyLeftClick(PlayerInteractEvent.LeftClickEmpty event) {
-        Player player = event.getEntity();
-        ItemStack mainHandItem = player.getMainHandItem();
-        if (mainHandItem.is(MineraculousItems.LADYBUG_YOYO)) {
-            TommyLibServices.NETWORK.sendToServer(ServerboundEmptyLeftClickLadybugYoyoPayload.INSTANCE);
+        ItemStack mainHandItem = event.getEntity().getMainHandItem();
+        if (!mainHandItem.isEmpty()) {
+            TommyLibServices.NETWORK.sendToServer(ServerboundEmptyLeftClickItemPayload.INSTANCE);
         }
     }
 

@@ -40,8 +40,8 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
     @Override
     public void defaultRender(PoseStack poseStack, CatStaffItem animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
         ItemStack stack = getCurrentItemStack();
-        Integer carrierId = stack.get(MineraculousDataComponents.CARRIER);
-        if (carrierId != null && Minecraft.getInstance().level != null) {
+        int carrierId = stack.get(MineraculousDataComponents.CARRIER);
+        if (Minecraft.getInstance().level != null) {
             Entity carrier = Minecraft.getInstance().level.getEntity(carrierId);
             if (carrier != null) {
                 CatStaffItem.Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
@@ -56,10 +56,10 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
                         if (MineraculousClientUtils.isFirstPerson() &&
                                 MineraculousClientUtils.getCameraEntity() == carrier &&
                                 firstPersonHand) {
-                            poseStack.scale(0.0000001f, 0.0000001f, 0.0000001f);
+                            return;
                         }
 
-                        if (thirdPersonHand) poseStack.scale(0.0000001f, 0.0000001f, 0.0000001f);
+                        if (thirdPersonHand) return;
 
                     }
                 }
@@ -76,7 +76,43 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         boolean rHCatStaffPerch = mainHandItem.is(MineraculousItems.CAT_STAFF) && mainHandItem.has(MineraculousDataComponents.ACTIVE) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
 
         if (lHCatStaffPerch || rHCatStaffPerch) {
-            CatStaffRenderer.renderCatStaffPerch(player, poseStack, bufferSource, light, partialTick);
+            PerchingCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+            float length = perchData.length();
+            boolean catStaffPerchRender = perchData.canRender();
+            poseStack.pushPose();
+            VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(EXTENDED_TEXTURE));
+            PoseStack.Pose pose = poseStack.last();
+
+            //STAFF - PLAYER NEW
+            float bodyAngle = perchData.initPos().y;
+            Vector3f bodyDirectionF = perchData.initPos();
+            double d0, d1, d2;
+            d0 = Mth.lerp(partialTick, player.xo, player.getX());
+            d1 = Mth.lerp(partialTick, player.zo, player.getZ());
+            d2 = Mth.lerp(partialTick, player.yo, player.getY());
+            float bodyY = perchData.isFalling() ? (float) (perchData.yBeforeFalling() - d2) : 0;
+            bodyDirectionF = new Vector3f((float) (bodyDirectionF.x - d0), bodyY, (float) (bodyDirectionF.z - d1));
+            int direction = (int) ((bodyAngle + 45f) % 360) / 90;
+            if (catStaffPerchRender) {
+                float top = player.getBbHeight() + 0.2f + bodyDirectionF.y;
+                float nLength = length + bodyDirectionF.y;
+                if (perchData.isFalling()) {
+                    Vector3f vertical = new Vector3f(0, 1, 0);
+                    Vec3 staffOriginToPlayer = new Vec3(bodyDirectionF.x, nLength, bodyDirectionF.z);
+                    Vector3f rot = staffOriginToPlayer.add(0, 1, 0).normalize().scale(-1).toVector3f();
+                    Quaternionf q = new Quaternionf().rotateTo(vertical, rot);
+                    poseStack.rotateAround(q, bodyDirectionF.x, bodyDirectionF.y + length, bodyDirectionF.z);
+
+                }
+                //SIDES:
+                drawAllStaffSides(vertexConsumer, pose, light, bodyDirectionF.x, bodyDirectionF.z, top, nLength, 1);
+                //UP&DOWN:
+                drawCap(vertexConsumer, pose, light, top, bodyDirectionF.x, bodyDirectionF.z, PIXEL * 12, PIXEL * 12, 1f, 1f);
+                drawCap(vertexConsumer, pose, light, light, bodyDirectionF.x, bodyDirectionF.z, PIXEL * 12, PIXEL * 12, 1f, 1f);
+                //PAW & LINES
+                drawPawAndLines(vertexConsumer, pose, bodyDirectionF, direction, nLength, player.getEyeHeight(Pose.STANDING) + bodyDirectionF.y);
+            }
+            poseStack.popPose();
         }
     }
 
@@ -88,94 +124,50 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         boolean rHCatStaffTravel = mainHandItem.is(MineraculousItems.CAT_STAFF) && mainHandItem.has(MineraculousDataComponents.ACTIVE) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
 
         if (lHCatStaffTravel || rHCatStaffTravel) {
-            CatStaffRenderer.renderCatStaffTravel(player, poseStack, bufferSource, light, partialTick);
-        }
-    }
+            TravelingCatStaffData travelingCatStaffData = player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
+            float length = travelingCatStaffData.length();
+            BlockPos target = travelingCatStaffData.blockPos();
+            poseStack.pushPose();
+            VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(EXTENDED_TEXTURE));
+            PoseStack.Pose pose = poseStack.last();
 
-    private static void renderCatStaffPerch(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTicks) {
-        PerchingCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-        float length = perchData.length();
-        boolean catStaffPerchRender = perchData.canRender();
-        poseStack.pushPose();
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(EXTENDED_TEXTURE));
-        PoseStack.Pose pose = poseStack.last();
-
-        //STAFF - PLAYER NEW
-        float bodyAngle = perchData.initPos().y;
-        Vector3f bodyDirectionF = perchData.initPos();
-        double d0, d1, d2;
-        d0 = Mth.lerp(partialTicks, player.xo, player.getX());
-        d1 = Mth.lerp(partialTicks, player.zo, player.getZ());
-        d2 = Mth.lerp(partialTicks, player.yo, player.getY());
-        float bodyY = perchData.isFalling() ? (float) (perchData.yBeforeFalling() - d2) : 0;
-        bodyDirectionF = new Vector3f((float) (bodyDirectionF.x - d0), bodyY, (float) (bodyDirectionF.z - d1));
-        int direction = (int) ((bodyAngle + 45f) % 360) / 90;
-        if (catStaffPerchRender) {
-            float top = player.getBbHeight() + 0.2f + bodyDirectionF.y;
-            float nLength = length + bodyDirectionF.y;
-            if (perchData.isFalling()) {
+            double d0, d1, d2;
+            d0 = Mth.lerp(partialTick, player.xo, player.getX());
+            d1 = Mth.lerp(partialTick, player.zo, player.getZ());
+            d2 = Mth.lerp(partialTick, player.yo, player.getY());
+            if (travelingCatStaffData.traveling()) {
+                //ROTATE
+                Vec3 staffOriginToPlayer = new Vec3(
+                        target.getX() - d0,
+                        target.getY() - d2,
+                        target.getZ() - d1);
+                Vector3f bodyDirectionF = staffOriginToPlayer.add(0, 1, 0).toVector3f();
                 Vector3f vertical = new Vector3f(0, 1, 0);
-                Vec3 staffOriginToPlayer = new Vec3(bodyDirectionF.x, nLength, bodyDirectionF.z);
                 Vector3f rot = staffOriginToPlayer.add(0, 1, 0).normalize().scale(-1).toVector3f();
                 Quaternionf q = new Quaternionf().rotateTo(vertical, rot);
-                poseStack.rotateAround(q, bodyDirectionF.x, bodyDirectionF.y + length, bodyDirectionF.z);
+                poseStack.rotateAround(q, bodyDirectionF.x, bodyDirectionF.y, bodyDirectionF.z);
 
-            }
-            //SIDES:
-            drawAllStaffSides(vertexConsumer, pose, light, bodyDirectionF.x, bodyDirectionF.z, top, nLength, 1);
-            //UP&DOWN:
-            drawCap(vertexConsumer, pose, light, top, bodyDirectionF.x, bodyDirectionF.z, PIXEL * 12, PIXEL * 12, 1f, 1f);
-            drawCap(vertexConsumer, pose, light, light, bodyDirectionF.x, bodyDirectionF.z, PIXEL * 12, PIXEL * 12, 1f, 1f);
-            //PAW & LINES
-            drawPawAndLines(vertexConsumer, pose, bodyDirectionF, direction, nLength, player.getEyeHeight(Pose.STANDING) + bodyDirectionF.y);
-        }
-        poseStack.popPose();
-    }
-
-    private static void renderCatStaffTravel(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTicks) {
-        TravelingCatStaffData travelingCatStaffData = player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
-        float length = travelingCatStaffData.length();
-        BlockPos target = travelingCatStaffData.blockPos();
-        poseStack.pushPose();
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(EXTENDED_TEXTURE));
-        PoseStack.Pose pose = poseStack.last();
-
-        double d0, d1, d2;
-        d0 = Mth.lerp(partialTicks, player.xo, player.getX());
-        d1 = Mth.lerp(partialTicks, player.zo, player.getZ());
-        d2 = Mth.lerp(partialTicks, player.yo, player.getY());
-        if (travelingCatStaffData.traveling()) {
-            //ROTATE
-            Vec3 staffOriginToPlayer = new Vec3(
-                    target.getX() - d0,
-                    target.getY() - d2,
-                    target.getZ() - d1);
-            Vector3f bodyDirectionF = staffOriginToPlayer.add(0, 1, 0).toVector3f();
-            Vector3f vertical = new Vector3f(0, 1, 0);
-            Vector3f rot = staffOriginToPlayer.add(0, 1, 0).normalize().scale(-1).toVector3f();
-            Quaternionf q = new Quaternionf().rotateTo(vertical, rot);
-            poseStack.rotateAround(q, bodyDirectionF.x, bodyDirectionF.y, bodyDirectionF.z);
-
-            //SIDES
-            boolean didLaunch = travelingCatStaffData.launch();
-            float top = (float) new Vec3(0, target.getY() - d2 + staffOriginToPlayer.length(), 0).length();
-            float bottom = bodyDirectionF.y;
-            if (!didLaunch && length < staffOriginToPlayer.length()) {
-                bottom = (float) new Vec3(0, target.getY() - d2 + staffOriginToPlayer.length() - length, 0).length();
-                if (bottom > top) {
-                    bottom = bodyDirectionF.y;
+                //SIDES
+                boolean didLaunch = travelingCatStaffData.launch();
+                float top = (float) new Vec3(0, target.getY() - d2 + staffOriginToPlayer.length(), 0).length();
+                float bottom = bodyDirectionF.y;
+                if (!didLaunch && length < staffOriginToPlayer.length()) {
+                    bottom = (float) new Vec3(0, target.getY() - d2 + staffOriginToPlayer.length() - length, 0).length();
+                    if (bottom > top) {
+                        bottom = bodyDirectionF.y;
+                    }
                 }
-            }
-            top += player.getBbHeight();
-            drawAllStaffSides(vertexConsumer, pose, light, bodyDirectionF.x, bodyDirectionF.z, top + PIXEL * 2, bottom, 1);
-            //UP&DOWN:
-            drawCap(vertexConsumer, pose, light, top, bodyDirectionF.x, bodyDirectionF.z, PIXEL * 12, PIXEL * 12, 1f, 1f);
-            drawCap(vertexConsumer, pose, light, light, bodyDirectionF.x, bodyDirectionF.z, PIXEL * 12, PIXEL * 12, 1f, 1f);
-            //PAW & LINES:
-            drawPawAndLines(vertexConsumer, pose, bodyDirectionF, (int) ((travelingCatStaffData.initBodAngle() + 45f) % 360) / 90, top, top - 1);
+                top += player.getBbHeight();
+                drawAllStaffSides(vertexConsumer, pose, light, bodyDirectionF.x, bodyDirectionF.z, top + PIXEL * 2, bottom, 1);
+                //UP&DOWN:
+                drawCap(vertexConsumer, pose, light, top, bodyDirectionF.x, bodyDirectionF.z, PIXEL * 12, PIXEL * 12, 1f, 1f);
+                drawCap(vertexConsumer, pose, light, light, bodyDirectionF.x, bodyDirectionF.z, PIXEL * 12, PIXEL * 12, 1f, 1f);
+                //PAW & LINES:
+                drawPawAndLines(vertexConsumer, pose, bodyDirectionF, (int) ((travelingCatStaffData.initBodAngle() + 45f) % 360) / 90, top, top - 1);
 
+            }
+            poseStack.popPose();
         }
-        poseStack.popPose();
     }
 
     private static void drawPawAndLines(VertexConsumer vertexConsumer, PoseStack.Pose pose, Vector3f bodyDirectionF, int direction, float nLength, float eyeY) {

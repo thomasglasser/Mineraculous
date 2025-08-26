@@ -3,8 +3,8 @@ package dev.thomasglasser.mineraculous.impl.world.item.ability;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundCancelCatStaffPerchPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetDeltaMovementPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateStaffInputPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
@@ -19,10 +19,10 @@ import org.joml.Vector4f;
 
 public class CatStaffPerchHandler {
     public static final float PERCH_STAFF_DISTANCE = 7f / 16f;
-    private static final int MAX_TICKS = 30;
+    public static final int MAX_TICKS = 30;
+    public static final double MOVEMENT_THRESHOLD = 0.15d;
+    public static final double MOVEMENT_SCALE = 0.1d;
     private static final int ANIMATION_DELAY = 10; //TODO VALUE TO BE CHANGED WHEN ANIMATIONS ADDED
-    private static final double MOVEMENT_THRESHOLD = 0.15d;
-    private static final double MOVEMENT_SCALE = 0.1d;
 
     public static void tick(Level level, LivingEntity livingEntity) {
         PerchingCatStaffData perchData = livingEntity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
@@ -227,30 +227,8 @@ public class CatStaffPerchHandler {
     }
 
     private static void handleMovementInput(LivingEntity livingEntity, PerchingCatStaffData perchData) {
-        boolean isFalling = perchData.isFalling();
-        Vector3f initPos = perchData.initPos();
-        int tick = perchData.tick();
         MineraculousClientUtils.InputState input = MineraculousClientUtils.captureInput();
-        Vec3 movement = Vec3.ZERO;
-        if (isFalling) {
-            if (input.jump()) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundCancelCatStaffPerchPayload());
-                movement = new Vec3(livingEntity.getDeltaMovement().x, 1.5, livingEntity.getDeltaMovement().z);
-            }
-        } else {
-            Vector3f staffPosition = new Vector3f(initPos.x, 0, initPos.z);
-            if (tick > MAX_TICKS && input.hasInput()) {
-                Vec3 staffPositionRelativeToThePlayer = new Vec3(staffPosition.x - livingEntity.getX(), 0, staffPosition.z - livingEntity.getZ());
-                movement = MineraculousMathUtils.getMovementVector(livingEntity, input.getHorizontalMovementInputs());
-                movement = MineraculousMathUtils.projectOnCircle(staffPositionRelativeToThePlayer, movement);
-                if (movement.length() > MOVEMENT_THRESHOLD)
-                    movement = movement.scale(MOVEMENT_SCALE);
-            }
-        }
-        if (!movement.equals(Vec3.ZERO)) {
-            livingEntity.setDeltaMovement(movement);
-            livingEntity.hurtMarked = true;
-            TommyLibServices.NETWORK.sendToServer(new ServerboundSetDeltaMovementPayload(movement, true));
-        }
+        int packedInput = input.packInputs();
+        TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateStaffInputPayload(packedInput, perchData));
     }
 }

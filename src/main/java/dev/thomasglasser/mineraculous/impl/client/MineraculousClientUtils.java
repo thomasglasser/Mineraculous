@@ -326,7 +326,7 @@ public class MineraculousClientUtils {
     }
 
     public record InputState(boolean front, boolean back, boolean left, boolean right, boolean jump) {
-        int packInputs() {
+        public int packInputs() {
             int bits = 0;
             if (front) bits |= 1 << 0;
             if (back) bits |= 1 << 1;

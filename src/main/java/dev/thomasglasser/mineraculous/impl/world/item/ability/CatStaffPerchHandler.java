@@ -154,8 +154,9 @@ public class CatStaffPerchHandler {
         }
 
         applyCollisionDamage(livingEntity);
+        livingEntity.resetFallDistance();
 
-        if (distance > -length + 1 || staffOrigin.y + 1 > livingEntity.getY()) {
+        if (distance > -length + 1 || staffOrigin.y + 0.2 > livingEntity.getY()) {
             PerchingCatStaffData.remove(livingEntity, true);
         }
     }

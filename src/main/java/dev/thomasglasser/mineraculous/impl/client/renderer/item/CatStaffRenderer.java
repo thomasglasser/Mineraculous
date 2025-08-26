@@ -45,7 +45,6 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
             Entity carrier = Minecraft.getInstance().level.getEntity(carrierId);
             if (carrier != null) {
                 CatStaffItem.Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
-                if (ability == null) return;
                 if (ability == CatStaffItem.Ability.PERCH || ability == CatStaffItem.Ability.TRAVEL) {
                     TravelingCatStaffData travelingCatStaffData = carrier.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
                     PerchingCatStaffData perchingCatStaffData = carrier.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
@@ -94,7 +93,7 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
             bodyDirectionF = new Vector3f((float) (bodyDirectionF.x - d0), bodyY, (float) (bodyDirectionF.z - d1));
             int direction = (int) ((bodyAngle + 45f) % 360) / 90;
             if (catStaffPerchRender) {
-                float top = player.getBbHeight() + 0.2f + bodyDirectionF.y;
+                float top = player.getEyeHeight(Pose.STANDING) + 0.4f + bodyDirectionF.y;
                 float nLength = length + bodyDirectionF.y;
                 if (perchData.isFalling()) {
                     Vector3f vertical = new Vector3f(0, 1, 0);

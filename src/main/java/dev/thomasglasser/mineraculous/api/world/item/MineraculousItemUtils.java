@@ -168,9 +168,15 @@ public class MineraculousItemUtils {
      */
     public static void checkHelicopterSlowFall(ItemStack stack, Entity entity) {
         if (stack.has(MineraculousDataComponents.BLOCKING) && entity.getXRot() <= -75 && entity.getDeltaMovement().y <= 0) {
-            entity.setDeltaMovement(entity.getDeltaMovement().x, -0.1, entity.getDeltaMovement().z);
-            entity.resetFallDistance();
+            applyHelicopterSlowFall(entity);
         }
+    }
+
+    public static void applyHelicopterSlowFall(Entity entity) {
+        entity.hurtMarked = true;
+        double overrideDelta = Math.max(entity.getDeltaMovement().y, -0.1);
+        entity.setDeltaMovement(entity.getDeltaMovement().x, overrideDelta, entity.getDeltaMovement().z);
+        entity.resetFallDistance();
     }
 
     @ApiStatus.Internal

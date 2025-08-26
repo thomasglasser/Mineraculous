@@ -21,6 +21,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandl
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelHandler;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
@@ -114,8 +115,17 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, CONTROLLER_USE, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
-            if (stack != null && stack.has(MineraculousDataComponents.BLOCKING)) {
-                return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
+            if (stack != null) {
+                if (stack.get(MineraculousDataComponents.CARRIER) != null) {
+                    int carrierID = stack.get(MineraculousDataComponents.CARRIER);
+                    Entity entity = ClientUtils.getEntityById(carrierID);
+                    if (entity instanceof LivingEntity livingEntity) {
+                        boolean travelEligible = livingEntity.getUseItem() == stack && !livingEntity.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == Ability.TRAVEL && !livingEntity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling();
+                        if (stack.has(MineraculousDataComponents.BLOCKING) || travelEligible) {
+                            return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
+                        }
+                    }
+                }
             }
             return PlayState.STOP;
         }));
@@ -186,12 +196,11 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         if (!stack.getOrDefault(MineraculousDataComponents.ACTIVE, false))
             return InteractionResultHolder.fail(stack);
         if (stack.has(MineraculousDataComponents.CAT_STAFF_ABILITY)) {
-            Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
-            if (ability == Ability.BLOCK || ability == Ability.THROW || ability == Ability.PERCH)
+            Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
+            if (ability == Ability.BLOCK || ability == Ability.THROW || ability == Ability.PERCH || ability == Ability.TRAVEL)
                 player.startUsingItem(pHand);
-            else if (ability == Ability.TRAVEL) {
+            if (ability == Ability.TRAVEL)
                 CatStaffTravelHandler.init(level, player);
-            }
             return InteractionResultHolder.consume(stack);
         }
         return super.use(level, player, pHand);
@@ -200,7 +209,8 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     @Override
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         super.onUseTick(level, livingEntity, stack, remainingUseDuration);
-        if (stack.has(MineraculousDataComponents.BLOCKING) && remainingUseDuration % 10 == 0) {
+        boolean travelEligible = !livingEntity.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == Ability.TRAVEL && !livingEntity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling() && stack.getUseDuration(livingEntity) - remainingUseDuration > 1;
+        if ((stack.has(MineraculousDataComponents.BLOCKING) || travelEligible) && remainingUseDuration % 10 == 0) {
             livingEntity.playSound(MineraculousSoundEvents.GENERIC_SPIN.get());
         }
     }

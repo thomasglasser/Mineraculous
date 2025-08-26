@@ -2,7 +2,7 @@
   "default_name": "Bugaboo",
   "passive_abilities": [
     "mineraculous:cat_vision",
-    "mineraculous:kamikotized_communication"
+    "mineraculous:kamiko_control"
   ],
   "power_source": {
     "count": 1,

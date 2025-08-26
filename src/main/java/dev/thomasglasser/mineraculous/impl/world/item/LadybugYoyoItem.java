@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.item.ActiveItem;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
@@ -58,6 +59,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -71,7 +73,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Ability> {
+public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Ability>, ActiveItem {
     public static final String CONTROLLER_USE = "use_controller";
     public static final String CONTROLLER_OPEN = "open_controller";
     public static final String ANIMATION_OPEN_OUT = "open_out";
@@ -414,16 +416,18 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
         Ability selected = RadialMenuProvider.super.setOption(stack, hand, holder, index);
         if (holder.level() instanceof ServerLevel level) {
             String anim = null;
-            if (selected == LadybugYoyoItem.Ability.PURIFY)
-                anim = ANIMATION_OPEN_OUT;
-            else if (selected == Ability.PHONE || selected == Ability.SPYGLASS)
+            if (selected == Ability.PHONE || selected == Ability.SPYGLASS) {
                 anim = ANIMATION_OPEN_DOWN;
-            else if (old == Ability.PURIFY)
-                anim = ANIMATION_CLOSE_IN;
-            else if (old == Ability.PHONE || old == Ability.SPYGLASS)
+            } else if (selected == LadybugYoyoItem.Ability.PURIFY) {
+                anim = ANIMATION_OPEN_OUT;
+            } else if (old == Ability.PHONE || old == Ability.SPYGLASS) {
                 anim = ANIMATION_CLOSE_UP;
-            if (anim != null)
+            } else if (old == Ability.PURIFY) {
+                anim = ANIMATION_CLOSE_IN;
+            }
+            if (anim != null) {
                 triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_OPEN, anim);
+            }
         }
         return selected;
     }
@@ -431,6 +435,30 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
         return slotChanged && super.shouldCauseReequipAnimation(oldStack, newStack, true);
+    }
+
+    @Override
+    public void onToggle(ItemStack stack, @Nullable Entity holder, boolean active) {
+        if (holder != null) {
+            Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY);
+            if (ability != null) {
+                String anim = null;
+                if (active) {
+                    switch (ability) {
+                        case PHONE, SPYGLASS -> anim = ANIMATION_OPEN_DOWN;
+                        case PURIFY -> anim = ANIMATION_OPEN_OUT;
+                    }
+                } else {
+                    switch (ability) {
+                        case PHONE, SPYGLASS -> anim = ANIMATION_CLOSE_UP;
+                        case PURIFY -> anim = ANIMATION_CLOSE_IN;
+                    }
+                }
+                if (anim != null) {
+                    triggerAnim(holder, GeoItem.getOrAssignId(stack, (ServerLevel) holder.level()), CONTROLLER_OPEN, anim);
+                }
+            }
+        }
     }
 
     public enum Ability implements RadialMenuOption, StringRepresentable {

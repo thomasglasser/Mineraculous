@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.world.item.ability;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetDeltaMovementPayload;
@@ -12,6 +13,8 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
@@ -36,6 +39,10 @@ public class CatStaffPerchHandler {
                 updateServer(level, livingEntity, perchData);
             }
         }
+
+        if (livingEntity instanceof Player player)
+            if (player.getCooldowns().isOnCooldown(MineraculousItems.CAT_STAFF.get()))
+                livingEntity.resetFallDistance();
     }
 
     public static void itemUsed(Level level, LivingEntity livingEntity, PerchingCatStaffData perchingCatStaffData) {
@@ -156,8 +163,11 @@ public class CatStaffPerchHandler {
         applyCollisionDamage(livingEntity);
         livingEntity.resetFallDistance();
 
-        if (distance > -length + 1 || staffOrigin.y + 0.2 > livingEntity.getY()) {
+        if (distance > -length + 2 || staffOrigin.y + 0.2 > livingEntity.getY()) {
             PerchingCatStaffData.remove(livingEntity, true);
+            if (livingEntity instanceof Player player) {
+                player.getCooldowns().addCooldown(MineraculousItems.CAT_STAFF.get(), 10);
+            }
         }
     }
 

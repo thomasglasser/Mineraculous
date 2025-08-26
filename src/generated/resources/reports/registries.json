@@ -256,13 +256,11 @@
     "mineraculous:ability_effects",
     "mineraculous:inventory_trackers",
     "mineraculous:kamikotization",
-    "mineraculous:leashing_ladybug_yoyo",
+    "mineraculous:lasso_ladybug_yoyo",
     "mineraculous:miraculouses",
     "mineraculous:old_kamikotization",
-    "mineraculous:perching_cat_staff",
     "mineraculous:stored_armor",
     "mineraculous:thrown_ladybug_yoyo",
-    "mineraculous:traveling_cat_staff",
     "mineraculous:yoyo_leash_override"
   ],
   "neoforge:entity_data_serializers": [

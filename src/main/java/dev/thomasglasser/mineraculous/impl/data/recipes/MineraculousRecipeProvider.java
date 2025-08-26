@@ -26,8 +26,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 
-public class MineraculousRecipes extends ExtendedRecipeProvider {
-    public MineraculousRecipes(PackOutput output, CompletableFuture<HolderLookup.Provider> provider) {
+public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
+    public MineraculousRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> provider) {
         super(output, provider);
     }
 

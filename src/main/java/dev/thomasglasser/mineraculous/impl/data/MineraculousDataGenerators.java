@@ -19,7 +19,7 @@ import dev.thomasglasser.mineraculous.impl.data.loot.MineraculousLootTables;
 import dev.thomasglasser.mineraculous.impl.data.models.MineraculousItemModelProvider;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.MineraculousBookProvider;
 import dev.thomasglasser.mineraculous.impl.data.particles.MineraculousParticleDescriptionProvider;
-import dev.thomasglasser.mineraculous.impl.data.recipes.MineraculousRecipes;
+import dev.thomasglasser.mineraculous.impl.data.recipes.MineraculousRecipeProvider;
 import dev.thomasglasser.mineraculous.impl.data.sounds.MineraculousSoundDefinitionsProvider;
 import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousBlockTagsProvider;
 import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousDamageTypeTagsProvider;
@@ -72,7 +72,7 @@ public class MineraculousDataGenerators {
                                 "Bugaboo",
                                 ItemPredicate.Builder.item().build(),
                                 Either.left(Items.DIAMOND_SWORD.getDefaultInstance()),
-                                HolderSet.direct(abilities.getOrThrow(Abilities.CAT_VISION), abilities.getOrThrow(Abilities.KAMIKOTIZED_COMMUNICATION))));
+                                HolderSet.direct(abilities.getOrThrow(Abilities.CAT_VISION), abilities.getOrThrow(Abilities.KAMIKO_CONTROL))));
                 ItemStack stormyTool = Items.DIAMOND.getDefaultInstance();
                 stormyTool.enchant(enchantments.getOrThrow(Enchantments.SHARPNESS), 1);
                 stormyTool.enchant(enchantments.getOrThrow(Enchantments.SMITE), 1);
@@ -90,7 +90,7 @@ public class MineraculousDataGenerators {
         event.createDatapackRegistryObjects(BUILDER);
         DataGenerationUtils.createRegistryDumpReport(event, Mineraculous.MOD_ID);
         event.createProvider(MineraculousLootTables::new);
-        event.createProvider(MineraculousRecipes::new);
+        event.createProvider(MineraculousRecipeProvider::new);
         DataGenerationUtils.createBlockAndItemTags(event, MineraculousBlockTagsProvider::new, MineraculousItemTagsProvider::new);
         DataGenerationUtils.createProvider(event, MineraculousPoiTypeTagsProvider::new);
         DataGenerationUtils.createProvider(event, MineraculousDamageTypeTagsProvider::new);

@@ -21,6 +21,7 @@ import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerC
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItemPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -118,6 +119,12 @@ public class MineraculousEntityEvents {
             if (entity instanceof LivingEntity livingEntity) {
                 entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).tick(livingEntity, level);
                 entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.tick(livingEntity, level));
+
+                if (!livingEntity.getOffhandItem().is(MineraculousItems.CAT_STAFF) &&
+                        !livingEntity.getMainHandItem().is(MineraculousItems.CAT_STAFF) &&
+                        !livingEntity.hasData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF)) {
+                    PerchingCatStaffData.remove(livingEntity, true);
+                }
             }
 
             ItemStack weaponItem = entity.getWeaponItem();

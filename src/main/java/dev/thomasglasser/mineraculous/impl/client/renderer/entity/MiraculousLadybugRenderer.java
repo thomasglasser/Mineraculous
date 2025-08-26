@@ -25,6 +25,7 @@ import org.joml.Vector3f;
 
 public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug> {
     private ArrayList<MagicLadybug> magicLadybugs = new ArrayList<>();
+    private Quaternionf smoothedRotation = new Quaternionf();
 
     public MiraculousLadybugRenderer(EntityRendererProvider.Context context) {
         super(context);
@@ -41,21 +42,26 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         Vec3 base = new Vec3(1, 0, 0);
         Vec3 axis = base.cross(lookVec).normalize();
         double angle = Math.acos(base.dot(lookVec));
-        Quaternionf rotation = new Quaternionf();
+        Quaternionf targetRotation = new Quaternionf();
         if (!axis.equals(Vec3.ZERO)) {
-            rotation = new Quaternionf().fromAxisAngleRad(axis.toVector3f(), (float) angle);
+            targetRotation = new Quaternionf().fromAxisAngleRad(axis.toVector3f(), (float) angle);
         }
 
-        int maxLbCount = MineraculousClientConfig.get().magicLadybugsCount.get() * 100;
+        //Smoothly interpolate instead of snapping
+        float smoothingSpeed = 5.0f;
+        float deltaTime = partialTick * (1.0f / 20.0f); // convert ticks to seconds
+        float t = 1.0f - (float) Math.exp(-smoothingSpeed * deltaTime);
+        smoothedRotation.slerp(targetRotation, t);
 
+        int maxLbCount = MineraculousClientConfig.get().magicLadybugsCount.get() * 100;
         if (magicLadybugs.size() < maxLbCount) {
-            for (int i = 1; i <= 10; i++) {
-                summonMagicLadybug();
+            for (int i = 1; i <= 10 * (1 / entity.length); i++) {
+                summonMagicLadybug(entity);
             }
         }
 
-        if (magicLadybugs.size() > maxLbCount) {
-            magicLadybugs.clear();
+        while (magicLadybugs.size() > maxLbCount) {
+            magicLadybugs.removeFirst();
         }
 
         Random random = new Random();
@@ -80,16 +86,16 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         }
 
         poseStack.translate(-0.5, 0, -0.5);
-        MagicLadybug.render(magicLadybugs, bufferSource, poseStack, rotation, partialTick);
+        MagicLadybug.render(magicLadybugs, bufferSource, poseStack, smoothedRotation, partialTick);
         poseStack.translate(0.5, 0, 0.5);
 
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
-    private void summonMagicLadybug() {
+    private void summonMagicLadybug(MiraculousLadybug entity) {
         double size = 0.1 + (Math.random() * (0.3 - 0.1));
         int maxLbCount = MineraculousClientConfig.get().magicLadybugsCount.get() * 100;
-        int lbLifetime = maxLbCount / LADYBUG_DENSITY;
+        int lbLifetime = (int) ((double) maxLbCount / LADYBUG_DENSITY * entity.length);
         MagicLadybug it = new MagicLadybug(
                 new Vec3(Math.random() * 2 - 0.5, Math.random(), Math.random()), size, lbLifetime);
 

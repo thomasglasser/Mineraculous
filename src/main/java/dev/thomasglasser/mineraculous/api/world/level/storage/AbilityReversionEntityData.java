@@ -70,7 +70,13 @@ public class AbilityReversionEntityData extends SavedData {
     }
 
     public List<UUID> getAndClearTrackedAndRelatedEntities(UUID uuid) {
-        List<UUID> all = new ReferenceArrayList<>(trackedAndRelatedEntities.remove(uuid));
+        List<UUID> all = new ReferenceArrayList<>();
+        List<UUID> removed = trackedAndRelatedEntities.remove(uuid);
+
+        if (removed != null) {
+            all.addAll(removed);
+        }
+
         all.add(uuid);
         setDirty();
         return all;

@@ -1,7 +1,17 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.EntityType;
@@ -13,7 +23,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public class MiraculousLadybug extends PathfinderMob {
-    private Vec3 target = Vec3.ZERO;
+    public double length = 1;
 
     public MiraculousLadybug(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -21,50 +31,51 @@ public class MiraculousLadybug extends PathfinderMob {
         this.noCulling = true;
     }
 
-    public void setTarget(Vec3 target) {
-        this.target = new Vec3(target.x, target.y, target.z);
-    }
-
-    public Vec3 getPosTarget() {
-        return this.target;
-    }
-
     @Override
     public void tick() {
         super.tick();
-        /*Vec3 min = this.getPosition(0).add(-64, -64, -64);
-        Vec3 max = this.getPosition(0).add(64, 64, 64);
-        AABB field = new AABB(min.x, min.y, min.z, max.x, max.y, max.z);
-        List<Entity> nearby = this.level().getEntities(this, field, (Entity entity) -> !(entity instanceof MiraculousLadybug));
-        this.target = this.level().getNearestEntity(nearby, TargetingConditions.DEFAULT, ));
-        */
-        //this.target = new Vec3(117, 78, 305);
-        if (target != null) {
-            Vec3 diff = target.subtract(this.position());
-            if (diff.lengthSqr() > 0.01) {
-                Vec3 dir = diff.normalize().scale(0.5);
-
-                // move toward target
-                this.setDeltaMovement(dir);
-
-                double dx = dir.x;
-                double dy = dir.y;
-                double dz = dir.z;
-
-                this.lookAt(EntityAnchorArgument.Anchor.EYES, this.target);
-            }
-        }
-
+        MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
         Level level = this.level();
-        if (level.isClientSide) {
-            Vec3 look = this.getLookAngle().scale(-2);
+        if ((targetData.blockTargets() == null || targetData.blockTargets().isEmpty())
+                && targetData.currentTarget().isEmpty()) {
+            this.discard();
+            return;
+        }
+        List<BlockPos> blockTargets = new ArrayList<>(targetData.blockTargets());
+        Vec3 target = targetData.currentTarget().orElse(null);
+        Vec3 lookAngle = this.getLookAngle().normalize();
+        if (target != null) {
+            this.lookAt(EntityAnchorArgument.Anchor.EYES, target);
+        }
+        if (level().isClientSide) {
             for (int i = 1; i <= 3; i++)
                 level.addParticle(
                         MineraculousParticleTypes.STARLIGHT.get(),
-                        this.getX() + look.x + Math.random() * 5 - 2.5,
-                        this.getY() + look.y + Math.random() * 5 - 2.5,
-                        this.getZ() + look.z + Math.random() * 5 - 2.5,
+                        this.getX() + lookAngle.x + Math.random() * 5 - 2.5,
+                        this.getY() + lookAngle.y + Math.random() * 5 - 2.5,
+                        this.getZ() + lookAngle.z + Math.random() * 5 - 2.5,
                         0, 0, 0);
+            if (target != null) {
+                double distance = target.distanceTo(this.position());
+                this.length = distance < 20 ? 2 / distance : 1;
+            }
+        } else {
+            if (target == null && !blockTargets.isEmpty()) {
+                Vec3 nextTarget = blockTargets.remove(0).getCenter();
+                targetData = new MiraculousLadybugTargetData(Optional.of(nextTarget), blockTargets);
+                targetData.save(this, true);
+            } else if (target != null) {
+                Vec3 diff = target.subtract(this.position());
+                double distance = diff.length();
+                if (distance > 3) {
+                    this.setDeltaMovement(diff.normalize());
+                    this.hurtMarked = true;
+                }
+                if (distance < 4) {
+                    targetData = new MiraculousLadybugTargetData(Optional.empty(), blockTargets);
+                    targetData.save(this, true);
+                }
+            }
         }
     }
 
@@ -82,19 +93,10 @@ public class MiraculousLadybug extends PathfinderMob {
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag compound) {
-        double x = compound.getDouble("TargetX");
-        double y = compound.getDouble("TargetY");
-        double z = compound.getDouble("TargetZ");
-        setTarget(new Vec3(x, y, z));
-    }
+    public void readAdditionalSaveData(CompoundTag compound) {}
 
     @Override
-    public void addAdditionalSaveData(CompoundTag compound) {
-        compound.putDouble("TargetX", getPosTarget().x);
-        compound.putDouble("TargetY", getPosTarget().y);
-        compound.putDouble("TargetZ", getPosTarget().z);
-    }
+    public void addAdditionalSaveData(CompoundTag compound) {}
 
     @Override
     public boolean isPickable() {
@@ -109,5 +111,42 @@ public class MiraculousLadybug extends PathfinderMob {
     @Override
     public boolean isAttackable() {
         return false;
+    }
+
+    public static List<BlockPos> reduceNearbyBlocks(List<BlockPos> positions) {
+        List<BlockPos> result = new ArrayList<>();
+        Set<BlockPos> unvisited = new HashSet<>(positions);
+
+        while (!unvisited.isEmpty()) {
+            BlockPos start = unvisited.iterator().next();
+            result.add(start);
+
+            Queue<BlockPos> queue = new LinkedList<>();
+            queue.add(start);
+            unvisited.remove(start);
+
+            while (!queue.isEmpty()) {
+                BlockPos current = queue.poll();
+                for (int dx = -1; dx <= 1; dx++) {
+                    for (int dy = -1; dy <= 1; dy++) {
+                        for (int dz = -1; dz <= 1; dz++) {
+                            if (dx != 0 || dy != 0 || dz != 0) {
+                                BlockPos neighbor = new BlockPos(
+                                        current.getX() + dx,
+                                        current.getY() + dy,
+                                        current.getZ() + dz);
+
+                                if (unvisited.contains(neighbor)) {
+                                    queue.add(neighbor);
+                                    unvisited.remove(neighbor);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 }

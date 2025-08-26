@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.impl.world.item.ability;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
@@ -18,8 +18,8 @@ import org.joml.Vector3f;
 public class CatStaffTravelHandler {
     public static void tick(ItemStack stack, Level level, LivingEntity livingEntity) {
         if (!level.isClientSide) {
-            TravelCatStaffData travelCatStaffData = livingEntity.getData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF);
-            behaviour(stack, livingEntity, travelCatStaffData);
+            TravelingCatStaffData travelingCatStaffData = livingEntity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
+            behaviour(stack, livingEntity, travelingCatStaffData);
         }
 
         if (livingEntity instanceof Player player)
@@ -30,8 +30,8 @@ public class CatStaffTravelHandler {
     public static void init(Level level, LivingEntity livingEntity) {
         if (level.isClientSide) return;
 
-        TravelCatStaffData travelCatStaffData = livingEntity.getData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF);
-        if (travelCatStaffData.traveling()) return;
+        TravelingCatStaffData travelingCatStaffData = livingEntity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
+        if (travelingCatStaffData.traveling()) return;
 
         Vec3 lookAngle = livingEntity.getLookAngle().normalize();
         BlockHitResult result = level.clip(new ClipContext(
@@ -41,7 +41,7 @@ public class CatStaffTravelHandler {
                 ClipContext.Block.OUTLINE,
                 ClipContext.Fluid.ANY,
                 livingEntity));
-        BlockPos hitPos = travelCatStaffData.blockPos();
+        BlockPos hitPos = travelingCatStaffData.blockPos();
 
         float length = 0;
         boolean traveling;
@@ -53,17 +53,16 @@ public class CatStaffTravelHandler {
         double initRot = ((livingEntity.getYRot() % 360) + 360) % 360;
 
         //SAVE DATA
-        TravelCatStaffData newTravelData = new TravelCatStaffData(
+        TravelingCatStaffData newTravelData = new TravelingCatStaffData(
                 length, hitPos, traveling,
                 lookAngle.toVector3f(),
                 (float) livingEntity.getY(),
                 (float) initRot,
-                travelCatStaffData.launch());
-        livingEntity.setData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF, newTravelData);
+                travelingCatStaffData.launch());
         newTravelData.save(livingEntity, true);
     }
 
-    private static void behaviour(ItemStack stack, LivingEntity livingEntity, TravelCatStaffData travelData) {
+    private static void behaviour(ItemStack stack, LivingEntity livingEntity, TravelingCatStaffData travelData) {
         if (!travelData.traveling()) return;
 
         float length = travelData.length();
@@ -85,9 +84,9 @@ public class CatStaffTravelHandler {
         }
 
         if (didLaunch && livingEntity.getDeltaMovement().y < 0.5) {
-            TravelCatStaffData.remove(livingEntity, true);
+            TravelingCatStaffData.remove(livingEntity, true);
         } else {
-            TravelCatStaffData newTravelData = new TravelCatStaffData(
+            TravelingCatStaffData newTravelData = new TravelingCatStaffData(
                     length, targetPos, true,
                     travelData.initialLookingAngle(),
                     travelData.y(),
@@ -109,15 +108,15 @@ public class CatStaffTravelHandler {
             float damage = (float) (lostSpeed * 10.0 - 3.0);
 
             if (damage > 0.0F) {
-                TravelCatStaffData.remove(entity, true);
+                TravelingCatStaffData.remove(entity, true);
                 entity.hurt(entity.damageSources().flyIntoWall(), damage);
             }
         }
-        if (entity.verticalCollision || entity.verticalCollisionBelow) TravelCatStaffData.remove(entity, true);
+        if (entity.verticalCollision || entity.verticalCollisionBelow) TravelingCatStaffData.remove(entity, true);
     }
 
-    private static void launchLivingEntity(ItemStack stack, LivingEntity livingEntity, TravelCatStaffData travelCatStaffData) {
-        livingEntity.setDeltaMovement(new Vec3(travelCatStaffData.initialLookingAngle()).normalize().scale(4));
+    private static void launchLivingEntity(ItemStack stack, LivingEntity livingEntity, TravelingCatStaffData travelingCatStaffData) {
+        livingEntity.setDeltaMovement(new Vec3(travelingCatStaffData.initialLookingAngle()).normalize().scale(4));
         livingEntity.hurtMarked = true;
         if (livingEntity instanceof Player player)
             player.getCooldowns().addCooldown(stack.getItem(), 40);

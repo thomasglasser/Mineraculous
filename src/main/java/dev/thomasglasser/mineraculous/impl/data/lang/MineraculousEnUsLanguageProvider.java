@@ -160,7 +160,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU, "Open Item Radial Menu");
         add(MineraculousKeyMappings.TAKE_BREAK_ITEM, "Take/Break Item");
         add(MineraculousKeyMappings.DESCEND_TOOL, "Descend Tool");
-        add(MineraculousKeyMappings.ASCEND_TOOL, "ASCEND_TOOL");
+        add(MineraculousKeyMappings.ASCEND_TOOL, "Ascend Tool");
     }
 
     private void addCommands() {

@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -16,7 +16,7 @@ public record ServerboundCancelCatStaffPerchPayload() implements ExtendedPacketP
 
     @Override
     public void handle(Player player) {
-        PerchCatStaffData.remove(player, true);
+        PerchingCatStaffData.remove(player, true);
     }
 
     @Override

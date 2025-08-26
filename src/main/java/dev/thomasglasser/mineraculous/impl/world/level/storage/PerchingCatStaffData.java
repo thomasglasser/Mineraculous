@@ -1,9 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
-import static dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler.PERCH_STAFF_DISTANCE;
-
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.impl.network.ClientboundCatStaffPerchPayload;
+import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler;
+import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
@@ -15,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-public record PerchCatStaffData(
+public record PerchingCatStaffData(
         float length,
         float yGroundLevel,
         boolean perching,
@@ -26,32 +25,32 @@ public record PerchCatStaffData(
         float yBeforeFalling,
         Vector3f initialFallDirection) {
 
-    public static final StreamCodec<ByteBuf, PerchCatStaffData> STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
-            ByteBufCodecs.FLOAT, PerchCatStaffData::length,
-            ByteBufCodecs.FLOAT, PerchCatStaffData::yGroundLevel,
-            ByteBufCodecs.BOOL, PerchCatStaffData::perching,
-            ByteBufCodecs.INT, PerchCatStaffData::tick,
-            ByteBufCodecs.BOOL, PerchCatStaffData::canRender,
-            ByteBufCodecs.VECTOR3F, PerchCatStaffData::initPos, //y stores rotation
-            ByteBufCodecs.BOOL, PerchCatStaffData::isFalling,
-            ByteBufCodecs.FLOAT, PerchCatStaffData::yBeforeFalling,
-            ByteBufCodecs.VECTOR3F, PerchCatStaffData::initialFallDirection,
-            PerchCatStaffData::new);
-    public PerchCatStaffData() {
+    public static final StreamCodec<ByteBuf, PerchingCatStaffData> STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
+            ByteBufCodecs.FLOAT, PerchingCatStaffData::length,
+            ByteBufCodecs.FLOAT, PerchingCatStaffData::yGroundLevel,
+            ByteBufCodecs.BOOL, PerchingCatStaffData::perching,
+            ByteBufCodecs.INT, PerchingCatStaffData::tick,
+            ByteBufCodecs.BOOL, PerchingCatStaffData::canRender,
+            ByteBufCodecs.VECTOR3F, PerchingCatStaffData::initPos, //y stores rotation
+            ByteBufCodecs.BOOL, PerchingCatStaffData::isFalling,
+            ByteBufCodecs.FLOAT, PerchingCatStaffData::yBeforeFalling,
+            ByteBufCodecs.VECTOR3F, PerchingCatStaffData::initialFallDirection,
+            PerchingCatStaffData::new);
+    public PerchingCatStaffData() {
         this(0f, 0, false, 0, false, new Vector3f(0f, 0f, 0f), false, 0f, new Vector3f(0f, 0f, 0f));
     }
 
     public void save(Entity entity, boolean syncToClient) {
-        entity.setData(MineraculousAttachmentTypes.PERCH_CAT_STAFF, this);
+        entity.setData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF, this);
         if (syncToClient)
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundCatStaffPerchPayload(entity.getId(), this), entity.getServer());
+            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.PERCHING_CAT_STAFF, this), entity.getServer());
     }
 
     public static void remove(Entity entity, boolean syncToClient) {
-        PerchCatStaffData data = new PerchCatStaffData();
-        entity.setData(MineraculousAttachmentTypes.PERCH_CAT_STAFF, data);
+        PerchingCatStaffData data = new PerchingCatStaffData();
+        entity.setData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF, data);
         if (syncToClient)
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundCatStaffPerchPayload(entity.getId(), data), entity.getServer());
+            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.PERCHING_CAT_STAFF, data), entity.getServer());
     }
 
     public static Vector4f initialize(Entity entity) {
@@ -66,7 +65,7 @@ public record PerchCatStaffData(
             Vec3 direction = new Vec3(sin, 0, cos);
             Vec3 playerPos = new Vec3(player.getX(), 0, player.getZ());
             direction = direction.normalize();
-            direction = direction.scale(PERCH_STAFF_DISTANCE);
+            direction = direction.scale(CatStaffPerchHandler.PERCH_STAFF_DISTANCE);
             direction = direction.add(playerPos);
             return new Vector4f((float) direction.x, (float) direction.y, (float) direction.z, initRot);
         }

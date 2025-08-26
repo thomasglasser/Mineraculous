@@ -7,7 +7,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundCancelCatStaffPerc
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetDeltaMovementPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
@@ -25,7 +25,7 @@ public class CatStaffPerchHandler {
     private static final double MOVEMENT_SCALE = 0.1d;
 
     public static void tick(Level level, LivingEntity livingEntity) {
-        PerchCatStaffData perchData = livingEntity.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF);
+        PerchingCatStaffData perchData = livingEntity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
         constrainMovement(livingEntity, perchData);
 
         if (perchData.perching()) {
@@ -38,26 +38,26 @@ public class CatStaffPerchHandler {
         }
     }
 
-    public static void itemUsed(Level level, LivingEntity livingEntity, PerchCatStaffData perchCatStaffData) {
+    public static void itemUsed(Level level, LivingEntity livingEntity, PerchingCatStaffData perchingCatStaffData) {
         if (!level.isClientSide) {
-            boolean perching = perchCatStaffData.perching();
+            boolean perching = perchingCatStaffData.perching();
             if (perching) {
-                Vector3f initPos = perchCatStaffData.initPos();
-                float groundRY = perchCatStaffData.yGroundLevel();
-                float length = perchCatStaffData.length();
-                boolean falling = perchCatStaffData.isFalling();
-                int t = perchCatStaffData.tick();
-                boolean nRender = perchCatStaffData.canRender();
-                float yBeforeFalling = perchCatStaffData.yBeforeFalling();
+                Vector3f initPos = perchingCatStaffData.initPos();
+                float groundRY = perchingCatStaffData.yGroundLevel();
+                float length = perchingCatStaffData.length();
+                boolean falling = perchingCatStaffData.isFalling();
+                int t = perchingCatStaffData.tick();
+                boolean nRender = perchingCatStaffData.canRender();
+                float yBeforeFalling = perchingCatStaffData.yBeforeFalling();
                 if (groundRY == length && t >= MAX_TICKS && !falling) {
                     double yawRad = Math.toRadians(livingEntity.getYRot());
                     Vector3f lookAngle = new Vec3(-Math.sin(yawRad), 0, Math.cos(yawRad)).normalize().toVector3f();
-                    PerchCatStaffData newPerchData = new PerchCatStaffData(length, groundRY, perching, t, nRender, initPos, true, yBeforeFalling, lookAngle);
-                    livingEntity.setData(MineraculousAttachmentTypes.PERCH_CAT_STAFF, newPerchData);
+                    PerchingCatStaffData newPerchData = new PerchingCatStaffData(length, groundRY, perching, t, nRender, initPos, true, yBeforeFalling, lookAngle);
+                    livingEntity.setData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF, newPerchData);
                     newPerchData.save(livingEntity, true);
                 }
             } else {
-                Vector4f init = PerchCatStaffData.initialize(livingEntity);
+                Vector4f init = PerchingCatStaffData.initialize(livingEntity);
                 Vec3 direction = new Vec3(init.x, init.y, init.z);
                 float initRot = init.w;
                 Vector3f initPos = new Vector3f((float) direction.x, initRot, (float) direction.z);
@@ -65,7 +65,7 @@ public class CatStaffPerchHandler {
                 boolean isFalling = false;
                 perching = true;
 
-                PerchCatStaffData newPerchData = new PerchCatStaffData(
+                PerchingCatStaffData newPerchData = new PerchingCatStaffData(
                         length, 0, perching, 0, false,
                         initPos, isFalling, 0, new Vector3f(0, 0, 0));
                 newPerchData.save(livingEntity, true);
@@ -73,7 +73,7 @@ public class CatStaffPerchHandler {
         }
     }
 
-    private static void constrainMovement(LivingEntity livingEntity, PerchCatStaffData perchData) {
+    private static void constrainMovement(LivingEntity livingEntity, PerchingCatStaffData perchData) {
         boolean isFalling = perchData.isFalling();
         Vector3f initPos = perchData.initPos();
 
@@ -98,7 +98,7 @@ public class CatStaffPerchHandler {
         }
     }
 
-    private static void updateServer(Level level, LivingEntity livingEntity, PerchCatStaffData perchData) {
+    private static void updateServer(Level level, LivingEntity livingEntity, PerchingCatStaffData perchData) {
         boolean isFalling = perchData.isFalling();
         boolean perching = perchData.perching();
         float length = perchData.length();
@@ -117,7 +117,7 @@ public class CatStaffPerchHandler {
 
             length = adjustLength(catStaffPerchGroundRY, length);
 
-            PerchCatStaffData newPerchData = new PerchCatStaffData(
+            PerchingCatStaffData newPerchData = new PerchingCatStaffData(
                     length, catStaffPerchGroundRY, perching, t, shouldRender,
                     initPos, isFalling, yBeforeFalling, perchData.initialFallDirection());
             newPerchData.save(livingEntity, true);
@@ -132,7 +132,7 @@ public class CatStaffPerchHandler {
         livingEntity.hurtMarked = true;
     }
 
-    private static void perchFallingBehaviour(LivingEntity livingEntity, PerchCatStaffData perchData) {
+    private static void perchFallingBehaviour(LivingEntity livingEntity, PerchingCatStaffData perchData) {
         Vector3f initPos = perchData.initPos();
         float yBeforeFalling = perchData.yBeforeFalling();
         float length = perchData.length();
@@ -156,7 +156,7 @@ public class CatStaffPerchHandler {
         applyCollisionDamage(livingEntity);
 
         if (distance > -length + 1 || staffOrigin.y + 1 > livingEntity.getY()) {
-            PerchCatStaffData.remove(livingEntity, true);
+            PerchingCatStaffData.remove(livingEntity, true);
         }
     }
 
@@ -172,7 +172,7 @@ public class CatStaffPerchHandler {
             float damage = (float) (lostSpeed * 10.0 - 3.0);
 
             if (damage > 0.0F) {
-                PerchCatStaffData.remove(entity, true);
+                PerchingCatStaffData.remove(entity, true);
                 entity.hurt(entity.damageSources().flyIntoWall(), damage);
             }
         }
@@ -199,7 +199,7 @@ public class CatStaffPerchHandler {
         return length;
     }
 
-    private static void handleVerticalMovement(LivingEntity livingEntity, PerchCatStaffData perchData) {
+    private static void handleVerticalMovement(LivingEntity livingEntity, PerchingCatStaffData perchData) {
         boolean isFalling = perchData.isFalling();
         float groundRYClient = perchData.yGroundLevel();
         float length = perchData.length();
@@ -226,7 +226,7 @@ public class CatStaffPerchHandler {
         }
     }
 
-    private static void handleMovementInput(LivingEntity livingEntity, PerchCatStaffData perchData) {
+    private static void handleMovementInput(LivingEntity livingEntity, PerchingCatStaffData perchData) {
         boolean isFalling = perchData.isFalling();
         Vector3f initPos = perchData.initPos();
         int tick = perchData.tick();
@@ -241,7 +241,7 @@ public class CatStaffPerchHandler {
             Vector3f staffPosition = new Vector3f(initPos.x, 0, initPos.z);
             if (tick > MAX_TICKS && input.hasInput()) {
                 Vec3 staffPositionRelativeToThePlayer = new Vec3(staffPosition.x - livingEntity.getX(), 0, staffPosition.z - livingEntity.getZ());
-                movement = MineraculousMathUtils.getMovementVector(livingEntity, input.getMovementBools());
+                movement = MineraculousMathUtils.getMovementVector(livingEntity, input.getHorizontalMovementInputs());
                 movement = MineraculousMathUtils.projectOnCircle(staffPositionRelativeToThePlayer, movement);
                 if (movement.length() > MOVEMENT_THRESHOLD)
                     movement = movement.scale(MOVEMENT_SCALE);

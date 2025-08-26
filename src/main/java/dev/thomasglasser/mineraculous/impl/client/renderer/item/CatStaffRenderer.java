@@ -8,8 +8,8 @@ import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchCatStaffData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.renderer.item.GlowingDefaultedGeoItemRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -47,9 +47,9 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
                 CatStaffItem.Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
                 if (ability == null) return;
                 if (ability == CatStaffItem.Ability.PERCH || ability == CatStaffItem.Ability.TRAVEL) {
-                    TravelCatStaffData travelCatStaffData = carrier.getData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF);
-                    PerchCatStaffData perchCatStaffData = carrier.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF);
-                    if (travelCatStaffData.traveling() || perchCatStaffData.perching()) {
+                    TravelingCatStaffData travelingCatStaffData = carrier.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
+                    PerchingCatStaffData perchingCatStaffData = carrier.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+                    if (travelingCatStaffData.traveling() || perchingCatStaffData.perching()) {
                         boolean firstPersonHand = this.renderPerspective == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
                         boolean thirdPersonHand = this.renderPerspective == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
 
@@ -68,7 +68,7 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         super.defaultRender(poseStack, animatable, bufferSource, renderType, buffer, yaw, partialTick, packedLight);
     }
 
-    public static void triggerPerchRenderer(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick) {
+    public static void renderPerch(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick) {
         ItemStack offhandItem = player.getOffhandItem();
         ItemStack mainHandItem = player.getMainHandItem();
 
@@ -80,7 +80,7 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         }
     }
 
-    public static void triggerTravelRenderer(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick) {
+    public static void renderTravel(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick) {
         ItemStack offhandItem = player.getOffhandItem();
         ItemStack mainHandItem = player.getMainHandItem();
 
@@ -93,7 +93,7 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
     }
 
     private static void renderCatStaffPerch(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTicks) {
-        PerchCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF);
+        PerchingCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
         float length = perchData.length();
         boolean catStaffPerchRender = perchData.canRender();
         poseStack.pushPose();
@@ -133,9 +133,9 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
     }
 
     private static void renderCatStaffTravel(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTicks) {
-        TravelCatStaffData travelCatStaffData = player.getData(MineraculousAttachmentTypes.TRAVEL_CAT_STAFF);
-        float length = travelCatStaffData.length();
-        BlockPos target = travelCatStaffData.blockPos();
+        TravelingCatStaffData travelingCatStaffData = player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
+        float length = travelingCatStaffData.length();
+        BlockPos target = travelingCatStaffData.blockPos();
         poseStack.pushPose();
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(EXTENDED_TEXTURE));
         PoseStack.Pose pose = poseStack.last();
@@ -144,13 +144,12 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         d0 = Mth.lerp(partialTicks, player.xo, player.getX());
         d1 = Mth.lerp(partialTicks, player.zo, player.getZ());
         d2 = Mth.lerp(partialTicks, player.yo, player.getY());
-        if (travelCatStaffData.traveling()) {
+        if (travelingCatStaffData.traveling()) {
             //ROTATE
             Vec3 staffOriginToPlayer = new Vec3(
                     target.getX() - d0,
                     target.getY() - d2,
-                    target.getZ() - d1
-            );
+                    target.getZ() - d1);
             Vector3f bodyDirectionF = staffOriginToPlayer.add(0, 1, 0).toVector3f();
             Vector3f vertical = new Vector3f(0, 1, 0);
             Vector3f rot = staffOriginToPlayer.add(0, 1, 0).normalize().scale(-1).toVector3f();
@@ -158,7 +157,7 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
             poseStack.rotateAround(q, bodyDirectionF.x, bodyDirectionF.y, bodyDirectionF.z);
 
             //SIDES
-            boolean didLaunch = travelCatStaffData.launch();
+            boolean didLaunch = travelingCatStaffData.launch();
             float top = (float) new Vec3(0, target.getY() - d2 + staffOriginToPlayer.length(), 0).length();
             float bottom = bodyDirectionF.y;
             if (!didLaunch && length < staffOriginToPlayer.length()) {
@@ -173,7 +172,7 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
             drawCap(vertexConsumer, pose, light, top, bodyDirectionF.x, bodyDirectionF.z, PIXEL * 12, PIXEL * 12, 1f, 1f);
             drawCap(vertexConsumer, pose, light, light, bodyDirectionF.x, bodyDirectionF.z, PIXEL * 12, PIXEL * 12, 1f, 1f);
             //PAW & LINES:
-            drawPawAndLines(vertexConsumer, pose, bodyDirectionF, (int) ((travelCatStaffData.initBodAngle() + 45f) % 360) / 90, top, top - 1);
+            drawPawAndLines(vertexConsumer, pose, bodyDirectionF, (int) ((travelingCatStaffData.initBodAngle() + 45f) % 360) / 90, top, top - 1);
 
         }
         poseStack.popPose();

@@ -1,8 +1,5 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
-import static dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer.triggerPerchRenderer;
-import static dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer.triggerTravelRenderer;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.KamikotizationParticle;
@@ -35,6 +32,7 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownLadybugY
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.FaceMaskLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.LegacyDevTeamLayer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSwingOffhandPayload;
@@ -54,9 +52,9 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.FlyStraightTowardsParticle;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -289,8 +287,8 @@ public class MineraculousClientEvents {
 
         MineraculousClientUtils.InputState input = MineraculousClientUtils.captureInput();
         if (thrownYoyo != null && input.hasInput()) {
-            int inputInt = input.packInputs();
-            TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoInputPayload(inputInt));
+            int packedInput = input.packInputs();
+            TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoInputPayload(packedInput));
         }
     }
 
@@ -361,8 +359,8 @@ public class MineraculousClientEvents {
         float partialTick = event.getPartialTick();
 
         player.noCulling = true;
-        triggerPerchRenderer(player, poseStack, bufferSource, light, partialTick);
-        triggerTravelRenderer(player, poseStack, bufferSource, light, partialTick);
+        CatStaffRenderer.renderPerch(player, poseStack, bufferSource, light, partialTick);
+        CatStaffRenderer.renderTravel(player, poseStack, bufferSource, light, partialTick);
     }
 
     public static void onRenderLevelStage(RenderLevelStageEvent event) {
@@ -376,8 +374,8 @@ public class MineraculousClientEvents {
 
         if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson()) {
             poseStack.translate(0, -1.6d, 0);
-            triggerPerchRenderer(player, poseStack, bufferSource, light, partialTick);
-            triggerTravelRenderer(player, poseStack, bufferSource, light, partialTick);
+            CatStaffRenderer.renderPerch(player, poseStack, bufferSource, light, partialTick);
+            CatStaffRenderer.renderTravel(player, poseStack, bufferSource, light, partialTick);
         }
     }
 

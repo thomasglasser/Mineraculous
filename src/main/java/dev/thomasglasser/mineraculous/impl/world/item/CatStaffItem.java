@@ -14,14 +14,13 @@ import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.item.component.ActiveSettings;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelHandler;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchCatStaffData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
@@ -165,8 +164,8 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         if (ability == null) return;
 
         if (!level.isClientSide && !inHand) {
-            PerchCatStaffData.remove(livingEntity, true);
-            TravelCatStaffData.remove(livingEntity, true);
+            PerchingCatStaffData.remove(livingEntity, true);
+            TravelingCatStaffData.remove(livingEntity, true);
             return;
         }
 
@@ -175,8 +174,8 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
             case TRAVEL -> CatStaffTravelHandler.tick(stack, level, livingEntity);
             default -> {
                 if (!level.isClientSide) {
-                    PerchCatStaffData.remove(livingEntity, true);
-                    TravelCatStaffData.remove(livingEntity, true);
+                    PerchingCatStaffData.remove(livingEntity, true);
+                    TravelingCatStaffData.remove(livingEntity, true);
                 }
             }
         }
@@ -240,8 +239,8 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                 }
             }
         } else if (ability == Ability.PERCH) {
-            PerchCatStaffData perchCatStaffData = entityLiving.getData(MineraculousAttachmentTypes.PERCH_CAT_STAFF);
-            CatStaffPerchHandler.itemUsed(level, entityLiving, perchCatStaffData);
+            PerchingCatStaffData perchingCatStaffData = entityLiving.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+            CatStaffPerchHandler.itemUsed(level, entityLiving, perchingCatStaffData);
             if (entityLiving instanceof Player player) {
                 player.awardStat(Stats.ITEM_USED.get(this));
             }

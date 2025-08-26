@@ -340,8 +340,8 @@ public class MineraculousClientUtils {
             return front || back || left || right || jump;
         }
 
-        public Boolean[] getMovementBools() {
-            return new Boolean[] { front, back, left, right };
+        public boolean[] getHorizontalMovementInputs() {
+            return new boolean[] { front, back, left, right };
         }
     }
 

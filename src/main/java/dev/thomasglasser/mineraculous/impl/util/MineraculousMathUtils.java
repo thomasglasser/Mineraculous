@@ -15,7 +15,7 @@ public class MineraculousMathUtils {
         return t;
     }
 
-    public static Vec3 getMovementVector(LivingEntity livingEntity, Boolean... inputs) {
+    public static Vec3 getMovementVector(LivingEntity livingEntity, boolean... inputs) {
         boolean front = inputs[0];
         boolean back = inputs[1];
         boolean left = inputs[2];

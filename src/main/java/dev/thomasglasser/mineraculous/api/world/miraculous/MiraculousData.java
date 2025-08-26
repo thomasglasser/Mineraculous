@@ -265,7 +265,6 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
             } else {
                 finishTransformation(entity, level, miraculous);
                 entity.getArmorSlots().forEach(stack -> stack.remove(MineraculousDataComponents.TRANSFORMATION_FRAMES));
-                clearTransformationFrames().save(miraculous, entity, true);
             }
         }).ifRight(detransformationFrames -> {
             if (detransformationFrames > 0) {
@@ -377,7 +376,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         }
         int id = createAndEquipTool(entity, level, miraculous);
         if (id > -1) {
-            withToolId(id).save(miraculous, entity, true);
+            finishTransformation(id).save(miraculous, entity, true);
         } else {
             Mineraculous.LOGGER.error("Tool could not be created for entity {}", entity.getName().plainCopy().getString());
         }
@@ -436,6 +435,10 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         return new MiraculousData(curiosData, true, Optional.of(Either.left(transformationFrames)), Optional.empty(), toolId, powerLevel, false, false, storedEntities);
     }
 
+    private MiraculousData finishTransformation(int toolId) {
+        return new MiraculousData(curiosData, true, Optional.empty(), Optional.empty(), toolId, powerLevel, false, false, storedEntities);
+    }
+
     private MiraculousData startDetransformation(int detransformationFrames) {
         return new MiraculousData(curiosData, false, Optional.of(Either.right(detransformationFrames)), Optional.of(0), toolId, powerLevel, false, false, storedEntities);
     }
@@ -460,16 +463,8 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         return new MiraculousData(curiosData, transformed, transformationFrames.map(either -> either.mapRight(frames -> frames - 1)), remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
     }
 
-    private MiraculousData clearTransformationFrames() {
-        return new MiraculousData(curiosData, transformed, Optional.empty(), remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
-    }
-
     private MiraculousData usedMainPower(boolean consume) {
         return new MiraculousData(curiosData, transformed, transformationFrames, remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND)), toolId, powerLevel, !consume && powerActive, consume, storedEntities);
-    }
-
-    private MiraculousData withToolId(int toolId) {
-        return new MiraculousData(curiosData, transformed, transformationFrames, remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
     }
 
     public MiraculousData equip(CuriosData curiosData) {

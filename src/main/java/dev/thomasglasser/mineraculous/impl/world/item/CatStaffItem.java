@@ -150,39 +150,34 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
 
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        if (!(entity instanceof LivingEntity livingEntity)) {
-            return;
-        }
-
-        boolean isActive = stack.getOrDefault(MineraculousDataComponents.ACTIVE, false);
-        if (!isActive) {
-            return;
-        }
-
-        boolean inHand = livingEntity.getMainHandItem() == stack || livingEntity.getOffhandItem() == stack;
-        Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
-        if (ability == null) return;
-
-        if (!level.isClientSide && !inHand) {
-            PerchingCatStaffData.remove(livingEntity, true);
-            TravelingCatStaffData.remove(livingEntity, true);
-            return;
-        }
-
-        switch (ability) {
-            case PERCH -> CatStaffPerchHandler.tick(level, livingEntity);
-            case TRAVEL -> CatStaffTravelHandler.tick(stack, level, livingEntity);
-            default -> {
-                if (!level.isClientSide) {
-                    PerchingCatStaffData.remove(livingEntity, true);
-                    TravelingCatStaffData.remove(livingEntity, true);
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
+        if (entity instanceof LivingEntity livingEntity) {
+            boolean isActive = stack.getOrDefault(MineraculousDataComponents.ACTIVE, false);
+            if (isActive) {
+                boolean inHand = livingEntity.getMainHandItem() == stack || livingEntity.getOffhandItem() == stack;
+                Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
+                if (ability != null) {
+                    if (inHand) {
+                        switch (ability) {
+                            case PERCH -> CatStaffPerchHandler.tick(level, livingEntity);
+                            case TRAVEL -> CatStaffTravelHandler.tick(stack, level, livingEntity);
+                            default -> {
+                                if (!level.isClientSide) {
+                                    PerchingCatStaffData.remove(livingEntity, true);
+                                    TravelingCatStaffData.remove(livingEntity, true);
+                                }
+                            }
+                        }
+                        MineraculousItemUtils.checkHelicopterSlowFall(stack, entity);
+                    } else {
+                        if (!level.isClientSide) {
+                            PerchingCatStaffData.remove(livingEntity, true);
+                            TravelingCatStaffData.remove(livingEntity, true);
+                        }
+                    }
                 }
             }
         }
-
-        MineraculousItemUtils.checkHelicopterSlowFall(stack, entity);
-
-        super.inventoryTick(stack, level, entity, slotId, isSelected);
     }
 
     @Override

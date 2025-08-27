@@ -54,28 +54,34 @@ public record ServerboundUpdateStaffInputPayload(int input, PerchingCatStaffData
     @Override
     public void handle(Player player) {
         boolean isFalling = perchData.isFalling();
-        Vector3f initPos = perchData.initPos();
-        int tick = perchData.tick();
-        Vec3 movement = Vec3.ZERO;
-        if (isFalling) {
-            if (jump()) {
-                PerchingCatStaffData.remove(player, true);
-                movement = new Vec3(player.getDeltaMovement().x, 1.5, player.getDeltaMovement().z);
-            }
-        } else {
-            Vector3f staffPosition = new Vector3f(initPos.x, 0, initPos.z);
-            if (tick > CatStaffPerchHandler.MAX_TICKS && hasInput()) {
-                Vec3 staffPositionRelativeToThePlayer = new Vec3(staffPosition.x - player.getX(), 0, staffPosition.z - player.getZ());
-                movement = MineraculousMathUtils.getMovementVector(player, up(), down(), left(), right());
-                movement = MineraculousMathUtils.projectOnCircle(staffPositionRelativeToThePlayer, movement);
-                if (movement.length() > CatStaffPerchHandler.MOVEMENT_THRESHOLD)
-                    movement = movement.scale(CatStaffPerchHandler.MOVEMENT_SCALE);
-            }
-        }
-        if (!movement.equals(Vec3.ZERO)) {
-            player.setDeltaMovement(movement);
+        boolean fastDescending = perchData.fastDescending();
+        if (fastDescending) {
             player.hurtMarked = true;
-            player.resetFallDistance();
+            player.setDeltaMovement(0, player.getDeltaMovement().y, 0);
+        } else {
+            Vector3f initPos = perchData.initPos();
+            int tick = perchData.tick();
+            Vec3 movement = Vec3.ZERO;
+            if (isFalling) {
+                if (jump()) {
+                    PerchingCatStaffData.remove(player, true);
+                    movement = new Vec3(player.getDeltaMovement().x, 1.5, player.getDeltaMovement().z);
+                }
+            } else {
+                Vector3f staffPosition = new Vector3f(initPos.x, 0, initPos.z);
+                if (tick > CatStaffPerchHandler.MAX_TICKS && hasInput()) {
+                    Vec3 staffPositionRelativeToThePlayer = new Vec3(staffPosition.x - player.getX(), 0, staffPosition.z - player.getZ());
+                    movement = MineraculousMathUtils.getMovementVector(player, up(), down(), left(), right());
+                    movement = MineraculousMathUtils.projectOnCircle(staffPositionRelativeToThePlayer, movement);
+                    if (movement.length() > CatStaffPerchHandler.MOVEMENT_THRESHOLD)
+                        movement = movement.scale(CatStaffPerchHandler.MOVEMENT_SCALE);
+                }
+            }
+            if (!movement.equals(Vec3.ZERO)) {
+                player.setDeltaMovement(movement);
+                player.hurtMarked = true;
+                player.resetFallDistance();
+            }
         }
     }
 

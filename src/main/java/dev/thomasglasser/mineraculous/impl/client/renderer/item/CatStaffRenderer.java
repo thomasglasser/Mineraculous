@@ -40,26 +40,28 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
     @Override
     public void defaultRender(PoseStack poseStack, CatStaffItem animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
         ItemStack stack = getCurrentItemStack();
-        int carrierId = stack.get(MineraculousDataComponents.CARRIER);
-        if (Minecraft.getInstance().level != null) {
-            Entity carrier = Minecraft.getInstance().level.getEntity(carrierId);
-            if (carrier != null) {
-                CatStaffItem.Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
-                if (ability == CatStaffItem.Ability.PERCH || ability == CatStaffItem.Ability.TRAVEL) {
-                    TravelingCatStaffData travelingCatStaffData = carrier.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
-                    PerchingCatStaffData perchingCatStaffData = carrier.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-                    if (travelingCatStaffData.traveling() || perchingCatStaffData.perching()) {
-                        boolean firstPersonHand = this.renderPerspective == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
-                        boolean thirdPersonHand = this.renderPerspective == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
+        if (stack.get(MineraculousDataComponents.CARRIER) != null) {
+            int carrierId = stack.get(MineraculousDataComponents.CARRIER);
+            if (Minecraft.getInstance().level != null) {
+                Entity carrier = Minecraft.getInstance().level.getEntity(carrierId);
+                if (carrier != null) {
+                    CatStaffItem.Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
+                    if (ability == CatStaffItem.Ability.PERCH || ability == CatStaffItem.Ability.TRAVEL) {
+                        TravelingCatStaffData travelingCatStaffData = carrier.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
+                        PerchingCatStaffData perchingCatStaffData = carrier.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+                        if (travelingCatStaffData.traveling() || perchingCatStaffData.perching()) {
+                            boolean firstPersonHand = this.renderPerspective == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
+                            boolean thirdPersonHand = this.renderPerspective == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
 
-                        if (MineraculousClientUtils.isFirstPerson() &&
-                                MineraculousClientUtils.getCameraEntity() == carrier &&
-                                firstPersonHand) {
-                            return;
+                            if (MineraculousClientUtils.isFirstPerson() &&
+                                    MineraculousClientUtils.getCameraEntity() == carrier &&
+                                    firstPersonHand) {
+                                return;
+                            }
+
+                            if (thirdPersonHand) return;
+
                         }
-
-                        if (thirdPersonHand) return;
-
                     }
                 }
             }
@@ -67,51 +69,64 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         super.defaultRender(poseStack, animatable, bufferSource, renderType, buffer, yaw, partialTick, packedLight);
     }
 
-    public static void renderPerch(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick) {
-        ItemStack offhandItem = player.getOffhandItem();
-        ItemStack mainHandItem = player.getMainHandItem();
+    public static class PerchRenderer {
+        private float oLength;
+        private float smoothedLength;
 
-        boolean lHCatStaffPerch = offhandItem.is(MineraculousItems.CAT_STAFF) && offhandItem.has(MineraculousDataComponents.ACTIVE) && offhandItem.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
-        boolean rHCatStaffPerch = mainHandItem.is(MineraculousItems.CAT_STAFF) && mainHandItem.has(MineraculousDataComponents.ACTIVE) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
-
-        if (lHCatStaffPerch || rHCatStaffPerch) {
+        public void tick(Player player) {
             PerchingCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-            float length = perchData.length();
-            boolean catStaffPerchRender = perchData.canRender();
-            poseStack.pushPose();
-            VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(EXTENDED_TEXTURE));
-            PoseStack.Pose pose = poseStack.last();
+            smoothedLength += (perchData.length() - smoothedLength) * 0.6f;
+            oLength = smoothedLength;
+        }
 
-            //STAFF - PLAYER NEW
-            float bodyAngle = perchData.initPos().y;
-            Vector3f bodyDirectionF = perchData.initPos();
-            double d0, d1, d2;
-            d0 = Mth.lerp(partialTick, player.xo, player.getX());
-            d1 = Mth.lerp(partialTick, player.zo, player.getZ());
-            d2 = Mth.lerp(partialTick, player.yo, player.getY());
-            float bodyY = perchData.isFalling() ? (float) (perchData.yBeforeFalling() - d2) : 0;
-            bodyDirectionF = new Vector3f((float) (bodyDirectionF.x - d0), bodyY, (float) (bodyDirectionF.z - d1));
-            int direction = (int) ((bodyAngle + 45f) % 360) / 90;
-            if (catStaffPerchRender) {
-                float top = player.getEyeHeight(Pose.STANDING) + 0.4f + bodyDirectionF.y;
-                float nLength = length + bodyDirectionF.y;
-                if (perchData.isFalling()) {
-                    Vector3f vertical = new Vector3f(0, 1, 0);
-                    Vec3 staffOriginToPlayer = new Vec3(bodyDirectionF.x, nLength, bodyDirectionF.z);
-                    Vector3f rot = staffOriginToPlayer.add(0, 1, 0).normalize().scale(-1).toVector3f();
-                    Quaternionf q = new Quaternionf().rotateTo(vertical, rot);
-                    poseStack.rotateAround(q, bodyDirectionF.x, bodyDirectionF.y + length, bodyDirectionF.z);
+        public void renderPerch(Player player, PoseStack poseStack, MultiBufferSource bufferSource, int light, float partialTick) {
+            ItemStack offhandItem = player.getOffhandItem();
+            ItemStack mainHandItem = player.getMainHandItem();
 
+            boolean lHCatStaffPerch = offhandItem.is(MineraculousItems.CAT_STAFF) && offhandItem.has(MineraculousDataComponents.ACTIVE) && offhandItem.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+            boolean rHCatStaffPerch = mainHandItem.is(MineraculousItems.CAT_STAFF) && mainHandItem.has(MineraculousDataComponents.ACTIVE) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+
+            if (lHCatStaffPerch || rHCatStaffPerch) {
+                PerchingCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+                float length = Mth.lerp(partialTick, oLength, smoothedLength);
+                boolean catStaffPerchRender = perchData.canRender();
+                poseStack.pushPose();
+                VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(EXTENDED_TEXTURE));
+                PoseStack.Pose pose = poseStack.last();
+
+                //STAFF - PLAYER NEW
+                float bodyAngle = perchData.initPos().y;
+                Vector3f bodyDirectionF = perchData.initPos();
+                double d0, d1, d2;
+                d0 = Mth.lerp(partialTick, player.xo, player.getX());
+                d1 = Mth.lerp(partialTick, player.zo, player.getZ());
+                d2 = Mth.lerp(partialTick, player.yo, player.getY());
+                float bodyY = perchData.isFalling() ? (float) (perchData.yBeforeFalling() - d2) : 0;
+                bodyDirectionF = new Vector3f((float) (bodyDirectionF.x - d0), bodyY, (float) (bodyDirectionF.z - d1));
+                int direction = (int) ((bodyAngle + 45f) % 360) / 90;
+                if (catStaffPerchRender) {
+                    float top = player.getEyeHeight(Pose.STANDING) + 0.4f + bodyDirectionF.y;
+                    float nLength = length + bodyDirectionF.y;
+                    if (perchData.isFalling()) {
+                        Vector3f vertical = new Vector3f(0, 1, 0);
+                        Vec3 staffOriginToPlayer = new Vec3(bodyDirectionF.x, nLength, bodyDirectionF.z);
+                        Vector3f rot = staffOriginToPlayer.add(0, 1, 0).normalize().scale(-1).toVector3f();
+                        Quaternionf q = new Quaternionf().rotateTo(vertical, rot);
+                        poseStack.rotateAround(q, bodyDirectionF.x, bodyDirectionF.y + length, bodyDirectionF.z);
+
+                    }
+                    //SIDES:
+                    drawAllStaffSides(vertexConsumer, pose, light, bodyDirectionF.x, bodyDirectionF.z, top, nLength, 1);
+                    //UP&DOWN:
+                    drawCap(vertexConsumer, pose, light, top, bodyDirectionF.x, bodyDirectionF.z, PIXEL * 12, PIXEL * 12, 1f, 1f);
+                    drawCap(vertexConsumer, pose, light, light, bodyDirectionF.x, bodyDirectionF.z, PIXEL * 12, PIXEL * 12, 1f, 1f);
+                    //PAW & LINES
+                    drawPawAndLines(vertexConsumer, pose, bodyDirectionF, direction, nLength, player.getEyeHeight(Pose.STANDING) + bodyDirectionF.y);
+
+                    //oLength = perchData.length();
                 }
-                //SIDES:
-                drawAllStaffSides(vertexConsumer, pose, light, bodyDirectionF.x, bodyDirectionF.z, top, nLength, 1);
-                //UP&DOWN:
-                drawCap(vertexConsumer, pose, light, top, bodyDirectionF.x, bodyDirectionF.z, PIXEL * 12, PIXEL * 12, 1f, 1f);
-                drawCap(vertexConsumer, pose, light, light, bodyDirectionF.x, bodyDirectionF.z, PIXEL * 12, PIXEL * 12, 1f, 1f);
-                //PAW & LINES
-                drawPawAndLines(vertexConsumer, pose, bodyDirectionF, direction, nLength, player.getEyeHeight(Pose.STANDING) + bodyDirectionF.y);
+                poseStack.popPose();
             }
-            poseStack.popPose();
         }
     }
 

@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.projectile.ItemBreakingQuicklyReturningThrownSword;
+import dev.thomasglasser.mineraculous.api.world.item.LeftClickTrackingItem;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousTiers;
@@ -80,7 +81,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, ProjectileItem, ICurioItem, RadialMenuProvider<CatStaffItem.Ability> {
+public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, ProjectileItem, ICurioItem, RadialMenuProvider<CatStaffItem.Ability>, LeftClickTrackingItem {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final String CONTROLLER_USE = "use_controller";
     public static final String CONTROLLER_EXTEND = "extend_controller";
@@ -266,6 +267,25 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
             case THROW -> UseAnim.SPEAR;
             case null, default -> UseAnim.NONE;
         };
+    }
+
+    @Override
+    public boolean onLeftClickEntity(ItemStack stack, Player player, Entity entity) {
+        return onLeftClick(stack, player);
+    }
+
+    @Override
+    public boolean onLeftClick(ItemStack stack, LivingEntity livingEntity) {
+        Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
+        Level level = livingEntity.level();
+        if (ability == Ability.PERCH) {
+            PerchingCatStaffData perchingCatStaffData = livingEntity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+            CatStaffPerchHandler.itemLeftClicked(level, livingEntity, perchingCatStaffData);
+            if (livingEntity instanceof Player player) {
+                player.awardStat(Stats.ITEM_USED.get(this));
+            }
+        }
+        return false;
     }
 
     @Override

@@ -42,6 +42,7 @@ import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybug
 import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.UUID;
@@ -278,6 +279,11 @@ public class MineraculousClientEvents {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             checkYoyoInput(player);
+            if (Minecraft.getInstance().player.level() != null)
+                for (Player playerIterator : Minecraft.getInstance().player.level().players()) {
+                    playerPerchRendererMap.computeIfAbsent(playerIterator.getUUID(), k -> new CatStaffRenderer.PerchRenderer());
+                    playerPerchRendererMap.get(playerIterator.getUUID()).tick(playerIterator);
+                }
         }
     }
 
@@ -351,6 +357,8 @@ public class MineraculousClientEvents {
         }
     }
 
+    private static final HashMap<UUID, CatStaffRenderer.PerchRenderer> playerPerchRendererMap = new HashMap<>();
+
     public static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
         Player player = event.getEntity();
         PoseStack poseStack = event.getPoseStack();
@@ -359,7 +367,8 @@ public class MineraculousClientEvents {
         float partialTick = event.getPartialTick();
 
         player.noCulling = true;
-        CatStaffRenderer.renderPerch(player, poseStack, bufferSource, light, partialTick);
+        if (playerPerchRendererMap.containsKey(player.getUUID()))
+            playerPerchRendererMap.get(player.getUUID()).renderPerch(player, poseStack, bufferSource, light, partialTick);
         CatStaffRenderer.renderTravel(player, poseStack, bufferSource, light, partialTick);
     }
 
@@ -374,7 +383,8 @@ public class MineraculousClientEvents {
 
         if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson()) {
             poseStack.translate(0, -1.6d, 0);
-            CatStaffRenderer.renderPerch(player, poseStack, bufferSource, light, partialTick);
+            if (playerPerchRendererMap.containsKey(player.getUUID()))
+                playerPerchRendererMap.get(player.getUUID()).renderPerch(player, poseStack, bufferSource, light, partialTick);
             CatStaffRenderer.renderTravel(player, poseStack, bufferSource, light, partialTick);
         }
     }

@@ -23,7 +23,8 @@ public record PerchingCatStaffData(
         Vector3f initPos,
         boolean isFalling,
         float yBeforeFalling,
-        Vector3f initialFallDirection) {
+        Vector3f initialFallDirection,
+        boolean fastDescending) {
 
     public static final StreamCodec<ByteBuf, PerchingCatStaffData> STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
             ByteBufCodecs.FLOAT, PerchingCatStaffData::length,
@@ -35,11 +36,12 @@ public record PerchingCatStaffData(
             ByteBufCodecs.BOOL, PerchingCatStaffData::isFalling,
             ByteBufCodecs.FLOAT, PerchingCatStaffData::yBeforeFalling,
             ByteBufCodecs.VECTOR3F, PerchingCatStaffData::initialFallDirection,
+            ByteBufCodecs.BOOL, PerchingCatStaffData::fastDescending,
             PerchingCatStaffData::new);
 
     public static PerchingCatStaffData emptyData = new PerchingCatStaffData();
     public PerchingCatStaffData() {
-        this(0f, 0, false, 0, false, new Vector3f(0f, 0f, 0f), false, 0f, new Vector3f(0f, 0f, 0f));
+        this(0f, 0, false, 0, false, new Vector3f(0f, 0f, 0f), false, 0f, new Vector3f(0f, 0f, 0f), false);
     }
 
     public void save(Entity entity, boolean syncToClient) {

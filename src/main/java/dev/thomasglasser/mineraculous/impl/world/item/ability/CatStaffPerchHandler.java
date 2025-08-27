@@ -4,8 +4,8 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundSetDeltaMovementPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateStaffInputPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateStaffPerchLength;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
@@ -14,7 +14,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
@@ -34,7 +33,7 @@ public class CatStaffPerchHandler {
         if (perchData.perching()) {
             if (level.isClientSide()) {
                 handleVerticalMovement(livingEntity, perchData);
-                handleMovementInput(livingEntity, perchData);
+                handleMovementInput(perchData);
             } else {
                 updateServer(level, livingEntity, perchData);
             }
@@ -231,13 +230,12 @@ public class CatStaffPerchHandler {
                 if (!upOrDownKeyPressed && shouldNotFall) d = 0;
                 Vec3 vec3 = new Vec3(livingEntity.getDeltaMovement().x, d, livingEntity.getDeltaMovement().z);
                 livingEntity.setDeltaMovement(vec3);
-                livingEntity.hurtMarked = true;
-                TommyLibServices.NETWORK.sendToServer(new ServerboundSetDeltaMovementPayload(vec3, true));
             }
+            TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateStaffPerchLength(perchData, MineraculousKeyMappings.ASCEND_TOOL.isDown(), MineraculousKeyMappings.DESCEND_TOOL.isDown()));
         }
     }
 
-    private static void handleMovementInput(LivingEntity livingEntity, PerchingCatStaffData perchData) {
+    private static void handleMovementInput(PerchingCatStaffData perchData) {
         MineraculousClientUtils.InputState input = MineraculousClientUtils.captureInput();
         int packedInput = input.packInputs();
         TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateStaffInputPayload(packedInput, perchData));

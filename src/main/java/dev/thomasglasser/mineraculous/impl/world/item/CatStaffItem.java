@@ -167,22 +167,28 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                 boolean inHand = livingEntity.getMainHandItem() == stack || livingEntity.getOffhandItem() == stack;
                 Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
                 if (ability != null) {
+                    PerchingCatStaffData perchingData = livingEntity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+                    TravelingCatStaffData travelingData = livingEntity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
                     if (inHand) {
                         switch (ability) {
                             case PERCH -> CatStaffPerchHandler.tick(level, livingEntity);
                             case TRAVEL -> CatStaffTravelHandler.tick(stack, level, livingEntity);
                             default -> {
                                 if (!level.isClientSide) {
-                                    PerchingCatStaffData.remove(livingEntity, true);
-                                    TravelingCatStaffData.remove(livingEntity, true);
+                                    if (perchingData != PerchingCatStaffData.emptyData)
+                                        PerchingCatStaffData.remove(livingEntity, true);
+                                    if (travelingData != TravelingCatStaffData.emptyData)
+                                        TravelingCatStaffData.remove(livingEntity, true);
                                 }
                             }
                         }
                         MineraculousItemUtils.checkHelicopterSlowFall(stack, entity);
                     } else {
                         if (!level.isClientSide) {
-                            PerchingCatStaffData.remove(livingEntity, true);
-                            TravelingCatStaffData.remove(livingEntity, true);
+                            if (perchingData != PerchingCatStaffData.emptyData)
+                                PerchingCatStaffData.remove(livingEntity, true);
+                            if (travelingData != TravelingCatStaffData.emptyData)
+                                TravelingCatStaffData.remove(livingEntity, true);
                         }
                     }
                 }

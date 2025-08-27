@@ -160,11 +160,6 @@ public class MineraculousItemUtils {
         return patched && Objects.equals(self, other);
     }
 
-    @ApiStatus.Internal
-    public static <T> boolean isSameComponentsBesides(PatchedDataComponentMap self, PatchedDataComponentMap other, Supplier<DataComponentType<T>> type) {
-        return isSameComponentsBesides(self, other, type.get());
-    }
-
     /**
      * Slows fall and cancels damage for the entity blocking with the item pointed upwards.
      *

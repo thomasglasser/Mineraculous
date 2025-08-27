@@ -36,6 +36,8 @@ public record PerchingCatStaffData(
             ByteBufCodecs.FLOAT, PerchingCatStaffData::yBeforeFalling,
             ByteBufCodecs.VECTOR3F, PerchingCatStaffData::initialFallDirection,
             PerchingCatStaffData::new);
+
+    public static PerchingCatStaffData emptyData = new PerchingCatStaffData();
     public PerchingCatStaffData() {
         this(0f, 0, false, 0, false, new Vector3f(0f, 0f, 0f), false, 0f, new Vector3f(0f, 0f, 0f));
     }

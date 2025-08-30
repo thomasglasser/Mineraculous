@@ -28,8 +28,8 @@ import org.joml.Quaternionf;
 
 public class LadybugYoyoRenderer extends BlockingDefaultedGeoItemRenderer<LadybugYoyoItem> {
     public static final ResourceLocation SPYGLASS_SCOPE_LOCATION = Mineraculous.modLoc("textures/misc/ladybug_yoyo_spyglass_scope.png");
-    public static final ResourceLocation SPYGLASS_LOCATION = Mineraculous.modLoc("textures/item/geo/ladybug_yoyo_spyglass.png");
-    public static final ResourceLocation PHONE_LOCATION = Mineraculous.modLoc("textures/item/geo/ladybug_yoyo_phone.png");
+    public static final ResourceLocation SPYGLASS_LOCATION = makeTextureLocation(Mineraculous.modLoc("ladybug_yoyo_spyglass"));
+    public static final ResourceLocation PHONE_LOCATION = makeTextureLocation(Mineraculous.modLoc("ladybug_yoyo_phone"));
 
     // Hand Rendering Constants
     private static final Quaternionf HAND_XP_ROT = Axis.XP.rotationDegrees(-40);

@@ -32,6 +32,7 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownLadybugY
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.FaceMaskLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.LegacyDevTeamLayer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.item.ButterflyCaneRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundJumpMidSwingingPayload;
@@ -258,6 +259,20 @@ public class MineraculousClientEvents {
                 return LadybugYoyoRenderer.SPYGLASS_SCOPE_LOCATION;
             }
         }, MineraculousItems.LADYBUG_YOYO);
+        event.registerItem(new IClientItemExtensions() {
+            private BlockEntityWithoutLevelRenderer renderer;
+
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                if (renderer == null) renderer = new ButterflyCaneRenderer();
+                return renderer;
+            }
+
+            @Override
+            public ResourceLocation getScopeOverlayTexture(ItemStack stack) {
+                return ButterflyCaneRenderer.SPYGLASS_SCOPE_LOCATION;
+            }
+        }, MineraculousItems.BUTTERFLY_CANE);
     }
 
     // GUI

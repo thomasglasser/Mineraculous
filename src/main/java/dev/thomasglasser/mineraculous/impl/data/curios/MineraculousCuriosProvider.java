@@ -13,8 +13,8 @@ public class MineraculousCuriosProvider extends CuriosDataProvider {
     public static final String SLOT_BROOCH = "brooch";
     public static final String SLOT_RING = "ring";
     public static final String SLOT_EARRINGS = "earrings";
-    public static final String SLOT_BELT = "belt";
     public static final String SLOT_BACK = "back";
+    public static final String SLOT_BELT = "belt";
 
     public MineraculousCuriosProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, @Nullable ExistingFileHelper fileHelper) {
         super(Mineraculous.MOD_ID, output, fileHelper, registries);

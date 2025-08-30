@@ -78,77 +78,23 @@
   },
   "gui_light": "front",
   "loader": "neoforge:separate_transforms",
-  "overrides": [
-    {
-      "model": "mineraculous:item/ladybug_yoyo_active",
-      "predicate": {
-        "mineraculous:active": 1.0
-      }
-    },
-    {
-      "model": "mineraculous:item/ladybug_yoyo_phone",
-      "predicate": {
-        "mineraculous:ability": 3.0,
-        "mineraculous:active": 1.0
-      }
-    },
-    {
-      "model": "mineraculous:item/ladybug_yoyo_purify",
-      "predicate": {
-        "mineraculous:ability": 4.0,
-        "mineraculous:active": 1.0
-      }
-    },
-    {
-      "model": "mineraculous:item/ladybug_yoyo_spyglass",
-      "predicate": {
-        "mineraculous:ability": 5.0,
-        "mineraculous:active": 1.0
-      }
-    },
-    {
-      "model": "mineraculous:item/ladybug_yoyo_active",
-      "predicate": {
-        "mineraculous:ability": 6.0,
-        "mineraculous:active": 1.0
-      }
-    },
-    {
-      "model": "mineraculous:item/ladybug_yoyo_thrown",
-      "predicate": {
-        "mineraculous:thrown": 1.0
-      }
-    },
-    {
-      "model": "mineraculous:item/ladybug_yoyo_landed",
-      "predicate": {
-        "mineraculous:thrown": 2.0
-      }
-    },
-    {
-      "model": "mineraculous:item/ladybug_yoyo_blocking",
-      "predicate": {
-        "minecraft:blocking": 1.0
-      }
-    }
-  ],
   "perspectives": {
     "fixed": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/ladybug_yoyo"
+        "layer0": "mineraculous:item/ladybug_yoyo_purify"
       }
     },
     "ground": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/ladybug_yoyo"
+        "layer0": "mineraculous:item/ladybug_yoyo_purify"
       }
     },
     "gui": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/ladybug_yoyo"
+        "layer0": "mineraculous:item/ladybug_yoyo_purify"
       }
     }
   }

@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
+import dev.thomasglasser.mineraculous.api.client.gui.MineraculousGuiLayers;
 import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.KamikotizationParticle;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
@@ -40,6 +41,7 @@ import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Map;
 import java.util.SortedMap;
@@ -82,6 +84,7 @@ import net.neoforged.neoforge.client.event.RegisterEntitySpectatorShadersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
+import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
@@ -259,10 +262,10 @@ public class MineraculousClientEvents {
 
     // GUI
     static void onRegisterGuiLayers(RegisterGuiLayersEvent event) {
-        event.registerAboveAll(Mineraculous.modLoc("stealing_progress_bar"), MineraculousGuis::renderStealingProgressBar);
-        event.registerAboveAll(Mineraculous.modLoc("revoke_button"), MineraculousGuis::renderRevokeButton);
-        event.registerAboveAll(Mineraculous.modLoc("kamiko_hotbar"), MineraculousGuis.getKamikoGui()::renderHotbar);
-        event.registerAboveAll(Mineraculous.modLoc("kamiko_tooltip"), MineraculousGuis.getKamikoGui()::renderTooltip);
+        event.registerAboveAll(MineraculousGuiLayers.STEALING_PROGRESS_BAR, MineraculousGuis::renderStealingProgressBar);
+        event.registerAboveAll(MineraculousGuiLayers.REVOKE_BUTTON, MineraculousGuis::renderRevokeButton);
+        event.registerAboveAll(MineraculousGuiLayers.KAMIKO_HOTBAR, MineraculousGuis.getKamikoGui()::renderHotbar);
+        event.registerAboveAll(MineraculousGuiLayers.KAMIKO_TOOLTIP, MineraculousGuis.getKamikoGui()::renderTooltip);
     }
 
     // Tick
@@ -304,14 +307,6 @@ public class MineraculousClientEvents {
                 }
             }
         }
-
-        if (MineraculousGuis.checkRevokeButtonActive()) {
-            Button revokeButton = MineraculousGuis.getRevokeButton();
-            int key = event.getKey();
-            if ((key == GLFW.GLFW_KEY_ENTER || key == GLFW.GLFW_KEY_KP_ENTER) && MineraculousClientUtils.hasNoScreenOpen() && revokeButton.active) {
-                revokeButton.onPress();
-            }
-        }
     }
 
     static void onMouseScrollingInput(InputEvent.MouseScrollingEvent event) {
@@ -351,6 +346,15 @@ public class MineraculousClientEvents {
     static void onRenderHand(RenderHandEvent event) {
         if (MineraculousClientUtils.getCameraEntity() != Minecraft.getInstance().player) {
             event.setCanceled(true);
+        }
+    }
+
+    static void onPreRenderGuiLayer(RenderGuiLayerEvent.Pre event) {
+        Player player = ClientUtils.getLocalPlayer();
+        if (player != null && player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).spectatingId().isPresent()) {
+            if (!MineraculousGuiLayers.isAllowedSpectatingGuiLayer(event.getName())) {
+                event.setCanceled(true);
+            }
         }
     }
 

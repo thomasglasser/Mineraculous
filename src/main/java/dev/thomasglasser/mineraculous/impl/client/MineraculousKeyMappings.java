@@ -11,6 +11,7 @@ import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundPutMiraculousToolInHandPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRenounceMiraculousPayload;
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -43,8 +45,9 @@ public class MineraculousKeyMappings {
 
     public static final ExtendedKeyMapping TRANSFORM = register("transform", InputConstants.KEY_M, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleTransform);
     public static final ExtendedKeyMapping ACTIVATE_POWER = register("activate_power", InputConstants.KEY_O, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleActivatePower);
-    public static final ExtendedKeyMapping TOGGLE_ACTIVE = register("toggle_active", InputConstants.KEY_I, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleToggleActive);
-    public static final ExtendedKeyMapping OPEN_ITEM_RADIAL_MENU = register("open_item_radial_menu", InputConstants.KEY_R, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleOpenItemRadialMenu);
+    public static final ExtendedKeyMapping REVOKE_KAMIKOTIZATION = register("revoke_kamikotization", InputConstants.KEY_K, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleRevokeKamikotization);
+    public static final ExtendedKeyMapping TOGGLE_ACTIVE = register("toggle_active", InputConstants.KEY_I, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleToggleActive);
+    public static final ExtendedKeyMapping OPEN_ITEM_RADIAL_MENU = register("open_item_radial_menu", InputConstants.KEY_R, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleOpenItemRadialMenu);
     public static final ExtendedKeyMapping TAKE_BREAK_ITEM = register("take_break_item", InputConstants.KEY_B, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleTakeBreakItem, MineraculousKeyMappings::handleNoTakeBreakItem);
     public static final ExtendedKeyMapping UNWIND_YOYO = register("unwind_yoyo", InputConstants.KEY_DOWN, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateYoyo(true));
     public static final ExtendedKeyMapping WIND_YOYO = register("wind_yoyo", InputConstants.KEY_UP, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateYoyo(false));
@@ -118,6 +121,15 @@ public class MineraculousKeyMappings {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(InteractionHand.OFF_HAND));
             } else if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
                 TommyLibServices.NETWORK.sendToServer(ServerboundSetKamikotizationPowerActivatedPayload.INSTANCE);
+            }
+        }
+    }
+
+    private static void handleRevokeKamikotization() {
+        if (MineraculousGuis.checkRevokeButtonActive()) {
+            Button revokeButton = MineraculousGuis.getRevokeButton();
+            if (revokeButton.active) {
+                revokeButton.onPress();
             }
         }
     }

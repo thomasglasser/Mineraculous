@@ -11,8 +11,8 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
 
-public class MineraculousParticleRenderTypes { //i want to add more for mlb thats why i made this class.
-    public static final ParticleRenderType ADDITIVE_PARTICLE = new ParticleRenderType() {
+public class MineraculousParticleRenderTypes {
+    public static final ParticleRenderType PARTICLE_SHEET_ADDITIVE_TRANSLUCENT = new ParticleRenderType() {
         @Override
         public BufferBuilder begin(Tesselator tesselator, TextureManager textureManager) {
             RenderSystem.depthMask(true);
@@ -27,7 +27,7 @@ public class MineraculousParticleRenderTypes { //i want to add more for mlb that
 
         @Override
         public String toString() {
-            return Mineraculous.modLoc("additive_particle").toString();
+            return Mineraculous.modLoc("PARTICLE_SHEET_ADDITIVE_TRANSLUCENT").toString();
         }
     };
 }

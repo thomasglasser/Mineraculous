@@ -23,7 +23,7 @@ public class HoveringOrbParticle extends TextureSheetParticle {
 
     @Override
     public ParticleRenderType getRenderType() {
-        return MineraculousParticleRenderTypes.ADDITIVE_PARTICLE;
+        return MineraculousParticleRenderTypes.PARTICLE_SHEET_ADDITIVE_TRANSLUCENT;
     }
 
     @Override

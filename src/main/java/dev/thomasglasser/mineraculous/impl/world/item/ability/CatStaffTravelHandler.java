@@ -52,6 +52,11 @@ public class CatStaffTravelHandler {
             hitPos = result.getBlockPos();
             traveling = true;
         } else {
+            if (livingEntity.onGround()) {
+                lookAngle = new Vec3(lookAngle.x, 0, lookAngle.z).normalize();
+                livingEntity.hurtMarked = true;
+                livingEntity.setDeltaMovement(lookAngle.scale(4));
+            }
             traveling = false;
         }
 

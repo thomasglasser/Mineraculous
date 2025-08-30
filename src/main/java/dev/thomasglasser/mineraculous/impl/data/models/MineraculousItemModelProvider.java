@@ -188,15 +188,23 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.HEAD).translation(0, -21, 0).end()
                 .end();
         ItemModelBuilder inventoryButterflyCane = basicInventoryItem(MineraculousItems.BUTTERFLY_CANE);
-        ItemModelBuilder inventoryButterflyCaneBlade = basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade"));
-        generatedModels.remove(inventoryButterflyCaneBlade.getLocation());
+        ItemModelBuilder inHandButterflyCaneBlade = withEntityModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade_in_hand"))
+                .transforms()
+                .transform(MineraculousItemDisplayContexts.CURIOS_BODY.getValue()).rotation(180, 0, 45).translation(8.67f, 12.5f, 2.3f).scale(0.8f).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0, -2, 2).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).translation(0, -2, 2).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(0, -8, 0).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).translation(0, -8, 0).end()
+                .transform(ItemDisplayContext.HEAD).translation(0, 5, 0).end()
+                .end();
+        ItemModelBuilder bladeButterflyCane = withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade"), inHandButterflyCaneBlade, basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade")));
         withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE, inHandButterflyCane, inventoryButterflyCane)
                 .override()
                 .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.BLADE))
-                .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade"), inHandButterflyCane, inventoryButterflyCaneBlade))
+                .model(bladeButterflyCane)
                 .end()
                 .override()
-                .predicate(MineraculousItemProperties.ABILITY, 2)
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.BLADE) + 1)
                 .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE, inHandButterflyCane, inventoryButterflyCane))
                 .end();
     }

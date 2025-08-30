@@ -181,6 +181,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
 
         ItemModelBuilder inHandButterflyCane = withEntityModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_in_hand"))
                 .transforms()
+                .transform(MineraculousItemDisplayContexts.CURIOS_BODY.getValue()).rotation(180, 0, 45).translation(8.67f, 12.5f, 2.3f).scale(0.8f).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0, -18, 2).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).translation(0, -18, 2).end()
                 .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(0, -24, 0).end()

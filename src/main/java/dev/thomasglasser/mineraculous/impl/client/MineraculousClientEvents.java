@@ -99,6 +99,7 @@ public class MineraculousClientEvents {
             CuriosRendererRegistry.register(MineraculousItems.MIRACULOUS.get(), ContextDependentCurioRenderer::new);
             CuriosRendererRegistry.register(MineraculousItems.CAT_STAFF.get(), ContextDependentCurioRenderer::new);
             CuriosRendererRegistry.register(MineraculousItems.LADYBUG_YOYO.get(), ContextDependentCurioRenderer::new);
+            CuriosRendererRegistry.register(MineraculousItems.BUTTERFLY_CANE.get(), ContextDependentCurioRenderer::new);
 
             MineraculousItemProperties.init();
         });

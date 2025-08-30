@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.KamikotizationParticle;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
@@ -31,9 +32,9 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownLadybugY
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.FaceMaskLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.LegacyDevTeamLayer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundJumpMidSwingingPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSwingOffhandPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
@@ -41,6 +42,7 @@ import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybug
 import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.UUID;
@@ -49,8 +51,11 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.FlyStraightTowardsParticle;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -83,6 +88,8 @@ import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
@@ -273,25 +280,22 @@ public class MineraculousClientEvents {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             checkYoyoInput(player);
+            if (Minecraft.getInstance().player.level() != null)
+                for (Player playerIterator : Minecraft.getInstance().player.level().players()) {
+                    playerPerchRendererMap.computeIfAbsent(playerIterator.getUUID(), k -> new CatStaffRenderer.PerchRenderer());
+                    playerPerchRendererMap.get(playerIterator.getUUID()).tick(playerIterator);
+                }
         }
     }
 
     private static void checkYoyoInput(LocalPlayer player) {
         ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
         ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
-        if (thrownYoyo != null) {
-            if (player.input.jumping) {
-                TommyLibServices.NETWORK.sendToServer(ServerboundJumpMidSwingingPayload.INSTANCE);
-            } else {
-                boolean front = player.input.up;
-                boolean back = player.input.down;
-                boolean left = player.input.left;
-                boolean right = player.input.right;
-                boolean hasInput = front || back || left || right;
-                if (hasInput) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoInputPayload(front, back, left, right));
-                }
-            }
+
+        MineraculousClientUtils.InputState input = MineraculousClientUtils.captureInput();
+        if (thrownYoyo != null && input.hasInput()) {
+            int packedInput = input.packInputs();
+            TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoInputPayload(packedInput));
         }
     }
 
@@ -351,6 +355,38 @@ public class MineraculousClientEvents {
     static void onRenderHand(RenderHandEvent event) {
         if (MineraculousClientUtils.getCameraEntity() != Minecraft.getInstance().player) {
             event.setCanceled(true);
+        }
+    }
+
+    private static final HashMap<UUID, CatStaffRenderer.PerchRenderer> playerPerchRendererMap = new HashMap<>();
+
+    public static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
+        Player player = event.getEntity();
+        PoseStack poseStack = event.getPoseStack();
+        MultiBufferSource bufferSource = event.getMultiBufferSource();
+        int light = event.getPackedLight();
+        float partialTick = event.getPartialTick();
+
+        player.noCulling = true;
+        if (playerPerchRendererMap.containsKey(player.getUUID()))
+            playerPerchRendererMap.get(player.getUUID()).renderPerch(player, poseStack, bufferSource, light, partialTick);
+        CatStaffRenderer.renderTravel(player, poseStack, bufferSource, light, partialTick);
+    }
+
+    public static void onRenderLevelStage(RenderLevelStageEvent event) {
+        AbstractClientPlayer player = Minecraft.getInstance().player;
+        RenderLevelStageEvent.Stage stage = event.getStage();
+        EntityRenderDispatcher renderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+        PoseStack poseStack = event.getPoseStack();
+        MultiBufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+        float partialTick = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPartialTickTime();
+        int light = renderDispatcher.getPackedLightCoords(player, partialTick);
+
+        if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson()) {
+            poseStack.translate(0, -1.6d, 0);
+            if (playerPerchRendererMap.containsKey(player.getUUID()))
+                playerPerchRendererMap.get(player.getUUID()).renderPerch(player, poseStack, bufferSource, light, partialTick);
+            CatStaffRenderer.renderTravel(player, poseStack, bufferSource, light, partialTick);
         }
     }
 

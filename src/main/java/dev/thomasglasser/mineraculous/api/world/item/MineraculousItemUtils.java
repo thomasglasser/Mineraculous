@@ -160,11 +160,6 @@ public class MineraculousItemUtils {
         return patched && Objects.equals(self, other);
     }
 
-    @ApiStatus.Internal
-    public static <T> boolean isSameComponentsBesides(PatchedDataComponentMap self, PatchedDataComponentMap other, Supplier<DataComponentType<T>> type) {
-        return isSameComponentsBesides(self, other, type.get());
-    }
-
     /**
      * Slows fall and cancels damage for the entity blocking with the item pointed upwards.
      *
@@ -173,8 +168,19 @@ public class MineraculousItemUtils {
      */
     public static void checkHelicopterSlowFall(ItemStack stack, Entity entity) {
         if (stack.has(MineraculousDataComponents.BLOCKING) && entity.getXRot() <= -75 && entity.getDeltaMovement().y <= 0) {
-            entity.setDeltaMovement(entity.getDeltaMovement().x, -0.1, entity.getDeltaMovement().z);
-            entity.resetFallDistance();
+            applyHelicopterSlowFall(entity);
         }
+    }
+
+    public static void applyHelicopterSlowFall(Entity entity) {
+        entity.hurtMarked = true;
+        double overrideDelta = Math.max(entity.getDeltaMovement().y, -0.1);
+        entity.setDeltaMovement(entity.getDeltaMovement().x, overrideDelta, entity.getDeltaMovement().z);
+        entity.resetFallDistance();
+    }
+
+    @ApiStatus.Internal
+    public static <T> boolean isSameComponentsBesides(PatchedDataComponentMap self, PatchedDataComponentMap other, Supplier<DataComponentType<T>> type) {
+        return isSameComponentsBesides(self, other, type.get());
     }
 }

@@ -324,4 +324,29 @@ public class MineraculousClientUtils {
         }
         return Vec3.ZERO;
     }
+
+    public record InputState(boolean front, boolean back, boolean left, boolean right, boolean jump) {
+        public int packInputs() {
+            int bits = 0;
+            if (front) bits |= 1 << 0;
+            if (back) bits |= 1 << 1;
+            if (left) bits |= 1 << 2;
+            if (right) bits |= 1 << 3;
+            if (jump) bits |= 1 << 4;
+            return bits;
+        }
+
+        public boolean hasInput() {
+            return front || back || left || right || jump;
+        }
+
+        public boolean[] getHorizontalMovementInputs() {
+            return new boolean[] { front, back, left, right };
+        }
+    }
+
+    public static InputState captureInput() {
+        var input = Minecraft.getInstance().player.input;
+        return new InputState(input.up, input.down, input.left, input.right, input.jumping);
+    }
 }

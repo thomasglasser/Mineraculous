@@ -428,7 +428,7 @@
   "mineraculous.configuration.display_legacy_dev_team_cosmetic": "Display Legacy Dev Team Cosmetic",
   "mineraculous.configuration.display_legacy_dev_team_cosmetic.tooltip": "Display the Legacy Dev Team cosmetic (if eligible)",
   "mineraculous.configuration.enable_customization": "Enable Customization",
-  "mineraculous.configuration.enable_customization.tooltip": "Enable customization of miraculous suits and items. §4WARNING: This may lead to vulnerabilities. Only enable if you trust server members.",
+  "mineraculous.configuration.enable_customization.tooltip": "Enable customization of miraculous suits and items. ֲ§4WARNING: This may lead to vulnerabilities. Only enable if you trust server members.",
   "mineraculous.configuration.enable_kamikotization_rejection": "Enable Kamikotization Rejection",
   "mineraculous.configuration.enable_kamikotization_rejection.tooltip": "Enable rejection of kamikotization by the victim",
   "mineraculous.configuration.enable_limited_power": "Enable Limited Power",

@@ -67,8 +67,8 @@
     "mineraculous:miraculous_id",
     "mineraculous:owner",
     "mineraculous:powered",
-    "mineraculous:recoverable_item_id",
     "mineraculous:remaining_ticks",
+    "mineraculous:revertible_item_id",
     "mineraculous:tool_id",
     "mineraculous:transformation_frames"
   ],

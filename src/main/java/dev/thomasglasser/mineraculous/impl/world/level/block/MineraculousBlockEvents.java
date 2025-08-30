@@ -16,7 +16,7 @@ public class MineraculousBlockEvents {
                 for (ItemEntity item : event.getDrops()) {
                     UUID id = UUID.randomUUID();
                     AbilityReversionItemData.get(level).putRemovable(recoverer, id);
-                    item.getItem().set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
+                    item.getItem().set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, id);
                 }
             }
         }

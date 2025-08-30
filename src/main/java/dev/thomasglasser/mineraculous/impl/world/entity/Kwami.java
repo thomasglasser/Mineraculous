@@ -100,6 +100,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Holder<Miraculous>> DATA_MIRACULOUS = SynchedEntityData.defineId(Kwami.class, MineraculousEntityDataSerializers.MIRACULOUS.get());
     private static final EntityDataAccessor<UUID> DATA_MIRACULOUS_ID = SynchedEntityData.defineId(Kwami.class, MineraculousEntityDataSerializers.UUID.get());
+    private static final EntityDataAccessor<Boolean> DATA_TRANSFORMING = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -135,6 +136,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         builder.define(DATA_CHARGED, true);
         builder.define(DATA_MIRACULOUS, level().holderOrThrow(Miraculouses.LADYBUG));
         builder.define(DATA_MIRACULOUS_ID, Util.NIL_UUID);
+        builder.define(DATA_TRANSFORMING, false);
     }
 
     public int getSummonTicks() {
@@ -167,6 +169,14 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
 
     public void setMiraculousId(UUID id) {
         entityData.set(DATA_MIRACULOUS_ID, id);
+    }
+
+    public boolean isTransforming() {
+        return entityData.get(DATA_TRANSFORMING);
+    }
+
+    public void setTransforming(boolean transforming) {
+        entityData.set(DATA_TRANSFORMING, transforming);
     }
 
     @Override
@@ -225,10 +235,26 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         }
     }
 
+    private void tickTransforming() {
+        LivingEntity owner = getOwner();
+        if (owner != null) {
+            setDeltaMovement(owner.getEyePosition().subtract(this.getEyePosition()).scale(0.4));
+            if (this.getEyePosition().closerThan(owner.getEyePosition(), 0.1)) {
+                setTransforming(false);
+                discard();
+            }
+        } else {
+            setTransforming(false);
+        }
+    }
+
     @Override
     protected void customServerAiStep() {
         if (getSummonTicks() > 0) {
             tickSummon();
+            return;
+        } else if (isTransforming()) {
+            tickTransforming();
             return;
         }
 

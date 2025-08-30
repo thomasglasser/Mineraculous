@@ -185,8 +185,8 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     @Override
     public List<? extends ExtendedSensor<? extends Kamiko>> getSensors() {
         return ObjectArrayList.of(
-                new PlayerItemTemptingSensor<Kamiko>().temptedWith((entity, player, stack) -> {
-                    if (shouldFollowOwner(entity)) {
+                new PlayerItemTemptingSensor<Kamiko>().temptedWith((kamiko, player, stack) -> {
+                    if (shouldFollowOwner(kamiko)) {
                         return true;
                     }
                     UUID ownerId = stack.get(MineraculousDataComponents.OWNER);

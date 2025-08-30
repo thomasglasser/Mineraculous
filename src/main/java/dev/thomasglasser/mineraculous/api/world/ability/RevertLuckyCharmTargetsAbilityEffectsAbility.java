@@ -10,7 +10,6 @@ import dev.thomasglasser.mineraculous.api.world.item.EffectRevertingItem;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionItemData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
@@ -56,7 +55,6 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                                         }
                                     }).ifRight(ability -> ability.value().revert(abilityData, level, related));
                                     value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related));
-                                    AbilityReversionItemData.get(level).revertKamikotized(relatedId, level);
                                 });
                                 MiraculousesData miraculousesData = related.getData(MineraculousAttachmentTypes.MIRACULOUSES);
                                 for (Holder<Miraculous> miraculous : miraculousesData.keySet()) {

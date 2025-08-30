@@ -32,8 +32,7 @@ import org.lwjgl.glfw.GLFW;
 
 public class MineraculousGuis {
     public static final Component REVOKE = Component.translatable("gui.mineraculous.revoke");
-    public static final Component PRESS_ENTER = Component.translatable("gui.mineraculous.press_enter");
-    public static final Component REVOKE_WITH_ENTER = REVOKE.copy().append(" ").append(PRESS_ENTER);
+    public static final String PRESS_KEY = "gui.mineraculous.press_key";
 
     private static SelectionGui kamikoGui;
     private static Button revokeButton;
@@ -110,16 +109,13 @@ public class MineraculousGuis {
             if (MineraculousClientUtils.hasNoScreenOpen()) {
                 revokeButton.setPosition(revokeButton.getX(), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 60);
                 revokeButton.active = true;
-                revokeButton.setFocused(true);
-                revokeButton.setMessage(REVOKE_WITH_ENTER);
+                revokeButton.setMessage(REVOKE.copy().append(" ").append(Component.translatable(PRESS_KEY, MineraculousKeyMappings.REVOKE_KAMIKOTIZATION.getKey().getDisplayName())));
             } else if (Minecraft.getInstance().screen instanceof ChatScreen) {
                 revokeButton.setPosition(revokeButton.getX(), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 35);
                 revokeButton.active = true;
-                revokeButton.setFocused(false);
                 revokeButton.setMessage(REVOKE);
             } else {
                 revokeButton.active = false;
-                revokeButton.setFocused(false);
             }
         } else {
             revokeButton.active = false;

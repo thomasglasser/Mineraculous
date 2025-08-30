@@ -49,7 +49,7 @@ public record ConvertAndTameAbility(EntityType<?> newType, Optional<EntityPredic
                     newEntity.setPos(target.position());
                     CompoundTag tag = new CompoundTag();
                     target.save(tag);
-                    entityData.putConverted(performer.getUUID(), target.getUUID(), tag);
+                    entityData.putConverted(performer.getUUID(), target);
                     target.discard();
                     level.addFreshEntity(newEntity);
                     Ability.playSound(level, performer, convertSound);

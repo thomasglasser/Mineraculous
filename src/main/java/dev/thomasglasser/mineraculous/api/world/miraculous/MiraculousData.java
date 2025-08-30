@@ -123,7 +123,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
             if (kwamiId != null) {
                 if (level.getEntity(kwamiId) instanceof Kwami kwami) {
                     if (kwami.isCharged() && kwami.getMainHandItem().isEmpty() && kwami.getSummonTicks() <= 0) {
-                        kwami.discard();
+                        kwami.setTransforming(true);
 
                         ResourceKey<Miraculous> key = miraculous.getKey();
                         Miraculous value = miraculous.value();
@@ -332,10 +332,10 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                         if (state.shouldConsume()) {
                             powerActive = false;
                             if (state.isSuccess()) {
-                                countdownStarted = powerLevel < MAX_POWER_LEVEL;
+                                countdownStarted = hasLimitedPower();
                             }
                         }
-                        remainingTicks = remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND));
+                        remainingTicks = countdownStarted ? remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND)) : Optional.empty();
                     } else if (passiveState.shouldConsume()) {
                         powerActive = false;
                     }
@@ -344,6 +344,10 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                 tickTransformed(remainingTicks, powerActive, countdownStarted).save(miraculous, entity, true);
             }
         });
+    }
+
+    private boolean hasLimitedPower() {
+        return powerLevel < MAX_POWER_LEVEL;
     }
 
     public void performAbilities(ServerLevel level, LivingEntity entity, Holder<Miraculous> miraculous, @Nullable AbilityContext context) {
@@ -464,7 +468,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
     }
 
     private MiraculousData usedMainPower(boolean consume) {
-        return new MiraculousData(curiosData, transformed, transformationFrames, remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND)), toolId, powerLevel, !consume && powerActive, consume, storedEntities);
+        return new MiraculousData(curiosData, transformed, transformationFrames, hasLimitedPower() ? remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND)) : Optional.empty(), toolId, powerLevel, !consume && powerActive, consume, storedEntities);
     }
 
     public MiraculousData equip(CuriosData curiosData) {

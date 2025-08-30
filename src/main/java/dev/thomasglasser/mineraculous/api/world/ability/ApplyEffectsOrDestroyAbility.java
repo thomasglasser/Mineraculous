@@ -68,7 +68,7 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
                     if (dropItem.isPresent()) {
                         ItemStack replacement = new ItemStack(dropItem.get());
                         UUID id = UUID.randomUUID();
-                        replacement.set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
+                        replacement.set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, id);
                         AbilityReversionItemData.get(level).putRevertible(performer.getUUID(), id, stack);
                         livingEntity.setItemInHand(livingEntity.getUsedItemHand(), replacement);
                     } else {
@@ -85,7 +85,7 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
                 if (dropItem.isPresent() && level.getGameRules().getBoolean(GameRules.RULE_DOENTITYDROPS)) {
                     ItemStack stack = new ItemStack(dropItem.get());
                     UUID id = UUID.randomUUID();
-                    stack.set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
+                    stack.set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, id);
                     AbilityReversionItemData.get(level).putRemovable(performer.getUUID(), id);
                     vehicle.spawnAtLocation(stack);
                 }

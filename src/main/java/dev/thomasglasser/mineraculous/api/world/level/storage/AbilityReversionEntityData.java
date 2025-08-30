@@ -3,6 +3,8 @@ package dev.thomasglasser.mineraculous.api.world.level.storage;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
+import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -15,10 +17,13 @@ import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.entity.PartEntity;
@@ -28,9 +33,9 @@ import org.jetbrains.annotations.Nullable;
 public class AbilityReversionEntityData extends SavedData {
     public static final String FILE_ID = "ability_reversion_entity";
     private final Map<UUID, List<UUID>> trackedAndRelatedEntities = new Object2ObjectOpenHashMap<>();
-    private final Map<UUID, List<CompoundTag>> revertibleEntities = new Object2ObjectOpenHashMap<>();
+    private final Map<UUID, List<Pair<ResourceKey<Level>, CompoundTag>>> revertibleEntities = new Object2ObjectOpenHashMap<>();
     private final Map<UUID, List<UUID>> removableEntities = new Object2ObjectOpenHashMap<>();
-    private final Table<UUID, UUID, CompoundTag> convertedEntities = HashBasedTable.create();
+    private final Table<UUID, UUID, Pair<ResourceKey<Level>, CompoundTag>> convertedEntities = HashBasedTable.create();
 
     public static AbilityReversionEntityData get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(AbilityReversionEntityData.factory(), AbilityReversionEntityData.FILE_ID);
@@ -95,24 +100,28 @@ public class AbilityReversionEntityData extends SavedData {
 
     public void revert(UUID owner, ServerLevel level, Consumer<Entity> onReverted) {
         if (revertibleEntities.containsKey(owner)) {
-            for (CompoundTag entityData : revertibleEntities.get(owner)) {
+            for (Pair<ResourceKey<Level>, CompoundTag> data : revertibleEntities.get(owner)) {
+                ServerLevel targetLevel = level.getServer().getLevel(data.left());
+                CompoundTag entityData = data.right();
                 UUID entityId = entityData.getUUID("UUID");
-                Entity entity = level.getEntity(entityId);
-                if (entity == null || entity.isRemoved()) {
-                    entity = EntityType.loadEntityRecursive(entityData, level, e -> e);
-                    if (entity != null)
-                        level.addFreshEntity(entity);
-                } else {
+                Entity entity = MineraculousEntityUtils.findEntity(level, entityId);
+                if (entity != null && !entity.isRemoved()) {
                     entity.load(entityData);
+                } else if (targetLevel != null) {
+                    entity = EntityType.loadEntityRecursive(entityData, targetLevel, e -> e);
+                    if (entity != null)
+                        targetLevel.addFreshEntity(entity);
                 }
-                onReverted.accept(entity);
+                if (entity != null) {
+                    onReverted.accept(entity);
+                }
             }
             revertibleEntities.remove(owner);
             setDirty();
         }
         if (removableEntities.containsKey(owner)) {
             for (UUID id : removableEntities.get(owner)) {
-                Entity entity = level.getEntity(id);
+                Entity entity = MineraculousEntityUtils.findEntity(level, id);
                 if (entity != null) {
                     entity.discard();
                 }
@@ -134,7 +143,7 @@ public class AbilityReversionEntityData extends SavedData {
             revertibleEntities.put(owner, new ReferenceArrayList<>());
         CompoundTag entityData = new CompoundTag();
         entity.save(entityData);
-        revertibleEntities.get(owner).add(entityData);
+        revertibleEntities.get(owner).add(Pair.of(entity.level().dimension(), entityData));
         setDirty();
     }
 
@@ -150,17 +159,18 @@ public class AbilityReversionEntityData extends SavedData {
     }
 
     public UUID getCause(Entity entity, ServerLevel level) {
-        for (Map.Entry<UUID, List<CompoundTag>> entry : revertibleEntities.entrySet()) {
-            for (CompoundTag entityData : entry.getValue()) {
+        for (Map.Entry<UUID, List<Pair<ResourceKey<Level>, CompoundTag>>> entry : revertibleEntities.entrySet()) {
+            for (Pair<ResourceKey<Level>, CompoundTag> data : entry.getValue()) {
+                CompoundTag entityData = data.right();
                 UUID id = entityData.getUUID("UUID");
-                Entity entity1 = level.getEntity(id);
+                Entity entity1 = MineraculousEntityUtils.findEntity(level, id);
                 if (entity1 == entity)
                     return entry.getKey();
             }
         }
         for (Map.Entry<UUID, List<UUID>> entry : removableEntities.entrySet()) {
             for (UUID id : entry.getValue()) {
-                Entity entity1 = level.getEntity(id);
+                Entity entity1 = MineraculousEntityUtils.findEntity(level, id);
                 if (entity1 == entity)
                     return entry.getKey();
             }
@@ -168,8 +178,10 @@ public class AbilityReversionEntityData extends SavedData {
         return null;
     }
 
-    public void putConverted(UUID performer, UUID entity, CompoundTag original) {
-        convertedEntities.put(performer, entity, original);
+    public void putConverted(UUID performer, Entity entity) {
+        CompoundTag tag = new CompoundTag();
+        entity.save(tag);
+        convertedEntities.put(performer, entity.getUUID(), Pair.of(entity.level().dimension(), tag));
         setDirty();
     }
 
@@ -178,16 +190,16 @@ public class AbilityReversionEntityData extends SavedData {
     }
 
     public void revertConversions(UUID performer, ServerLevel level) {
-        Map<UUID, CompoundTag> row = convertedEntities.row(performer);
-        Collection<CompoundTag> conversions = row.values();
-        for (CompoundTag entityData : conversions) {
-            revertConversion(entityData, level);
+        Map<UUID, Pair<ResourceKey<Level>, CompoundTag>> row = convertedEntities.row(performer);
+        Collection<Pair<ResourceKey<Level>, CompoundTag>> conversions = row.values();
+        for (Pair<ResourceKey<Level>, CompoundTag> data : conversions) {
+            revertConversion(data, level);
         }
         row.clear();
     }
 
     public @Nullable Entity revertConversion(UUID performer, UUID entity, ServerLevel level) {
-        CompoundTag original = convertedEntities.remove(performer, entity);
+        Pair<ResourceKey<Level>, CompoundTag> original = convertedEntities.remove(performer, entity);
         if (original != null) {
             return revertConversion(original, level);
         }
@@ -196,7 +208,7 @@ public class AbilityReversionEntityData extends SavedData {
 
     public @Nullable Entity revertConversion(UUID entity, ServerLevel level) {
         for (UUID performer : convertedEntities.rowKeySet()) {
-            CompoundTag original = convertedEntities.remove(performer, entity);
+            Pair<ResourceKey<Level>, CompoundTag> original = convertedEntities.remove(performer, entity);
             if (original != null) {
                 return revertConversion(original, level);
             }
@@ -204,21 +216,32 @@ public class AbilityReversionEntityData extends SavedData {
         return null;
     }
 
-    private Entity revertConversion(CompoundTag original, ServerLevel level) {
-        UUID entityId = original.getUUID("UUID");
-        Entity entity = level.getEntity(entityId);
+    private Entity revertConversion(Pair<ResourceKey<Level>, CompoundTag> original, ServerLevel level) {
+        CompoundTag entityData = original.right();
+        UUID entityId = entityData.getUUID("UUID");
+        Entity entity = MineraculousEntityUtils.findEntity(level, entityId);
         Vec3 pos = null;
+        ServerLevel targetLevel;
         if (entity != null && !entity.isRemoved()) {
             pos = entity.position();
+            targetLevel = (ServerLevel) entity.level();
             entity.discard();
+        } else {
+            targetLevel = level.getServer().getLevel(original.left());
         }
-        entity = EntityType.loadEntityRecursive(original, level, e -> e);
-        if (entity != null) {
-            if (pos != null) {
-                entity.setPos(pos);
+
+        if (targetLevel != null) {
+            entity = EntityType.loadEntityRecursive(entityData, targetLevel, e -> e);
+            if (entity != null) {
+                if (pos != null) {
+                    entity.setPos(pos);
+                }
+                targetLevel.addFreshEntity(entity);
             }
-            level.addFreshEntity(entity);
+        } else {
+            entity = null;
         }
+
         setDirty();
         return entity;
     }
@@ -237,11 +260,16 @@ public class AbilityReversionEntityData extends SavedData {
         }
         tag.put("TrackedAndRelatedEntities", trackedAndRelated);
         ListTag revertible = new ListTag();
-        for (Map.Entry<UUID, List<CompoundTag>> entry : revertibleEntities.entrySet()) {
+        for (Map.Entry<UUID, List<Pair<ResourceKey<Level>, CompoundTag>>> entry : revertibleEntities.entrySet()) {
             CompoundTag compoundTag = new CompoundTag();
             compoundTag.putUUID("UUID", entry.getKey());
             ListTag entities = new ListTag();
-            entities.addAll(entry.getValue());
+            for (Pair<ResourceKey<Level>, CompoundTag> entityData : entry.getValue()) {
+                CompoundTag entity = new CompoundTag();
+                entity.put("Dimension", Level.RESOURCE_KEY_CODEC.encodeStart(NbtOps.INSTANCE, entityData.left()).getOrThrow());
+                entity.put("Data", entityData.right());
+                entities.add(entity);
+            }
             compoundTag.put("Entities", entities);
             revertible.add(compoundTag);
         }
@@ -262,10 +290,11 @@ public class AbilityReversionEntityData extends SavedData {
             CompoundTag compoundTag = new CompoundTag();
             compoundTag.putUUID("UUID", performer);
             ListTag entities = new ListTag();
-            for (Map.Entry<UUID, CompoundTag> entry : convertedEntities.row(performer).entrySet()) {
+            for (Map.Entry<UUID, Pair<ResourceKey<Level>, CompoundTag>> entry : convertedEntities.row(performer).entrySet()) {
                 CompoundTag entityData = new CompoundTag();
                 entityData.putUUID("UUID", entry.getKey());
-                entityData.put("Data", entry.getValue());
+                entityData.put("Dimension", Level.RESOURCE_KEY_CODEC.encodeStart(NbtOps.INSTANCE, entry.getValue().left()).getOrThrow());
+                entityData.put("Data", entry.getValue().right());
                 entities.add(entityData);
             }
             compoundTag.put("Entities", entities);
@@ -292,9 +321,13 @@ public class AbilityReversionEntityData extends SavedData {
             CompoundTag compoundTag = revertibleEntities.getCompound(i);
             UUID owner = compoundTag.getUUID("UUID");
             ListTag entities = compoundTag.getList("Entities", ListTag.TAG_COMPOUND);
-            List<CompoundTag> entityList = new ObjectArrayList<>();
-            for (int j = 0; j < entities.size(); j++)
-                entityList.add(entities.getCompound(j));
+            List<Pair<ResourceKey<Level>, CompoundTag>> entityList = new ObjectArrayList<>();
+            for (int j = 0; j < entities.size(); j++) {
+                CompoundTag entity = entities.getCompound(j);
+                ResourceKey<Level> dimension = Level.RESOURCE_KEY_CODEC.parse(NbtOps.INSTANCE, entity.get("Dimension")).getOrThrow();
+                CompoundTag data = entity.getCompound("Data");
+                entityList.add(Pair.of(dimension, data));
+            }
             abilityReversionEntityData.revertibleEntities.put(owner, entityList);
         }
         ListTag removableEntities = tag.getList("RemovableEntities", ListTag.TAG_COMPOUND);
@@ -315,8 +348,9 @@ public class AbilityReversionEntityData extends SavedData {
             for (int j = 0; j < entities.size(); j++) {
                 CompoundTag entityData = entities.getCompound(j);
                 UUID entity = entityData.getUUID("UUID");
+                ResourceKey<Level> dimension = Level.RESOURCE_KEY_CODEC.parse(NbtOps.INSTANCE, entityData.get("Dimension")).getOrThrow();
                 CompoundTag data = entityData.getCompound("Data");
-                abilityReversionEntityData.convertedEntities.put(performer, entity, data);
+                abilityReversionEntityData.convertedEntities.put(performer, entity, Pair.of(dimension, data));
             }
         }
         return abilityReversionEntityData;

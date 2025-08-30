@@ -134,11 +134,10 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.PHONE))
                 .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_phone"), inHandLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_phone"))))
                 .end()
-                // TODO: Replace with purify specific texture
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.PHONE) + 1)
-                .model(activeLadybugYoyo)
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.PURIFY))
+                .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_purify"), inHandLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_purify"))))
                 .end()
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)

@@ -14,7 +14,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
-public record MiraculousLadybugTargetData(Optional<Vec3> currentTarget, List<BlockPos> blockTargets) {
+public record MiraculousLadybugTargetData(Optional<Vec3> currentTarget, List<BlockPos> blockTargets, int sphereTicks) {
+
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousLadybugTargetData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.optional(TommyLibExtraStreamCodecs.VEC_3), MiraculousLadybugTargetData::currentTarget,
             StreamCodec.of(
@@ -33,14 +34,23 @@ public record MiraculousLadybugTargetData(Optional<Vec3> currentTarget, List<Blo
                         return list;
                     }),
             MiraculousLadybugTargetData::blockTargets,
+            ByteBufCodecs.INT, MiraculousLadybugTargetData::sphereTicks,
             MiraculousLadybugTargetData::new);
-
     public MiraculousLadybugTargetData(List<BlockPos> blockTargets) {
-        this(Optional.empty(), blockTargets);
+        this(Optional.empty(), blockTargets, 0);
     }
 
     public MiraculousLadybugTargetData() {
-        this(Optional.empty(), List.of());
+        this(Optional.empty(), List.of(), 0);
+    }
+
+    public void tick(Entity entity, boolean syncToClient) {
+        int newTick = Math.max(0, this.sphereTicks - 1);
+        MiraculousLadybugTargetData newData = new MiraculousLadybugTargetData(this.currentTarget, this.blockTargets, newTick);
+        entity.setData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET, newData);
+        if (syncToClient) {
+            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET, newData), entity.getServer());
+        }
     }
 
     public void save(Entity entity, boolean syncToClient) {

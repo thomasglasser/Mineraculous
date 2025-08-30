@@ -6,6 +6,7 @@ import static dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRen
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
@@ -54,11 +55,15 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         smoothedRotation.slerp(targetRotation, t);
 
         int maxLbCount = MineraculousClientConfig.get().magicLadybugsCount.get() * 100;
-        if (magicLadybugs.size() < maxLbCount) {
-            for (int i = 1; i <= 10 * (1 / entity.length); i++) {
-                summonMagicLadybug(entity);
+
+
+        //if (entity.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET).sphereTicks() == 0) {
+            if (magicLadybugs.size() < maxLbCount) {
+                for (int i = 1; i <= 10; i++) {
+                    summonMagicLadybug();
+                }
             }
-        }
+        //}
 
         while (magicLadybugs.size() > maxLbCount) {
             magicLadybugs.removeFirst();
@@ -67,7 +72,10 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         Random random = new Random();
 
         for (MagicLadybug it : magicLadybugs) {
-            it.move(new Vec3(0.1, 0, 0));
+            if (entity.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET).sphereTicks() == 0) {
+                it.move(new Vec3(0.1, 0, 0));
+            }
+
             double shakeStrength = MineraculousClientConfig.get().magicLadybugsShakeStrength.get() / 100f;
             double dx = 0;
             double dy = (random.nextDouble() - 0.5) * shakeStrength;
@@ -75,14 +83,16 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
             it.move(new Vec3(dx, dy, dz));
 
-            if (it.localPos.y > cometFunction(it.localPos.x))
-                it.localPos = new Vec3(it.localPos.x, cometFunction(it.localPos.x), it.localPos.z);
-            if (it.localPos.y < -cometFunction(it.localPos.x))
-                it.localPos = new Vec3(it.localPos.x, -cometFunction(it.localPos.x), it.localPos.z);
-            if (it.localPos.z > cometFunction(it.localPos.x))
-                it.localPos = new Vec3(it.localPos.x, it.localPos.y, cometFunction(it.localPos.x));
-            if (it.localPos.z < -cometFunction(it.localPos.x))
-                it.localPos = new Vec3(it.localPos.x, it.localPos.y, -cometFunction(it.localPos.x));
+            if (entity.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET).sphereTicks() == 0) {
+                if (it.localPos.y > cometFunction(it.localPos.x))
+                    it.localPos = new Vec3(it.localPos.x, cometFunction(it.localPos.x), it.localPos.z);
+                if (it.localPos.y < -cometFunction(it.localPos.x))
+                    it.localPos = new Vec3(it.localPos.x, -cometFunction(it.localPos.x), it.localPos.z);
+                if (it.localPos.z > cometFunction(it.localPos.x))
+                    it.localPos = new Vec3(it.localPos.x, it.localPos.y, cometFunction(it.localPos.x));
+                if (it.localPos.z < -cometFunction(it.localPos.x))
+                    it.localPos = new Vec3(it.localPos.x, it.localPos.y, -cometFunction(it.localPos.x));
+            }
         }
 
         poseStack.translate(-0.5, 0, -0.5);
@@ -92,10 +102,10 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
-    private void summonMagicLadybug(MiraculousLadybug entity) {
+    private void summonMagicLadybug() {
         double size = 0.1 + (Math.random() * (0.3 - 0.1));
         int maxLbCount = MineraculousClientConfig.get().magicLadybugsCount.get() * 100;
-        int lbLifetime = (int) ((double) maxLbCount / LADYBUG_DENSITY * entity.length);
+        int lbLifetime = (int) ((double) maxLbCount / LADYBUG_DENSITY);
         MagicLadybug it = new MagicLadybug(
                 new Vec3(Math.random() * 2 - 0.5, Math.random(), Math.random()), size, lbLifetime);
 

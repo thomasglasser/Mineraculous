@@ -23,7 +23,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public class MiraculousLadybug extends PathfinderMob {
-    public double length = 1;
+    boolean closeToTarget = false;
 
     public MiraculousLadybug(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -55,27 +55,29 @@ public class MiraculousLadybug extends PathfinderMob {
                         this.getY() + lookAngle.y + Math.random() * 5 - 2.5,
                         this.getZ() + lookAngle.z + Math.random() * 5 - 2.5,
                         0, 0, 0);
-            if (target != null) {
-                double distance = target.distanceTo(this.position());
-                this.length = distance < 20 ? 2 / distance : 1;
-            }
         } else {
             if (target == null && !blockTargets.isEmpty()) {
                 Vec3 nextTarget = blockTargets.remove(0).getCenter();
-                targetData = new MiraculousLadybugTargetData(Optional.of(nextTarget), blockTargets);
+                targetData = new MiraculousLadybugTargetData(Optional.of(nextTarget), blockTargets, targetData.sphereTicks());
                 targetData.save(this, true);
             } else if (target != null) {
                 Vec3 diff = target.subtract(this.position());
                 double distance = diff.length();
-                if (distance > 3) {
+                if (distance > 1) {
                     this.setDeltaMovement(diff.normalize());
                     this.hurtMarked = true;
                 }
-                if (distance < 4) {
-                    targetData = new MiraculousLadybugTargetData(Optional.empty(), blockTargets);
+                if (distance <= 4) {
+                    targetData = new MiraculousLadybugTargetData(targetData.currentTarget(), blockTargets, 30);
+                    targetData.save(this, true);
+                }
+                if (distance <= 1) {
+                    targetData = new MiraculousLadybugTargetData(Optional.empty(), blockTargets, targetData.sphereTicks());
                     targetData.save(this, true);
                 }
             }
+
+            this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET).tick(this, true);
         }
     }
 

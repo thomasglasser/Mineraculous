@@ -120,8 +120,8 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                 if (stack.get(MineraculousDataComponents.CARRIER) != null) {
                     int carrierID = stack.get(MineraculousDataComponents.CARRIER);
                     Entity entity = ClientUtils.getEntityById(carrierID);
-                    if (entity instanceof LivingEntity livingEntity) {
-                        boolean travelEligible = livingEntity.getUseItem() == stack && !livingEntity.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == Ability.TRAVEL && !livingEntity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling();
+                    if (entity instanceof Player player) {
+                        boolean travelEligible = player.getUseItem() == stack && !player.getCooldowns().isOnCooldown(stack.getItem()) && !player.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == Ability.TRAVEL && !player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling();
                         if (stack.has(MineraculousDataComponents.BLOCKING) || travelEligible) {
                             return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
                         }
@@ -216,9 +216,11 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     @Override
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         super.onUseTick(level, livingEntity, stack, remainingUseDuration);
-        boolean travelEligible = !livingEntity.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == Ability.TRAVEL && !livingEntity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling() && stack.getUseDuration(livingEntity) - remainingUseDuration > 1;
-        if ((stack.has(MineraculousDataComponents.BLOCKING) || travelEligible) && remainingUseDuration % 10 == 0) {
-            livingEntity.playSound(MineraculousSoundEvents.GENERIC_SPIN.get());
+        if (livingEntity instanceof Player player) {
+            boolean travelEligible = !player.getCooldowns().isOnCooldown(stack.getItem()) && !player.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == Ability.TRAVEL && !player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling() && stack.getUseDuration(livingEntity) - remainingUseDuration > 1;
+            if ((stack.has(MineraculousDataComponents.BLOCKING) || travelEligible) && remainingUseDuration % 10 == 0) {
+                player.playSound(MineraculousSoundEvents.GENERIC_SPIN.get());
+            }
         }
     }
 

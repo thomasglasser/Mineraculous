@@ -3,6 +3,9 @@ package dev.thomasglasser.mineraculous.impl.world.item.ability;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
@@ -53,9 +56,11 @@ public class CatStaffTravelHandler {
             traveling = true;
         } else {
             if (livingEntity.onGround()) {
-                lookAngle = new Vec3(lookAngle.x, 0, lookAngle.z).normalize();
                 livingEntity.hurtMarked = true;
-                livingEntity.setDeltaMovement(lookAngle.scale(4));
+                livingEntity.setDeltaMovement(lookAngle.scale(6));
+                if (livingEntity instanceof Player player) {
+                    player.getCooldowns().addCooldown(MineraculousItems.CAT_STAFF.get(), 20);
+                }
             }
             traveling = false;
         }
@@ -93,7 +98,7 @@ public class CatStaffTravelHandler {
                 didLaunch = true;
             }
 
-            if (didLaunch && livingEntity.getDeltaMovement().y < 0.5) {
+            if (didLaunch && livingEntity.getDeltaMovement().y < -0.08) {
                 TravelingCatStaffData.remove(livingEntity, true);
             } else {
                 TravelingCatStaffData newTravelData = new TravelingCatStaffData(
@@ -104,7 +109,7 @@ public class CatStaffTravelHandler {
                 newTravelData.save(livingEntity, true);
             }
             applyCollisionDamage(livingEntity);
-        } else if (livingEntity.getUseItem() == stack && !livingEntity.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL && !livingEntity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling()) {
+        } else if (livingEntity instanceof Player player && !player.getCooldowns().isOnCooldown(stack.getItem()) && livingEntity.getUseItem() == stack && !livingEntity.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL && !livingEntity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling()) {
             MineraculousItemUtils.applyHelicopterSlowFall(livingEntity);
         }
     }
@@ -125,7 +130,6 @@ public class CatStaffTravelHandler {
                 entity.hurt(entity.damageSources().flyIntoWall(), damage);
             }
         }
-        if (entity.verticalCollision || entity.verticalCollisionBelow) TravelingCatStaffData.remove(entity, true);
     }
 
     private static void launchLivingEntity(ItemStack stack, LivingEntity livingEntity, TravelingCatStaffData travelingCatStaffData) {

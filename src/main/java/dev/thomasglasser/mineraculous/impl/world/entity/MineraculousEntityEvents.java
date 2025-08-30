@@ -274,7 +274,7 @@ public class MineraculousEntityEvents {
             MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
             for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
                 Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-                if (miraculous != null) {
+                if (stack.is(MineraculousItems.MIRACULOUS) && miraculous != null) {
                     MiraculousData data = miraculousesData.get(miraculous);
                     if (data.transformed()) {
                         data.detransform(entity, level, miraculous, stack, true);
@@ -319,7 +319,7 @@ public class MineraculousEntityEvents {
                 if (recoverer != null) {
                     UUID id = UUID.randomUUID();
                     AbilityReversionItemData.get(level).putRemovable(recoverer, id);
-                    item.getItem().set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
+                    item.getItem().set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, id);
                 }
             }
         }

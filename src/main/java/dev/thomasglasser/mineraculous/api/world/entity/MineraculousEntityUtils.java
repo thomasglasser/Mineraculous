@@ -173,4 +173,13 @@ public class MineraculousEntityUtils {
             AbilityReversionEntityData.get(level).putRemovable(player.getUUID(), entity);
         }
     }
+
+    public static @Nullable Entity findEntity(ServerLevel level, UUID uuid) {
+        for (ServerLevel serverLevel : level.getServer().getAllLevels()) {
+            Entity entity = serverLevel.getEntity(uuid);
+            if (entity != null)
+                return entity;
+        }
+        return null;
+    }
 }

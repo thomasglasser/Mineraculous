@@ -302,7 +302,7 @@ public class MineraculousClientEvents {
     static void onKeyInput(InputEvent.Key event) {
         if (MineraculousClientUtils.isInKamikoView()) {
             for (int i = 0; i < 9; i++) {
-                if (Minecraft.getInstance().options.keyHotbarSlots[i].consumeClick()) {
+                while (Minecraft.getInstance().options.keyHotbarSlots[i].consumeClick()) {
                     MineraculousGuis.getKamikoGui().onHotbarSelected(i);
                 }
             }

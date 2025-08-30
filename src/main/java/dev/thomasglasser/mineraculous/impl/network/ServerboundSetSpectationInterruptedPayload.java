@@ -19,8 +19,10 @@ public record ServerboundSetSpectationInterruptedPayload(Optional<Integer> targe
 
     @Override
     public void handle(Player player) {
-        Entity target = targetId.map(player.level()::getEntity).orElse(player);
-        target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withSpectationInterrupted().save(target, true);
+        Entity target = targetId.isPresent() ? player.level().getEntity(targetId.get()) : player;
+        if (target != null) {
+            target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withSpectationInterrupted().save(target, true);
+        }
     }
 
     @Override

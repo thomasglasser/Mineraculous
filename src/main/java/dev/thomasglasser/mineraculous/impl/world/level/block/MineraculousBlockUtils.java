@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 public class MineraculousBlockUtils {
     public static void checkAndTrackLuckyCharmBlock(@Nullable Player player, ServerLevel level, BlockPos pos, ItemStack stack) {
         if (player != null && stack.has(MineraculousDataComponents.LUCKY_CHARM)) {
-            AbilityReversionBlockData.get(level).putRevertible(player.getUUID(), pos, level.getBlockState(pos));
+            AbilityReversionBlockData.get(level).putRevertible(player.getUUID(), level.dimension(), pos, level.getBlockState(pos));
         }
     }
 }

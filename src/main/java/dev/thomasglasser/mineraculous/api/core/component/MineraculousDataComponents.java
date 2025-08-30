@@ -69,7 +69,7 @@ public class MineraculousDataComponents {
     /// The {@link LuckyCharm} data associated with the summoned stack.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<LuckyCharm>> LUCKY_CHARM = DATA_COMPONENTS.register("lucky_charm", LuckyCharm.STREAM_CODEC, LuckyCharm.CODEC, false);
     /// A {@link UUID} registered to {@link AbilityReversionItemData} for ability reversion.
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> RECOVERABLE_ITEM_ID = DATA_COMPONENTS.register("recoverable_item_id", UUIDUtil.STREAM_CODEC, UUIDUtil.CODEC, false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> REVERTIBLE_ITEM_ID = DATA_COMPONENTS.register("revertible_item_id", UUIDUtil.STREAM_CODEC, UUIDUtil.CODEC, false);
 
     // Miraculous
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Holder<Miraculous>>> MIRACULOUS = DATA_COMPONENTS.register("miraculous", Miraculous.STREAM_CODEC, Miraculous.CODEC, false);

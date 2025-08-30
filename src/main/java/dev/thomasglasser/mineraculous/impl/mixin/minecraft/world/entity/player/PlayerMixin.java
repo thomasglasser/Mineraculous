@@ -42,7 +42,6 @@ public abstract class PlayerMixin extends LivingEntity implements Leashable {
         return MineraculousEntityUtils.formatDisplayName(mineraculous$instance, original).copy();
     }
 
-    // Hurt camera when transformed
     @Override
     public void swing(InteractionHand hand, boolean updateSelf) {
         AbilityEffectData abilityEffectData = getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);

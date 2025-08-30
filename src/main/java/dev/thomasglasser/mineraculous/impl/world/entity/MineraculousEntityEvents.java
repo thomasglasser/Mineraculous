@@ -42,9 +42,11 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.portal.DimensionTransition;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
@@ -264,6 +266,18 @@ public class MineraculousEntityEvents {
     public static void onLivingHeal(LivingHealEvent event) {
         if (event.getEntity().hasEffect(MineraculousMobEffects.CATACLYSM)) {
             event.setCanceled(true);
+        }
+    }
+
+    public static void onEntityTravelToDimension(EntityTravelToDimensionEvent event) {
+        Entity entity = event.getEntity();
+        if (entity instanceof LivingEntity livingEntity) {
+            Level level = entity.level();
+            for (Entity other : level.getEntities().getAll()) {
+                if (other instanceof Kwami kwami && kwami.isOwnedBy(livingEntity)) {
+                    kwami.changeDimension(new DimensionTransition(level.getServer().getLevel(event.getDimension()), entity, DimensionTransition.DO_NOTHING));
+                }
+            }
         }
     }
 

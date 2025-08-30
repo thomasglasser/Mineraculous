@@ -115,10 +115,6 @@ public class MineraculousClientEvents {
             event.insertAfter(Items.COBWEB.getDefaultInstance(), MineraculousBlocks.CATACLYSM_BLOCK.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         } else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
             event.insertAfter(Items.LOOM.getDefaultInstance(), MineraculousBlocks.CHEESE_POT.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-            addCheeses(event, MineraculousBlocks.CHEESE_POT.toStack(), MineraculousItems.WAXED_CHEESE);
-            addCheeses(event, MineraculousItems.WAXED_CHEESE.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousBlocks.WAXED_CHEESE);
-            addCheeses(event, MineraculousBlocks.WAXED_CHEESE.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousItems.WAXED_CAMEMBERT);
-            addCheeses(event, MineraculousItems.WAXED_CAMEMBERT.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousBlocks.WAXED_CAMEMBERT);
         } else if (event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS) {
 
         } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
@@ -133,6 +129,10 @@ public class MineraculousClientEvents {
             addCheeses(event, MineraculousItems.CHEESE.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousBlocks.CHEESE);
             addCheeses(event, MineraculousBlocks.CHEESE.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousItems.CAMEMBERT);
             addCheeses(event, MineraculousItems.CAMEMBERT.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousBlocks.CAMEMBERT);
+            addCheeses(event, MineraculousBlocks.CAMEMBERT.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousItems.WAXED_CHEESE);
+            addCheeses(event, MineraculousItems.WAXED_CHEESE.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousBlocks.WAXED_CHEESE);
+            addCheeses(event, MineraculousBlocks.WAXED_CHEESE.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousItems.WAXED_CAMEMBERT);
+            addCheeses(event, MineraculousItems.WAXED_CAMEMBERT.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousBlocks.WAXED_CAMEMBERT);
         } else if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
             event.insertAfter(Items.BLAZE_POWDER.getDefaultInstance(), MineraculousItems.CATACLYSM_DUST.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
 

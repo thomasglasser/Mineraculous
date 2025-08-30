@@ -305,13 +305,12 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
                 Entity owner = level.getEntities().get(ownerId);
                 if (owner != null) {
                     MiraculousesData miraculousesData = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                    MiraculousData storingData = miraculousesData.get(miraculousesData.getFirstTransformedIn(MiraculousTags.CAN_USE_BUTTERFLY_CANE));
                     String anim = null;
                     if (selected == Ability.BLADE)
                         anim = ANIMATION_UNSHEATHE;
-                    else if ((selected == Ability.KAMIKO_STORE && storingData != null && storingData.storedEntities().isEmpty()) || selected == Ability.SPYGLASS || selected == Ability.PHONE)
+                    else if ((selected == Ability.KAMIKO_STORE && miraculousesData.hasStoredEntities(MiraculousTags.CAN_USE_BUTTERFLY_CANE)) || selected == Ability.SPYGLASS || selected == Ability.PHONE)
                         anim = ANIMATION_OPEN;
-                    else if ((old == Ability.KAMIKO_STORE && storingData != null && storingData.storedEntities().isEmpty()) || old == Ability.SPYGLASS || old == Ability.PHONE)
+                    else if ((old == Ability.KAMIKO_STORE && miraculousesData.hasStoredEntities(MiraculousTags.CAN_USE_BUTTERFLY_CANE)) || old == Ability.SPYGLASS || old == Ability.PHONE)
                         anim = ANIMATION_CLOSE;
                     else if (old == Ability.BLADE)
                         anim = ANIMATION_SHEATHE;

@@ -101,6 +101,14 @@ public class MiraculousesData {
         return null;
     }
 
+    public boolean hasStoredEntities(TagKey<Miraculous> tag) {
+        Holder<Miraculous> miraculous = getFirstTransformedIn(tag);
+        if (miraculous != null) {
+            return !get(miraculous).storedEntities().isEmpty();
+        }
+        return false;
+    }
+
     public void save(Entity entity, boolean syncToClient) {
         entity.setData(MineraculousAttachmentTypes.MIRACULOUSES, this);
         if (syncToClient)

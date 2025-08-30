@@ -58,69 +58,23 @@
   },
   "gui_light": "front",
   "loader": "neoforge:separate_transforms",
-  "overrides": [
-    {
-      "model": "mineraculous:item/butterfly_cane_blade",
-      "predicate": {
-        "mineraculous:ability": 1.0
-      }
-    },
-    {
-      "model": "mineraculous:item/butterfly_cane",
-      "predicate": {
-        "mineraculous:ability": 2.0
-      }
-    },
-    {
-      "model": "mineraculous:item/butterfly_cane_kamiko_store",
-      "predicate": {
-        "mineraculous:ability": 3.0,
-        "mineraculous:storing": 0.0
-      }
-    },
-    {
-      "model": "mineraculous:item/butterfly_cane",
-      "predicate": {
-        "mineraculous:ability": 3.0,
-        "mineraculous:storing": 1.0
-      }
-    },
-    {
-      "model": "mineraculous:item/butterfly_cane_phone",
-      "predicate": {
-        "mineraculous:ability": 4.0
-      }
-    },
-    {
-      "model": "mineraculous:item/butterfly_cane_spyglass",
-      "predicate": {
-        "mineraculous:ability": 5.0
-      }
-    },
-    {
-      "model": "mineraculous:item/butterfly_cane",
-      "predicate": {
-        "mineraculous:ability": 6.0
-      }
-    }
-  ],
   "perspectives": {
     "fixed": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/butterfly_cane"
+        "layer0": "mineraculous:item/butterfly_cane_phone"
       }
     },
     "ground": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/butterfly_cane"
+        "layer0": "mineraculous:item/butterfly_cane_phone"
       }
     },
     "gui": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/butterfly_cane"
+        "layer0": "mineraculous:item/butterfly_cane_phone"
       }
     }
   }

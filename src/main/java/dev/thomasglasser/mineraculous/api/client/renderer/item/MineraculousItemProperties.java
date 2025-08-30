@@ -1,18 +1,21 @@
 package dev.thomasglasser.mineraculous.api.client.renderer.item;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
+import java.util.UUID;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.item.ItemPropertyFunction;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -38,6 +41,8 @@ public class MineraculousItemProperties {
     public static final ResourceLocation ABILITY = Mineraculous.modLoc("ability");
     /// Thrown state of a {@link LadybugYoyoItem}.
     public static final ResourceLocation THROWN = Mineraculous.modLoc("thrown");
+    /// Whether a {@link ButterflyCaneItem} owner is currently storing a kamiko
+    public static final ResourceLocation STORING = Mineraculous.modLoc("storing");
 
     /**
      * Creates an {@link ItemPropertyFunction} for an {@link Enum} {@link DataComponentType} based on ordinal.
@@ -97,5 +102,17 @@ public class MineraculousItemProperties {
         });
         ItemProperties.register(MineraculousItems.CAT_STAFF.get(), ABILITY, getEnumPropertyFunction(MineraculousDataComponents.CAT_STAFF_ABILITY.get()));
         ItemProperties.register(MineraculousItems.BUTTERFLY_CANE.get(), ABILITY, getEnumPropertyFunction(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()));
+        ItemProperties.register(MineraculousItems.BUTTERFLY_CANE.get(), STORING, (stack, level, entity, seed) -> {
+            UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
+            if (ownerId != null && level != null) {
+                Entity owner = level.getEntities().get(ownerId);
+                if (owner != null) {
+                    if (owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).hasStoredEntities(MiraculousTags.CAN_USE_BUTTERFLY_CANE)) {
+                        return 1;
+                    }
+                }
+            }
+            return 0;
+        });
     }
 }

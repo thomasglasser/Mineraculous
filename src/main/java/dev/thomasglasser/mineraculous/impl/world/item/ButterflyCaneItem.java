@@ -210,25 +210,26 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
 
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeLeft) {
-        if (livingEntity instanceof Player player) {
-            if (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()) == Ability.THROW || stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()) == Ability.BLADE) {
-                int i = this.getUseDuration(stack, livingEntity) - timeLeft;
-                if (i >= 10) {
-                    if (!level.isClientSide) {
-                        ThrownButterflyCane thrown = new ThrownButterflyCane(level, livingEntity, stack);
-                        thrown.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F, 1.0F);
-                        stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(livingEntity.getUsedItemHand()));
-                        if (player.hasInfiniteMaterials()) {
-                            thrown.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
-                        }
-
-                        level.addFreshEntity(thrown);
-                        level.playSound(null, thrown, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
-                        if (!player.hasInfiniteMaterials()) {
-                            player.getInventory().removeItem(stack);
-                        }
+        Ability ability = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY);
+        if (ability == Ability.THROW || ability == Ability.BLADE) {
+            int i = this.getUseDuration(stack, livingEntity) - timeLeft;
+            if (i >= 10) {
+                if (!level.isClientSide) {
+                    ThrownButterflyCane thrown = new ThrownButterflyCane(level, livingEntity, stack);
+                    thrown.shootFromRotation(livingEntity, livingEntity.getXRot(), livingEntity.getYRot(), 0.0F, 2.5F, 1.0F);
+                    stack.hurtAndBreak(1, livingEntity, LivingEntity.getSlotForHand(livingEntity.getUsedItemHand()));
+                    if (livingEntity.hasInfiniteMaterials()) {
+                        thrown.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
                     }
 
+                    level.addFreshEntity(thrown);
+                    level.playSound(null, thrown, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                    if (!livingEntity.hasInfiniteMaterials() && livingEntity instanceof Player player) {
+                        player.getInventory().removeItem(stack);
+                    }
+                }
+
+                if (livingEntity instanceof Player player) {
                     player.awardStat(Stats.ITEM_USED.get(this));
                 }
             }
@@ -308,9 +309,9 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
                     String anim = null;
                     if (selected == Ability.BLADE)
                         anim = ANIMATION_UNSHEATHE;
-                    else if ((selected == Ability.KAMIKO_STORE && miraculousesData.hasStoredEntities(MiraculousTags.CAN_USE_BUTTERFLY_CANE)) || selected == Ability.SPYGLASS || selected == Ability.PHONE)
+                    else if ((selected == Ability.KAMIKO_STORE && !miraculousesData.hasStoredEntities(MiraculousTags.CAN_USE_BUTTERFLY_CANE)) || selected == Ability.SPYGLASS || selected == Ability.PHONE)
                         anim = ANIMATION_OPEN;
-                    else if ((old == Ability.KAMIKO_STORE && miraculousesData.hasStoredEntities(MiraculousTags.CAN_USE_BUTTERFLY_CANE)) || old == Ability.SPYGLASS || old == Ability.PHONE)
+                    else if ((old == Ability.KAMIKO_STORE && !miraculousesData.hasStoredEntities(MiraculousTags.CAN_USE_BUTTERFLY_CANE)) || old == Ability.SPYGLASS || old == Ability.PHONE)
                         anim = ANIMATION_CLOSE;
                     else if (old == Ability.BLADE)
                         anim = ANIMATION_SHEATHE;

@@ -27,7 +27,7 @@ public class MineraculousParticleRenderTypes {
 
         @Override
         public String toString() {
-            return Mineraculous.modLoc("PARTICLE_SHEET_ADDITIVE_TRANSLUCENT").toString();
+            return Mineraculous.MOD_ID + ":PARTICLE_SHEET_ADDITIVE_TRANSLUCENT";
         }
     };
 }

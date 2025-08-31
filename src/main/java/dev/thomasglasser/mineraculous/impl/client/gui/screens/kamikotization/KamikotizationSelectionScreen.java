@@ -371,4 +371,9 @@ public class KamikotizationSelectionScreen extends Screen {
     public void onClose() {
         onClose(true);
     }
+
+    @Override
+    public void removed() {
+        Mineraculous.LOGGER.warn("KamikotizationSelectionScreen forcefully closed, this will not spawn a Kamiko.");
+    }
 }

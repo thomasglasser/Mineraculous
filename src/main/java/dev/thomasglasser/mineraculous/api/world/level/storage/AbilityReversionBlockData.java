@@ -54,9 +54,9 @@ public class AbilityReversionBlockData extends SavedData {
         revertibleBlocks.put(owner, Pair.of(dimension, pos), state);
     }
 
-    public UUID getCause(BlockPos pos) {
+    public UUID getCause(ResourceKey<Level> dimension, BlockPos pos) {
         for (Table.Cell<UUID, Pair<ResourceKey<Level>, BlockPos>, BlockState> cell : revertibleBlocks.cellSet()) {
-            if (cell.getColumnKey().equals(pos))
+            if (cell.getColumnKey().equals(Pair.of(dimension, pos)))
                 return cell.getRowKey();
         }
         return null;

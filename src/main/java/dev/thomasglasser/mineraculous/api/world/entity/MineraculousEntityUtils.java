@@ -174,6 +174,13 @@ public class MineraculousEntityUtils {
         }
     }
 
+    /**
+     * Finds an entity in whatever level is currently loaded with the provided {@link UUID}.
+     *
+     * @param level The level to pull the level list from
+     * @param uuid  The {@link UUID} of the entity to find
+     * @return The found entity, or null if not found
+     */
     public static @Nullable Entity findEntity(ServerLevel level, UUID uuid) {
         for (ServerLevel serverLevel : level.getServer().getAllLevels()) {
             Entity entity = serverLevel.getEntity(uuid);

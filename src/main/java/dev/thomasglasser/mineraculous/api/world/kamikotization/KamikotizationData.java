@@ -52,6 +52,7 @@ import org.jetbrains.annotations.Nullable;
  * @param kamikotization       The current Kamikotization
  * @param kamikoData           The current {@link KamikoData}
  * @param name                 The name override of the kamikotized entity
+ * @param revertibleId         The unique identifier for the kamikotized item
  * @param transformationFrames The remaining transformation frames for the current kamikotization if present
  * @param remainingStackCount  The remaining number of stacks to be broken for the kamikotization to end
  * @param powerActive          Whether the kamikotized entity's power is active

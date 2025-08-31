@@ -31,6 +31,7 @@ import org.jetbrains.annotations.Nullable;
  * @param privateChat                   Whether spectation should disallow messages not from the performer or target
  * @param allowRemoteDamage             Whether spectation should allow remote damage from performer to target on performer swing
  * @param allowKamikotizationRevocation Whether spectation should allow revoking kamikotization via a button on the performer's screen
+ * @param overrideOwner                 Whether spectation should override the owner of the target with the performer
  * @param shader                        The shader to apply to the performer on spectation
  * @param faceMaskTexture               The face mask texture to apply to the performer on spectation
  * @param startSound                    The sound to play when spectation begins

@@ -6,7 +6,6 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.entity.projectile.ItemBreakingQuicklyReturningThrownSword;
 import dev.thomasglasser.mineraculous.api.world.item.LeftClickTrackingItem;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
@@ -249,9 +248,9 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                 }
             }
         } else if (ability == Ability.PERCH) {
-            PerchingCatStaffData perchingCatStaffData = entityLiving.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-            CatStaffPerchHandler.itemUsed(level, entityLiving, perchingCatStaffData);
-            if (entityLiving instanceof Player player) {
+            PerchingCatStaffData perchingCatStaffData = livingEntity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+            CatStaffPerchHandler.itemUsed(level, livingEntity, perchingCatStaffData);
+            if (livingEntity instanceof Player player) {
                 player.awardStat(Stats.ITEM_USED.get(this));
             }
         }

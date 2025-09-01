@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
-import dev.thomasglasser.mineraculous.api.client.gui.MineraculousGuiLayers;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.KamikotizationParticle;
@@ -34,7 +34,6 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTes
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.FaceMaskLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.LegacyDevTeamLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer;
-import dev.thomasglasser.mineraculous.impl.client.renderer.item.ButterflyCaneRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSwingOffhandPayload;
@@ -267,26 +266,15 @@ public class MineraculousClientEvents {
         }, MineraculousItems.LADYBUG_YOYO);
         event.registerItem(new IClientItemExtensions() {
             private BlockEntityWithoutLevelRenderer renderer;
-
-            @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                if (renderer == null) renderer = new ButterflyCaneRenderer();
-                return renderer;
-            }
-
-            @Override
-            public ResourceLocation getScopeOverlayTexture(ItemStack stack) {
-                return ButterflyCaneRenderer.SPYGLASS_SCOPE_LOCATION;
-            }
         }, MineraculousItems.BUTTERFLY_CANE);
     }
 
     // GUI
     static void onRegisterGuiLayers(RegisterGuiLayersEvent event) {
-        event.registerAboveAll(MineraculousGuiLayers.STEALING_PROGRESS_BAR, MineraculousGuis::renderStealingProgressBar);
-        event.registerAboveAll(MineraculousGuiLayers.REVOKE_BUTTON, MineraculousGuis::renderRevokeButton);
-        event.registerAboveAll(MineraculousGuiLayers.KAMIKO_HOTBAR, MineraculousGuis.getKamikoGui()::renderHotbar);
-        event.registerAboveAll(MineraculousGuiLayers.KAMIKO_TOOLTIP, MineraculousGuis.getKamikoGui()::renderTooltip);
+        event.registerAboveAll(Mineraculous.modLoc("stealing_progress_bar"), MineraculousGuis::renderStealingProgressBar);
+        event.registerAboveAll(Mineraculous.modLoc("revoke_button"), MineraculousGuis::renderRevokeButton);
+        event.registerAboveAll(Mineraculous.modLoc("kamiko_hotbar"), MineraculousGuis.getKamikoGui()::renderHotbar);
+        event.registerAboveAll(Mineraculous.modLoc("kamiko_tooltip"), MineraculousGuis.getKamikoGui()::renderTooltip);
     }
 
     // Tick
@@ -363,15 +351,6 @@ public class MineraculousClientEvents {
     static void onRenderHand(RenderHandEvent event) {
         if (MineraculousClientUtils.getCameraEntity() != Minecraft.getInstance().player) {
             event.setCanceled(true);
-        }
-    }
-
-    static void onPreRenderGuiLayer(RenderGuiLayerEvent.Pre event) {
-        Player player = ClientUtils.getLocalPlayer();
-        if (player != null && player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).spectatingId().isPresent()) {
-            if (!MineraculousGuiLayers.isAllowedSpectatingGuiLayer(event.getName())) {
-                event.setCanceled(true);
-            }
         }
     }
 

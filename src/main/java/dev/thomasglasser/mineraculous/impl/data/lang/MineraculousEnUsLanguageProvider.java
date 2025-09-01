@@ -136,8 +136,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     private void addEntityTypes() {
-        add(MineraculousEntityTypes.KAMIKO.get(), MineraculousItems.KAMIKO_SPAWN_EGG.get(), "Kamiko");
-
+        add(MineraculousEntityTypes.KAMIKO.get(), "Kamiko");
         add(MineraculousEntityTypes.KWAMI.get(), "Kwami");
         add(MineraculousEntityTypes.LUCKY_CHARM_ITEM_SPAWNER.get(), "Lucky Charm Item Spawner");
         add(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), "Ladybug Yoyo");

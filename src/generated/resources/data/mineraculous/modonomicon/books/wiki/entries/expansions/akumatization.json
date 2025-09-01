@@ -5,7 +5,9 @@
   "description": "book.mineraculous.wiki.expansions.akumatization.description",
   "hide_while_locked": false,
   "icon": {
-    "item": "mineraculous:kamiko_spawn_egg"
+    "height": 16,
+    "texture": "mineraculous:textures/modonomicon/wiki/akumatization/icon.png",
+    "width": 16
   },
   "name": "book.mineraculous.wiki.expansions.akumatization.name",
   "pages": [

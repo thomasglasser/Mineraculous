@@ -66,8 +66,6 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
 
         withEntityModel(MineraculousItems.MIRACULOUS).guiLight(BlockModel.GuiLight.FRONT);
 
-        spawnEggItem(MineraculousItems.KAMIKO_SPAWN_EGG);
-
         basicItem(MineraculousItems.CATACLYSM_DUST.get());
         basicItem(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE);
         basicItem(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE);

@@ -61,7 +61,7 @@ public class KamikosEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(WikiBookSubProvider.wikiTexture("flora_and_fauna/kamikos/powered.png"));
+        return BookIconModel.create(WikiBookSubProvider.wikiTexture("flora_and_fauna/kamikos/powered.png"), 218, 218);
     }
 
     @Override

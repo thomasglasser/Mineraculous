@@ -5,9 +5,9 @@
   "description": "book.mineraculous.wiki.flora_and_fauna.kamikos.description",
   "hide_while_locked": false,
   "icon": {
-    "height": 16,
+    "height": 218,
     "texture": "mineraculous:textures/modonomicon/wiki/flora_and_fauna/kamikos/powered.png",
-    "width": 16
+    "width": 218
   },
   "name": "book.mineraculous.wiki.flora_and_fauna.kamikos.name",
   "pages": [

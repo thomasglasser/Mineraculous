@@ -129,6 +129,7 @@ public class MineraculousItemUtils {
         }
     }
 
+
     /**
      * Slows fall and cancels damage for the entity blocking with the item pointed upwards.
      *

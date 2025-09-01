@@ -56,13 +56,12 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
         int maxLbCount = MineraculousClientConfig.get().magicLadybugsCount.get() * 100;
 
-
         //if (entity.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET).sphereTicks() == 0) {
-            if (magicLadybugs.size() < maxLbCount) {
-                for (int i = 1; i <= 10; i++) {
-                    summonMagicLadybug();
-                }
+        if (magicLadybugs.size() < maxLbCount) {
+            for (int i = 1; i <= 10; i++) {
+                summonMagicLadybug();
             }
+        }
         //}
 
         while (magicLadybugs.size() > maxLbCount) {

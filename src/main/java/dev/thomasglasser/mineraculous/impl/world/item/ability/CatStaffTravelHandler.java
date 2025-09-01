@@ -1,11 +1,9 @@
 package dev.thomasglasser.mineraculous.impl.world.item.ability;
 
-import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
-import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.LivingEntity;
@@ -21,14 +19,18 @@ import org.joml.Vector3f;
 
 public class CatStaffTravelHandler {
     public static void tick(ItemStack stack, Level level, LivingEntity livingEntity) {
+        TravelingCatStaffData travelingCatStaffData = livingEntity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
         if (!level.isClientSide) {
-            TravelingCatStaffData travelingCatStaffData = livingEntity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
-            behaviour(stack, livingEntity, travelingCatStaffData);
+            behavior(stack, livingEntity, travelingCatStaffData);
         }
 
-        if (livingEntity instanceof Player player)
-            if (player.getCooldowns().isOnCooldown(stack.getItem()))
+        if (livingEntity instanceof Player player) {
+            if (player.getCooldowns().isOnCooldown(stack.getItem())) {
                 livingEntity.resetFallDistance();
+            } else if (!travelingCatStaffData.traveling() && livingEntity.getUseItem() == stack && !livingEntity.onGround()) {
+                MineraculousItemUtils.applyHelicopterSlowFall(livingEntity);
+            }
+        }
     }
 
     public static void init(Level level, LivingEntity livingEntity) {
@@ -75,7 +77,7 @@ public class CatStaffTravelHandler {
         newTravelData.save(livingEntity, true);
     }
 
-    private static void behaviour(ItemStack stack, LivingEntity livingEntity, TravelingCatStaffData travelData) {
+    private static void behavior(ItemStack stack, LivingEntity livingEntity, TravelingCatStaffData travelData) {
         if (travelData.traveling()) {
 
             float length = travelData.length();
@@ -107,8 +109,6 @@ public class CatStaffTravelHandler {
                 newTravelData.save(livingEntity, true);
             }
             applyCollisionDamage(livingEntity);
-        } else if (livingEntity instanceof Player player && !player.getCooldowns().isOnCooldown(stack.getItem()) && livingEntity.getUseItem() == stack && !livingEntity.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL && !livingEntity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling()) {
-            MineraculousItemUtils.applyHelicopterSlowFall(livingEntity);
         }
     }
 

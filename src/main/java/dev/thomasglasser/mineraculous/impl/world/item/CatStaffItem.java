@@ -176,25 +176,25 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
                             case TRAVEL -> CatStaffTravelHandler.tick(stack, level, livingEntity);
                             default -> {
                                 if (!level.isClientSide) {
-                                    if (perchingData != PerchingCatStaffData.emptyData)
+                                    if (perchingData != PerchingCatStaffData.DEFAULT)
                                         PerchingCatStaffData.remove(livingEntity, true);
-                                    if (travelingData != TravelingCatStaffData.emptyData)
+                                    if (travelingData != TravelingCatStaffData.DEFAULT)
                                         TravelingCatStaffData.remove(livingEntity, true);
                                 }
                             }
                         }
-                        MineraculousItemUtils.checkHelicopterSlowFall(stack, entity);
                     } else {
                         if (!level.isClientSide) {
-                            if (perchingData != PerchingCatStaffData.emptyData)
+                            if (perchingData != PerchingCatStaffData.DEFAULT)
                                 PerchingCatStaffData.remove(livingEntity, true);
-                            if (travelingData != TravelingCatStaffData.emptyData)
+                            if (travelingData != TravelingCatStaffData.DEFAULT)
                                 TravelingCatStaffData.remove(livingEntity, true);
                         }
                     }
                 }
             }
         }
+        MineraculousItemUtils.checkHelicopterSlowFall(stack, entity);
     }
 
     @Override
@@ -285,6 +285,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
             CatStaffPerchHandler.itemLeftClicked(level, livingEntity, perchingCatStaffData);
             if (livingEntity instanceof Player player) {
                 player.awardStat(Stats.ITEM_USED.get(this));
+                return true;
             }
         }
         return false;

@@ -280,9 +280,8 @@ public class MineraculousClientEvents {
         if (player != null) {
             checkYoyoInput(player);
             if (Minecraft.getInstance().player.level() != null)
-                for (Player playerIterator : Minecraft.getInstance().player.level().players()) {
-                    playerPerchRendererMap.computeIfAbsent(playerIterator.getUUID(), k -> new CatStaffRenderer.PerchRenderer());
-                    playerPerchRendererMap.get(playerIterator.getUUID()).tick(playerIterator);
+                for (Player otherPlayer : Minecraft.getInstance().player.level().players()) {
+                    playerPerchRendererMap.computeIfAbsent(otherPlayer.getUUID(), k -> new CatStaffRenderer.PerchRenderer()).tick(otherPlayer);
                 }
         }
     }
@@ -370,6 +369,7 @@ public class MineraculousClientEvents {
         if (playerPerchRendererMap.containsKey(player.getUUID()))
             playerPerchRendererMap.get(player.getUUID()).renderPerch(player, poseStack, bufferSource, light, partialTick);
         CatStaffRenderer.renderTravel(player, poseStack, bufferSource, light, partialTick);
+        player.noCulling = false;
     }
 
     public static void onRenderLevelStage(RenderLevelStageEvent event) {

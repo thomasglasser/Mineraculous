@@ -22,7 +22,7 @@ public record TravelingCatStaffData(float length, BlockPos blockPos, boolean tra
             ByteBufCodecs.FLOAT, TravelingCatStaffData::initBodAngle,
             ByteBufCodecs.BOOL, TravelingCatStaffData::launch,
             TravelingCatStaffData::new);
-    public static TravelingCatStaffData emptyData = new TravelingCatStaffData();
+    public static TravelingCatStaffData DEFAULT = new TravelingCatStaffData();
     public TravelingCatStaffData() {
         this(0f, new BlockPos(0, 0, 0), false, new Vector3f(0, 0, 0), 0, 0, false);
     }

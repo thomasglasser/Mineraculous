@@ -6,7 +6,6 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.entity.projectile.ItemBreakingQuicklyReturningThrownSword;
 import dev.thomasglasser.mineraculous.api.world.item.LeftClickTrackingItem;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
@@ -224,38 +223,34 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         }
     }
 
-    public void releaseUsing(ItemStack stack, Level level, LivingEntity entityLiving, int timeLeft) {
+    public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeLeft) {
         Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
         if (ability == Ability.THROW) {
-            int i = this.getUseDuration(stack, entityLiving) - timeLeft;
+            int i = this.getUseDuration(stack, livingEntity) - timeLeft;
             if (i >= 10) {
                 if (!level.isClientSide) {
-                    stack.hurtAndBreak(1, entityLiving, LivingEntity.getSlotForHand(entityLiving.getUsedItemHand()));
-                    ItemBreakingQuicklyReturningThrownSword thrown = new ThrownCatStaff(level, entityLiving, stack);
-                    thrown.shootFromRotation(entityLiving, entityLiving.getXRot(), entityLiving.getYRot(), 0.0F, 2.5F, 1.0F);
-                    if (entityLiving.hasInfiniteMaterials()) {
+                    ThrownCatStaff thrown = new ThrownCatStaff(level, livingEntity, stack);
+                    thrown.shootFromRotation(livingEntity, livingEntity.getXRot(), livingEntity.getYRot(), 0.0F, 2.5F, 1.0F);
+                    stack.hurtAndBreak(1, livingEntity, LivingEntity.getSlotForHand(livingEntity.getUsedItemHand()));
+                    if (livingEntity.hasInfiniteMaterials()) {
                         thrown.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
                     }
 
                     level.addFreshEntity(thrown);
                     level.playSound(null, thrown, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
-                    if (entityLiving instanceof Player player) {
-                        if (!player.hasInfiniteMaterials()) {
-                            player.getInventory().removeItem(stack);
-                        }
-                        level.addFreshEntity(thrown);
-                        level.playSound(null, thrown, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
-                        if (!player.hasInfiniteMaterials()) {
-                            player.getInventory().removeItem(stack);
-                        }
-                        player.awardStat(Stats.ITEM_USED.get(this));
+                    if (!livingEntity.hasInfiniteMaterials() && livingEntity instanceof Player player) {
+                        player.getInventory().removeItem(stack);
                     }
+                }
+
+                if (livingEntity instanceof Player player) {
+                    player.awardStat(Stats.ITEM_USED.get(this));
                 }
             }
         } else if (ability == Ability.PERCH) {
-            PerchingCatStaffData perchingCatStaffData = entityLiving.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-            CatStaffPerchHandler.itemUsed(level, entityLiving, perchingCatStaffData);
-            if (entityLiving instanceof Player player) {
+            PerchingCatStaffData perchingCatStaffData = livingEntity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+            CatStaffPerchHandler.itemUsed(level, livingEntity, perchingCatStaffData);
+            if (livingEntity instanceof Player player) {
                 player.awardStat(Stats.ITEM_USED.get(this));
             }
         }

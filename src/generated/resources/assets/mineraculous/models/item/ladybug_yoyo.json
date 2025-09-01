@@ -93,7 +93,7 @@
       }
     },
     {
-      "model": "mineraculous:item/ladybug_yoyo_active",
+      "model": "mineraculous:item/ladybug_yoyo_purify",
       "predicate": {
         "mineraculous:ability": 4.0,
         "mineraculous:active": 1.0

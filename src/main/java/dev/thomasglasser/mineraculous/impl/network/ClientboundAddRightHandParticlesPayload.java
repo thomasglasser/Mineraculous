@@ -25,16 +25,18 @@ public record ClientboundAddRightHandParticlesPayload(Optional<Integer> targetId
     // ON CLIENT
     @Override
     public void handle(Player player) {
-        Entity target = targetId.map(id -> player.level().getEntity(id)).orElse(player);
-        Vec3 handPos;
-        if (target == ClientUtils.getLocalPlayer() && MineraculousClientUtils.isFirstPerson()) {
-            handPos = MineraculousClientUtils.getFirstPersonHandPosition(false, true, 0.575f, -0.75f);
-        } else {
-            handPos = MineraculousClientUtils.getHumanoidEntityHandPos(target, false, 0, -0.9, 0.35);
+        Entity target = targetId.isPresent() ? player.level().getEntity(targetId.get()) : player;
+        if (target != null) {
+            Vec3 handPos;
+            if (target == ClientUtils.getLocalPlayer() && MineraculousClientUtils.isFirstPerson()) {
+                handPos = MineraculousClientUtils.getFirstPersonHandPosition(false, true, 0.575f, -0.75f);
+            } else {
+                handPos = MineraculousClientUtils.getHumanoidEntityHandPos(target, false, 0, -0.9, 0.35);
+            }
+            Level level = player.level();
+            particles(level, handPos);
+            particles(level, handPos);
         }
-        Level level = player.level();
-        particles(level, handPos);
-        particles(level, handPos);
     }
 
     private void particles(Level level, Vec3 handPos) {

@@ -17,17 +17,12 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownButterflyCane;
-import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
-import dev.thomasglasser.tommylib.api.client.renderer.item.DefaultedGeoItemRenderer;
-import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.BiPredicate;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Position;
@@ -75,7 +70,7 @@ import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem, ProjectileItem, RadialMenuProvider<ButterflyCaneItem.Ability> {
+public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileItem, RadialMenuProvider<ButterflyCaneItem.Ability> {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final String CONTROLLER_USE = "use_controller";
     public static final String ANIMATION_OPEN = "open";
@@ -123,19 +118,6 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
                 .triggerableAnim(ANIMATION_CLOSE, CLOSE)
                 .triggerableAnim(ANIMATION_SHEATHE, SHEATH)
                 .triggerableAnim(ANIMATION_UNSHEATHE, UNSHEATHE));
-    }
-
-    @Override
-    public void createBewlrProvider(Consumer<BewlrProvider> provider) {
-        provider.accept(new BewlrProvider() {
-            private BlockEntityWithoutLevelRenderer bewlr;
-
-            @Override
-            public BlockEntityWithoutLevelRenderer getBewlr() {
-                if (bewlr == null) bewlr = new DefaultedGeoItemRenderer<>(MineraculousItems.BUTTERFLY_CANE.getId());
-                return bewlr;
-            }
-        });
     }
 
     @Override
@@ -190,6 +172,9 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
             UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
             if (ability == Ability.BLOCK || ability == Ability.THROW || ability == Ability.BLADE) {
                 player.startUsingItem(hand);
+            } else if (ability == Ability.SPYGLASS) {
+                level.playSound(null, player, SoundEvents.SPYGLASS_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
+                player.startUsingItem(hand);
             } else if (ownerId != null) {
                 Entity caneOwner = player.level().getEntities().get(ownerId);
                 if (caneOwner != null) {
@@ -225,25 +210,26 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
 
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeLeft) {
-        if (livingEntity instanceof Player player) {
-            if (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()) == Ability.THROW || stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()) == Ability.BLADE) {
-                int i = this.getUseDuration(stack, livingEntity) - timeLeft;
-                if (i >= 10) {
-                    if (!level.isClientSide) {
-                        ThrownButterflyCane thrown = new ThrownButterflyCane(level, livingEntity, stack);
-                        thrown.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.5F, 1.0F);
-                        stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(livingEntity.getUsedItemHand()));
-                        if (player.hasInfiniteMaterials()) {
-                            thrown.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
-                        }
-
-                        level.addFreshEntity(thrown);
-                        level.playSound(null, thrown, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
-                        if (!player.hasInfiniteMaterials()) {
-                            player.getInventory().removeItem(stack);
-                        }
+        Ability ability = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY);
+        if (ability == Ability.THROW || ability == Ability.BLADE) {
+            int i = this.getUseDuration(stack, livingEntity) - timeLeft;
+            if (i >= 10) {
+                if (!level.isClientSide) {
+                    ThrownButterflyCane thrown = new ThrownButterflyCane(level, livingEntity, stack);
+                    thrown.shootFromRotation(livingEntity, livingEntity.getXRot(), livingEntity.getYRot(), 0.0F, 2.5F, 1.0F);
+                    stack.hurtAndBreak(1, livingEntity, LivingEntity.getSlotForHand(livingEntity.getUsedItemHand()));
+                    if (livingEntity.hasInfiniteMaterials()) {
+                        thrown.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
                     }
 
+                    level.addFreshEntity(thrown);
+                    level.playSound(null, thrown, SoundEvents.TRIDENT_THROW.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                    if (!livingEntity.hasInfiniteMaterials() && livingEntity instanceof Player player) {
+                        player.getInventory().removeItem(stack);
+                    }
+                }
+
+                if (livingEntity instanceof Player player) {
                     player.awardStat(Stats.ITEM_USED.get(this));
                 }
             }
@@ -261,6 +247,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
         return switch (ability) {
             case BLOCK -> UseAnim.BLOCK;
             case BLADE, THROW -> UseAnim.SPEAR;
+            case SPYGLASS -> UseAnim.SPYGLASS;
             case null, default -> UseAnim.NONE;
         };
     }
@@ -271,6 +258,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
         return switch (ability) {
             case BLOCK -> itemAbility == ItemAbilities.SHIELD_BLOCK;
             case THROW -> itemAbility == ItemAbilities.TRIDENT_THROW;
+            case SPYGLASS -> itemAbility == ItemAbilities.SPYGLASS_SCOPE;
             case null, default -> false;
         };
     }
@@ -318,13 +306,12 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
                 Entity owner = level.getEntities().get(ownerId);
                 if (owner != null) {
                     MiraculousesData miraculousesData = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                    MiraculousData storingData = miraculousesData.get(miraculousesData.getFirstTransformedIn(MiraculousTags.CAN_USE_BUTTERFLY_CANE));
                     String anim = null;
                     if (selected == Ability.BLADE)
                         anim = ANIMATION_UNSHEATHE;
-                    else if (selected == Ability.KAMIKO_STORE && storingData != null && storingData.storedEntities().isEmpty())
+                    else if ((selected == Ability.KAMIKO_STORE && !miraculousesData.hasStoredEntities(MiraculousTags.CAN_USE_BUTTERFLY_CANE)) || selected == Ability.SPYGLASS || selected == Ability.PHONE)
                         anim = ANIMATION_OPEN;
-                    else if (old == Ability.KAMIKO_STORE && storingData != null && storingData.storedEntities().isEmpty())
+                    else if ((old == Ability.KAMIKO_STORE && !miraculousesData.hasStoredEntities(MiraculousTags.CAN_USE_BUTTERFLY_CANE)) || old == Ability.SPYGLASS || old == Ability.PHONE)
                         anim = ANIMATION_CLOSE;
                     else if (old == Ability.BLADE)
                         anim = ANIMATION_SHEATHE;
@@ -336,6 +323,10 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
                 String anim = null;
                 if (selected == Ability.BLADE)
                     anim = ANIMATION_UNSHEATHE;
+                else if (selected == Ability.SPYGLASS || selected == Ability.PHONE)
+                    anim = ANIMATION_OPEN;
+                else if (old == Ability.SPYGLASS || old == Ability.PHONE)
+                    anim = ANIMATION_CLOSE;
                 else if (old == Ability.BLADE)
                     anim = ANIMATION_SHEATHE;
                 if (anim != null) {
@@ -356,6 +347,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ModeledItem
         BLOCK,
         KAMIKO_STORE((stack, player) -> stack.has(MineraculousDataComponents.OWNER)),
         PHONE((stack, player) -> /*Mineraculous.Dependencies.TOMMYTECH.isLoaded()*/true),
+        SPYGLASS,
         THROW;
 
         public static final Codec<Ability> CODEC = StringRepresentable.fromEnum(Ability::values);

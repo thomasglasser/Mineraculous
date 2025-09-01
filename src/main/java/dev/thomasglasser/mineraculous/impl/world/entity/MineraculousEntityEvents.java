@@ -43,9 +43,11 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.portal.DimensionTransition;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
@@ -274,6 +276,18 @@ public class MineraculousEntityEvents {
         }
     }
 
+    public static void onEntityTravelToDimension(EntityTravelToDimensionEvent event) {
+        Entity entity = event.getEntity();
+        if (entity instanceof LivingEntity livingEntity) {
+            Level level = entity.level();
+            for (Entity other : level.getEntities().getAll()) {
+                if (other instanceof Kwami kwami && kwami.isOwnedBy(livingEntity)) {
+                    kwami.changeDimension(new DimensionTransition(level.getServer().getLevel(event.getDimension()), entity, DimensionTransition.DO_NOTHING));
+                }
+            }
+        }
+    }
+
     /// Death
     public static void onLivingDeath(LivingDeathEvent event) {
         LivingEntity entity = event.getEntity();
@@ -281,7 +295,7 @@ public class MineraculousEntityEvents {
             MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
             for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
                 Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-                if (miraculous != null) {
+                if (stack.is(MineraculousItems.MIRACULOUS) && miraculous != null) {
                     MiraculousData data = miraculousesData.get(miraculous);
                     if (data.transformed()) {
                         data.detransform(entity, level, miraculous, stack, true);
@@ -326,7 +340,7 @@ public class MineraculousEntityEvents {
                 if (recoverer != null) {
                     UUID id = UUID.randomUUID();
                     AbilityReversionItemData.get(level).putRemovable(recoverer, id);
-                    item.getItem().set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
+                    item.getItem().set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, id);
                 }
             }
         }

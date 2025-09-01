@@ -25,7 +25,7 @@ public record RightHandParticlesAbility(ParticleOptions particle) implements Abi
     @Override
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null) {
-            TommyLibServices.NETWORK.sendToTrackingClients(new ClientboundAddRightHandParticlesPayload(Optional.of(performer.getId()), particle), performer);
+            TommyLibServices.NETWORK.sendToTrackingClientsAndSelf(new ClientboundAddRightHandParticlesPayload(Optional.of(performer.getId()), particle), performer);
             return State.CONTINUE;
         }
         return State.FAIL;

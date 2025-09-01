@@ -134,6 +134,9 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
                 MineraculousCuriosProvider.SLOT_RING,
                 MineraculousCuriosProvider.SLOT_EARRINGS);
 
+        curios(MineraculousCuriosProvider.SLOT_BACK,
+                MineraculousItems.BUTTERFLY_CANE.get());
+
         curios(MineraculousCuriosProvider.SLOT_BELT,
                 MineraculousItems.CAT_STAFF.get(),
                 MineraculousItems.LADYBUG_YOYO.get());

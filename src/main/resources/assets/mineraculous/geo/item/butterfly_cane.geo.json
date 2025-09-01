@@ -101,7 +101,7 @@
 				{
 					"name": "lid",
 					"parent": "cane",
-					"pivot": [0, 28.4, 1],
+					"pivot": [0, 28.4, -1],
 					"cubes": [
 						{
 							"origin": [-1, 28.4, -1],

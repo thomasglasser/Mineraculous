@@ -66,8 +66,6 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
 
         withEntityModel(MineraculousItems.MIRACULOUS).guiLight(BlockModel.GuiLight.FRONT);
 
-        spawnEggItem(MineraculousItems.KAMIKO_SPAWN_EGG);
-
         basicItem(MineraculousItems.CATACLYSM_DUST.get());
         basicItem(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE);
         basicItem(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE);
@@ -134,11 +132,10 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.PHONE))
                 .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_phone"), inHandLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_phone"))))
                 .end()
-                // TODO: Replace with purify specific texture
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.PHONE) + 1)
-                .model(activeLadybugYoyo)
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.PURIFY))
+                .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_purify"), inHandLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_purify"))))
                 .end()
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)
@@ -181,6 +178,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
 
         ItemModelBuilder inHandButterflyCane = withEntityModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_in_hand"))
                 .transforms()
+                .transform(MineraculousItemDisplayContexts.CURIOS_BODY.getValue()).rotation(180, 0, 45).translation(8.67f, 12.5f, 2.3f).scale(0.8f).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0, -18, 2).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).translation(0, -18, 2).end()
                 .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(0, -24, 0).end()
@@ -188,15 +186,47 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.HEAD).translation(0, -21, 0).end()
                 .end();
         ItemModelBuilder inventoryButterflyCane = basicInventoryItem(MineraculousItems.BUTTERFLY_CANE);
-        ItemModelBuilder inventoryButterflyCaneBlade = basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade"));
-        generatedModels.remove(inventoryButterflyCaneBlade.getLocation());
+        ItemModelBuilder inHandButterflyCaneBlade = withEntityModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade_in_hand"))
+                .transforms()
+                .transform(MineraculousItemDisplayContexts.CURIOS_BODY.getValue()).rotation(180, 0, 45).translation(8.67f, 12.5f, 2.3f).scale(0.8f).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0, -2, 2).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).translation(0, -2, 2).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(0, -8, 0).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).translation(0, -8, 0).end()
+                .transform(ItemDisplayContext.HEAD).translation(0, 5, 0).end()
+                .end();
+        ItemModelBuilder bladeButterflyCane = withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade"), inHandButterflyCaneBlade, basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade")));
         withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE, inHandButterflyCane, inventoryButterflyCane)
                 .override()
                 .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.BLADE))
-                .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade"), inHandButterflyCane, inventoryButterflyCaneBlade))
+                .model(bladeButterflyCane)
                 .end()
                 .override()
-                .predicate(MineraculousItemProperties.ABILITY, 2)
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.BLADE) + 1)
+                .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE, inHandButterflyCane, inventoryButterflyCane))
+                .end()
+                .override()
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.KAMIKO_STORE))
+                .predicate(MineraculousItemProperties.STORING, 0)
+                // TODO: Custom item texture
+                .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_kamiko_store"), inHandButterflyCane, basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_phone"))))
+                .end()
+                .override()
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.KAMIKO_STORE))
+                .predicate(MineraculousItemProperties.STORING, 1)
+                .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE, inHandButterflyCane, inventoryButterflyCane))
+                .end()
+                .override()
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.PHONE))
+                .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_phone"), inHandButterflyCane, basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_phone"))))
+                .end()
+                .override()
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.SPYGLASS))
+                // TODO: Custom item texture
+                .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_spyglass"), inHandButterflyCane, basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_phone"))))
+                .end()
+                .override()
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.SPYGLASS) + 1)
                 .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE, inHandButterflyCane, inventoryButterflyCane))
                 .end();
     }

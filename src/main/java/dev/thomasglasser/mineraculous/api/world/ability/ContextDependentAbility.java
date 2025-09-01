@@ -67,7 +67,6 @@ public record ContextDependentAbility(Optional<Holder<Ability>> blockAbility, Op
     @Override
     public List<Ability> getMatching(Predicate<Ability> predicate) {
         List<Ability> abilities = new ReferenceArrayList<>();
-        abilities.add(this);
         blockAbility.ifPresent(ability -> abilities.addAll(Ability.getMatching(predicate, ability.value())));
         entityAbility.ifPresent(ability -> abilities.addAll(Ability.getMatching(predicate, ability.value())));
         for (Holder<Ability> ability : passiveAbilities) {

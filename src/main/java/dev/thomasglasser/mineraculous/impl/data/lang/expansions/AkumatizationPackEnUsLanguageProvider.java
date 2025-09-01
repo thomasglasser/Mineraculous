@@ -4,7 +4,6 @@ import dev.thomasglasser.mineraculous.api.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
@@ -38,8 +37,6 @@ public class AkumatizationPackEnUsLanguageProvider extends EnUsOverrideLanguageP
     }
 
     private void addItems() {
-        add(MineraculousItems.KAMIKO_SPAWN_EGG.get(), "Akuma Spawn Egg");
-
         // Armor
         add(MineraculousArmors.KAMIKOTIZATION, "Akumatization", "Mask", "Chestplate", "Leggings", "Boots");
     }

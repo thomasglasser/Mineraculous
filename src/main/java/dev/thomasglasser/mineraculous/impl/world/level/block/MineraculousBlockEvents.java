@@ -11,12 +11,12 @@ import net.neoforged.neoforge.event.level.BlockDropsEvent;
 public class MineraculousBlockEvents {
     public static void onBlockDrops(BlockDropsEvent event) {
         if (event.getLevel() instanceof ServerLevel level) {
-            UUID recoverer = AbilityReversionBlockData.get(level).getCause(event.getPos());
+            UUID recoverer = AbilityReversionBlockData.get(level).getCause(level.dimension(), event.getPos());
             if (recoverer != null) {
                 for (ItemEntity item : event.getDrops()) {
                     UUID id = UUID.randomUUID();
                     AbilityReversionItemData.get(level).putRemovable(recoverer, id);
-                    item.getItem().set(MineraculousDataComponents.RECOVERABLE_ITEM_ID, id);
+                    item.getItem().set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, id);
                 }
             }
         }

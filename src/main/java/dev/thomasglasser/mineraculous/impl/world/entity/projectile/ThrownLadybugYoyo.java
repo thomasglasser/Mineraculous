@@ -190,7 +190,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
             }
             if (this.isRecalling()) {
                 this.setNoPhysics(true);
-                Vec3 vec3 = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
+                Vec3 vec3 = owner.position().subtract(this.position());
                 double distance = vec3.length();
                 vec3.normalize();
                 this.setDeltaMovement(vec3.scale(Math.min(Math.max(distance * 0.01 * 2.5, 0.3), 0.5)));

@@ -30,7 +30,7 @@ public record ServerboundOpenVictimKamikotizationChatScreenPayload(UUID targetId
     @Override
     public void handle(Player player) {
         if (player.level().getPlayerByUUID(targetId) instanceof ServerPlayer target) {
-            player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.of(kamikotizationData.kamikoData().owner()), kamikotizationData.kamikoData().faceMaskTexture()).save(player, true);
+            target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.of(kamikotizationData.kamikoData().owner()), kamikotizationData.kamikoData().faceMaskTexture()).save(target, true);
             TommyLibServices.NETWORK.sendToClient(new ClientboundOpenVictimKamikotizationChatScreenPayload(player.getUUID(), kamikotizationData, slotInfo), target);
             target.level().playSound(null, target.blockPosition(), MineraculousSoundEvents.KAMIKOTIZATION_BEGIN.get(), SoundSource.PLAYERS, 1f, 1f);
         }

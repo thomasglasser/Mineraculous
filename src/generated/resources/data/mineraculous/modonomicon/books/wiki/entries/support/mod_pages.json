@@ -5,9 +5,9 @@
   "description": "book.mineraculous.wiki.support.mod_pages.description",
   "hide_while_locked": false,
   "icon": {
-    "height": 16,
+    "height": 200,
     "texture": "mineraculous:textures/modonomicon/wiki/support/mod_pages/modrinth.png",
-    "width": 16
+    "width": 200
   },
   "name": "book.mineraculous.wiki.support.mod_pages.name",
   "pages": [

@@ -28,6 +28,7 @@ public class ThrownCatStaff extends ItemBreakingQuicklyReturningThrownSword impl
 
     public ThrownCatStaff(Level level, LivingEntity shooter, ItemStack pickupItemStack) {
         this(level, shooter.getX(), shooter.getEyeY() - 0.2, shooter.getZ(), pickupItemStack);
+        setOwner(shooter);
     }
 
     @Override

@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.impl.world.entity;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
+import dev.thomasglasser.mineraculous.api.world.ability.SpectateEntityAbility;
 import dev.thomasglasser.mineraculous.api.world.ability.TemptingAbility;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.damagesource.MineraculousDamageTypes;
@@ -185,8 +186,8 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     @Override
     public List<? extends ExtendedSensor<? extends Kamiko>> getSensors() {
         return ObjectArrayList.of(
-                new PlayerItemTemptingSensor<Kamiko>().temptedWith((entity, player, stack) -> {
-                    if (shouldFollowOwner(entity)) {
+                new PlayerItemTemptingSensor<Kamiko>().temptedWith((kamiko, player, stack) -> {
+                    if (shouldFollowOwner(kamiko)) {
                         return true;
                     }
                     UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
@@ -290,13 +291,19 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     public void setOwnerUUID(@Nullable UUID uuid) {
         super.setOwnerUUID(uuid);
         if (uuid != null && level() instanceof ServerLevel level) {
-            if (level.getEntity(uuid) instanceof Entity owner) {
+            if (level.getEntity(uuid) instanceof LivingEntity owner) {
                 List<Holder<Miraculous>> transformed = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed();
                 if (!transformed.isEmpty()) {
-                    setNameColor(transformed.getFirst().value().color().getValue());
+                    Miraculous value = transformed.getFirst().value();
+                    setNameColor(value.color().getValue());
+                    SpectateEntityAbility ability = (SpectateEntityAbility) Ability.getFirstMatching(a -> a instanceof SpectateEntityAbility sEA && sEA.isValidEntity(level, owner, this), value, true);
+                    if (ability != null) {
+                        setFaceMaskTexture(ability.faceMaskTexture());
+                    }
                 } else {
                     owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {
                         setNameColor(data.kamikoData().nameColor());
+                        setFaceMaskTexture(data.kamikoData().faceMaskTexture());
                     });
                 }
             }

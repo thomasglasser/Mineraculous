@@ -26,6 +26,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -345,7 +346,7 @@ public class KamikotizationSelectionScreen extends Screen {
                         slotInfo = Either.right(new CuriosData(curiosSlot.getSlotContext()));
                     else
                         slotInfo = Either.left(slot.getSlotIndex());
-                    KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, name.getValue(), Optional.empty(), slot.getItem().getCount(), false);
+                    KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, name.getValue(), Util.NIL_UUID, Optional.empty(), slot.getItem().getCount(), false);
                     if (target == minecraft.player) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationTransformationPayload(kamikotizationData, slotInfo));
                         TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(target.getUUID(), target.getUUID(), kamikotizationData.kamikotization().getKey()));
@@ -369,5 +370,10 @@ public class KamikotizationSelectionScreen extends Screen {
     @Override
     public void onClose() {
         onClose(true);
+    }
+
+    @Override
+    public void removed() {
+        Mineraculous.LOGGER.warn("KamikotizationSelectionScreen forcefully closed, this will not spawn a Kamiko.");
     }
 }

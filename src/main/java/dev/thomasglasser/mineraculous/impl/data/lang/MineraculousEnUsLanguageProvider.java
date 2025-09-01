@@ -136,8 +136,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     private void addEntityTypes() {
-        add(MineraculousEntityTypes.KAMIKO.get(), MineraculousItems.KAMIKO_SPAWN_EGG.get(), "Kamiko");
-
+        add(MineraculousEntityTypes.KAMIKO.get(), "Kamiko");
         add(MineraculousEntityTypes.KWAMI.get(), "Kwami");
         add(MineraculousEntityTypes.LUCKY_CHARM_ITEM_SPAWNER.get(), "Lucky Charm Item Spawner");
         add(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), "Ladybug Yoyo");
@@ -156,6 +155,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousKeyMappings.MIRACULOUS_CATEGORY, "Miraculous");
         add(MineraculousKeyMappings.TRANSFORM, "Transform");
         add(MineraculousKeyMappings.ACTIVATE_POWER, "Activate Power/Renounce Miraculous");
+        add(MineraculousKeyMappings.REVOKE_KAMIKOTIZATION, "Revoke Kamikotization");
         add(MineraculousKeyMappings.TOGGLE_ACTIVE, "De/Activate Item");
         add(MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU, "Open Item Radial Menu");
         add(MineraculousKeyMappings.TAKE_BREAK_ITEM, "Take/Break Item");
@@ -224,7 +224,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         // Kamikotization View
         add(MineraculousGuis.REVOKE, "Revoke Kamikotization");
-        add(MineraculousGuis.PRESS_ENTER, "(Press Enter)");
+        add(MineraculousGuis.PRESS_KEY, "(Press %s)");
 
         // Kamikotization Selection Screen
         add(KamikotizationSelectionScreen.TITLE, "Kamikotization");

@@ -5,6 +5,7 @@ import com.google.common.collect.Table;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
+import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
@@ -93,8 +94,8 @@ public class AbilityReversionItemData extends SavedData {
     }
 
     public ItemStack checkReverted(ItemStack itemStack) {
-        if (itemStack.has(MineraculousDataComponents.RECOVERABLE_ITEM_ID)) {
-            UUID id = itemStack.get(MineraculousDataComponents.RECOVERABLE_ITEM_ID);
+        if (itemStack.has(MineraculousDataComponents.REVERTIBLE_ITEM_ID)) {
+            UUID id = itemStack.get(MineraculousDataComponents.REVERTIBLE_ITEM_ID);
             if (revertedItems.containsKey(id)) {
                 ItemStack recovered = revertedItems.get(id).copy();
                 revertedItems.remove(id);
@@ -122,19 +123,15 @@ public class AbilityReversionItemData extends SavedData {
         putRevertible(owner, item, ItemStack.EMPTY);
     }
 
-    public void revertKamikotized(UUID owner, ServerLevel level) {
-        if (kamikotizedItems.containsKey(owner)) {
-            Player player = level.getPlayerByUUID(owner);
-            if (player != null) {
-                player.addItem(kamikotizedItems.get(owner));
-            }
-            kamikotizedItems.remove(owner);
-            setDirty();
-        }
+    public void revertKamikotized(LivingEntity owner, UUID item) {
+        revertedItems.put(item, revertibleItems.remove(owner.getUUID(), item));
+        EntityUtils.addToInventoryOrDrop(owner, kamikotizedItems.get(item));
+        setDirty();
     }
 
-    public void putKamikotized(UUID owner, ItemStack stack) {
-        kamikotizedItems.put(owner, stack.copy());
+    public void putKamikotized(UUID owner, UUID item, ItemStack stack) {
+        putRemovable(owner, item);
+        kamikotizedItems.put(item, stack.copy());
         setDirty();
     }
 

@@ -82,10 +82,7 @@ public record ContinuousAbility(Holder<Ability> ability, int ticks, Optional<Hol
 
     @Override
     public List<Ability> getMatching(Predicate<Ability> predicate) {
-        List<Ability> abilities = new ReferenceArrayList<>();
-        abilities.add(this);
-        abilities.addAll(Ability.getMatching(predicate, ability.value()));
-        return abilities;
+        return Ability.getMatching(predicate, ability.value());
     }
 
     @Override

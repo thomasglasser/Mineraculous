@@ -64,7 +64,7 @@ public class ModPagesEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(MODRINTH_TEXTURE);
+        return BookIconModel.create(MODRINTH_TEXTURE, 200, 200);
     }
 
     @Override

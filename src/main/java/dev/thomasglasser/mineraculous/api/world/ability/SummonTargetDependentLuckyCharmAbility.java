@@ -83,8 +83,8 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             UUID uuid = handler.getAndAssignBlame(stack, performer);
             stack.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.ofNullable(target).map(Entity::getUUID), uuid, uuid != null ? LuckyCharmIdData.get(level).incrementLuckyCharmId(uuid) : 0));
             LuckyCharmItemSpawner item = LuckyCharmItemSpawner.create(level, stack);
-            BlockPos.MutableBlockPos spawnPos = performer.blockPosition().above().mutable();
-            for (int i = 0; i < 4; i++) {
+            BlockPos.MutableBlockPos spawnPos = performer.blockPosition().mutable();
+            for (int i = 0; i < 5; i++) {
                 if (level.getBlockState(spawnPos.above()).isAir()) {
                     spawnPos.move(0, 1, 0);
                 } else {

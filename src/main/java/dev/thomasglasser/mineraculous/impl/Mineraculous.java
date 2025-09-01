@@ -124,6 +124,7 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEffectAdded);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEffectExpired);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingHeal);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityTravelToDimension);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingDeath);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingDrops);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityLeaveLevel);

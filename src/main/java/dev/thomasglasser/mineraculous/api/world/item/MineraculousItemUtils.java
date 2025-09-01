@@ -172,7 +172,7 @@ public class MineraculousItemUtils {
      * @param entity The entity blocking
      */
     public static void checkHelicopterSlowFall(ItemStack stack, Entity entity) {
-        if (stack.has(MineraculousDataComponents.BLOCKING) && /*entity.getXRot() <= -75 &&*/ entity.getDeltaMovement().y <= 0) {
+        if (stack.has(MineraculousDataComponents.BLOCKING) && entity.getXRot() <= -75 && entity.getDeltaMovement().y <= 0) {
             applyHelicopterSlowFall(entity);
         }
     }

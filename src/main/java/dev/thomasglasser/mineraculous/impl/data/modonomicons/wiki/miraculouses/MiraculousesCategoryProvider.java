@@ -16,6 +16,8 @@ public class MiraculousesCategoryProvider extends IndexModeCategoryProvider {
     @Override
     protected void generateEntries() {
         add(new GeneralEntryProvider(this).generate());
+        add(new KwamisEntryProvider(this).generate());
+        add(new CommandEntryProvider(this).generate());
         add(new LadybugEntryProvider(this).generate());
         add(new CatEntryProvider(this).generate());
         add(new ButterflyEntryProvider(this).generate());

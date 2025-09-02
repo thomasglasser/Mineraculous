@@ -34,7 +34,7 @@ public class KamikosEntryProvider extends IndexModeEntryProvider {
         pageTitle("Behavior");
         pageText("""
                 Kamikos follow their owner if they're transformed or anyone with an open Butterfly Cane in Kamiko Store mode.
-                If not, they fly around aimlessly.
+                Otherwise, they fly around aimlessly.
                 """);
     }
 

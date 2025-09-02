@@ -83,34 +83,6 @@
       "text": "book.mineraculous.wiki.miraculouses.general.using_tool.text",
       "title": "book.mineraculous.wiki.miraculouses.general.using_tool.title",
       "use_markdown_in_title": false
-    },
-    {
-      "type": "modonomicon:image",
-      "anchor": "",
-      "border": true,
-      "condition": {
-        "type": "modonomicon:none"
-      },
-      "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/charging.png"
-      ],
-      "text": "book.mineraculous.wiki.miraculouses.general.charging.text",
-      "title": "book.mineraculous.wiki.miraculouses.general.charging.title",
-      "use_legacy_rendering": false
-    },
-    {
-      "type": "modonomicon:image",
-      "anchor": "",
-      "border": true,
-      "condition": {
-        "type": "modonomicon:none"
-      },
-      "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/general/transferring_and_renouncing.png"
-      ],
-      "text": "book.mineraculous.wiki.miraculouses.general.transferring_and_renouncing.text",
-      "title": "book.mineraculous.wiki.miraculouses.general.transferring_and_renouncing.title",
-      "use_legacy_rendering": false
     }
   ],
   "show_when_any_parent_unlocked": false,

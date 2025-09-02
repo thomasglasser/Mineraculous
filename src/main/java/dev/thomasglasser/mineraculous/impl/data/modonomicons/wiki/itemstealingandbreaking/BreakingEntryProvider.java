@@ -28,7 +28,7 @@ public class BreakingEntryProvider extends IndexModeEntryProvider {
         pageTitle("Breaking");
         pageText("""
                 You can break items by pressing the Take/Break Item key (default: B).
-                The item will be damaged based on its max damage, block durability, or toughness.
+                The item will be damaged based on its durability, block break time, or toughness.
                 Some items cannot be broken, such as miraculous or unbreakable blocks and items.
                 Tough items are defined with the "mineraculous:tough" [tag](entry://apis/tags).
                 Unbreakable items have the "minecraft:unbreakable" data component.

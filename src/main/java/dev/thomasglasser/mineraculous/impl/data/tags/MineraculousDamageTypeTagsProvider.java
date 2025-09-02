@@ -21,6 +21,13 @@ public class MineraculousDamageTypeTagsProvider extends ExtendedTagsProvider<Dam
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
+        tag(MineraculousDamageTypeTags.HURTS_KAMIKOS)
+                .addTag(MineraculousDamageTypeTags.IS_CATACLYSM)
+                .addTag(DamageTypeTags.BYPASSES_INVULNERABILITY);
+
+        tag(MineraculousDamageTypeTags.IS_CATACLYSM)
+                .add(MineraculousDamageTypes.CATACLYSM);
+
         tag(DamageTypeTags.ALWAYS_HURTS_ENDER_DRAGONS)
                 .add(MineraculousDamageTypes.CATACLYSM);
 
@@ -43,9 +50,6 @@ public class MineraculousDamageTypeTagsProvider extends ExtendedTagsProvider<Dam
                 .add(MineraculousDamageTypes.CATACLYSM);
 
         tag(Tags.DamageTypes.IS_MAGIC)
-                .add(MineraculousDamageTypes.CATACLYSM);
-
-        tag(MineraculousDamageTypeTags.IS_CATACLYSM)
                 .add(MineraculousDamageTypes.CATACLYSM);
     }
 }

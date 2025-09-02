@@ -80,28 +80,6 @@ public class GeneralEntryProvider extends IndexModeEntryProvider {
                 You can also activate the tool by pressing the De/Activate Item button (default: I).
                 When activated, you can hold the Open Item Radial Menu button (default: R) to open the tool's radial menu and select a tool ability.
                 """);
-
-        page("charging", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/ladybug/charging.png"))
-                .withTitle(context().pageTitle())
-                .withText(context().pageText()));
-
-        pageTitle("Charging");
-        pageText("""
-                To charge a miraculous, feed the kwami with a food or treat.
-                Treats will charge the kwami immediately, while foods may take a few tries.
-                """);
-
-        page("transferring_and_renouncing", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/general/transferring_and_renouncing.png"))
-                .withTitle(context().pageTitle())
-                .withText(context().pageText()));
-
-        pageTitle("Transferring and Renouncing");
-        pageText("""
-                To renounce and keep a miraculous, press the Renounce button (default: O) while holding the Miraculous in your hand.
-                To transfer or renounce to someone else, right click the kwami with the Miraculous in your hand.
-                """);
     }
 
     @Override

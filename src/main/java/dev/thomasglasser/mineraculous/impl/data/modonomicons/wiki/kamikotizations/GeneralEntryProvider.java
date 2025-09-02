@@ -27,7 +27,7 @@ public class GeneralEntryProvider extends IndexModeEntryProvider {
                 The only way to receive a kamikotization is from a [Kamiko](entry://flora_and_fauna/kamikos).
                 The owner of the kamiko will choose a kamikotization with powers for you based on the items in your inventory.
                 It will then send the kamiko to you and it will enter that item.
-                You have the option to accept the powers, or you can reject the kamikotization if the server allows it.
+                You have the option to accept the powers via a button or you can reject the kamikotization with the Escape key if the server allows it.
                 """);
 
         page("revoking", () -> BookImagePageModel.create()

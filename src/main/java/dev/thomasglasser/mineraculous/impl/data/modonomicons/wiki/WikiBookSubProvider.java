@@ -5,6 +5,7 @@ import com.klikli_dev.modonomicon.api.datagen.book.BookModel;
 import com.klikli_dev.modonomicon.book.BookDisplayMode;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.apis.ApisCategoryProvider;
+import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.cosmetics.CosmeticsCategoryProvider;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.decorations.DecorationsCategoryProvider;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.dependencies.DependenciesCategoryProvider;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.expansions.ExpansionsCategoryProvider;
@@ -35,6 +36,7 @@ public class WikiBookSubProvider extends SingleBookSubProvider {
         add(new FloraAndFaunaCategoryProvider(this).generate());
         add(new FoodCategoryProvider(this).generate());
         add(new DecorationsCategoryProvider(this).generate());
+        add(new CosmeticsCategoryProvider(this).generate());
         add(new ExpansionsCategoryProvider(this).generate());
         add(new DependenciesCategoryProvider(this).generate());
         add(new ApisCategoryProvider(this).generate());

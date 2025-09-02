@@ -173,10 +173,24 @@
       "text": "book.mineraculous.wiki.miraculouses.ladybug.travel.text",
       "title": "book.mineraculous.wiki.miraculouses.ladybug.travel.title",
       "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/lucky_charms.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculouses.ladybug.lucky_charms.text",
+      "title": "book.mineraculous.wiki.miraculouses.ladybug.lucky_charms.title",
+      "use_legacy_rendering": false
     }
   ],
   "show_when_any_parent_unlocked": false,
-  "sort_number": 1,
+  "sort_number": 3,
   "x": 0,
   "y": 0
 }

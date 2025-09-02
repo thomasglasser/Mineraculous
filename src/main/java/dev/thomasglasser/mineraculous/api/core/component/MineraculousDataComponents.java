@@ -26,7 +26,7 @@ public class MineraculousDataComponents {
     // Shared
     /**
      * Whether the item is configured to be usable.
-     * If present, can be toggled by {@link MineraculousKeyMappings#TOGGLE_ACTIVE}.
+     * If present, can be toggled by {@link MineraculousKeyMappings#TOGGLE_ITEM_ACTIVE}.
      */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> ACTIVE = DATA_COMPONENTS.registerBoolean("active", true, true);
     /// Settings to use when toggling the {@link MineraculousDataComponents#ACTIVE} component.

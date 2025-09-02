@@ -8,7 +8,9 @@
   "display_mode": "index",
   "entry_textures": "modonomicon:textures/gui/entry_textures.png",
   "icon": {
-    "item": "minecraft:nether_star"
+    "height": 16,
+    "texture": "mineraculous:textures/modonomicon/wiki/expansions/akumatization/icon.png",
+    "width": 16
   },
   "max_scroll_x": 512,
   "max_scroll_y": 512,

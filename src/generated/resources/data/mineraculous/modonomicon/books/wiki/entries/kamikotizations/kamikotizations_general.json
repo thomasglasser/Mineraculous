@@ -10,26 +10,32 @@
   "name": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.name",
   "pages": [
     {
-      "type": "modonomicon:text",
+      "type": "modonomicon:image",
       "anchor": "",
+      "border": true,
       "condition": {
         "type": "modonomicon:none"
       },
-      "show_title_separator": true,
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/kamikotizations/general/receiving.png"
+      ],
       "text": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.receiving.text",
       "title": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.receiving.title",
-      "use_markdown_in_title": false
+      "use_legacy_rendering": false
     },
     {
-      "type": "modonomicon:text",
+      "type": "modonomicon:image",
       "anchor": "",
+      "border": true,
       "condition": {
         "type": "modonomicon:none"
       },
-      "show_title_separator": true,
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/kamikotizations/general/revoking.png"
+      ],
       "text": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.revoking.text",
       "title": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.revoking.title",
-      "use_markdown_in_title": false
+      "use_legacy_rendering": false
     },
     {
       "type": "modonomicon:text",

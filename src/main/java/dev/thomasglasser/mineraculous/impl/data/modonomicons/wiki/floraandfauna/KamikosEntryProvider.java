@@ -6,6 +6,7 @@ import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.WikiBookSubProvider;
+import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.expansions.AkumatizationEntryProvider;
 
 public class KamikosEntryProvider extends IndexModeEntryProvider {
     public static final String ID = "kamikos";
@@ -22,30 +23,18 @@ public class KamikosEntryProvider extends IndexModeEntryProvider {
 
         pageTitle("Obtaining");
         pageText("""
-                Kamikos can only be obtained via spawn egg in the creative menu.
+                Kamikos can only be obtained via kamikotization by the Butterfly Miraculous holder.
                 """);
 
-        page("unpowered", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("flora_and_fauna/kamikos/unpowered.png"))
+        page("behavior", () -> BookImagePageModel.create()
+                .withImages(WikiBookSubProvider.wikiTexture("flora_and_fauna/kamikos/kamiko.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
-        pageTitle("Unpowered");
+        pageTitle("Behavior");
         pageText("""
-                Unpowered kamikos are normal butterflies.
-                They just fly around aimlessly.
-                If an open butterfly cane or powered butterfly miraculous holder are nearby, they will fly around it.
-                """);
-
-        page("powered", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("flora_and_fauna/kamikos/powered.png"))
-                .withTitle(context().pageTitle())
-                .withText(context().pageText()));
-
-        pageTitle("Powered");
-        pageText("""
-                Once powered, kamikos follow their owner if they're transformed.
-                If not, they also fly around aimlessly.
+                Kamikos follow their owner if they're transformed or anyone with an open Butterfly Cane in Kamiko Store mode.
+                If not, they fly around aimlessly.
                 """);
     }
 
@@ -56,12 +45,12 @@ public class KamikosEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "The magical butterflies that can be powered up by the [Butterfly Miraculous] (entry://miraculous/butterfly).";
+        return "The magical butterflies created by the [Butterfly Miraculous] (entry://miraculouses/butterfly).";
     }
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(WikiBookSubProvider.wikiTexture("flora_and_fauna/kamikos/powered.png"), 218, 218);
+        return AkumatizationEntryProvider.ICON;
     }
 
     @Override

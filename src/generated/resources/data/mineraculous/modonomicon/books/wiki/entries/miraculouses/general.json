@@ -1,8 +1,8 @@
 {
   "background_u_index": 0,
   "background_v_index": 0,
-  "category": "miraculous",
-  "description": "book.mineraculous.wiki.miraculous.general.description",
+  "category": "miraculouses",
+  "description": "book.mineraculous.wiki.miraculouses.general.description",
   "hide_while_locked": false,
   "icon": {
     "components": {
@@ -10,7 +10,7 @@
     },
     "item": "mineraculous:miraculous_mask"
   },
-  "name": "book.mineraculous.wiki.miraculous.general.name",
+  "name": "book.mineraculous.wiki.miraculouses.general.name",
   "pages": [
     {
       "type": "modonomicon:image",
@@ -22,8 +22,8 @@
       "images": [
         "mineraculous:textures/modonomicon/wiki/miraculous/general/obtaining.png"
       ],
-      "text": "book.mineraculous.wiki.miraculous.general.obtaining.text",
-      "title": "book.mineraculous.wiki.miraculous.general.obtaining.title",
+      "text": "book.mineraculous.wiki.miraculouses.general.obtaining.text",
+      "title": "book.mineraculous.wiki.miraculouses.general.obtaining.title",
       "use_legacy_rendering": false
     },
     {
@@ -33,8 +33,8 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.miraculous.general.activating.text",
-      "title": "book.mineraculous.wiki.miraculous.general.activating.title",
+      "text": "book.mineraculous.wiki.miraculouses.general.activating.text",
+      "title": "book.mineraculous.wiki.miraculouses.general.activating.title",
       "use_markdown_in_title": false
     },
     {
@@ -44,8 +44,8 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.miraculous.general.transforming.text",
-      "title": "book.mineraculous.wiki.miraculous.general.transforming.title",
+      "text": "book.mineraculous.wiki.miraculouses.general.transforming.text",
+      "title": "book.mineraculous.wiki.miraculouses.general.transforming.title",
       "use_markdown_in_title": false
     },
     {
@@ -55,19 +55,8 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.miraculous.general.using_tool.text",
-      "title": "book.mineraculous.wiki.miraculous.general.using_tool.title",
-      "use_markdown_in_title": false
-    },
-    {
-      "type": "modonomicon:text",
-      "anchor": "",
-      "condition": {
-        "type": "modonomicon:none"
-      },
-      "show_title_separator": true,
-      "text": "book.mineraculous.wiki.miraculous.general.using_abilities.text",
-      "title": "book.mineraculous.wiki.miraculous.general.using_abilities.title",
+      "text": "book.mineraculous.wiki.miraculouses.general.using_abilities.text",
+      "title": "book.mineraculous.wiki.miraculouses.general.using_abilities.title",
       "use_markdown_in_title": false
     },
     {
@@ -80,9 +69,20 @@
       "images": [
         "mineraculous:textures/modonomicon/wiki/miraculous/general/timer.png"
       ],
-      "text": "book.mineraculous.wiki.miraculous.general.timer.text",
-      "title": "book.mineraculous.wiki.miraculous.general.timer.title",
+      "text": "book.mineraculous.wiki.miraculouses.general.timer.text",
+      "title": "book.mineraculous.wiki.miraculouses.general.timer.title",
       "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.miraculouses.general.using_tool.text",
+      "title": "book.mineraculous.wiki.miraculouses.general.using_tool.title",
+      "use_markdown_in_title": false
     },
     {
       "type": "modonomicon:image",
@@ -94,8 +94,8 @@
       "images": [
         "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/charging.png"
       ],
-      "text": "book.mineraculous.wiki.miraculous.general.charging.text",
-      "title": "book.mineraculous.wiki.miraculous.general.charging.title",
+      "text": "book.mineraculous.wiki.miraculouses.general.charging.text",
+      "title": "book.mineraculous.wiki.miraculouses.general.charging.title",
       "use_legacy_rendering": false
     },
     {
@@ -108,8 +108,8 @@
       "images": [
         "mineraculous:textures/modonomicon/wiki/miraculous/general/transferring_and_renouncing.png"
       ],
-      "text": "book.mineraculous.wiki.miraculous.general.transferring_and_renouncing.text",
-      "title": "book.mineraculous.wiki.miraculous.general.transferring_and_renouncing.title",
+      "text": "book.mineraculous.wiki.miraculouses.general.transferring_and_renouncing.text",
+      "title": "book.mineraculous.wiki.miraculouses.general.transferring_and_renouncing.title",
       "use_legacy_rendering": false
     }
   ],

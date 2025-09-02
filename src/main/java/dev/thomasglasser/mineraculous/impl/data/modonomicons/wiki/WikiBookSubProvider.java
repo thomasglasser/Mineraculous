@@ -12,7 +12,7 @@ import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.floraandfauna.
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.food.FoodCategoryProvider;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.itemstealingandbreaking.ItemStealingAndBreakingCategoryProvider;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.kamikotizations.KamikotizationsCategoryProvider;
-import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.miraculous.MiraculousCategoryProvider;
+import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.miraculouses.MiraculousesCategoryProvider;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.support.SupportCategoryProvider;
 import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
 import java.util.function.BiConsumer;
@@ -29,7 +29,7 @@ public class WikiBookSubProvider extends SingleBookSubProvider {
 
     @Override
     protected void generateCategories() {
-        add(new MiraculousCategoryProvider(this).generate());
+        add(new MiraculousesCategoryProvider(this).generate());
         add(new KamikotizationsCategoryProvider(this).generate());
         add(new ItemStealingAndBreakingCategoryProvider(this).generate());
         add(new FloraAndFaunaCategoryProvider(this).generate());

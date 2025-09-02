@@ -3,8 +3,7 @@ package dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.dependencies;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeCategoryProvider;
 import com.klikli_dev.modonomicon.api.datagen.ModonomiconProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
-import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
+import net.minecraft.world.item.Items;
 
 public class DependenciesCategoryProvider extends IndexModeCategoryProvider {
     public static final String ID = "dependencies";
@@ -36,6 +35,6 @@ public class DependenciesCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected BookIconModel categoryIcon() {
-        return BookIconModel.create(Miraculous.createMiraculousStack(registries().holderOrThrow(Miraculouses.LADYBUG)));
+        return BookIconModel.create(Items.ENCHANTED_BOOK);
     }
 }

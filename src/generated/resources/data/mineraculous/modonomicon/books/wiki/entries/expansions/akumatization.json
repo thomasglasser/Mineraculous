@@ -6,7 +6,7 @@
   "hide_while_locked": false,
   "icon": {
     "height": 16,
-    "texture": "mineraculous:textures/modonomicon/wiki/akumatization/icon.png",
+    "texture": "mineraculous:textures/modonomicon/wiki/expansions/akumatization/icon.png",
     "width": 16
   },
   "name": "book.mineraculous.wiki.expansions.akumatization.name",
@@ -19,7 +19,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/akumatization/description.png"
+        "mineraculous:textures/modonomicon/wiki/expansions/akumatization/description.png"
       ],
       "text": "book.mineraculous.wiki.expansions.akumatization.description.text",
       "title": "book.mineraculous.wiki.expansions.akumatization.description.title",

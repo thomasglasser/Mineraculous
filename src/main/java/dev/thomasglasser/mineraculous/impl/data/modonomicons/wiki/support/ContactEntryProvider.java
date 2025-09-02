@@ -25,7 +25,7 @@ public class ContactEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "GitHub");
         add(context().pageText(), """
-                For issues and feature requests,
+                For issues and bugs,
                 [GitHub](https://github.com/thomasglasser/Mineraculous/issues) is the best place to go.
                 """);
 
@@ -37,7 +37,7 @@ public class ContactEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Discord");
         add(context().pageText(), """
-                For general questions and discussions,
+                For questions, discussions, and feature requests,
                 the [Discord](https://discord.gg/Vd6yX2ngWX) is the best place to go.
                 """);
 
@@ -49,7 +49,7 @@ public class ContactEntryProvider extends IndexModeEntryProvider {
         add(context().pageTitle(), "Email");
         add(context().pageText(), """
                 For business inquiries and other matters,
-                you can reach out to at [mineraculous@thomasglasser.dev](mailto:mineraculous@thomasglasser.dev).
+                you can reach out to [mineraculous@thomasglasser.dev](mailto:mineraculous@thomasglasser.dev).
                 """);
     }
 

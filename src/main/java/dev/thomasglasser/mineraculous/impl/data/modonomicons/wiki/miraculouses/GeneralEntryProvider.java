@@ -1,4 +1,4 @@
-package dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.miraculous;
+package dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.miraculouses;
 
 import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
@@ -47,18 +47,6 @@ public class GeneralEntryProvider extends IndexModeEntryProvider {
                 To transform with a miraculous equipped, press the Transform button (default: M).
                 """);
 
-        page("using_tool", () -> BookTextPageModel.create()
-                .withTitle(context().pageTitle())
-                .withText(context().pageText()));
-
-        pageTitle("Using the Tool");
-        pageText("""
-                When you transform, the tool will be automatically equipped in a curios slot (if applicable) or be added to your inventory.
-                You can take and return the tool when not activated to this slot by pressing the Equip/Return Tool button (default: H).
-                You can also activate the tool by pressing the Activate Tool button (default: U).
-                When activated, you can hold the Open Tool Wheel button (default: H) to open the tool wheel and select a tool ability.
-                """);
-
         page("using_abilities", () -> BookTextPageModel.create()
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
@@ -75,9 +63,22 @@ public class GeneralEntryProvider extends IndexModeEntryProvider {
 
         pageTitle("Timer");
         pageText("""
-                Once you use your main ability, a 5 minute timer will start.
+                Once you perform your main ability, a five minute timer will start.
                 When the timer runs out, you will be automatically detransformed.
                 You can track the remaining time by looking at the miraculous or listening to the frequency of the beeps.
+                This timer will no longer apply when you reach Power Level 100.
+                """);
+
+        page("using_tool", () -> BookTextPageModel.create()
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        pageTitle("Using the Tool");
+        pageText("""
+                When you transform, the tool will be automatically equipped in a curios slot or added to your inventory.
+                You can take and return the tool to this slot when not activated by pressing the Open Item Radial Menu button (default: R).
+                You can also activate the tool by pressing the De/Activate Item button (default: I).
+                When activated, you can hold the Open Item Radial Menu button (default: R) to open the tool's radial menu and select a tool ability.
                 """);
 
         page("charging", () -> BookImagePageModel.create()

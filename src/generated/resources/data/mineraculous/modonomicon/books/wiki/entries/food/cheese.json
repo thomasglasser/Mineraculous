@@ -10,46 +10,43 @@
   "name": "book.mineraculous.wiki.food.cheese.name",
   "pages": [
     {
-      "type": "modonomicon:image",
+      "type": "modonomicon:spotlight",
       "anchor": "",
-      "border": true,
       "condition": {
         "type": "modonomicon:none"
       },
-      "images": [
-        "mineraculous:textures/item/aged_wedge_of_cheese.png"
-      ],
+      "item": {
+        "count": 1,
+        "item": "mineraculous:aged_cheese_block"
+      },
       "text": "book.mineraculous.wiki.food.cheese.cheese.text",
-      "title": "book.mineraculous.wiki.food.cheese.cheese.title",
-      "use_legacy_rendering": false
+      "title": "book.mineraculous.wiki.food.cheese.cheese.title"
     },
     {
-      "type": "modonomicon:image",
+      "type": "modonomicon:spotlight",
       "anchor": "",
-      "border": true,
       "condition": {
         "type": "modonomicon:none"
       },
-      "images": [
-        "mineraculous:textures/item/aged_wedge_of_camembert.png"
-      ],
+      "item": {
+        "count": 1,
+        "item": "mineraculous:aged_camembert_wedge"
+      },
       "text": "book.mineraculous.wiki.food.cheese.camembert.text",
-      "title": "book.mineraculous.wiki.food.cheese.camembert.title",
-      "use_legacy_rendering": false
+      "title": "book.mineraculous.wiki.food.cheese.camembert.title"
     },
     {
-      "type": "modonomicon:image",
+      "type": "modonomicon:spotlight",
       "anchor": "",
-      "border": true,
       "condition": {
         "type": "modonomicon:none"
       },
-      "images": [
-        "mineraculous:textures/item/cheese_pot.png"
-      ],
+      "item": {
+        "count": 1,
+        "item": "mineraculous:cheese_pot"
+      },
       "text": "book.mineraculous.wiki.food.cheese.finding.text",
-      "title": "book.mineraculous.wiki.food.cheese.finding.title",
-      "use_legacy_rendering": false
+      "title": "book.mineraculous.wiki.food.cheese.finding.title"
     }
   ],
   "show_when_any_parent_unlocked": false,

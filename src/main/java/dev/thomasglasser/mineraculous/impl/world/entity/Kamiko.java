@@ -4,12 +4,10 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.ability.SpectateEntityAbility;
-import dev.thomasglasser.mineraculous.api.world.ability.TemptingAbility;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.sensing.PlayerItemTemptingSensor;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
@@ -187,9 +185,6 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     public List<? extends ExtendedSensor<? extends Kamiko>> getSensors() {
         return ObjectArrayList.of(
                 new PlayerItemTemptingSensor<Kamiko>().temptedWith((kamiko, player, stack) -> {
-                    if (shouldFollowOwner(kamiko)) {
-                        return true;
-                    }
                     UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
                     Entity caneOwner = ownerId != null ? player.level().getEntities().get(ownerId) : null;
                     if (caneOwner != null) {
@@ -214,7 +209,6 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                 new MoveToWalkTarget<Kamiko>());
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public BrainActivityGroup<? extends Kamiko> getIdleTasks() {
         return BrainActivityGroup.idleTasks(
@@ -225,24 +219,8 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     }
 
     protected boolean shouldFollowOwner(Kamiko kamiko) {
-        if (BrainUtils.hasMemory(kamiko.getBrain(), MemoryModuleType.ATTACK_TARGET)) {
-            return false;
-        }
-        LivingEntity owner = kamiko.getOwner();
-        if (owner != null && level() instanceof ServerLevel level) {
-            MiraculousesData miraculousesData = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-            for (Holder<Miraculous> key : miraculousesData.getTransformed()) {
-                MiraculousData data = miraculousesData.get(key);
-                if (Ability.hasMatching(ability -> ability instanceof TemptingAbility temptingAbility && temptingAbility.shouldTempt(level, owner, kamiko), key.value(), data.powerActive())) {
-                    return true;
-                }
-            }
-            if (owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
-                KamikotizationData kamikotizationData = owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
-                return Ability.hasMatching(ability -> ability instanceof TemptingAbility temptingAbility && temptingAbility.shouldTempt(level, owner, kamiko), kamikotizationData.kamikotization().value(), kamikotizationData.powerActive());
-            }
-        }
-        return false;
+        LivingEntity owner = getOwner();
+        return owner != null && !BrainUtils.hasMemory(kamiko.getBrain(), MemoryModuleType.ATTACK_TARGET) && (owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent());
     }
 
     @Override

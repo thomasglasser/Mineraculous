@@ -23,7 +23,7 @@ public class JeiEntryProvider extends IndexModeEntryProvider {
                 .withText(context().pageText()));
 
         add(context().pageTitle(), "Miraculous");
-        add(context().pageText(), "[Just Enough Items](https://modrinth.com/mod/jei) is able to show the all data driven miraculous.");
+        add(context().pageText(), "[Just Enough Items](https://modrinth.com/mod/jei) is able to recognize and show the all data driven miraculous.");
     }
 
     @Override

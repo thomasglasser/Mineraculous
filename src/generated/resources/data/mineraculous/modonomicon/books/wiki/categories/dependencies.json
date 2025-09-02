@@ -8,10 +8,7 @@
   "display_mode": "index",
   "entry_textures": "modonomicon:textures/gui/entry_textures.png",
   "icon": {
-    "components": {
-      "mineraculous:miraculous": "mineraculous:ladybug"
-    },
-    "item": "mineraculous:miraculous"
+    "item": "minecraft:enchanted_book"
   },
   "max_scroll_x": 512,
   "max_scroll_y": 512,

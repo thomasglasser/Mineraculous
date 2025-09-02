@@ -31,34 +31,55 @@ public class AdvancementTriggersEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Transformed Miraculous");
         add(context().pageText(), """
-                This trigger is called when a player transforms with a miraculous. It has one parameter:
-                - "type": The type of miraculous that was transformed.
+                This trigger is called when a player transforms with a miraculous.
+                It has two parameters:
+                - "player": The player that was transformed.
+                - "miraculous": The miraculous that was used to transform.
                 """);
 
-        page("used_miraculous_power", () -> BookTextPageModel.create()
+        page("performed_miraculous_active_ability", () -> BookTextPageModel.create()
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
-        add(context().pageTitle(), "Used Miraculous Power");
+        add(context().pageTitle(), "Performed Miraculous Active Ability");
         add(context().pageText(), """
-                This trigger is called when a player uses a miraculous power. It has two parameters:
-                - "type": The type of miraculous that was used.
-                - "context": The context in which the power was used. Can be one of the following:
-                    - empty
+                This trigger is called when a player performs an active ability provided by their miraculous.
+                It has three parameters:
+                - "player": The player that performed the ability.
+                - "miraculous": The miraculous that provided the ability.
+                - "context": The context in which the power was used.
+                Can be any value for addon support,
+                but the ones included in the mod by default are:
                     - block
                     - entity
                     - living_entity
-                    - item
                 """);
 
-        page("kamikotized_player", () -> BookTextPageModel.create()
+        page("kamikotized_entity", () -> BookTextPageModel.create()
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
-        add(context().pageTitle(), "Kamikotized Player");
+        add(context().pageTitle(), "Kamikotized Entity");
         add(context().pageText(), """
-                This trigger is called when a player kamikotizes another player. It has one parameter:
-                - "type": The type of kamikotization that was used.
+                This trigger is called when a player kamikotizes an entity.
+                It has four parameters:
+                - "player": The player that kamikotized the entity.
+                - "target": The entity that was kamikotized.
+                - "kamikotization": The kamikotization that was given to the entity.
+                - "self": Whether the player kamikotized themself.
+                """);
+
+        page("released_purified_entities", () -> BookTextPageModel.create()
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        add(context().pageTitle(), "Released Purified Entities");
+        add(context().pageText(), """
+                This trigger is called when a player releases purified entities.
+                It has three parameters:
+                - "player": The player that released the entities.
+                - "released": The entities that were released.
+                - "count": The number of purified kamikos that were released.
                 """);
 
         page("transformed_kamikotization", () -> BookTextPageModel.create()
@@ -67,35 +88,29 @@ public class AdvancementTriggersEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Transformed Kamikotization");
         add(context().pageText(), """
-                This trigger is called when a player is transformed by a kamikotization. It has two parameters:
-                - "type": The type of kamikotization that was used.
-                - "self": Whether the player kamikotized themselves.
+                This trigger is called when a player is transformed by a kamikotization.
+                It has three parameters:
+                - "player": The player that was transformed.
+                - "kamikotization": The kamikotization that was used to transform.
+                - "self": Whether the player kamikotized themself.
                 """);
 
-        page("used_kamikotization_power", () -> BookTextPageModel.create()
+        page("performed_kamikotization_active_ability", () -> BookTextPageModel.create()
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
-        add(context().pageTitle(), "Used Kamikotization Power");
+        add(context().pageTitle(), "Performed Kamikotization Active Ability");
         add(context().pageText(), """
-                This trigger is called when a player uses a kamikotization ability. It has two parameters:
-                - "type": The type of kamikotization that was used.
-                - "context": The context in which the power was used. Can be one of the following:
-                    - empty
+                This trigger is called when a player performs an active ability provided by their kamikotization.
+                It has three parameters:
+                - "player": The player that performed the ability.
+                - "kamikotization": The kamikotization that provided the ability.
+                - "context": The context in which the power was used.
+                Can be any value for addon support,
+                but the ones included in the mod by default are:
                     - block
                     - entity
                     - living_entity
-                    - item
-                """);
-
-        page("released_purified_kamiko", () -> BookTextPageModel.create()
-                .withTitle(context().pageTitle())
-                .withText(context().pageText()));
-
-        add(context().pageTitle(), "Released Purified Kamiko");
-        add(context().pageText(), """
-                This trigger is called when a player releases a purified kamiko. It has one parameter:
-                - "count": The number of purified kamikos that were released.
                 """);
     }
 
@@ -106,7 +121,7 @@ public class AdvancementTriggersEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "Mineraculous adds a few advancement triggers for mods and datapacks to detect and use.";
+        return "Advancement triggers for addon mods and datapacks to detect and use.";
     }
 
     @Override

@@ -24,8 +24,13 @@ public class FoodCategoryProvider extends IndexModeCategoryProvider {
     }
 
     @Override
+    protected String categoryDescription() {
+        return "The consumables, good or bad, that can be found in the world.";
+    }
+
+    @Override
     protected BookIconModel categoryIcon() {
-        return BookIconModel.create(MineraculousItems.CHEESE.get(AgeingCheese.Age.FRESH));
+        return BookIconModel.create(MineraculousItems.CHEESE.get(AgeingCheese.Age.TIME_HONORED));
     }
 
     @Override

@@ -15,7 +15,6 @@ public class SupportCategoryProvider extends IndexModeCategoryProvider {
     @Override
     protected void generateEntries() {
         add(new ModPagesEntryProvider(this).generate());
-        add(new DonationsEntryProvider(this).generate());
         add(new WikiEntryProvider(this).generate());
         add(new ContactEntryProvider(this).generate());
     }

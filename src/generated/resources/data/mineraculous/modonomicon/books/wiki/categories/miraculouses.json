@@ -4,7 +4,7 @@
   "background_parallax_layers": [],
   "background_texture_zoom_multiplier": 1.0,
   "background_width": 512,
-  "description": "book.mineraculous.wiki.miraculous.description",
+  "description": "book.mineraculous.wiki.miraculouses.description",
   "display_mode": "index",
   "entry_textures": "modonomicon:textures/gui/entry_textures.png",
   "icon": {
@@ -15,7 +15,7 @@
   },
   "max_scroll_x": 512,
   "max_scroll_y": 512,
-  "name": "book.mineraculous.wiki.miraculous.name",
+  "name": "book.mineraculous.wiki.miraculouses.name",
   "show_category_button": true,
   "sort_number": 0
 }

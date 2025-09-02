@@ -41,8 +41,8 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.apis.advancement_triggers.used_miraculous_power.text",
-      "title": "book.mineraculous.wiki.apis.advancement_triggers.used_miraculous_power.title",
+      "text": "book.mineraculous.wiki.apis.advancement_triggers.performed_miraculous_active_ability.text",
+      "title": "book.mineraculous.wiki.apis.advancement_triggers.performed_miraculous_active_ability.title",
       "use_markdown_in_title": false
     },
     {
@@ -52,8 +52,19 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.apis.advancement_triggers.kamikotized_player.text",
-      "title": "book.mineraculous.wiki.apis.advancement_triggers.kamikotized_player.title",
+      "text": "book.mineraculous.wiki.apis.advancement_triggers.kamikotized_entity.text",
+      "title": "book.mineraculous.wiki.apis.advancement_triggers.kamikotized_entity.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.advancement_triggers.released_purified_entities.text",
+      "title": "book.mineraculous.wiki.apis.advancement_triggers.released_purified_entities.title",
       "use_markdown_in_title": false
     },
     {
@@ -74,19 +85,8 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.apis.advancement_triggers.used_kamikotization_power.text",
-      "title": "book.mineraculous.wiki.apis.advancement_triggers.used_kamikotization_power.title",
-      "use_markdown_in_title": false
-    },
-    {
-      "type": "modonomicon:text",
-      "anchor": "",
-      "condition": {
-        "type": "modonomicon:none"
-      },
-      "show_title_separator": true,
-      "text": "book.mineraculous.wiki.apis.advancement_triggers.released_purified_kamiko.text",
-      "title": "book.mineraculous.wiki.apis.advancement_triggers.released_purified_kamiko.title",
+      "text": "book.mineraculous.wiki.apis.advancement_triggers.performed_kamikotization_active_ability.text",
+      "title": "book.mineraculous.wiki.apis.advancement_triggers.performed_kamikotization_active_ability.title",
       "use_markdown_in_title": false
     }
   ],

@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
  * @param invalidEntities The {@link EntityPredicate} the target must not match
  * @param convertSound    The sound to play on successful conversion
  */
-public record ConvertAndTameAbility(EntityType<?> newType, Optional<EntityPredicate> validEntities, Optional<EntityPredicate> invalidEntities, Optional<Holder<SoundEvent>> convertSound) implements TemptingAbility {
+public record ConvertAndTameAbility(EntityType<?> newType, Optional<EntityPredicate> validEntities, Optional<EntityPredicate> invalidEntities, Optional<Holder<SoundEvent>> convertSound) implements Ability {
 
     public static final MapCodec<ConvertAndTameAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             BuiltInRegistries.ENTITY_TYPE.byNameCodec().fieldOf("new_type").forGetter(ConvertAndTameAbility::newType),
@@ -67,11 +67,6 @@ public record ConvertAndTameAbility(EntityType<?> newType, Optional<EntityPredic
     @Override
     public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
         AbilityReversionEntityData.get(level).revertConversions(performer.getUUID(), level);
-    }
-
-    @Override
-    public boolean shouldTempt(ServerLevel level, LivingEntity performer, Entity entity) {
-        return isValidEntity(level, performer.position(), entity);
     }
 
     @Override

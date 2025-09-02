@@ -98,7 +98,7 @@ public class CatStaffTravelHandler {
                 didLaunch = true;
             }
 
-            if (didLaunch && livingEntity.getDeltaMovement().y < -0.08) {
+            if (didLaunch && livingEntity.getDeltaMovement().y < -0.01) {
                 TravelingCatStaffData.remove(livingEntity, true);
             } else {
                 TravelingCatStaffData newTravelData = new TravelingCatStaffData(

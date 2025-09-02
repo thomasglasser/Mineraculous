@@ -88,7 +88,7 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
 
             if (lHCatStaffPerch || rHCatStaffPerch) {
                 PerchingCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-                float length = Mth.lerp(partialTick, oLength, smoothedLength);
+                float length = Mth.lerp(partialTick, oLength, perchData.length());
                 boolean catStaffPerchRender = perchData.canRender();
                 poseStack.pushPose();
                 VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(EXTENDED_TEXTURE));

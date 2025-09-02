@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.world.item.ability;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateStaffInputPayload;
@@ -159,6 +160,9 @@ public class CatStaffPerchHandler {
 
         if (fastDescending) {
             livingEntity.resetFallDistance();
+            double yMovement = Math.min(-0.7, livingEntity.getDeltaMovement().y);
+            livingEntity.hurtMarked = true;
+            livingEntity.setDeltaMovement(livingEntity.getDeltaMovement().x, yMovement, livingEntity.getDeltaMovement().z);
             if (Math.abs(catStaffPerchGroundRY) < 1) {
                 PerchingCatStaffData.remove(livingEntity, true);
             }
@@ -197,7 +201,7 @@ public class CatStaffPerchHandler {
         applyCollisionDamage(livingEntity);
         livingEntity.resetFallDistance();
 
-        if (distance > -length + 2 || staffOrigin.y + 0.2 > livingEntity.getY()) {
+        if (distance > -length + 2 || staffOrigin.y + 0.2 > livingEntity.getY() || (livingEntity.getDeltaMovement().y > -0.2 && livingEntity.getY() + 2 < perchData.yBeforeFalling())) {
             PerchingCatStaffData.remove(livingEntity, true);
             if (livingEntity instanceof Player player) {
                 player.getCooldowns().addCooldown(MineraculousItems.CAT_STAFF.get(), 10);
@@ -226,7 +230,7 @@ public class CatStaffPerchHandler {
     private static float detectGround(Level level, LivingEntity livingEntity) {
         float toReturn;
         int y = livingEntity.getBlockY();
-        while (level.getBlockState(new BlockPos(livingEntity.getBlockX(), y, livingEntity.getBlockZ())).isEmpty() && Math.abs(livingEntity.getBlockY() - y) <= MineraculousServerConfig.get().maxToolLength.get()) {
+        while (!level.getBlockState(new BlockPos(livingEntity.getBlockX(), y, livingEntity.getBlockZ())).isSolid() && Math.abs(livingEntity.getBlockY() - y) <= MineraculousServerConfig.get().maxToolLength.get()) {
             y--;
         }
         y++;

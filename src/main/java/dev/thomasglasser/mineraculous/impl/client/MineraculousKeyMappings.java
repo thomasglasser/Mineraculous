@@ -50,8 +50,8 @@ public class MineraculousKeyMappings {
     public static final ExtendedKeyMapping TOGGLE_ITEM_ACTIVE = register("toggle_item_active", InputConstants.KEY_I, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleToggleActive);
     public static final ExtendedKeyMapping OPEN_ITEM_RADIAL_MENU = register("open_item_radial_menu", InputConstants.KEY_R, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleOpenItemRadialMenu);
     public static final ExtendedKeyMapping TAKE_BREAK_ITEM = register("take_break_item", InputConstants.KEY_B, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleTakeBreakItem, MineraculousKeyMappings::handleNoTakeBreakItem);
-    public static final ExtendedKeyMapping UNWIND_YOYO = register("unwind_yoyo", InputConstants.KEY_DOWN, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateYoyo(true));
-    public static final ExtendedKeyMapping WIND_YOYO = register("wind_yoyo", InputConstants.KEY_UP, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateYoyo(false));
+    public static final ExtendedKeyMapping DESCEND_TOOL = register("descend_tool", InputConstants.KEY_DOWN, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateToolMovements(true));
+    public static final ExtendedKeyMapping ASCEND_TOOL = register("ascend_tool", InputConstants.KEY_UP, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateToolMovements(false));
 
     public static ExtendedKeyMapping register(String name, int key, String category, Runnable onClick) {
         return ClientUtils.registerKeyMapping(Mineraculous.modLoc(name), key, category, onClick);
@@ -211,13 +211,13 @@ public class MineraculousKeyMappings {
         takeTicks = 0;
     }
 
-    private static void handleUpdateYoyo(boolean increase) {
+    private static void handleUpdateToolMovements(boolean ascend) {
         Player player = Minecraft.getInstance().player;
         if (player != null) {
             ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
             ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
             if (thrownYoyo != null || player.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent()) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoLengthPayload(increase));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoLengthPayload(ascend));
             }
         }
     }

@@ -221,6 +221,8 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     if (this.getY() > owner.getY()) {
                         owner.setDeltaMovement(newVelocity);
                     }
+
+                    applyCollisionDamage(owner);
                 }
             } else {
                 if (this.tickCount < 50) {
@@ -237,6 +239,22 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         }
 
         super.tick();
+    }
+
+    private static void applyCollisionDamage(LivingEntity entity) {
+        Vec3 velocity = entity.getDeltaMovement();
+        double horizontalSpeedBefore = velocity.horizontalDistance();
+
+        entity.move(MoverType.SELF, velocity);
+
+        if (entity.horizontalCollision || entity.minorHorizontalCollision) {
+            double horizontalSpeedAfter = entity.getDeltaMovement().horizontalDistance();
+            double lostSpeed = horizontalSpeedBefore - horizontalSpeedAfter;
+            float damage = (float) (lostSpeed * 10.0 - 3.0);
+
+            if (damage > 0.0F)
+                entity.hurt(entity.damageSources().flyIntoWall(), damage);
+        }
     }
 
     public void recall() {

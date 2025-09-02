@@ -26,6 +26,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundRequestInventorySy
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealCurioPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateSpecialPlayerDataPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -323,5 +324,30 @@ public class MineraculousClientUtils {
             return livingEntity.getEyePosition(partialTick).add(-cosRot * armOffset - sinRot * frontOffsetScaled, (double) crouchOffset + heightOffset * (double) scale, -sinRot * armOffset + cosRot * frontOffsetScaled);
         }
         return Vec3.ZERO;
+    }
+
+    public record InputState(boolean front, boolean back, boolean left, boolean right, boolean jump) {
+        public int packInputs() {
+            int bits = 0;
+            if (front) bits |= ServerboundUpdateYoyoInputPayload.UP;
+            if (back) bits |= ServerboundUpdateYoyoInputPayload.DOWN;
+            if (left) bits |= ServerboundUpdateYoyoInputPayload.LEFT;
+            if (right) bits |= ServerboundUpdateYoyoInputPayload.RIGHT;
+            if (jump) bits |= ServerboundUpdateYoyoInputPayload.JUMP;
+            return bits;
+        }
+
+        public boolean hasInput() {
+            return front || back || left || right || jump;
+        }
+
+        public boolean[] getHorizontalMovementInputs() {
+            return new boolean[] { front, back, left, right };
+        }
+    }
+
+    public static InputState captureInput() {
+        var input = Minecraft.getInstance().player.input;
+        return new InputState(input.up, input.down, input.left, input.right, input.jumping);
     }
 }

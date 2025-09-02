@@ -50,7 +50,7 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
         pageTitle("Lucky Charm");
         pageText("""
                 The Lucky Charm ability can be activated by pressing the Activate Power button (default: O) with the active yoyo in your hand.
-                It will grant you a lucky charm to help with your specific situation.
+                It will summon a lucky charm up to four blocks above you to help with your specific situation.
                 The possible lucky charms are chosen from the loot table or list provided in the [data maps](entry://apis/data_maps).
                 """);
 
@@ -124,9 +124,10 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
 
         pageTitle("Lasso Mode");
         pageText("""
-                Lasso mode allows you to use right click to throw your yoyo at an entity to keep it near you.
-                You can also left click once the yoyo is attached to an entity to pull it back to you.
-                You can control the length of the string using the Ascend Tool (default: ⬆) and Descend Tool (default: ⬇) keys.
+                Lasso mode allows you to use right click to throw your yoyo at any entity to keep it near you,
+                even normally unleashable ones.
+                You can also left click once the yoyo is attached to pull the entity back to you.
+                You can control the length of the string using the Ascend Tool (default: Up Arrow) and Descend Tool (default: Down Arrow) keys.
                 """);
 
         page("purify", () -> BookImagePageModel.create()
@@ -161,6 +162,18 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
         pageText("""
                 Travel mode allows you to use your yoyo to swing on blocks and launch yourself into the air.
                 You can use right click to throw and recall the yoyo and left click to launch yourself.
+                """);
+
+        page("lucky_charms", () -> BookImagePageModel.create()
+                .withImages(WikiBookSubProvider.wikiTexture("miraculous/ladybug/lucky_charms.png"))
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        pageTitle("Lucky Charms");
+        pageText("""
+                When targeting a Ladybug Miraculous holder,
+                the lucky charms can be one of the following:
+                - Great Sword
                 """);
     }
 

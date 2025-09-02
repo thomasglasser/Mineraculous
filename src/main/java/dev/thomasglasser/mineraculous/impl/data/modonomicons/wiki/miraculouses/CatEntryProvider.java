@@ -56,6 +56,8 @@ public class CatEntryProvider extends IndexModeEntryProvider {
                 Blocks will be converted to Cataclysm Blocks, which drop Cataclysm Dust.
                 Entities will be given the Cataclysmed effect that will slowly kill them.
                 They will drop Cataclysm Dust when killed.
+                It is possible to block Cataclysm with a shield,
+                which will apply it to the shield item instead of the entity.
                 """);
 
         page("cat_vision", () -> BookImagePageModel.create()
@@ -120,7 +122,7 @@ public class CatEntryProvider extends IndexModeEntryProvider {
                 Perch mode allows you to launch yourself upwards by right clicking.
                 You can then right click again to go back down,
                 left click to fall in the direction you are facing,
-                or use the Ascend Tool (default: ⬆) and Descend Tool (default: ⬇) keys to change your height.
+                or use the Ascend Tool (default: Up Arrow) and Descend Tool (default: Down Arrow) keys to change your height.
                 """);
 
         page("spyglass", () -> BookImagePageModel.create()
@@ -154,6 +156,17 @@ public class CatEntryProvider extends IndexModeEntryProvider {
         pageText("""
                 Travel mode allows you to use your staff to launch yourself in the direction you are facing.
                 You can then hold right click while in the air looking down to slow your fall or looking up to launch again.
+                """);
+
+        page("lucky_charms", () -> BookImagePageModel.create()
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        pageTitle("Lucky Charms");
+        pageText("""
+                When targeting a Cat Miraculous holder,
+                the lucky charms can be one of the following:
+                - Any Shield
                 """);
     }
 

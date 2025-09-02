@@ -10,6 +10,51 @@
   "name": "book.mineraculous.wiki.food.cheese.name",
   "pages": [
     {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/food/cheese/ageing.png"
+      ],
+      "text": "book.mineraculous.wiki.food.cheese.ageing.text",
+      "title": "book.mineraculous.wiki.food.cheese.ageing.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:spotlight",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "item": {
+        "components": {
+          "minecraft:block_state": {
+            "missing_pieces": "3"
+          }
+        },
+        "count": 1,
+        "item": "mineraculous:aged_camembert_block"
+      },
+      "text": "book.mineraculous.wiki.food.cheese.eating.text",
+      "title": "book.mineraculous.wiki.food.cheese.eating.title"
+    },
+    {
+      "type": "modonomicon:spotlight",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "item": {
+        "count": 1,
+        "item": "mineraculous:cheese_pot"
+      },
+      "text": "book.mineraculous.wiki.food.cheese.finding.text",
+      "title": "book.mineraculous.wiki.food.cheese.finding.title"
+    },
+    {
       "type": "modonomicon:spotlight",
       "anchor": "",
       "condition": {
@@ -34,19 +79,6 @@
       },
       "text": "book.mineraculous.wiki.food.cheese.camembert.text",
       "title": "book.mineraculous.wiki.food.cheese.camembert.title"
-    },
-    {
-      "type": "modonomicon:spotlight",
-      "anchor": "",
-      "condition": {
-        "type": "modonomicon:none"
-      },
-      "item": {
-        "count": 1,
-        "item": "mineraculous:cheese_pot"
-      },
-      "text": "book.mineraculous.wiki.food.cheese.finding.text",
-      "title": "book.mineraculous.wiki.food.cheese.finding.title"
     }
   ],
   "show_when_any_parent_unlocked": false,

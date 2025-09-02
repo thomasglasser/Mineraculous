@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.impl.world.item.ability;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateStaffInputPayload;
@@ -25,7 +24,6 @@ public class CatStaffPerchHandler {
     public static final int MAX_TICKS = 30;
     public static final double MOVEMENT_THRESHOLD = 0.15d;
     public static final double MOVEMENT_SCALE = 0.1d;
-    private static final int ANIMATION_DELAY = 10; //TODO VALUE TO BE CHANGED WHEN ANIMATIONS ADDED
 
     public static void tick(Level level, LivingEntity livingEntity) {
         PerchingCatStaffData perchData = livingEntity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
@@ -139,8 +137,8 @@ public class CatStaffPerchHandler {
         float catStaffPerchGroundRY = perchData.yGroundLevel();
 
         int t = Math.min(perchData.tick() + 1, MAX_TICKS);
-        boolean shouldRender = t > ANIMATION_DELAY;
-        if (t > ANIMATION_DELAY && t < MAX_TICKS)
+        boolean shouldRender = true;
+        if (t > 1 && t < MAX_TICKS)
             launchPlayerInAir(livingEntity);
 
         if (isFalling) {

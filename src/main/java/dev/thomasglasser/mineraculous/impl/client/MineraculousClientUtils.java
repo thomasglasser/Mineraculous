@@ -26,6 +26,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundRequestInventorySy
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealCurioPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateSpecialPlayerDataPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -328,11 +329,11 @@ public class MineraculousClientUtils {
     public record InputState(boolean front, boolean back, boolean left, boolean right, boolean jump) {
         public int packInputs() {
             int bits = 0;
-            if (front) bits |= 1 << 0;
-            if (back) bits |= 1 << 1;
-            if (left) bits |= 1 << 2;
-            if (right) bits |= 1 << 3;
-            if (jump) bits |= 1 << 4;
+            if (front) bits |= ServerboundUpdateYoyoInputPayload.UP;
+            if (back) bits |= ServerboundUpdateYoyoInputPayload.DOWN;
+            if (left) bits |= ServerboundUpdateYoyoInputPayload.LEFT;
+            if (right) bits |= ServerboundUpdateYoyoInputPayload.RIGHT;
+            if (jump) bits |= ServerboundUpdateYoyoInputPayload.JUMP;
             return bits;
         }
 

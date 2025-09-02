@@ -20,31 +20,25 @@ public record ServerboundUpdateStaffInputPayload(int input, PerchingCatStaffData
             PerchingCatStaffData.STREAM_CODEC, ServerboundUpdateStaffInputPayload::perchData,
             ServerboundUpdateStaffInputPayload::new);
 
-    private static final int UP = 1 << 0;
-    private static final int DOWN = 1 << 1;
-    private static final int LEFT = 1 << 2;
-    private static final int RIGHT = 1 << 3;
-    private static final int JUMP = 1 << 4;
-
     // helpers
     public boolean up() {
-        return (input & UP) != 0;
+        return (input & ServerboundUpdateYoyoInputPayload.UP) != 0;
     }
 
     public boolean down() {
-        return (input & DOWN) != 0;
+        return (input & ServerboundUpdateYoyoInputPayload.DOWN) != 0;
     }
 
     public boolean left() {
-        return (input & LEFT) != 0;
+        return (input & ServerboundUpdateYoyoInputPayload.LEFT) != 0;
     }
 
     public boolean right() {
-        return (input & RIGHT) != 0;
+        return (input & ServerboundUpdateYoyoInputPayload.RIGHT) != 0;
     }
 
     public boolean jump() {
-        return (input & JUMP) != 0;
+        return (input & ServerboundUpdateYoyoInputPayload.JUMP) != 0;
     }
 
     public boolean hasInput() {

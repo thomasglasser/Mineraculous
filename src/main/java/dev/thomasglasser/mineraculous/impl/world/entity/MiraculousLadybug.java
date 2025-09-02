@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,14 +23,14 @@ import net.minecraft.world.phys.Vec3;
 public class MiraculousLadybug extends PathfinderMob {
     CatmullRom path;
     boolean shouldUpdatePath;
-    int pathProgress;
+    double t;
 
     public MiraculousLadybug(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
         this.noPhysics = true;
         this.noCulling = true;
         this.shouldUpdatePath = true;
-        this.pathProgress = 0;
+        this.t = 0;
     }
 
     @Override
@@ -40,8 +39,7 @@ public class MiraculousLadybug extends PathfinderMob {
         MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
         Level level = this.level();
         if (level.isClientSide) return;
-        if ((targetData.blockTargets() == null || targetData.blockTargets().isEmpty())
-        /*&& targetData.currentTarget().isEmpty()*/) {
+        if ((targetData.blockTargets() == null || targetData.blockTargets().isEmpty())) {
             this.discard();
             return;
         }
@@ -52,10 +50,11 @@ public class MiraculousLadybug extends PathfinderMob {
                 targets.add(blockPos.getCenter());
             }
             this.path = new CatmullRom(targets);
+            this.t = path.T.get(1);
             this.shouldUpdatePath = false;
-        } else {
-            this.setPos(path.getPoint(pathProgress / 300d));
-            pathProgress = Math.min(pathProgress + 1, 300);
+        } else if (t >= path.T.get(1)) { //0.01
+            this.setPos(path.getPoint(t));
+            t = Math.min(t + 0.1, path.getLastParameter());
         }
 
         /*
@@ -220,16 +219,23 @@ public class MiraculousLadybug extends PathfinderMob {
 
             ArrayList<Vec3> tangents = new ArrayList<>(P.size() - 2);
             for (int i = 1; i < P.size() - 1; i++) {
-                //Vec3 mi = P.get(i + 1).subtract(P.get(i - 1)).scale(1 / (T.get(i + 1) - T.get(i - 1)));
-                Vec3 mi = P.get(i + 1).subtract(P.get(i - 1)).scale(0.5d);
+                Vec3 mi = P.get(i + 1).subtract(P.get(i - 1)).scale(1 / (T.get(i + 1) - T.get(i - 1)));
                 tangents.add(mi);
             }
             this.tangents = Collections.unmodifiableList(tangents);
         }
 
-        public Vec3 getPoint(double progress) { //progress must be inside [0, 1]
+        public double getLastParameter() {
+            return T.get(T.size() - 2);
+        }
+
+        public Vec3 getPointWithProgress(double progress) { //progress must be inside [0, 1]
             double t = T.get(1) + (T.get(T.size() - 2) - T.get(1)) * progress;
-            t = t == T.get(T.size() - 2) ? T.get(T.size() - 2) - 0.00001d : t; //TODO see why this is neccessary
+            return getPoint(t);
+        }
+
+        public Vec3 getPoint(double t) {
+            t = t == T.get(T.size() - 2) ? T.get(T.size() - 2) - 0.00001d : t;
             int index = 2;
             for (int i = 1; i < T.size(); i++) {
                 if (T.get(i) > t) {

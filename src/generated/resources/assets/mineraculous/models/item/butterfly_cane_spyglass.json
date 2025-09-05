@@ -17,10 +17,15 @@
         ]
       },
       "head": {
+        "scale": [
+          1.6,
+          1.6,
+          1.6
+        ],
         "translation": [
           0,
-          -21,
-          0
+          -47,
+          -10.75
         ]
       },
       "mineraculous:curios_body": {

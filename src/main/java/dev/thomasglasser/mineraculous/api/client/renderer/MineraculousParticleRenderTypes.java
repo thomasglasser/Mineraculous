@@ -10,10 +10,8 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.world.entity.vehicle.Minecart;
 
 public class MineraculousParticleRenderTypes {
     public static final ParticleRenderType PARTICLE_SHEET_ADDITIVE_TRANSLUCENT = new ParticleRenderType() {

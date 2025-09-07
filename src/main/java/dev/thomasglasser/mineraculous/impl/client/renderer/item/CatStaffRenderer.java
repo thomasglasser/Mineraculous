@@ -29,7 +29,8 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffItem> {
-    public static final ResourceLocation EXTENDED_TEXTURE = Mineraculous.modLoc("textures/misc/cat_staff.png");
+    public static final ResourceLocation SPYGLASS_SCOPE_LOCATION = Mineraculous.modLoc("textures/misc/cat_staff_spyglass_scope.png");
+    public static final ResourceLocation EXTENDED_LOCATION = Mineraculous.modLoc("textures/misc/cat_staff.png");
 
     private static final float PIXEL = 1 / 16f;
 
@@ -91,7 +92,7 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
                 float length = Mth.lerp(partialTick, oLength, perchData.length());
                 boolean catStaffPerchRender = perchData.canRender();
                 poseStack.pushPose();
-                VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(EXTENDED_TEXTURE));
+                VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(EXTENDED_LOCATION));
                 PoseStack.Pose pose = poseStack.last();
 
                 //STAFF - PLAYER NEW
@@ -142,7 +143,7 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
             float length = travelingCatStaffData.length();
             BlockPos target = travelingCatStaffData.blockPos();
             poseStack.pushPose();
-            VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(EXTENDED_TEXTURE));
+            VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(EXTENDED_LOCATION));
             PoseStack.Pose pose = poseStack.last();
 
             double d0, d1, d2;

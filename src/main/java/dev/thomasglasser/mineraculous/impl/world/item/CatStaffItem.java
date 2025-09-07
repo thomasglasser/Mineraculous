@@ -14,7 +14,6 @@ import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.item.component.ActiveSettings;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
-import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler;
@@ -22,18 +21,14 @@ import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelHand
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import dev.thomasglasser.tommylib.api.client.renderer.BewlrProvider;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import dev.thomasglasser.tommylib.api.world.item.ModeledItem;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiPredicate;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Position;
@@ -80,7 +75,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, ProjectileItem, ICurioItem, RadialMenuProvider<CatStaffItem.Ability>, LeftClickTrackingItem {
+public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, ICurioItem, RadialMenuProvider<CatStaffItem.Ability>, LeftClickTrackingItem {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final String CONTROLLER_USE = "use_controller";
     public static final String CONTROLLER_EXTEND = "extend_controller";
@@ -116,8 +111,8 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         controllers.add(new AnimationController<>(this, CONTROLLER_USE, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
             if (stack != null) {
-                if (stack.get(MineraculousDataComponents.CARRIER) != null) {
-                    int carrierID = stack.get(MineraculousDataComponents.CARRIER);
+                Integer carrierID = stack.get(MineraculousDataComponents.CARRIER);
+                if (carrierID != null) {
                     Entity entity = ClientUtils.getEntityById(carrierID);
                     if (entity instanceof Player player) {
                         boolean travelEligible = player.getUseItem() == stack && !player.getCooldowns().isOnCooldown(stack.getItem()) && !player.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == Ability.TRAVEL && !player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling();
@@ -138,19 +133,6 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         })
                 .triggerableAnim(ANIMATION_EXTEND, EXTEND)
                 .triggerableAnim(ANIMATION_RETRACT, RETRACT));
-    }
-
-    @Override
-    public void createBewlrProvider(Consumer<BewlrProvider> provider) {
-        provider.accept(new BewlrProvider() {
-            private BlockEntityWithoutLevelRenderer bewlr;
-
-            @Override
-            public BlockEntityWithoutLevelRenderer getBewlr() {
-                if (bewlr == null) bewlr = new CatStaffRenderer();
-                return bewlr;
-            }
-        });
     }
 
     @Override
@@ -197,19 +179,23 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand pHand) {
-        ItemStack stack = player.getItemInHand(pHand);
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
         if (!stack.getOrDefault(MineraculousDataComponents.ACTIVE, false))
             return InteractionResultHolder.fail(stack);
         if (stack.has(MineraculousDataComponents.CAT_STAFF_ABILITY)) {
             Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
             if (ability == Ability.BLOCK || ability == Ability.THROW || ability == Ability.PERCH || ability == Ability.TRAVEL)
-                player.startUsingItem(pHand);
+                player.startUsingItem(hand);
+            else if (ability == Ability.SPYGLASS) {
+                level.playSound(null, player, SoundEvents.SPYGLASS_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
+                player.startUsingItem(hand);
+            }
             if (ability == Ability.TRAVEL)
                 CatStaffTravelHandler.init(level, player);
             return InteractionResultHolder.consume(stack);
         }
-        return super.use(level, player, pHand);
+        return super.use(level, player, hand);
     }
 
     @Override
@@ -261,6 +247,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
         return switch (ability) {
             case BLOCK -> UseAnim.BLOCK;
+            case SPYGLASS -> UseAnim.SPYGLASS;
             case THROW -> UseAnim.SPEAR;
             case null, default -> UseAnim.NONE;
         };
@@ -296,6 +283,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
         return switch (ability) {
             case BLOCK -> itemAbility == ItemAbilities.SHIELD_BLOCK;
+            case SPYGLASS -> itemAbility == ItemAbilities.SPYGLASS_SCOPE;
             case THROW -> itemAbility == ItemAbilities.TRIDENT_THROW;
             case null, default -> false;
         };
@@ -376,6 +364,7 @@ public class CatStaffItem extends SwordItem implements ModeledItem, GeoItem, Pro
         BLOCK,
         PERCH,
         PHONE((stack, player) -> /*Mineraculous.Dependencies.TOMMYTECH.isLoaded()*/true),
+        SPYGLASS,
         THROW,
         TRAVEL;
 

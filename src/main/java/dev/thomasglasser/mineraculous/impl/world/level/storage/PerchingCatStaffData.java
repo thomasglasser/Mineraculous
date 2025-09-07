@@ -51,10 +51,9 @@ public record PerchingCatStaffData(
     }
 
     public static void remove(Entity entity, boolean syncToClient) {
-        PerchingCatStaffData data = new PerchingCatStaffData();
-        entity.setData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF, data);
+        entity.setData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF, DEFAULT);
         if (syncToClient)
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.PERCHING_CAT_STAFF, data), entity.getServer());
+            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.PERCHING_CAT_STAFF, DEFAULT), entity.getServer());
     }
 
     public static Vector4f initialize(Entity entity) {

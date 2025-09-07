@@ -270,6 +270,20 @@ public class MineraculousClientEvents {
 
             @Override
             public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                if (renderer == null) renderer = new CatStaffRenderer();
+                return renderer;
+            }
+
+            @Override
+            public ResourceLocation getScopeOverlayTexture(ItemStack stack) {
+                return CatStaffRenderer.SPYGLASS_SCOPE_LOCATION;
+            }
+        }, MineraculousItems.CAT_STAFF);
+        event.registerItem(new IClientItemExtensions() {
+            private BlockEntityWithoutLevelRenderer renderer;
+
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
                 if (renderer == null) renderer = new ButterflyCaneRenderer();
                 return renderer;
             }

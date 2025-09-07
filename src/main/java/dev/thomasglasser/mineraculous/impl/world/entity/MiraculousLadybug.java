@@ -9,6 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+
+import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -44,7 +46,7 @@ public class MiraculousLadybug extends PathfinderMob {
             return;
         }
         List<BlockPos> blockTargets = sortBlockTargets(targetData.blockTargets(), this.blockPosition());
-        if (this.shouldUpdatePath) { //this part should run only once in the entity's lifetime
+        if (this.shouldUpdatePath) { // this part should run only once in the entity's lifetime
             ArrayList<Vec3> targets = new ArrayList<>();
             for (BlockPos blockPos : blockTargets) {
                 targets.add(blockPos.getCenter());
@@ -52,50 +54,20 @@ public class MiraculousLadybug extends PathfinderMob {
             this.path = new CatmullRom(targets);
             this.t = path.T.get(1);
             this.shouldUpdatePath = false;
-        } else if (t >= path.T.get(1)) { //0.01
-            this.setPos(path.getPoint(t));
-            t = Math.min(t + 0.1, path.getLastParameter());
-        }
-
-        /*
-        Vec3 target = targetData.currentTarget().orElse(null);
-        
-        Vec3 lookAngle = this.getLookAngle().normalize();
-        if (target != null) {
-            this.lookAt(EntityAnchorArgument.Anchor.EYES, target);
-        }
-        if (level().isClientSide) {
-            for (int i = 1; i <= 3; i++)
-                level.addParticle(
-                        MineraculousParticleTypes.STARLIGHT.get(),
-                        this.getX() + lookAngle.x + Math.random() * 5 - 2.5,
-                        this.getY() + lookAngle.y + Math.random() * 5 - 2.5,
-                        this.getZ() + lookAngle.z + Math.random() * 5 - 2.5,
-                        0, 0, 0);
         } else {
-            if (target == null && !blockTargets.isEmpty()) {
-                Vec3 nextTarget = blockTargets.remove(0).getCenter();
-                targetData = new MiraculousLadybugTargetData(Optional.of(nextTarget), blockTargets, targetData.sphereTicks());
-                targetData.save(this, true);
-            } else if (target != null) {
-                Vec3 diff = target.subtract(this.position());
-                double distance = diff.length();
-                if (distance > 1) {
-                    this.setDeltaMovement(diff.normalize());
-                    this.hurtMarked = true;
-                }
-                if (distance <= 4) {
-                    targetData = new MiraculousLadybugTargetData(targetData.currentTarget(), blockTargets, 30);
-                    targetData.save(this, true);
-                }
-                if (distance <= 1) {
-                    targetData = new MiraculousLadybugTargetData(Optional.empty(), blockTargets, targetData.sphereTicks());
-                    targetData.save(this, true);
-                }
-            }
-        
-            this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET).tick(this, true);
-        }*/
+            double speedPerTick = 0.8; // blocks per tick
+            double arcSoFar = path.arcLength(t);
+            double targetArc = arcSoFar + speedPerTick;
+
+            t = path.findTForArcLength(targetArc, t);
+            this.setPos(path.getPoint(t));
+
+            Vec3 tangent = path.getTangent(t).normalize();
+            double yaw = Math.toDegrees(Math.atan2(tangent.z, tangent.x)) - 90.0;
+            double pitch = Math.toDegrees(-Math.atan2(tangent.y, Math.sqrt(tangent.x * tangent.x + tangent.z * tangent.z)));
+            this.setYRot((float) yaw);
+            this.setXRot((float) pitch);
+        }
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -202,61 +174,118 @@ public class MiraculousLadybug extends PathfinderMob {
 
         public CatmullRom(ArrayList<Vec3> targets) {
             // Add the ghost points
-            ArrayList<Vec3> points = new ArrayList<>(targets);
-            points.add(0, points.get(0).subtract(points.get(1)).add(points.get(0)));
-            int maxIndex = points.size() - 1;
-            points.add(points.get(maxIndex).subtract(points.get(maxIndex - 1)).add(points.get(maxIndex)));
-            this.points = Collections.unmodifiableList(points);
+            ArrayList<Vec3> pts = new ArrayList<>(targets);
+            pts.add(0, pts.get(0).subtract(pts.get(1)).add(pts.get(0)));
+            int maxIndex = pts.size() - 1;
+            pts.add(pts.get(maxIndex).subtract(pts.get(maxIndex - 1)).add(pts.get(maxIndex)));
+            this.points = Collections.unmodifiableList(pts);
 
-            // Get t args ready
-            ArrayList<Double> T = new ArrayList<>(points.size()); // values will be positive and can be bigger than 1
-            List<Vec3> P = this.points;
-            T.add(0d); //T0 = 0
+            // Uniform parameterization
+            ArrayList<Double> tValues = new ArrayList<>(points.size());
+            tValues.add(0d);
             for (int i = 1; i < points.size(); i++) {
-                T.add(T.get(i - 1) + Math.pow(P.get(i).subtract(P.get(i - 1)).length(), 0));
+                tValues.add(tValues.get(i - 1) + 1.0);
             }
-            this.T = Collections.unmodifiableList(T);
+            this.T = Collections.unmodifiableList(tValues);
 
-            ArrayList<Vec3> tangents = new ArrayList<>(P.size() - 2);
-            for (int i = 1; i < P.size() - 1; i++) {
-                Vec3 mi = P.get(i + 1).subtract(P.get(i - 1)).scale(1 / (T.get(i + 1) - T.get(i - 1)));
-                tangents.add(mi);
+            // Tangents
+            ArrayList<Vec3> tans = new ArrayList<>(points.size() - 2);
+            for (int i = 1; i < points.size() - 1; i++) {
+                Vec3 mi = points.get(i + 1).subtract(points.get(i - 1))
+                        .scale(1.0 / (T.get(i + 1) - T.get(i - 1)));
+                tans.add(mi);
             }
-            this.tangents = Collections.unmodifiableList(tangents);
+            this.tangents = Collections.unmodifiableList(tans);
+        }
+
+        public double getFirstParameter() {
+            return T.get(1); // skip ghost point
         }
 
         public double getLastParameter() {
-            return T.get(T.size() - 2);
+            return T.get(T.size() - 2); // skip ghost point
         }
 
-        public Vec3 getPointWithProgress(double progress) { //progress must be inside [0, 1]
-            double t = T.get(1) + (T.get(T.size() - 2) - T.get(1)) * progress;
-            return getPoint(t);
+        // Hermite blend
+        private Vec3 hermite(double u, Vec3 P0, Vec3 v0, Vec3 P1, Vec3 v1) {
+            double h00 = 1 - 3 * u * u + 2 * u * u * u;
+            double h01 = u - 2 * u * u + u * u * u;
+            double h10 = 3 * u * u - 2 * u * u * u;
+            double h11 = -u * u + u * u * u;
+            return P0.scale(h00).add(v0.scale(h01)).add(P1.scale(h10)).add(v1.scale(h11));
         }
 
-        public Vec3 getPoint(double t) {
-            t = t == T.get(T.size() - 2) ? T.get(T.size() - 2) - 0.00001d : t;
-            int index = 2;
+        // Hermite derivative
+        private Vec3 hermiteDerivative(double u, Vec3 P0, Vec3 v0, Vec3 P1, Vec3 v1) {
+            double dh00 = -6 * u + 6 * u * u;
+            double dh01 = 1 - 4 * u + 3 * u * u;
+            double dh10 = 6 * u - 6 * u * u;
+            double dh11 = -2 * u + 3 * u * u;
+            return P0.scale(dh00).add(v0.scale(dh01)).add(P1.scale(dh10)).add(v1.scale(dh11));
+        }
+
+        // Find which segment t belongs to
+        private int findSegment(double t) {
+            // clamp t to valid range
+            t = Math.max(getFirstParameter(), Math.min(t, getLastParameter() - 1e-9));
             for (int i = 1; i < T.size(); i++) {
                 if (T.get(i) > t) {
-                    index = i;
-                    break;
+                    return i;
                 }
             }
+            return T.size() - 2; // fallback to last segment
+        }
+
+        // Evaluate point
+        public Vec3 getPoint(double t) {
+            int index = findSegment(t);
             Vec3 P0 = points.get(index - 1);
             Vec3 v0 = tangents.get(index - 2);
             Vec3 P1 = points.get(index);
             Vec3 v1 = tangents.get(index - 1);
             double u = (t - T.get(index - 1)) / (T.get(index) - T.get(index - 1));
-            double h00 = 1 - 3 * u * u + 2 * u * u * u;
-            double h01 = u - 2 * u * u + u * u * u;
-            double h10 = 3 * u * u - 2 * u * u * u;
-            double h11 = -u * u + u * u * u;
-            Vec3 P = P0.scale(h00).add(
-                    v0.scale(h01).add(
-                            P1.scale(h10).add(
-                                    v1.scale(h11))));
-            return P;
+            return hermite(u, P0, v0, P1, v1);
+        }
+
+        // Evaluate derivative
+        public Vec3 getTangent(double t) {
+            int index = findSegment(t);
+            Vec3 P0 = points.get(index - 1);
+            Vec3 v0 = tangents.get(index - 2);
+            Vec3 P1 = points.get(index);
+            Vec3 v1 = tangents.get(index - 1);
+            double u = (t - T.get(index - 1)) / (T.get(index) - T.get(index - 1));
+            return hermiteDerivative(u, P0, v0, P1, v1);
+        }
+
+        // Arc length [first, t] using Simpson’s rule
+        public double arcLength(double t) {
+            double a = getFirstParameter();
+            double b = Math.max(a, Math.min(t, getLastParameter()));
+            int steps = 32; // tune for accuracy vs cost
+            double h = (b - a) / steps;
+            double sum = 0.0;
+
+            for (int i = 0; i <= steps; i++) {
+                double x = a + i * h;
+                double weight = (i == 0 || i == steps) ? 1 : (i % 2 == 0 ? 2 : 4);
+                sum += weight * getTangent(x).length();
+            }
+            return sum * h / 3.0;
+        }
+
+        // Newton-Raphson: solve L(t) = s
+        public double findTForArcLength(double s, double initialGuess) {
+            double t = initialGuess;
+            for (int i = 0; i < 3; i++) {
+                double f = arcLength(t) - s;
+                double fPrime = getTangent(t).length();
+                if (fPrime < 1e-6) break; // avoid division by zero
+                t -= f / fPrime;
+                // clamp safely
+                t = Math.max(getFirstParameter(), Math.min(t, getLastParameter()));
+            }
+            return t;
         }
     }
 }

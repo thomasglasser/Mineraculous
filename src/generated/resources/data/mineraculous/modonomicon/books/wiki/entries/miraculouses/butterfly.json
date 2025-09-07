@@ -20,7 +20,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/butterfly/charging.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/charging.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.butterfly.charging.text",
       "title": "book.mineraculous.wiki.miraculouses.butterfly.charging.title",
@@ -45,7 +45,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/butterfly/abilities/kamikotization.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/abilities/kamikotization.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.butterfly.kamikotization.text",
       "title": "book.mineraculous.wiki.miraculouses.butterfly.kamikotization.title",
@@ -59,7 +59,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/butterfly/abilities/kamiko_control.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/abilities/kamiko_control.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.butterfly.kamiko_control.text",
       "title": "book.mineraculous.wiki.miraculouses.butterfly.kamiko_control.title",
@@ -73,7 +73,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/butterfly/abilities/kamikotized_communication.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/abilities/kamikotized_communication.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.butterfly.kamikotized_communication.text",
       "title": "book.mineraculous.wiki.miraculouses.butterfly.kamikotized_communication.title",
@@ -87,7 +87,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/butterfly/cane/abilities.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/cane/abilities.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.butterfly.cane_abilities.text",
       "title": "book.mineraculous.wiki.miraculouses.butterfly.cane_abilities.title",
@@ -101,7 +101,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/butterfly/cane/blade.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/cane/blade.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.butterfly.blade.text",
       "title": "book.mineraculous.wiki.miraculouses.butterfly.blade.title",
@@ -126,7 +126,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/butterfly/cane/kamiko_store.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/cane/kamiko_store.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.butterfly.kamiko_store.text",
       "title": "book.mineraculous.wiki.miraculouses.butterfly.kamiko_store.title",
@@ -140,7 +140,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/butterfly/cane/spyglass.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/cane/spyglass.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.butterfly.spyglass.text",
       "title": "book.mineraculous.wiki.miraculouses.butterfly.spyglass.title",
@@ -154,7 +154,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/butterfly/cane/throw.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/cane/throw.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.butterfly.throw.text",
       "title": "book.mineraculous.wiki.miraculouses.butterfly.throw.title",

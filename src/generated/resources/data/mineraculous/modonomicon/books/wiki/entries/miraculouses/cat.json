@@ -161,16 +161,16 @@
       "use_legacy_rendering": false
     },
     {
-      "type": "modonomicon:image",
+      "type": "modonomicon:spotlight",
       "anchor": "",
-      "border": true,
       "condition": {
         "type": "modonomicon:none"
       },
-      "images": [],
+      "item": {
+        "tag": "c:tools/shield"
+      },
       "text": "book.mineraculous.wiki.miraculouses.cat.lucky_charms.text",
-      "title": "book.mineraculous.wiki.miraculouses.cat.lucky_charms.title",
-      "use_legacy_rendering": false
+      "title": "book.mineraculous.wiki.miraculouses.cat.lucky_charms.title"
     }
   ],
   "show_when_any_parent_unlocked": false,

@@ -33,6 +33,7 @@ public class BetaTesterLayer<S extends AbstractClientPlayer> extends RenderLayer
     @Override
     public void render(PoseStack poseStack, MultiBufferSource multiBufferSource, int i, S player, float v, float v1, float v2, float v3, float v4, float v5) {
         if (MineraculousClientUtils.renderBetaTesterLayer(player)) {
+            poseStack.pushPose();
             VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entityCutout(getTextureLocation(player)));
             BetaTesterCosmeticOptions cosmetic = MineraculousClientUtils.betaChoice(player);
             ModelPart parent = switch (cosmetic.slot()) {
@@ -43,6 +44,7 @@ public class BetaTesterLayer<S extends AbstractClientPlayer> extends RenderLayer
             switch (cosmetic) {
                 case DERBY_HAT -> derbyHatModel.renderToBuffer(poseStack, vertexConsumer, i, OverlayTexture.NO_OVERLAY);
             }
+            poseStack.popPose();
         }
     }
 }

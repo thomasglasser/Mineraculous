@@ -4,7 +4,9 @@ import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
+import com.klikli_dev.modonomicon.api.datagen.book.page.BookSpotlightPageModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.WikiBookSubProvider;
@@ -164,8 +166,8 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
                 You can use right click to throw and recall the yoyo and left click to launch yourself.
                 """);
 
-        page("lucky_charms", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/ladybug/lucky_charms.png"))
+        page("lucky_charms", () -> BookSpotlightPageModel.create()
+                .withItem(MineraculousItems.GREAT_SWORD)
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 

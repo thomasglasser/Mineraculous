@@ -20,7 +20,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/general/obtaining.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/general/obtaining.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.general.obtaining.text",
       "title": "book.mineraculous.wiki.miraculouses.general.obtaining.title",
@@ -67,7 +67,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/general/timer.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/general/timer.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.general.timer.text",
       "title": "book.mineraculous.wiki.miraculouses.general.timer.title",

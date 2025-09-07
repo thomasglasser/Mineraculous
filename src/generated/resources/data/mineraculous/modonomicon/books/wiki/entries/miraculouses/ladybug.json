@@ -175,18 +175,17 @@
       "use_legacy_rendering": false
     },
     {
-      "type": "modonomicon:image",
+      "type": "modonomicon:spotlight",
       "anchor": "",
-      "border": true,
       "condition": {
         "type": "modonomicon:none"
       },
-      "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/lucky_charms.png"
-      ],
+      "item": {
+        "count": 1,
+        "item": "mineraculous:great_sword"
+      },
       "text": "book.mineraculous.wiki.miraculouses.ladybug.lucky_charms.text",
-      "title": "book.mineraculous.wiki.miraculouses.ladybug.lucky_charms.title",
-      "use_legacy_rendering": false
+      "title": "book.mineraculous.wiki.miraculouses.ladybug.lucky_charms.title"
     }
   ],
   "show_when_any_parent_unlocked": false,

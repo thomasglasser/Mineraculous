@@ -4,10 +4,13 @@ import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
+import com.klikli_dev.modonomicon.api.datagen.book.page.BookSpotlightPageModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.WikiBookSubProvider;
+import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;
+import net.minecraft.world.item.crafting.Ingredient;
 
 public class CatEntryProvider extends IndexModeEntryProvider {
     public static final String ID = "cat";
@@ -158,7 +161,8 @@ public class CatEntryProvider extends IndexModeEntryProvider {
                 You can then hold right click while in the air looking down to slow your fall or looking up to launch again.
                 """);
 
-        page("lucky_charms", () -> BookImagePageModel.create()
+        page("lucky_charms", () -> BookSpotlightPageModel.create()
+                .withItem(Ingredient.of(ConventionalItemTags.SHIELD_TOOLS))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 

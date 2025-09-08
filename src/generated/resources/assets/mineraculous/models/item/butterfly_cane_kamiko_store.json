@@ -62,19 +62,19 @@
     "fixed": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/butterfly_cane_phone"
+        "layer0": "mineraculous:item/butterfly_cane_kamiko_store"
       }
     },
     "ground": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/butterfly_cane_phone"
+        "layer0": "mineraculous:item/butterfly_cane_kamiko_store"
       }
     },
     "gui": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/butterfly_cane_phone"
+        "layer0": "mineraculous:item/butterfly_cane_kamiko_store"
       }
     }
   }

@@ -224,8 +224,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .override()
                 .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.KAMIKO_STORE))
                 .predicate(MineraculousItemProperties.STORING, 0)
-                // TODO: Custom item texture
-                .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_kamiko_store"), inHandButterflyCane, basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_phone"))))
+                .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_kamiko_store"), inHandButterflyCane, basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_kamiko_store"))))
                 .end()
                 .override()
                 .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.KAMIKO_STORE))
@@ -238,8 +237,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .end()
                 .override()
                 .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.SPYGLASS))
-                // TODO: Custom item texture
-                .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_spyglass"), inHandSpyglassButterflyCane, basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_phone"))))
+                .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_spyglass"), inHandSpyglassButterflyCane, basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_spyglass"))))
                 .end()
                 .override()
                 .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.SPYGLASS) + 1)

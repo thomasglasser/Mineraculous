@@ -67,19 +67,19 @@
     "fixed": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/butterfly_cane_phone"
+        "layer0": "mineraculous:item/butterfly_cane_spyglass"
       }
     },
     "ground": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/butterfly_cane_phone"
+        "layer0": "mineraculous:item/butterfly_cane_spyglass"
       }
     },
     "gui": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/butterfly_cane_phone"
+        "layer0": "mineraculous:item/butterfly_cane_spyglass"
       }
     }
   }

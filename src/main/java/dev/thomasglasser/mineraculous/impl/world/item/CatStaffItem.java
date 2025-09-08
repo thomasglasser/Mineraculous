@@ -38,6 +38,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -81,6 +82,8 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     public static final String CONTROLLER_EXTEND = "extend_controller";
     public static final String ANIMATION_EXTEND = "extend";
     public static final String ANIMATION_RETRACT = "retract";
+    public static final String ANIMATION_OPEN = "open";
+    public static final String ANIMATION_CLOSE = "close";
 
     public static final ActiveSettings ACTIVE_SETTINGS = new ActiveSettings(
             Optional.of(CatStaffItem.CONTROLLER_EXTEND),
@@ -91,6 +94,8 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
 
     private static final RawAnimation EXTEND = RawAnimation.begin().thenPlay("misc.extend");
     private static final RawAnimation RETRACT = RawAnimation.begin().thenPlay("misc.retract");
+    private static final RawAnimation OPEN = RawAnimation.begin().thenPlay("misc.open");
+    private static final RawAnimation CLOSE = RawAnimation.begin().thenPlay("misc.close");
 
     private static final ItemAttributeModifiers EXTENDED_ATTRIBUTE_MODIFIERS = ItemAttributeModifiers.builder()
             .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 15, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
@@ -132,7 +137,9 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
             return PlayState.STOP;
         })
                 .triggerableAnim(ANIMATION_EXTEND, EXTEND)
-                .triggerableAnim(ANIMATION_RETRACT, RETRACT));
+                .triggerableAnim(ANIMATION_RETRACT, RETRACT)
+                .triggerableAnim(ANIMATION_OPEN, OPEN)
+                .triggerableAnim(ANIMATION_CLOSE, CLOSE));
     }
 
     @Override
@@ -353,6 +360,24 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     public boolean handleSecondaryKeyBehavior(ItemStack stack, InteractionHand hand, Player holder) {
         TommyLibServices.NETWORK.sendToServer(new ServerboundEquipToolPayload(hand));
         return true;
+    }
+
+    @Override
+    public Ability setOption(ItemStack stack, InteractionHand hand, Player holder, int index) {
+        Ability old = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
+        Ability selected = RadialMenuProvider.super.setOption(stack, hand, holder, index);
+        if (holder.level() instanceof ServerLevel level) {
+            String anim = null;
+            if (selected == Ability.PHONE || selected == Ability.SPYGLASS) {
+                anim = ANIMATION_OPEN;
+            } else if (old == Ability.PHONE || old == Ability.SPYGLASS) {
+                anim = ANIMATION_CLOSE;
+            }
+            if (anim != null) {
+                triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_EXTEND, anim);
+            }
+        }
+        return selected;
     }
 
     @Override

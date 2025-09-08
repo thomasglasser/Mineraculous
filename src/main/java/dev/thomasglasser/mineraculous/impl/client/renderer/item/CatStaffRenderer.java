@@ -29,13 +29,29 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffItem> {
-    public static final ResourceLocation SPYGLASS_SCOPE_LOCATION = Mineraculous.modLoc("textures/misc/cat_staff_spyglass_scope.png");
     public static final ResourceLocation EXTENDED_LOCATION = Mineraculous.modLoc("textures/misc/cat_staff.png");
+    public static final ResourceLocation SPYGLASS_SCOPE_LOCATION = Mineraculous.modLoc("textures/misc/cat_staff_spyglass_scope.png");
+    public static final ResourceLocation SPYGLASS_LOCATION = makeTextureLocation(Mineraculous.modLoc("cat_staff_spyglass"));
+    public static final ResourceLocation PHONE_LOCATION = makeTextureLocation(Mineraculous.modLoc("cat_staff_phone"));
 
     private static final float PIXEL = 1 / 16f;
 
     public CatStaffRenderer() {
         super(MineraculousItems.CAT_STAFF.getId());
+    }
+
+    @Override
+    public ResourceLocation getTextureLocation(CatStaffItem animatable) {
+        ItemStack stack = getCurrentItemStack();
+        if (stack != null) {
+            CatStaffItem.Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
+            if (ability == CatStaffItem.Ability.PHONE) {
+                return PHONE_LOCATION;
+            } else if (ability == CatStaffItem.Ability.SPYGLASS) {
+                return SPYGLASS_LOCATION;
+            }
+        }
+        return super.getTextureLocation(animatable);
     }
 
     @Override

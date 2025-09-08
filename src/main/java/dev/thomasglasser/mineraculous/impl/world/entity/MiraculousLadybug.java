@@ -1,7 +1,15 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
+import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -12,14 +20,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
 
 public class MiraculousLadybug extends PathfinderMob {
     public CatmullRom path;
@@ -38,8 +38,6 @@ public class MiraculousLadybug extends PathfinderMob {
     public void tick() {
         super.tick();
         MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
-        //Level level = this.level();
-        //if (level.isClientSide) return;
         if ((targetData.blockTargets() == null || targetData.blockTargets().isEmpty())) {
             this.discard();
             return;
@@ -66,6 +64,25 @@ public class MiraculousLadybug extends PathfinderMob {
             double pitch = Math.toDegrees(-Math.atan2(tangent.y, Math.sqrt(tangent.x * tangent.x + tangent.z * tangent.z)));
             this.setYRot((float) yaw);
             this.setXRot((float) pitch);
+        }
+
+        Level level = this.level();
+        if (level.isClientSide) {
+            Vec3 look = this.getLookAngle().scale(-2);
+            for (int i = 1; i <= 5; i++)
+                level.addParticle(
+                        MineraculousParticleTypes.STARLIGHT.get(),
+                        this.getX() + look.x + Math.random() * 5 - 2.5,
+                        this.getY() + look.y + Math.random() * 5 - 2.5,
+                        this.getZ() + look.z + Math.random() * 5 - 2.5,
+                        0, 0, 0);
+            for (int i = 1; i <= 3; i++)
+                level.addParticle(
+                        MineraculousParticleTypes.SUMMONING_LADYBUG.get(),
+                        this.getX() + look.x + Math.random() * 5 - 2.5,
+                        this.getY() + look.y + Math.random() * 5 - 2.5,
+                        this.getZ() + look.z + Math.random() * 5 - 2.5,
+                        0, 0, 0);
         }
     }
 

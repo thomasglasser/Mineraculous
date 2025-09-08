@@ -1,8 +1,9 @@
 package dev.thomasglasser.mineraculous.api.client.renderer;
 
 import static net.minecraft.client.renderer.RenderStateShard.CULL;
+import static net.minecraft.client.renderer.RenderStateShard.LIGHTNING_TRANSPARENCY;
+import static net.minecraft.client.renderer.RenderStateShard.NO_CULL;
 import static net.minecraft.client.renderer.RenderStateShard.OVERLAY;
-import static net.minecraft.client.renderer.RenderStateShard.POLYGON_OFFSET_LAYERING;
 import static net.minecraft.client.renderer.RenderStateShard.TRANSLUCENT_TRANSPARENCY;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -70,7 +71,7 @@ public class MineraculousRenderTypes {
                         .setDepthTestState(RenderStateShard.EQUAL_DEPTH_TEST)
                         .setTransparencyState(RenderStateShard.NO_TRANSPARENCY)
                         .setLayeringState(offsetZLayering ? RenderStateShard.VIEW_OFFSET_Z_LAYERING : RenderStateShard.NO_LAYERING)
-                        .setCullState(RenderStateShard.NO_CULL)
+                        .setCullState(NO_CULL)
                         .createCompositeState(false));
     }
 
@@ -104,15 +105,15 @@ public class MineraculousRenderTypes {
                 DefaultVertexFormat.NEW_ENTITY,
                 VertexFormat.Mode.QUADS,
                 256,
-                true,
+                false,
                 true,
                 RenderType.CompositeState.builder()
                         .setShaderState(MineraculousRenderStateShards.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_NO_LIGHTMAP_SHADER)
-                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
-                        .setTextureState(new RenderStateShard.TextureStateShard(texture, true, true))
-                        .setCullState(CULL)
+                        .setTextureState(new RenderStateShard.TextureStateShard(texture, false, true))
+                        .setTransparencyState(LIGHTNING_TRANSPARENCY)
                         .setOverlayState(OVERLAY)
                         .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
                         .createCompositeState(false));
     }
 
@@ -126,12 +127,12 @@ public class MineraculousRenderTypes {
                 true,
                 RenderType.CompositeState.builder()
                         .setShaderState(MineraculousRenderStateShards.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_NO_LIGHTMAP_SHADER)
-                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+                        .setTransparencyState(TRANSLUCENT_TRANSPARENCY) // keeps alpha blending
                         .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
                         .setCullState(CULL)
                         .setOverlayState(OVERLAY)
                         .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
-                        .setLayeringState(POLYGON_OFFSET_LAYERING)
+                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
                         .createCompositeState(false));
     }
 }

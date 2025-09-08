@@ -1,16 +1,11 @@
 package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 
-import static dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes.ladybugMain;
-import static dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes.ladybugOutline;
-
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
-import java.util.ArrayList;
-import java.util.Random;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -21,6 +16,13 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
+
+import static dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes.ladybugMain;
+import static dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes.ladybugOutline;
 
 public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug> {
     private ArrayList<MagicLadybug> magicLadybugs = new ArrayList<>();
@@ -41,8 +43,8 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         if (entity.path != null) {
             MiraculousLadybug.CatmullRom path = entity.path;
             if (t >= path.getFirstParameter()) {
-                double rad = 1.3;
-                for (int i = 0; i < 6; i++) {
+                double rad = 0.4;
+                for (int i = 0; i < 7; i++) {
                     double arcSoFar = path.arcLength(t);
                     double targetArc = Math.max(0, arcSoFar - i);
                     double behindT = path.findTForArcLength(targetArc, t);
@@ -52,25 +54,25 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
                     } else {
                         tailPoints.add(new TailPoint(position, rad));
                     }
-                    rad *= 0.7;
+                    rad *= 0.8;
                 }
 
-                while (tailPoints.size() > 6) {
+                while (tailPoints.size() > 7) {
                     tailPoints.removeFirst();
                 }
 
-                int maxLbCount = MineraculousClientConfig.get().magicLadybugsCount.get() * 200;
+                int maxLbCount = MineraculousClientConfig.get().magicLadybugsCount.get() * 700;
                 if (magicLadybugs.size() == 0) {
                     for (int i = 1; i <= maxLbCount; i++) {
                         initSummonMagicLadybug(entity.getLookAngle().normalize());
                     }
                 }
-                //maxLbCount = 3000;
-                if (magicLadybugs.size() < maxLbCount) {
-                    for (int i = 1; i <= 25; i++) {
-                        summonMagicLadybug(entity.getLookAngle().normalize());
-                    }
+
+                //if (magicLadybugs.size() < maxLbCount) {
+                for (int i = 1; i <= 100; i++) {
+                    summonMagicLadybug(entity.getLookAngle().normalize());
                 }
+                //}
 
                 while (magicLadybugs.size() > maxLbCount) {
                     magicLadybugs.removeFirst();
@@ -148,14 +150,12 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
                         double dist = p.subtract(closest).length();
                         if (dist > interpRadius) {
                             Vec3 dir = p.subtract(closest).normalize();
-                            ladybug.pos = closest.add(dir.scale(interpRadius));
+                            ladybug.pos = closest.add(dir.scale(Math.random() * 2 * interpRadius - interpRadius));
                         }
                     }
                 }
 
-                //poseStack.translate(-0.5, 0, -0.5);
                 MagicLadybug.render(magicLadybugs, bufferSource, poseStack, smoothedRotation, partialTick);
-                //poseStack.translate(0.5, 0, 0.5);
             }
         }
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
@@ -188,7 +188,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         Vec3 forward = lookVec;
         Vec3 sideway = lookVec.cross(new Vec3(0, 1, 0)).normalize();
         Vec3 upward = sideway.cross(lookVec).normalize();
-        forward = forward.scale(Math.random() * 7);
+        forward = forward.scale(Math.random() * 5);
         sideway = sideway.scale(Math.random() * 5 - 2.5);
         upward = upward.scale(Math.random() * 5 - 2.5);
 
@@ -220,11 +220,12 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
             this.pos = pos.add(vec);
         }
 
-        private void renderOutline(MultiBufferSource multiBufferSource, PoseStack poseStack) {
+        private void renderOutline(MultiBufferSource multiBufferSource, PoseStack poseStack, double degrees) {
             var camera = Minecraft.getInstance().gameRenderer.getMainCamera();
             poseStack.pushPose();
             poseStack.rotateAround(Axis.YP.rotationDegrees(-camera.getYRot()), (float) pos.x, (float) pos.y, (float) pos.z);
             poseStack.rotateAround(Axis.XP.rotationDegrees(camera.getXRot()), (float) pos.x, (float) pos.y, (float) pos.z);
+            poseStack.rotateAround(Axis.ZP.rotationDegrees((float) degrees), (float) pos.x, (float) pos.y, (float) pos.z);
 
             VertexConsumer ladybug_outline = multiBufferSource.getBuffer(OUTLINE);
 
@@ -244,14 +245,14 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
             poseStack.popPose();
         }
 
-        private void render(MultiBufferSource multiBufferSource, PoseStack poseStack) {
+        private void render(MultiBufferSource multiBufferSource, PoseStack poseStack, double degrees) {
             var camera = Minecraft.getInstance().gameRenderer.getMainCamera();
             poseStack.pushPose();
             poseStack.rotateAround(Axis.YP.rotationDegrees(-camera.getYRot()), (float) pos.x, (float) pos.y, (float) pos.z);
             poseStack.rotateAround(Axis.XP.rotationDegrees(camera.getXRot()), (float) pos.x, (float) pos.y, (float) pos.z);
+            poseStack.rotateAround(Axis.ZP.rotationDegrees((float) degrees), (float) pos.x, (float) pos.y, (float) pos.z);
 
             VertexConsumer ladybug = multiBufferSource.getBuffer(LADYBUG);
-
             double quadSize = size;
             float tint = 1f;
             ladybug.addVertex(poseStack.last(), pos.add(-quadSize, quadSize, 0).toVector3f())
@@ -271,15 +272,20 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
             if (life > 0) life--;
         }
 
-        private static void render(ArrayList<MagicLadybug> list, MultiBufferSource multiBufferSource, PoseStack poseStack, Quaternionf rotation, float partialTick) {
-            for (MagicLadybug iterator : list) {
-                iterator.renderOutline(multiBufferSource, poseStack);
+        private static void render(ArrayList<MagicLadybug> magicLadybugs, MultiBufferSource multiBufferSource, PoseStack poseStack, Quaternionf rotation, float partialTick) {
+            HashMap<MagicLadybug, Double> rotations = new HashMap<>();
+            for (MagicLadybug ladybug : magicLadybugs) {
+                rotations.computeIfAbsent(ladybug, (k) -> Math.random() * 360);
             }
 
-            for (MagicLadybug bug : list) {
-                bug.render(multiBufferSource, poseStack);
+            for (MagicLadybug ladybug : magicLadybugs) {
+                ladybug.renderOutline(multiBufferSource, poseStack, rotations.getOrDefault(ladybug, 0d));
             }
-            list.removeIf(bug -> bug.life <= 0);
+
+            for (MagicLadybug ladybug : magicLadybugs) {
+                ladybug.render(multiBufferSource, poseStack, rotations.getOrDefault(ladybug, 0d));
+            }
+            magicLadybugs.removeIf(ladybug -> ladybug.life <= 0);
         }
     }
 

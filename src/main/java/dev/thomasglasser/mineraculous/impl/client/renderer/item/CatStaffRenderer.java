@@ -203,7 +203,8 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
 
     private static void drawPawAndLines(VertexConsumer vertexConsumer, PoseStack.Pose pose, Vector3f bodyDirectionF, int direction, float nLength, float eyeY) {
         //PAW:
-        float pawBottom = eyeY - 0.1f;
+        float pawTop = eyeY + 0.2f;
+        float pawBottom = pawTop - 0.1f;
         float[][] offsets = {
                 { -1 / 20f, 1 / 20f, -(PIXEL + 0.001f), -(PIXEL + 0.001f) }, // 0
                 { PIXEL + 0.001f, PIXEL + 0.001f, -1 / 20f, 1 / 20f },       // 1
@@ -220,13 +221,13 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         int light = 15728880;
         float uMin = 4 / 16f, uMax = 14 / 16f;
         float vMin = 0f, vMax = 10 / 16f;
-        vertex(vertexConsumer, pose, x1, eyeY, z1, uMin, vMin, light);
+        vertex(vertexConsumer, pose, x1, pawTop, z1, uMin, vMin, light);
         vertex(vertexConsumer, pose, x1, pawBottom, z1, uMin, vMax, light);
         vertex(vertexConsumer, pose, x2, pawBottom, z2, uMax, vMax, light);
-        vertex(vertexConsumer, pose, x2, eyeY, z2, uMax, vMin, light);
+        vertex(vertexConsumer, pose, x2, pawTop, z2, uMax, vMin, light);
         //LINES:
-        float y1 = eyeY - PIXEL * 3f;
-        float y2 = eyeY - PIXEL * 3.5f;
+        float y1 = eyeY - PIXEL * 4f;
+        float y2 = eyeY - PIXEL * 4.5f;
         float offset = 0.0001f;
         float v = PIXEL * 11.5f;
         float u1 = PIXEL * 12;
@@ -251,8 +252,8 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
                 -PIXEL + bodyDirectionF.x() - offset, y2, -PIXEL + bodyDirectionF.z(),
                 -PIXEL + bodyDirectionF.x() - offset, y2, +PIXEL + bodyDirectionF.z(),
                 -PIXEL + bodyDirectionF.x() - offset, y1, +PIXEL + bodyDirectionF.z());
-        y1 = PIXEL + eyeY;
-        y2 = PIXEL * 1.5f + eyeY;
+        y1 = PIXEL + eyeY - 0.1f;
+        y2 = PIXEL * 1.5f + eyeY - 0.1f; //middle
         quad(vertexConsumer, pose, light, u1, u2, v,
                 -PIXEL + bodyDirectionF.x(), y1, -PIXEL + bodyDirectionF.z() - offset,
                 -PIXEL + bodyDirectionF.x(), y2, -PIXEL + bodyDirectionF.z() - offset,
@@ -273,74 +274,59 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
                 -PIXEL + bodyDirectionF.x() - offset, y2, -PIXEL + bodyDirectionF.z(),
                 -PIXEL + bodyDirectionF.x() - offset, y2, +PIXEL + bodyDirectionF.z(),
                 -PIXEL + bodyDirectionF.x() - offset, y1, +PIXEL + bodyDirectionF.z());
-        float P1 = PIXEL * 4.5f;
-        float P2 = PIXEL * 5f;
+        float P1 = PIXEL * 4.5f + eyeY;
+        float P2 = PIXEL * 5f + eyeY;
         quad(vertexConsumer, pose, light, u1, u2, v,
-                -PIXEL + bodyDirectionF.x(), P1 + eyeY, -PIXEL + bodyDirectionF.z() - offset,
-                -PIXEL + bodyDirectionF.x(), P2 + eyeY, -PIXEL + bodyDirectionF.z() - offset,
-                +PIXEL + bodyDirectionF.x(), P2 + eyeY, -PIXEL + bodyDirectionF.z() - offset,
-                +PIXEL + bodyDirectionF.x(), P1 + eyeY, -PIXEL + bodyDirectionF.z() - offset);
+                -PIXEL + bodyDirectionF.x(), P1, -PIXEL + bodyDirectionF.z() - offset,
+                -PIXEL + bodyDirectionF.x(), P2, -PIXEL + bodyDirectionF.z() - offset,
+                +PIXEL + bodyDirectionF.x(), P2, -PIXEL + bodyDirectionF.z() - offset,
+                +PIXEL + bodyDirectionF.x(), P1, -PIXEL + bodyDirectionF.z() - offset);
         quad(vertexConsumer, pose, light, u1, u2, v,
-                +PIXEL + bodyDirectionF.x(), P1 + eyeY, +PIXEL + bodyDirectionF.z() + offset,
-                +PIXEL + bodyDirectionF.x(), P2 + eyeY, +PIXEL + bodyDirectionF.z() + offset,
-                -PIXEL + bodyDirectionF.x(), P2 + eyeY, +PIXEL + bodyDirectionF.z() + offset,
-                -PIXEL + bodyDirectionF.x(), P1 + eyeY, +PIXEL + bodyDirectionF.z() + offset);
+                +PIXEL + bodyDirectionF.x(), P1, +PIXEL + bodyDirectionF.z() + offset,
+                +PIXEL + bodyDirectionF.x(), P2, +PIXEL + bodyDirectionF.z() + offset,
+                -PIXEL + bodyDirectionF.x(), P2, +PIXEL + bodyDirectionF.z() + offset,
+                -PIXEL + bodyDirectionF.x(), P1, +PIXEL + bodyDirectionF.z() + offset);
         quad(vertexConsumer, pose, light, u1, u2, v,
-                +PIXEL + bodyDirectionF.x() + offset, P1 + eyeY, +PIXEL + bodyDirectionF.z(),
-                +PIXEL + bodyDirectionF.x() + offset, P2 + eyeY, +PIXEL + bodyDirectionF.z(),
-                +PIXEL + bodyDirectionF.x() + offset, P2 + eyeY, -PIXEL + bodyDirectionF.z(),
-                +PIXEL + bodyDirectionF.x() + offset, P1 + eyeY, -PIXEL + bodyDirectionF.z());
+                +PIXEL + bodyDirectionF.x() + offset, P1, +PIXEL + bodyDirectionF.z(),
+                +PIXEL + bodyDirectionF.x() + offset, P2, +PIXEL + bodyDirectionF.z(),
+                +PIXEL + bodyDirectionF.x() + offset, P2, -PIXEL + bodyDirectionF.z(),
+                +PIXEL + bodyDirectionF.x() + offset, P1, -PIXEL + bodyDirectionF.z());
         quad(vertexConsumer, pose, light, u1, u2, v,
-                -PIXEL - offset + bodyDirectionF.x(), P1 + eyeY, -PIXEL + bodyDirectionF.z(),
-                -PIXEL - offset + bodyDirectionF.x(), P2 + eyeY, -PIXEL + bodyDirectionF.z(),
-                -PIXEL - offset + bodyDirectionF.x(), P2 + eyeY, +PIXEL + bodyDirectionF.z(),
-                -PIXEL - offset + bodyDirectionF.x(), P1 + eyeY, +PIXEL + bodyDirectionF.z());
-        quad(vertexConsumer, pose, light, u1, u2, v,
-                -PIXEL + bodyDirectionF.x(), PIXEL * 0.5f + nLength, -PIXEL + bodyDirectionF.z() - offset,
-                -PIXEL + bodyDirectionF.x(), PIXEL + nLength, -PIXEL + bodyDirectionF.z() - offset,
-                +PIXEL + bodyDirectionF.x(), PIXEL + nLength, -PIXEL + bodyDirectionF.z() - offset,
-                +PIXEL + bodyDirectionF.x(), PIXEL * 0.5f + nLength, -PIXEL + bodyDirectionF.z() - offset);
-        quad(vertexConsumer, pose, light, u1, u2, v,
-                +PIXEL + bodyDirectionF.x(), PIXEL * 0.5f + nLength, +PIXEL + bodyDirectionF.z() + offset,
-                +PIXEL + bodyDirectionF.x(), PIXEL + nLength, +PIXEL + bodyDirectionF.z() + offset,
-                -PIXEL + bodyDirectionF.x(), PIXEL + nLength, +PIXEL + bodyDirectionF.z() + offset,
-                -PIXEL + bodyDirectionF.x(), PIXEL * 0.5f + nLength, +PIXEL + bodyDirectionF.z() + offset);
-        quad(vertexConsumer, pose, light, u1, u2, v,
-                +PIXEL + bodyDirectionF.x() + offset, PIXEL * 0.5f + nLength, +PIXEL + bodyDirectionF.z(),
-                +PIXEL + bodyDirectionF.x() + offset, PIXEL + nLength, +PIXEL + bodyDirectionF.z(),
-                +PIXEL + bodyDirectionF.x() + offset, PIXEL + nLength, -PIXEL + bodyDirectionF.z(),
-                +PIXEL + bodyDirectionF.x() + offset, PIXEL * 0.5f + nLength, -PIXEL + bodyDirectionF.z());
-        quad(vertexConsumer, pose, light, u1, u2, v,
-                -PIXEL - offset + bodyDirectionF.x(), PIXEL * 0.5f + nLength, -PIXEL + bodyDirectionF.z(),
-                -PIXEL - offset + bodyDirectionF.x(), PIXEL + nLength, -PIXEL + bodyDirectionF.z(),
-                -PIXEL - offset + bodyDirectionF.x(), PIXEL + nLength, +PIXEL + bodyDirectionF.z(),
-                -PIXEL - offset + bodyDirectionF.x(), PIXEL * 0.5f + nLength, +PIXEL + bodyDirectionF.z());
+                -PIXEL - offset + bodyDirectionF.x(), P1, -PIXEL + bodyDirectionF.z(),
+                -PIXEL - offset + bodyDirectionF.x(), P2, -PIXEL + bodyDirectionF.z(),
+                -PIXEL - offset + bodyDirectionF.x(), P2, +PIXEL + bodyDirectionF.z(),
+                -PIXEL - offset + bodyDirectionF.x(), P1, +PIXEL + bodyDirectionF.z());
     }
 
     private static void drawAllStaffSides(VertexConsumer vertexConsumer, PoseStack.Pose pose, int light, float xOffset, float zOffset, float topY, float bottomY, float uvOffset) {
-        drawStaffSide(vertexConsumer, pose, light, uvOffset,
-                -PIXEL + xOffset, topY, +PIXEL + zOffset,
-                -PIXEL + xOffset, bottomY, +PIXEL + zOffset,
-                -PIXEL + xOffset, bottomY, -PIXEL + zOffset,
-                -PIXEL + xOffset, topY, -PIXEL + zOffset);
+        float localTop = topY;
+        while (localTop > bottomY) {
+            float localBottom = Math.max(bottomY, localTop - 1);
+            drawStaffSide(vertexConsumer, pose, light, uvOffset,
+                    -PIXEL + xOffset, localTop, +PIXEL + zOffset,
+                    -PIXEL + xOffset, localBottom, +PIXEL + zOffset,
+                    -PIXEL + xOffset, localBottom, -PIXEL + zOffset,
+                    -PIXEL + xOffset, localTop, -PIXEL + zOffset);
 
-        drawStaffSide(vertexConsumer, pose, light, uvOffset,
-                -PIXEL + xOffset, topY, -PIXEL + zOffset,
-                -PIXEL + xOffset, bottomY, -PIXEL + zOffset,
-                +PIXEL + xOffset, bottomY, -PIXEL + zOffset,
-                +PIXEL + xOffset, topY, -PIXEL + zOffset);
+            drawStaffSide(vertexConsumer, pose, light, uvOffset,
+                    -PIXEL + xOffset, localTop, -PIXEL + zOffset,
+                    -PIXEL + xOffset, localBottom, -PIXEL + zOffset,
+                    +PIXEL + xOffset, localBottom, -PIXEL + zOffset,
+                    +PIXEL + xOffset, localTop, -PIXEL + zOffset);
 
-        drawStaffSide(vertexConsumer, pose, light, uvOffset,
-                +PIXEL + xOffset, topY, -PIXEL + zOffset,
-                +PIXEL + xOffset, bottomY, -PIXEL + zOffset,
-                +PIXEL + xOffset, bottomY, +PIXEL + zOffset,
-                +PIXEL + xOffset, topY, +PIXEL + zOffset);
+            drawStaffSide(vertexConsumer, pose, light, uvOffset,
+                    +PIXEL + xOffset, localTop, -PIXEL + zOffset,
+                    +PIXEL + xOffset, localBottom, -PIXEL + zOffset,
+                    +PIXEL + xOffset, localBottom, +PIXEL + zOffset,
+                    +PIXEL + xOffset, localTop, +PIXEL + zOffset);
 
-        drawStaffSide(vertexConsumer, pose, light, uvOffset,
-                +PIXEL + xOffset, topY, +PIXEL + zOffset,
-                +PIXEL + xOffset, bottomY, +PIXEL + zOffset,
-                -PIXEL + xOffset, bottomY, +PIXEL + zOffset,
-                -PIXEL + xOffset, topY, +PIXEL + zOffset);
+            drawStaffSide(vertexConsumer, pose, light, uvOffset,
+                    +PIXEL + xOffset, localTop, +PIXEL + zOffset,
+                    +PIXEL + xOffset, localBottom, +PIXEL + zOffset,
+                    -PIXEL + xOffset, localBottom, +PIXEL + zOffset,
+                    -PIXEL + xOffset, localTop, +PIXEL + zOffset);
+            localTop -= 1.000f;
+        }
     }
 
     private static void drawStaffSide(VertexConsumer vertexConsumer, PoseStack.Pose pose, int light, float uvOffset, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4) {

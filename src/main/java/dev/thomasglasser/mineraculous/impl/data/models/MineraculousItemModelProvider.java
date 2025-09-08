@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
+import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.tommylib.api.data.models.ExtendedItemModelProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
@@ -178,10 +179,37 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.HEAD).rotation(-54, 0, 0).translation(0, 1.75f, -2.75f).end()
                 .end();
         ItemModelBuilder inventoryCatStaff = basicInventoryItem(MineraculousItems.CAT_STAFF);
+        ItemModelBuilder activeCatStaff = withSeparateInventoryModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_active"), inHandCatStaff, basicItem(MineraculousItems.CAT_STAFF.getId().withSuffix("_active")));
+        ItemModelBuilder inHandSpyglassCatStaff = withEntityModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_spyglass_in_hand"))
+                .transforms()
+                .transform(MineraculousItemDisplayContexts.CURIOS_BODY.getValue()).rotation(0, 180, 90).translation(-4.2f, 8, 2.7f).scale(0.7f).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(0, -180, 0).translation(0, -3.5f, 1.25f).scale(0.7f).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(0, -180, 0).translation(0, -3.5f, 1.25f).scale(0.7f).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).rotation(0, 165, 0).translation(0, 1.5f, 1.25f).scale(0.7f).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).rotation(0, 165, 0).translation(0, 1.5f, 1.25f).scale(0.7f).end()
+                .transform(ItemDisplayContext.HEAD).rotation(0, 180, 0).translation(0, -15, -8).scale(1.6f).end()
+                .end();
         withSeparateInventoryModel(MineraculousItems.CAT_STAFF, inHandCatStaff, inventoryCatStaff)
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)
-                .model(withSeparateInventoryModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_active"), inHandCatStaff, basicItem(MineraculousItems.CAT_STAFF.getId().withSuffix("_active"))))
+                .model(activeCatStaff)
+                .end()
+                .override()
+                .predicate(MineraculousItemProperties.ACTIVE, 1)
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(CatStaffItem.Ability.PHONE))
+                // TODO: Separate item texture
+                .model(withSeparateInventoryModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_phone"), inHandCatStaff, inventoryCatStaff))
+                .end()
+                .override()
+                .predicate(MineraculousItemProperties.ACTIVE, 1)
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(CatStaffItem.Ability.SPYGLASS))
+                // TODO: Separate item texture
+                .model(withSeparateInventoryModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_spyglass"), inHandSpyglassCatStaff, inventoryCatStaff))
+                .end()
+                .override()
+                .predicate(MineraculousItemProperties.ACTIVE, 1)
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(CatStaffItem.Ability.SPYGLASS) + 1)
+                .model(activeCatStaff)
                 .end();
 
         ItemModelBuilder inHandButterflyCane = withEntityModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_in_hand"))

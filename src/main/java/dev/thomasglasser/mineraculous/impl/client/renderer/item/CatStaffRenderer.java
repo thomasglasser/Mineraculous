@@ -42,8 +42,8 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
     public void defaultRender(PoseStack poseStack, CatStaffItem animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
         ItemStack stack = getCurrentItemStack();
         if (stack.get(MineraculousDataComponents.CARRIER) != null) {
-            int carrierId = stack.get(MineraculousDataComponents.CARRIER);
-            if (Minecraft.getInstance().level != null) {
+            Integer carrierId = stack.get(MineraculousDataComponents.CARRIER);
+            if (carrierId != null && Minecraft.getInstance().level != null) {
                 Entity carrier = Minecraft.getInstance().level.getEntity(carrierId);
                 if (carrier != null) {
                     CatStaffItem.Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);

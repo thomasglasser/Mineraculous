@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.client.particle.KamikotizationParticle
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.api.client.renderer.item.MineraculousItemProperties;
 import dev.thomasglasser.mineraculous.api.client.renderer.item.curio.ContextDependentCurioRenderer;
+import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
@@ -239,6 +240,7 @@ public class MineraculousClientEvents {
             MiraculousArmorItemRenderer.clearModels();
             KamikotizationArmorItemRenderer.clearModels();
             MineraculousClientUtils.refreshCataclysmPixels();
+            ConditionalAutoGlowingGeoLayer.clearGlowmasks();
         });
     }
 

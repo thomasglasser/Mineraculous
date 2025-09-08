@@ -1,16 +1,13 @@
 package dev.thomasglasser.mineraculous.impl.client.renderer.armor;
 
+import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.MiraculousArmorItem;
-import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.Map;
 import java.util.Optional;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -18,34 +15,20 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.Animation;
-import software.bernie.geckolib.cache.texture.AutoGlowingTexture;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
-import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmorItem> {
     private static final Map<Holder<Miraculous>, GeoModel<MiraculousArmorItem>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
-    private static final Object2BooleanMap<ResourceLocation> PRESENT_GLOWMASKS = new Object2BooleanOpenHashMap<>();
 
     public MiraculousArmorItemRenderer() {
         super(null);
-        addRenderLayer(new AutoGlowingGeoLayer<>(this) {
-            @Override
-            protected @Nullable RenderType getRenderType(MiraculousArmorItem animatable, @Nullable MultiBufferSource bufferSource) {
-                ResourceLocation glowmaskTexture = AutoGlowingTexture.appendToPath(getTextureLocation(animatable), "_glowmask");
-                if (PRESENT_GLOWMASKS.computeIfAbsent(glowmaskTexture, (ResourceLocation texture) -> Minecraft.getInstance().getResourceManager().getResource(texture).isPresent() || Minecraft.getInstance().getTextureManager().getTexture(texture, MissingTextureAtlasSprite.getTexture()) != MissingTextureAtlasSprite.getTexture())) {
-                    return super.getRenderType(animatable, bufferSource);
-                } else {
-                    return null;
-                }
-            }
-        });
+        addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
     }
 
     public static void clearModels() {
         DEFAULT_MODELS.clear();
-        PRESENT_GLOWMASKS.clear();
     }
 
     @Override

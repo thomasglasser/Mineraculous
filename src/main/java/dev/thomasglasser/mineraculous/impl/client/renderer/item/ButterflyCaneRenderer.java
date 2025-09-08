@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 
+import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
@@ -19,6 +20,7 @@ public class ButterflyCaneRenderer extends DefaultedGeoItemRenderer<ButterflyCan
 
     public ButterflyCaneRenderer() {
         super(MineraculousItems.BUTTERFLY_CANE.getId());
+        addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
         phoneModel = new DefaultedItemGeoModel<>(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_phone")) {
             @Override
             public ResourceLocation getAnimationResource(ButterflyCaneItem animatable) {

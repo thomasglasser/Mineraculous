@@ -2,15 +2,6 @@ package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-
-import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -22,10 +13,18 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
+
 public class MiraculousLadybug extends PathfinderMob {
-    CatmullRom path;
+    public CatmullRom path;
     boolean shouldUpdatePath;
-    double t;
+    public double t;
 
     public MiraculousLadybug(EntityType<? extends PathfinderMob> entityType, Level level) {
         super(entityType, level);
@@ -39,8 +38,8 @@ public class MiraculousLadybug extends PathfinderMob {
     public void tick() {
         super.tick();
         MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
-        Level level = this.level();
-        if (level.isClientSide) return;
+        //Level level = this.level();
+        //if (level.isClientSide) return;
         if ((targetData.blockTargets() == null || targetData.blockTargets().isEmpty())) {
             this.discard();
             return;
@@ -52,7 +51,7 @@ public class MiraculousLadybug extends PathfinderMob {
                 targets.add(blockPos.getCenter());
             }
             this.path = new CatmullRom(targets);
-            this.t = path.T.get(1);
+            this.t = path.getFirstParameter();
             this.shouldUpdatePath = false;
         } else {
             double speedPerTick = 0.8; // blocks per tick
@@ -167,7 +166,8 @@ public class MiraculousLadybug extends PathfinderMob {
         return ordered;
     }
 
-    private static class CatmullRom {
+    //TODO move to math utils
+    public static class CatmullRom {
         private final List<Vec3> points;
         private final List<Double> T;
         private final List<Vec3> tangents;

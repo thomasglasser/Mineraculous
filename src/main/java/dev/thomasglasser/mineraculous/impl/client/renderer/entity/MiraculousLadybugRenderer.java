@@ -6,7 +6,6 @@ import static dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRen
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
@@ -22,10 +21,10 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
 public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug> {
     private ArrayList<MagicLadybug> magicLadybugs = new ArrayList<>();
+    private ArrayList<TailPoint> tailPoints = new ArrayList<>();
     private Quaternionf smoothedRotation = new Quaternionf();
 
     public MiraculousLadybugRenderer(EntityRendererProvider.Context context) {
@@ -38,83 +37,164 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
     @Override
     public void render(MiraculousLadybug entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        Vec3 lookVec = entity.getLookAngle().normalize().scale(-1); // direction to point the swarm
+        double t = entity.t;
+        if (entity.path != null) {
+            MiraculousLadybug.CatmullRom path = entity.path;
+            if (t >= path.getFirstParameter()) {
+                double rad = 1.3;
+                for (int i = 0; i < 6; i++) {
+                    double arcSoFar = path.arcLength(t);
+                    double targetArc = Math.max(0, arcSoFar - i);
+                    double behindT = path.findTForArcLength(targetArc, t);
+                    Vec3 position = path.getPoint(behindT).subtract(entity.position());
+                    if (tailPoints.size() >= i + 1) {
+                        tailPoints.set(i, new TailPoint(position, rad));
+                    } else {
+                        tailPoints.add(new TailPoint(position, rad));
+                    }
+                    rad *= 0.7;
+                }
 
-        Vec3 base = new Vec3(1, 0, 0);
-        Vec3 axis = base.cross(lookVec).normalize();
-        double angle = Math.acos(base.dot(lookVec));
-        Quaternionf targetRotation = new Quaternionf();
-        if (!axis.equals(Vec3.ZERO)) {
-            targetRotation = new Quaternionf().fromAxisAngleRad(axis.toVector3f(), (float) angle);
-        }
+                while (tailPoints.size() > 6) {
+                    tailPoints.removeFirst();
+                }
 
-        //Smoothly interpolate instead of snapping
-        float smoothingSpeed = 5.0f;
-        float deltaTime = partialTick * (1.0f / 20.0f); // convert ticks to seconds
-        float t = 1.0f - (float) Math.exp(-smoothingSpeed * deltaTime);
-        smoothedRotation.slerp(targetRotation, t);
+                int maxLbCount = MineraculousClientConfig.get().magicLadybugsCount.get() * 200;
+                if (magicLadybugs.size() == 0) {
+                    for (int i = 1; i <= maxLbCount; i++) {
+                        initSummonMagicLadybug(entity.getLookAngle().normalize());
+                    }
+                }
+                //maxLbCount = 3000;
+                if (magicLadybugs.size() < maxLbCount) {
+                    for (int i = 1; i <= 25; i++) {
+                        summonMagicLadybug(entity.getLookAngle().normalize());
+                    }
+                }
 
-        int maxLbCount = MineraculousClientConfig.get().magicLadybugsCount.get() * 100;
+                while (magicLadybugs.size() > maxLbCount) {
+                    magicLadybugs.removeFirst();
+                }
 
-        //if (entity.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET).sphereTicks() == 0) {
-        if (magicLadybugs.size() < maxLbCount) {
-            for (int i = 1; i <= 10; i++) {
-                summonMagicLadybug();
+                Random random = new Random();
+
+                for (MagicLadybug ladybug : magicLadybugs) {
+                    // Get nearest and second-nearest tail points
+                    TailPoint nearestPoint = null;
+                    TailPoint secondNearestPoint = null;
+                    double minDistance = Double.MAX_VALUE;
+                    double secondMinDistance = Double.MAX_VALUE;
+
+                    for (int i = 0; i < tailPoints.size(); i++) {
+                        TailPoint tailPoint = tailPoints.get(i);
+                        double distance = ladybug.pos.subtract(tailPoint.position).length();
+
+                        if (distance < minDistance) {
+                            secondMinDistance = minDistance;
+                            secondNearestPoint = nearestPoint;
+
+                            minDistance = distance;
+                            nearestPoint = tailPoint;
+                        } else if (distance < secondMinDistance) {
+                            secondMinDistance = distance;
+                            secondNearestPoint = tailPoint;
+                        }
+                    }
+
+                    // Compute directions
+                    Vec3 forward = nearestPoint.position.subtract(secondNearestPoint.position).normalize();
+                    forward = nearestPoint.position.length() < secondNearestPoint.position.length() ? forward : forward.scale(-1); // pointing to the head
+                    Vec3 sideway = forward.cross(new Vec3(0, 1, 0)).normalize();
+                    Vec3 upward = sideway.cross(forward).normalize();
+
+                    // Apply shaking and backwards movement
+                    double shakeStrength = MineraculousClientConfig.get().magicLadybugsShakeStrength.get() / 100f;
+                    double dx = -0.1; // slowly slide backwards
+                    double dy = (random.nextDouble() - 0.5) * shakeStrength;
+                    double dz = (random.nextDouble() - 0.5) * shakeStrength;
+
+                    forward = forward.scale(dx);
+                    upward = upward.scale(dy);
+                    sideway = sideway.scale(dz);
+
+                    ladybug.move(forward.add(upward).add(sideway));
+
+                    // Constrain position
+                    if (secondNearestPoint == null) {
+                        // fallback if we don't have two points
+                        if (minDistance > nearestPoint.radius) {
+                            ladybug.pos = ladybug.pos.subtract(nearestPoint.position).normalize().scale(nearestPoint.radius);
+                        }
+                    } else {
+                        Vec3 a = nearestPoint.position;
+                        Vec3 b = secondNearestPoint.position;
+                        Vec3 p = ladybug.pos;
+
+                        Vec3 ab = b.subtract(a);
+                        double abDot = ab.dot(ab); // squared length of AB
+
+                        double q = 0.0;
+                        if (abDot > 1e-8) { // avoid divide by zero
+                            q = p.subtract(a).dot(ab) / abDot;
+                            q = Math.max(0.0, Math.min(1.0, q)); // clamp to segment
+                        }
+
+                        // closest point on the segment AB to p
+                        Vec3 closest = a.add(ab.scale(q));
+
+                        // interpolate radius between the two tail points
+                        double interpRadius = nearestPoint.radius * (1.0 - q) + secondNearestPoint.radius * q;
+
+                        double dist = p.subtract(closest).length();
+                        if (dist > interpRadius) {
+                            Vec3 dir = p.subtract(closest).normalize();
+                            ladybug.pos = closest.add(dir.scale(interpRadius));
+                        }
+                    }
+                }
+
+                //poseStack.translate(-0.5, 0, -0.5);
+                MagicLadybug.render(magicLadybugs, bufferSource, poseStack, smoothedRotation, partialTick);
+                //poseStack.translate(0.5, 0, 0.5);
             }
         }
-        //}
-
-        while (magicLadybugs.size() > maxLbCount) {
-            magicLadybugs.removeFirst();
-        }
-
-        Random random = new Random();
-
-        for (MagicLadybug it : magicLadybugs) {
-            if (entity.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET).sphereTicks() == 0) {
-                it.move(new Vec3(0.1, 0, 0));
-            }
-
-            double shakeStrength = MineraculousClientConfig.get().magicLadybugsShakeStrength.get() / 100f;
-            double dx = 0;
-            double dy = (random.nextDouble() - 0.5) * shakeStrength;
-            double dz = (random.nextDouble() - 0.5) * shakeStrength;
-
-            it.move(new Vec3(dx, dy, dz));
-
-            if (entity.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET).sphereTicks() == 0) {
-                if (it.localPos.y > cometFunction(it.localPos.x))
-                    it.localPos = new Vec3(it.localPos.x, cometFunction(it.localPos.x), it.localPos.z);
-                if (it.localPos.y < -cometFunction(it.localPos.x))
-                    it.localPos = new Vec3(it.localPos.x, -cometFunction(it.localPos.x), it.localPos.z);
-                if (it.localPos.z > cometFunction(it.localPos.x))
-                    it.localPos = new Vec3(it.localPos.x, it.localPos.y, cometFunction(it.localPos.x));
-                if (it.localPos.z < -cometFunction(it.localPos.x))
-                    it.localPos = new Vec3(it.localPos.x, it.localPos.y, -cometFunction(it.localPos.x));
-            }
-        }
-
-        poseStack.translate(-0.5, 0, -0.5);
-        MagicLadybug.render(magicLadybugs, bufferSource, poseStack, smoothedRotation, partialTick);
-        poseStack.translate(0.5, 0, 0.5);
-
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
-    private void summonMagicLadybug() {
+    private void summonMagicLadybug(Vec3 lookVec) {
         double size = 0.1 + (Math.random() * (0.3 - 0.1));
         int maxLbCount = MineraculousClientConfig.get().magicLadybugsCount.get() * 100;
-        int lbLifetime = (int) ((double) maxLbCount / LADYBUG_DENSITY);
-        MagicLadybug it = new MagicLadybug(
-                new Vec3(Math.random() * 2 - 0.5, Math.random(), Math.random()), size, lbLifetime);
+        double maxLifeTime = (double) maxLbCount / LADYBUG_DENSITY;
+        int lbLifetime = (int) (Math.random() * (maxLifeTime - 60) + 60);
 
-        double min = Math.min(cometFunction(it.localPos.horizontalDistance()), -cometFunction(it.localPos.horizontalDistance()));
-        double max = Math.max(cometFunction(it.localPos.horizontalDistance()), -cometFunction(it.localPos.horizontalDistance()));
+        Vec3 forward = lookVec;
+        Vec3 sideway = lookVec.cross(new Vec3(0, 1, 0)).normalize();
+        Vec3 upward = sideway.cross(lookVec).normalize();
+        forward = forward.scale(Math.random() * 2.5);
+        sideway = sideway.scale(Math.random() * 5 - 2.5);
+        upward = upward.scale(Math.random() * 5 - 2.5);
 
-        double randomY = min + (Math.random() * (max - min));
-        double randomZ = min + (Math.random() * (max - min));
-        it.localPos = new Vec3(it.localPos.x, randomY, randomZ);
-        magicLadybugs.add(it);
+        Vec3 spawnPos = forward.add(sideway).add(upward);
+        MagicLadybug ladybug = new MagicLadybug(spawnPos, size, lbLifetime);
+        magicLadybugs.add(ladybug);
+    }
+
+    private void initSummonMagicLadybug(Vec3 lookVec) {
+        double size = 0.1 + (Math.random() * (0.3 - 0.1));
+        int maxLbCount = MineraculousClientConfig.get().magicLadybugsCount.get() * 100;
+        double maxLifeTime = (double) maxLbCount / LADYBUG_DENSITY;
+        int lbLifetime = (int) (Math.random() * (maxLifeTime - 60) + 60);
+
+        Vec3 forward = lookVec;
+        Vec3 sideway = lookVec.cross(new Vec3(0, 1, 0)).normalize();
+        Vec3 upward = sideway.cross(lookVec).normalize();
+        forward = forward.scale(Math.random() * 7);
+        sideway = sideway.scale(Math.random() * 5 - 2.5);
+        upward = upward.scale(Math.random() * 5 - 2.5);
+
+        Vec3 spawnPos = forward.add(sideway).add(upward);
+        MagicLadybug ladybug = new MagicLadybug(spawnPos, size, lbLifetime);
+        magicLadybugs.add(ladybug);
     }
 
     @Override
@@ -122,10 +202,8 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         return Mineraculous.modLoc("textures/item/empty.png");
     }
 
-    private class MagicLadybug {
-        private Vec3 localPos;   // path-space position
-        private Vec3 worldPos;   // rotated each frame
-        private Vec3 prevLocalPos;
+    private static class MagicLadybug {
+        private Vec3 pos; // relative to the entity
         private final double size;
         private double life;
 
@@ -133,44 +211,34 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         private final RenderType OUTLINE = ladybugOutline(LADYBUG_OUTLINE_TEXTURE);
 
         private MagicLadybug(Vec3 pos, double size, double life) {
-            this.localPos = pos;
-            this.prevLocalPos = localPos;
-            this.worldPos = pos;
+            this.pos = pos;
             this.size = size;
             this.life = life;
         }
 
         private void move(Vec3 vec) {
-            this.prevLocalPos = this.localPos;
-            this.localPos = this.localPos.add(vec);
-        }
-
-        private void updateWorldPos(Quaternionf rotation, float partialTick) {
-            Vec3 lerped = prevLocalPos.lerp(localPos, partialTick);
-            Vector3f local = new Vector3f((float) lerped.x, (float) lerped.y, (float) lerped.z);
-            local.rotate(rotation);
-            this.worldPos = new Vec3(local.x, local.y, local.z);
+            this.pos = pos.add(vec);
         }
 
         private void renderOutline(MultiBufferSource multiBufferSource, PoseStack poseStack) {
             var camera = Minecraft.getInstance().gameRenderer.getMainCamera();
             poseStack.pushPose();
-            poseStack.rotateAround(Axis.YP.rotationDegrees(-camera.getYRot()), (float) worldPos.x, (float) worldPos.y, (float) worldPos.z);
-            poseStack.rotateAround(Axis.XP.rotationDegrees(camera.getXRot()), (float) worldPos.x, (float) worldPos.y, (float) worldPos.z);
+            poseStack.rotateAround(Axis.YP.rotationDegrees(-camera.getYRot()), (float) pos.x, (float) pos.y, (float) pos.z);
+            poseStack.rotateAround(Axis.XP.rotationDegrees(camera.getXRot()), (float) pos.x, (float) pos.y, (float) pos.z);
 
             VertexConsumer ladybug_outline = multiBufferSource.getBuffer(OUTLINE);
 
-            double quadSize = size * 0.47 / 0.5;
-            ladybug_outline.addVertex(poseStack.last(), worldPos.add(-quadSize, quadSize, 0).toVector3f())
+            double quadSize = size * 0.47 / 0.4;
+            ladybug_outline.addVertex(poseStack.last(), pos.add(-quadSize, quadSize, 0).toVector3f())
                     .setUv(0, 0).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 0, 0)
                     .setLight(LightTexture.FULL_BRIGHT).setColor(-2);
-            ladybug_outline.addVertex(poseStack.last(), worldPos.add(quadSize, quadSize, 0).toVector3f())
+            ladybug_outline.addVertex(poseStack.last(), pos.add(quadSize, quadSize, 0).toVector3f())
                     .setUv(1, 0).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 0, 0)
                     .setLight(LightTexture.FULL_BRIGHT).setColor(-2);
-            ladybug_outline.addVertex(poseStack.last(), worldPos.add(quadSize, -quadSize, 0).toVector3f())
+            ladybug_outline.addVertex(poseStack.last(), pos.add(quadSize, -quadSize, 0).toVector3f())
                     .setUv(1, 1).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 0, 0)
                     .setLight(LightTexture.FULL_BRIGHT).setColor(-2);
-            ladybug_outline.addVertex(poseStack.last(), worldPos.add(-quadSize, -quadSize, 0).toVector3f())
+            ladybug_outline.addVertex(poseStack.last(), pos.add(-quadSize, -quadSize, 0).toVector3f())
                     .setUv(0, 1).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 0, 0)
                     .setLight(LightTexture.FULL_BRIGHT).setColor(-2);
             poseStack.popPose();
@@ -179,23 +247,23 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         private void render(MultiBufferSource multiBufferSource, PoseStack poseStack) {
             var camera = Minecraft.getInstance().gameRenderer.getMainCamera();
             poseStack.pushPose();
-            poseStack.rotateAround(Axis.YP.rotationDegrees(-camera.getYRot()), (float) worldPos.x, (float) worldPos.y, (float) worldPos.z);
-            poseStack.rotateAround(Axis.XP.rotationDegrees(camera.getXRot()), (float) worldPos.x, (float) worldPos.y, (float) worldPos.z);
+            poseStack.rotateAround(Axis.YP.rotationDegrees(-camera.getYRot()), (float) pos.x, (float) pos.y, (float) pos.z);
+            poseStack.rotateAround(Axis.XP.rotationDegrees(camera.getXRot()), (float) pos.x, (float) pos.y, (float) pos.z);
 
             VertexConsumer ladybug = multiBufferSource.getBuffer(LADYBUG);
 
             double quadSize = size;
             float tint = 1f;
-            ladybug.addVertex(poseStack.last(), worldPos.add(-quadSize, quadSize, 0).toVector3f())
+            ladybug.addVertex(poseStack.last(), pos.add(-quadSize, quadSize, 0).toVector3f())
                     .setUv(0, 0).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 0, 0)
                     .setLight(LightTexture.FULL_BRIGHT).setColor(tint, tint, tint, 1.0f);
-            ladybug.addVertex(poseStack.last(), worldPos.add(quadSize, quadSize, 0).toVector3f())
+            ladybug.addVertex(poseStack.last(), pos.add(quadSize, quadSize, 0).toVector3f())
                     .setUv(1, 0).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 0, 0)
                     .setLight(LightTexture.FULL_BRIGHT).setColor(tint, tint, tint, 1.0f);
-            ladybug.addVertex(poseStack.last(), worldPos.add(quadSize, -quadSize, 0).toVector3f())
+            ladybug.addVertex(poseStack.last(), pos.add(quadSize, -quadSize, 0).toVector3f())
                     .setUv(1, 1).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 0, 0)
                     .setLight(LightTexture.FULL_BRIGHT).setColor(tint, tint, tint, 1.0f);
-            ladybug.addVertex(poseStack.last(), worldPos.add(-quadSize, -quadSize, 0).toVector3f())
+            ladybug.addVertex(poseStack.last(), pos.add(-quadSize, -quadSize, 0).toVector3f())
                     .setUv(0, 1).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 0, 0)
                     .setLight(LightTexture.FULL_BRIGHT).setColor(tint, tint, tint, 1.0f);
             poseStack.popPose();
@@ -205,7 +273,6 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
         private static void render(ArrayList<MagicLadybug> list, MultiBufferSource multiBufferSource, PoseStack poseStack, Quaternionf rotation, float partialTick) {
             for (MagicLadybug iterator : list) {
-                iterator.updateWorldPos(rotation, partialTick);
                 iterator.renderOutline(multiBufferSource, poseStack);
             }
 
@@ -216,10 +283,13 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         }
     }
 
-    private double cometFunction(double x) {
-        if (x > -0.03 && x < 0.439202) {
-            return Math.sqrt(-Math.pow(x - 1.6 / 2, 2) + 0.7);
+    private static class TailPoint {
+        private final double radius;
+        private Vec3 position;
+
+        TailPoint(Vec3 pos, double r) {
+            radius = r;
+            position = pos;
         }
-        return (x + 1.6 / 2) * Math.pow(Math.E, -1 / 2.5 * (x + 1.6 / 2));
     }
 }

@@ -192,9 +192,13 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
             return InteractionResultHolder.fail(stack);
         if (stack.has(MineraculousDataComponents.CAT_STAFF_ABILITY)) {
             Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
-            if (ability == Ability.BLOCK || ability == Ability.THROW || ability == Ability.PERCH || ability == Ability.TRAVEL)
+            if (ability == Ability.BLOCK || ability == Ability.THROW || ability == Ability.TRAVEL)
                 player.startUsingItem(hand);
-            else if (ability == Ability.SPYGLASS) {
+            else if (ability == Ability.PERCH) {
+                PerchingCatStaffData perchingCatStaffData = player.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+                CatStaffPerchHandler.itemUsed(level, player, perchingCatStaffData);
+                player.awardStat(Stats.ITEM_USED.get(this));
+            } else if (ability == Ability.SPYGLASS) {
                 level.playSound(null, player, SoundEvents.SPYGLASS_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
                 player.startUsingItem(hand);
             }
@@ -240,12 +244,6 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
                     player.awardStat(Stats.ITEM_USED.get(this));
                 }
             }
-        } else if (ability == Ability.PERCH) {
-            PerchingCatStaffData perchingCatStaffData = livingEntity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-            CatStaffPerchHandler.itemUsed(level, livingEntity, perchingCatStaffData);
-            if (livingEntity instanceof Player player) {
-                player.awardStat(Stats.ITEM_USED.get(this));
-            }
         }
     }
 
@@ -267,14 +265,16 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
 
     @Override
     public boolean onLeftClick(ItemStack stack, LivingEntity livingEntity) {
-        Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
-        Level level = livingEntity.level();
-        if (ability == Ability.PERCH) {
-            PerchingCatStaffData perchingCatStaffData = livingEntity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-            CatStaffPerchHandler.itemLeftClicked(level, livingEntity, perchingCatStaffData);
-            if (livingEntity instanceof Player player) {
-                player.awardStat(Stats.ITEM_USED.get(this));
-                return true;
+        if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false)) {
+            Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
+            Level level = livingEntity.level();
+            if (ability == Ability.PERCH) {
+                PerchingCatStaffData perchingCatStaffData = livingEntity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+                CatStaffPerchHandler.itemLeftClicked(level, livingEntity, perchingCatStaffData);
+                if (livingEntity instanceof Player player) {
+                    player.awardStat(Stats.ITEM_USED.get(this));
+                    return true;
+                }
             }
         }
         return false;
@@ -298,7 +298,8 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
 
     @Override
     public ItemAttributeModifiers getDefaultAttributeModifiers(ItemStack stack) {
-        if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false))
+        Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
+        if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && ability != Ability.PHONE && ability != Ability.SPYGLASS)
             return EXTENDED_ATTRIBUTE_MODIFIERS;
         return super.getDefaultAttributeModifiers(stack);
     }

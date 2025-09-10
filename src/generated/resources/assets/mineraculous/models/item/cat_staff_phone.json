@@ -107,19 +107,19 @@
     "fixed": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/cat_staff"
+        "layer0": "mineraculous:item/cat_staff_phone"
       }
     },
     "ground": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/cat_staff"
+        "layer0": "mineraculous:item/cat_staff_phone"
       }
     },
     "gui": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/cat_staff"
+        "layer0": "mineraculous:item/cat_staff_phone"
       }
     }
   }

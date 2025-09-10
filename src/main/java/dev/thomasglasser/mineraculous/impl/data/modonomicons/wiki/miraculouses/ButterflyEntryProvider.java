@@ -19,7 +19,7 @@ public class ButterflyEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("charging", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/butterfly/charging.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/charging.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -43,7 +43,7 @@ public class ButterflyEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("kamikotization", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/butterfly/abilities/kamikotization.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/abilities/kamikotization.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -55,7 +55,7 @@ public class ButterflyEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("kamiko_control", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/butterfly/abilities/kamiko_control.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/abilities/kamiko_control.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -68,7 +68,7 @@ public class ButterflyEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("kamikotized_communication", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/butterfly/abilities/kamikotized_communication.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/abilities/kamikotized_communication.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -80,7 +80,7 @@ public class ButterflyEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("cane_abilities", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/butterfly/cane/abilities.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/cane/abilities.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -96,7 +96,7 @@ public class ButterflyEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("blade", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/butterfly/cane/blade.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/cane/blade.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -117,7 +117,7 @@ public class ButterflyEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("kamiko_store", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/butterfly/cane/kamiko_store.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/cane/kamiko_store.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -128,7 +128,7 @@ public class ButterflyEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("spyglass", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/butterfly/cane/spyglass.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/cane/spyglass.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -139,7 +139,7 @@ public class ButterflyEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("throw", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/butterfly/cane/throw.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/cane/throw.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 

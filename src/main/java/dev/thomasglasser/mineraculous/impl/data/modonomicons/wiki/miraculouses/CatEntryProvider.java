@@ -22,7 +22,7 @@ public class CatEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("charging", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/cat/charging.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/charging.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -46,7 +46,7 @@ public class CatEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("cataclysm", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/cat/abilities/cataclysm.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/abilities/cataclysm.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -64,7 +64,7 @@ public class CatEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("cat_vision", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/cat/abilities/cat_vision.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/abilities/cat_vision.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -76,7 +76,7 @@ public class CatEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("passive_unluck", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/cat/abilities/passive_unluck.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/abilities/passive_unluck.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -90,7 +90,7 @@ public class CatEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("staff_abilities", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/cat/staff/abilities.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/staff/abilities.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -116,7 +116,7 @@ public class CatEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("perch", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/cat/staff/perch.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/staff/perch.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -129,7 +129,7 @@ public class CatEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("spyglass", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/cat/staff/spyglass.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/staff/spyglass.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -140,7 +140,7 @@ public class CatEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("throw", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/cat/staff/throw.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/staff/throw.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -151,7 +151,7 @@ public class CatEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("travel", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/cat/staff/travel.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/staff/travel.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 

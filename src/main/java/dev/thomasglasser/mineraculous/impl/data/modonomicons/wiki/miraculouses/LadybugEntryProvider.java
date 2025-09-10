@@ -21,7 +21,7 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("charging", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/ladybug/charging.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/ladybug/charging.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -45,7 +45,7 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("lucky_charm", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/ladybug/abilities/lucky_charm.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/ladybug/abilities/lucky_charm.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -57,7 +57,7 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("miraculous_ladybug", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/ladybug/abilities/miraculous_ladybug.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/ladybug/abilities/miraculous_ladybug.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -68,7 +68,7 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("passive_luck", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/ladybug/abilities/passive_luck.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/ladybug/abilities/passive_luck.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -82,7 +82,7 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("yoyo_abilities", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/ladybug/yoyo/abilities.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/ladybug/yoyo/abilities.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -98,7 +98,7 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("attacking", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/ladybug/yoyo/attacking.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/ladybug/yoyo/attacking.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -120,7 +120,7 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("lasso", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/ladybug/yoyo/lasso.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/ladybug/yoyo/lasso.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -133,7 +133,7 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("purify", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/ladybug/yoyo/purify.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/ladybug/yoyo/purify.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -145,7 +145,7 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("spyglass", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/ladybug/yoyo/spyglass.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/ladybug/yoyo/spyglass.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -156,7 +156,7 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("travel", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/ladybug/yoyo/travel.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/ladybug/yoyo/travel.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 

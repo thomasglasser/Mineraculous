@@ -20,7 +20,7 @@ public class GeneralEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("obtaining", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/general/obtaining.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/general/obtaining.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -57,7 +57,7 @@ public class GeneralEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("timer", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/general/timer.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/general/timer.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 

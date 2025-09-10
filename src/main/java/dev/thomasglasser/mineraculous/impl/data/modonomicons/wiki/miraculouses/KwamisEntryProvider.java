@@ -60,7 +60,7 @@ public class KwamisEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("transferring_and_renouncing", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculous/kwamis/transferring_and_renouncing.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/kwamis/transferring_and_renouncing.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 

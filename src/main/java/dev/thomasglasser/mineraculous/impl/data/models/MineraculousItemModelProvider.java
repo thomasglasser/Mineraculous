@@ -197,14 +197,12 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)
                 .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(CatStaffItem.Ability.PHONE))
-                // TODO: Separate item texture
-                .model(withSeparateInventoryModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_phone"), inHandCatStaff, inventoryCatStaff))
+                .model(withSeparateInventoryModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_phone"), inHandCatStaff, basicItem(MineraculousItems.CAT_STAFF.getId().withSuffix("_phone"))))
                 .end()
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)
                 .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(CatStaffItem.Ability.SPYGLASS))
-                // TODO: Separate item texture
-                .model(withSeparateInventoryModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_spyglass"), inHandSpyglassCatStaff, inventoryCatStaff))
+                .model(withSeparateInventoryModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_spyglass"), inHandSpyglassCatStaff, basicItem(MineraculousItems.CAT_STAFF.getId().withSuffix("_spyglass"))))
                 .end()
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)

@@ -20,7 +20,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/cat/charging.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/cat/charging.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.cat.charging.text",
       "title": "book.mineraculous.wiki.miraculouses.cat.charging.title",
@@ -45,7 +45,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/cat/abilities/cataclysm.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/cat/abilities/cataclysm.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.cat.cataclysm.text",
       "title": "book.mineraculous.wiki.miraculouses.cat.cataclysm.title",
@@ -59,7 +59,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/cat/abilities/cat_vision.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/cat/abilities/cat_vision.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.cat.cat_vision.text",
       "title": "book.mineraculous.wiki.miraculouses.cat.cat_vision.title",
@@ -73,7 +73,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/cat/abilities/passive_unluck.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/cat/abilities/passive_unluck.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.cat.passive_unluck.text",
       "title": "book.mineraculous.wiki.miraculouses.cat.passive_unluck.title",
@@ -87,7 +87,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/cat/staff/abilities.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/cat/staff/abilities.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.cat.staff_abilities.text",
       "title": "book.mineraculous.wiki.miraculouses.cat.staff_abilities.title",
@@ -112,7 +112,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/cat/staff/perch.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/cat/staff/perch.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.cat.perch.text",
       "title": "book.mineraculous.wiki.miraculouses.cat.perch.title",
@@ -126,7 +126,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/cat/staff/spyglass.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/cat/staff/spyglass.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.cat.spyglass.text",
       "title": "book.mineraculous.wiki.miraculouses.cat.spyglass.title",
@@ -140,7 +140,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/cat/staff/throw.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/cat/staff/throw.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.cat.throw.text",
       "title": "book.mineraculous.wiki.miraculouses.cat.throw.title",
@@ -154,7 +154,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/cat/staff/travel.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/cat/staff/travel.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.cat.travel.text",
       "title": "book.mineraculous.wiki.miraculouses.cat.travel.title",

@@ -112,19 +112,19 @@
     "fixed": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/cat_staff"
+        "layer0": "mineraculous:item/cat_staff_spyglass"
       }
     },
     "ground": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/cat_staff"
+        "layer0": "mineraculous:item/cat_staff_spyglass"
       }
     },
     "gui": {
       "parent": "minecraft:item/generated",
       "textures": {
-        "layer0": "mineraculous:item/cat_staff"
+        "layer0": "mineraculous:item/cat_staff_spyglass"
       }
     }
   }

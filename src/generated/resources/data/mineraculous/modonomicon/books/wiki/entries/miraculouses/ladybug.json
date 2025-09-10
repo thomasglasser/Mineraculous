@@ -20,7 +20,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/charging.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/ladybug/charging.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.ladybug.charging.text",
       "title": "book.mineraculous.wiki.miraculouses.ladybug.charging.title",
@@ -45,7 +45,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/abilities/lucky_charm.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/ladybug/abilities/lucky_charm.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.ladybug.lucky_charm.text",
       "title": "book.mineraculous.wiki.miraculouses.ladybug.lucky_charm.title",
@@ -59,7 +59,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/abilities/miraculous_ladybug.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/ladybug/abilities/miraculous_ladybug.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.ladybug.miraculous_ladybug.text",
       "title": "book.mineraculous.wiki.miraculouses.ladybug.miraculous_ladybug.title",
@@ -73,7 +73,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/abilities/passive_luck.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/ladybug/abilities/passive_luck.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.ladybug.passive_luck.text",
       "title": "book.mineraculous.wiki.miraculouses.ladybug.passive_luck.title",
@@ -87,7 +87,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/yoyo/abilities.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/ladybug/yoyo/abilities.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.ladybug.yoyo_abilities.text",
       "title": "book.mineraculous.wiki.miraculouses.ladybug.yoyo_abilities.title",
@@ -101,7 +101,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/yoyo/attacking.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/ladybug/yoyo/attacking.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.ladybug.attacking.text",
       "title": "book.mineraculous.wiki.miraculouses.ladybug.attacking.title",
@@ -126,7 +126,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/yoyo/lasso.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/ladybug/yoyo/lasso.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.ladybug.lasso.text",
       "title": "book.mineraculous.wiki.miraculouses.ladybug.lasso.title",
@@ -140,7 +140,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/yoyo/purify.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/ladybug/yoyo/purify.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.ladybug.purify.text",
       "title": "book.mineraculous.wiki.miraculouses.ladybug.purify.title",
@@ -154,7 +154,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/yoyo/spyglass.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/ladybug/yoyo/spyglass.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.ladybug.spyglass.text",
       "title": "book.mineraculous.wiki.miraculouses.ladybug.spyglass.title",
@@ -168,7 +168,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculous/ladybug/yoyo/travel.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/ladybug/yoyo/travel.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.ladybug.travel.text",
       "title": "book.mineraculous.wiki.miraculouses.ladybug.travel.title",

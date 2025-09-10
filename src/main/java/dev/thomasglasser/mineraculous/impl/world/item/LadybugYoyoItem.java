@@ -17,6 +17,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
@@ -466,7 +467,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
     public enum Ability implements RadialMenuOption, StringRepresentable {
         BLOCK,
         LASSO,
-        PHONE((stack, player) -> /*Mineraculous.Dependencies.TOMMYTECH.isLoaded()*/true),
+        PHONE((stack, player) -> Mineraculous.Dependencies.TOMMYTECH.isLoaded()),
         PURIFY((stack, player) -> stack.has(MineraculousDataComponents.OWNER)),
         SPYGLASS,
         TRAVEL;

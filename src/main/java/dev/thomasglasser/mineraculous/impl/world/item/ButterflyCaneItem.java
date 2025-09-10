@@ -15,6 +15,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownButterflyCane;
 import io.netty.buffer.ByteBuf;
@@ -346,7 +347,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
         BLADE,
         BLOCK,
         KAMIKO_STORE((stack, player) -> stack.has(MineraculousDataComponents.OWNER)),
-        PHONE((stack, player) -> /*Mineraculous.Dependencies.TOMMYTECH.isLoaded()*/true),
+        PHONE((stack, player) -> Mineraculous.Dependencies.TOMMYTECH.isLoaded()),
         SPYGLASS,
         THROW;
 

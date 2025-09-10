@@ -42,7 +42,7 @@ public class CheeseEntryProvider extends IndexModeEntryProvider {
 
         AgeingCheeseEdibleFullBlock block = MineraculousBlocks.CAMEMBERT.get(AgeingCheese.Age.AGED).get();
         ItemStack eaten = block.asItem().getDefaultInstance();
-        eaten.set(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY.with(block.getMissingPiecesProperty(), block.getMaxPieces() - 1));
+        eaten.set(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY.with(block.getMissingPiecesProperty(), 1));
         page("eating", () -> BookSpotlightPageModel.create()
                 .withItem(eaten)
                 .withTitle(context().pageTitle())

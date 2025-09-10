@@ -32,7 +32,7 @@
       "item": {
         "components": {
           "minecraft:block_state": {
-            "missing_pieces": "3"
+            "missing_pieces": "1"
           }
         },
         "count": 1,

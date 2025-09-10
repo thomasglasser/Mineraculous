@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 
@@ -40,15 +41,16 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
     @Override
     public void render(MiraculousLadybug entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         double t = entity.t;
+        Vec3 interpolatedPos = new Vec3(
+                Mth.lerp(partialTick, entity.xOld, entity.getX()),
+                Mth.lerp(partialTick, entity.yOld, entity.getY()),
+                Mth.lerp(partialTick, entity.zOld, entity.getZ()));
         if (entity.path != null) {
             MiraculousLadybug.CatmullRom path = entity.path;
             if (t >= path.getFirstParameter()) {
                 double rad = 0.4;
                 for (int i = 0; i < 7; i++) {
-                    double arcSoFar = path.arcLength(t);
-                    double targetArc = Math.max(0, arcSoFar - i);
-                    double behindT = path.findTForArcLength(targetArc, t);
-                    Vec3 position = path.getPoint(behindT).subtract(entity.position());
+                    Vec3 position = path.getPoint(path.getParameterBehind(t, i)).subtract(interpolatedPos);
                     if (tailPoints.size() >= i + 1) {
                         tailPoints.set(i, new TailPoint(position, rad));
                     } else {
@@ -61,21 +63,20 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
                     tailPoints.removeFirst();
                 }
 
-                int maxLbCount = MineraculousClientConfig.get().magicLadybugsCount.get() * 700;
-                if (magicLadybugs.size() == 0) {
-                    for (int i = 1; i <= maxLbCount; i++) {
-                        initSummonMagicLadybug(entity.getLookAngle().normalize());
+                for (int i = 0; i < tailPoints.size(); i++) {
+                    TailPoint tailPoint = tailPoints.get(i);
+                    if (i > 0) {
+                        tailPoint.position = tailPoint.position.subtract(tailPoints.get(i - 1).position).normalize().add(tailPoints.get(i - 1).position);
                     }
-                }
-
-                //if (magicLadybugs.size() < maxLbCount) {
-                for (int i = 1; i <= 100; i++) {
-                    summonMagicLadybug(entity.getLookAngle().normalize());
-                }
-                //}
-
-                while (magicLadybugs.size() > maxLbCount) {
-                    magicLadybugs.removeFirst();
+                    double spawnRate = 100;
+                    double deltaSeconds = Minecraft.getInstance().getTimer().getRealtimeDeltaTicks() / 20.0;
+                    double toSpawn = spawnRate * deltaSeconds;
+                    for (int j = 1; j <= toSpawn; j++) {
+                        summonMagicLadybug(tailPoint.position);
+                    }
+                    if (Math.random() < (toSpawn % 1)) {
+                        summonMagicLadybug(tailPoint.position);
+                    }
                 }
 
                 Random random = new Random();
@@ -111,7 +112,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
                     // Apply shaking and backwards movement
                     double shakeStrength = MineraculousClientConfig.get().magicLadybugsShakeStrength.get() / 100f;
-                    double dx = -0.1; // slowly slide backwards
+                    double dx = -0.05; // slowly slide backwards
                     double dy = (random.nextDouble() - 0.5) * shakeStrength;
                     double dz = (random.nextDouble() - 0.5) * shakeStrength;
 
@@ -167,14 +168,11 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         double maxLifeTime = (double) maxLbCount / LADYBUG_DENSITY;
         int lbLifetime = (int) (Math.random() * (maxLifeTime - 60) + 60);
 
-        Vec3 forward = lookVec;
-        Vec3 sideway = lookVec.cross(new Vec3(0, 1, 0)).normalize();
-        Vec3 upward = sideway.cross(lookVec).normalize();
-        forward = forward.scale(Math.random() * 2.5);
-        sideway = sideway.scale(Math.random() * 5 - 2.5);
-        upward = upward.scale(Math.random() * 5 - 2.5);
+        double x = Math.random() * 9 - 4.5;
+        double y = Math.random() * 9 - 4.5;
+        double z = Math.random() * 9 - 4.5;
 
-        Vec3 spawnPos = forward.add(sideway).add(upward);
+        Vec3 spawnPos = new Vec3(x, y, z);
         MagicLadybug ladybug = new MagicLadybug(spawnPos, size, lbLifetime);
         magicLadybugs.add(ladybug);
     }

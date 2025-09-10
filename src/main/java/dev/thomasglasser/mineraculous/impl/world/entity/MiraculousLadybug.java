@@ -3,13 +3,6 @@ package dev.thomasglasser.mineraculous.impl.world.entity;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -20,6 +13,14 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 
 public class MiraculousLadybug extends PathfinderMob {
     public CatmullRom path;
@@ -52,14 +53,10 @@ public class MiraculousLadybug extends PathfinderMob {
             this.t = path.getFirstParameter();
             this.shouldUpdatePath = false;
         } else {
-            double speedPerTick = 0.8; // blocks per tick
-            double arcSoFar = path.arcLength(t);
-            double targetArc = arcSoFar + speedPerTick;
-
-            t = path.findTForArcLength(targetArc, t);
+            t = path.advanceParameter(t, 0.8); //0.8
             this.setPos(path.getPoint(t));
 
-            Vec3 tangent = path.getTangent(t).normalize();
+            Vec3 tangent = path.getDerivative(t).normalize();
             double yaw = Math.toDegrees(Math.atan2(tangent.z, tangent.x)) - 90.0;
             double pitch = Math.toDegrees(-Math.atan2(tangent.y, Math.sqrt(tangent.x * tangent.x + tangent.z * tangent.z)));
             this.setYRot((float) yaw);
@@ -265,7 +262,7 @@ public class MiraculousLadybug extends PathfinderMob {
         }
 
         // Evaluate derivative
-        public Vec3 getTangent(double t) {
+        public Vec3 getDerivative(double t) {
             int index = findSegment(t);
             Vec3 P0 = points.get(index - 1);
             Vec3 v0 = tangents.get(index - 2);
@@ -275,34 +272,28 @@ public class MiraculousLadybug extends PathfinderMob {
             return hermiteDerivative(u, P0, v0, P1, v1);
         }
 
-        // Arc length [first, t] using Simpson’s rule
-        public double arcLength(double t) {
-            double a = getFirstParameter();
-            double b = Math.max(a, Math.min(t, getLastParameter()));
-            int steps = 32; // tune for accuracy vs cost
-            double h = (b - a) / steps;
-            double sum = 0.0;
-
-            for (int i = 0; i <= steps; i++) {
-                double x = a + i * h;
-                double weight = (i == 0 || i == steps) ? 1 : (i % 2 == 0 ? 2 : 4);
-                sum += weight * getTangent(x).length();
-            }
-            return sum * h / 3.0;
+        public double advanceParameter(double t, double speed) {
+            Vec3 deriv = getDerivative(t);
+            double denom = deriv.length();
+            if (denom < 1e-8) return t;
+            double dsdt = speed / denom;
+            return Math.min(getLastParameter(), t + dsdt);
         }
 
-        // Newton-Raphson: solve L(t) = s
-        public double findTForArcLength(double s, double initialGuess) {
-            double t = initialGuess;
-            for (int i = 0; i < 3; i++) {
-                double f = arcLength(t) - s;
-                double fPrime = getTangent(t).length();
-                if (fPrime < 1e-6) break; // avoid division by zero
-                t -= f / fPrime;
-                // clamp safely
-                t = Math.max(getFirstParameter(), Math.min(t, getLastParameter()));
+        public double getParameterBehind(double t, double distance) {
+            double step = -0.01; // step backward
+            double traveled = 0.0;
+            Vec3 prev = getPoint(t);
+            double curT = t;
+
+            while (curT > getFirstParameter() && traveled < distance) {
+                curT += step;
+                Vec3 pos = getPoint(curT);
+                traveled += pos.distanceTo(prev);
+                prev = pos;
             }
-            return t;
+
+            return Math.max(getFirstParameter(), curT);
         }
     }
 }

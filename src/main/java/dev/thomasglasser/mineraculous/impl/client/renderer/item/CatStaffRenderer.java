@@ -299,6 +299,7 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         float localTop = topY;
         while (localTop > bottomY) {
             float localBottom = Math.max(bottomY, localTop - 1);
+            uvOffset = localTop - localBottom;
             drawStaffSide(vertexConsumer, pose, light, uvOffset,
                     -PIXEL + xOffset, localTop, +PIXEL + zOffset,
                     -PIXEL + xOffset, localBottom, +PIXEL + zOffset,

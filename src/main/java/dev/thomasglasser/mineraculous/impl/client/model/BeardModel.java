@@ -30,7 +30,7 @@ public class BeardModel extends Model {
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();
 
-        PartDefinition beard = partdefinition.addOrReplaceChild("beard", CubeListBuilder.create().texOffs(0, 0).addBox(-3.5F, -27.575F, -4.0F, 7.0F, 4.0F, 1.0F, new CubeDeformation(0.025F)), PartPose.offset(0.0F, 24.0F, 0.0F));
+        PartDefinition beard = partdefinition.addOrReplaceChild("beard", CubeListBuilder.create().texOffs(0, 0).addBox(-3.5F, -27.575F, -4.0F, 7.0F, 4.0F, 1.0F, new CubeDeformation(0.025F)), PartPose.offset(0.0F, 24.0F, -0.5F));
 
         return LayerDefinition.create(meshdefinition, 16, 16);
     }

@@ -10,6 +10,7 @@ import dev.thomasglasser.mineraculous.api.client.renderer.item.curio.ContextDepe
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
+import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
@@ -77,6 +78,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.Level;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
@@ -224,6 +226,10 @@ public class MineraculousClientEvents {
     static void onRegisterItemColorHandlers(RegisterColorHandlersEvent.Item event) {
         event.register((stack, index) -> {
             Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+            Level level = ClientUtils.getLevel();
+            if (miraculous == null && level != null) {
+                miraculous = level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getAny().orElse(null);
+            }
             if (miraculous != null) {
                 return FastColor.ARGB32.opaque(miraculous.value().color().getValue());
             }

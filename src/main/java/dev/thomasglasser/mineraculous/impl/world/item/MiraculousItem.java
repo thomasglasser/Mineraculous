@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.world.item;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
@@ -69,6 +70,9 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
         if (level instanceof ServerLevel serverLevel) {
+            if (!stack.has(MineraculousDataComponents.MIRACULOUS)) {
+                stack.set(MineraculousDataComponents.MIRACULOUS, level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getAny().orElse(null));
+            }
             UUID owner = stack.get(MineraculousDataComponents.OWNER);
             if (owner == null || !owner.equals(entity.getUUID())) {
                 stack.set(MineraculousDataComponents.OWNER, entity.getUUID());

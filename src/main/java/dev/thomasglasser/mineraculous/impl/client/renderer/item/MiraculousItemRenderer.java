@@ -4,10 +4,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.Map;
 import net.minecraft.SharedConstants;
@@ -18,6 +20,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
@@ -43,9 +46,15 @@ public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
             ItemStack stack = getCurrentItemStack();
             if (stack != null) {
                 Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-                BakedModel miraculousModel = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(miraculous.getKey().location().getNamespace(), "item/miraculous/" + miraculous.getKey().location().getPath())));
-                if (miraculousModel != Minecraft.getInstance().getModelManager().getMissingModel()) {
-                    miraculousModel.applyTransform(renderPerspective, poseStack, false);
+                Level level = ClientUtils.getLevel();
+                if (miraculous == null && level != null) {
+                    miraculous = level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getAny().orElse(null);
+                }
+                if (miraculous != null) {
+                    BakedModel miraculousModel = Minecraft.getInstance().getModelManager().getModel(ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(miraculous.getKey().location().getNamespace(), "item/miraculous/" + miraculous.getKey().location().getPath())));
+                    if (miraculousModel != Minecraft.getInstance().getModelManager().getMissingModel()) {
+                        miraculousModel.applyTransform(renderPerspective, poseStack, false);
+                    }
                 }
             }
         }
@@ -84,16 +93,17 @@ public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
 
     @Override
     public GeoModel<MiraculousItem> getGeoModel() {
-        ItemStack stack = getCurrentItemStack();
-        if (stack != null) {
-            Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-            if (miraculous != null) {
-                if (!DEFAULT_MODELS.containsKey(miraculous))
-                    DEFAULT_MODELS.put(miraculous, createDefaultGeoModel(miraculous));
-                return DEFAULT_MODELS.get(miraculous);
-            }
+        Holder<Miraculous> miraculous = getCurrentItemStack().get(MineraculousDataComponents.MIRACULOUS);
+        Level level = ClientUtils.getLevel();
+        if (miraculous == null && level != null) {
+            miraculous = level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getAny().orElse(null);
         }
-        return super.getGeoModel();
+        if (miraculous != null) {
+            if (!DEFAULT_MODELS.containsKey(miraculous))
+                DEFAULT_MODELS.put(miraculous, createDefaultGeoModel(miraculous));
+            return DEFAULT_MODELS.get(miraculous);
+        }
+        throw new IllegalStateException("Tried to render a Miraculous Item without any registered miraculous");
     }
 
     private GeoModel<MiraculousItem> createDefaultGeoModel(Holder<Miraculous> miraculous) {

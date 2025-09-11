@@ -2,8 +2,10 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.armor;
 
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.MiraculousArmorItem;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -13,6 +15,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
@@ -56,15 +59,17 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
 
     @Override
     public GeoModel<MiraculousArmorItem> getGeoModel() {
-        if (getCurrentStack() != null) {
-            Holder<Miraculous> miraculous = getCurrentStack().get(MineraculousDataComponents.MIRACULOUS);
-            if (miraculous != null) {
-                if (!DEFAULT_MODELS.containsKey(miraculous))
-                    DEFAULT_MODELS.put(miraculous, createDefaultGeoModel(miraculous));
-                return DEFAULT_MODELS.get(miraculous);
-            }
+        Holder<Miraculous> miraculous = getCurrentStack().get(MineraculousDataComponents.MIRACULOUS);
+        Level level = ClientUtils.getLevel();
+        if (miraculous == null && level != null) {
+            miraculous = level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getAny().orElse(null);
         }
-        return super.getGeoModel();
+        if (miraculous != null) {
+            if (!DEFAULT_MODELS.containsKey(miraculous))
+                DEFAULT_MODELS.put(miraculous, createDefaultGeoModel(miraculous));
+            return DEFAULT_MODELS.get(miraculous);
+        }
+        throw new IllegalStateException("Tried to render a Miraculous Armor Item without any registered miraculous");
     }
 
     private GeoModel<MiraculousArmorItem> createDefaultGeoModel(Holder<Miraculous> miraculous) {

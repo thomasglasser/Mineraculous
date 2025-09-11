@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(Leashable.class)
 public interface LeashableMixin {
-    @Definition(id = "f", local = @Local(name = "f", type = float.class))
+    @Definition(id = "f", local = @Local(type = float.class))
     @Expression("(double)f > 10.0")
     @ModifyExpressionValue(method = "tickLeash", at = @At("MIXINEXTRAS:EXPRESSION"))
     private static <E extends Entity & Leashable> boolean overrideSnapping(boolean original, E entity) {
@@ -25,7 +25,7 @@ public interface LeashableMixin {
         return original;
     }
 
-    @Definition(id = "f", local = @Local(name = "f", type = float.class))
+    @Definition(id = "f", local = @Local(type = float.class))
     @Expression("(double)f > 6.0")
     @ModifyExpressionValue(method = "tickLeash", at = @At("MIXINEXTRAS:EXPRESSION"))
     private static <E extends Entity & Leashable> boolean overrideElasticPull(boolean original, E entity, @Local float f) {

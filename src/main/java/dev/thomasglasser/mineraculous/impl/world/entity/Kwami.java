@@ -272,7 +272,6 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                 setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             }
             if (!mainHandItem.has(DataComponents.FOOD) && shouldTriggerItemUseEffects(getDefaultEatTicks(), eatTicks)) {
-                this.spawnItemParticles(mainHandItem, 5);
                 this.playSound(
                         this.getEatingSound(mainHandItem),
                         0.5F + 0.5F * (float) this.random.nextInt(2),
@@ -473,6 +472,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         compound.putBoolean("Charged", isCharged());
         compound.put("Miraculous", Miraculous.CODEC.encodeStart(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), getMiraculous()).getOrThrow());
         compound.putUUID("MiraculousId", getMiraculousId());
+        compound.putInt("EatTicks", eatTicks);
     }
 
     @Override
@@ -482,6 +482,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         setCharged(compound.getBoolean("Charged"));
         setMiraculous(Miraculous.CODEC.parse(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), compound.get("Miraculous")).getOrThrow());
         setMiraculousId(compound.getUUID("MiraculousId"));
+        eatTicks = compound.getInt("EatTicks");
     }
 
     @Override

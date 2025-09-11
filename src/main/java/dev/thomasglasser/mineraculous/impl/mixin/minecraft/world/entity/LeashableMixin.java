@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.impl.mixin.minecraft.world.entity;
 
-import com.llamalad7.mixinextras.expression.Definition;
 import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -15,8 +14,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(Leashable.class)
 public interface LeashableMixin {
-    @Definition(id = "f", local = @Local(type = float.class))
-    @Expression("(double)f > 10.0")
+    @Expression("(double)? > 10.0")
     @ModifyExpressionValue(method = "tickLeash", at = @At("MIXINEXTRAS:EXPRESSION"))
     private static <E extends Entity & Leashable> boolean overrideSnapping(boolean original, E entity) {
         if (entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE)) {
@@ -25,8 +23,7 @@ public interface LeashableMixin {
         return original;
     }
 
-    @Definition(id = "f", local = @Local(type = float.class))
-    @Expression("(double)f > 6.0")
+    @Expression("(double)? > 6.0")
     @ModifyExpressionValue(method = "tickLeash", at = @At("MIXINEXTRAS:EXPRESSION"))
     private static <E extends Entity & Leashable> boolean overrideElasticPull(boolean original, E entity, @Local float f) {
         if (entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE)) {

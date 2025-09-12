@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.api.world.miraculous;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
@@ -27,6 +26,7 @@ import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
+import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -59,17 +59,17 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Performs functions of a {@link Miraculous}.
  *
- * @param curiosData           The current {@link CuriosData} if equipped
- * @param transformed          Whether the entity is currently transformed
- * @param transformationFrames The remaining transformation frames for the miraculous if present
- * @param remainingTicks       The remaining ticks before forced detransformation if present
- * @param toolId               The current tool ID for the entity for use in {@link ToolIdData}
- * @param powerLevel           The current power level of the miraculous
- * @param powerActive          Whether the miraculous holder's power is active
- * @param countdownStarted     Whether the detransformation countdown has been started
- * @param storedEntities       Any entities currently stored in the miraculous
+ * @param curiosData          The current {@link CuriosData} if equipped
+ * @param transformed         Whether the entity is currently transformed
+ * @param transformationState The transformation state for the miraculous if present
+ * @param remainingTicks      The remaining ticks before forced detransformation if present
+ * @param toolId              The current tool ID for the entity for use in {@link ToolIdData}
+ * @param powerLevel          The current power level of the miraculous
+ * @param powerActive         Whether the miraculous holder's power is active
+ * @param countdownStarted    Whether the detransformation countdown has been started
+ * @param storedEntities      Any entities currently stored in the miraculous
  */
-public record MiraculousData(Optional<CuriosData> curiosData, boolean transformed, Optional<Either<Integer, Integer>> transformationFrames, Optional<Integer> remainingTicks, int toolId, int powerLevel, boolean powerActive, boolean countdownStarted, List<CompoundTag> storedEntities) {
+public record MiraculousData(Optional<CuriosData> curiosData, boolean transformed, Optional<TransformationState> transformationState, Optional<Integer> remainingTicks, int toolId, int powerLevel, boolean powerActive, boolean countdownStarted, List<CompoundTag> storedEntities) {
 
     public static final String NAME_NOT_SET = "miraculous_data.name.not_set";
     public static final int MAX_POWER_LEVEL = 100;
@@ -77,7 +77,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
     public static final Codec<MiraculousData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             CuriosData.CODEC.optionalFieldOf("curios_data").forGetter(MiraculousData::curiosData),
             Codec.BOOL.fieldOf("transformed").forGetter(MiraculousData::transformed),
-            Codec.either(Codec.INT, Codec.INT).optionalFieldOf("transformation_frames").forGetter(MiraculousData::transformationFrames),
+            TransformationState.CODEC.optionalFieldOf("transformation_state").forGetter(MiraculousData::transformationState),
             Codec.INT.optionalFieldOf("remaining_ticks").forGetter(MiraculousData::remainingTicks),
             Codec.INT.fieldOf("tool_id").forGetter(MiraculousData::toolId),
             Codec.INT.fieldOf("power_level").forGetter(MiraculousData::powerLevel),
@@ -88,7 +88,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousData> STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
             ByteBufCodecs.optional(CuriosData.STREAM_CODEC), MiraculousData::curiosData,
             ByteBufCodecs.BOOL, MiraculousData::transformed,
-            ByteBufCodecs.optional(ByteBufCodecs.either(ByteBufCodecs.INT, ByteBufCodecs.INT)), MiraculousData::transformationFrames,
+            ByteBufCodecs.optional(TransformationState.STREAM_CODEC), MiraculousData::transformationState,
             ByteBufCodecs.optional(ByteBufCodecs.INT), MiraculousData::remainingTicks,
             ByteBufCodecs.INT, MiraculousData::toolId,
             ByteBufCodecs.INT, MiraculousData::powerLevel,
@@ -96,10 +96,11 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
             ByteBufCodecs.BOOL, MiraculousData::countdownStarted,
             ByteBufCodecs.COMPOUND_TAG.apply(ByteBufCodecs.list()), MiraculousData::storedEntities,
             MiraculousData::new);
-    public MiraculousData(Optional<CuriosData> curiosData, boolean transformed, Optional<Either<Integer, Integer>> transformationFrames, Optional<Integer> remainingTicks, int toolId, int powerLevel, boolean powerActive, boolean countdownStarted, List<CompoundTag> storedEntities) {
+
+    public MiraculousData(Optional<CuriosData> curiosData, boolean transformed, Optional<TransformationState> transformationState, Optional<Integer> remainingTicks, int toolId, int powerLevel, boolean powerActive, boolean countdownStarted, List<CompoundTag> storedEntities) {
         this.curiosData = curiosData;
         this.transformed = transformed;
-        this.transformationFrames = transformationFrames;
+        this.transformationState = transformationState;
         this.remainingTicks = remainingTicks;
         this.toolId = toolId;
         this.powerLevel = Math.clamp(powerLevel, 0, MAX_POWER_LEVEL);
@@ -256,26 +257,29 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
 
     @ApiStatus.Internal
     public void tick(LivingEntity entity, ServerLevel level, Holder<Miraculous> miraculous) {
-        transformationFrames.ifPresentOrElse(either -> either.ifLeft(transformationFrames -> {
-            if (transformationFrames > 0) {
-                if (entity.tickCount % 2 == 0) {
-                    entity.getArmorSlots().forEach(stack -> stack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, transformationFrames - 1));
-                    decrementTransformationFrames().save(miraculous, entity, true);
+        transformationState.ifPresentOrElse(state -> {
+            int frames = state.remainingFrames();
+            if (state.transforming()) {
+                if (frames > 0) {
+                    if (entity.tickCount % 2 == 0) {
+                        entity.getArmorSlots().forEach(stack -> stack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, frames - 1));
+                        decrementFrames().save(miraculous, entity, true);
+                    }
+                } else {
+                    finishTransformation(entity, level, miraculous);
+                    entity.getArmorSlots().forEach(stack -> stack.remove(MineraculousDataComponents.TRANSFORMATION_FRAMES));
                 }
             } else {
-                finishTransformation(entity, level, miraculous);
-                entity.getArmorSlots().forEach(stack -> stack.remove(MineraculousDataComponents.TRANSFORMATION_FRAMES));
-            }
-        }).ifRight(detransformationFrames -> {
-            if (detransformationFrames > 0) {
-                if (entity.tickCount % 2 == 0) {
-                    entity.getArmorSlots().forEach(stack -> stack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, detransformationFrames - 1));
-                    decrementDetransformationFrames().save(miraculous, entity, true);
+                if (frames > 0) {
+                    if (entity.tickCount % 2 == 0) {
+                        entity.getArmorSlots().forEach(stack -> stack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, frames - 1));
+                        decrementFrames().save(miraculous, entity, true);
+                    }
+                } else {
+                    finishDetransformation(entity, miraculous);
                 }
-            } else {
-                finishDetransformation(entity, miraculous);
             }
-        }), () -> {
+        }, () -> {
             if (transformed) {
                 Miraculous value = miraculous.value();
 
@@ -436,7 +440,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
     }
 
     private MiraculousData startTransformation(int transformationFrames) {
-        return new MiraculousData(curiosData, true, Optional.of(Either.left(transformationFrames)), Optional.empty(), toolId, powerLevel, false, false, storedEntities);
+        return new MiraculousData(curiosData, true, Optional.of(new TransformationState(true, transformationFrames)), Optional.empty(), toolId, powerLevel, false, false, storedEntities);
     }
 
     private MiraculousData finishTransformation(int toolId) {
@@ -444,7 +448,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
     }
 
     private MiraculousData startDetransformation(int detransformationFrames) {
-        return new MiraculousData(curiosData, false, Optional.of(Either.right(detransformationFrames)), Optional.of(0), toolId, powerLevel, false, false, storedEntities);
+        return new MiraculousData(curiosData, false, Optional.of(new TransformationState(false, detransformationFrames)), Optional.of(0), toolId, powerLevel, false, false, storedEntities);
     }
 
     private MiraculousData finishRemovedDetransformation() {
@@ -456,23 +460,19 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
     }
 
     private MiraculousData tickTransformed(Optional<Integer> remainingTicks, boolean powerActive, boolean countdownStarted) {
-        return new MiraculousData(curiosData, transformed, transformationFrames, remainingTicks, toolId, countdownStarted && !this.countdownStarted ? powerLevel + 1 : powerLevel, powerActive, countdownStarted, storedEntities);
+        return new MiraculousData(curiosData, transformed, transformationState, remainingTicks, toolId, countdownStarted && !this.countdownStarted ? powerLevel + 1 : powerLevel, powerActive, countdownStarted, storedEntities);
     }
 
-    private MiraculousData decrementTransformationFrames() {
-        return new MiraculousData(curiosData, transformed, transformationFrames.map(either -> either.mapLeft(frames -> frames - 1)), remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
-    }
-
-    private MiraculousData decrementDetransformationFrames() {
-        return new MiraculousData(curiosData, transformed, transformationFrames.map(either -> either.mapRight(frames -> frames - 1)), remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
+    private MiraculousData decrementFrames() {
+        return new MiraculousData(curiosData, transformed, transformationState.map(TransformationState::decrementFrames), remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
     }
 
     private MiraculousData usedMainPower(boolean consume) {
-        return new MiraculousData(curiosData, transformed, transformationFrames, hasLimitedPower() ? remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND)) : Optional.empty(), toolId, powerLevel, !consume && powerActive, consume, storedEntities);
+        return new MiraculousData(curiosData, transformed, transformationState, hasLimitedPower() ? remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND)) : Optional.empty(), toolId, powerLevel, !consume && powerActive, consume, storedEntities);
     }
 
     public MiraculousData equip(CuriosData curiosData) {
-        return new MiraculousData(Optional.of(curiosData), false, Optional.empty(), Optional.empty(), toolId, powerLevel, false, false, storedEntities);
+        return new MiraculousData(Optional.of(curiosData), false, transformationState, Optional.empty(), toolId, powerLevel, false, false, storedEntities);
     }
 
     public MiraculousData unequip() {
@@ -480,15 +480,28 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
     }
 
     public MiraculousData withPowerActive(boolean powerActive) {
-        return new MiraculousData(curiosData, transformed, transformationFrames, remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
+        return new MiraculousData(curiosData, transformed, transformationState, remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
     }
 
     public MiraculousData withPowerLevel(int powerLevel) {
-        return new MiraculousData(curiosData, transformed, transformationFrames, remainingTicks, toolId, Math.clamp(powerLevel, 0, MAX_POWER_LEVEL), powerActive, countdownStarted, storedEntities);
+        return new MiraculousData(curiosData, transformed, transformationState, remainingTicks, toolId, Math.clamp(powerLevel, 0, MAX_POWER_LEVEL), powerActive, countdownStarted, storedEntities);
     }
 
     public void save(Holder<Miraculous> miraculous, Entity entity, boolean sync) {
         MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
         miraculousesData.put(entity, miraculous, this, sync);
+    }
+    public record TransformationState(boolean transforming, int remainingFrames) {
+        public static final Codec<TransformationState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.BOOL.fieldOf("transforming").forGetter(TransformationState::transforming),
+                Codec.INT.fieldOf("remainingFrames").forGetter(TransformationState::remainingFrames)).apply(instance, TransformationState::new));
+        public static final StreamCodec<ByteBuf, TransformationState> STREAM_CODEC = StreamCodec.composite(
+                ByteBufCodecs.BOOL, TransformationState::transforming,
+                ByteBufCodecs.INT, TransformationState::remainingFrames,
+                TransformationState::new);
+
+        public TransformationState decrementFrames() {
+            return new TransformationState(transforming, remainingFrames - 1);
+        }
     }
 }

@@ -34,8 +34,9 @@ public record ClientboundAddRightHandParticlesPayload(Optional<Integer> targetId
                 handPos = MineraculousClientUtils.getHumanoidEntityHandPos(target, false, 0, -0.9, 0.35);
             }
             Level level = player.level();
-            particles(level, handPos);
-            particles(level, handPos);
+            for (int i = 0; i < 3; i++) {
+                particles(level, handPos);
+            }
         }
     }
 

@@ -142,6 +142,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     @Override
     protected void customServerAiStep() {
         if (getOwnerUUID() == null) {
+            Mineraculous.LOGGER.warn("Kamiko {} has no owner, discarding...", getUUID());
             discard();
         }
         super.customServerAiStep();

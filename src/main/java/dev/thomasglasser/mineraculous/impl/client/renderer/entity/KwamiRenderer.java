@@ -60,9 +60,7 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
         }, (bone, character) -> null) {
             @Override
             protected void renderStackForBone(PoseStack poseStack, GeoBone bone, ItemStack stack, T animatable, MultiBufferSource bufferSource, float partialTick, int packedLight, int packedOverlay) {
-                poseStack.translate(-0.1, 0, 0);
-                poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
-                poseStack.mulPose(Axis.ZN.rotationDegrees(30));
+                poseStack.mulPose(Axis.ZN.rotationDegrees(90));
                 super.renderStackForBone(poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);
             }
 

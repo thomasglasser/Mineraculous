@@ -19,6 +19,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
@@ -40,8 +41,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.TamableAnimal;
@@ -91,6 +92,8 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoEntity, FlyingAnimal {
     public static final RawAnimation EAT = RawAnimation.begin().thenPlay("misc.eat");
     public static final RawAnimation HOLD = RawAnimation.begin().thenPlay("misc.hold");
+
+    public static final BiPredicate<Kwami, Player> RENOUNCE_PREDICATE = (kwami, player) -> player != null && player.isAlive() && player != kwami.getOwner() && EntitySelector.NO_SPECTATORS.test(player) && !EntityUtils.TARGET_TOO_FAR_PREDICATE.test(kwami, player);
 
     private static final double SUMMON_RADIUS_STEP = 0.07;
     private static final double SUMMON_ANGLE_STEP = 0.5;
@@ -277,6 +280,19 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                         0.5F + 0.5F * (float) this.random.nextInt(2),
                         (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
             }
+        } else if (!mainHandItem.isEmpty()) {
+            UUID likedId = BrainUtils.getMemory(this, MemoryModuleType.LIKED_PLAYER);
+            if (likedId == null) {
+                Player target = findRandomRenounceTarget();
+                if (target == null && getOwner() instanceof Player player) {
+                    target = player;
+                }
+                if (target != null) {
+                    BrainUtils.setMemory(this, MemoryModuleType.LIKED_PLAYER, target.getUUID());
+                }
+            } else if (!RENOUNCE_PREDICATE.test(this, level().getPlayerByUUID(likedId))) {
+                BrainUtils.setMemory(this, MemoryModuleType.LIKED_PLAYER, null);
+            }
         }
     }
 
@@ -289,17 +305,6 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
 
     protected int getDefaultEatTicks() {
         return SharedConstants.TICKS_PER_SECOND * 3;
-    }
-
-    @Override
-    public boolean canPickUpLoot() {
-        return !hasItemInSlot(EquipmentSlot.MAINHAND);
-    }
-
-    @Override
-    public boolean canHoldItem(ItemStack stack) {
-        Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-        return stack.is(MineraculousItems.MIRACULOUS) || miraculous != null && miraculous.is(getMiraculous());
     }
 
     @Override
@@ -348,7 +353,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
             if (!stack.isEmpty()) {
                 if (player instanceof ServerPlayer serverPlayer) {
                     UUID stackId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
-                    if (serverPlayer.serverLevel().players().size() > 1 && stack.is(MineraculousItems.MIRACULOUS) && stackId != null && stackId.equals(getMiraculousId())) {
+                    if (!serverPlayer.serverLevel().getPlayers(p -> RENOUNCE_PREDICATE.test(this, p)).isEmpty() && stack.is(MineraculousItems.MIRACULOUS) && stackId != null && stackId.equals(getMiraculousId())) {
                         TommyLibServices.NETWORK.sendToClient(new ClientboundOpenMiraculousTransferScreenPayload(getId()), serverPlayer);
                     } else if (!isCharged() && getMainHandItem().isEmpty()) {
                         if (isTreat(stack) || isFood(stack)) {
@@ -500,5 +505,13 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
             player.addItem(getMainHandItem());
             setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
         }
+    }
+
+    public @Nullable Player findRandomRenounceTarget() {
+        if (level() instanceof ServerLevel level) {
+            List<ServerPlayer> players = level.getPlayers(p -> RENOUNCE_PREDICATE.test(this, p));
+            return players.get(level.random.nextInt(players.size()));
+        }
+        throw new IllegalStateException("Cannot pick random renounce target from the client.");
     }
 }

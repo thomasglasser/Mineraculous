@@ -194,7 +194,7 @@ public class MineraculousEntityEvents {
         }
     }
 
-    public static void onLivingAttack(LivingDamageEvent.Post event) {
+    public static void onPostLivingDamage(LivingDamageEvent.Post event) {
         if (event.getEntity().level() instanceof ServerLevel level) {
             Entity attacker = event.getSource().getEntity();
             LivingEntity target = event.getEntity();

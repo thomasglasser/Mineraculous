@@ -39,7 +39,6 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.item.ButterflyCaneRen
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundSwingOffhandPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
@@ -70,7 +69,6 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.FastColor;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;

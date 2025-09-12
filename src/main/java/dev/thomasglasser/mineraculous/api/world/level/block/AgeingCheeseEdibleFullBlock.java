@@ -16,31 +16,26 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.VoxelShape;
 
-/// Both a {@link PieceBlock} with 4 pieces and an {@link AgeingCheese} that can be eaten or added to on interaction.
-public class AgeingCheeseEdibleFullBlock extends PieceBlock implements AgeingCheese {
+/// Both a {@link CheeseFullBlock} and an {@link AgeingCheese} that can be eaten or added to on interaction.
+public class AgeingCheeseEdibleFullBlock extends CheeseFullBlock implements AgeingCheese {
     public static final MapCodec<AgeingCheeseEdibleFullBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Age.CODEC.fieldOf("age").forGetter(AgeingCheeseEdibleFullBlock::getAge),
             FoodProperties.DIRECT_CODEC.fieldOf("food_properties").forGetter(AgeingCheeseEdibleFullBlock::getFoodProperties),
             BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("wedge").forGetter(AgeingCheeseEdibleFullBlock::getPiece),
             propertiesCodec()).apply(instance, AgeingCheeseEdibleFullBlock::new));
-    public static final int MAX_PIECES = 4;
-    protected static final VoxelShape SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 3.0, 12.0);
 
     protected final Age age;
     protected final FoodProperties foodProperties;
 
     public AgeingCheeseEdibleFullBlock(Age age, FoodProperties foodProperties, Holder<Item> wedge, BlockBehaviour.Properties properties) {
-        super(MAX_PIECES, wedge, properties);
+        super(wedge, properties);
         this.age = age;
         this.foodProperties = foodProperties;
     }
@@ -48,11 +43,6 @@ public class AgeingCheeseEdibleFullBlock extends PieceBlock implements AgeingChe
     @Override
     protected MapCodec<? extends AgeingCheeseEdibleFullBlock> codec() {
         return CODEC;
-    }
-
-    @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
     }
 
     @Override

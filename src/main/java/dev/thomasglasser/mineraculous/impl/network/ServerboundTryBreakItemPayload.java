@@ -12,11 +12,12 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-public record ServerboundTryBreakItemPayload() implements ExtendedPacketPayload {
+public class ServerboundTryBreakItemPayload implements ExtendedPacketPayload {
     public static final ServerboundTryBreakItemPayload INSTANCE = new ServerboundTryBreakItemPayload();
-
     public static final Type<ServerboundTryBreakItemPayload> TYPE = new Type<>(Mineraculous.modLoc("try_break_item"));
     public static final StreamCodec<ByteBuf, ServerboundTryBreakItemPayload> CODEC = StreamCodec.unit(INSTANCE);
+
+    private ServerboundTryBreakItemPayload() {}
 
     // ON SERVER
     @Override

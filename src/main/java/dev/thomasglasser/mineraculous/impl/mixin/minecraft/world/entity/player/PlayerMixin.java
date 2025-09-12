@@ -1,13 +1,9 @@
 package dev.thomasglasser.mineraculous.impl.mixin.minecraft.world.entity.player;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
-import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Leashable;
@@ -40,20 +36,6 @@ public abstract class PlayerMixin extends LivingEntity implements Leashable {
     @ModifyReturnValue(method = "decorateDisplayNameComponent", at = @At(value = "RETURN"))
     private MutableComponent formatMiraculousDisplayName(MutableComponent original) {
         return MineraculousEntityUtils.formatDisplayName(mineraculous$instance, original).copy();
-    }
-
-    @Override
-    public void swing(InteractionHand hand, boolean updateSelf) {
-        AbilityEffectData abilityEffectData = getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
-        if (level() instanceof ServerLevel level && abilityEffectData.spectatingId().isPresent() && abilityEffectData.allowRemoteDamage()) {
-            Entity target = level.getEntity(abilityEffectData.spectatingId().get());
-            if (target instanceof LivingEntity livingEntity && livingEntity.getHealth() > 4) {
-                target.hurt(level.damageSources().playerAttack(mineraculous$instance), 20);
-                target.hurtMarked = true;
-            }
-        } else {
-            super.swing(hand, updateSelf);
-        }
     }
 
     @Nullable

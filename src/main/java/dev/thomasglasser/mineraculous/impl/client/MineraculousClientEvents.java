@@ -18,6 +18,7 @@ import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
+import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
@@ -39,6 +40,7 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.item.ButterflyCaneRen
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundRemoteDamagePayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
@@ -366,6 +368,21 @@ public class MineraculousClientEvents {
                     * (double) Minecraft.getInstance().getWindow().getGuiScaledHeight()
                     / (double) Minecraft.getInstance().getWindow().getScreenHeight());
             revokeButton.mouseClicked(mouseX, mouseY, event.getButton());
+        }
+    }
+
+    static void onInteractionKeyMappingTriggered(InputEvent.InteractionKeyMappingTriggered event) {
+        Player player = ClientUtils.getLocalPlayer();
+        if (player != null) {
+            AbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
+            if (abilityEffectData.spectatingId().isPresent()) {
+                event.setCanceled(true);
+                if (event.isAttack() && abilityEffectData.allowRemoteDamage()) {
+                    TommyLibServices.NETWORK.sendToServer(ServerboundRemoteDamagePayload.INSTANCE);
+                } else {
+                    event.setSwingHand(false);
+                }
+            }
         }
     }
 

@@ -8,10 +8,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
-public record ServerboundSetKamikotizationPowerActivatedPayload() implements ExtendedPacketPayload {
+public class ServerboundSetKamikotizationPowerActivatedPayload implements ExtendedPacketPayload {
     public static final Type<ServerboundSetKamikotizationPowerActivatedPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_set_kamikotization_power_activated"));
     public static final ServerboundSetKamikotizationPowerActivatedPayload INSTANCE = new ServerboundSetKamikotizationPowerActivatedPayload();
     public static final StreamCodec<FriendlyByteBuf, ServerboundSetKamikotizationPowerActivatedPayload> CODEC = StreamCodec.unit(INSTANCE);
+
+    private ServerboundSetKamikotizationPowerActivatedPayload() {}
 
     // ON SERVER
     @Override

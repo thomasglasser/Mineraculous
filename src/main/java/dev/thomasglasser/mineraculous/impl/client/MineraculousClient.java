@@ -54,6 +54,7 @@ public class MineraculousClient {
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onKeyInput);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onMouseScrollingInput);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onPostMouseButtonInput);
+        NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onInteractionKeyMappingTriggered);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderHand);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onPreRenderGuiLayer);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientPlayerLoggingIn);

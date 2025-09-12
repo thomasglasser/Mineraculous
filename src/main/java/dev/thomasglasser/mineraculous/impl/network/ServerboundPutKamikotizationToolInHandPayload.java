@@ -14,10 +14,12 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-public record ServerboundPutKamikotizationToolInHandPayload() implements ExtendedPacketPayload {
+public class ServerboundPutKamikotizationToolInHandPayload implements ExtendedPacketPayload {
     public static final ServerboundPutKamikotizationToolInHandPayload INSTANCE = new ServerboundPutKamikotizationToolInHandPayload();
     public static final Type<ServerboundPutKamikotizationToolInHandPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_put_kamikotization_tool_in_hand"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundPutKamikotizationToolInHandPayload> CODEC = StreamCodec.unit(INSTANCE);
+
+    private ServerboundPutKamikotizationToolInHandPayload() {}
 
     // ON SERVER
     @Override

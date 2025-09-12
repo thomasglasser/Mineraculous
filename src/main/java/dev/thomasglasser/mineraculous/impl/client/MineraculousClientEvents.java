@@ -371,16 +371,6 @@ public class MineraculousClientEvents {
         }
     }
 
-    static void onInteractionKeyMappingTriggered(InputEvent.InteractionKeyMappingTriggered event) {
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (event.isAttack() && event.getHand() == InteractionHand.MAIN_HAND && player != null && player.getOffhandItem().is(MineraculousItems.LADYBUG_YOYO)) {
-            TommyLibServices.NETWORK.sendToServer(ServerboundSwingOffhandPayload.INSTANCE);
-            if (player.getOffhandItem().onEntitySwing(player, InteractionHand.OFF_HAND)) {
-                event.setCanceled(true);
-            }
-        }
-    }
-
     // Rendering
     static void onRenderHand(RenderHandEvent event) {
         if (MineraculousClientUtils.getCameraEntity() != Minecraft.getInstance().player) {

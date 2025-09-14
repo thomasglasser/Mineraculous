@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.impl.world.entity.projectile;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.ClientRemovalListener;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
@@ -55,7 +56,7 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
+public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity, ClientRemovalListener {
     public static final float MIN_MAX_ROPE_LENGTH = 1.5f;
 
     private static final EntityDataAccessor<Optional<LadybugYoyoItem.Ability>> DATA_ABILITY = SynchedEntityData.defineId(ThrownLadybugYoyo.class, MineraculousEntityDataSerializers.OPTIONAL_LADYBUG_YOYO_ABILITY.get());
@@ -269,12 +270,13 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
         double distance = fromProjectileToPlayer.length();
         ItemStack stack = owner.getItemInHand(getHand());
-        boolean flag = distance <= MineraculousServerConfig.get().maxToolLength.getAsInt() + 1
+        boolean remain = !owner.isRemoved()
+                && distance <= MineraculousServerConfig.get().maxToolLength.getAsInt() + 1
                 && this.level().dimension() == owner.level().dimension()
                 && stack.is(MineraculousItems.LADYBUG_YOYO)
                 && stack.getOrDefault(MineraculousDataComponents.ACTIVE, false)
                 && (getAbility() == null || getAbility() == stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY));
-        if (owner.isRemoved() || !flag) {
+        if (!remain) {
             this.discard();
         }
     }
@@ -437,12 +439,21 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         return cache;
     }
 
+    private void clearOwnerData() {
+        Entity owner = getOwner();
+        if (owner != null && !level().isClientSide) {
+            owner.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).clearId().save(owner, true);
+        }
+    }
+
     @Override
     public void remove(RemovalReason reason) {
-        if (getOwner() != null) {
-            if (!level().isClientSide)
-                getOwner().getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).clearId().save(getOwner(), true);
-        }
+        clearOwnerData();
         super.remove(reason);
+    }
+
+    @Override
+    public void onRemovedOnClient() {
+        clearOwnerData();
     }
 }

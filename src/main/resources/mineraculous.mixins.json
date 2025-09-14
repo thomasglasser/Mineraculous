@@ -26,6 +26,7 @@
   "client": [
     "minecraft.client.MinecraftMixin",
     "minecraft.client.gui.GuiMixin",
+    "minecraft.client.multiplayer.ClientLevelMixin",
     "minecraft.client.player.LocalPlayerMixin",
     "minecraft.client.renderer.BlockEntityWithoutLevelRendererMixin",
     "minecraft.client.renderer.GameRendererMixin",

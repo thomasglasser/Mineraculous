@@ -30,16 +30,16 @@ public class DerbyHatModel extends Model {
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();
 
-        PartDefinition hat = partdefinition.addOrReplaceChild("hat", CubeListBuilder.create().texOffs(3, 15).addBox(-4.0F, -37.0F, -4.0F, 8.0F, 5.0F, 8.0F, new CubeDeformation(0.01F))
-                .texOffs(3, 2).addBox(-5.0F, -32.0F, -5.0F, 10.0F, 1.0F, 10.0F, new CubeDeformation(0.0F))
-                .texOffs(41, 13).addBox(-5.0F, -33.0F, -5.0F, 10.0F, 1.0F, 0.0F, new CubeDeformation(0.0F))
-                .texOffs(41, 14).addBox(-5.0F, -33.0F, 5.0F, 10.0F, 1.0F, 0.0F, new CubeDeformation(0.0F))
-                .texOffs(2, 32).addBox(5.0F, -33.0F, -5.0F, 0.0F, 1.0F, 10.0F, new CubeDeformation(0.0F))
-                .texOffs(26, 32).addBox(-5.0F, -33.0F, -5.0F, 0.0F, 1.0F, 10.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 26.0F, 0.0F));
+        PartDefinition hat = partdefinition.addOrReplaceChild("hat", CubeListBuilder.create().texOffs(0, 13).addBox(-5.0F, -38.0F, -5.0F, 10.0F, 6.0F, 10.0F, new CubeDeformation(0.0F))
+                .texOffs(0, 0).addBox(-6.0F, -32.0F, -6.0F, 12.0F, 1.0F, 12.0F, new CubeDeformation(0.0F))
+                .texOffs(40, 0).addBox(-6.0F, -33.0F, -6.0F, 12.0F, 1.0F, 0.0F, new CubeDeformation(0.0F))
+                .texOffs(40, 1).addBox(-6.0F, -33.0F, 6.0F, 12.0F, 1.0F, 0.0F, new CubeDeformation(0.0F))
+                .texOffs(0, 17).addBox(6.0F, -33.0F, -6.0F, 0.0F, 1.0F, 12.0F, new CubeDeformation(0.0F))
+                .texOffs(24, 17).addBox(-6.0F, -33.0F, -6.0F, 0.0F, 1.0F, 12.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 26.0F, 0.0F));
 
-        PartDefinition cube_r1 = hat.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(40, 16).addBox(0.0F, -9.0F, -2.0F, 0.0F, 10.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(4.0F, -33.2F, 0.0F, -0.7854F, 0.1745F, 0.1745F));
+        PartDefinition cube_r1 = hat.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(40, 15).addBox(0.0F, -9.0F, -2.0F, 0.0F, 10.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(5.0F, -33.2F, 0.0F, -0.7854F, 0.1745F, 0.1745F));
 
-        return LayerDefinition.create(meshdefinition, 64, 64);
+        return LayerDefinition.create(meshdefinition, 64, 32);
     }
 
     @Override

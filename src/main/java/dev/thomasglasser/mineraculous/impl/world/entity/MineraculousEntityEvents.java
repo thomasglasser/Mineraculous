@@ -20,6 +20,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerChoicesPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItemPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
+import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
@@ -295,7 +296,7 @@ public class MineraculousEntityEvents {
             MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
             for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
                 Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-                if (stack.is(MineraculousItems.MIRACULOUS) && miraculous != null) {
+                if (stack.getItem() instanceof MiraculousItem && miraculous != null) {
                     MiraculousData data = miraculousesData.get(miraculous);
                     if (data.transformed()) {
                         data.detransform(entity, level, miraculous, stack, true);

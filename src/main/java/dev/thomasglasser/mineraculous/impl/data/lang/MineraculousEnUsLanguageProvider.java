@@ -154,8 +154,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     private void addKeyMappings() {
         add(MineraculousKeyMappings.MIRACULOUS_CATEGORY, "Miraculous");
         add(MineraculousKeyMappings.TRANSFORM, "Transform");
-        add(MineraculousKeyMappings.ACTIVATE_POWER, "Activate Power/Renounce Miraculous");
+        add(MineraculousKeyMappings.ACTIVATE_POWER, "Activate Power");
         add(MineraculousKeyMappings.REVOKE_KAMIKOTIZATION, "Revoke Kamikotization");
+        add(MineraculousKeyMappings.RENOUNCE_MIRACULOUS, "Renounce Miraculous");
         add(MineraculousKeyMappings.TOGGLE_ITEM_ACTIVE, "De/Activate Item");
         add(MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU, "Open Item Radial Menu");
         add(MineraculousKeyMappings.TAKE_BREAK_ITEM, "Take/Break Item");

@@ -66,7 +66,7 @@ public class KwamisEntryProvider extends IndexModeEntryProvider {
 
         pageTitle("Transferring and Renouncing");
         pageText("""
-                To renounce a kwami and keep the miraculous, press the Renounce button (default: O) while holding the Miraculous in your hand.
+                To renounce a kwami and keep the miraculous, press the Renounce button (default: N) while holding the Miraculous in your hand.
                 To transfer or renounce to someone else, right click the kwami with the Miraculous in your hand.
                 """);
     }

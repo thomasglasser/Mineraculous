@@ -6,7 +6,6 @@ import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
-import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
@@ -23,6 +22,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoLengthPa
 import dev.thomasglasser.mineraculous.impl.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
+import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.ExtendedKeyMapping;
@@ -47,6 +47,7 @@ public class MineraculousKeyMappings {
     public static final ExtendedKeyMapping TRANSFORM = register("transform", InputConstants.KEY_M, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleTransform);
     public static final ExtendedKeyMapping ACTIVATE_POWER = register("activate_power", InputConstants.KEY_O, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleActivatePower);
     public static final ExtendedKeyMapping REVOKE_KAMIKOTIZATION = register("revoke_kamikotization", InputConstants.KEY_K, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleRevokeKamikotization);
+    public static final ExtendedKeyMapping RENOUNCE_MIRACULOUS = register("renounce_miraculous", InputConstants.KEY_N, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleRenounceMiraculous);
     public static final ExtendedKeyMapping TOGGLE_ITEM_ACTIVE = register("toggle_item_active", InputConstants.KEY_I, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleToggleActive);
     public static final ExtendedKeyMapping OPEN_ITEM_RADIAL_MENU = register("open_item_radial_menu", InputConstants.KEY_R, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleOpenItemRadialMenu);
     public static final ExtendedKeyMapping TAKE_BREAK_ITEM = register("take_break_item", InputConstants.KEY_B, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleTakeBreakItem, MineraculousKeyMappings::handleNoTakeBreakItem);
@@ -112,14 +113,9 @@ public class MineraculousKeyMappings {
     private static void handleActivatePower() {
         Player player = Minecraft.getInstance().player;
         if (player != null) {
-            MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-            List<Holder<Miraculous>> transformed = miraculousesData.getTransformed();
+            List<Holder<Miraculous>> transformed = player.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed();
             if (!transformed.isEmpty()) {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousPowerActivatedPayload(transformed.getFirst()));
-            } else if (player.getMainHandItem().is(MineraculousItems.MIRACULOUS)) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(InteractionHand.MAIN_HAND));
-            } else if (player.getOffhandItem().is(MineraculousItems.MIRACULOUS)) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(InteractionHand.OFF_HAND));
             } else if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
                 TommyLibServices.NETWORK.sendToServer(ServerboundSetKamikotizationPowerActivatedPayload.INSTANCE);
             }
@@ -131,6 +127,19 @@ public class MineraculousKeyMappings {
             Button revokeButton = MineraculousGuis.getRevokeButton();
             if (revokeButton.active) {
                 revokeButton.onPress();
+            }
+        }
+    }
+
+    private static void handleRenounceMiraculous() {
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
+            ItemStack mainHandItem = player.getMainHandItem();
+            ItemStack offhandItem = player.getOffhandItem();
+            if (mainHandItem.getItem() instanceof MiraculousItem && !mainHandItem.has(MineraculousDataComponents.POWERED)) {
+                TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(InteractionHand.MAIN_HAND));
+            } else if (offhandItem.getItem() instanceof MiraculousItem && !offhandItem.has(MineraculousDataComponents.POWERED)) {
+                TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(InteractionHand.OFF_HAND));
             }
         }
     }

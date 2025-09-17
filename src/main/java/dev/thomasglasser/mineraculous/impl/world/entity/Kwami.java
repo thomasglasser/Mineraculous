@@ -6,10 +6,10 @@ import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSer
 import dev.thomasglasser.mineraculous.api.world.entity.ai.behavior.SetWalkTargetToLikedPlayer;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
-import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundOpenMiraculousTransferScreenPayload;
+import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
@@ -312,7 +312,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         return ObjectArrayList.of(
                 new NearbyPlayersSensor<>(),
                 new ItemTemptingSensor<Kwami>().temptedWith((kwami, stack) -> {
-                    if (stack.is(MineraculousItems.MIRACULOUS)) {
+                    if (stack.getItem() instanceof MiraculousItem) {
                         UUID stackId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
                         return stackId != null && stackId.equals(kwami.getMiraculousId());
                     } else if (!kwami.isCharged()) {
@@ -353,7 +353,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
             if (!stack.isEmpty()) {
                 if (player instanceof ServerPlayer serverPlayer) {
                     UUID stackId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
-                    if (!serverPlayer.serverLevel().getPlayers(p -> RENOUNCE_PREDICATE.test(this, p)).isEmpty() && stack.is(MineraculousItems.MIRACULOUS) && stackId != null && stackId.equals(getMiraculousId())) {
+                    if (!serverPlayer.serverLevel().getPlayers(p -> RENOUNCE_PREDICATE.test(this, p)).isEmpty() && stack.getItem() instanceof MiraculousItem && stackId != null && stackId.equals(getMiraculousId())) {
                         TommyLibServices.NETWORK.sendToClient(new ClientboundOpenMiraculousTransferScreenPayload(getId()), serverPlayer);
                     } else if (!isCharged() && getMainHandItem().isEmpty()) {
                         if (isTreat(stack) || isFood(stack)) {

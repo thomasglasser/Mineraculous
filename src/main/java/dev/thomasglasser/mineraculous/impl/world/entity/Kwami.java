@@ -510,6 +510,8 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     public @Nullable Player findRandomRenounceTarget() {
         if (level() instanceof ServerLevel level) {
             List<ServerPlayer> players = level.getPlayers(p -> RENOUNCE_PREDICATE.test(this, p));
+            if (players.isEmpty())
+                return null;
             return players.get(level.random.nextInt(players.size()));
         }
         throw new IllegalStateException("Cannot pick random renounce target from the client.");

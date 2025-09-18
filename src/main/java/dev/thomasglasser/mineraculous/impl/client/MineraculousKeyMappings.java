@@ -21,9 +21,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundTryBreakItemPayloa
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoLengthPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
-import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.ExtendedKeyMapping;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -223,9 +221,7 @@ public class MineraculousKeyMappings {
     private static void handleUpdateToolMovements(boolean ascend) {
         Player player = Minecraft.getInstance().player;
         if (player != null) {
-            ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
-            ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
-            if (thrownYoyo != null || player.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent()) {
+            if (player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).id().isPresent() || player.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent()) {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoLengthPayload(ascend));
             }
         }

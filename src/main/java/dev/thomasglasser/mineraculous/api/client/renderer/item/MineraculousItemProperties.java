@@ -14,7 +14,6 @@ import net.minecraft.client.renderer.item.ItemPropertyFunction;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -89,11 +88,9 @@ public class MineraculousItemProperties {
         ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), THROWN, (stack, level, entity, seed) -> {
             if (entity instanceof Player player) {
                 ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
-                ThrownLadybugYoyo yoyo = data.getThrownYoyo(player.level());
-                if (yoyo != null) {
-                    if (yoyo.getHand() == InteractionHand.MAIN_HAND ? player.getMainHandItem() == stack : player.getOffhandItem() == stack) {
-                        return yoyo.inGround() ? 2 : 1;
-                    }
+                if (data.id().isPresent()) {
+                    ThrownLadybugYoyo yoyo = data.getThrownYoyo(player.level());
+                    return (yoyo != null && yoyo.inGround()) ? 2 : 1;
                 } else if (player.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent()) {
                     return 2;
                 }

@@ -177,12 +177,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity, Clien
             this.dealtDamage = true;
         }
 
-        Entity entity = getOwner();
-        if (entity == null) {
-            discard();
-            return;
-        }
-        if (entity instanceof LivingEntity owner) {
+        if (getOwner() instanceof LivingEntity owner) {
             checkInstantRecall(owner);
             if (this.freshlyHitGround && !this.isRecalling()) {
                 Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
@@ -237,6 +232,9 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity, Clien
                     this.setNoGravity(false);
                 }
             }
+        } else {
+            discard();
+            return;
         }
 
         super.tick();
@@ -439,7 +437,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity, Clien
         return cache;
     }
 
-    private void clearOwnerData() {
+    public void clearOwnerData() {
         Entity owner = getOwner();
         if (owner != null && !level().isClientSide) {
             owner.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).clearId().save(owner, true);
@@ -453,7 +451,9 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity, Clien
     }
 
     @Override
-    public void onRemovedOnClient() {
-        clearOwnerData();
+    public void onRemovedOnClient(Player player) {
+        if (player == getPlayerOwner()) {
+            discard();
+        }
     }
 }

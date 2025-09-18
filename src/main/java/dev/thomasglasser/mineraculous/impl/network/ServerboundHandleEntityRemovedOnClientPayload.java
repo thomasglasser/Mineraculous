@@ -18,7 +18,7 @@ public record ServerboundHandleEntityRemovedOnClientPayload(int entityId) implem
     @Override
     public void handle(Player player) {
         if (player.level().getEntity(entityId) instanceof ClientRemovalListener listener) {
-            listener.onRemovedOnClient();
+            listener.onRemovedOnClient(player);
         }
     }
 

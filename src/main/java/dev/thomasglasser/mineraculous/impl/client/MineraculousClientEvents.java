@@ -43,9 +43,7 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRe
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRemoteDamagePayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
-import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUtils;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.HashMap;
@@ -327,11 +325,8 @@ public class MineraculousClientEvents {
     }
 
     private static void checkYoyoInput(LocalPlayer player) {
-        ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
-        ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
-
         MineraculousClientUtils.InputState input = MineraculousClientUtils.captureInput();
-        if (thrownYoyo != null && input.hasInput()) {
+        if (player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).id().isPresent() && input.hasInput()) {
             int packedInput = input.packInputs();
             TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoInputPayload(packedInput));
         }

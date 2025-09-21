@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.mixin.minecraft.client.multiplayer;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import dev.thomasglasser.mineraculous.api.world.entity.ClientRemovalListener;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundHandleEntityRemovedOnClientPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -15,8 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ClientLevelMixin {
     @Inject(method = "removeEntity", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;onClientRemoval()V"))
     private void sendRemovedPayload(int entityId, Entity.RemovalReason reason, CallbackInfo ci, @Local Entity entity) {
-        if (entity instanceof ClientRemovalListener) {
+        if (entity != null)
             TommyLibServices.NETWORK.sendToServer(new ServerboundHandleEntityRemovedOnClientPayload(entityId));
-        }
     }
 }

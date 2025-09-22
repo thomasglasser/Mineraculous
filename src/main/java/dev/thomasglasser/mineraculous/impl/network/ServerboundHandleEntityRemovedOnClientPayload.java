@@ -26,7 +26,7 @@ public record ServerboundHandleEntityRemovedOnClientPayload(int entityId) implem
             if (leashedId == entityId)
                 LadybugYoyoItem.removeLeash(entity, player);
         }
-        if (player.level().getEntity(entityId) instanceof ThrownLadybugYoyo thrownYoyo)
+        if (entity instanceof ThrownLadybugYoyo thrownYoyo)
             if (player == thrownYoyo.getPlayerOwner()) {
                 thrownYoyo.discard();
             }

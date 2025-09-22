@@ -28,7 +28,7 @@ public record LeashingLadybugYoyoData(int leashedId, float maxRopeLength) {
     }
 
     public LeashingLadybugYoyoData withMaxRopeLength(float maxRopeLength) {
-        return new LeashingLadybugYoyoData(leashedId, ThrownLadybugYoyo.clampMaxRopeLength(maxRopeLength));
+        return new LeashingLadybugYoyoData(leashedId, ThrownLadybugYoyo.clampMaxRopeLength(maxRopeLength, true));
     }
 
     public void save(Entity entity, boolean syncToClient) {

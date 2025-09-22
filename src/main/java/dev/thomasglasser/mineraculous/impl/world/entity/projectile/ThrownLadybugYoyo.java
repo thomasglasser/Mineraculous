@@ -18,6 +18,9 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYo
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -52,10 +55,6 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
 public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     public static final float MIN_MAX_ROPE_LENGTH = 1.5f;
 
@@ -89,11 +88,13 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     }
 
     public static float clampMaxRopeLength(float maxRopeLength) {
-        return clampMaxRopeLength(maxRopeLength, 1f);
+        return clampMaxRopeLength(maxRopeLength, false);
     }
 
-    public static float clampMaxRopeLength(float maxRopeLength, float coefficient) {
-        return Math.min(Math.max(maxRopeLength, MIN_MAX_ROPE_LENGTH), MineraculousServerConfig.get().maxToolLength.getAsInt() * coefficient);
+    public static float clampMaxRopeLength(float maxRopeLength, boolean leash) {
+        float maxConfig = MineraculousServerConfig.get().maxToolLength.getAsInt();
+        if (leash) maxConfig = (float) (Math.pow(2f, 15 / 4f) * Math.pow(maxConfig, 1 / 4f));
+        return Math.min(Math.max(maxRopeLength, MIN_MAX_ROPE_LENGTH), maxConfig);
     }
 
     @Override

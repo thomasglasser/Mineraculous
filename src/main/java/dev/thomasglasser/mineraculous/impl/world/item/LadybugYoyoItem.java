@@ -262,7 +262,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                     if (thrownYoyo != null) {
                         if (thrownYoyo.getAbility() == Ability.TRAVEL) {
                             if (thrownYoyo.inGround()) {
-                                Vec3 fromPlayerToYoyo = new Vec3(thrownYoyo.getX() - player.getX(), thrownYoyo.getY() - player.getY() + 2, thrownYoyo.getZ() - player.getZ());
+                                Vec3 fromPlayerToYoyo = new Vec3(thrownYoyo.getX() - player.getX(), thrownYoyo.getY() - player.getY() + 1, thrownYoyo.getZ() - player.getZ());
                                 player.setDeltaMovement(fromPlayerToYoyo.scale(0.2).add(player.getDeltaMovement()));
                                 player.hurtMarked = true;
                                 data.startSafeFall().save(player, true);

@@ -24,7 +24,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
-import org.joml.AxisAngle4d;
 import org.joml.Quaternionf;
 
 public class LadybugYoyoRenderer extends BlockingDefaultedGeoItemRenderer<LadybugYoyoItem> {
@@ -38,7 +37,6 @@ public class LadybugYoyoRenderer extends BlockingDefaultedGeoItemRenderer<Ladybu
     private static final Quaternionf LEFT_HAND_YP_ROT = Axis.YP.rotationDegrees(-110);
     private static final Quaternionf RIGHT_HAND_ZP_ROT = Axis.ZP.rotationDegrees(-10);
     private static final Quaternionf LEFT_HAND_ZP_ROT = Axis.ZP.rotationDegrees(10);
-    private static final Quaternionf POST_HAND_RENDER_ROT = new Quaternionf(new AxisAngle4d(-1, -1, 0.3f, 0.1f));
 
     public LadybugYoyoRenderer() {
         super(MineraculousItems.LADYBUG_YOYO.getId());
@@ -100,17 +98,12 @@ public class LadybugYoyoRenderer extends BlockingDefaultedGeoItemRenderer<Ladybu
             poseStack.mulPose(RIGHT_HAND_YP_ROT);
             poseStack.mulPose(RIGHT_HAND_ZP_ROT);
             playerRenderer.renderRightHand(poseStack, multiBufferSource, packedLight, player);
-            poseStack.mulPose(POST_HAND_RENDER_ROT);
-            poseStack.translate(-0.5, 0.2, 0.5);
         } else if (context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND) {
             poseStack.translate(0, -0.5, -0.2);
             poseStack.mulPose(HAND_XP_ROT);
             poseStack.mulPose(LEFT_HAND_YP_ROT);
             poseStack.mulPose(LEFT_HAND_ZP_ROT);
             playerRenderer.renderLeftHand(poseStack, multiBufferSource, packedLight, player);
-            poseStack.mulPose(POST_HAND_RENDER_ROT);
-            poseStack.translate(0, 0.5, 0.2);
         }
-        poseStack.scale(0.5f, 0.5f, 0.5f);
     }
 }

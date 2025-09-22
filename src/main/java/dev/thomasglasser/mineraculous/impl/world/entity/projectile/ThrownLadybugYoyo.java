@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.impl.world.entity.projectile;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.entity.ClientRemovalListener;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
@@ -56,7 +55,7 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity, ClientRemovalListener {
+public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     public static final float MIN_MAX_ROPE_LENGTH = 1.5f;
 
     private static final EntityDataAccessor<Optional<LadybugYoyoItem.Ability>> DATA_ABILITY = SynchedEntityData.defineId(ThrownLadybugYoyo.class, MineraculousEntityDataSerializers.OPTIONAL_LADYBUG_YOYO_ABILITY.get());
@@ -89,7 +88,13 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity, Clien
     }
 
     public static float clampMaxRopeLength(float maxRopeLength) {
-        return Math.min(Math.max(maxRopeLength, MIN_MAX_ROPE_LENGTH), MineraculousServerConfig.get().maxToolLength.getAsInt());
+        return clampMaxRopeLength(maxRopeLength, false);
+    }
+
+    public static float clampMaxRopeLength(float maxRopeLength, boolean leash) {
+        float maxConfig = MineraculousServerConfig.get().maxToolLength.getAsInt();
+        if (leash) maxConfig = (float) (Math.pow(2f, 15 / 4f) * Math.pow(maxConfig, 1 / 4f));
+        return Math.min(Math.max(maxRopeLength, MIN_MAX_ROPE_LENGTH), maxConfig);
     }
 
     @Override
@@ -448,12 +453,5 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity, Clien
     public void remove(RemovalReason reason) {
         clearOwnerData();
         super.remove(reason);
-    }
-
-    @Override
-    public void onRemovedOnClient(Player player) {
-        if (player == getPlayerOwner()) {
-            discard();
-        }
     }
 }

@@ -130,6 +130,20 @@
       "predicate": {
         "minecraft:blocking": 1.0
       }
+    },
+    {
+      "model": "mineraculous:item/ladybug_yoyo_blocking_purify",
+      "predicate": {
+        "minecraft:blocking": 1.0,
+        "mineraculous:ability": 4.0
+      }
+    },
+    {
+      "model": "mineraculous:item/ladybug_yoyo_blocking",
+      "predicate": {
+        "minecraft:blocking": 1.0,
+        "mineraculous:ability": 5.0
+      }
     }
   ],
   "perspectives": {

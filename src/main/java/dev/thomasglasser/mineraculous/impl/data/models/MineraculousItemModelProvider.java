@@ -131,6 +131,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .perspective(ItemDisplayContext.FIXED, inventoryLandedLadybugYoyo)
                 .perspective(ItemDisplayContext.GROUND, inventoryLandedLadybugYoyo)
                 .end();
+        ItemModelBuilder blockingLadybugYoyo = withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_blocking"), inHandBlockingLadybugYoyo, inventoryLandedLadybugYoyo);
         withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO, inHandLadybugYoyo, inventoryLadybugYoyo)
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)
@@ -166,7 +167,17 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .end()
                 .override()
                 .predicate(MineraculousItemProperties.BLOCKING, 1)
-                .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_blocking"), inHandBlockingLadybugYoyo, inventoryLandedLadybugYoyo))
+                .model(blockingLadybugYoyo)
+                .end()
+                .override()
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.PURIFY))
+                .predicate(MineraculousItemProperties.BLOCKING, 1)
+                .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_blocking_purify"), inHandBlockingLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_blocking_purify"))))
+                .end()
+                .override()
+                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.PURIFY) + 1)
+                .predicate(MineraculousItemProperties.BLOCKING, 1)
+                .model(blockingLadybugYoyo)
                 .end();
 
         ItemModelBuilder inHandCatStaff = withEntityModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_in_hand"))

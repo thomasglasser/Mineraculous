@@ -100,12 +100,15 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, CONTROLLER_USE, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
-            if (stack != null) {
-                if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.PURIFY && !state.isCurrentAnimation(OPEN_OUT))
-                    return state.setAndContinue(DefaultAnimations.IDLE);
-                else if (stack.has(MineraculousDataComponents.BLOCKING))
-                    return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
+            if (stack != null && stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.PURIFY && !state.isCurrentAnimation(OPEN_OUT)) {
+                return state.setAndContinue(DefaultAnimations.IDLE);
             }
+            return PlayState.STOP;
+        }));
+        controllers.add(new AnimationController<>(this, "blocking_controller", state -> {
+            ItemStack stack = state.getData(DataTickets.ITEMSTACK);
+            if (stack != null && stack.has(MineraculousDataComponents.BLOCKING))
+                return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
             return PlayState.STOP;
         }));
         controllers.add(new AnimationController<>(this, CONTROLLER_OPEN, state -> PlayState.CONTINUE)
@@ -160,10 +163,45 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                         } else {
                             data.clearId().save(player, true);
                         }
-                    } else if (ability == Ability.BLOCK || ability == Ability.PURIFY) {
+                    } else if (ability == Ability.BLOCK) {
                         player.startUsingItem(usedHand);
                     } else if (ability == Ability.LASSO && player.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent()) {
                         removeHeldLeash(player);
+                    } else if (ability == Ability.PURIFY) {
+                        UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
+                        Entity owner = ownerId != null ? serverLevel.getEntity(ownerId) : null;
+                        if (owner != null) {
+                            MiraculousesData miraculousesData = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                            Holder<Miraculous> storingKey = miraculousesData.getFirstTransformedIn(MiraculousTags.CAN_USE_LADYBUG_YOYO);
+                            MiraculousData storingData = miraculousesData.get(storingKey);
+                            if (storingData != null) {
+                                List<CompoundTag> stored = storingData.storedEntities();
+                                if (!stored.isEmpty()) {
+                                    Set<Entity> entities = new ReferenceOpenHashSet<>();
+                                    for (CompoundTag tag : stored) {
+                                        Entity entity = EntityType.loadEntityRecursive(tag, level, loaded -> {
+                                            loaded.setPos(player.getX(), player.getY() + 0.5, player.getZ());
+                                            return loaded;
+                                        });
+                                        if (entity != null) {
+                                            serverLevel.addFreshEntity(entity);
+                                            Entity reverted = AbilityReversionEntityData.get(serverLevel).revertConversion(entity.getUUID(), serverLevel);
+                                            if (reverted != null) {
+                                                reverted.addDeltaMovement(new Vec3(0, 1, 0));
+                                                reverted.hurtMarked = true;
+                                                entities.add(reverted);
+                                            }
+                                        }
+                                    }
+                                    MineraculousCriteriaTriggers.RELEASED_PURIFIED_ENTITIES.get().trigger((ServerPlayer) player, entities);
+                                    storingData.storedEntities().clear();
+                                    storingData.save(storingKey, owner, true);
+                                    player.getCooldowns().addCooldown(this, 10);
+                                } else {
+                                    player.startUsingItem(usedHand);
+                                }
+                            }
+                        }
                     } else if (ability == Ability.SPYGLASS) {
                         level.playSound(null, player, SoundEvents.SPYGLASS_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
                         player.startUsingItem(usedHand);
@@ -211,45 +249,6 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
         if (stack.has(MineraculousDataComponents.BLOCKING) && remainingUseDuration % 7 == 0) {
             livingEntity.playSound(MineraculousSoundEvents.LADYBUG_YOYO_SPIN.get());
         }
-    }
-
-    @Override
-    public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeCharged) {
-        if (stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.PURIFY && level instanceof ServerLevel serverLevel) {
-            UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
-            Entity owner = ownerId != null ? serverLevel.getEntity(ownerId) : null;
-            if (owner != null) {
-                MiraculousesData miraculousesData = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                Holder<Miraculous> storingKey = miraculousesData.getFirstTransformedIn(MiraculousTags.CAN_USE_LADYBUG_YOYO);
-                MiraculousData storingData = miraculousesData.get(storingKey);
-                if (storingData != null) {
-                    List<CompoundTag> stored = storingData.storedEntities();
-                    if (!stored.isEmpty()) {
-                        Set<Entity> entities = new ReferenceOpenHashSet<>();
-                        for (CompoundTag tag : stored) {
-                            Entity entity = EntityType.loadEntityRecursive(tag, level, loaded -> {
-                                loaded.setPos(livingEntity.getX(), livingEntity.getY() + 0.5, livingEntity.getZ());
-                                return loaded;
-                            });
-                            if (entity != null) {
-                                serverLevel.addFreshEntity(entity);
-                                Entity reverted = AbilityReversionEntityData.get(serverLevel).revertConversion(entity.getUUID(), serverLevel);
-                                if (reverted != null) {
-                                    reverted.addDeltaMovement(new Vec3(0, 0.1 * ((getUseDuration(stack, livingEntity) - timeCharged) / 10.0), 0));
-                                    entities.add(reverted);
-                                }
-                            }
-                        }
-                        if (livingEntity instanceof ServerPlayer serverPlayer) {
-                            MineraculousCriteriaTriggers.RELEASED_PURIFIED_ENTITIES.get().trigger(serverPlayer, entities);
-                        }
-                    }
-                    storingData.storedEntities().clear();
-                    storingData.save(storingKey, livingEntity, true);
-                }
-            }
-        }
-        super.releaseUsing(stack, level, livingEntity, timeCharged);
     }
 
     @Override
@@ -327,7 +326,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
     public UseAnim getUseAnimation(ItemStack stack) {
         Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY);
         return switch (ability) {
-            case BLOCK -> UseAnim.BLOCK;
+            case BLOCK, PURIFY -> UseAnim.BLOCK;
             case SPYGLASS -> UseAnim.SPYGLASS;
             case null, default -> UseAnim.NONE;
         };
@@ -336,10 +335,8 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
         Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY);
-        if (ability == Ability.BLOCK || ability == Ability.SPYGLASS) {
+        if (ability == Ability.BLOCK || ability == Ability.SPYGLASS || ability == Ability.PURIFY) {
             return 72000;
-        } else if (ability == Ability.PURIFY) {
-            return 100;
         }
         return 0;
     }
@@ -348,7 +345,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
     public boolean canPerformAction(ItemStack stack, ItemAbility itemAbility) {
         Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get());
         return switch (ability) {
-            case BLOCK -> itemAbility == ItemAbilities.SHIELD_BLOCK;
+            case BLOCK, PURIFY -> itemAbility == ItemAbilities.SHIELD_BLOCK;
             case SPYGLASS -> itemAbility == ItemAbilities.SPYGLASS_SCOPE;
             case null, default -> false;
         };
@@ -368,7 +365,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
         if (canEquip(stack)) {
             return ICurioItem.super.getSlotsTooltip(tooltips, context, stack);
         }
-        return List.of();
+        return ReferenceArrayList.of();
     }
 
     @Override

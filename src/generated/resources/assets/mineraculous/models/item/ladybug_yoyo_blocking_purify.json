@@ -1,0 +1,77 @@
+{
+  "base": {
+    "parent": "minecraft:builtin/entity",
+    "display": {
+      "firstperson_lefthand": {
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ],
+        "translation": [
+          2,
+          -1,
+          0
+        ]
+      },
+      "firstperson_righthand": {
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ],
+        "translation": [
+          2,
+          -1,
+          0
+        ]
+      },
+      "thirdperson_lefthand": {
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ],
+        "translation": [
+          0,
+          -2,
+          1
+        ]
+      },
+      "thirdperson_righthand": {
+        "scale": [
+          0.6,
+          0.6,
+          0.6
+        ],
+        "translation": [
+          0,
+          -2,
+          1
+        ]
+      }
+    }
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "fixed": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/ladybug_yoyo_blocking_purify"
+      }
+    },
+    "ground": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/ladybug_yoyo_blocking_purify"
+      }
+    },
+    "gui": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/ladybug_yoyo_blocking_purify"
+      }
+    }
+  }
+}

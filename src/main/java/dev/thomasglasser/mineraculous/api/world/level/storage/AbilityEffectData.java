@@ -30,7 +30,7 @@ import net.minecraft.world.entity.Entity;
  * @param allowKamikotizationRevocation     Whether the entity should be allowed to revoke the kamikotization of the entity they're spectating
  * @param killCredit                        The overridden kill credit for the entity if present
  */
-public record AbilityEffectData(boolean playedContinuousAbilityStartSound, Optional<Integer> continuousTicks, Optional<ResourceLocation> shader, Optional<ResourceLocation> faceMaskTexture, Optional<UUID> spectatingId, boolean spectationInterrupted, Optional<UUID> privateChat, boolean allowRemoteDamage, boolean allowKamikotizationRevocation, Optional<UUID> killCredit) {
+public record AbilityEffectData(boolean playedContinuousAbilityStartSound, Optional<Integer> continuousTicks, Optional<ResourceLocation> shader, Optional<ResourceLocation> faceMaskTexture, Optional<UUID> spectatingId, boolean spectationInterrupted, Optional<UUID> privateChat, boolean allowRemoteDamage, boolean allowKamikotizationRevocation, Optional<UUID> killCredit, boolean toggleNightVision) {
 
     public static final StreamCodec<ByteBuf, AbilityEffectData> STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
             ByteBufCodecs.BOOL, AbilityEffectData::playedContinuousAbilityStartSound,
@@ -43,45 +43,54 @@ public record AbilityEffectData(boolean playedContinuousAbilityStartSound, Optio
             ByteBufCodecs.BOOL, AbilityEffectData::allowRemoteDamage,
             ByteBufCodecs.BOOL, AbilityEffectData::allowKamikotizationRevocation,
             ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), AbilityEffectData::killCredit,
+            ByteBufCodecs.BOOL, AbilityEffectData::toggleNightVision,
             AbilityEffectData::new);
     public AbilityEffectData() {
-        this(false, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), false, Optional.empty(), false, false, Optional.empty());
+        this(false, Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), false, Optional.empty(), false, false, Optional.empty(), false);
     }
 
     public AbilityEffectData stopContinuousAbility() {
-        return new AbilityEffectData(false, Optional.empty(), shader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit);
+        return new AbilityEffectData(false, Optional.empty(), shader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit, toggleNightVision);
     }
 
     public AbilityEffectData withSpectationInterrupted() {
-        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, shader, faceMaskTexture, spectatingId, true, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit);
+        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, shader, faceMaskTexture, spectatingId, true, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit, toggleNightVision);
     }
 
     public AbilityEffectData withPlayedContinuousAbilityStartSound(boolean playedContinuousAbilityStartSound) {
-        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, shader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit);
+        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, shader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit, toggleNightVision);
     }
 
     public AbilityEffectData withContinuousTicks(Optional<Integer> continuousTicks) {
-        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, shader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit);
+        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, shader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit, toggleNightVision);
     }
 
     public AbilityEffectData withShader(Optional<ResourceLocation> nightVisionShader) {
-        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, nightVisionShader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit);
+        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, nightVisionShader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit, toggleNightVision);
     }
 
     public AbilityEffectData withFaceMaskTexture(Optional<ResourceLocation> faceMaskTexture) {
-        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, shader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit);
+        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, shader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit, toggleNightVision);
     }
 
     public AbilityEffectData withPrivateChat(Optional<UUID> privateChat, Optional<ResourceLocation> faceMaskTexture) {
-        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, shader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit);
+        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, shader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit, toggleNightVision);
     }
 
     public AbilityEffectData withSpectation(Optional<UUID> spectatingId, Optional<ResourceLocation> shader, Optional<ResourceLocation> faceMaskTexture, Optional<UUID> privateChat, boolean allowRemoteDamage, boolean allowKamikotizationRevocation) {
-        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, shader, faceMaskTexture, spectatingId, false, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit);
+        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, shader, faceMaskTexture, spectatingId, false, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit, toggleNightVision);
     }
 
     public AbilityEffectData withKillCredit(Optional<UUID> killCredit) {
-        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, shader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit);
+        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, shader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit, toggleNightVision);
+    }
+
+    public AbilityEffectData withToggleNightVision() {
+        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, shader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit, true);
+    }
+
+    public AbilityEffectData updateNightVision(Optional<ResourceLocation> shader) {
+        return new AbilityEffectData(playedContinuousAbilityStartSound, continuousTicks, shader, faceMaskTexture, spectatingId, spectationInterrupted, privateChat, allowRemoteDamage, allowKamikotizationRevocation, killCredit, false);
     }
 
     public void save(Entity entity, boolean syncToClient) {

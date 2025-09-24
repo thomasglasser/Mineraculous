@@ -55,6 +55,7 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundStartKamikotizationDetransformationPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundStartKamikotizationDetransformationPayload.CODEC),
             new PayloadInfo<>(ServerboundRemoteDamagePayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRemoteDamagePayload.CODEC),
             new PayloadInfo<>(ServerboundHandleEntityRemovedOnClientPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundHandleEntityRemovedOnClientPayload.CODEC),
+            new PayloadInfo<>(ServerboundToggleNightVisionPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundToggleNightVisionPayload.CODEC),
 
             // Clientbound
             new PayloadInfo<>(ClientboundCalculateYoyoRenderLengthPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundCalculateYoyoRenderLengthPayload.CODEC),

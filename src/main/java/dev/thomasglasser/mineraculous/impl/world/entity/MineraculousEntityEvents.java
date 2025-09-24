@@ -21,6 +21,7 @@ import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerC
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItemPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
@@ -154,7 +155,7 @@ public class MineraculousEntityEvents {
     // Ladybug Yoyo
     public static void onPlayerBreakSpeed(PlayerEvent.BreakSpeed event) {
         ItemStack mainHandItem = event.getEntity().getMainHandItem();
-        if (mainHandItem.is(MineraculousItems.LADYBUG_YOYO) && mainHandItem.getOrDefault(MineraculousDataComponents.ACTIVE, false)) {
+        if (mainHandItem.is(MineraculousItems.LADYBUG_YOYO) && Active.isActive(mainHandItem)) {
             event.setCanceled(true);
         }
     }

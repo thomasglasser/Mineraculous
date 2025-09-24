@@ -20,6 +20,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
@@ -100,7 +101,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, CONTROLLER_USE, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
-            if (stack != null && stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.PURIFY && !state.isCurrentAnimation(OPEN_OUT)) {
+            if (stack != null && Active.isActive(stack) && stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY) == Ability.PURIFY && !state.isCurrentAnimation(OPEN_OUT)) {
                 return state.setAndContinue(DefaultAnimations.IDLE);
             }
             return PlayState.STOP;
@@ -143,7 +144,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand usedHand) {
         ItemStack stack = player.getItemInHand(usedHand);
-        if (!stack.getOrDefault(MineraculousDataComponents.ACTIVE, false))
+        if (!Active.isActive(stack))
             return InteractionResultHolder.fail(stack);
         Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY);
         if (ability != null) {
@@ -253,7 +254,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
 
     @Override
     public boolean onLeftClick(ItemStack stack, LivingEntity entity) {
-        if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
+        if (Active.isActive(stack) && entity instanceof Player player && !player.getCooldowns().isOnCooldown(this)) {
             if (player.level() instanceof ServerLevel serverLevel) {
                 ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
                 if (data.id().isPresent()) {
@@ -357,7 +358,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
     }
 
     public boolean canEquip(ItemStack stack) {
-        return !stack.getOrDefault(MineraculousDataComponents.ACTIVE, false);
+        return !Active.isActive(stack);
     }
 
     @Override
@@ -375,7 +376,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
 
     @Override
     public boolean canOpenMenu(ItemStack stack, InteractionHand hand, Player holder) {
-        return stack.getOrDefault(MineraculousDataComponents.ACTIVE, false);
+        return Active.isActive(stack);
     }
 
     @Override
@@ -438,12 +439,12 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
     }
 
     @Override
-    public void onToggle(ItemStack stack, @Nullable Entity holder, boolean active) {
+    public void onToggle(ItemStack stack, @Nullable Entity holder, Active active) {
         if (holder != null) {
             Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY);
             if (ability != null) {
                 String anim = null;
-                if (active) {
+                if (active.active()) {
                     switch (ability) {
                         case PHONE, SPYGLASS -> anim = ANIMATION_OPEN_DOWN;
                         case PURIFY -> anim = ANIMATION_OPEN_OUT;

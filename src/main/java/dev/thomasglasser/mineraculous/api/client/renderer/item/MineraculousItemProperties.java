@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import java.util.UUID;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -73,7 +74,7 @@ public class MineraculousItemProperties {
     public static void init() {
         // Generic
         ItemProperties.registerGeneric(BLOCKING, (stack, level, entity, seed) -> stack.has(MineraculousDataComponents.BLOCKING) ? 1 : 0);
-        ItemProperties.registerGeneric(ACTIVE, (stack, level, entity, seed) -> stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) ? 1 : 0);
+        ItemProperties.registerGeneric(ACTIVE, (stack, level, entity, seed) -> Active.isActive(stack) ? 1 : 0);
         ItemProperties.registerGeneric(MISSING_PIECES, (stack, level, entity, seed) -> {
             BlockItemStateProperties blockItemStateProperties = stack.get(DataComponents.BLOCK_STATE);
             if (blockItemStateProperties != null && stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof PieceBlock pieceBlock) {

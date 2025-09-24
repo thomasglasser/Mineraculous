@@ -14,31 +14,23 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Applies and removes night vision automatically based on light level.
+ * Applies and removes night vision on key press.
  *
- * @param lightLevel  The maximum light level to apply night vision at
  * @param shader      The shader to apply when night vision is applied
  * @param applySound  The sound to play when night vision is applied
  * @param removeSound The sound to play when night vision is removed
  */
-public record AutomaticNightVisionAbility(int lightLevel, Optional<ResourceLocation> shader, Optional<Holder<SoundEvent>> applySound, Optional<Holder<SoundEvent>> removeSound) implements Ability {
+public record ToggleableNightVisionAbility(Optional<ResourceLocation> shader, Optional<Holder<SoundEvent>> applySound, Optional<Holder<SoundEvent>> removeSound) implements Ability {
 
-    public static final int DEFAULT_LIGHT_LEVEL = 5;
-    public static final MapCodec<AutomaticNightVisionAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("light_level", DEFAULT_LIGHT_LEVEL).forGetter(AutomaticNightVisionAbility::lightLevel),
-            ResourceLocation.CODEC.optionalFieldOf("shader").forGetter(AutomaticNightVisionAbility::shader),
-            SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(AutomaticNightVisionAbility::applySound),
-            SoundEvent.CODEC.optionalFieldOf("remove_sound").forGetter(AutomaticNightVisionAbility::removeSound)).apply(instance, AutomaticNightVisionAbility::new));
-    public AutomaticNightVisionAbility(Optional<ResourceLocation> shader, Optional<Holder<SoundEvent>> applySound, Optional<Holder<SoundEvent>> removeSound) {
-        this(DEFAULT_LIGHT_LEVEL, shader, applySound, removeSound);
-    }
-
+    public static final MapCodec<ToggleableNightVisionAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ResourceLocation.CODEC.optionalFieldOf("shader").forGetter(ToggleableNightVisionAbility::shader),
+            SoundEvent.CODEC.optionalFieldOf("apply_sound").forGetter(ToggleableNightVisionAbility::applySound),
+            SoundEvent.CODEC.optionalFieldOf("remove_sound").forGetter(ToggleableNightVisionAbility::removeSound)).apply(instance, ToggleableNightVisionAbility::new));
     @Override
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null) {
@@ -54,17 +46,13 @@ public record AutomaticNightVisionAbility(int lightLevel, Optional<ResourceLocat
 
     @Override
     public void joinLevel(AbilityData data, ServerLevel level, LivingEntity performer) {
-        checkNightVision(data.powerLevel(), level, performer);
+        updateNightVision(data.powerLevel(), level, performer, false);
     }
 
     public void checkNightVision(int powerLevel, ServerLevel level, LivingEntity performer) {
         boolean hasNightVision = performer.hasEffect(MobEffects.NIGHT_VISION);
-        if (level.getRawBrightness(performer.blockPosition().above(), level.getSkyDarken()) <= lightLevel) {
-            if (!hasNightVision) {
-                updateNightVision(powerLevel, level, performer, true);
-            }
-        } else if (hasNightVision) {
-            updateNightVision(powerLevel, level, performer, false);
+        if (performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).toggleNightVision()) {
+            updateNightVision(powerLevel, level, performer, !hasNightVision);
         }
     }
 
@@ -79,12 +67,12 @@ public record AutomaticNightVisionAbility(int lightLevel, Optional<ResourceLocat
         } else {
             performer.removeEffect(MobEffects.NIGHT_VISION);
         }
-        performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withShader(giveNightVision ? shader : Optional.empty()).save(performer, true);
+        performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).updateNightVision(giveNightVision ? shader : Optional.empty()).save(performer, true);
         Ability.playSound(level, performer, giveNightVision ? applySound : removeSound);
     }
 
     @Override
     public MapCodec<? extends Ability> codec() {
-        return AbilitySerializers.AUTOMATIC_NIGHT_VISION.get();
+        return AbilitySerializers.TOGGLEABLE_NIGHT_VISION.get();
     }
 }

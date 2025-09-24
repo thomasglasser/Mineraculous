@@ -43,6 +43,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.tommylib.api.data.lang.ExtendedEnUsLanguageProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
@@ -63,6 +64,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     @Override
     protected void addTranslations() {
         addItems();
+        addComponents();
         addBlocks();
         addEntityTypes();
         addTabs();
@@ -126,6 +128,12 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addSuitArmor(MineraculousArmors.KAMIKOTIZATION, "Kamikotization");
     }
 
+    private void addComponents() {
+        add(Active.PRESS_KEY_TO_TOGGLE, "Press %s to %s");
+        add(Active.ACTIVATE, "Activate");
+        add(Active.DEACTIVATE, "Deactivate");
+    }
+
     private void addBlocks() {
         add(MineraculousBlocks.CATACLYSM_BLOCK.get(), "Block of Cataclysm");
         add(MineraculousBlocks.CHEESE_POT.get(), "Cheese Pot");
@@ -160,6 +168,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousKeyMappings.TOGGLE_ITEM_ACTIVE, "De/Activate Item");
         add(MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU, "Open Item Radial Menu");
         add(MineraculousKeyMappings.TAKE_BREAK_ITEM, "Take/Break Item");
+        add(MineraculousKeyMappings.TOGGLE_NIGHT_VISION, "Toggle Night Vision");
         add(MineraculousKeyMappings.DESCEND_TOOL, "Descend Tool");
         add(MineraculousKeyMappings.ASCEND_TOOL, "Ascend Tool");
     }

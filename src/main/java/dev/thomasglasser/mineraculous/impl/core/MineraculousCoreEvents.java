@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.impl.core;
 
-import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousBuiltInRegistries;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
@@ -11,6 +10,7 @@ import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.tommylib.api.packs.PackInfo;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.nio.file.Path;
@@ -48,7 +48,7 @@ public class MineraculousCoreEvents {
             DispenserBlock.registerBehavior(MineraculousItems.CAT_STAFF, new ProjectileDispenseBehavior(MineraculousItems.CAT_STAFF.get()) {
                 @Override
                 public ItemStack execute(BlockSource blockSource, ItemStack item) {
-                    if (item.getOrDefault(MineraculousDataComponents.ACTIVE, false))
+                    if (Active.isActive(item))
                         return super.execute(blockSource, item);
                     Direction direction = blockSource.state().getValue(DispenserBlock.FACING);
                     Position position = DispenserBlock.getDispensePosition(blockSource);

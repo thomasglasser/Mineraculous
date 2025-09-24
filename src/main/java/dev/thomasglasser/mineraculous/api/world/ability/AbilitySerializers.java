@@ -11,7 +11,6 @@ public class AbilitySerializers {
     private static final DeferredRegister<MapCodec<? extends Ability>> ABILITIES = DeferredRegister.create(MineraculousRegistries.ABILITY_SERIALIZER, Mineraculous.MOD_ID);
 
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ApplyEffectsOrDestroyAbility>> APPLY_EFFECTS_OR_DESTROY = ABILITIES.register("apply_effects_or_destroy", () -> ApplyEffectsOrDestroyAbility.CODEC);
-    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<AutomaticNightVisionAbility>> AUTOMATIC_NIGHT_VISION = ABILITIES.register("automatic_night_vision", () -> AutomaticNightVisionAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ContextDependentAbility>> CONTEXT_DEPENDENT = ABILITIES.register("context_dependent", () -> ContextDependentAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ContinuousAbility>> CONTINUOUS = ABILITIES.register("continuous", () -> ContinuousAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ConvertAndTameAbility>> CONVERT_AND_TAME = ABILITIES.register("convert_and_tame", () -> ConvertAndTameAbility.CODEC);
@@ -22,6 +21,7 @@ public class AbilitySerializers {
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<RightHandParticlesAbility>> RIGHT_HAND_PARTICLES = ABILITIES.register("right_hand_particles", () -> RightHandParticlesAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<SpectateEntityAbility>> SPECTATE_ENTITY = ABILITIES.register("spectate_entity", () -> SpectateEntityAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<SummonTargetDependentLuckyCharmAbility>> SUMMON_TARGET_DEPENDENT_LUCKY_CHARM = ABILITIES.register("summon_target_dependent_lucky_charm", () -> SummonTargetDependentLuckyCharmAbility.CODEC);
+    public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ToggleableNightVisionAbility>> TOGGLEABLE_NIGHT_VISION = ABILITIES.register("toggleable_night_vision", () -> ToggleableNightVisionAbility.CODEC);
 
     @ApiStatus.Internal
     public static void init() {}

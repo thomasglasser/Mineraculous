@@ -229,7 +229,6 @@
   ],
   "mineraculous:ability_serializer": [
     "mineraculous:apply_effects_or_destroy",
-    "mineraculous:automatic_night_vision",
     "mineraculous:context_dependent",
     "mineraculous:continuous",
     "mineraculous:convert_and_tame",
@@ -239,7 +238,8 @@
     "mineraculous:revert_lucky_charm_targets_ability_effects",
     "mineraculous:right_hand_particles",
     "mineraculous:spectate_entity",
-    "mineraculous:summon_target_dependent_lucky_charm"
+    "mineraculous:summon_target_dependent_lucky_charm",
+    "mineraculous:toggleable_night_vision"
   ],
   "mineraculous:kamikotization": [
     "mineraculous:cat",

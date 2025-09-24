@@ -4,6 +4,7 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.world.item.ActiveItem;
 import dev.thomasglasser.mineraculous.api.world.item.component.ActiveSettings;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import java.util.Optional;
@@ -31,19 +32,19 @@ public record ServerboundToggleActivePayload(InteractionHand hand) implements Ex
     public void handle(Player player) {
         ItemStack stack = player.getItemInHand(hand);
         Item item = stack.getItem();
-        Boolean oldActive = stack.get(MineraculousDataComponents.ACTIVE);
+        Active oldActive = stack.get(MineraculousDataComponents.ACTIVE);
         if (oldActive != null) {
-            boolean active = !oldActive;
+            Active active = oldActive.toggle();
             stack.set(MineraculousDataComponents.ACTIVE, active);
             ActiveSettings settings = stack.get(MineraculousDataComponents.ACTIVE_SETTINGS);
             if (settings != null) {
                 if (item instanceof SingletonGeoAnimatable animatable) {
                     settings.controller().ifPresent(controller -> {
-                        Optional<String> animation = active ? settings.onAnim() : settings.offAnim();
+                        Optional<String> animation = active.active() ? settings.onAnim() : settings.offAnim();
                         animation.ifPresent(anim -> animatable.triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerLevel) player.level()), controller, anim));
                     });
                 }
-                Optional<Holder<SoundEvent>> soundEvent = active ? settings.onSound() : settings.offSound();
+                Optional<Holder<SoundEvent>> soundEvent = active.active() ? settings.onSound() : settings.offSound();
                 soundEvent.ifPresent(sound -> player.level().playSound(null, player.getX(), player.getY() + (player.getBbHeight() / 2), player.getZ(), sound.value(), SoundSource.PLAYERS, 1.0F, 1.0F));
             }
             if (item instanceof ActiveItem activeItem) {

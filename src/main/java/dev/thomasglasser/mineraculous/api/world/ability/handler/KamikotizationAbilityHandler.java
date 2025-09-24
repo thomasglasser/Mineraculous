@@ -4,6 +4,7 @@ import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTrigg
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import java.util.UUID;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,6 +39,6 @@ public record KamikotizationAbilityHandler(Holder<Kamikotization> kamikotization
 
     @Override
     public boolean isActiveTool(ItemStack stack, LivingEntity performer) {
-        return kamikotization == stack.get(MineraculousDataComponents.KAMIKOTIZATION) && stack.getOrDefault(MineraculousDataComponents.ACTIVE, true);
+        return kamikotization == stack.get(MineraculousDataComponents.KAMIKOTIZATION) && Active.isActive(stack, true);
     }
 }

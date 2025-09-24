@@ -19,6 +19,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelHandler;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -132,7 +133,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
         }));
         controllers.add(new AnimationController<>(this, CONTROLLER_EXTEND, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
-            if (stack != null && !stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && !state.isCurrentAnimation(RETRACT)) {
+            if (stack != null && !Active.isActive(stack) && !state.isCurrentAnimation(RETRACT)) {
                 return state.setAndContinue(DefaultAnimations.IDLE);
             }
             return PlayState.STOP;
@@ -152,8 +153,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
         if (entity instanceof LivingEntity livingEntity) {
-            boolean isActive = stack.getOrDefault(MineraculousDataComponents.ACTIVE, false);
-            if (isActive) {
+            if (Active.isActive(stack)) {
                 boolean inHand = livingEntity.getMainHandItem() == stack || livingEntity.getOffhandItem() == stack;
                 Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
                 if (ability != null) {
@@ -189,7 +189,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!stack.getOrDefault(MineraculousDataComponents.ACTIVE, false))
+        if (!Active.isActive(stack))
             return InteractionResultHolder.fail(stack);
         if (stack.has(MineraculousDataComponents.CAT_STAFF_ABILITY)) {
             Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
@@ -266,7 +266,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
 
     @Override
     public boolean onLeftClick(ItemStack stack, LivingEntity livingEntity) {
-        if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false)) {
+        if (Active.isActive(stack)) {
             Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
             Level level = livingEntity.level();
             if (ability == Ability.PERCH) {
@@ -300,7 +300,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     @Override
     public ItemAttributeModifiers getDefaultAttributeModifiers(ItemStack stack) {
         Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
-        if (stack.getOrDefault(MineraculousDataComponents.ACTIVE, false) && ability != Ability.PHONE && ability != Ability.SPYGLASS)
+        if (Active.isActive(stack) && ability != Ability.PHONE && ability != Ability.SPYGLASS)
             return EXTENDED_ATTRIBUTE_MODIFIERS;
         return super.getDefaultAttributeModifiers(stack);
     }
@@ -316,7 +316,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     }
 
     public boolean canEquip(ItemStack stack) {
-        return !stack.getOrDefault(MineraculousDataComponents.ACTIVE, false);
+        return !Active.isActive(stack);
     }
 
     @Override
@@ -329,7 +329,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
 
     @Override
     public boolean canOpenMenu(ItemStack stack, InteractionHand hand, Player holder) {
-        return stack.getOrDefault(MineraculousDataComponents.ACTIVE, false);
+        return Active.isActive(stack);
     }
 
     @Override

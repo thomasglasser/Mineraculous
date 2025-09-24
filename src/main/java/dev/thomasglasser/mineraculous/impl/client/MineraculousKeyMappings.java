@@ -17,6 +17,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundRenounceMiraculous
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetKamikotizationPowerActivatedPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetMiraculousPowerActivatedPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundToggleActivePayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundToggleNightVisionPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoLengthPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundWakeUpPayload;
@@ -49,6 +50,7 @@ public class MineraculousKeyMappings {
     public static final ExtendedKeyMapping TOGGLE_ITEM_ACTIVE = register("toggle_item_active", InputConstants.KEY_R, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleToggleActive);
     public static final ExtendedKeyMapping OPEN_ITEM_RADIAL_MENU = register("open_item_radial_menu", InputConstants.KEY_C, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleOpenItemRadialMenu);
     public static final ExtendedKeyMapping TAKE_BREAK_ITEM = register("take_break_item", InputConstants.KEY_B, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleTakeBreakItem, MineraculousKeyMappings::handleNoTakeBreakItem);
+    public static final ExtendedKeyMapping TOGGLE_NIGHT_VISION = register("toggle_night_vision", InputConstants.KEY_V, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleToggleNightVision);
     public static final ExtendedKeyMapping DESCEND_TOOL = register("descend_tool", InputConstants.KEY_Z, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateToolMovements(true));
     public static final ExtendedKeyMapping ASCEND_TOOL = register("ascend_tool", InputConstants.KEY_X, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateToolMovements(false));
 
@@ -216,6 +218,10 @@ public class MineraculousKeyMappings {
 
     private static void handleNoTakeBreakItem() {
         takeTicks = 0;
+    }
+
+    private static void handleToggleNightVision() {
+        TommyLibServices.NETWORK.sendToServer(ServerboundToggleNightVisionPayload.INSTANCE);
     }
 
     private static void handleUpdateToolMovements(boolean ascend) {

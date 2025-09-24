@@ -8,6 +8,7 @@ import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
@@ -28,7 +29,7 @@ public class MineraculousDataComponents {
      * Whether the item is configured to be usable.
      * If present, can be toggled by {@link MineraculousKeyMappings#TOGGLE_ITEM_ACTIVE}.
      */
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> ACTIVE = DATA_COMPONENTS.registerBoolean("active", true, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Active>> ACTIVE = DATA_COMPONENTS.register("active", Active.STREAM_CODEC, Active.CODEC, true);
     /// Settings to use when toggling the {@link MineraculousDataComponents#ACTIVE} component.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ActiveSettings>> ACTIVE_SETTINGS = DATA_COMPONENTS.register("active_settings", ActiveSettings.STREAM_CODEC, ActiveSettings.CODEC, false);
     /**

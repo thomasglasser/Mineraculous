@@ -14,6 +14,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundCalculateYoyoRenderLengthPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
@@ -277,7 +278,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 && distance <= MineraculousServerConfig.get().maxToolLength.getAsInt() + 1
                 && this.level().dimension() == owner.level().dimension()
                 && stack.is(MineraculousItems.LADYBUG_YOYO)
-                && stack.getOrDefault(MineraculousDataComponents.ACTIVE, false)
+                && Active.isActive(stack)
                 && (getAbility() == null || getAbility() == stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY));
         if (!remain) {
             this.discard();

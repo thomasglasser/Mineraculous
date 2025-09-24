@@ -27,6 +27,7 @@ import dev.thomasglasser.mineraculous.impl.world.entity.MineraculousEntityEvents
 import dev.thomasglasser.mineraculous.impl.world.entity.ai.village.poi.MineraculousPoiTypes;
 import dev.thomasglasser.mineraculous.impl.world.entity.npc.MineraculousVillagerTrades;
 import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
+import dev.thomasglasser.mineraculous.impl.world.item.MineraculousItemEvents;
 import dev.thomasglasser.mineraculous.impl.world.item.crafting.MineraculousRecipeSerializers;
 import dev.thomasglasser.mineraculous.impl.world.level.block.MineraculousBlockEvents;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.loot.predicates.MineraculousLootItemConditions;
@@ -129,6 +130,8 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingDrops);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityLeaveLevel);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerLoggedOut);
+
+        NeoForge.EVENT_BUS.addListener(MineraculousItemEvents::onItemTooltip);
     }
 
     public static ResourceLocation modLoc(String path) {

@@ -42,15 +42,15 @@ import net.minecraft.world.item.ItemStack;
 public class MineraculousKeyMappings {
     public static final String MIRACULOUS_CATEGORY = "key.categories.mineraculous";
 
-    public static final ExtendedKeyMapping TRANSFORM = register("transform", InputConstants.KEY_M, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleTransform);
-    public static final ExtendedKeyMapping ACTIVATE_POWER = register("activate_power", InputConstants.KEY_O, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleActivatePower);
+    public static final ExtendedKeyMapping TRANSFORM = register("transform", InputConstants.KEY_U, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleTransform);
+    public static final ExtendedKeyMapping ACTIVATE_POWER = register("activate_power", InputConstants.KEY_Y, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleActivatePower);
     public static final ExtendedKeyMapping REVOKE_KAMIKOTIZATION = register("revoke_kamikotization", InputConstants.KEY_K, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleRevokeKamikotization);
     public static final ExtendedKeyMapping RENOUNCE_MIRACULOUS = register("renounce_miraculous", InputConstants.KEY_N, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleRenounceMiraculous);
-    public static final ExtendedKeyMapping TOGGLE_ITEM_ACTIVE = register("toggle_item_active", InputConstants.KEY_I, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleToggleActive);
-    public static final ExtendedKeyMapping OPEN_ITEM_RADIAL_MENU = register("open_item_radial_menu", InputConstants.KEY_R, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleOpenItemRadialMenu);
+    public static final ExtendedKeyMapping TOGGLE_ITEM_ACTIVE = register("toggle_item_active", InputConstants.KEY_R, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleToggleActive);
+    public static final ExtendedKeyMapping OPEN_ITEM_RADIAL_MENU = register("open_item_radial_menu", InputConstants.KEY_C, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleOpenItemRadialMenu);
     public static final ExtendedKeyMapping TAKE_BREAK_ITEM = register("take_break_item", InputConstants.KEY_B, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleTakeBreakItem, MineraculousKeyMappings::handleNoTakeBreakItem);
-    public static final ExtendedKeyMapping DESCEND_TOOL = register("descend_tool", InputConstants.KEY_DOWN, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateToolMovements(true));
-    public static final ExtendedKeyMapping ASCEND_TOOL = register("ascend_tool", InputConstants.KEY_UP, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateToolMovements(false));
+    public static final ExtendedKeyMapping DESCEND_TOOL = register("descend_tool", InputConstants.KEY_Z, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateToolMovements(true));
+    public static final ExtendedKeyMapping ASCEND_TOOL = register("ascend_tool", InputConstants.KEY_X, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateToolMovements(false));
 
     public static ExtendedKeyMapping register(String name, int key, String category, Runnable onClick) {
         return ClientUtils.registerKeyMapping(Mineraculous.modLoc(name), key, category, onClick);

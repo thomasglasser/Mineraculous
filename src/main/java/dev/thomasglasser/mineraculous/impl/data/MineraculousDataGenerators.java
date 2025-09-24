@@ -109,10 +109,15 @@ public class MineraculousDataGenerators {
         DataGenerationUtils.createProvider(event, MineraculousSoundDefinitionsProvider::new);
         DataGenerationUtils.createProvider(event, MineraculousResourceLocationClientTagsProvider::new);
 
-        generateAkumatizationPack(event.getGenerator(), new PackOutput(event.getGenerator().getPackOutput().getOutputFolder().resolve(MineraculousPacks.AKUMATIZATION.path())));
+        DataGenerator generator = event.getGenerator();
+        PackOutput packOutput = generator.getPackOutput();
+        generateAkumatizationPack(generator, packOutput);
     }
 
     private static void generateAkumatizationPack(DataGenerator generator, PackOutput packOutput) {
+        packOutput = MineraculousPacks.AKUMATIZATION.toSubPackOutput(packOutput);
+        generator.addProvider(true, MineraculousPacks.AKUMATIZATION.toGenerator(packOutput));
+
         // Client
         generator.addProvider(true, new AkumatizationPackEnUsLanguageProvider(packOutput));
     }

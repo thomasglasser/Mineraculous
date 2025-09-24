@@ -186,8 +186,6 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
 			java_version: java_version,
 			icon: icon,
 			github_name: github_name,
-			resource_pack_version: resource_pack_version,
-			data_pack_version: data_pack_version,
 			tommylib_version: tommylib_version,
 			geckolib_version: geckolib_version,
 			smartbrainlib_version: smartbrainlib_version,

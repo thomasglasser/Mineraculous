@@ -19,7 +19,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.ProjectileDispenseBehavior;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackResources;
@@ -76,7 +75,7 @@ public class MineraculousCoreEvents {
         for (PackInfo info : MineraculousPacks.getPacks()) {
             if (event.getPackType() == info.type()) {
                 Path resourcePath = ModList.get().getModFileById(Mineraculous.MOD_ID).getFile().findResource("packs/" + info.knownPack().namespace() + "/" + info.knownPack().id());
-                Pack pack = Pack.readMetaAndCreate(new PackLocationInfo("builtin/" + info.knownPack().id(), Component.translatable(info.titleKey()), info.source(), Optional.of(info.knownPack())), new Pack.ResourcesSupplier() {
+                Pack pack = Pack.readMetaAndCreate(new PackLocationInfo("builtin/" + info.knownPack().id(), info.title(), info.source(), Optional.of(info.knownPack())), new Pack.ResourcesSupplier() {
                     @Override
                     public PackResources openFull(PackLocationInfo p_326241_, Pack.Metadata p_325959_) {
                         return new PathPackResources(p_326241_, resourcePath);

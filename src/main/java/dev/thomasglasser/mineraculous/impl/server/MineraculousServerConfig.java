@@ -16,6 +16,7 @@ public class MineraculousServerConfig {
     public final ModConfigSpec.IntValue miraculousTimerDuration;
     public final ModConfigSpec.BooleanValue enableLimitedPower;
     public final ModConfigSpec.BooleanValue enableKamikotizationRejection;
+    public final ModConfigSpec.BooleanValue enableBuffsOnTransformation;
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMin;
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMax;
     public final ModConfigSpec.IntValue maxToolLength;
@@ -45,6 +46,8 @@ public class MineraculousServerConfig {
                 .define("enable_limited_power", true);
         enableKamikotizationRejection = builder
                 .define("enable_kamikotization_rejection", true);
+        enableBuffsOnTransformation = builder
+                .define("enable_buffs_on_transformation", false);
         luckyCharmSummonTimeMin = builder
                 .defineInRange("lucky_charm_summon_time_min", 3, 0, Integer.MAX_VALUE);
         luckyCharmSummonTimeMax = builder

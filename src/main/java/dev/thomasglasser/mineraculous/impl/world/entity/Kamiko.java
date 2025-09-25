@@ -12,7 +12,6 @@ import dev.thomasglasser.mineraculous.api.world.entity.ai.sensing.PlayerItemTemp
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundOpenKamikotizationSelectionScreenPayload;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncInventoryPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
@@ -72,7 +71,7 @@ import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, GeoEntity {
-    public static final ResourceLocation SPECTATOR_SHADER = Mineraculous.modLoc("shaders/post/kamiko.json");
+    public static final ResourceLocation SPECTATOR_SHADER = MineraculousConstants.modLoc("shaders/post/kamiko.json");
     public static final Component CANT_KAMIKOTIZE_TRANSFORMED = Component.translatable("entity.mineraculous.kamiko.cant_kamikotize_transformed");
 
     private static final EntityDataAccessor<Integer> DATA_NAME_COLOR = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.INT);

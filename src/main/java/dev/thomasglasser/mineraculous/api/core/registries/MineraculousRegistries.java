@@ -1,10 +1,10 @@
 package dev.thomasglasser.mineraculous.api.core.registries;
 
 import com.mojang.serialization.MapCodec;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 
@@ -22,6 +22,6 @@ public class MineraculousRegistries {
     public static final ResourceKey<Registry<Kamikotization>> KAMIKOTIZATION = create("kamikotization");
 
     private static <T> ResourceKey<Registry<T>> create(String name) {
-        return ResourceKey.createRegistryKey(Mineraculous.modLoc(name));
+        return ResourceKey.createRegistryKey(MineraculousConstants.modLoc(name));
     }
 }

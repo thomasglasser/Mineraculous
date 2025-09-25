@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
@@ -9,20 +10,18 @@ import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundActivatePowerPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundPutMiraculousToolInHandPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRenounceMiraculousPayload;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundSetKamikotizationPowerActivatedPayload;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundSetMiraculousPowerActivatedPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundToggleActivePayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundToggleBuffsPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundToggleNightVisionPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoLengthPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.ExtendedKeyMapping;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -36,6 +35,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -47,6 +47,7 @@ public class MineraculousKeyMappings {
     public static final ExtendedKeyMapping ACTIVATE_POWER = register("activate_power", InputConstants.KEY_Y, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleActivatePower);
     public static final ExtendedKeyMapping REVOKE_KAMIKOTIZATION = register("revoke_kamikotization", InputConstants.KEY_K, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleRevokeKamikotization);
     public static final ExtendedKeyMapping RENOUNCE_MIRACULOUS = register("renounce_miraculous", InputConstants.KEY_N, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleRenounceMiraculous);
+    public static final ExtendedKeyMapping TOGGLE_BUFFS = register("toggle_buffs", InputConstants.KEY_GRAVE, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleToggleBuffs);
     public static final ExtendedKeyMapping TOGGLE_ITEM_ACTIVE = register("toggle_item_active", InputConstants.KEY_R, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleToggleActive);
     public static final ExtendedKeyMapping OPEN_ITEM_RADIAL_MENU = register("open_item_radial_menu", InputConstants.KEY_C, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleOpenItemRadialMenu);
     public static final ExtendedKeyMapping TAKE_BREAK_ITEM = register("take_break_item", InputConstants.KEY_B, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleTakeBreakItem, MineraculousKeyMappings::handleNoTakeBreakItem);
@@ -55,11 +56,11 @@ public class MineraculousKeyMappings {
     public static final ExtendedKeyMapping ASCEND_TOOL = register("ascend_tool", InputConstants.KEY_X, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateToolMovements(false));
 
     public static ExtendedKeyMapping register(String name, int key, String category, Runnable onClick) {
-        return ClientUtils.registerKeyMapping(Mineraculous.modLoc(name), key, category, onClick);
+        return ClientUtils.registerKeyMapping(MineraculousConstants.modLoc(name), key, category, onClick);
     }
 
     public static ExtendedKeyMapping register(String name, int key, String category, Runnable onClick, Runnable onNoClick) {
-        return ClientUtils.registerKeyMapping(Mineraculous.modLoc(name), key, category, onClick, onNoClick);
+        return ClientUtils.registerKeyMapping(MineraculousConstants.modLoc(name), key, category, onClick, onNoClick);
     }
 
     private static void handleTransform() {
@@ -73,28 +74,29 @@ public class MineraculousKeyMappings {
             } else {
                 List<RadialMenuOption> options = new ReferenceArrayList<>();
                 Map<RadialMenuOption, Holder<Miraculous>> miraculousOptions = new Reference2ReferenceOpenHashMap<>();
-                Map<Holder<Miraculous>, ItemStack> miraculousStacks = new Reference2ReferenceOpenHashMap<>();
                 for (ItemStack stack : CuriosUtils.getAllItems(player).values()) {
                     Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
                     if (miraculous != null) {
-                        RadialMenuOption option = new RadialMenuOption() {
-                            private Integer color;
+                        ResourceKey<Miraculous> key = miraculous.getKey();
+                        if (key != null) {
+                            RadialMenuOption option = new RadialMenuOption() {
+                                private Integer color;
 
-                            @Override
-                            public Component displayName() {
-                                return Component.translatable(Miraculous.toLanguageKey(miraculous.getKey()));
-                            }
+                                @Override
+                                public Component displayName() {
+                                    return Component.translatable(Miraculous.toLanguageKey(key));
+                                }
 
-                            @Override
-                            public Integer colorOverride() {
-                                if (color == null)
-                                    color = miraculous.value().color().getValue();
-                                return color;
-                            }
-                        };
-                        options.add(option);
-                        miraculousOptions.put(option, miraculous);
-                        miraculousStacks.put(miraculous, stack);
+                                @Override
+                                public Integer colorOverride() {
+                                    if (color == null)
+                                        color = miraculous.value().color().getValue();
+                                    return color;
+                                }
+                            };
+                            options.add(option);
+                            miraculousOptions.put(option, miraculous);
+                        }
                     }
                 }
                 if (options.size() > 1) {
@@ -111,15 +113,7 @@ public class MineraculousKeyMappings {
     }
 
     private static void handleActivatePower() {
-        Player player = Minecraft.getInstance().player;
-        if (player != null) {
-            List<Holder<Miraculous>> transformed = player.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed();
-            if (!transformed.isEmpty()) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousPowerActivatedPayload(transformed.getFirst()));
-            } else if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
-                TommyLibServices.NETWORK.sendToServer(ServerboundSetKamikotizationPowerActivatedPayload.INSTANCE);
-            }
-        }
+        TommyLibServices.NETWORK.sendToServer(ServerboundActivatePowerPayload.INSTANCE);
     }
 
     private static void handleRevokeKamikotization() {
@@ -132,27 +126,15 @@ public class MineraculousKeyMappings {
     }
 
     private static void handleRenounceMiraculous() {
-        Player player = Minecraft.getInstance().player;
-        if (player != null) {
-            ItemStack mainHandItem = player.getMainHandItem();
-            ItemStack offhandItem = player.getOffhandItem();
-            if (mainHandItem.getItem() instanceof MiraculousItem && !mainHandItem.has(MineraculousDataComponents.POWERED)) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(InteractionHand.MAIN_HAND));
-            } else if (offhandItem.getItem() instanceof MiraculousItem && !offhandItem.has(MineraculousDataComponents.POWERED)) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundRenounceMiraculousPayload(InteractionHand.OFF_HAND));
-            }
-        }
+        TommyLibServices.NETWORK.sendToServer(ServerboundRenounceMiraculousPayload.INSTANCE);
+    }
+
+    private static void handleToggleBuffs() {
+        TommyLibServices.NETWORK.sendToServer(ServerboundToggleBuffsPayload.INSTANCE);
     }
 
     private static void handleToggleActive() {
-        Player player = Minecraft.getInstance().player;
-        if (player != null) {
-            if (player.getMainHandItem().has(MineraculousDataComponents.ACTIVE)) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundToggleActivePayload(InteractionHand.MAIN_HAND));
-            } else if (player.getOffhandItem().has(MineraculousDataComponents.ACTIVE)) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundToggleActivePayload(InteractionHand.OFF_HAND));
-            }
-        }
+        TommyLibServices.NETWORK.sendToServer(ServerboundToggleActivePayload.INSTANCE);
     }
 
     private static void handleOpenItemRadialMenu() {

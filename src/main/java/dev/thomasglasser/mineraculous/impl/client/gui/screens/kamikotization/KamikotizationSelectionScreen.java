@@ -13,7 +13,6 @@ import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundOpenPerformerKamikotizationChatScreenPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundOpenVictimKamikotizationChatScreenPayload;
@@ -53,7 +52,7 @@ import org.lwjgl.glfw.GLFW;
 import top.theillusivec4.curios.common.inventory.CurioSlot;
 
 public class KamikotizationSelectionScreen extends Screen {
-    public static final ResourceLocation BACKGROUND = Mineraculous.modLoc("textures/gui/kamikotization_selection.png");
+    public static final ResourceLocation BACKGROUND = MineraculousConstants.modLoc("textures/gui/kamikotization_selection.png");
     public static final int BACKGROUND_WIDTH = 248;
     public static final int BACKGROUND_HEIGHT = 166;
     public static final Component TITLE = Component.translatable("gui.kamikotization.name");

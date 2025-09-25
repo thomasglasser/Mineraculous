@@ -1,11 +1,11 @@
 package dev.thomasglasser.mineraculous.api.client.renderer.item;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
@@ -32,17 +32,17 @@ public class MineraculousItemProperties {
 
     // Generic
     /// Whether {@link MineraculousDataComponents#ACTIVE} is present and {@code true}.
-    public static final ResourceLocation ACTIVE = Mineraculous.modLoc("active");
+    public static final ResourceLocation ACTIVE = MineraculousConstants.modLoc("active");
     /// The value of a {@link PieceBlock} {@link BlockItem} corresponding to {@link PieceBlock#getMissingPiecesProperty()}.
-    public static final ResourceLocation MISSING_PIECES = Mineraculous.modLoc(PieceBlock.MISSING_PIECES);
+    public static final ResourceLocation MISSING_PIECES = MineraculousConstants.modLoc(PieceBlock.MISSING_PIECES);
 
     // Specific
     /// {@link Enum#ordinal()} {@code + 1} of a Miraculous tool ability.
-    public static final ResourceLocation ABILITY = Mineraculous.modLoc("ability");
+    public static final ResourceLocation ABILITY = MineraculousConstants.modLoc("ability");
     /// Thrown state of a {@link LadybugYoyoItem}.
-    public static final ResourceLocation THROWN = Mineraculous.modLoc("thrown");
+    public static final ResourceLocation THROWN = MineraculousConstants.modLoc("thrown");
     /// Whether a {@link ButterflyCaneItem} owner is currently storing a kamiko
-    public static final ResourceLocation STORING = Mineraculous.modLoc("storing");
+    public static final ResourceLocation STORING = MineraculousConstants.modLoc("storing");
 
     /**
      * Creates an {@link ItemPropertyFunction} for an {@link Enum} {@link DataComponentType} based on ordinal.

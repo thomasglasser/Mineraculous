@@ -18,7 +18,6 @@ import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.data.advancements.ExtendedAdvancementGenerator;
 import java.util.Optional;
 import java.util.function.BiConsumer;
@@ -46,7 +45,7 @@ public class MiraculousAdvancements extends ExtendedAdvancementGenerator {
         Holder<Miraculous> butterfly = miraculouses.getOrThrow(Miraculouses.BUTTERFLY);
 
         AdvancementHolder root = builder("root", Miraculous.createMiraculousStack(ladybug) /*TODO: Replace with Miraculous box*/, "Miraculous", "A hero's journey begins...")
-                .background(Mineraculous.modLoc("textures/gui/advancements/backgrounds/miraculous.png"))
+                .background(MineraculousConstants.modLoc("textures/gui/advancements/backgrounds/miraculous.png"))
                 .toast(false)
                 .announce(false)
                 .trigger("get_miraculous", InventoryChangeTrigger.TriggerInstance.hasItems(ItemPredicate.Builder.item().of(MineraculousItems.MIRACULOUS)))

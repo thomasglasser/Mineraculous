@@ -4,7 +4,6 @@ import com.klikli_dev.modonomicon.api.datagen.SingleBookSubProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookModel;
 import com.klikli_dev.modonomicon.book.BookDisplayMode;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.apis.ApisCategoryProvider;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.cosmetics.CosmeticsCategoryProvider;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.decorations.DecorationsCategoryProvider;
@@ -49,7 +48,7 @@ public class WikiBookSubProvider extends SingleBookSubProvider {
         book = super.additionalSetup(book);
         return book
                 .withDisplayMode(BookDisplayMode.INDEX)
-                .withModel(Mineraculous.Dependencies.MODONOMICON.modLoc("modonomicon_red"))
+                .withModel(MineraculousConstants.Dependencies.MODONOMICON.modLoc("modonomicon_red"))
                 .withCreativeTab(MineraculousCreativeModeTabs.MINERACULOUS.getId())
                 .withGenerateBookItem(true);
     }
@@ -75,6 +74,6 @@ public class WikiBookSubProvider extends SingleBookSubProvider {
     }
 
     public static ResourceLocation wikiTexture(String path) {
-        return Mineraculous.modLoc("textures/modonomicon/wiki/" + path);
+        return MineraculousConstants.modLoc("textures/modonomicon/wiki/" + path);
     }
 }

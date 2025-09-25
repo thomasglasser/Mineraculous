@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.api.tags;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.tags.TagUtils;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
@@ -53,7 +53,7 @@ public class MineraculousItemTags {
     public static final TagKey<Item> WARDEN_DISTRACTORS = create("warden_distractors");
 
     private static TagKey<Item> create(String name) {
-        return TagKey.create(Registries.ITEM, Mineraculous.modLoc(name));
+        return TagKey.create(Registries.ITEM, MineraculousConstants.modLoc(name));
     }
 
     private static TagKey<Item> createC(String name) {

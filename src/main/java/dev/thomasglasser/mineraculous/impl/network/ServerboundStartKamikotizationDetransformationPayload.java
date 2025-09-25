@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.Optional;
 import java.util.UUID;
@@ -16,7 +16,7 @@ import net.minecraft.world.entity.player.Player;
 
 public record ServerboundStartKamikotizationDetransformationPayload(Optional<UUID> targetId, KamikotizationData data, boolean instant) implements ExtendedPacketPayload {
 
-    public static final Type<ServerboundStartKamikotizationDetransformationPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_start_kamikotization_detransformation"));
+    public static final Type<ServerboundStartKamikotizationDetransformationPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_start_kamikotization_detransformation"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundStartKamikotizationDetransformationPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), ServerboundStartKamikotizationDetransformationPayload::targetId,
             KamikotizationData.STREAM_CODEC, ServerboundStartKamikotizationDetransformationPayload::data,

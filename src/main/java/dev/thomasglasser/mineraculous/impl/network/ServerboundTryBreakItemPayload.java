@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import com.mojang.datafixers.util.Pair;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -14,7 +14,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class ServerboundTryBreakItemPayload implements ExtendedPacketPayload {
     public static final ServerboundTryBreakItemPayload INSTANCE = new ServerboundTryBreakItemPayload();
-    public static final Type<ServerboundTryBreakItemPayload> TYPE = new Type<>(Mineraculous.modLoc("try_break_item"));
+    public static final Type<ServerboundTryBreakItemPayload> TYPE = new Type<>(MineraculousConstants.modLoc("try_break_item"));
     public static final StreamCodec<ByteBuf, ServerboundTryBreakItemPayload> CODEC = StreamCodec.unit(INSTANCE);
 
     private ServerboundTryBreakItemPayload() {}

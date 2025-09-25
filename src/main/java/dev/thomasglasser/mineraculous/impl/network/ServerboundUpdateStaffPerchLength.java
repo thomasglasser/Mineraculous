@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 
 public record ServerboundUpdateStaffPerchLength(PerchingCatStaffData perchingData, boolean ascend, boolean descend) implements ExtendedPacketPayload {
 
-    public static final CustomPacketPayload.Type<ServerboundUpdateStaffPerchLength> TYPE = new CustomPacketPayload.Type<>(Mineraculous.modLoc("staff_perch_update_length"));
+    public static final CustomPacketPayload.Type<ServerboundUpdateStaffPerchLength> TYPE = new CustomPacketPayload.Type<>(MineraculousConstants.modLoc("staff_perch_update_length"));
     public static final StreamCodec<ByteBuf, ServerboundUpdateStaffPerchLength> CODEC = StreamCodec.composite(
             PerchingCatStaffData.STREAM_CODEC, ServerboundUpdateStaffPerchLength::perchingData,
             ByteBufCodecs.BOOL, ServerboundUpdateStaffPerchLength::ascend,

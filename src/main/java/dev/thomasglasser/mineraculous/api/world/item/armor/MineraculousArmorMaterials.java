@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.item.armor;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import java.util.EnumMap;
@@ -37,7 +36,7 @@ public class MineraculousArmorMaterials {
             float toughness,
             float knockbackResistance,
             Supplier<Ingredient> repairIngredient) {
-        List<ArmorMaterial.Layer> list = List.of(new ArmorMaterial.Layer(Mineraculous.modLoc(name)));
+        List<ArmorMaterial.Layer> list = List.of(new ArmorMaterial.Layer(MineraculousConstants.modLoc(name)));
 
         return ARMOR_MATERIALS.register(name, () -> new ArmorMaterial(defense, enchantmentValue, equipSound, repairIngredient, list, toughness, knockbackResistance));
     }

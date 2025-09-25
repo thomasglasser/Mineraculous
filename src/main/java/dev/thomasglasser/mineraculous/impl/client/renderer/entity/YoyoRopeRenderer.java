@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 public class YoyoRopeRenderer {
-    public static final ResourceLocation ROPE_TEXTURE = Mineraculous.modLoc("textures/item/ladybug_yoyo_rope.png");
+    public static final ResourceLocation ROPE_TEXTURE = MineraculousConstants.modLoc("textures/item/ladybug_yoyo_rope.png");
 
     private static final int POINTS = 100;
     private static final double CATENARY_CURVE_FACTOR = 2048.0;

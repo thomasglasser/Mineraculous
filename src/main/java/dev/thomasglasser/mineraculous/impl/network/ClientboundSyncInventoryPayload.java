@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import com.google.common.collect.ImmutableList;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.UUID;
 import java.util.function.Function;
@@ -15,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 
 public record ClientboundSyncInventoryPayload(UUID uuid, NonNullList<ItemStack> items, NonNullList<ItemStack> armor, NonNullList<ItemStack> offhand, int selected) implements ExtendedPacketPayload {
 
-    public static final Type<ClientboundSyncInventoryPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_sync_inventory"));
+    public static final Type<ClientboundSyncInventoryPayload> TYPE = new Type<>(MineraculousConstants.modLoc("clientbound_sync_inventory"));
     private static final StreamCodec<RegistryFriendlyByteBuf, NonNullList<ItemStack>> NON_NULL_LIST_ITEMSTACK_STREAM_CODEC = ItemStack.OPTIONAL_LIST_STREAM_CODEC.map(stacks -> NonNullList.of(ItemStack.EMPTY, stacks.toArray(ItemStack[]::new)), Function.identity());
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundSyncInventoryPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), ClientboundSyncInventoryPayload::uuid,

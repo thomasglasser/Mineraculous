@@ -3,9 +3,9 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.tommylib.api.client.renderer.item.DefaultedGeoItemRenderer;
@@ -29,7 +29,7 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
     public static final float UP_SCALE = -0.6f;
 
     public ThrownLadybugYoyoRenderer(EntityRendererProvider.Context context) {
-        super(context, new DefaultedItemGeoModel<>(Mineraculous.modLoc("ladybug_yoyo")));
+        super(context, new DefaultedItemGeoModel<>(MineraculousConstants.modLoc("ladybug_yoyo")));
         addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
     }
 

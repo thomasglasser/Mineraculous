@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
@@ -14,7 +14,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
 public record ClientboundSetCameraEntityPayload(Optional<Integer> entityId, Optional<ResourceLocation> shader) implements ExtendedPacketPayload {
-    public static final Type<ClientboundSetCameraEntityPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_set_camera_entity"));
+    public static final Type<ClientboundSetCameraEntityPayload> TYPE = new Type<>(MineraculousConstants.modLoc("clientbound_set_camera_entity"));
     public static final StreamCodec<ByteBuf, ClientboundSetCameraEntityPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.optional(ByteBufCodecs.INT), ClientboundSetCameraEntityPayload::entityId,
             TommyLibExtraStreamCodecs.OPTIONAL_RESOURCE_LOCATION, ClientboundSetCameraEntityPayload::shader,

@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.impl.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -15,7 +15,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.renderer.RenderType;
 
 public class FaceMaskModel extends Model {
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Mineraculous.modLoc("face_mask"), "main");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(MineraculousConstants.modLoc("face_mask"), "main");
 
     private final ModelPart mask;
 

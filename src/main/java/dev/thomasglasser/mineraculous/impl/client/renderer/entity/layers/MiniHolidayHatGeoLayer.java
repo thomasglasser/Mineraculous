@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -24,7 +24,7 @@ public class MiniHolidayHatGeoLayer<T extends GeoAnimatable> extends GeoRenderLa
         super(entityRendererIn);
 
         this.targetBone = targetBone;
-        this.hatRenderer = new GeoObjectRenderer<>(new DefaultedEntityGeoModel<>(Mineraculous.modLoc("mini_holiday_hat")) {
+        this.hatRenderer = new GeoObjectRenderer<>(new DefaultedEntityGeoModel<>(MineraculousConstants.modLoc("mini_holiday_hat")) {
             @Override
             public @Nullable Animation getAnimation(T animatable, String name) {
                 return null;

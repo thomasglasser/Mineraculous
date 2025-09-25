@@ -6,7 +6,6 @@ import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.tommylib.api.data.tags.ExtendedItemTagsProvider;
 import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;
@@ -56,7 +55,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
     }
 
     protected void curios(String slot, Item... items) {
-        IntrinsicTagAppender<Item> curios = tag(TagKey.create(Registries.ITEM, Mineraculous.Dependencies.CURIOS.modLoc(slot)));
+        IntrinsicTagAppender<Item> curios = tag(TagKey.create(Registries.ITEM, MineraculousConstants.Dependencies.CURIOS.modLoc(slot)));
 
         for (Item item : items) {
             curios.add(item);
@@ -65,7 +64,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
 
     protected void curios(Item item, String... slots) {
         for (String slot : slots) {
-            IntrinsicTagAppender<Item> curios = tag(TagKey.create(Registries.ITEM, Mineraculous.Dependencies.CURIOS.modLoc(slot)));
+            IntrinsicTagAppender<Item> curios = tag(TagKey.create(Registries.ITEM, MineraculousConstants.Dependencies.CURIOS.modLoc(slot)));
             curios.add(item);
         }
     }

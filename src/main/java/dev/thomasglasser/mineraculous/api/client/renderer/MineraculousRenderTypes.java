@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.api.client.renderer;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -82,14 +82,14 @@ public class MineraculousRenderTypes {
     }
 
     private static ResourceLocation createLuckyCharmTexture(String name) {
-        return createLuckyCharmTexture(Mineraculous.modLoc(name));
+        return createLuckyCharmTexture(MineraculousConstants.modLoc(name));
     }
 
     private static RenderType createLuckyCharm(String name, ResourceLocation texture, RenderStateShard.TexturingStateShard texturingStateShard, boolean offsetZLayering) {
-        return createLuckyCharm(Mineraculous.modLoc(name), texture, texturingStateShard, offsetZLayering);
+        return createLuckyCharm(MineraculousConstants.modLoc(name), texture, texturingStateShard, offsetZLayering);
     }
 
     private static RenderType createLuckyCharm(String name, RenderStateShard.TexturingStateShard texturingStateShard, boolean offsetZLayering) {
-        return createLuckyCharm(Mineraculous.modLoc(name), texturingStateShard, offsetZLayering);
+        return createLuckyCharm(MineraculousConstants.modLoc(name), texturingStateShard, offsetZLayering);
     }
 }

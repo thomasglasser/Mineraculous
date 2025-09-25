@@ -1,12 +1,12 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalInventoryScreen;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.UUID;
 import net.minecraft.core.Holder;
@@ -22,7 +22,7 @@ import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
 public record ServerboundStealCurioPayload(UUID target, CuriosData data) implements ExtendedPacketPayload {
-    public static final Type<ServerboundStealCurioPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_steal_curio"));
+    public static final Type<ServerboundStealCurioPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_steal_curio"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundStealCurioPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), ServerboundStealCurioPayload::target,
             CuriosData.STREAM_CODEC, ServerboundStealCurioPayload::data,

@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.Optional;
@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
 
 public record ClientboundOpenPerformerKamikotizationChatScreenPayload(String performerName, String targetName, Optional<ResourceLocation> faceMaskTexture, UUID targetId) implements ExtendedPacketPayload {
 
-    public static final Type<ClientboundOpenPerformerKamikotizationChatScreenPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_open_performer_kamikotization_chat_screen"));
+    public static final Type<ClientboundOpenPerformerKamikotizationChatScreenPayload> TYPE = new Type<>(MineraculousConstants.modLoc("clientbound_open_performer_kamikotization_chat_screen"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundOpenPerformerKamikotizationChatScreenPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8, ClientboundOpenPerformerKamikotizationChatScreenPayload::performerName,
             ByteBufCodecs.STRING_UTF8, ClientboundOpenPerformerKamikotizationChatScreenPayload::targetName,

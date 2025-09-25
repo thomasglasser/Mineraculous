@@ -25,7 +25,6 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundUpdateStaffInputPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateStaffInputPayload.CODEC),
             new PayloadInfo<>(ServerboundUpdateYoyoInputPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateYoyoInputPayload.CODEC),
             new PayloadInfo<>(ServerboundMiraculousTransformPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundMiraculousTransformPayload.CODEC),
-            new PayloadInfo<>(ServerboundSetMiraculousPowerActivatedPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetMiraculousPowerActivatedPayload.CODEC),
             new PayloadInfo<>(ServerboundRequestInventorySyncPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRequestInventorySyncPayload.CODEC),
             new PayloadInfo<>(ServerboundStealItemPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundStealItemPayload.CODEC),
             new PayloadInfo<>(ServerboundStealCurioPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundStealCurioPayload.CODEC),
@@ -42,7 +41,6 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundEquipToolPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundEquipToolPayload.CODEC),
             new PayloadInfo<>(ServerboundTriggerKamikotizationAdvancementsPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundTriggerKamikotizationAdvancementsPayload.CODEC),
             new PayloadInfo<>(ServerboundRenounceMiraculousPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRenounceMiraculousPayload.CODEC),
-            new PayloadInfo<>(ServerboundSetKamikotizationPowerActivatedPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetKamikotizationPowerActivatedPayload.CODEC),
             new PayloadInfo<>(ServerboundUpdateSpecialPlayerDataPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateSpecialPlayerDataPayload.CODEC),
             new PayloadInfo<>(ServerboundTransferMiraculousPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundTransferMiraculousPayload.CODEC),
             new PayloadInfo<>(ServerboundRevertConvertedEntityPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRevertConvertedEntityPayload.CODEC),
@@ -56,6 +54,8 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundRemoteDamagePayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRemoteDamagePayload.CODEC),
             new PayloadInfo<>(ServerboundHandleEntityRemovedOnClientPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundHandleEntityRemovedOnClientPayload.CODEC),
             new PayloadInfo<>(ServerboundToggleNightVisionPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundToggleNightVisionPayload.CODEC),
+            new PayloadInfo<>(ServerboundActivatePowerPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundActivatePowerPayload.CODEC),
+            new PayloadInfo<>(ServerboundToggleBuffsPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundToggleBuffsPayload.CODEC),
 
             // Clientbound
             new PayloadInfo<>(ClientboundCalculateYoyoRenderLengthPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundCalculateYoyoRenderLengthPayload.CODEC),

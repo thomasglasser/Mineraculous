@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Player;
 
 public class ServerboundRemoteDamagePayload implements ExtendedPacketPayload {
     public static final ServerboundRemoteDamagePayload INSTANCE = new ServerboundRemoteDamagePayload();
-    public static final Type<ServerboundRemoteDamagePayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_remote_damage"));
+    public static final Type<ServerboundRemoteDamagePayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_remote_damage"));
     public static final StreamCodec<ByteBuf, ServerboundRemoteDamagePayload> CODEC = StreamCodec.unit(INSTANCE);
 
     private ServerboundRemoteDamagePayload() {}

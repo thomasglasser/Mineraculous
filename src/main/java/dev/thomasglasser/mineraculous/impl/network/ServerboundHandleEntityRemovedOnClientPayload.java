@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
@@ -13,7 +13,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 
 public record ServerboundHandleEntityRemovedOnClientPayload(int entityId) implements ExtendedPacketPayload {
-    public static final Type<ServerboundHandleEntityRemovedOnClientPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_handle_entity_removed_on_client"));
+    public static final Type<ServerboundHandleEntityRemovedOnClientPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_handle_entity_removed_on_client"));
     public static final StreamCodec<ByteBuf, ServerboundHandleEntityRemovedOnClientPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, ServerboundHandleEntityRemovedOnClientPayload::entityId,
             ServerboundHandleEntityRemovedOnClientPayload::new);

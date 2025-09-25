@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.ability;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.KamikotizationPredicate;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
@@ -11,7 +12,6 @@ import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.BlockPredicate;
@@ -56,10 +56,10 @@ public class Abilities {
     /// Passively applies {@link MobEffects#LUCK}.
     public static final ResourceKey<Ability> PASSIVE_LUCK = create("passive_luck");
 
-    private static final ResourceLocation KAMIKO_FACE_MASK_TEXTURE = Mineraculous.modLoc("textures/entity/player/face_mask/kamiko.png");
+    private static final ResourceLocation KAMIKO_FACE_MASK_TEXTURE = MineraculousConstants.modLoc("textures/entity/player/face_mask/kamiko.png");
 
     private static ResourceKey<Ability> create(String name) {
-        return ResourceKey.create(MineraculousRegistries.ABILITY, Mineraculous.modLoc(name));
+        return ResourceKey.create(MineraculousRegistries.ABILITY, MineraculousConstants.modLoc(name));
     }
 
     @ApiStatus.Internal
@@ -122,7 +122,7 @@ public class Abilities {
                 Optional.of(MineraculousSoundEvents.CATACLYSM_ACTIVATE),
                 Optional.empty(),
                 Optional.empty()));
-        context.register(CAT_VISION, new ToggleableNightVisionAbility(Optional.of(Mineraculous.modLoc("shaders/post/cat_vision.json")), Optional.empty(), Optional.empty()));
+        context.register(CAT_VISION, new ToggleableNightVisionAbility(Optional.of(MineraculousConstants.modLoc("shaders/post/cat_vision.json")), Optional.empty(), Optional.empty()));
         context.register(PASSIVE_UNLUCK, new PassiveEffectsAbility(HolderSet.direct(MobEffects.UNLUCK), 0));
 
         // Ladybug

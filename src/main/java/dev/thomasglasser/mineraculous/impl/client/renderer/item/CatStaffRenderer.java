@@ -2,10 +2,10 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
@@ -29,9 +29,9 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffItem> {
-    public static final ResourceLocation EXTENDED_LOCATION = Mineraculous.modLoc("textures/misc/cat_staff.png");
-    public static final ResourceLocation SPYGLASS_SCOPE_LOCATION = Mineraculous.modLoc("textures/misc/cat_staff_spyglass_scope.png");
-    public static final ResourceLocation PHONE_LOCATION = makeTextureLocation(Mineraculous.modLoc("cat_staff_phone"));
+    public static final ResourceLocation EXTENDED_LOCATION = MineraculousConstants.modLoc("textures/misc/cat_staff.png");
+    public static final ResourceLocation SPYGLASS_SCOPE_LOCATION = MineraculousConstants.modLoc("textures/misc/cat_staff_spyglass_scope.png");
+    public static final ResourceLocation PHONE_LOCATION = makeTextureLocation(MineraculousConstants.modLoc("cat_staff_phone"));
 
     private static final float PIXEL = 1 / 16f;
 

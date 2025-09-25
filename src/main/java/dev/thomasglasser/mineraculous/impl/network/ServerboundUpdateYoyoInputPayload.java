@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
@@ -16,7 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public record ServerboundUpdateYoyoInputPayload(int input) implements ExtendedPacketPayload {
-    public static final Type<ServerboundUpdateYoyoInputPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_update_yoyo_input"));
+    public static final Type<ServerboundUpdateYoyoInputPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_update_yoyo_input"));
     public static final StreamCodec<ByteBuf, ServerboundUpdateYoyoInputPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, ServerboundUpdateYoyoInputPayload::input,
             ServerboundUpdateYoyoInputPayload::new);

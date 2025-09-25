@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.client.gui.screens.inventory;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -22,7 +22,7 @@ import net.minecraft.world.inventory.Slot;
 public class ExternalInventoryScreen extends InventoryScreen {
     public static final Component ITEM_BOUND_KEY = Component.translatable("mineraculous.item_bound");
 
-    public static final ResourceLocation EXTERNAL_INVENTORY_LOCATION = Mineraculous.modLoc("textures/gui/container/external_inventory.png");
+    public static final ResourceLocation EXTERNAL_INVENTORY_LOCATION = MineraculousConstants.modLoc("textures/gui/container/external_inventory.png");
 
     protected final Player target;
     protected final boolean requireLooking;

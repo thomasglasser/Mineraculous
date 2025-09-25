@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.api.world.effect;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.damagesource.MineraculousDamageTypes;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
@@ -10,7 +10,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
 public class CataclysmMobEffect extends MobEffect {
-    private static final ResourceLocation MODIFIER_ID = Mineraculous.modLoc("effect.cataclysm");
+    private static final ResourceLocation MODIFIER_ID = MineraculousConstants.modLoc("effect.cataclysm");
 
     public CataclysmMobEffect(int color) {
         super(MobEffectCategory.HARMFUL, color);

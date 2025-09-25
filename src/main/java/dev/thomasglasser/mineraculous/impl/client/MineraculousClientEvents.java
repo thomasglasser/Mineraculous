@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.MineraculousGuiLayers;
 import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.KamikotizationParticle;
@@ -20,7 +21,6 @@ import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.impl.client.model.BeardModel;
@@ -180,7 +180,7 @@ public class MineraculousClientEvents {
 
     static void onRegisterRenderer(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(MineraculousEntityTypes.KWAMI.get(), KwamiRenderer::new);
-        event.registerEntityRenderer(MineraculousEntityTypes.KAMIKO.get(), context -> new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(Mineraculous.modLoc("kamiko"))));
+        event.registerEntityRenderer(MineraculousEntityTypes.KAMIKO.get(), context -> new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(MineraculousConstants.modLoc("kamiko"))));
         event.registerEntityRenderer(MineraculousEntityTypes.LUCKY_CHARM_ITEM_SPAWNER.get(), LuckyCharmItemSpawnerRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), ThrownCatStaffRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), ThrownButterflyCaneRenderer::new);

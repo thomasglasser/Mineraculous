@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.entity.decoration;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
@@ -15,7 +15,7 @@ public class MineraculousPaintingVariants {
     public static final ResourceKey<PaintingVariant> MINI_BUTTERFLY = create("mini_butterfly");
 
     private static ResourceKey<PaintingVariant> create(String name) {
-        return ResourceKey.create(Registries.PAINTING_VARIANT, Mineraculous.modLoc(name));
+        return ResourceKey.create(Registries.PAINTING_VARIANT, MineraculousConstants.modLoc(name));
     }
 
     public static void bootstrap(BootstrapContext<PaintingVariant> context) {

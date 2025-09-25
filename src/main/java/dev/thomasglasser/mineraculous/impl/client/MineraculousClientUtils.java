@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import com.mojang.datafixers.util.Either;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
@@ -13,7 +14,6 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.MiraculousTransferScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.AbstractKamikotizationChatScreen;
@@ -232,7 +232,7 @@ public class MineraculousClientUtils {
 
     public static void refreshCataclysmPixels() {
         CATACLYSM_PIXELS.clear();
-        try (AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(Mineraculous.modLoc("textures/entity/cataclysm.png"))) {
+        try (AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(MineraculousConstants.modLoc("textures/entity/cataclysm.png"))) {
             NativeImage image;
             if (texture instanceof SimpleTexture simpleTexture) {
                 image = simpleTexture.getTextureImage(Minecraft.getInstance().getResourceManager()).getImage();

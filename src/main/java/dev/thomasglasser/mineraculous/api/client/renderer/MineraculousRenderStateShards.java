@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.api.client.renderer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import java.io.IOException;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.ShaderInstance;
@@ -46,7 +45,7 @@ public class MineraculousRenderStateShards {
         try {
             ResourceProvider resourceProvider = event.getResourceProvider();
             event.registerShader(
-                    new ShaderInstance(resourceProvider, Mineraculous.modLoc("rendertype_glint_translucent_lightmap"), DefaultVertexFormat.POSITION_TEX_LIGHTMAP_COLOR),
+                    new ShaderInstance(resourceProvider, MineraculousConstants.modLoc("rendertype_glint_translucent_lightmap"), DefaultVertexFormat.POSITION_TEX_LIGHTMAP_COLOR),
                     instance -> rendertypeGlintTranslucentLightmapShader = instance);
         } catch (IOException e) {
             MineraculousConstants.LOGGER.error("Failed to register shaders", e);

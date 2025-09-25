@@ -3,8 +3,8 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.MiniHolidayHatGeoLayer;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
@@ -46,7 +46,7 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
     private final Map<Holder<Miraculous>, GeoModel<T>> models = new Reference2ReferenceOpenHashMap<>();
 
     public KwamiRenderer(EntityRendererProvider.Context renderManager) {
-        super(renderManager, new DefaultedEntityGeoModel<>(Mineraculous.modLoc("summoning_cube")) {
+        super(renderManager, new DefaultedEntityGeoModel<>(MineraculousConstants.modLoc("summoning_cube")) {
             @Override
             public @Nullable Animation getAnimation(T animatable, String name) {
                 return null;

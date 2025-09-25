@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.world.item;
 
 import com.mojang.serialization.Codec;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
@@ -14,7 +15,6 @@ import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.item.component.ActiveSettings;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler;
@@ -390,7 +390,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     public enum Ability implements RadialMenuOption, StringRepresentable {
         BLOCK,
         PERCH,
-        PHONE((stack, player) -> Mineraculous.Dependencies.TOMMYTECH.isLoaded()),
+        PHONE((stack, player) -> MineraculousConstants.Dependencies.TOMMYTECH.isLoaded()),
         SPYGLASS,
         THROW,
         TRAVEL;

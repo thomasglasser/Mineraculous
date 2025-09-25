@@ -1,12 +1,12 @@
 package dev.thomasglasser.mineraculous.impl.data.recipes;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.crafting.CheeseWedgeRecipe;
 import dev.thomasglasser.tommylib.api.data.recipes.ExtendedRecipeProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
@@ -46,7 +46,7 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
         cheeseWaxRecipes(recipeOutput, MineraculousBlocks.CHEESE, MineraculousBlocks.WAXED_CHEESE);
         cheeseWaxRecipes(recipeOutput, MineraculousBlocks.CAMEMBERT, MineraculousBlocks.WAXED_CAMEMBERT);
 
-        SpecialRecipeBuilder.special(CheeseWedgeRecipe::new).save(recipeOutput, Mineraculous.modLoc("cheese_wedge"));
+        SpecialRecipeBuilder.special(CheeseWedgeRecipe::new).save(recipeOutput, MineraculousConstants.modLoc("cheese_wedge"));
 
         trimWithCopy(recipeOutput, MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE, Blocks.RED_CONCRETE);
         trimWithCopy(recipeOutput, MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE, Blocks.LIME_CONCRETE);
@@ -68,7 +68,7 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
     }
 
     private void trimWithCopy(RecipeOutput recipeOutput, ItemLike template, ItemLike copyMaterial) {
-        trimSmithing(recipeOutput, template.asItem(), Mineraculous.modLoc(getItemName(template) + "_smithing_trim"));
+        trimSmithing(recipeOutput, template.asItem(), MineraculousConstants.modLoc(getItemName(template) + "_smithing_trim"));
         copySmithingTemplate(recipeOutput, template, copyMaterial);
     }
 }

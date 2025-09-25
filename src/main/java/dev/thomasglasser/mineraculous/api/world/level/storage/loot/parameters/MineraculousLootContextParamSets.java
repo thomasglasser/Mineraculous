@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.level.storage.loot.parameters;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import java.util.function.Consumer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
@@ -23,7 +23,7 @@ public class MineraculousLootContextParamSets {
         LootContextParamSet.Builder builder = new LootContextParamSet.Builder();
         builderConsumer.accept(builder);
         LootContextParamSet paramSet = builder.build();
-        ResourceLocation loc = Mineraculous.modLoc(name);
+        ResourceLocation loc = MineraculousConstants.modLoc(name);
         LootContextParamSet existing = LootContextParamSets.REGISTRY.put(loc, paramSet);
         if (existing != null) {
             throw new IllegalStateException("Loot table parameter set " + loc + " is already registered");

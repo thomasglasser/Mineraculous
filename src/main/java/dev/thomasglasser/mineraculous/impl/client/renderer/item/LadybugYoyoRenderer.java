@@ -3,12 +3,12 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.renderer.item.BlockingDefaultedGeoItemRenderer;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
@@ -27,9 +27,9 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
 public class LadybugYoyoRenderer extends BlockingDefaultedGeoItemRenderer<LadybugYoyoItem> {
-    public static final ResourceLocation SPYGLASS_SCOPE_LOCATION = Mineraculous.modLoc("textures/misc/ladybug_yoyo_spyglass_scope.png");
-    public static final ResourceLocation SPYGLASS_LOCATION = makeTextureLocation(Mineraculous.modLoc("ladybug_yoyo_spyglass"));
-    public static final ResourceLocation PHONE_LOCATION = makeTextureLocation(Mineraculous.modLoc("ladybug_yoyo_phone"));
+    public static final ResourceLocation SPYGLASS_SCOPE_LOCATION = MineraculousConstants.modLoc("textures/misc/ladybug_yoyo_spyglass_scope.png");
+    public static final ResourceLocation SPYGLASS_LOCATION = makeTextureLocation(MineraculousConstants.modLoc("ladybug_yoyo_spyglass"));
+    public static final ResourceLocation PHONE_LOCATION = makeTextureLocation(MineraculousConstants.modLoc("ladybug_yoyo_phone"));
 
     // Hand Rendering Constants
     private static final Quaternionf HAND_XP_ROT = Axis.XP.rotationDegrees(-40);

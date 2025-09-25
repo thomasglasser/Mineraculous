@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
@@ -20,7 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.tslat.smartbrainlib.util.BrainUtils;
 
 public record ServerboundTransferMiraculousPayload(Optional<UUID> targetId, int kwamiId) implements ExtendedPacketPayload {
-    public static final Type<ServerboundTransferMiraculousPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_transfer_miraculous"));
+    public static final Type<ServerboundTransferMiraculousPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_transfer_miraculous"));
     public static final StreamCodec<ByteBuf, ServerboundTransferMiraculousPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), ServerboundTransferMiraculousPayload::targetId,
             ByteBufCodecs.INT, ServerboundTransferMiraculousPayload::kwamiId,

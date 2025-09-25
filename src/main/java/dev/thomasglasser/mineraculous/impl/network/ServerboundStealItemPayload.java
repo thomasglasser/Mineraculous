@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalInventoryScreen;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.UUID;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -15,7 +15,7 @@ import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
 public record ServerboundStealItemPayload(UUID target, int slot) implements ExtendedPacketPayload {
-    public static final Type<ServerboundStealItemPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_steal_item"));
+    public static final Type<ServerboundStealItemPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_steal_item"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundStealItemPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), ServerboundStealItemPayload::target,
             ByteBufCodecs.INT, ServerboundStealItemPayload::slot,

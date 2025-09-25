@@ -171,6 +171,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousKeyMappings.ACTIVATE_POWER, "Activate Power");
         add(MineraculousKeyMappings.REVOKE_KAMIKOTIZATION, "Revoke Kamikotization");
         add(MineraculousKeyMappings.RENOUNCE_MIRACULOUS, "Renounce Miraculous");
+        add(MineraculousKeyMappings.TOGGLE_BUFFS, "Toggle Buffs");
         add(MineraculousKeyMappings.TOGGLE_ITEM_ACTIVE, "De/Activate Item");
         add(MineraculousKeyMappings.OPEN_ITEM_RADIAL_MENU, "Open Item Radial Menu");
         add(MineraculousKeyMappings.TAKE_BREAK_ITEM, "Take/Break Item");
@@ -362,6 +363,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfig(MineraculousServerConfig.get().miraculousTimerDuration, "Miraculous Timer Duration", "The amount of time (in seconds) between a miraculous holder using their power and detransforming");
         addConfig(MineraculousServerConfig.get().enableLimitedPower, "Enable Limited Power", "Enable limited power for miraculous holders before they reach adulthood");
         addConfig(MineraculousServerConfig.get().enableKamikotizationRejection, "Enable Kamikotization Rejection", "Enable rejection of kamikotization by the victim");
+        addConfig(MineraculousServerConfig.get().enableBuffsOnTransformation, "Enable Buffs on Transformation", "Enable having buffs when transforming");
         addConfig(MineraculousServerConfig.get().luckyCharmSummonTimeMin, "Minimum Lucky Charm Summon Time", "The minimum amount of time (in seconds) that it takes for a lucky charm to be summoned");
         addConfig(MineraculousServerConfig.get().luckyCharmSummonTimeMax, "Maximum Lucky Charm Summon Time", "The maximum amount of time (in seconds) that it takes for a lucky charm to be summoned");
         addConfig(MineraculousServerConfig.get().maxToolLength, "Maximum Tool Length", "Amount of blocks that tools can be extended to");

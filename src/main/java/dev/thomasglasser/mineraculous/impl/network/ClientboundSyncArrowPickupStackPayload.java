@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -11,7 +11,7 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 
 public record ClientboundSyncArrowPickupStackPayload(int entityId, ItemStack stack) implements ExtendedPacketPayload {
-    public static final Type<ClientboundSyncArrowPickupStackPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_sync_arrow_pickup_stack"));
+    public static final Type<ClientboundSyncArrowPickupStackPayload> TYPE = new Type<>(MineraculousConstants.modLoc("clientbound_sync_arrow_pickup_stack"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundSyncArrowPickupStackPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, ClientboundSyncArrowPickupStackPayload::entityId,
             ItemStack.OPTIONAL_STREAM_CODEC, ClientboundSyncArrowPickupStackPayload::stack,

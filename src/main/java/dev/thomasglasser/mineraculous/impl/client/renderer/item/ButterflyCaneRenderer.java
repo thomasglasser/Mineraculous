@@ -1,9 +1,9 @@
 package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.tommylib.api.client.renderer.item.DefaultedGeoItemRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -12,9 +12,9 @@ import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 
 public class ButterflyCaneRenderer extends DefaultedGeoItemRenderer<ButterflyCaneItem> {
-    public static final ResourceLocation SPYGLASS_SCOPE_LOCATION = Mineraculous.modLoc("textures/misc/butterfly_cane_spyglass_scope.png");
-    public static final ResourceLocation SPYGLASS_LOCATION = makeTextureLocation(Mineraculous.modLoc("butterfly_cane_spyglass"));
-    public static final ResourceLocation PHONE_LOCATION = makeTextureLocation(Mineraculous.modLoc("butterfly_cane_phone"));
+    public static final ResourceLocation SPYGLASS_SCOPE_LOCATION = MineraculousConstants.modLoc("textures/misc/butterfly_cane_spyglass_scope.png");
+    public static final ResourceLocation SPYGLASS_LOCATION = makeTextureLocation(MineraculousConstants.modLoc("butterfly_cane_spyglass"));
+    public static final ResourceLocation PHONE_LOCATION = makeTextureLocation(MineraculousConstants.modLoc("butterfly_cane_phone"));
 
     private final GeoModel<ButterflyCaneItem> phoneModel;
 

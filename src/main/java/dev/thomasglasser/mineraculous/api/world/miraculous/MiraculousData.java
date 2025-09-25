@@ -21,7 +21,6 @@ import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
@@ -70,7 +69,7 @@ import org.jetbrains.annotations.Nullable;
  * @param countdownStarted    Whether the detransformation countdown has been started
  * @param storedEntities      Any entities currently stored in the miraculous
  */
-public record MiraculousData(Optional<CuriosData> curiosData, boolean transformed, Optional<TransformationState> transformationState, Optional<Integer> remainingTicks, int toolId, int powerLevel, boolean powerActive, boolean countdownStarted, List<CompoundTag> storedEntities) {
+public record MiraculousData(Optional<CuriosData> curiosData, boolean transformed, Optional<TransformationState> transformationState, Optional<Integer> remainingTicks, int toolId, int powerLevel, boolean powerActive, boolean countdownStarted, List<CompoundTag> storedEntities, boolean buffsActive) {
 
     public static final String NAME_NOT_SET = "miraculous_data.name.not_set";
     public static final int MAX_POWER_LEVEL = 100;
@@ -84,7 +83,8 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
             Codec.INT.fieldOf("power_level").forGetter(MiraculousData::powerLevel),
             Codec.BOOL.fieldOf("power_active").forGetter(MiraculousData::powerActive),
             Codec.BOOL.fieldOf("countdown_started").forGetter(MiraculousData::countdownStarted),
-            CompoundTag.CODEC.listOf().optionalFieldOf("stored_entities", new ObjectArrayList<>()).forGetter(MiraculousData::storedEntities)).apply(instance, MiraculousData::new));
+            CompoundTag.CODEC.listOf().optionalFieldOf("stored_entities", new ObjectArrayList<>()).forGetter(MiraculousData::storedEntities),
+            Codec.BOOL.fieldOf("buffs_active").forGetter(MiraculousData::buffsActive)).apply(instance, MiraculousData::new));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousData> STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
             ByteBufCodecs.optional(CuriosData.STREAM_CODEC), MiraculousData::curiosData,
@@ -96,9 +96,10 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
             ByteBufCodecs.BOOL, MiraculousData::powerActive,
             ByteBufCodecs.BOOL, MiraculousData::countdownStarted,
             ByteBufCodecs.COMPOUND_TAG.apply(ByteBufCodecs.list()), MiraculousData::storedEntities,
+            ByteBufCodecs.BOOL, MiraculousData::buffsActive,
             MiraculousData::new);
 
-    public MiraculousData(Optional<CuriosData> curiosData, boolean transformed, Optional<TransformationState> transformationState, Optional<Integer> remainingTicks, int toolId, int powerLevel, boolean powerActive, boolean countdownStarted, List<CompoundTag> storedEntities) {
+    public MiraculousData(Optional<CuriosData> curiosData, boolean transformed, Optional<TransformationState> transformationState, Optional<Integer> remainingTicks, int toolId, int powerLevel, boolean powerActive, boolean countdownStarted, List<CompoundTag> storedEntities, boolean buffsActive) {
         this.curiosData = curiosData;
         this.transformed = transformed;
         this.transformationState = transformationState;
@@ -108,10 +109,11 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         this.powerActive = powerActive;
         this.countdownStarted = countdownStarted;
         this.storedEntities = storedEntities;
+        this.buffsActive = buffsActive;
     }
 
     public MiraculousData() {
-        this(Optional.empty(), false, Optional.empty(), Optional.empty(), 0, 0, false, false, new ObjectArrayList<>());
+        this(Optional.empty(), false, Optional.empty(), Optional.empty(), 0, 0, false, false, new ObjectArrayList<>(), false);
     }
 
     public void transform(LivingEntity entity, ServerLevel level, Holder<Miraculous> miraculous) {
@@ -149,7 +151,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                         }
 
                         level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.transformSound(), entity.getSoundSource(), 1, 1);
-                        level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, startAmplifier) -> MineraculousEntityUtils.applyInfiniteHiddenEffect(entity, level.holderOrThrow(effect), startAmplifier.amplifier() + (powerLevel / 10)));
+                        level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, miraculousEffect) -> MineraculousEntityUtils.applyInfiniteHiddenEffect(entity, level.holderOrThrow(effect), miraculousEffect.amplifier() + ((!miraculousEffect.toggleable() || MineraculousServerConfig.get().enableBuffsOnTransformation.get()) ? powerLevel / 10 : 0)));
                         entity.getAttributes().addTransientAttributeModifiers(getMiraculousAttributes(level, powerLevel));
 
                         AbilityData data = new AbilityData(powerLevel, false);
@@ -317,10 +319,10 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                     remainingTicks = Optional.empty();
                 }
 
-                level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((key, startAmplifier) -> {
+                level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((key, miraculousEffect) -> {
                     Holder<MobEffect> effect = level.holderOrThrow(key);
                     if (!entity.hasEffect(effect)) {
-                        MineraculousEntityUtils.applyInfiniteHiddenEffect(entity, effect, startAmplifier.amplifier() + (powerLevel / 10));
+                        MineraculousEntityUtils.applyInfiniteHiddenEffect(entity, effect, miraculousEffect.amplifier() + ((!miraculousEffect.toggleable() || buffsActive) ? powerLevel / 10 : 0));
                     }
                 });
 
@@ -408,7 +410,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
     private static Multimap<Holder<Attribute>, AttributeModifier> getMiraculousAttributes(ServerLevel level, int powerLevel) {
         Multimap<Holder<Attribute>, AttributeModifier> attributeModifiers = HashMultimap.create();
         Registry<Attribute> attributes = level.registryAccess().registryOrThrow(Registries.ATTRIBUTE);
-        attributes.getDataMap(MineraculousDataMaps.MIRACULOUS_ATTRIBUTE_MODIFIERS).forEach((attribute, settings) -> attributeModifiers.put(attributes.getHolderOrThrow(attribute), new AttributeModifier(Mineraculous.modLoc("miraculous_buff"), (settings.amount() * (powerLevel / 10.0)), settings.operation())));
+        attributes.getDataMap(MineraculousDataMaps.MIRACULOUS_ATTRIBUTE_MODIFIERS).forEach((attribute, settings) -> attributeModifiers.put(attributes.getHolderOrThrow(attribute), new AttributeModifier(MineraculousConstants.modLoc("miraculous_buff"), (settings.amount() * (powerLevel / 10.0)), settings.operation())));
         return attributeModifiers;
     }
 
@@ -441,51 +443,55 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
     }
 
     private MiraculousData startTransformation(int transformationFrames) {
-        return new MiraculousData(curiosData, true, Optional.of(new TransformationState(true, transformationFrames)), Optional.empty(), toolId, powerLevel, false, false, storedEntities);
+        return new MiraculousData(curiosData, true, Optional.of(new TransformationState(true, transformationFrames)), Optional.empty(), toolId, powerLevel, false, false, storedEntities, MineraculousServerConfig.get().enableBuffsOnTransformation.get());
     }
 
     private MiraculousData finishTransformation(int toolId) {
-        return new MiraculousData(curiosData, true, Optional.empty(), Optional.empty(), toolId, powerLevel, false, false, storedEntities);
+        return new MiraculousData(curiosData, true, Optional.empty(), Optional.empty(), toolId, powerLevel, false, false, storedEntities, buffsActive);
     }
 
     private MiraculousData startDetransformation(int detransformationFrames) {
-        return new MiraculousData(curiosData, false, Optional.of(new TransformationState(false, detransformationFrames)), Optional.of(0), toolId, powerLevel, false, false, storedEntities);
+        return new MiraculousData(curiosData, false, Optional.of(new TransformationState(false, detransformationFrames)), Optional.of(0), toolId, powerLevel, false, false, storedEntities, false);
     }
 
     private MiraculousData finishRemovedDetransformation() {
-        return new MiraculousData(Optional.empty(), false, Optional.empty(), Optional.empty(), toolId, powerLevel, false, false, storedEntities);
+        return new MiraculousData(Optional.empty(), false, Optional.empty(), Optional.empty(), toolId, powerLevel, false, false, storedEntities, false);
     }
 
     private MiraculousData finishDetransformation() {
-        return new MiraculousData(curiosData, false, Optional.empty(), Optional.empty(), toolId, powerLevel, false, false, storedEntities);
+        return new MiraculousData(curiosData, false, Optional.empty(), Optional.empty(), toolId, powerLevel, false, false, storedEntities, false);
     }
 
     private MiraculousData tickTransformed(Optional<Integer> remainingTicks, boolean powerActive, boolean countdownStarted) {
-        return new MiraculousData(curiosData, transformed, transformationState, remainingTicks, toolId, countdownStarted && !this.countdownStarted ? powerLevel + 1 : powerLevel, powerActive, countdownStarted, storedEntities);
+        return new MiraculousData(curiosData, transformed, transformationState, remainingTicks, toolId, countdownStarted && !this.countdownStarted ? powerLevel + 1 : powerLevel, powerActive, countdownStarted, storedEntities, buffsActive);
     }
 
     private MiraculousData decrementFrames() {
-        return new MiraculousData(curiosData, transformed, transformationState.map(TransformationState::decrementFrames), remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
+        return new MiraculousData(curiosData, transformed, transformationState.map(TransformationState::decrementFrames), remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities, buffsActive);
     }
 
     private MiraculousData usedMainPower(boolean consume) {
-        return new MiraculousData(curiosData, transformed, transformationState, hasLimitedPower() ? remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND)) : Optional.empty(), toolId, powerLevel, !consume && powerActive, consume, storedEntities);
+        return new MiraculousData(curiosData, transformed, transformationState, hasLimitedPower() ? remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND)) : Optional.empty(), toolId, powerLevel, !consume && powerActive, consume, storedEntities, buffsActive);
     }
 
     public MiraculousData equip(CuriosData curiosData) {
-        return new MiraculousData(Optional.of(curiosData), false, transformationState, Optional.empty(), toolId, powerLevel, false, false, storedEntities);
+        return new MiraculousData(Optional.of(curiosData), false, transformationState, Optional.empty(), toolId, powerLevel, false, false, storedEntities, buffsActive);
     }
 
     public MiraculousData unequip() {
-        return new MiraculousData(Optional.empty(), false, Optional.empty(), Optional.empty(), toolId, powerLevel, false, false, storedEntities);
+        return new MiraculousData(Optional.empty(), false, Optional.empty(), Optional.empty(), toolId, powerLevel, false, false, storedEntities, buffsActive);
     }
 
     public MiraculousData withPowerActive(boolean powerActive) {
-        return new MiraculousData(curiosData, transformed, transformationState, remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities);
+        return new MiraculousData(curiosData, transformed, transformationState, remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities, buffsActive);
     }
 
     public MiraculousData withPowerLevel(int powerLevel) {
-        return new MiraculousData(curiosData, transformed, transformationState, remainingTicks, toolId, Math.clamp(powerLevel, 0, MAX_POWER_LEVEL), powerActive, countdownStarted, storedEntities);
+        return new MiraculousData(curiosData, transformed, transformationState, remainingTicks, toolId, Math.clamp(powerLevel, 0, MAX_POWER_LEVEL), powerActive, countdownStarted, storedEntities, buffsActive);
+    }
+
+    public MiraculousData toggleBuffsActive() {
+        return new MiraculousData(curiosData, transformed, transformationState, remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities, !buffsActive);
     }
 
     public void save(Holder<Miraculous> miraculous, Entity entity, boolean sync) {

@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.world.item.armortrim;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -16,7 +16,7 @@ public class MineraculousTrimPatterns {
     public static final ResourceKey<TrimPattern> BUTTERFLY = create("butterfly");
 
     private static ResourceKey<TrimPattern> create(String path) {
-        return ResourceKey.create(Registries.TRIM_PATTERN, Mineraculous.modLoc(path));
+        return ResourceKey.create(Registries.TRIM_PATTERN, MineraculousConstants.modLoc(path));
     }
 
     public static void bootstrap(BootstrapContext<TrimPattern> context) {

@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.tags;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.tommylib.api.tags.TagUtils;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
@@ -20,7 +20,7 @@ public class MineraculousBlockTags {
     public static final TagKey<Block> CAMEMBERT_BLOCKS = create("camembert_blocks");
 
     private static TagKey<Block> create(String name) {
-        return TagKey.create(Registries.BLOCK, Mineraculous.modLoc(name));
+        return TagKey.create(Registries.BLOCK, MineraculousConstants.modLoc(name));
     }
 
     private static TagKey<Block> createC(String name) {

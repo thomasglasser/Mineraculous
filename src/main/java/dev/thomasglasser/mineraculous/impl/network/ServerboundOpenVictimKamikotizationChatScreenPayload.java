@@ -1,11 +1,11 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import com.mojang.datafixers.util.Either;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
@@ -19,7 +19,7 @@ import net.minecraft.world.entity.player.Player;
 
 public record ServerboundOpenVictimKamikotizationChatScreenPayload(UUID targetId, KamikotizationData kamikotizationData, Either<Integer, CuriosData> slotInfo) implements ExtendedPacketPayload {
 
-    public static final Type<ServerboundOpenVictimKamikotizationChatScreenPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_open_victim_kamikotization_chat_screen"));
+    public static final Type<ServerboundOpenVictimKamikotizationChatScreenPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_open_victim_kamikotization_chat_screen"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundOpenVictimKamikotizationChatScreenPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), ServerboundOpenVictimKamikotizationChatScreenPayload::targetId,
             KamikotizationData.STREAM_CODEC, ServerboundOpenVictimKamikotizationChatScreenPayload::kamikotizationData,

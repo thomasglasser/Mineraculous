@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.data.curios;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -43,6 +42,6 @@ public class MineraculousCuriosProvider extends CuriosDataProvider {
     }
 
     private ResourceLocation slotIcon(String name) {
-        return Mineraculous.modLoc("slot/empty_" + name + "_slot");
+        return MineraculousConstants.modLoc("slot/empty_" + name + "_slot");
     }
 }

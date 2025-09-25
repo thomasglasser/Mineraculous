@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.item;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.neoforged.fml.common.asm.enumextension.EnumProxy;
 import org.jetbrains.annotations.Nullable;
@@ -28,6 +28,6 @@ public class MineraculousItemDisplayContexts {
     public static final EnumProxy<ItemDisplayContext> CURIOS_RIGHT_LEG = register("curios_right_leg", null);
 
     private static EnumProxy<ItemDisplayContext> register(String name, @Nullable String fallback) {
-        return new EnumProxy<>(ItemDisplayContext.class, -1, Mineraculous.modLoc(name).toString(), fallback);
+        return new EnumProxy<>(ItemDisplayContext.class, -1, MineraculousConstants.modLoc(name).toString(), fallback);
     }
 }

@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.data.curios;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
@@ -17,7 +18,7 @@ public class MineraculousCuriosProvider extends CuriosDataProvider {
     public static final String SLOT_BELT = "belt";
 
     public MineraculousCuriosProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, @Nullable ExistingFileHelper fileHelper) {
-        super(Mineraculous.MOD_ID, output, fileHelper, registries);
+        super(MineraculousConstants.MOD_ID, output, fileHelper, registries);
     }
 
     @Override

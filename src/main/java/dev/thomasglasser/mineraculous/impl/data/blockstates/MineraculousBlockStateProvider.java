@@ -2,11 +2,11 @@ package dev.thomasglasser.mineraculous.impl.data.blockstates;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.data.blockstates.ExtendedBlockStateProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import java.util.Objects;
@@ -20,7 +20,7 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class MineraculousBlockStateProvider extends ExtendedBlockStateProvider {
     public MineraculousBlockStateProvider(PackOutput output, ExistingFileHelper exFileHelper) {
-        super(output, Mineraculous.MOD_ID, exFileHelper);
+        super(output, MineraculousConstants.MOD_ID, exFileHelper);
     }
 
     @Override

@@ -12,6 +12,8 @@
     "minecraft.server.level.ServerPlayer$1Mixin",
     "minecraft.server.level.ServerPlayer$2Mixin",
     "minecraft.server.network.ServerGamePacketListenerImplMixin",
+    "minecraft.server.packs.repository.PackMetadataMixin",
+    "minecraft.server.packs.repository.PackMixin",
     "minecraft.world.entity.EntityMixin",
     "minecraft.world.entity.LeashableMixin",
     "minecraft.world.entity.player.PlayerMixin",
@@ -26,6 +28,9 @@
   "client": [
     "minecraft.client.MinecraftMixin",
     "minecraft.client.gui.GuiMixin",
+    "minecraft.client.gui.screens.packs.PackSelectionModelEntryBaseMixin",
+    "minecraft.client.gui.screens.packs.PackSelectionModelEntryMixin",
+    "minecraft.client.gui.screens.packs.TransferableSelectionListPackEntryMixin",
     "minecraft.client.multiplayer.ClientLevelMixin",
     "minecraft.client.player.LocalPlayerMixin",
     "minecraft.client.renderer.BlockEntityWithoutLevelRendererMixin",

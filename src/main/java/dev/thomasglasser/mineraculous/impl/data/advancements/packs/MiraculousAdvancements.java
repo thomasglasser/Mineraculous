@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.data.advancements.packs;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.KamikotizedEntityTrigger;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.PerformedMiraculousActiveAbilityTrigger;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.ReleasedPurifiedEntitiesTrigger;
@@ -34,7 +35,7 @@ import net.minecraft.core.HolderLookup;
 
 public class MiraculousAdvancements extends ExtendedAdvancementGenerator {
     public MiraculousAdvancements(BiConsumer<String, String> lang) {
-        super(Mineraculous.MOD_ID, "miraculous", lang);
+        super(MineraculousConstants.MOD_ID, "miraculous", lang);
     }
 
     @Override

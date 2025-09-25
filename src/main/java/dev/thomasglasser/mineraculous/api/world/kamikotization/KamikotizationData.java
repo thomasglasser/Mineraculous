@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.api.world.kamikotization;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
@@ -18,7 +19,6 @@ import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionItemData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
@@ -80,7 +80,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
     private static final int TRANSFORMATION_FRAMES = 10;
     public ItemStack transform(LivingEntity entity, ServerLevel level, ItemStack originalStack) {
         if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
-            Mineraculous.LOGGER.error("Tried to kamikotize currently powered entity: {}", entity.getName().plainCopy().getString());
+            MineraculousConstants.LOGGER.error("Tried to kamikotize currently powered entity: {}", entity.getName().plainCopy().getString());
             return originalStack;
         }
 
@@ -122,7 +122,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
     public void detransform(LivingEntity entity, ServerLevel level, Vec3 kamikoSpawnPos, boolean instant) {
         Kamiko kamiko = kamikoData.summon(level, kamikoSpawnPos);
         if (kamiko == null) {
-            Mineraculous.LOGGER.error("Kamiko could not be created for player {}", entity.getName().plainCopy().getString());
+            MineraculousConstants.LOGGER.error("Kamiko could not be created for player {}", entity.getName().plainCopy().getString());
         }
 
         level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM, entity.getSoundSource(), 1, 1);

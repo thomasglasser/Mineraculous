@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.api.client.renderer;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import java.io.IOException;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -48,7 +49,7 @@ public class MineraculousRenderStateShards {
                     new ShaderInstance(resourceProvider, Mineraculous.modLoc("rendertype_glint_translucent_lightmap"), DefaultVertexFormat.POSITION_TEX_LIGHTMAP_COLOR),
                     instance -> rendertypeGlintTranslucentLightmapShader = instance);
         } catch (IOException e) {
-            Mineraculous.LOGGER.error("Failed to register shaders", e);
+            MineraculousConstants.LOGGER.error("Failed to register shaders", e);
         }
     }
 }

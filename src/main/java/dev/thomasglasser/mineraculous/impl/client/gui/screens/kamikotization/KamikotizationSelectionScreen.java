@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization;
 
 import com.mojang.datafixers.util.Either;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalInventoryScreen;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
@@ -374,6 +375,6 @@ public class KamikotizationSelectionScreen extends Screen {
 
     @Override
     public void removed() {
-        Mineraculous.LOGGER.warn("KamikotizationSelectionScreen forcefully closed, this will not spawn a Kamiko.");
+        MineraculousConstants.LOGGER.warn("KamikotizationSelectionScreen forcefully closed, this will not spawn a Kamiko.");
     }
 }

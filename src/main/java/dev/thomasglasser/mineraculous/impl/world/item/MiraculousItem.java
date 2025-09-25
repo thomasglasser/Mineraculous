@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.item;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
@@ -7,7 +8,6 @@ import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -119,7 +119,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                     if (kwami != null) {
                         stack.set(MineraculousDataComponents.KWAMI_ID, kwami.getUUID());
                     } else {
-                        Mineraculous.LOGGER.error("Kwami could not be created for entity {}", entity.getName().plainCopy().getString());
+                        MineraculousConstants.LOGGER.error("Kwami could not be created for entity {}", entity.getName().plainCopy().getString());
                     }
                 }
                 data.equip(new CuriosData(slotContext)).save(miraculous, entity, true);

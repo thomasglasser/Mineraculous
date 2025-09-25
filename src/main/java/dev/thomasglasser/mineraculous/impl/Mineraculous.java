@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.MineraculousEntitySubPredicates;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
@@ -40,17 +41,11 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-@Mod(Mineraculous.MOD_ID)
+@Mod(MineraculousConstants.MOD_ID)
 public class Mineraculous {
-    public static final String MOD_ID = "mineraculous";
-    public static final String MOD_NAME = "Mineraculous";
-    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
-
     public Mineraculous(IEventBus modBus, ModContainer modContainer) {
-        LOGGER.info("Initializing {} for {} in a {} environment...", MOD_NAME, TommyLibServices.PLATFORM.getPlatformName(), TommyLibServices.PLATFORM.getEnvironmentName());
+        MineraculousConstants.LOGGER.info("Initializing {} for {} in a {} environment...", MineraculousConstants.MOD_NAME, TommyLibServices.PLATFORM.getPlatformName(), TommyLibServices.PLATFORM.getEnvironmentName());
 
         initRegistries();
 
@@ -135,7 +130,7 @@ public class Mineraculous {
     }
 
     public static ResourceLocation modLoc(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(MineraculousConstants.MOD_ID, path);
     }
 
     public enum Dependencies {

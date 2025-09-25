@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.api.world.entity.npc;
 
 import com.google.common.collect.ImmutableSet;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.world.entity.ai.village.poi.MineraculousPoiTypes;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
@@ -19,7 +19,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 public class MineraculousVillagerProfessions {
-    private static final DeferredRegister<VillagerProfession> VILLAGER_PROFESSIONS = DeferredRegister.create(Registries.VILLAGER_PROFESSION, Mineraculous.MOD_ID);
+    private static final DeferredRegister<VillagerProfession> VILLAGER_PROFESSIONS = DeferredRegister.create(Registries.VILLAGER_PROFESSION, MineraculousConstants.MOD_ID);
 
     /// Found in the Creamery, sells cheeses
     public static final DeferredHolder<VillagerProfession, VillagerProfession> FROMAGER = register("fromager", MineraculousPoiTypes.FROMAGER.getKey(), SoundEvents.VILLAGER_WORK_CLERIC);

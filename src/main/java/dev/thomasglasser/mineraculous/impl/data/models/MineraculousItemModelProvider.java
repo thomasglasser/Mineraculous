@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.data.models;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.renderer.item.MineraculousItemProperties;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
@@ -7,7 +8,6 @@ import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
@@ -23,7 +23,7 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
     public MineraculousItemModelProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
-        super(output, Mineraculous.MOD_ID, existingFileHelper);
+        super(output, MineraculousConstants.MOD_ID, existingFileHelper);
     }
 
     @Override

@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.impl.data.tags.client;
 import dev.dhyces.trimmed.api.client.ClientKeyResolvers;
 import dev.dhyces.trimmed.api.client.tag.ClientTags;
 import dev.dhyces.trimmed.api.data.tag.ClientTagDataProvider;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
@@ -13,7 +13,7 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class MineraculousResourceLocationClientTagsProvider extends ClientTagDataProvider<ResourceLocation> {
     public MineraculousResourceLocationClientTagsProvider(PackOutput packOutput, ExistingFileHelper existingFileHelper) {
-        super(packOutput, Mineraculous.MOD_ID, ClientKeyResolvers.TEXTURE, existingFileHelper);
+        super(packOutput, MineraculousConstants.MOD_ID, ClientKeyResolvers.TEXTURE, existingFileHelper);
     }
 
     @Override

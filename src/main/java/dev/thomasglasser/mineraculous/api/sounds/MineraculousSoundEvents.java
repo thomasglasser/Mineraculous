@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.api.sounds;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
@@ -8,7 +9,7 @@ import net.minecraft.sounds.SoundEvent;
 import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousSoundEvents {
-    private static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(Registries.SOUND_EVENT, Mineraculous.MOD_ID);
+    private static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(Registries.SOUND_EVENT, MineraculousConstants.MOD_ID);
 
     // Abilities
     public static final DeferredHolder<SoundEvent, SoundEvent> CATACLYSM_ACTIVATE = register("cataclysm", "ability", "activate");

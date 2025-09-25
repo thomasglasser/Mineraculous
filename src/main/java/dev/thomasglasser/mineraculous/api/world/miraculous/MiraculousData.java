@@ -4,6 +4,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
@@ -115,7 +116,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
 
     public void transform(LivingEntity entity, ServerLevel level, Holder<Miraculous> miraculous) {
         if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
-            Mineraculous.LOGGER.error("Tried to transform currently powered entity {}", entity.getName().plainCopy().getString());
+            MineraculousConstants.LOGGER.error("Tried to transform currently powered entity {}", entity.getName().plainCopy().getString());
             return;
         }
         curiosData.ifPresentOrElse(curiosData -> {
@@ -167,12 +168,12 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                         kwami.playHurtSound(level.damageSources().starve());
                     }
                 } else {
-                    Mineraculous.LOGGER.error("Tried to transform entity {} with invalid kwami id {}", entity.getName().plainCopy().getString(), kwamiId);
+                    MineraculousConstants.LOGGER.error("Tried to transform entity {} with invalid kwami id {}", entity.getName().plainCopy().getString(), kwamiId);
                 }
             } else {
-                Mineraculous.LOGGER.error("Tried to transform entity {} with no Kwami Data", entity.getName().plainCopy().getString());
+                MineraculousConstants.LOGGER.error("Tried to transform entity {} with no Kwami Data", entity.getName().plainCopy().getString());
             }
-        }, () -> Mineraculous.LOGGER.error("Tried to transform entity {} with no curios data", entity.getName().plainCopy().getString()));
+        }, () -> MineraculousConstants.LOGGER.error("Tried to transform entity {} with no curios data", entity.getName().plainCopy().getString()));
     }
 
     public void detransform(LivingEntity entity, ServerLevel level, Holder<Miraculous> miraculous, ItemStack stack, boolean removed) {
@@ -185,11 +186,11 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         } else if (curiosData.isPresent()) {
             miraculousStack = CuriosUtils.getStackInSlot(entity, curiosData.get());
             if (miraculousStack.isEmpty()) {
-                Mineraculous.LOGGER.error("Tried to detransform entity {} with no miraculous in {} curios", entity.getName().plainCopy().getString(), curiosData.get().identifier());
+                MineraculousConstants.LOGGER.error("Tried to detransform entity {} with no miraculous in {} curios", entity.getName().plainCopy().getString(), curiosData.get().identifier());
                 return;
             }
         } else {
-            Mineraculous.LOGGER.error("Tried to detransform entity {} with no curios data", entity.getName().plainCopy().getString());
+            MineraculousConstants.LOGGER.error("Tried to detransform entity {} with no curios data", entity.getName().plainCopy().getString());
             return;
         }
 
@@ -218,7 +219,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                 }
             }
         } else {
-            Mineraculous.LOGGER.error("Tried to detransform entity {} with no miraculous id", entity.getName().plainCopy().getString());
+            MineraculousConstants.LOGGER.error("Tried to detransform entity {} with no miraculous id", entity.getName().plainCopy().getString());
         }
 
         level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.detransformSound(), entity.getSoundSource(), 1, 1);
@@ -234,7 +235,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         if (!removed) {
             Kwami kwami = MineraculousEntityUtils.summonKwami(false, miraculousId, level, miraculous, entity);
             if (kwami == null) {
-                Mineraculous.LOGGER.error("Kwami could not be created for entity {}", entity.getName().plainCopy().getString());
+                MineraculousConstants.LOGGER.error("Kwami could not be created for entity {}", entity.getName().plainCopy().getString());
             }
             miraculousStack.set(MineraculousDataComponents.KWAMI_ID, kwami == null ? null : kwami.getUUID());
             if (detransformationFrames.isEmpty()) {
@@ -386,7 +387,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         if (id > -1) {
             finishTransformation(id).save(miraculous, entity, true);
         } else {
-            Mineraculous.LOGGER.error("Tool could not be created for entity {}", entity.getName().plainCopy().getString());
+            MineraculousConstants.LOGGER.error("Tool could not be created for entity {}", entity.getName().plainCopy().getString());
         }
     }
 
@@ -431,10 +432,10 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                 }, () -> EntityUtils.addToInventoryOrDrop(entity, tool));
                 return id;
             } else {
-                Mineraculous.LOGGER.error("Tried to create tool for entity {} with no miraculous id", entity.getName().plainCopy().getString());
+                MineraculousConstants.LOGGER.error("Tried to create tool for entity {} with no miraculous id", entity.getName().plainCopy().getString());
             }
         } else {
-            Mineraculous.LOGGER.error("Tried to create tool for entity {} with no curios data", entity.getName().plainCopy().getString());
+            MineraculousConstants.LOGGER.error("Tried to create tool for entity {} with no curios data", entity.getName().plainCopy().getString());
         }
         return -1;
     }

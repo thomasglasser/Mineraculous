@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.data.lang;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalInventoryScreen;
 import dev.thomasglasser.mineraculous.api.packs.MineraculousPacks;
@@ -21,7 +22,6 @@ import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
@@ -36,6 +36,7 @@ import dev.thomasglasser.mineraculous.impl.data.curios.MineraculousCuriosProvide
 import dev.thomasglasser.mineraculous.impl.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.server.commands.MiraculousCommand;
+import dev.thomasglasser.mineraculous.impl.server.packs.repository.MineraculousPackCompatibility;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
@@ -54,7 +55,7 @@ import net.minecraft.world.item.ItemNameBlockItem;
 
 public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvider {
     public MineraculousEnUsLanguageProvider(PackOutput output) {
-        super(output, Mineraculous.MOD_ID);
+        super(output, MineraculousConstants.MOD_ID);
     }
 
     protected MineraculousEnUsLanguageProvider(PackOutput output, String modId) {
@@ -107,6 +108,11 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         for (T option : options) {
             add(option.displayName(), capitalize(option.name()));
         }
+    }
+
+    private void add(MineraculousPackCompatibility compatibility, String description, String confirmation) {
+        add(compatibility.getDescription(), description);
+        add(compatibility.getConfirmation(), confirmation);
     }
 
     private void addItems() {
@@ -338,11 +344,14 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     private void addPacks() {
+        add(MineraculousPackCompatibility.TOO_OLD, "(Made for an older Mineraculous API version)", "This addon was made for an older Mineraculous API version. Things may not work as expected.");
+        add(MineraculousPackCompatibility.TOO_NEW, "(Made for a newer Mineraculous API version)", "This addon was made for a newer Mineraculous API version. Things may not work as expected.");
+
         add(MineraculousPacks.AKUMATIZATION, "Akumatization Pack", "Renames \"Kamikotization\" to \"Akumatization\"");
     }
 
     private void addConfigs() {
-        addConfigTitle(Mineraculous.MOD_NAME);
+        addConfigTitle(MineraculousConstants.MOD_NAME);
 
         // Server
         addConfigSection(MineraculousServerConfig.MIRACULOUS, "Miraculous", "Settings for miraculous");

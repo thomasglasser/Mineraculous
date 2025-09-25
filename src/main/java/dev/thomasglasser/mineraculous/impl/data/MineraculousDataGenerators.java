@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.data;
 
 import com.mojang.datafixers.util.Either;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
@@ -88,7 +89,7 @@ public class MineraculousDataGenerators {
     public static void onGatherData(GatherDataEvent event) {
         // Server
         event.createDatapackRegistryObjects(BUILDER);
-        DataGenerationUtils.createRegistryDumpReport(event, Mineraculous.MOD_ID);
+        DataGenerationUtils.createRegistryDumpReport(event, MineraculousConstants.MOD_ID);
         event.createProvider(MineraculousLootTables::new);
         event.createProvider(MineraculousRecipeProvider::new);
         DataGenerationUtils.createBlockAndItemTags(event, MineraculousBlockTagsProvider::new, MineraculousItemTagsProvider::new);

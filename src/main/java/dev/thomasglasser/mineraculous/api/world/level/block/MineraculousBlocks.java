@@ -1,9 +1,9 @@
 package dev.thomasglasser.mineraculous.api.world.level.block;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
 import dev.thomasglasser.mineraculous.api.world.food.MineraculousFoods;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
@@ -24,7 +24,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousBlocks {
     @ApiStatus.Internal
-    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Mineraculous.MOD_ID);
+    public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MineraculousConstants.MOD_ID);
 
     /**
      * Sand-like.

@@ -1,14 +1,14 @@
 package dev.thomasglasser.mineraculous.api.world.ability;
 
 import com.mojang.serialization.MapCodec;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import org.jetbrains.annotations.ApiStatus;
 
 public class AbilitySerializers {
-    private static final DeferredRegister<MapCodec<? extends Ability>> ABILITIES = DeferredRegister.create(MineraculousRegistries.ABILITY_SERIALIZER, Mineraculous.MOD_ID);
+    private static final DeferredRegister<MapCodec<? extends Ability>> ABILITIES = DeferredRegister.create(MineraculousRegistries.ABILITY_SERIALIZER, MineraculousConstants.MOD_ID);
 
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ApplyEffectsOrDestroyAbility>> APPLY_EFFECTS_OR_DESTROY = ABILITIES.register("apply_effects_or_destroy", () -> ApplyEffectsOrDestroyAbility.CODEC);
     public static final DeferredHolder<MapCodec<? extends Ability>, MapCodec<ContextDependentAbility>> CONTEXT_DEPENDENT = ABILITIES.register("context_dependent", () -> ContextDependentAbility.CODEC);

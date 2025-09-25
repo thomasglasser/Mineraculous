@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.core;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousBuiltInRegistries;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
@@ -9,7 +10,6 @@ import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.tommylib.api.packs.PackInfo;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -74,7 +74,7 @@ public class MineraculousCoreEvents {
     public static void onAddPackFinders(AddPackFindersEvent event) {
         for (PackInfo info : MineraculousPacks.getPacks()) {
             if (event.getPackType() == info.type()) {
-                Path resourcePath = ModList.get().getModFileById(Mineraculous.MOD_ID).getFile().findResource("packs/" + info.knownPack().namespace() + "/" + info.knownPack().id());
+                Path resourcePath = ModList.get().getModFileById(MineraculousConstants.MOD_ID).getFile().findResource("packs/" + info.knownPack().namespace() + "/" + info.knownPack().id());
                 Pack pack = Pack.readMetaAndCreate(new PackLocationInfo("builtin/" + info.knownPack().id(), info.title(), info.source(), Optional.of(info.knownPack())), new Pack.ResourcesSupplier() {
                     @Override
                     public PackResources openFull(PackLocationInfo p_326241_, Pack.Metadata p_325959_) {
@@ -105,7 +105,7 @@ public class MineraculousCoreEvents {
     // Start
     public static void onServerStarted(ServerStartedEvent event) {
         if (event.getServer().registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).size() == 0) {
-            Mineraculous.LOGGER.warn(Kamikotization.NO_KAMIKOTIZATIONS.getString());
+            MineraculousConstants.LOGGER.warn(Kamikotization.NO_KAMIKOTIZATIONS.getString());
         }
     }
 

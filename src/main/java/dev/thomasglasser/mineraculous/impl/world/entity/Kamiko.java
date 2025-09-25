@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousDamageTypeTags;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
@@ -142,7 +143,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     @Override
     protected void customServerAiStep() {
         if (getOwnerUUID() == null) {
-            Mineraculous.LOGGER.warn("Kamiko {} has no owner, discarding...", getUUID());
+            MineraculousConstants.LOGGER.warn("Kamiko {} has no owner, discarding...", getUUID());
             discard();
         }
         super.customServerAiStep();

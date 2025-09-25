@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.item;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
@@ -27,7 +28,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousCreativeModeTabs {
-    private static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, Mineraculous.MOD_ID);
+    private static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MineraculousConstants.MOD_ID);
 
     /// Holds all data-driven {@link MiraculousItem}s.
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MIRACULOUS = TABS.register("miraculous", () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(Mineraculous.modLoc("miraculous").toLanguageKey("item_group"))).icon(() -> {
@@ -70,13 +71,13 @@ public class MineraculousCreativeModeTabs {
     }).withTabsBefore(KAMIKOTIZATION_TOOLS.getKey()).build());
 
     /// Holds all items from the mod
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MINERACULOUS = TABS.register(Mineraculous.MOD_ID, () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(Mineraculous.modLoc(Mineraculous.MOD_ID).toLanguageKey("item_group"))).icon(() -> MineraculousItems.CATACLYSM_DUST.get().getDefaultInstance()).type(CreativeModeTab.Type.SEARCH).displayItems((parameters, output) -> {
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MINERACULOUS = TABS.register(MineraculousConstants.MOD_ID, () -> TommyLibServices.CLIENT.tabBuilder().title(Component.translatable(Mineraculous.modLoc(MineraculousConstants.MOD_ID).toLanguageKey("item_group"))).icon(() -> MineraculousItems.CATACLYSM_DUST.get().getDefaultInstance()).type(CreativeModeTab.Type.SEARCH).displayItems((parameters, output) -> {
         Set<ItemStack> set = ItemStackLinkedSet.createTypeAndComponentsSet();
 
         parameters.holders().lookupOrThrow(Registries.CREATIVE_MODE_TAB).listElements().map(Holder::value).forEach(tab -> {
             if (tab.getType() != CreativeModeTab.Type.SEARCH) {
                 for (ItemStack stack : tab.getSearchTabDisplayItems()) {
-                    if (BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals(Mineraculous.MOD_ID)) {
+                    if (BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().equals(MineraculousConstants.MOD_ID)) {
                         set.add(stack);
                     }
                 }

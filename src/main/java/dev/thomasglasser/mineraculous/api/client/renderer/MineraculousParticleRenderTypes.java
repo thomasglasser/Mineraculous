@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleRenderType;
@@ -34,7 +34,7 @@ public class MineraculousParticleRenderTypes {
 
         @Override
         public String toString() {
-            return Mineraculous.MOD_ID + ":PARTICLE_SHEET_ADDITIVE_TRANSLUCENT";
+            return MineraculousConstants.MOD_ID + ":PARTICLE_SHEET_ADDITIVE_TRANSLUCENT";
         }
     };
 }

@@ -1,11 +1,11 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import com.google.common.collect.ImmutableList;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
@@ -73,7 +73,7 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ClientboundSyncArrowPickupStackPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncArrowPickupStackPayload.CODEC));
 
     public static void onRegisterPackets(RegisterPayloadHandlersEvent event) {
-        PayloadRegistrar registrar = event.registrar(Mineraculous.MOD_ID);
+        PayloadRegistrar registrar = event.registrar(MineraculousConstants.MOD_ID);
         PAYLOADS.forEach((info) -> NeoForgeNetworkUtils.register(registrar, info));
 
         // Attachment Syncing Registration

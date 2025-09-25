@@ -1,12 +1,12 @@
 package dev.thomasglasser.mineraculous.api.world.item;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.food.MineraculousFoods;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
@@ -43,7 +43,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousItems {
     @ApiStatus.Internal
-    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Mineraculous.MOD_ID);
+    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MineraculousConstants.MOD_ID);
 
     // Miraculous Tools
     /// Default properties for Miraculous tools

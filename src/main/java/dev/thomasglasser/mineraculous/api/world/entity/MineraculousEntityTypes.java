@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.entity;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.entity.LuckyCharmItemSpawner;
@@ -15,7 +15,7 @@ import net.minecraft.world.entity.MobCategory;
 import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousEntityTypes {
-    private static final DeferredRegister.Entities ENTITY_TYPES = DeferredRegister.createEntities(Mineraculous.MOD_ID);
+    private static final DeferredRegister.Entities ENTITY_TYPES = DeferredRegister.createEntities(MineraculousConstants.MOD_ID);
 
     public static final DeferredHolder<EntityType<?>, EntityType<Kwami>> KWAMI = ENTITY_TYPES.register("kwami", Kwami::new, MobCategory.CREATURE, builder -> builder
             .sized(0.3F, 0.4F));

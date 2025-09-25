@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki;
 import com.klikli_dev.modonomicon.api.datagen.SingleBookSubProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookModel;
 import com.klikli_dev.modonomicon.book.BookDisplayMode;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.apis.ApisCategoryProvider;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.cosmetics.CosmeticsCategoryProvider;
@@ -23,7 +24,7 @@ public class WikiBookSubProvider extends SingleBookSubProvider {
     public static final String ID = "wiki";
 
     public WikiBookSubProvider(BiConsumer<String, String> lang) {
-        super(ID, Mineraculous.MOD_ID, lang);
+        super(ID, MineraculousConstants.MOD_ID, lang);
     }
 
     protected void registerDefaultMacros() {}

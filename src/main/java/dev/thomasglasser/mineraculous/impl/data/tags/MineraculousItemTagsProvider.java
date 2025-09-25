@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.data.tags;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
@@ -23,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
     public MineraculousItemTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagLookup<Block>> blockLookup, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, blockLookup, Mineraculous.MOD_ID, existingFileHelper);
+        super(output, lookupProvider, blockLookup, MineraculousConstants.MOD_ID, existingFileHelper);
     }
 
     @Override

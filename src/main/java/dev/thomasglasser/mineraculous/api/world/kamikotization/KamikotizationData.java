@@ -204,7 +204,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
     }
 
     private void finishDetransformation(LivingEntity entity) {
-        entity.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(data -> data.equipAndClear(entity));
+        ArmorData.restoreOrClear(entity);
         if (entity.level() instanceof ServerLevel level) {
             AbilityReversionItemData.get(level).revertKamikotized(entity, revertibleId);
         }

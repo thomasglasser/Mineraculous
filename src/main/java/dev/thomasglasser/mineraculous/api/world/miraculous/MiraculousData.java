@@ -206,11 +206,11 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
 
         miraculousStack.set(MineraculousDataComponents.CHARGED, false);
 
-        detransformationFrames.ifPresentOrElse(frames -> {
+        detransformationFrames.ifPresent(frames -> {
             for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
                 entity.getItemBySlot(slot).set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, frames);
             }
-        }, () -> entity.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(armorData -> armorData.equipAndClear(entity)));
+        });
 
         UUID miraculousId = miraculousStack.get(MineraculousDataComponents.MIRACULOUS_ID);
         if (miraculousId != null) {
@@ -394,17 +394,13 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
     }
 
     private void finishRemovedDetransformation(LivingEntity entity, Holder<Miraculous> miraculous) {
-        restoreArmor(entity);
+        ArmorData.restoreOrClear(entity);
         finishRemovedDetransformation().save(miraculous, entity, true);
     }
 
     private void finishDetransformation(LivingEntity entity, Holder<Miraculous> miraculous) {
-        restoreArmor(entity);
+        ArmorData.restoreOrClear(entity);
         finishDetransformation().save(miraculous, entity, true);
-    }
-
-    private void restoreArmor(LivingEntity entity) {
-        entity.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresent(data -> data.equipAndClear(entity));
     }
 
     private static Multimap<Holder<Attribute>, AttributeModifier> getMiraculousAttributes(ServerLevel level, int powerLevel) {

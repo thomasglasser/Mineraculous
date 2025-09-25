@@ -34,8 +34,8 @@ public class MineraculousAttachmentTypes {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Boolean>> YOYO_LEASH_OVERRIDE = ATTACHMENT_TYPES.register("yoyo_leash_override", () -> AttachmentType.builder(() -> false).build());
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<LeashingLadybugYoyoData>>> LEASHING_LADYBUG_YOYO = ATTACHMENT_TYPES.register("leashing_ladybug_yoyo", () -> AttachmentType.builder(Optional::<LeashingLadybugYoyoData>empty).build());
 
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<PerchingCatStaffData>> PERCHING_CAT_STAFF = ATTACHMENT_TYPES.register("perching_cat_staff", () -> AttachmentType.builder(() -> new PerchingCatStaffData()).build());
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<TravelingCatStaffData>> TRAVELING_CAT_STAFF = ATTACHMENT_TYPES.register("traveling_cat_staff", () -> AttachmentType.builder(() -> new TravelingCatStaffData()).build());
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<PerchingCatStaffData>> PERCHING_CAT_STAFF = ATTACHMENT_TYPES.register("perching_cat_staff", () -> AttachmentType.builder(PerchingCatStaffData::new).build());
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<TravelingCatStaffData>> TRAVELING_CAT_STAFF = ATTACHMENT_TYPES.register("traveling_cat_staff", () -> AttachmentType.builder(TravelingCatStaffData::new).build());
 
     // Miraculous
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<MiraculousesData>> MIRACULOUSES = ATTACHMENT_TYPES.register("miraculouses", () -> AttachmentType.builder(() -> new MiraculousesData()).serialize(MiraculousesData.CODEC).copyOnDeath().build());

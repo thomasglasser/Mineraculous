@@ -27,13 +27,22 @@ public record ArmorData(ItemStack head, ItemStack chest, ItemStack legs, ItemSta
     /**
      * Equips the stored armor on the provided {@link LivingEntity} and clears {@link MineraculousAttachmentTypes#STORED_ARMOR}.
      *
-     * @param livingEntity The entity to equip the set on and clear the data for
+     * @param entity The entity to equip the set on and clear the data for
      */
-    public void equipAndClear(LivingEntity livingEntity) {
-        livingEntity.setItemSlot(EquipmentSlot.HEAD, head);
-        livingEntity.setItemSlot(EquipmentSlot.CHEST, chest);
-        livingEntity.setItemSlot(EquipmentSlot.LEGS, legs);
-        livingEntity.setItemSlot(EquipmentSlot.FEET, feet);
-        livingEntity.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.empty());
+    public void equipAndClear(LivingEntity entity) {
+        entity.setItemSlot(EquipmentSlot.HEAD, head);
+        entity.setItemSlot(EquipmentSlot.CHEST, chest);
+        entity.setItemSlot(EquipmentSlot.LEGS, legs);
+        entity.setItemSlot(EquipmentSlot.FEET, feet);
+        entity.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.empty());
+    }
+
+    public static void restoreOrClear(LivingEntity entity) {
+        entity.getData(MineraculousAttachmentTypes.STORED_ARMOR).ifPresentOrElse(data -> data.equipAndClear(entity), () -> {
+            entity.setItemSlot(EquipmentSlot.HEAD, ItemStack.EMPTY);
+            entity.setItemSlot(EquipmentSlot.CHEST, ItemStack.EMPTY);
+            entity.setItemSlot(EquipmentSlot.LEGS, ItemStack.EMPTY);
+            entity.setItemSlot(EquipmentSlot.FEET, ItemStack.EMPTY);
+        });
     }
 }

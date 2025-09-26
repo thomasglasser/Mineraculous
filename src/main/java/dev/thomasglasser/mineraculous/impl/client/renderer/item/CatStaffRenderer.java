@@ -14,7 +14,6 @@ import dev.thomasglasser.tommylib.api.client.renderer.item.GlowingDefaultedGeoIt
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -136,8 +135,6 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
                     drawCap(vertexConsumer, pose, light, light, bodyDirectionF.x, bodyDirectionF.z, PIXEL * 12, PIXEL * 12, 1f, 1f);
                     //PAW & LINES
                     drawPawAndLines(vertexConsumer, pose, bodyDirectionF, direction, nLength, player.getEyeHeight(Pose.STANDING) + bodyDirectionF.y);
-
-                    //oLength = perchData.length();
                 }
                 poseStack.popPose();
             }
@@ -218,10 +215,10 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         int light = 15728880;
         float uMin = 4 / 16f, uMax = 14 / 16f;
         float vMin = 0f, vMax = 10 / 16f;
-        vertex(vertexConsumer, pose, x1, pawTop, z1, uMin, vMin, light);
-        vertex(vertexConsumer, pose, x1, pawBottom, z1, uMin, vMax, light);
-        vertex(vertexConsumer, pose, x2, pawBottom, z2, uMax, vMax, light);
-        vertex(vertexConsumer, pose, x2, pawTop, z2, uMax, vMin, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, x1, pawTop, z1, uMin, vMin, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, x1, pawBottom, z1, uMin, vMax, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, x2, pawBottom, z2, uMax, vMax, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, x2, pawTop, z2, uMax, vMin, light);
         //LINES:
         float y1 = eyeY - PIXEL * 4f;
         float y2 = eyeY - PIXEL * 4.5f;
@@ -328,19 +325,19 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
     }
 
     private static void drawStaffSide(VertexConsumer vertexConsumer, PoseStack.Pose pose, int light, float uvOffset, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3, float x4, float y4, float z4) {
-        vertex(vertexConsumer, pose, x1, y1, z1, 0f, 0f, light);
-        vertex(vertexConsumer, pose, x2, y2, z2, 0f, uvOffset, light);
-        vertex(vertexConsumer, pose, x3, y3, z3, PIXEL * 4, uvOffset, light);
-        vertex(vertexConsumer, pose, x4, y4, z4, PIXEL * 4, 0f, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, x1, y1, z1, 0f, 0f, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, x2, y2, z2, 0f, uvOffset, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, x3, y3, z3, PIXEL * 4, uvOffset, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, x4, y4, z4, PIXEL * 4, 0f, light);
     }
 
     private static void drawCap(VertexConsumer vertexConsumer, PoseStack.Pose pose, int light,
             float y, float xOffset, float zOffset,
             float u1, float v1, float u2, float v2) {
-        vertex(vertexConsumer, pose, -PIXEL + xOffset, y, -PIXEL + zOffset, u1, v1, light);
-        vertex(vertexConsumer, pose, +PIXEL + xOffset, y, -PIXEL + zOffset, u1, v2, light);
-        vertex(vertexConsumer, pose, +PIXEL + xOffset, y, +PIXEL + zOffset, u2, v2, light);
-        vertex(vertexConsumer, pose, -PIXEL + xOffset, y, +PIXEL + zOffset, u2, v1, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, -PIXEL + xOffset, y, -PIXEL + zOffset, u1, v1, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, +PIXEL + xOffset, y, -PIXEL + zOffset, u1, v2, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, +PIXEL + xOffset, y, +PIXEL + zOffset, u2, v2, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, -PIXEL + xOffset, y, +PIXEL + zOffset, u2, v1, light);
     }
 
     private static void quad(VertexConsumer vertexConsumer, PoseStack.Pose pose, int light, float u1, float u2, float v,
@@ -348,13 +345,9 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
             float x2, float y2, float z2,
             float x3, float y3, float z3,
             float x4, float y4, float z4) {
-        vertex(vertexConsumer, pose, x1, y1, z1, u1, v, light);
-        vertex(vertexConsumer, pose, x2, y2, z2, u1, v, light);
-        vertex(vertexConsumer, pose, x3, y3, z3, u2, v, light);
-        vertex(vertexConsumer, pose, x4, y4, z4, u2, v, light);
-    }
-
-    private static void vertex(VertexConsumer vertexConsumer, PoseStack.Pose pose, float x, float y, float z, float i, float j, int light) {
-        vertexConsumer.addVertex(pose, x, y, z).setColor(-1).setUv(i, j).setOverlay(OverlayTexture.NO_OVERLAY).setLight(light).setNormal(0.0F, 1.0F, 0.0F);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, x1, y1, z1, u1, v, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, x2, y2, z2, u1, v, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, x3, y3, z3, u2, v, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, x4, y4, z4, u2, v, light);
     }
 }

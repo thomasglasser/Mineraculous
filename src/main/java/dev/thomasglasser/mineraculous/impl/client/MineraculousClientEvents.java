@@ -31,6 +31,7 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.armor.KamikotizationA
 import dev.thomasglasser.mineraculous.impl.client.renderer.armor.MiraculousArmorItemRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.LuckyCharmItemSpawnerRenderer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.entity.MiraculousLadybugRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownButterflyCaneRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownCatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownLadybugYoyoRenderer;
@@ -186,6 +187,7 @@ public class MineraculousClientEvents {
         event.registerEntityRenderer(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), ThrownCatStaffRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), ThrownButterflyCaneRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), ThrownLadybugYoyoRenderer::new);
+        event.registerEntityRenderer(MineraculousEntityTypes.MIRACULOUS_LADYBUG.get(), MiraculousLadybugRenderer::new);
     }
 
     static void onRegisterParticleProviders(RegisterParticleProvidersEvent event) {

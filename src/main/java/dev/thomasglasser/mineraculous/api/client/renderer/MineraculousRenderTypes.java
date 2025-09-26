@@ -92,4 +92,41 @@ public class MineraculousRenderTypes {
     private static RenderType createLuckyCharm(String name, RenderStateShard.TexturingStateShard texturingStateShard, boolean offsetZLayering) {
         return createLuckyCharm(MineraculousConstants.modLoc(name), texturingStateShard, offsetZLayering);
     }
+
+    public static RenderType magicLadybugOutline(ResourceLocation texture) {
+        return RenderType.create(
+                "ladybug_outline",
+                DefaultVertexFormat.NEW_ENTITY,
+                VertexFormat.Mode.QUADS,
+                256,
+                false,
+                true,
+                RenderType.CompositeState.builder()
+                        .setShaderState(MineraculousRenderStateShards.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_NO_LIGHTMAP_SHADER)
+                        .setTextureState(new RenderStateShard.TextureStateShard(texture, false, true))
+                        .setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
+                        .setOverlayState(RenderStateShard.OVERLAY)
+                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                        .createCompositeState(false));
+    }
+
+    public static RenderType magicLadybugBody(ResourceLocation texture) {
+        return RenderType.create(
+                "ladybug_main",
+                DefaultVertexFormat.NEW_ENTITY,
+                VertexFormat.Mode.QUADS,
+                256,
+                true,
+                true,
+                RenderType.CompositeState.builder()
+                        .setShaderState(MineraculousRenderStateShards.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_NO_LIGHTMAP_SHADER)
+                        .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY) // keeps alpha blending
+                        .setTextureState(new RenderStateShard.TextureStateShard(texture, false, false))
+                        .setCullState(RenderStateShard.CULL)
+                        .setOverlayState(RenderStateShard.OVERLAY)
+                        .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
+                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                        .createCompositeState(false));
+    }
 }

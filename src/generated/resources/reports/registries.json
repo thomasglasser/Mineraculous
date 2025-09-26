@@ -165,6 +165,7 @@
   "minecraft:particle_type": [
     "mineraculous:black_orb",
     "mineraculous:kamikotization",
+    "mineraculous:sparkle",
     "mineraculous:summoning_ladybug"
   ],
   "minecraft:point_of_interest_type": [

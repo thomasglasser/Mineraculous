@@ -3,7 +3,9 @@ package dev.thomasglasser.mineraculous.api.world.level.storage;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import it.unimi.dsi.fastutil.Pair;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -99,5 +101,14 @@ public class AbilityReversionBlockData extends SavedData {
             }
         }
         return miraculousRecoveryEntityData;
+    }
+
+    public ArrayList<BlockPos> getRevertibleBlocks(UUID owner) {
+        Set<Pair<ResourceKey<Level>, BlockPos>> keys = this.revertibleBlocks.row(owner).keySet();
+        ArrayList<BlockPos> positions = new ArrayList<>(keys.size());
+        for (Pair<ResourceKey<Level>, BlockPos> pair : keys) {
+            positions.add(pair.second());
+        }
+        return positions;
     }
 }

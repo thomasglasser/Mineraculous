@@ -6,16 +6,23 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.item.EffectRevertingItem;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBlockData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
+import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -46,6 +53,17 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                         for (UUID relatedId : entityData.getAndClearTrackedAndRelatedEntities(target)) {
                             Entity r = level.getEntity(relatedId);
                             if (r instanceof LivingEntity related) {
+                                //TODO rework on this when adding the summoning visual
+                                List<BlockPos> blockTargets = getBlockTargets(level, relatedId);
+                                blockTargets = MineraculousMathUtils.reduceNearbyBlocks(blockTargets);
+                                if (blockTargets != null && !blockTargets.isEmpty()) {
+                                    MiraculousLadybug miraculousLadybug1 = new MiraculousLadybug(MineraculousEntityTypes.MIRACULOUS_LADYBUG.get(), level);
+                                    miraculousLadybug1.setPos(performer.getX(), performer.getY() + 5, performer.getZ());
+                                    MiraculousLadybugTargetData targetData = new MiraculousLadybugTargetData(blockTargets);
+                                    level.addFreshEntity(miraculousLadybug1);
+                                    targetData.save(miraculousLadybug1, true);
+                                }
+
                                 related.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization).or(() -> related.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION)).ifPresent(kamikotization -> {
                                     Kamikotization value = kamikotization.value();
                                     AbilityData abilityData = new AbilityData(0, false);
@@ -78,5 +96,17 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
     @Override
     public MapCodec<? extends Ability> codec() {
         return AbilitySerializers.REVERT_LUCKY_CHARM_TARGETS_ABILITY_EFFECTS.get();
+    }
+
+    private static List<BlockPos> getBlockTargets(ServerLevel level, UUID relatedId) {
+        AbilityReversionBlockData reversionBlockData = AbilityReversionBlockData.get(level);
+        if (reversionBlockData == null) {
+            return List.of();
+        }
+        List<BlockPos> blockPositions = reversionBlockData.getRevertibleBlocks(relatedId);
+        if (blockPositions == null) {
+            return List.of();
+        }
+        return MineraculousMathUtils.reduceNearbyBlocks(blockPositions);
     }
 }

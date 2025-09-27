@@ -8,6 +8,7 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
@@ -45,6 +46,9 @@ public class MineraculousAttachmentTypes {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<KamikotizationData>>> KAMIKOTIZATION = ATTACHMENT_TYPES.register("kamikotization", () -> AttachmentType.builder(Optional::<KamikotizationData>empty).serialize(optionalCodec(KamikotizationData.CODEC)).build());
     /// If present, stores the previously transformed {@link Kamikotization} of the detransformed holder.
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<Holder<Kamikotization>>>> OLD_KAMIKOTIZATION = ATTACHMENT_TYPES.register("old_kamikotization", () -> AttachmentType.builder(Optional::<Holder<Kamikotization>>empty).serialize(optionalCodec(Kamikotization.CODEC)).build());
+
+    // Miraculous Ladybug ability
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<MiraculousLadybugTargetData>> MIRACULOUS_LADYBUG_TARGET = ATTACHMENT_TYPES.register("miraculous_ladybug_target", () -> AttachmentType.builder(() -> new MiraculousLadybugTargetData()).build());
 
     private static <T> Codec<Optional<T>> optionalCodec(Codec<T> codec) {
         return codec.optionalFieldOf("data").codec();

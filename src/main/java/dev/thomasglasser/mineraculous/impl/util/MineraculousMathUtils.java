@@ -53,7 +53,7 @@ public class MineraculousMathUtils {
         public CatmullRom(ArrayList<Vec3> targets) {
             // Add the ghost points
             ArrayList<Vec3> pts = new ArrayList<>(targets);
-            pts.add(0, pts.get(0).subtract(pts.get(1)).add(pts.get(0)));
+            pts.add(0, pts.get(0).subtract(pts.get(1)).add(pts.get(0))); //adds the ghost point
             int maxIndex = pts.size() - 1;
             pts.add(pts.get(maxIndex).subtract(pts.get(maxIndex - 1)).add(pts.get(maxIndex)));
             this.points = Collections.unmodifiableList(pts);

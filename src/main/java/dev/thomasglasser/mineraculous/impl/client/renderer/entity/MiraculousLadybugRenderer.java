@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug> {
@@ -34,12 +35,11 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
     @Override
     public void render(MiraculousLadybug entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+        double splineParameter = Mth.lerp(partialTick, entity.oldSplinePosition, entity.splinePositionParameter);
         if (entity.path instanceof MineraculousMathUtils.CatmullRom path &&
-                entity.splinePositionParameter >= path.getFirstParameter()) {
+                splineParameter >= path.getFirstParameter()) {
             Vec3 interpolatedPos = MineraculousClientUtils.getInterpolatedPos(entity, partialTick);
-            int TAIL_POINTS_MAX_COUNT = 7;
-            updateTailPoints(path, entity.splinePositionParameter, TAIL_POINTS_MAX_COUNT, interpolatedPos);
-            while (tailPoints.size() > TAIL_POINTS_MAX_COUNT) tailPoints.removeFirst();
+            updateTailPoints(path, splineParameter, interpolatedPos, entity.getDistanceToNearestTarget());
             spawnLadybugs();
             updateLadybugs();
             renderLadybugs(bufferSource, poseStack);
@@ -48,9 +48,11 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
 
-    private void updateTailPoints(MineraculousMathUtils.CatmullRom path, double positionParameter, int TAIL_POINTS_MAX_COUNT, Vec3 interpolatedPos) {
-        double tailPointRadius = 0.4;
-        for (int i = 0; i < TAIL_POINTS_MAX_COUNT; i++) {
+    private void updateTailPoints(MineraculousMathUtils.CatmullRom path, double positionParameter, Vec3 interpolatedPos, double distance) {
+        double factor = 1 - Math.clamp((distance - 10) / 10d, 0, 1);
+        double tailPointRadius = Mth.lerp(factor, 0.4, 1.3); //1.3 meant for teardrop and 0.4 meant for slimmer version
+        int tailPointsMaxCount = 7;
+        for (int i = 0; i < tailPointsMaxCount; i++) {
             Vec3 tailPointPosition = path.getPoint(path.getParameterBehind(positionParameter, i)).subtract(interpolatedPos);
             if (tailPoints.size() >= i + 1) {
                 tailPoints.set(i, new TailPoint(tailPointPosition, tailPointRadius));
@@ -59,6 +61,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
             }
             tailPointRadius *= 0.75;
         }
+        while (tailPoints.size() > tailPointsMaxCount) tailPoints.removeFirst();
     }
 
     private void spawnLadybugs() {

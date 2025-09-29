@@ -21,11 +21,11 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.loot.parameters.Mi
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.entity.LuckyCharmItemSpawner;
+import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.util.Optional;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -34,12 +34,16 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Summons an {@link ItemStack} from a {@link LuckyCharms} pool based on related entities.
@@ -57,6 +61,33 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
         if (!requireActiveToolInHand || (handler.isActiveTool(performer.getMainHandItem(), performer) || handler.isActiveTool(performer.getOffhandItem(), performer))) {
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
             Entity target = determineTarget(level, entityData.getTrackedEntity(performer.getUUID()), performer);
+            //Determine where to summon (if it's the case)
+            ThrownLadybugYoyoData yoyoData = performer.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
+            Vec3 spawnPos;
+            if (yoyoData.getThrownYoyo(level) instanceof ThrownLadybugYoyo yoyo) {
+                if (performer.position().distanceTo(yoyo.position()) > 10 ||
+                        yoyo.inGround() ||
+                        performer.getXRot() > - 75)
+                    return State.FAIL;
+                yoyo.setDeltaMovement(Vec3.ZERO);
+                spawnPos = yoyo.position();
+            } else {
+                spawnPos = performer.position();
+                if (performer instanceof Player player) {
+                    if (player.isCrouching()) {
+                        if (level.getBlockState(new BlockPos((int) spawnPos.x, (int) spawnPos.y + 1, (int) spawnPos.z)).isAir())
+                            spawnPos = spawnPos.add(0, 1, 0);
+                    } else {
+                        for (int i = 0; i < 5; i++) {
+                            if (level.getBlockState(new BlockPos((int) spawnPos.x, (int) spawnPos.y + 1, (int) spawnPos.z)).isAir()) {
+                                spawnPos = spawnPos.add(0, 1, 0);
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
             if (target != null) {
                 entityData.putRelatedEntity(performer.getUUID(), target.getUUID());
                 entityData.putRelatedEntity(target.getUUID(), performer.getUUID());
@@ -83,15 +114,7 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             UUID uuid = handler.getAndAssignBlame(stack, performer);
             stack.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.ofNullable(target).map(Entity::getUUID), uuid, uuid != null ? LuckyCharmIdData.get(level).incrementLuckyCharmId(uuid) : 0));
             LuckyCharmItemSpawner item = LuckyCharmItemSpawner.create(level, stack);
-            BlockPos.MutableBlockPos spawnPos = performer.blockPosition().mutable();
-            for (int i = 0; i < 5; i++) {
-                if (level.getBlockState(spawnPos.above()).isAir()) {
-                    spawnPos.move(0, 1, 0);
-                } else {
-                    break;
-                }
-            }
-            item.moveTo(Vec3.atCenterOf(spawnPos));
+            item.moveTo(spawnPos);
             level.addFreshEntity(item);
             Ability.playSound(level, performer, summonSound);
             return State.SUCCESS;

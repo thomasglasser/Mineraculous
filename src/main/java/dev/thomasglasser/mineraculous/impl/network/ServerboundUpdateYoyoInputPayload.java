@@ -56,16 +56,20 @@ public record ServerboundUpdateYoyoInputPayload(int input) implements ExtendedPa
         ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
         ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(level);
         if (thrownYoyo != null) {
-            Vec3 fromProjectileToPlayer = new Vec3(player.getX() - thrownYoyo.getX(), player.getY() - thrownYoyo.getY(), player.getZ() - thrownYoyo.getZ());
+            Vec3 fromProjectileToPlayer = new Vec3(
+                    player.getX() - thrownYoyo.getX(),
+                    player.getY() - thrownYoyo.getY(),
+                    player.getZ() - thrownYoyo.getZ());
             double distance = fromProjectileToPlayer.length();
             float maxRopeLn = thrownYoyo.getMaxRopeLength();
-            if (thrownYoyo.inGround() && !player.isNoGravity() && !player.getAbilities().flying && distance >= maxRopeLn && !player.onGround()) {
+            if (inTension(thrownYoyo, player, distance, maxRopeLn)) {
                 if (jump()) { //JUMP
-                    if (!level.getBlockState(new BlockPos((int) player.getX(), (int) player.getY() - 1, (int) player.getZ())).isSolid()) {
-                        double yawRad = Math.toRadians(player.getYRot());
-                        Vec3 forwardVec = new Vec3(-Math.sin(yawRad), 0, Math.cos(yawRad));
-                        forwardVec = forwardVec.normalize().scale(1);
-                        player.setDeltaMovement(new Vec3(forwardVec.x, 1.2, forwardVec.z));
+                    Vec3 projection = new Vec3(fromProjectileToPlayer.x, 0, fromProjectileToPlayer.z);
+                    double cosAngle = fromProjectileToPlayer.normalize().dot(projection.normalize());
+                    if (fromProjectileToPlayer.y < 0 || (fromProjectileToPlayer.y > 0 && cosAngle > 0.8d)) {
+                        player.addDeltaMovement(
+                                new Vec3(player.getDeltaMovement().x, 1.2d,
+                                        player.getDeltaMovement().z));
                         player.hurtMarked = true;
                         data.startSafeFall().save(player, true);
                         thrownYoyo.recall();
@@ -97,6 +101,25 @@ public record ServerboundUpdateYoyoInputPayload(int input) implements ExtendedPa
                 }
             }
         }
+    }
+
+    private static boolean inTension(ThrownLadybugYoyo thrownYoyo, Player player, double distance, double maxRopeLn) {
+        boolean yoyoAnchored = thrownYoyo.inGround();
+        boolean playerAffected = !player.isNoGravity() && !player.getAbilities().flying;
+        boolean ropeTensioned = distance > maxRopeLn && maxRopeLn > 3;
+        boolean playerAirborne = !player.onGround();
+        boolean noBlockBelow = !player.level().getBlockState(
+                new BlockPos(
+                        (int) player.getX(),
+                        (int) player.getY() - 1,
+                        (int) player.getZ()))
+                .isSolid();
+
+        return yoyoAnchored &&
+                playerAffected &&
+                ropeTensioned &&
+                playerAirborne &&
+                noBlockBelow;
     }
 
     @Override

@@ -12,6 +12,7 @@ import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBlockData;
@@ -21,10 +22,8 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.loot.parameters.Mi
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.entity.LuckyCharmItemSpawner;
-import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -61,33 +60,17 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
         if (!requireActiveToolInHand || (handler.isActiveTool(performer.getMainHandItem(), performer) || handler.isActiveTool(performer.getOffhandItem(), performer))) {
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
             Entity target = determineTarget(level, entityData.getTrackedEntity(performer.getUUID()), performer);
-            //Determine where to summon (if it's the case)
-            ThrownLadybugYoyoData yoyoData = performer.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
-            Vec3 spawnPos;
-            if (yoyoData.getThrownYoyo(level) instanceof ThrownLadybugYoyo yoyo) {
-                if (performer.position().distanceTo(yoyo.position()) > 10 ||
-                        yoyo.inGround() ||
-                        performer.getXRot() > - 75)
-                    return State.FAIL;
-                yoyo.setDeltaMovement(Vec3.ZERO);
-                spawnPos = yoyo.position();
-            } else {
-                spawnPos = performer.position();
-                if (performer instanceof Player player) {
-                    if (player.isCrouching()) {
-                        if (level.getBlockState(new BlockPos((int) spawnPos.x, (int) spawnPos.y + 1, (int) spawnPos.z)).isAir())
-                            spawnPos = spawnPos.add(0, 1, 0);
-                    } else {
-                        for (int i = 0; i < 5; i++) {
-                            if (level.getBlockState(new BlockPos((int) spawnPos.x, (int) spawnPos.y + 1, (int) spawnPos.z)).isAir()) {
-                                spawnPos = spawnPos.add(0, 1, 0);
-                            } else {
-                                break;
-                            }
-                        }
-                    }
-                }
+            @Nullable Vec3 spawnPos = null;
+            ItemStack tool;
+            if (handler.isActiveTool(performer.getMainHandItem(), performer))
+                tool = performer.getMainHandItem();
+            else if (handler.isActiveTool(performer.getOffhandItem(), performer))
+                tool = performer.getOffhandItem();
+            else tool = null;
+            if (tool != null) {
+                spawnPos = MineraculousItems.LADYBUG_YOYO.get().luckyCharmSpawnPosition(level, performer);
             }
+            if (spawnPos == null) spawnPos = defaultLuckyCharmSpawnPosition(level, performer);
             if (target != null) {
                 entityData.putRelatedEntity(performer.getUUID(), target.getUUID());
                 entityData.putRelatedEntity(target.getUUID(), performer.getUUID());
@@ -162,6 +145,25 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             }
         }
         return new LuckyCharms(Either.right(BuiltInRegistries.ITEM.getTag(MineraculousItemTags.GENERIC_LUCKY_CHARMS).orElseThrow()));
+    }
+
+    private Vec3 defaultLuckyCharmSpawnPosition(ServerLevel level, LivingEntity performer) {
+        Vec3 spawnPos = performer.position();
+        if (performer instanceof Player player) {
+            if (player.isCrouching()) {
+                if (level.getBlockState(new BlockPos(performer.blockPosition().above())).isAir())
+                    spawnPos = spawnPos.add(0, 1, 0);
+            } else {
+                for (int i = 0; i < 5; i++) {
+                    if (level.getBlockState(new BlockPos(performer.blockPosition().above(i + 1))).isAir()) {
+                        spawnPos = spawnPos.add(0, 1, 0);
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+        return spawnPos;
     }
 
     @Override

@@ -10,6 +10,7 @@ import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.ActiveItem;
 import dev.thomasglasser.mineraculous.api.world.item.LeftClickTrackingItem;
+import dev.thomasglasser.mineraculous.api.world.item.LuckyCharmSummoningItem;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
@@ -76,7 +77,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Ability>, ActiveItem, LeftClickTrackingItem {
+public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Ability>, ActiveItem, LeftClickTrackingItem, LuckyCharmSummoningItem {
     public static final String CONTROLLER_USE = "use_controller";
     public static final String CONTROLLER_OPEN = "open_controller";
     public static final String ANIMATION_OPEN_OUT = "open_out";
@@ -460,6 +461,22 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                 }
             }
         }
+    }
+
+    @Override
+    public @Nullable Vec3 luckyCharmSpawnPosition(ServerLevel level, LivingEntity performer) {
+        ThrownLadybugYoyoData yoyoData = performer.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
+        Vec3 spawnPos = null;
+        if (yoyoData.getThrownYoyo(level) instanceof ThrownLadybugYoyo yoyo) {
+            if (performer.position().distanceTo(yoyo.position()) > 20 ||
+                    yoyo.inGround() ||
+                    performer.getXRot() > -70)
+                return null;
+            yoyo.setDeltaMovement(Vec3.ZERO);
+            yoyoData.setSummonedLuckyCharm(true).save(performer, true);
+            spawnPos = yoyo.position();
+        }
+        return spawnPos;
     }
 
     public enum Ability implements RadialMenuOption, StringRepresentable {

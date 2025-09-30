@@ -12,7 +12,7 @@ import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.api.world.item.LuckyCharmSummoningItem;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBlockData;
@@ -25,7 +25,6 @@ import dev.thomasglasser.mineraculous.impl.world.entity.LuckyCharmItemSpawner;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
@@ -57,19 +56,25 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
 
     @Override
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
-        if (!requireActiveToolInHand || (handler.isActiveTool(performer.getMainHandItem(), performer) || handler.isActiveTool(performer.getOffhandItem(), performer))) {
+        ItemStack mainHand = performer.getMainHandItem();
+        ItemStack offHand = performer.getOffhandItem();
+
+        boolean mainHandActive = handler.isActiveTool(mainHand, performer);
+        boolean offHandActive = handler.isActiveTool(offHand, performer);
+
+        ItemStack tool;
+        if (mainHandActive)
+            tool = mainHand;
+        else if (offHandActive)
+            tool = offHand;
+        else tool = null;
+
+        if (!requireActiveToolInHand || mainHandActive || offHandActive) {
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
             Entity target = determineTarget(level, entityData.getTrackedEntity(performer.getUUID()), performer);
             @Nullable Vec3 spawnPos = null;
-            ItemStack tool;
-            if (handler.isActiveTool(performer.getMainHandItem(), performer))
-                tool = performer.getMainHandItem();
-            else if (handler.isActiveTool(performer.getOffhandItem(), performer))
-                tool = performer.getOffhandItem();
-            else tool = null;
-            if (tool != null) {
-                spawnPos = MineraculousItems.LADYBUG_YOYO.get().luckyCharmSpawnPosition(level, performer);
-            }
+            if (tool != null && tool.getItem() instanceof LuckyCharmSummoningItem toolItem)
+                spawnPos = toolItem.getSummonPos(level, performer, tool);
             if (spawnPos == null) spawnPos = defaultLuckyCharmSpawnPosition(level, performer);
             if (target != null) {
                 entityData.putRelatedEntity(performer.getUUID(), target.getUUID());
@@ -149,17 +154,15 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
 
     private Vec3 defaultLuckyCharmSpawnPosition(ServerLevel level, LivingEntity performer) {
         Vec3 spawnPos = performer.position();
-        if (performer instanceof Player player) {
-            if (player.isCrouching()) {
-                if (level.getBlockState(new BlockPos(performer.blockPosition().above())).isAir())
+        if (performer instanceof Player player && player.isCrouching()) {
+            if (level.getBlockState(performer.blockPosition().above()).isAir())
+                spawnPos = spawnPos.add(0, 1, 0);
+        } else {
+            for (int i = 0; i < 5; i++) {
+                if (level.getBlockState(performer.blockPosition().above(i + 1)).isAir()) {
                     spawnPos = spawnPos.add(0, 1, 0);
-            } else {
-                for (int i = 0; i < 5; i++) {
-                    if (level.getBlockState(new BlockPos(performer.blockPosition().above(i + 1))).isAir()) {
-                        spawnPos = spawnPos.add(0, 1, 0);
-                    } else {
-                        break;
-                    }
+                } else {
+                    break;
                 }
             }
         }

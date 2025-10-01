@@ -49,7 +49,6 @@ public class MiraculousLadybug extends Entity {
             }
         }
         renderParticles();
-        this.oldSplinePosition = this.splinePositionParameter;
     }
 
     private void setDistanceNearestTarget() {

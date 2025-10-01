@@ -130,6 +130,9 @@ public class MineraculousEntityEvents {
                 LadybugYoyoItem.removeHeldLeash(entity);
             }
         }
+
+        if (entity instanceof MiraculousLadybug miraculousLadybug)
+            miraculousLadybug.oldSplinePosition = miraculousLadybug.splinePositionParameter;
     }
 
     public static void checkInventoryComponents(Entity entity) {

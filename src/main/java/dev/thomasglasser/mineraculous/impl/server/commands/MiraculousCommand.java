@@ -53,9 +53,9 @@ public class MiraculousCommand {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("miraculous")
+                .requires(source -> source.hasPermission(COMMANDS_ENABLED_PERMISSION_LEVEL))
                 .then(Commands.argument("miraculous", ResourceKeyArgument.key(MineraculousRegistries.MIRACULOUS))
                         .then(Commands.literal("charged")
-                                .requires(source -> source.hasPermission(COMMANDS_ENABLED_PERMISSION_LEVEL))
                                 .then(Commands.literal("query")
                                         .executes(context -> getKwamiCharged(context.getSource().getEntityOrException(), context, true))
                                         .then(Commands.argument("target", EntityArgument.entity())
@@ -71,7 +71,6 @@ public class MiraculousCommand {
                                                     return setKwamiCharged(target, context, target == context.getSource().getEntity());
                                                 }))))
                         .then(Commands.literal("power_level")
-                                .requires(source -> source.hasPermission(COMMANDS_ENABLED_PERMISSION_LEVEL))
                                 .then(Commands.literal("query")
                                         .executes(context -> getPowerLevel(context.getSource().getEntityOrException(), context, true))
                                         .then(Commands.argument("target", EntityArgument.entity())

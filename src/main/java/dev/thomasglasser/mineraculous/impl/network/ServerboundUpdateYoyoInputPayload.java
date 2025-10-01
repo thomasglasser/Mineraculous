@@ -66,7 +66,7 @@ public record ServerboundUpdateYoyoInputPayload(int input) implements ExtendedPa
                 if (jump()) { //JUMP
                     Vec3 projection = new Vec3(fromProjectileToPlayer.x, 0, fromProjectileToPlayer.z);
                     double cosAngle = fromProjectileToPlayer.normalize().dot(projection.normalize());
-                    if (fromProjectileToPlayer.y > 0 && cosAngle > 0.8d) {
+                    if (fromProjectileToPlayer.y < 0 || (fromProjectileToPlayer.y > 0 && cosAngle > 0.8d)) {
                         player.addDeltaMovement(
                                 new Vec3(player.getDeltaMovement().x, 1.2d,
                                         player.getDeltaMovement().z));

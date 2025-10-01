@@ -45,6 +45,13 @@ public class MineraculousMathUtils {
         return movement;
     }
 
+    public static ArrayList<Vec3> getCenter(List<BlockPos> blockPos) {
+        ArrayList<Vec3> toReturn = new ArrayList<>();
+        for (BlockPos pos : blockPos)
+            toReturn.add(pos.getCenter());
+        return toReturn;
+    }
+
     public static class CatmullRom {
         private final List<Vec3> points;
         private final List<Double> T;
@@ -201,18 +208,18 @@ public class MineraculousMathUtils {
     }
 
     //GREEDY TSP
-    public static List<BlockPos> sortBlockTargets(List<BlockPos> blockTargets, BlockPos position) {
-        List<BlockPos> toVisit = new ArrayList<>(blockTargets);
-        List<BlockPos> ordered = new ArrayList<>();
+    public static List<Vec3> sortTargets(List<Vec3> targets, Vec3 position) {
+        List<Vec3> toVisit = new ArrayList<>(targets);
+        List<Vec3> ordered = new ArrayList<>();
 
-        BlockPos current = new BlockPos(position);
+        Vec3 current = new Vec3(position.toVector3f());
 
         while (!toVisit.isEmpty()) {
-            BlockPos nearest = null;
+            Vec3 nearest = null;
             double nearestDist = Double.MAX_VALUE;
 
-            for (BlockPos target : toVisit) {
-                double dist = current.distSqr(target);
+            for (Vec3 target : toVisit) {
+                double dist = current.distanceTo(target);
                 if (dist < nearestDist) {
                     nearestDist = dist;
                     nearest = target;
@@ -223,7 +230,7 @@ public class MineraculousMathUtils {
             toVisit.remove(nearest);
             current = nearest;
         }
-        ordered.add(0, new BlockPos(position));
+        ordered.add(0, new Vec3(position.toVector3f()));
         return ordered;
     }
 }

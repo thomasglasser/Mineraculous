@@ -37,8 +37,10 @@ public class MiraculousLadybug extends Entity {
         if ((targetData.blockTargets() == null || targetData.blockTargets().isEmpty())) {
             this.discard();
             return;
-        }
-        List<BlockPos> blockTargets = MineraculousMathUtils.sortBlockTargets(targetData.blockTargets(), this.blockPosition());
+        }//TODO extract methods for target setup
+        List<Vec3> blockTargets = MineraculousMathUtils.sortTargets(
+                MineraculousMathUtils.getCenter(targetData.blockTargets()),
+                this.blockPosition().getCenter());
         if (this.shouldUpdatePath) { // this part should run only once in the entity's lifetime
             updatePath(blockTargets);
         } else {
@@ -94,11 +96,9 @@ public class MiraculousLadybug extends Entity {
         this.setXRot((float) pitch);
     }
 
-    private void updatePath(List<BlockPos> blockTargets) {
+    private void updatePath(List<Vec3> blockTargets) {
         ArrayList<Vec3> targets = new ArrayList<>();
-        for (BlockPos blockPos : blockTargets) {
-            targets.add(blockPos.getCenter());
-        }
+        targets.addAll(blockTargets);
         this.path = new MineraculousMathUtils.CatmullRom(targets);
         this.splinePositionParameter = path.getFirstParameter();
         this.shouldUpdatePath = false;

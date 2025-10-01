@@ -100,9 +100,6 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
 
     private static List<BlockPos> getBlockTargets(ServerLevel level, UUID relatedId) {
         AbilityReversionBlockData reversionBlockData = AbilityReversionBlockData.get(level);
-        if (reversionBlockData == null) {
-            return List.of();
-        }
         List<BlockPos> blockPositions = reversionBlockData.getRevertibleBlocks(relatedId);
         if (blockPositions == null) {
             return List.of();

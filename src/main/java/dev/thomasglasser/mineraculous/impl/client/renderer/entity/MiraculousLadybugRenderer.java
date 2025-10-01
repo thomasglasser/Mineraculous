@@ -143,7 +143,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
     private static void applyMotion(MagicLadybug ladybug, Random random, Vec3 forward, Vec3 upward, Vec3 sideway) {
         double shakeStrength = MineraculousClientConfig.get().magicLadybugsShakeStrength.get() / 100f;
-        double dx = -0.05; // slowly slide backwards
+        double dx = -0.03; // slowly slide backwards
         double dy = (random.nextDouble() - 0.5) * shakeStrength;
         double dz = (random.nextDouble() - 0.5) * shakeStrength;
         ladybug.move(forward.scale(dx)

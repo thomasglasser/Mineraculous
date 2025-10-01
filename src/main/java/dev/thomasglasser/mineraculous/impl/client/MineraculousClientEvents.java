@@ -240,7 +240,7 @@ public class MineraculousClientEvents {
         event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
             MineraculousClientUtils.syncSpecialPlayerChoices();
             MineraculousArmorUtils.clearAnimationData();
-            MiraculousItemRenderer.clearModels();
+            MiraculousItemRenderer.clearAssets();
             MiraculousArmorItemRenderer.clearModels();
             KamikotizationArmorItemRenderer.clearModels();
             MineraculousClientUtils.refreshCataclysmPixels();

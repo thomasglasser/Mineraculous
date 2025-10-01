@@ -29,6 +29,12 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.BiPredicate;
+import java.util.function.Supplier;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -71,12 +77,6 @@ import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
-
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.BiPredicate;
-import java.util.function.Supplier;
 
 public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Ability>, ActiveItem, LeftClickTrackingItem, LuckyCharmSummoningItem {
     public static final String CONTROLLER_USE = "use_controller";
@@ -465,18 +465,18 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
     }
 
     @Override
-    public @Nullable Vec3 getSummonPos(ServerLevel level, LivingEntity performer, ItemStack stack) {
+    public @Nullable Optional<Vec3> getSummonPosition(ServerLevel level, LivingEntity performer, ItemStack stack) {
         ThrownLadybugYoyoData yoyoData = performer.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
         if (yoyoData.getThrownYoyo(level) instanceof ThrownLadybugYoyo yoyo) {
             if (performer.position().distanceTo(yoyo.position()) > 20 ||
                     yoyo.inGround() ||
                     performer.getXRot() > -70)
-                return null;
+                return null; // this should also return state to failed
             yoyo.setDeltaMovement(Vec3.ZERO);
             yoyoData.setSummonedLuckyCharm(true).save(performer, true);
-            return yoyo.position();
+            return Optional.of(yoyo.position());
         }
-        return null;
+        return Optional.empty();
     }
 
     public enum Ability implements RadialMenuOption, StringRepresentable {

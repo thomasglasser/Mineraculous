@@ -25,8 +25,6 @@ import dev.thomasglasser.mineraculous.impl.world.entity.LuckyCharmItemSpawner;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.util.Optional;
-import java.util.UUID;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
@@ -41,6 +39,9 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Summons an {@link ItemStack} from a {@link LuckyCharms} pool based on related entities.
@@ -65,10 +66,6 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
         if (!requireActiveToolInHand || tool != null) {
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
             Entity target = determineTarget(level, entityData.getTrackedEntity(performer.getUUID()), performer);
-            Optional<Vec3> spawnPos = null;
-            if (tool != null && tool.getItem() instanceof LuckyCharmSummoningItem toolItem)
-                spawnPos = toolItem.getSummonPosition(level, performer, tool);
-            if (spawnPos == null) return State.FAIL;
             if (target != null) {
                 entityData.putRelatedEntity(performer.getUUID(), target.getUUID());
                 entityData.putRelatedEntity(target.getUUID(), performer.getUUID());
@@ -89,6 +86,11 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
                 ObjectArrayList<ItemStack> stacks = target instanceof LivingEntity livingEntity ? table.getRandomItems(params, livingEntity.getLootTableSeed()) : table.getRandomItems(params);
                 return stacks.isEmpty() ? ItemStack.EMPTY : stacks.get(level.random.nextInt(stacks.size()));
             }, set -> set.getRandomElement(level.random).map(item -> item.value().getDefaultInstance()).orElse(ItemStack.EMPTY));
+            Optional<Vec3> spawnPos = Optional.empty();
+            if (tool != null && tool.getItem() instanceof LuckyCharmSummoningItem toolItem) {
+                spawnPos = toolItem.getSummonPosition(level, performer, tool);
+                if (spawnPos == null) return State.FAIL;
+            }
             if (stack.isEmpty()) {
                 stack = BuiltInRegistries.ITEM.getTag(MineraculousItemTags.GENERIC_LUCKY_CHARMS).orElseThrow().getRandomElement(level.random).orElseThrow().value().getDefaultInstance();
             }

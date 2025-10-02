@@ -471,7 +471,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
             if (performer.position().distanceTo(yoyo.position()) > 20 ||
                     yoyo.inGround() ||
                     performer.getXRot() > -70)
-                return null; // this should also return state to failed
+                return null; // returns null so the ability gets cancelled!
             yoyo.setDeltaMovement(Vec3.ZERO);
             yoyoData.setSummonedLuckyCharm(true).save(performer, true);
             return Optional.of(yoyo.position());

@@ -66,6 +66,11 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
         if (!requireActiveToolInHand || tool != null) {
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
             Entity target = determineTarget(level, entityData.getTrackedEntity(performer.getUUID()), performer);
+            Optional<Vec3> spawnPos = Optional.empty();
+            if (tool != null && tool.getItem() instanceof LuckyCharmSummoningItem toolItem) {
+                spawnPos = toolItem.getSummonPosition(level, performer, tool);
+                if (spawnPos == null) return State.FAIL;
+            }
             if (target != null) {
                 entityData.putRelatedEntity(performer.getUUID(), target.getUUID());
                 entityData.putRelatedEntity(target.getUUID(), performer.getUUID());
@@ -86,11 +91,6 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
                 ObjectArrayList<ItemStack> stacks = target instanceof LivingEntity livingEntity ? table.getRandomItems(params, livingEntity.getLootTableSeed()) : table.getRandomItems(params);
                 return stacks.isEmpty() ? ItemStack.EMPTY : stacks.get(level.random.nextInt(stacks.size()));
             }, set -> set.getRandomElement(level.random).map(item -> item.value().getDefaultInstance()).orElse(ItemStack.EMPTY));
-            Optional<Vec3> spawnPos = Optional.empty();
-            if (tool != null && tool.getItem() instanceof LuckyCharmSummoningItem toolItem) {
-                spawnPos = toolItem.getSummonPosition(level, performer, tool);
-                if (spawnPos == null) return State.FAIL;
-            }
             if (stack.isEmpty()) {
                 stack = BuiltInRegistries.ITEM.getTag(MineraculousItemTags.GENERIC_LUCKY_CHARMS).orElseThrow().getRandomElement(level.random).orElseThrow().value().getDefaultInstance();
             }

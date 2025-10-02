@@ -64,13 +64,13 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
         else if (handler.isActiveTool(offHand, performer))
             tool = offHand;
         if (!requireActiveToolInHand || tool != null) {
-            AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
-            Entity target = determineTarget(level, entityData.getTrackedEntity(performer.getUUID()), performer);
             Optional<Vec3> spawnPos = Optional.empty();
             if (tool != null && tool.getItem() instanceof LuckyCharmSummoningItem toolItem) {
                 spawnPos = toolItem.getSummonPosition(level, performer, tool);
                 if (spawnPos == null) return State.FAIL;
             }
+            AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
+            Entity target = determineTarget(level, entityData.getTrackedEntity(performer.getUUID()), performer);
             if (target != null) {
                 entityData.putRelatedEntity(performer.getUUID(), target.getUUID());
                 entityData.putRelatedEntity(target.getUUID(), performer.getUUID());

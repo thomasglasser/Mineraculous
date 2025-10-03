@@ -12,6 +12,7 @@ import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.item.LuckyCharmSummoningItem;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBlockData;
@@ -26,7 +27,6 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Optional;
 import java.util.UUID;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
@@ -34,6 +34,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -54,7 +55,19 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
 
     @Override
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
-        if (!requireActiveToolInHand || (handler.isActiveTool(performer.getMainHandItem(), performer) || handler.isActiveTool(performer.getOffhandItem(), performer))) {
+        ItemStack mainHand = performer.getMainHandItem();
+        ItemStack offHand = performer.getOffhandItem();
+        ItemStack tool = null;
+        if (handler.isActiveTool(mainHand, performer))
+            tool = mainHand;
+        else if (handler.isActiveTool(offHand, performer))
+            tool = offHand;
+        if (!requireActiveToolInHand || tool != null) {
+            Optional<Vec3> spawnPos = Optional.empty();
+            if (tool != null && tool.getItem() instanceof LuckyCharmSummoningItem toolItem) {
+                spawnPos = toolItem.getSummonPosition(level, performer, tool);
+                if (spawnPos == null) return State.FAIL;
+            }
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
             Entity target = determineTarget(level, entityData.getTrackedEntity(performer.getUUID()), performer);
             if (target != null) {
@@ -83,15 +96,7 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             UUID uuid = handler.getAndAssignBlame(stack, performer);
             stack.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.ofNullable(target).map(Entity::getUUID), uuid, uuid != null ? LuckyCharmIdData.get(level).incrementLuckyCharmId(uuid) : 0));
             LuckyCharmItemSpawner item = LuckyCharmItemSpawner.create(level, stack);
-            BlockPos.MutableBlockPos spawnPos = performer.blockPosition().mutable();
-            for (int i = 0; i < 5; i++) {
-                if (level.getBlockState(spawnPos.above()).isAir()) {
-                    spawnPos.move(0, 1, 0);
-                } else {
-                    break;
-                }
-            }
-            item.moveTo(Vec3.atCenterOf(spawnPos));
+            item.moveTo(spawnPos.orElseGet(() -> defaultLuckyCharmSpawnPosition(level, performer)));
             level.addFreshEntity(item);
             Ability.playSound(level, performer, summonSound);
             return State.SUCCESS;
@@ -139,6 +144,23 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             }
         }
         return new LuckyCharms(Either.right(BuiltInRegistries.ITEM.getTag(MineraculousItemTags.GENERIC_LUCKY_CHARMS).orElseThrow()));
+    }
+
+    private Vec3 defaultLuckyCharmSpawnPosition(ServerLevel level, LivingEntity performer) {
+        Vec3 spawnPos = performer.position();
+        if (performer instanceof Player player && player.isCrouching()) {
+            if (level.getBlockState(performer.blockPosition().above()).isAir())
+                spawnPos = spawnPos.add(0, 1, 0);
+        } else {
+            for (int i = 0; i < 5; i++) {
+                if (level.getBlockState(performer.blockPosition().above(i + 1)).isAir()) {
+                    spawnPos = spawnPos.add(0, 1, 0);
+                } else {
+                    break;
+                }
+            }
+        }
+        return spawnPos;
     }
 
     @Override

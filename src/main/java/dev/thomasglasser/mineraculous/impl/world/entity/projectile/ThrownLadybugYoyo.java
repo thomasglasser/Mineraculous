@@ -227,10 +227,15 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     applyCollisionDamage(owner);
                 }
             } else {
+                ThrownLadybugYoyoData yoyoData = owner.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
+                if (yoyoData.summonedLuckyCharm() &&
+                        this.getDeltaMovement().y < -0.3)
+                    this.recall();
+
                 if (this.tickCount < 50) {
                     if (owner.onGround()) {
                         this.setDeltaMovement(this.getDeltaMovement().normalize().scale(3));
-                    } else {
+                    } else if (!yoyoData.summonedLuckyCharm()) {
                         Vec3 motion = owner.getLookAngle().scale(4); //this makes it follow the cursor
                         this.setDeltaMovement(motion);
                     }

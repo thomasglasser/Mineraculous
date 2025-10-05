@@ -44,7 +44,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(90, 0, 0).translation(0, 0.3F, 0).scale(0.1F).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(90, 0, 0).translation(0, 0.3F, 0).scale(0.1F).end()
                 .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).rotation(90, 0, 0).translation(4, 1, 0).scale(0.1F).end()
-                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).rotation(90, 0, 0).translation(0, 1, 0).scale(0.1F).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).rotation(90, 0, 0).translation(-4, 1, 0).scale(0.1F).end()
                 .transform(ItemDisplayContext.HEAD).translation(0, -2, -6.25F).scale(0.1F).end()
                 .transform(ItemDisplayContext.GROUND).translation(0, -4, 0).scale(0.1F).end()
                 .transform(ItemDisplayContext.FIXED).translation(0, -0.75F, 0).scale(0.2F).end()

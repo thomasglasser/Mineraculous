@@ -23,7 +23,6 @@ import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -106,6 +105,9 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private static final EntityDataAccessor<Boolean> DATA_TRANSFORMING = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+
+    @Nullable
+    protected LivingEntity owner;
 
     private Component name;
     private TagKey<Item> foodTag;
@@ -342,7 +344,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                         new FollowTemptation<>(),
                         new OneRandomBehaviour<>(
                                 new FollowOwner<>().speedMod(10).stopFollowingWithin(2).teleportToTargetAfter(8),
-                                new SetRandomFlyingTarget<>().flightTargetPredicate((entity, pos) -> pos != null && entity.level().getBlockState(BlockPos.containing(pos)).isAir()),
+                                new SetRandomFlyingTarget<>(),
                                 new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)))));
     }
 
@@ -515,5 +517,16 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
             return players.get(level.random.nextInt(players.size()));
         }
         throw new IllegalStateException("Cannot pick random renounce target from the client.");
+    }
+
+    @Override
+    public @Nullable LivingEntity getOwner() {
+        if (this.owner != null && (this.owner.isRemoved() || !this.owner.getUUID().equals(this.getOwnerUUID())))
+            this.owner = null;
+
+        if (this.owner == null)
+            this.owner = super.getOwner();
+
+        return this.owner;
     }
 }

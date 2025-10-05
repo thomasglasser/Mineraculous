@@ -23,8 +23,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 
-/// Both a {@link CheeseFullBlock} and an {@link AgeingCheese} that can be eaten or added to on interaction.
-public class AgeingCheeseEdibleFullBlock extends CheeseFullBlock implements AgeingCheese {
+/// Both a {@link SmallFourPieceBlock} and an {@link AgeingCheese} that can be eaten or added to on interaction.
+public class AgeingCheeseEdibleFullBlock extends SmallFourPieceBlock implements AgeingCheese {
     public static final MapCodec<AgeingCheeseEdibleFullBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Age.CODEC.fieldOf("age").forGetter(AgeingCheeseEdibleFullBlock::getAge),
             FoodProperties.DIRECT_CODEC.fieldOf("food_properties").forGetter(AgeingCheeseEdibleFullBlock::getFoodProperties),

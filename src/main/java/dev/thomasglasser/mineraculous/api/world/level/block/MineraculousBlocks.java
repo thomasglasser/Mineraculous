@@ -59,7 +59,7 @@ public class MineraculousBlocks {
         Item.Properties itemProperties = new Item.Properties().stacksTo(4);
         SortedMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> cheeses = new Reference2ObjectLinkedOpenHashMap<>(AgeingCheese.Age.values().length);
         for (AgeingCheese.Age age : AgeingCheese.Age.values()) {
-            cheeses.put(age, registerWithItem("waxed_" + age.getSerializedName() + "_" + name + "_block", () -> new CheeseFullBlock(wedges.get().get(age), blockProperties), itemProperties));
+            cheeses.put(age, registerWithItem("waxed_" + age.getSerializedName() + "_" + name + "_block", () -> new SmallFourPieceBlock(wedges.get().get(age), blockProperties), itemProperties));
         }
         return cheeses;
     }

@@ -52,16 +52,16 @@
     "mineraculous:active",
     "mineraculous:active_settings",
     "mineraculous:blocking",
-    "mineraculous:butterfly_cane_ability",
+    "mineraculous:butterfly_cane_mode",
     "mineraculous:carrier",
-    "mineraculous:cat_staff_ability",
+    "mineraculous:cat_staff_mode",
     "mineraculous:charged",
     "mineraculous:detransformation_frames",
     "mineraculous:hide_enchantments",
     "mineraculous:kamiko_data",
     "mineraculous:kamikotization",
     "mineraculous:kwami_data",
-    "mineraculous:ladybug_yoyo_ability",
+    "mineraculous:ladybug_yoyo_mode",
     "mineraculous:lucky_charm",
     "mineraculous:miraculous",
     "mineraculous:miraculous_id",
@@ -266,7 +266,7 @@
   ],
   "neoforge:entity_data_serializers": [
     "mineraculous:miraculous",
-    "mineraculous:optional_ladybug_yoyo_ability",
+    "mineraculous:optional_ladybug_yoyo_mode",
     "mineraculous:optional_resource_location",
     "mineraculous:uuid"
   ]

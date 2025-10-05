@@ -104,7 +104,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(option.displayName(), name);
     }
 
-    protected <T extends Enum<T> & RadialMenuOption> void addToolAbilities(T[] options) {
+    protected <T extends Enum<T> & RadialMenuOption> void addRadialMenuOptions(T[] options) {
         for (T option : options) {
             add(option.displayName(), capitalize(option.name()));
         }
@@ -124,10 +124,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
         add(MineraculousBlocks.HIBISCUS_BUSH.asItem(), "Hibiscus");
 
-        // Tool Abilities
-        addToolAbilities(LadybugYoyoItem.Ability.values());
-        addToolAbilities(CatStaffItem.Ability.values());
-        addToolAbilities(ButterflyCaneItem.Ability.values());
+        // Tool Modes
+        addRadialMenuOptions(LadybugYoyoItem.Mode.values());
+        addRadialMenuOptions(CatStaffItem.Mode.values());
+        addRadialMenuOptions(ButterflyCaneItem.Mode.values());
 
         // Armor
         addSuitArmor(MineraculousArmors.MIRACULOUS, "Miraculous");

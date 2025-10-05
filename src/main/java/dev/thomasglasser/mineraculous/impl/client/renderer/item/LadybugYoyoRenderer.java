@@ -47,10 +47,10 @@ public class LadybugYoyoRenderer extends BlockingDefaultedGeoItemRenderer<Ladybu
     public ResourceLocation getTextureLocation(LadybugYoyoItem animatable) {
         ItemStack stack = getCurrentItemStack();
         if (stack != null) {
-            LadybugYoyoItem.Ability ability = stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY);
-            if (ability == LadybugYoyoItem.Ability.PHONE) {
+            LadybugYoyoItem.Mode mode = stack.get(MineraculousDataComponents.LADYBUG_YOYO_MODE);
+            if (mode == LadybugYoyoItem.Mode.PHONE) {
                 return PHONE_LOCATION;
-            } else if (ability == LadybugYoyoItem.Ability.SPYGLASS) {
+            } else if (mode == LadybugYoyoItem.Mode.SPYGLASS) {
                 return SPYGLASS_LOCATION;
             }
         }

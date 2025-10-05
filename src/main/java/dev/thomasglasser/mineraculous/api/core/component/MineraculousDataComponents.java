@@ -62,9 +62,9 @@ public class MineraculousDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> REMAINING_TICKS = DATA_COMPONENTS.registerInteger("remaining_ticks", true, true);
 
     // Miraculous Tools
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<LadybugYoyoItem.Ability>> LADYBUG_YOYO_ABILITY = DATA_COMPONENTS.register("ladybug_yoyo_ability", LadybugYoyoItem.Ability.STREAM_CODEC, LadybugYoyoItem.Ability.CODEC, true);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<CatStaffItem.Ability>> CAT_STAFF_ABILITY = DATA_COMPONENTS.register("cat_staff_ability", CatStaffItem.Ability.STREAM_CODEC, CatStaffItem.Ability.CODEC, true);
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ButterflyCaneItem.Ability>> BUTTERFLY_CANE_ABILITY = DATA_COMPONENTS.register("butterfly_cane_ability", ButterflyCaneItem.Ability.STREAM_CODEC, ButterflyCaneItem.Ability.CODEC, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<LadybugYoyoItem.Mode>> LADYBUG_YOYO_MODE = DATA_COMPONENTS.register("ladybug_yoyo_mode", LadybugYoyoItem.Mode.STREAM_CODEC, LadybugYoyoItem.Mode.CODEC, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<CatStaffItem.Mode>> CAT_STAFF_MODE = DATA_COMPONENTS.register("cat_staff_mode", CatStaffItem.Mode.STREAM_CODEC, CatStaffItem.Mode.CODEC, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ButterflyCaneItem.Mode>> BUTTERFLY_CANE_MODE = DATA_COMPONENTS.register("butterfly_cane_mode", ButterflyCaneItem.Mode.STREAM_CODEC, ButterflyCaneItem.Mode.CODEC, true);
 
     // Abilities
     /// The {@link LuckyCharm} data associated with the summoned stack.

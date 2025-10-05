@@ -32,8 +32,8 @@ public class ButterflyCaneRenderer extends DefaultedGeoItemRenderer<ButterflyCan
     @Override
     public GeoModel<ButterflyCaneItem> getGeoModel() {
         ItemStack stack = getCurrentItemStack();
-        ButterflyCaneItem.Ability ability = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY);
-        if (ability == ButterflyCaneItem.Ability.PHONE) {
+        ButterflyCaneItem.Mode mode = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
+        if (mode == ButterflyCaneItem.Mode.PHONE) {
             return phoneModel;
         }
         return super.getGeoModel();
@@ -43,10 +43,10 @@ public class ButterflyCaneRenderer extends DefaultedGeoItemRenderer<ButterflyCan
     public ResourceLocation getTextureLocation(ButterflyCaneItem animatable) {
         ItemStack stack = getCurrentItemStack();
         if (stack != null) {
-            ButterflyCaneItem.Ability ability = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY);
-            if (ability == ButterflyCaneItem.Ability.PHONE) {
+            ButterflyCaneItem.Mode mode = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
+            if (mode == ButterflyCaneItem.Mode.PHONE) {
                 return PHONE_LOCATION;
-            } else if (ability == ButterflyCaneItem.Ability.SPYGLASS) {
+            } else if (mode == ButterflyCaneItem.Mode.SPYGLASS) {
                 return SPYGLASS_LOCATION;
             }
         }

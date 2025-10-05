@@ -48,8 +48,8 @@ public class MineraculousKeyMappings {
     public static final ExtendedKeyMapping REVOKE_KAMIKOTIZATION = register("revoke_kamikotization", InputConstants.KEY_K, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleRevokeKamikotization);
     public static final ExtendedKeyMapping RENOUNCE_MIRACULOUS = register("renounce_miraculous", InputConstants.KEY_N, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleRenounceMiraculous);
     public static final ExtendedKeyMapping TOGGLE_BUFFS = register("toggle_buffs", InputConstants.KEY_GRAVE, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleToggleBuffs);
-    public static final ExtendedKeyMapping TOGGLE_ITEM_ACTIVE = register("toggle_item_active", InputConstants.KEY_R, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleToggleActive);
-    public static final ExtendedKeyMapping OPEN_ITEM_RADIAL_MENU = register("open_item_radial_menu", InputConstants.KEY_C, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleOpenItemRadialMenu);
+    public static final ExtendedKeyMapping TOGGLE_ITEM_ACTIVE = register("toggle_item_active", InputConstants.KEY_C, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleToggleActive);
+    public static final ExtendedKeyMapping OPEN_ITEM_RADIAL_MENU = register("open_item_radial_menu", InputConstants.KEY_R, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleOpenItemRadialMenu);
     public static final ExtendedKeyMapping TAKE_BREAK_ITEM = register("take_break_item", InputConstants.KEY_B, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleTakeBreakItem, MineraculousKeyMappings::handleNoTakeBreakItem);
     public static final ExtendedKeyMapping TOGGLE_NIGHT_VISION = register("toggle_night_vision", InputConstants.KEY_V, KeyMapping.CATEGORY_GAMEPLAY, MineraculousKeyMappings::handleToggleNightVision);
     public static final ExtendedKeyMapping DESCEND_TOOL = register("descend_tool", InputConstants.KEY_Z, KeyMapping.CATEGORY_MOVEMENT, () -> handleUpdateToolMovements(true));

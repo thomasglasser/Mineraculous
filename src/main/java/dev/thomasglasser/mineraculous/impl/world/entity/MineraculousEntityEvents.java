@@ -21,7 +21,6 @@ import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerC
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItemPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
-import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
@@ -34,6 +33,7 @@ import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
+import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
@@ -112,7 +112,9 @@ public class MineraculousEntityEvents {
     public static void onPostEntityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
 
-        checkInventoryComponents(entity);
+        if (entity.tickCount % 10 == 0) {
+            checkInventoryComponents(entity);
+        }
 
         if (entity.level() instanceof ServerLevel level) {
             AbilityReversionEntityData.get(level).tick(entity);
@@ -153,13 +155,6 @@ public class MineraculousEntityEvents {
     }
 
     // Ladybug Yoyo
-    public static void onPlayerBreakSpeed(PlayerEvent.BreakSpeed event) {
-        ItemStack mainHandItem = event.getEntity().getMainHandItem();
-        if (mainHandItem.is(MineraculousItems.LADYBUG_YOYO) && Active.isActive(mainHandItem)) {
-            event.setCanceled(true);
-        }
-    }
-
     public static void onLivingFall(LivingFallEvent event) {
         if (event.getEntity().getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).safeFallTicks() > 0) {
             event.setDamageMultiplier(0);
@@ -226,11 +221,6 @@ public class MineraculousEntityEvents {
         if (event.getLevel() instanceof ServerLevel level) {
             AbilityUtils.performBlockAbilities(level, player, event.getPos());
         }
-        ItemStack mainHandItem = player.getMainHandItem();
-        if (mainHandItem.is(MineraculousItems.LADYBUG_YOYO)) {
-            MineraculousItems.LADYBUG_YOYO.get().onLeftClick(mainHandItem, player);
-            event.setCanceled(true);
-        }
     }
 
     public static void onEmptyLeftClick(PlayerInteractEvent.LeftClickEmpty event) {
@@ -246,10 +236,8 @@ public class MineraculousEntityEvents {
         if (event.getEffect() == MineraculousMobEffects.CATACLYSM && !(entity instanceof Player player && player.getAbilities().invulnerable)) {
             event.setCanceled(true);
         }
-        if (entity.level() instanceof ServerLevel level) {
-            for (ServerPlayer player : level.players()) {
-                player.connection.send(new ClientboundRemoveMobEffectPacket(entity.getId(), event.getEffect()));
-            }
+        if (entity.level() instanceof ServerLevel level && level.getChunkSource() instanceof ServerChunkCache chunkCache) {
+            chunkCache.broadcastAndSend(entity, new ClientboundRemoveMobEffectPacket(entity.getId(), event.getEffect()));
         }
     }
 

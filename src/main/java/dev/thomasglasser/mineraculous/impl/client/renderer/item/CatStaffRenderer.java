@@ -54,28 +54,26 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
     @Override
     public void defaultRender(PoseStack poseStack, CatStaffItem animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
         ItemStack stack = getCurrentItemStack();
-        if (stack.get(MineraculousDataComponents.CARRIER) != null) {
-            Integer carrierId = stack.get(MineraculousDataComponents.CARRIER);
-            if (carrierId != null && Minecraft.getInstance().level != null) {
-                Entity carrier = Minecraft.getInstance().level.getEntity(carrierId);
-                if (carrier != null) {
-                    CatStaffItem.Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
-                    if (mode == CatStaffItem.Mode.PERCH || mode == CatStaffItem.Mode.TRAVEL) {
-                        TravelingCatStaffData travelingCatStaffData = carrier.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
-                        PerchingCatStaffData perchingCatStaffData = carrier.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-                        if (travelingCatStaffData.traveling() || perchingCatStaffData.perching()) {
-                            boolean firstPersonHand = this.renderPerspective == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
-                            boolean thirdPersonHand = this.renderPerspective == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
+        Integer carrierId = stack.get(MineraculousDataComponents.CARRIER);
+        if (carrierId != null && Minecraft.getInstance().level != null) {
+            Entity carrier = Minecraft.getInstance().level.getEntity(carrierId);
+            if (carrier != null) {
+                CatStaffItem.Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
+                if (mode == CatStaffItem.Mode.PERCH || mode == CatStaffItem.Mode.TRAVEL) {
+                    TravelingCatStaffData travelingCatStaffData = carrier.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
+                    PerchingCatStaffData perchingCatStaffData = carrier.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+                    if (travelingCatStaffData.traveling() || perchingCatStaffData.perching()) {
+                        boolean firstPersonHand = this.renderPerspective == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
+                        boolean thirdPersonHand = this.renderPerspective == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
 
-                            if (MineraculousClientUtils.isFirstPerson() &&
-                                    MineraculousClientUtils.getCameraEntity() == carrier &&
-                                    firstPersonHand) {
-                                return;
-                            }
-
-                            if (thirdPersonHand) return;
-
+                        if (MineraculousClientUtils.isFirstPerson() &&
+                                MineraculousClientUtils.getCameraEntity() == carrier &&
+                                firstPersonHand) {
+                            return;
                         }
+
+                        if (thirdPersonHand) return;
+
                     }
                 }
             }

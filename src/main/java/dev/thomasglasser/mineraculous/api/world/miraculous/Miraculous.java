@@ -18,7 +18,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -57,7 +57,7 @@ public record Miraculous(TextColor color, String acceptableSlot, Optional<Intege
             SoundEvent.CODEC.optionalFieldOf("detransform_sound", MineraculousSoundEvents.GENERIC_DETRANSFORM).forGetter(Miraculous::detransformSound),
             SoundEvent.CODEC.optionalFieldOf("timer_warning_sound", MineraculousSoundEvents.GENERIC_TIMER_WARNING).forGetter(Miraculous::timerWarningSound),
             SoundEvent.CODEC.optionalFieldOf("timer_end_sound", MineraculousSoundEvents.GENERIC_TIMER_END).forGetter(Miraculous::timerEndSound)).apply(instance, Miraculous::new));
-    public static final Codec<Holder<Miraculous>> CODEC = RegistryFileCodec.create(MineraculousRegistries.MIRACULOUS, DIRECT_CODEC);
+    public static final Codec<Holder<Miraculous>> CODEC = RegistryFixedCodec.create(MineraculousRegistries.MIRACULOUS);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, Miraculous> DIRECT_STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
             ByteBufCodecs.fromCodec(TextColor.CODEC), Miraculous::color,

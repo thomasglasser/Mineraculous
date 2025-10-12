@@ -49,6 +49,7 @@ import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -349,5 +350,9 @@ public class MineraculousClientUtils {
     public static InputState captureInput() {
         var input = Minecraft.getInstance().player.input;
         return new InputState(input.up, input.down, input.left, input.right, input.jumping);
+    }
+
+    public static boolean isValidTexture(ResourceLocation texture) {
+        return texture != null && (Minecraft.getInstance().getResourceManager().getResource(texture).isPresent() || Minecraft.getInstance().getTextureManager().getTexture(texture, MissingTextureAtlasSprite.getTexture()) != MissingTextureAtlasSprite.getTexture());
     }
 }

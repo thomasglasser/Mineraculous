@@ -9,9 +9,7 @@ import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderType
 import dev.thomasglasser.mineraculous.api.client.renderer.item.MineraculousItemProperties;
 import dev.thomasglasser.mineraculous.api.client.renderer.item.curio.ContextDependentCurioRenderer;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
-import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
-import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
@@ -20,7 +18,6 @@ import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
-import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.impl.client.model.BeardModel;
@@ -63,7 +60,6 @@ import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -76,7 +72,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.Level;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
@@ -222,17 +217,7 @@ public class MineraculousClientEvents {
     }
 
     static void onRegisterItemColorHandlers(RegisterColorHandlersEvent.Item event) {
-        event.register((stack, index) -> {
-            Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-            Level level = ClientUtils.getLevel();
-            if (miraculous == null && level != null) {
-                miraculous = level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getAny().orElse(null);
-            }
-            if (miraculous != null) {
-                return FastColor.ARGB32.opaque(miraculous.value().color().getValue());
-            }
-            return -1;
-        }, MineraculousArmors.MIRACULOUS.getAllAsItems().toArray(new Item[0]));
+        event.register((stack, index) -> FastColor.ARGB32.opaque(MiraculousItemRenderer.getMiraculousOrDefault(stack).value().color().getValue()), MineraculousArmors.MIRACULOUS.getAllAsItems().toArray(new Item[0]));
     }
 
     static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
@@ -241,7 +226,7 @@ public class MineraculousClientEvents {
             MineraculousClientUtils.syncSpecialPlayerChoices();
             MineraculousArmorUtils.clearAnimationData();
             MiraculousItemRenderer.clearAssets();
-            MiraculousArmorItemRenderer.clearModels();
+            MiraculousArmorItemRenderer.clearAssets();
             KamikotizationArmorItemRenderer.clearModels();
             MineraculousClientUtils.refreshCataclysmPixels();
             ConditionalAutoGlowingGeoLayer.clearGlowmasks();

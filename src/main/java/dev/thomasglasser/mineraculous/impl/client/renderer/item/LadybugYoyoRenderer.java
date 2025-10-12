@@ -13,6 +13,7 @@ import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -22,7 +23,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
@@ -45,24 +46,21 @@ public class LadybugYoyoRenderer extends BlockingDefaultedGeoItemRenderer<Ladybu
 
     @Override
     public ResourceLocation getTextureLocation(LadybugYoyoItem animatable) {
-        ItemStack stack = getCurrentItemStack();
-        if (stack != null) {
-            LadybugYoyoItem.Mode mode = stack.get(MineraculousDataComponents.LADYBUG_YOYO_MODE);
-            if (mode == LadybugYoyoItem.Mode.PHONE) {
-                return PHONE_LOCATION;
-            } else if (mode == LadybugYoyoItem.Mode.SPYGLASS) {
-                return SPYGLASS_LOCATION;
-            }
+        LadybugYoyoItem.Mode mode = getCurrentItemStack().get(MineraculousDataComponents.LADYBUG_YOYO_MODE);
+        if (mode == LadybugYoyoItem.Mode.PHONE) {
+            return PHONE_LOCATION;
+        } else if (mode == LadybugYoyoItem.Mode.SPYGLASS) {
+            return SPYGLASS_LOCATION;
         }
         return super.getTextureLocation(animatable);
     }
 
     @Override
     public void defaultRender(PoseStack poseStack, LadybugYoyoItem animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
-        ItemStack stack = getCurrentItemStack();
-        Integer carrierId = stack.get(MineraculousDataComponents.CARRIER);
-        if (carrierId != null && Minecraft.getInstance().level != null) {
-            Entity carrier = Minecraft.getInstance().level.getEntity(carrierId);
+        Integer carrierId = getCurrentItemStack().get(MineraculousDataComponents.CARRIER);
+        Level level = ClientUtils.getLevel();
+        if (carrierId != null && level != null) {
+            Entity carrier = level.getEntity(carrierId);
             if (carrier != null) {
                 ThrownLadybugYoyoData data = carrier.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
                 ThrownLadybugYoyo yoyo = data.getThrownYoyo(carrier.level());

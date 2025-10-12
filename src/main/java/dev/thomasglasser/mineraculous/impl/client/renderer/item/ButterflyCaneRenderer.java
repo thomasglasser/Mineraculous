@@ -7,7 +7,6 @@ import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.tommylib.api.client.renderer.item.DefaultedGeoItemRenderer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 
@@ -31,8 +30,7 @@ public class ButterflyCaneRenderer extends DefaultedGeoItemRenderer<ButterflyCan
 
     @Override
     public GeoModel<ButterflyCaneItem> getGeoModel() {
-        ItemStack stack = getCurrentItemStack();
-        ButterflyCaneItem.Mode mode = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
+        ButterflyCaneItem.Mode mode = getCurrentItemStack().get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
         if (mode == ButterflyCaneItem.Mode.PHONE) {
             return phoneModel;
         }
@@ -41,14 +39,11 @@ public class ButterflyCaneRenderer extends DefaultedGeoItemRenderer<ButterflyCan
 
     @Override
     public ResourceLocation getTextureLocation(ButterflyCaneItem animatable) {
-        ItemStack stack = getCurrentItemStack();
-        if (stack != null) {
-            ButterflyCaneItem.Mode mode = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
-            if (mode == ButterflyCaneItem.Mode.PHONE) {
-                return PHONE_LOCATION;
-            } else if (mode == ButterflyCaneItem.Mode.SPYGLASS) {
-                return SPYGLASS_LOCATION;
-            }
+        ButterflyCaneItem.Mode mode = getCurrentItemStack().get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
+        if (mode == ButterflyCaneItem.Mode.PHONE) {
+            return PHONE_LOCATION;
+        } else if (mode == ButterflyCaneItem.Mode.SPYGLASS) {
+            return SPYGLASS_LOCATION;
         }
         return super.getTextureLocation(animatable);
     }

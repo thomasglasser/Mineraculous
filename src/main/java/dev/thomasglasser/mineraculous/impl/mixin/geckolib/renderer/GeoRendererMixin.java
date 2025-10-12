@@ -18,8 +18,8 @@ public interface GeoRendererMixin {
     @ModifyVariable(method = "defaultRender", at = @At(value = "INVOKE", target = "Lsoftware/bernie/geckolib/renderer/GeoRenderer;preRender(Lcom/mojang/blaze3d/vertex/PoseStack;Lsoftware/bernie/geckolib/animatable/GeoAnimatable;Lsoftware/bernie/geckolib/cache/object/BakedGeoModel;Lnet/minecraft/client/renderer/MultiBufferSource;Lcom/mojang/blaze3d/vertex/VertexConsumer;ZFIII)V"), argsOnly = true)
     default VertexConsumer checkLuckyCharm(VertexConsumer original, @Local(argsOnly = true) MultiBufferSource bufferSource) {
         return switch (this) {
-            case GeoItemRenderer<?> itemRenderer when itemRenderer.getCurrentItemStack() != null -> MineraculousClientUtils.checkLuckyCharm(original, bufferSource, itemRenderer.getCurrentItemStack(), false, true);
-            case GeoArmorRenderer<?> armorRenderer when armorRenderer.getCurrentStack() != null -> MineraculousClientUtils.checkLuckyCharm(original, bufferSource, armorRenderer.getCurrentStack(), true, false);
+            case GeoItemRenderer<?> itemRenderer -> MineraculousClientUtils.checkLuckyCharm(original, bufferSource, itemRenderer.getCurrentItemStack(), false, true);
+            case GeoArmorRenderer<?> armorRenderer -> MineraculousClientUtils.checkLuckyCharm(original, bufferSource, armorRenderer.getCurrentStack(), true, false);
             case GeoEntityRenderer<?> entityRenderer when entityRenderer.getAnimatable() instanceof AbstractArrow arrow -> MineraculousClientUtils.checkLuckyCharm(original, bufferSource, arrow.getPickupItemStackOrigin(), false, true);
             default -> original;
         };

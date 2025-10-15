@@ -23,6 +23,7 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEn
 import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
+import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
@@ -134,6 +135,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                         Optional<Integer> transformationFrames = value.transformationFrames();
 
                         miraculousStack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
+                        miraculousStack.set(MineraculousDataComponents.TEXTURE_STATE, MiraculousItem.TextureState.POWERED);
                         CuriosUtils.setStackInSlot(entity, curiosData, miraculousStack);
 
                         ArmorData armor = new ArmorData(entity.getItemBySlot(EquipmentSlot.HEAD), entity.getItemBySlot(EquipmentSlot.CHEST), entity.getItemBySlot(EquipmentSlot.LEGS), entity.getItemBySlot(EquipmentSlot.FEET));
@@ -197,6 +199,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         }
 
         miraculousStack.remove(MineraculousDataComponents.REMAINING_TICKS);
+        miraculousStack.set(MineraculousDataComponents.TEXTURE_STATE, removed ? MiraculousItem.TextureState.ACTIVE : MiraculousItem.TextureState.HIDDEN);
 
         if (removed) {
             MineraculousEntityUtils.renounceKwami(miraculousStack.get(MineraculousDataComponents.KWAMI_ID), miraculousStack, level);
@@ -294,29 +297,51 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                         detransform(entity, level, miraculous, null, false);
                         return;
                     } else {
+                        MiraculousItem.TextureState textureState;
                         remainingTicks = remainingTicks.map(i -> i - 1);
                         int ticks = remainingTicks.get();
                         int seconds = ticks / SharedConstants.TICKS_PER_SECOND;
                         if (seconds < 10) {
                             if (ticks % 4 == 0) {
                                 level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.timerWarningSound().value(), entity.getSoundSource(), 1, 1);
+                                textureState = MiraculousItem.TextureState.ACTIVE;
+                            } else {
+                                textureState = MiraculousItem.TextureState.POWERED_1;
                             }
                         } else {
                             int maxSeconds = MineraculousServerConfig.get().miraculousTimerDuration.get();
                             int threshold = Math.max(maxSeconds / 5, 1);
                             int frame = seconds / threshold + 1;
-                            if (seconds % threshold == 0 && ticks % (20 / frame + (frame > 3 ? 2 : 3)) == 0) {
-                                level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.timerWarningSound().value(), entity.getSoundSource(), 1, 1);
+                            if (seconds % threshold == 0) {
+                                if (ticks % (20 / frame + (frame > 3 ? 2 : 3)) == 0) {
+                                    level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.timerWarningSound().value(), entity.getSoundSource(), 1, 1);
+                                    textureState = MiraculousItem.TextureState.forFrame(frame - 1);
+                                } else {
+                                    textureState = MiraculousItem.TextureState.forFrame(frame - 2);
+                                }
+                            } else {
+                                if (seconds % 2 == 0) {
+                                    textureState = MiraculousItem.TextureState.forFrame(frame - 1);
+                                } else {
+                                    textureState = MiraculousItem.TextureState.forFrame(frame);
+                                }
                             }
                         }
-                    }
-                    if (curiosData.isPresent()) {
-                        ItemStack stack = CuriosUtils.getStackInSlot(entity, curiosData.get());
-                        stack.set(MineraculousDataComponents.REMAINING_TICKS, remainingTicks.get());
-                        CuriosUtils.setStackInSlot(entity, curiosData.get(), stack);
+                        if (curiosData.isPresent()) {
+                            ItemStack stack = CuriosUtils.getStackInSlot(entity, curiosData.get());
+                            stack.set(MineraculousDataComponents.REMAINING_TICKS, remainingTicks.get());
+                            stack.set(MineraculousDataComponents.TEXTURE_STATE, textureState);
+                            CuriosUtils.setStackInSlot(entity, curiosData.get(), stack);
+                        }
                     }
                 } else {
                     remainingTicks = Optional.empty();
+                    if (curiosData.isPresent()) {
+                        ItemStack stack = CuriosUtils.getStackInSlot(entity, curiosData.get());
+                        stack.remove(MineraculousDataComponents.REMAINING_TICKS);
+                        stack.set(MineraculousDataComponents.TEXTURE_STATE, MiraculousItem.TextureState.POWERED);
+                        CuriosUtils.setStackInSlot(entity, curiosData.get(), stack);
+                    }
                 }
 
                 level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((key, miraculousEffect) -> {
@@ -349,6 +374,10 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                 }
 
                 tickTransformed(remainingTicks, powerActive, countdownStarted).save(miraculous, entity, true);
+            } else if (curiosData.isPresent()) {
+                ItemStack stack = CuriosUtils.getStackInSlot(entity, curiosData.get());
+                stack.set(MineraculousDataComponents.TEXTURE_STATE, entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() ? MiraculousItem.TextureState.ACTIVE : MiraculousItem.TextureState.HIDDEN);
+                CuriosUtils.setStackInSlot(entity, curiosData.get(), stack);
             }
         });
     }

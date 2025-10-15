@@ -69,6 +69,7 @@
     "mineraculous:powered",
     "mineraculous:remaining_ticks",
     "mineraculous:revertible_item_id",
+    "mineraculous:texture_state",
     "mineraculous:tool_id",
     "mineraculous:transformation_frames"
   ],

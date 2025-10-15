@@ -26,7 +26,7 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
     private static final Map<ResourceLocation, Int2ObjectMap<ResourceLocation>> FRAME_TEXTURES = new Object2ReferenceOpenHashMap<>();
 
     public MiraculousArmorItemRenderer() {
-        super(null);
+        super((GeoModel<MiraculousArmorItem>) null);
         addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
     }
 

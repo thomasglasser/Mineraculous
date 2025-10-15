@@ -44,7 +44,7 @@ public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
     private static final Map<ResourceLocation, ResourceLocation> HIDDEN_TEXTURES = new Object2ReferenceOpenHashMap<>();
 
     public MiraculousItemRenderer() {
-        super(null);
+        super((GeoModel<MiraculousItem>) null);
         addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
     }
 

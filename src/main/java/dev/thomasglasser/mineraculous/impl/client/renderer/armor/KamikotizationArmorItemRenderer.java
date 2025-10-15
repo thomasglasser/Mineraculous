@@ -22,7 +22,7 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
     private static final Map<Holder<Kamikotization>, GeoModel<KamikotizationArmorItem>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
 
     public KamikotizationArmorItemRenderer() {
-        super(null);
+        super((GeoModel<KamikotizationArmorItem>) null);
         addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
     }
 

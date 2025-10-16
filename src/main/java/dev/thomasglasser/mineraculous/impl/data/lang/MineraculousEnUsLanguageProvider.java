@@ -240,6 +240,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(ServerboundWakeUpPayload.STEALING_WARNING, "You may not rest now, there are thieves nearby.");
         add(ExternalInventoryScreen.ITEM_BOUND_KEY, "This item is bound to the player.");
         add(MineraculousItemUtils.ITEM_UNBREAKABLE_KEY, "This item is unbreakable by normal means.");
+        add(MineraculousItemUtils.KAMIKOTIZED_ITEM_UNBREAKABLE_KEY, "You feel compelled to leave this item unbroken.");
 
         // Kamiko Gui
         add(KamikoTargetPlayerMenuCategory.TARGET_PROMPT, "Select a player to target");

@@ -11,6 +11,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import net.minecraft.Util;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
@@ -36,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class MineraculousItemUtils {
     public static final Component ITEM_UNBREAKABLE_KEY = Component.translatable("mineraculous.item_unbreakable");
+    public static final Component KAMIKOTIZED_ITEM_UNBREAKABLE_KEY = Component.translatable("mineraculous.kamikotized_item_unbreakable");
 
     /**
      * Tries to break the provided {@link ItemStack}, checking its {@link Kamikotization}.
@@ -68,6 +70,10 @@ public class MineraculousItemUtils {
         if (stack.has(DataComponents.UNBREAKABLE)) {
             if (breaker instanceof Player player) {
                 player.displayClientMessage(ITEM_UNBREAKABLE_KEY, true);
+            }
+        } else if (breaker != null && stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.getOrDefault(MineraculousDataComponents.OWNER, Util.NIL_UUID).equals(breaker.getUUID())) {
+            if (breaker instanceof Player player) {
+                player.displayClientMessage(KAMIKOTIZED_ITEM_UNBREAKABLE_KEY, true);
             }
         } else {
             if (stack.isDamageableItem()) {

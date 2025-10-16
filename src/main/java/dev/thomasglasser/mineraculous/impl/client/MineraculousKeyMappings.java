@@ -15,6 +15,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundActivatePowerPaylo
 import dev.thomasglasser.mineraculous.impl.network.ServerboundMiraculousTransformPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundPutMiraculousToolInHandPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRenounceMiraculousPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundStartKamikotizationDetransformationPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundToggleActivePayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundToggleBuffsPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundToggleNightVisionPayload;
@@ -29,6 +30,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -71,6 +73,10 @@ public class MineraculousKeyMappings {
             if (!transformed.isEmpty()) {
                 Holder<Miraculous> miraculous = transformed.getFirst();
                 TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), false));
+            } else if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
+                if (MineraculousServerConfig.get().enableKamikotizationRejection.get()) {
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationDetransformationPayload(Optional.empty(), false));
+                }
             } else {
                 List<RadialMenuOption> options = new ReferenceArrayList<>();
                 Map<RadialMenuOption, Holder<Miraculous>> miraculousOptions = new Reference2ReferenceOpenHashMap<>();

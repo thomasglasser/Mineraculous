@@ -17,7 +17,7 @@ import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationDat
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.MiraculousTransferScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.AbstractKamikotizationChatScreen;
-import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.KamikotizationSelectionScreen;
+import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.KamikotizationItemSelectionScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.PerformerKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterCosmeticOptions;
@@ -61,6 +61,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
@@ -158,16 +160,22 @@ public class MineraculousClientUtils {
         return false;
     }
 
-    public static void openExternalCuriosInventoryScreen(Player target) {
+    public static void openExternalCuriosInventoryScreenForStealing(Player target) {
         TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), true));
-        Minecraft.getInstance().setScreen(new ExternalCuriosInventoryScreen(target, true, ((slot, target1, menu) -> {
-            if (slot instanceof CurioSlot curioSlot)
-                TommyLibServices.NETWORK.sendToServer(new ServerboundStealCurioPayload(target1.getUUID(), new CuriosData(curioSlot.getSlotContext())));
-            else
-                TommyLibServices.NETWORK.sendToServer(new ServerboundStealItemPayload(target1.getUUID(), menu.slots.indexOf(slot)));
-        }), exit -> {
-            TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), false));
-        }));
+        Minecraft.getInstance().setScreen(new ExternalCuriosInventoryScreen(target, true) {
+            @Override
+            public void pickUp(Slot slot, Player target, AbstractContainerMenu menu) {
+                if (slot instanceof CurioSlot curioSlot)
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundStealCurioPayload(target.getUUID(), new CuriosData(curioSlot.getSlotContext())));
+                else
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundStealItemPayload(target.getUUID(), menu.slots.indexOf(slot)));
+            }
+
+            @Override
+            public void onClose(boolean exit) {
+                TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), false));
+            }
+        });
     }
 
     public static void remoteCloseKamikotizationChatScreen(boolean cancel) {
@@ -175,8 +183,8 @@ public class MineraculousClientUtils {
             screen.onClose(cancel, false);
     }
 
-    public static void openKamikotizationSelectionScreen(Player target, KamikoData kamikoData) {
-        Minecraft.getInstance().setScreen(new KamikotizationSelectionScreen(target, kamikoData));
+    public static void beginKamikotizationSelection(Player target, KamikoData kamikoData) {
+        Minecraft.getInstance().setScreen(new KamikotizationItemSelectionScreen(target, kamikoData));
     }
 
     public static void openReceiverKamikotizationChatScreen(UUID other, KamikotizationData kamikotizationData, Either<Integer, CuriosData> slotInfo) {

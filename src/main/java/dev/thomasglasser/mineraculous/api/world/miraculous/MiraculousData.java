@@ -149,7 +149,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                         }
 
                         if (/*name.isEmpty()*/false && entity instanceof Player player) {
-                            player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(Miraculous.toLanguageKey(key)), key.location().getPath()), true);
+                            player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(MineraculousConstants.toLanguageKey(key)), key.location().getPath()), true);
                         }
 
                         level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.transformSound(), entity.getSoundSource(), 1, 1);

@@ -84,7 +84,7 @@ public class MineraculousKeyMappings {
 
                                 @Override
                                 public Component displayName() {
-                                    return Component.translatable(Miraculous.toLanguageKey(key));
+                                    return Component.translatable(MineraculousConstants.toLanguageKey(key));
                                 }
 
                                 @Override
@@ -185,7 +185,7 @@ public class MineraculousKeyMappings {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundWakeUpPayload(target.getUUID(), true));
                     }
                     if (takeTicks > (SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().stealingDuration.get())) {
-                        MineraculousClientUtils.openExternalCuriosInventoryScreen(target);
+                        MineraculousClientUtils.openExternalCuriosInventoryScreenForStealing(target);
                         takeTicks = 0;
                     }
                 } else if (takeTicks > 0) {

@@ -49,6 +49,9 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 public class MineraculousDataGenerators {
+    public static final ResourceKey<Kamikotization> CAT_KAMIKOTIZATION = ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, MineraculousConstants.modLoc("cat"));
+    public static final ResourceKey<Kamikotization> LADYBUG_KAMIKOTIZATION = ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, MineraculousConstants.modLoc("ladybug"));
+    public static final ResourceKey<Kamikotization> STORMY_KAMIKOTIZATION = ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, MineraculousConstants.modLoc("stormy"));
     public static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
             .add(Registries.DAMAGE_TYPE, MineraculousDamageTypes::bootstrap)
             .add(Registries.PAINTING_VARIANT, MineraculousPaintingVariants::bootstrap)
@@ -61,13 +64,13 @@ public class MineraculousDataGenerators {
                 HolderGetter<Ability> abilities = context.lookup(MineraculousRegistries.ABILITY);
                 HolderGetter<Enchantment> enchantments = context.lookup(Registries.ENCHANTMENT);
 
-                context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, MineraculousConstants.modLoc("cat")),
+                context.register(CAT_KAMIKOTIZATION,
                         new Kamikotization(
                                 "Kitty",
                                 ItemPredicate.Builder.item().build(),
                                 Either.right(abilities.getOrThrow(Abilities.CATACLYSM)),
                                 HolderSet.direct(abilities.getOrThrow(Abilities.CAT_VISION))));
-                context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, MineraculousConstants.modLoc("ladybug")),
+                context.register(LADYBUG_KAMIKOTIZATION,
                         new Kamikotization(
                                 "Bugaboo",
                                 ItemPredicate.Builder.item().build(),
@@ -77,7 +80,7 @@ public class MineraculousDataGenerators {
                 stormyTool.enchant(enchantments.getOrThrow(Enchantments.SHARPNESS), 1);
                 stormyTool.enchant(enchantments.getOrThrow(Enchantments.SMITE), 1);
                 stormyTool.enchant(enchantments.getOrThrow(Enchantments.KNOCKBACK), 10);
-                context.register(ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, MineraculousConstants.modLoc("stormy")),
+                context.register(STORMY_KAMIKOTIZATION,
                         new Kamikotization(
                                 "Stormy Tester",
                                 ItemPredicate.Builder.item().of(ItemTags.BANNERS).build(),

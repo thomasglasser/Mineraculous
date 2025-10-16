@@ -50,7 +50,6 @@ import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.FlyStraightTowardsParticle;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -431,16 +430,8 @@ public class MineraculousClientEvents {
     }
 
     static void onClientChatReceived(ClientChatReceivedEvent.Player event) {
-        ClientLevel level = Minecraft.getInstance().level;
-        Player receiver = Minecraft.getInstance().player;
-        UUID senderId = event.getSender();
-        if (level != null && receiver != null) {
-            Player sender = level.getPlayerByUUID(event.getSender());
-            if (receiver != sender &&
-                    (receiver.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().map(chatter -> !chatter.equals(senderId)).orElse(false) ||
-                            (sender != null && sender.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().map(chatter -> !chatter.equals(receiver.getUUID())).orElse(false)))) {
-                event.setCanceled(true);
-            }
+        if (!AbilityEffectData.isInPrivateChat(ClientUtils.getLocalPlayer(), event.getSender())) {
+            event.setCanceled(true);
         }
     }
 }

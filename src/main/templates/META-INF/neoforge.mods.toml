@@ -82,3 +82,9 @@ type="optional"
 versionRange="[${modonomicon_version},)"
 ordering="NONE"
 side="BOTH"
+[[dependencies.${mod_id}]]
+modId="voicechat"
+mandatory=false
+versionRange="[${minecraft_version}-${voicechat_api_version},)"
+ordering="NONE"
+side="BOTH"

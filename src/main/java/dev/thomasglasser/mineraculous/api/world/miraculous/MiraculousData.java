@@ -432,7 +432,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         finishDetransformation().save(miraculous, entity, true);
     }
 
-    private static Multimap<Holder<Attribute>, AttributeModifier> getMiraculousAttributes(ServerLevel level, int powerLevel) {
+    public static Multimap<Holder<Attribute>, AttributeModifier> getMiraculousAttributes(ServerLevel level, int powerLevel) {
         Multimap<Holder<Attribute>, AttributeModifier> attributeModifiers = HashMultimap.create();
         Registry<Attribute> attributes = level.registryAccess().registryOrThrow(Registries.ATTRIBUTE);
         attributes.getDataMap(MineraculousDataMaps.MIRACULOUS_ATTRIBUTE_MODIFIERS).forEach((attribute, settings) -> attributeModifiers.put(attributes.getHolderOrThrow(attribute), new AttributeModifier(MineraculousConstants.modLoc("miraculous_buff"), (settings.amount() * (powerLevel / 10.0)), settings.operation())));

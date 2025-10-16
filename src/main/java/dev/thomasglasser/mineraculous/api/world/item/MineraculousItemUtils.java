@@ -5,14 +5,14 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.PatchedDataComponentMap;
@@ -73,9 +73,14 @@ public class MineraculousItemUtils {
             if (stack.isDamageableItem()) {
                 int damage = 100;
                 if (breaker != null) {
-                    MiraculousesData data = breaker.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                    for (Holder<Miraculous> miraculous : data.getTransformed()) {
-                        damage += 100 * data.get(miraculous).powerLevel();
+                    MiraculousesData miraculousesData = breaker.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                    if (miraculousesData.isTransformed()) {
+                        damage += 100 * miraculousesData.getPowerLevel();
+                    } else {
+                        Optional<KamikotizationData> kamikotizationData = breaker.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
+                        if (kamikotizationData.isPresent()) {
+                            damage += 100 * kamikotizationData.get().kamikoData().powerLevel();
+                        }
                     }
                 }
                 hurtAndBreak(stack, damage, level, breaker, EquipmentSlot.MAINHAND);

@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.impl.world.item.component;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
@@ -28,6 +29,14 @@ public record KamikoData(UUID uuid, UUID owner, int powerLevel, int nameColor, O
             ByteBufCodecs.INT, KamikoData::nameColor,
             ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC), KamikoData::faceMaskTexture,
             KamikoData::new);
+    public KamikoData(UUID uuid, UUID owner, int powerLevel, int nameColor, Optional<ResourceLocation> faceMaskTexture) {
+        this.uuid = uuid;
+        this.owner = owner;
+        this.powerLevel = Math.clamp(powerLevel, 0, MiraculousData.MAX_POWER_LEVEL);
+        this.nameColor = nameColor;
+        this.faceMaskTexture = faceMaskTexture;
+    }
+
     public Kamiko summon(ServerLevel level, Vec3 spawnPos) {
         Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(level);
         if (kamiko != null) {

@@ -346,7 +346,7 @@ public class KamikotizationSelectionScreen extends Screen {
                         slotInfo = Either.right(new CuriosData(curiosSlot.getSlotContext()));
                     else
                         slotInfo = Either.left(slot.getSlotIndex());
-                    KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, name.getValue(), Util.NIL_UUID, Optional.empty(), slot.getItem().getCount(), false);
+                    KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, name.getValue(), Util.NIL_UUID, Optional.empty(), slot.getItem().getCount(), false, false);
                     if (target == minecraft.player) {
                         TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationTransformationPayload(kamikotizationData, slotInfo));
                         TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(target.getUUID(), target.getUUID(), kamikotizationData.kamikotization().getKey()));

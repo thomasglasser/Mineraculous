@@ -66,6 +66,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         MineraculousArmors.KAMIKOTIZATION.getAll().forEach(item -> singleTexture(item.getId().getPath(), mcItemLoc("generated"), "layer0", modItemLoc("kamikotization_armor")));
 
         withEntityModel(MineraculousItems.MIRACULOUS).guiLight(BlockModel.GuiLight.FRONT);
+        withEntityModel(MineraculousItems.KWAMI).guiLight(BlockModel.GuiLight.FRONT);
 
         basicItem(MineraculousItems.CATACLYSM_DUST.get());
         basicItem(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE);

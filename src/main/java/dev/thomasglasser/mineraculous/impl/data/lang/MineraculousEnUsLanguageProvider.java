@@ -120,6 +120,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousItems.CAT_STAFF.get(), "Cat Staff");
         add(MineraculousItems.BUTTERFLY_CANE.get(), "Butterfly Cane");
         add(MineraculousItems.MIRACULOUS.get(), "Miraculous");
+        add(MineraculousItems.KWAMI.get(), "Kwami");
         add(MineraculousItems.GREAT_SWORD.get(), "Great Sword");
         add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
         add(MineraculousBlocks.HIBISCUS_BUSH.asItem(), "Hibiscus");

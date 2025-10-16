@@ -124,6 +124,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousItems.MIRACULOUS.get(), "Miraculous");
         add(MineraculousItems.GREAT_SWORD.get(), "Great Sword");
         add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
+        add(MineraculousItems.RAW_MACARON.get(), "Raw Macaron");
+        add(MineraculousItems.MACARON.get(), "Macaron");
         add(MineraculousBlocks.HIBISCUS_BUSH.asItem(), "Hibiscus");
 
         // Tool Modes

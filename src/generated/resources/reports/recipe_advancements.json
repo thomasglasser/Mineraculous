@@ -1,5 +1,8 @@
 [
   "mineraculous:recipes/decorations/cheese_pot",
+  "mineraculous:recipes/food/macaron",
+  "minecraft:recipes/food/macaron_from_campfire_cooking",
+  "minecraft:recipes/food/macaron_from_smoking",
   "mineraculous:recipes/food/waxed_aged_camembert_block_from_honeycomb",
   "mineraculous:recipes/food/waxed_aged_cheese_block_from_honeycomb",
   "mineraculous:recipes/food/waxed_exquisite_camembert_block_from_honeycomb",

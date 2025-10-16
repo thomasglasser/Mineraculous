@@ -67,10 +67,12 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
 
         withEntityModel(MineraculousItems.MIRACULOUS).guiLight(BlockModel.GuiLight.FRONT);
 
-        basicItem(MineraculousItems.CATACLYSM_DUST.get());
+        basicItem(MineraculousItems.CATACLYSM_DUST);
         basicItem(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE);
         basicItem(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE);
         basicItem(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE);
+        basicItem(MineraculousItems.RAW_MACARON);
+        basicItem(MineraculousItems.MACARON);
         basicItem(MineraculousBlocks.HIBISCUS_BUSH.asItem());
 
         basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK);

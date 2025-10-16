@@ -1,5 +1,7 @@
 {
   "values": [
+    "mineraculous:raw_macaron",
+    "mineraculous:macaron",
     "#c:foods/cheeses"
   ]
 }

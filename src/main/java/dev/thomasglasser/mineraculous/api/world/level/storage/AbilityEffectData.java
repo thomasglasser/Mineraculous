@@ -101,6 +101,8 @@ public record AbilityEffectData(boolean playedContinuousAbilityStartSound, Optio
     }
 
     public static boolean isInPrivateChat(Entity receiver, UUID senderId) {
+        if (receiver.getUUID().equals(senderId))
+            return true;
         Player sender = receiver.level().getPlayerByUUID(senderId);
         return (receiver.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().map(chatter -> chatter.equals(senderId)).orElse(false) &&
                 (sender != null && sender.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().map(chatter -> chatter.equals(receiver.getUUID())).orElse(false)));

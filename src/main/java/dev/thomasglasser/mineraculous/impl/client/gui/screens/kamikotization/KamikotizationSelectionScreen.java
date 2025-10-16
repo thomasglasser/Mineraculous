@@ -4,7 +4,6 @@ import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
@@ -13,10 +12,12 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundOpenPerformerKamikotizationChatScreenPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundOpenVictimKamikotizationChatScreenPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundSetItemKamikotizingPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSpawnTamedKamikoPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStartKamikotizationTransformationPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundTriggerKamikotizationAdvancementsPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
@@ -58,7 +59,7 @@ public class KamikotizationSelectionScreen extends Screen {
     private final Player target;
     private final Player targetPreview;
     private final KamikoData kamikoData;
-    private final Either<Integer, CuriosData> slotInfo;
+    private final SlotInfo slotInfo;
     private final int slotCount;
 
     private int topLeftX;
@@ -74,7 +75,7 @@ public class KamikotizationSelectionScreen extends Screen {
     @Nullable
     private Holder<Kamikotization> selectedKamikotization;
 
-    public KamikotizationSelectionScreen(Player target, KamikoData kamikoData, List<Holder<Kamikotization>> kamikotizations, Either<Integer, CuriosData> slotInfo, int slotCount) {
+    public KamikotizationSelectionScreen(Player target, KamikoData kamikoData, List<Holder<Kamikotization>> kamikotizations, SlotInfo slotInfo, int slotCount) {
         super(TITLE);
         this.target = target;
         this.targetPreview = new RemotePlayer((ClientLevel) target.level(), target.getGameProfile());
@@ -327,6 +328,7 @@ public class KamikotizationSelectionScreen extends Screen {
         }
         if (cancel) {
             TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(player.getUUID(), target.blockPosition().above()));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundSetItemKamikotizingPayload(Optional.of(target.getUUID()), false, slotInfo));
             AbilityEffectData.removeFaceMaskTexture(player, kamikoData.faceMaskTexture());
         } else {
             KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, name.getValue(), Util.NIL_UUID, Optional.empty(), slotCount, false, false);
@@ -345,10 +347,5 @@ public class KamikotizationSelectionScreen extends Screen {
     @Override
     public void onClose() {
         onClose(true);
-    }
-
-    @Override
-    public void removed() {
-        MineraculousConstants.LOGGER.warn("KamikotizationSelectionScreen forcefully closed, this will not spawn a Kamiko.");
     }
 }

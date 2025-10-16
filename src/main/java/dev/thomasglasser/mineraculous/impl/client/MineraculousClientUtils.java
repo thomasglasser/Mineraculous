@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.impl.client;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
-import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
@@ -29,6 +28,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateSpecialPlaye
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
@@ -187,7 +187,7 @@ public class MineraculousClientUtils {
         Minecraft.getInstance().setScreen(new KamikotizationItemSelectionScreen(target, kamikoData));
     }
 
-    public static void openReceiverKamikotizationChatScreen(UUID other, KamikotizationData kamikotizationData, Either<Integer, CuriosData> slotInfo) {
+    public static void openReceiverKamikotizationChatScreen(UUID other, KamikotizationData kamikotizationData, SlotInfo slotInfo) {
         Minecraft.getInstance().setScreen(new ReceiverKamikotizationChatScreen(other, kamikotizationData, slotInfo));
     }
 
@@ -223,8 +223,15 @@ public class MineraculousClientUtils {
     }
 
     // Rendering
-    public static VertexConsumer checkLuckyCharm(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack, boolean armor, boolean entity) {
-        if (itemStack.has(MineraculousDataComponents.LUCKY_CHARM) && !itemStack.is(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE)) {
+    public static VertexConsumer checkItemShaders(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack, boolean armor, boolean entity) {
+        if (itemStack.has(MineraculousDataComponents.KAMIKOTIZING)) {
+            if (entity) {
+                return itemStack.is(Items.SHIELD)
+                        ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.shieldKamikotizing()), buffer)
+                        : VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.entityKamikotizing()), buffer);
+            }
+            return VertexMultiConsumer.create(bufferSource.getBuffer(armor ? MineraculousRenderTypes.armorKamikotizing() : MineraculousRenderTypes.itemKamikotizing()), buffer);
+        } else if (itemStack.has(MineraculousDataComponents.LUCKY_CHARM) && !itemStack.is(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE)) {
             if (entity) {
                 return itemStack.is(Items.SHIELD)
                         ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.shieldLuckyCharm()), buffer)

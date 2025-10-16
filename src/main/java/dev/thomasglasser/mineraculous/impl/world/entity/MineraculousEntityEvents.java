@@ -55,6 +55,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
+import net.neoforged.neoforge.event.entity.living.LivingSwapItemsEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -278,6 +279,11 @@ public class MineraculousEntityEvents {
         }
     }
 
+    public static void onLivingSwapHands(LivingSwapItemsEvent.Hands event) {
+        if (event.getItemSwappedToMainHand().has(MineraculousDataComponents.KAMIKOTIZING) || event.getItemSwappedToOffHand().has(MineraculousDataComponents.KAMIKOTIZING))
+            event.setCanceled(true);
+    }
+
     /// Death
     public static void onLivingDeath(LivingDeathEvent event) {
         LivingEntity entity = event.getEntity();
@@ -331,6 +337,9 @@ public class MineraculousEntityEvents {
                     UUID id = UUID.randomUUID();
                     AbilityReversionItemData.get(level).putRemovable(recoverer, id);
                     item.getItem().set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, id);
+                }
+                if (stack.has(MineraculousDataComponents.KAMIKOTIZING)) {
+                    stack.remove(MineraculousDataComponents.KAMIKOTIZING);
                 }
             }
         }

@@ -237,6 +237,10 @@ public class MineraculousClientEvents {
         event.registerRenderBuffer(MineraculousRenderTypes.armorLuckyCharm());
         event.registerRenderBuffer(MineraculousRenderTypes.entityLuckyCharm());
         event.registerRenderBuffer(MineraculousRenderTypes.shieldLuckyCharm());
+        event.registerRenderBuffer(MineraculousRenderTypes.itemKamikotizing());
+        event.registerRenderBuffer(MineraculousRenderTypes.armorKamikotizing());
+        event.registerRenderBuffer(MineraculousRenderTypes.entityKamikotizing());
+        event.registerRenderBuffer(MineraculousRenderTypes.shieldKamikotizing());
     }
 
     static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {

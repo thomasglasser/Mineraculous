@@ -38,7 +38,7 @@ public record ServerboundStealCurioPayload(UUID target, CuriosData data) impleme
             if (miraculous != null && stack.has(MineraculousDataComponents.POWERED)) {
                 target.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).detransform(target, (ServerLevel) player.level(), miraculous, stack, true);
             }
-            if (EnchantmentHelper.has(stack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE)) {
+            if (EnchantmentHelper.has(stack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE) || stack.has(MineraculousDataComponents.KAMIKOTIZING)) {
                 player.displayClientMessage(ExternalInventoryScreen.ITEM_BOUND_KEY, true);
             } else {
                 CuriosUtils.setStackInSlot(target, this.data, ItemStack.EMPTY);

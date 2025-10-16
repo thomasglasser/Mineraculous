@@ -84,6 +84,8 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
 
     private static final int TRANSFORMATION_FRAMES = 10;
     public ItemStack transform(LivingEntity entity, ServerLevel level, ItemStack originalStack) {
+        originalStack.remove(MineraculousDataComponents.KAMIKOTIZING);
+
         if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
             MineraculousConstants.LOGGER.error("Tried to kamikotize currently powered entity: {}", entity.getName().plainCopy().getString());
             return originalStack;

@@ -118,11 +118,13 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEffectExpired);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingHeal);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityTravelToDimension);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingSwapHands);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingDeath);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingDrops);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityLeaveLevel);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerLoggedOut);
 
         NeoForge.EVENT_BUS.addListener(MineraculousItemEvents::onItemTooltip);
+        NeoForge.EVENT_BUS.addListener(MineraculousItemEvents::onItemToss);
     }
 }

@@ -71,7 +71,7 @@ public class MineraculousItemUtils {
             if (breaker instanceof Player player) {
                 player.displayClientMessage(ITEM_UNBREAKABLE_KEY, true);
             }
-        } else if (breaker != null && stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.getOrDefault(MineraculousDataComponents.OWNER, Util.NIL_UUID).equals(breaker.getUUID())) {
+        } else if (stack.has(MineraculousDataComponents.KAMIKOTIZING) || breaker != null && stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.getOrDefault(MineraculousDataComponents.OWNER, Util.NIL_UUID).equals(breaker.getUUID())) {
             if (breaker instanceof Player player) {
                 player.displayClientMessage(KAMIKOTIZED_ITEM_UNBREAKABLE_KEY, true);
             }

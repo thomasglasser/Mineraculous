@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
-import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
@@ -11,8 +10,10 @@ import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRequestInventorySyncPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundSetItemKamikotizingPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSpawnTamedKamikoPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
@@ -37,7 +38,7 @@ public class KamikotizationItemSelectionScreen extends ExternalCuriosInventorySc
 
     private final KamikoData kamikoData;
 
-    private Either<Integer, CuriosData> slotInfo;
+    private SlotInfo slotInfo;
     private ItemStack slotStack;
 
     public KamikotizationItemSelectionScreen(Player target, KamikoData kamikoData) {
@@ -64,9 +65,9 @@ public class KamikotizationItemSelectionScreen extends ExternalCuriosInventorySc
     @Override
     public void pickUp(Slot slot, Player target, AbstractContainerMenu menu) {
         if (slot instanceof CurioSlot curiosSlot)
-            slotInfo = Either.right(new CuriosData(curiosSlot.getSlotContext()));
+            slotInfo = new SlotInfo(new CuriosData(curiosSlot.getSlotContext()));
         else
-            slotInfo = Either.left(slot.getSlotIndex());
+            slotInfo = new SlotInfo(slot.getSlotIndex());
         slotStack = slot.getItem();
     }
 
@@ -77,6 +78,7 @@ public class KamikotizationItemSelectionScreen extends ExternalCuriosInventorySc
             AbilityEffectData.removeFaceMaskTexture(target, kamikoData.faceMaskTexture());
         } else if (slotInfo != null) {
             Minecraft.getInstance().setScreen(new KamikotizationSelectionScreen(target, kamikoData, new ReferenceArrayList<>(kamikotizations.get(slotStack)), slotInfo, slotStack.getCount()));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundSetItemKamikotizingPayload(Optional.of(target.getUUID()), true, slotInfo));
         }
         TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), false));
     }
@@ -91,10 +93,5 @@ public class KamikotizationItemSelectionScreen extends ExternalCuriosInventorySc
             }
             guiGraphics.renderTooltip(this.font, components, Optional.empty(), mouseX, mouseY);
         }
-    }
-
-    @Override
-    public void removed() {
-        MineraculousConstants.LOGGER.warn("KamikotizationItemSelectionScreen forcefully closed, this will not spawn a Kamiko.");
     }
 }

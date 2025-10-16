@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalInventoryScreen;
+import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.UUID;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -27,7 +28,7 @@ public record ServerboundStealItemPayload(UUID target, int slot) implements Exte
         Player target = player.level().getPlayerByUUID(this.target);
         if (target != null) {
             ItemStack stack = target.inventoryMenu.slots.get(this.slot).getItem();
-            if (EnchantmentHelper.has(stack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE)) {
+            if (EnchantmentHelper.has(stack, EnchantmentEffectComponents.PREVENT_ARMOR_CHANGE) || stack.has(MineraculousDataComponents.KAMIKOTIZING)) {
                 player.displayClientMessage(ExternalInventoryScreen.ITEM_BOUND_KEY, true);
             } else {
                 target.getInventory().removeItem(stack);

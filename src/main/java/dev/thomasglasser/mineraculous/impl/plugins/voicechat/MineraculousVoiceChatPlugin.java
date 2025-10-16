@@ -21,14 +21,12 @@ public class MineraculousVoiceChatPlugin implements VoicechatPlugin {
     @Override
     public void registerEvents(EventRegistration registration) {
         registration.registerEvent(ClientReceiveSoundEvent.EntitySound.class, event -> {
-            if (!AbilityEffectData.isInPrivateChat(ClientUtils.getLocalPlayer(), event.getEntityId())) {
-                System.out.println("Cancelled!");
+            if (!AbilityEffectData.isMessageAllowed(ClientUtils.getLocalPlayer(), event.getEntityId())) {
                 event.setRawAudio(new short[] {});
             }
         });
         registration.registerEvent(VoiceDistanceEvent.class, event -> {
             if (event.getSenderConnection().getPlayer().getPlayer() instanceof Player player && player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().isPresent()) {
-                System.out.println("Boom!");
                 event.setDistance(Float.MAX_VALUE);
             }
         });

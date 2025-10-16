@@ -434,7 +434,7 @@ public class MineraculousClientEvents {
     }
 
     static void onClientChatReceived(ClientChatReceivedEvent.Player event) {
-        if (!AbilityEffectData.isInPrivateChat(ClientUtils.getLocalPlayer(), event.getSender())) {
+        if (!AbilityEffectData.isMessageAllowed(ClientUtils.getLocalPlayer(), event.getSender())) {
             event.setCanceled(true);
         }
     }

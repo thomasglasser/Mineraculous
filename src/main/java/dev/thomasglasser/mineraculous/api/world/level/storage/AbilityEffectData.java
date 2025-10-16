@@ -15,7 +15,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 
 /**
  * Holds information used by existing {@link Ability}s.
@@ -100,12 +99,8 @@ public record AbilityEffectData(boolean playedContinuousAbilityStartSound, Optio
             TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.ABILITY_EFFECTS, this), entity.getServer());
     }
 
-    public static boolean isInPrivateChat(Entity receiver, UUID senderId) {
-        if (receiver.getUUID().equals(senderId))
-            return true;
-        Player sender = receiver.level().getPlayerByUUID(senderId);
-        return (receiver.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().map(chatter -> chatter.equals(senderId)).orElse(false) &&
-                (sender != null && sender.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().map(chatter -> chatter.equals(receiver.getUUID())).orElse(false)));
+    public static boolean isMessageAllowed(Entity receiver, UUID senderId) {
+        return receiver.getUUID().equals(senderId) || receiver.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().map(id -> id.equals(senderId)).orElse(true);
     }
 
     public static void removeFaceMaskTexture(Entity entity, Optional<ResourceLocation> faceMaskTexture) {

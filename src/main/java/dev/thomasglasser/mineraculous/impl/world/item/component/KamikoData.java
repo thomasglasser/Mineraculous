@@ -13,16 +13,18 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
-public record KamikoData(UUID uuid, UUID owner, int nameColor, Optional<ResourceLocation> faceMaskTexture) {
+public record KamikoData(UUID uuid, UUID owner, int powerLevel, int nameColor, Optional<ResourceLocation> faceMaskTexture) {
 
     public static final Codec<KamikoData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.xmap(UUID::fromString, UUID::toString).fieldOf("uuid").forGetter(KamikoData::uuid),
             Codec.STRING.xmap(UUID::fromString, UUID::toString).fieldOf("owner").forGetter(KamikoData::owner),
+            Codec.INT.fieldOf("power_level").forGetter(KamikoData::powerLevel),
             Codec.INT.fieldOf("name_color").forGetter(KamikoData::nameColor),
             ResourceLocation.CODEC.optionalFieldOf("face_mask_texture").forGetter(KamikoData::faceMaskTexture)).apply(instance, KamikoData::new));
     public static final StreamCodec<ByteBuf, KamikoData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), KamikoData::uuid,
             ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), KamikoData::owner,
+            ByteBufCodecs.INT, KamikoData::powerLevel,
             ByteBufCodecs.INT, KamikoData::nameColor,
             ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC), KamikoData::faceMaskTexture,
             KamikoData::new);

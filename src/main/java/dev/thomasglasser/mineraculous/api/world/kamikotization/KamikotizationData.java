@@ -105,7 +105,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM, entity.getSoundSource(), 1, 1);
         level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, amplifier) -> MineraculousEntityUtils.applyInfiniteHiddenEffect(entity, level.holderOrThrow(effect), amplifier.amplifier()));
 
-        AbilityData data = new AbilityData(0, false);
+        AbilityData data = AbilityData.of(this);
         value.powerSource().right().ifPresent(ability -> ability.value().transform(data, level, entity));
         value.passiveAbilities().forEach(ability -> ability.value().transform(data, level, entity));
         AbilityReversionEntityData.get(level).startTracking(entity.getUUID());
@@ -129,7 +129,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).keySet().forEach(effect -> entity.removeEffect(level.holderOrThrow(effect)));
 
         Kamikotization value = kamikotization.value();
-        AbilityData data = new AbilityData(0, powerActive);
+        AbilityData data = AbilityData.of(this);
         value.powerSource().right().ifPresent(ability -> ability.value().detransform(data, level, entity));
         value.passiveAbilities().forEach(ability -> ability.value().detransform(data, level, entity));
         if (instant) {
@@ -177,7 +177,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
     }
 
     public void performAbilities(ServerLevel level, LivingEntity entity, @Nullable AbilityContext context) {
-        AbilityData data = new AbilityData(0, powerActive);
+        AbilityData data = AbilityData.of(this);
         KamikotizationAbilityHandler handler = new KamikotizationAbilityHandler(kamikotization);
         if (AbilityUtils.performPassiveAbilities(level, entity, data, handler, context, kamikotization.value().passiveAbilities()).isSuccess() && powerActive) {
             withPowerActive(false).save(entity, true);
@@ -248,7 +248,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
     }
 
     public static void remove(Entity entity, boolean syncToClient) {
-        entity.setData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION, entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization));
+        entity.setData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION, entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION));
         entity.setData(MineraculousAttachmentTypes.KAMIKOTIZATION, Optional.empty());
         if (syncToClient)
             TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.KAMIKOTIZATION, Optional.<Optional<KamikotizationData>>empty()), entity.getServer());

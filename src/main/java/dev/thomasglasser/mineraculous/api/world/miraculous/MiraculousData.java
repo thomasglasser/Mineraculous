@@ -156,7 +156,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                         level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, miraculousEffect) -> MineraculousEntityUtils.applyInfiniteHiddenEffect(entity, level.holderOrThrow(effect), miraculousEffect.amplifier() + ((!miraculousEffect.toggleable() || MineraculousServerConfig.get().enableBuffsOnTransformation.get()) ? powerLevel / 10 : 0)));
                         entity.getAttributes().addTransientAttributeModifiers(getMiraculousAttributes(level, powerLevel));
 
-                        AbilityData data = new AbilityData(powerLevel, false);
+                        AbilityData data = AbilityData.of(this);
                         value.activeAbility().value().transform(data, level, entity);
                         value.passiveAbilities().forEach(ability -> ability.value().transform(data, level, entity));
                         AbilityReversionEntityData.get(level).startTracking(entity.getUUID());
@@ -233,7 +233,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         }
         entity.getAttributes().removeAttributeModifiers(getMiraculousAttributes(level, powerLevel));
 
-        AbilityData data = new AbilityData(powerLevel, powerActive);
+        AbilityData data = AbilityData.of(this);
         value.activeAbility().value().detransform(data, level, entity);
         value.passiveAbilities().forEach(ability -> ability.value().detransform(data, level, entity));
 
@@ -353,7 +353,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
 
                 boolean powerActive = this.powerActive;
                 boolean countdownStarted = this.countdownStarted;
-                AbilityData data = new AbilityData(powerLevel, powerActive);
+                AbilityData data = AbilityData.of(this);
                 AbilityHandler handler = new MiraculousAbilityHandler(miraculous);
                 Ability.State passiveState = AbilityUtils.performPassiveAbilities(level, entity, data, handler, null, miraculous.value().passiveAbilities());
                 if (powerActive) {
@@ -387,7 +387,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
     }
 
     public void performAbilities(ServerLevel level, LivingEntity entity, Holder<Miraculous> miraculous, @Nullable AbilityContext context) {
-        AbilityData data = new AbilityData(powerLevel, powerActive);
+        AbilityData data = AbilityData.of(this);
         AbilityHandler handler = new MiraculousAbilityHandler(miraculous);
         Ability.State state = AbilityUtils.performPassiveAbilities(level, entity, data, handler, context, miraculous.value().passiveAbilities());
         if (state.isSuccess() && powerActive) {

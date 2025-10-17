@@ -29,7 +29,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         addKwamiFoods();
-        addCheeses();
+        addFoods();
         addArmors();
         addArmorTrims();
         addCurios();
@@ -75,6 +75,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
                 .add(Items.BREAD);
 
         tag(MineraculousItemTags.LADYBUG_KWAMI_TREATS)
+                .add(MineraculousItems.MACARON)
                 .add(Items.COOKIE)
                 .add(Items.CAKE);
 
@@ -94,13 +95,18 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
                 .add(MineraculousBlocks.HIBISCUS_BUSH.asItem());
     }
 
-    private void addCheeses() {
+    private void addFoods() {
+        tag(ConventionalItemTags.FOODS)
+                .add(MineraculousItems.RAW_MACARON)
+                .add(MineraculousItems.MACARON)
+                .addTag(MineraculousItemTags.CHEESES_FOODS);
+
+        tag(ItemTags.DYEABLE)
+                .add(MineraculousItems.RAW_MACARON);
+
         tag(MineraculousItemTags.CHEESES_FOODS)
                 .addTag(MineraculousItemTags.CHEESE)
                 .addTag(MineraculousItemTags.CAMEMBERT);
-
-        tag(ConventionalItemTags.FOODS)
-                .addTag(MineraculousItemTags.CHEESES_FOODS);
 
         ItemLikeTagAppender cheese = tag(MineraculousItemTags.CHEESE);
         MineraculousItems.CHEESE.values().forEach(cheese::add);

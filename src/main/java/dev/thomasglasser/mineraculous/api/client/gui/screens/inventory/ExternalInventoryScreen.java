@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.api.client.gui.screens.inventory;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.ExternalMenuScreen;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -9,7 +10,6 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.ResultContainer;
@@ -19,22 +19,18 @@ import net.minecraft.world.inventory.Slot;
  * Shows the inventory of another player,
  * performing logic provided by the pickup and close handlers when triggered.
  */
-public class ExternalInventoryScreen extends InventoryScreen {
+public abstract class ExternalInventoryScreen extends InventoryScreen implements ExternalMenuScreen {
     public static final Component ITEM_BOUND_KEY = Component.translatable("mineraculous.item_bound");
 
     public static final ResourceLocation EXTERNAL_INVENTORY_LOCATION = MineraculousConstants.modLoc("textures/gui/container/external_inventory.png");
 
     protected final Player target;
     protected final boolean requireLooking;
-    protected final ItemPickupHandler pickupHandler;
-    protected final CloseHandler closeHandler;
 
-    public ExternalInventoryScreen(Player target, boolean requireLooking, ItemPickupHandler pickupHandler, CloseHandler closeHandler) {
+    public ExternalInventoryScreen(Player target, boolean requireLooking) {
         super(target);
         this.target = target;
         this.requireLooking = requireLooking;
-        this.pickupHandler = pickupHandler;
-        this.closeHandler = closeHandler;
     }
 
     @Override
@@ -61,7 +57,7 @@ public class ExternalInventoryScreen extends InventoryScreen {
     @Override
     protected void renderSlot(GuiGraphics guiGraphics, Slot slot) {
         if (!(slot.container instanceof CraftingContainer || slot.container instanceof ResultContainer)) {
-            if (!pickupHandler.canPickUp(slot, target, menu))
+            if (!canPickUp(slot, target, menu))
                 renderDisabledSlot(guiGraphics, slot);
             else
                 super.renderSlot(guiGraphics, slot);
@@ -74,39 +70,25 @@ public class ExternalInventoryScreen extends InventoryScreen {
 
     @Override
     protected void renderSlotHighlight(GuiGraphics guiGraphics, Slot slot, int mouseX, int mouseY, float partialTick) {
-        if (pickupHandler.canPickUp(slot, target, menu))
+        if (canPickUp(slot, target, menu))
             super.renderSlotHighlight(guiGraphics, slot, mouseX, mouseY, partialTick);
     }
 
     @Override
     protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
-        if (slot.hasItem() && type == ClickType.PICKUP && pickupHandler.canPickUp(slot, target, menu)) {
-            pickupHandler.pickUp(slot, target, menu);
-            onClose(false);
+        if (slot.hasItem() && type == ClickType.PICKUP && canPickUp(slot, target, menu)) {
+            pickUp(slot, target, menu);
+            doOnClose(false);
         }
     }
 
-    public void onClose(boolean cancel) {
+    public final void doOnClose(boolean cancel) {
         super.onClose();
-        closeHandler.onClose(cancel);
+        onClose(cancel);
     }
 
     @Override
-    public void onClose() {
-        onClose(true);
-    }
-
-    @FunctionalInterface
-    public interface ItemPickupHandler {
-        default boolean canPickUp(Slot slot, Player target, AbstractContainerMenu menu) {
-            return slot.hasItem();
-        }
-
-        void pickUp(Slot slot, Player target, AbstractContainerMenu menu);
-    }
-
-    @FunctionalInterface
-    public interface CloseHandler {
-        void onClose(boolean exit);
+    public final void onClose() {
+        doOnClose(true);
     }
 }

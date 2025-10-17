@@ -17,6 +17,7 @@
     "minecraft.world.entity.EntityMixin",
     "minecraft.world.entity.LeashableMixin",
     "minecraft.world.entity.player.PlayerMixin",
+    "minecraft.world.inventory.AbstractContainerMenuMixin",
     "minecraft.world.item.BlockItemMixin",
     "minecraft.world.item.BucketItemMixin",
     "minecraft.world.item.ItemStackMixin",

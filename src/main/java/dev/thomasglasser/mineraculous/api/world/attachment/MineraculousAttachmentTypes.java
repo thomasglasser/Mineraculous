@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.api.world.attachment;
 
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
@@ -16,7 +15,6 @@ import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.Optional;
 import java.util.UUID;
-import net.minecraft.core.Holder;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.ApiStatus;
@@ -44,7 +42,7 @@ public class MineraculousAttachmentTypes {
     /// If present, stores the holder's actively transformed {@link KamikotizationData}.
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<KamikotizationData>>> KAMIKOTIZATION = ATTACHMENT_TYPES.register("kamikotization", () -> AttachmentType.builder(Optional::<KamikotizationData>empty).serialize(optionalCodec(KamikotizationData.CODEC)).build());
     /// If present, stores the previously transformed {@link Kamikotization} of the detransformed holder.
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<Holder<Kamikotization>>>> OLD_KAMIKOTIZATION = ATTACHMENT_TYPES.register("old_kamikotization", () -> AttachmentType.builder(Optional::<Holder<Kamikotization>>empty).serialize(optionalCodec(Kamikotization.CODEC)).build());
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<KamikotizationData>>> OLD_KAMIKOTIZATION = ATTACHMENT_TYPES.register("old_kamikotization", () -> AttachmentType.builder(Optional::<KamikotizationData>empty).serialize(optionalCodec(KamikotizationData.CODEC)).build());
 
     private static <T> Codec<Optional<T>> optionalCodec(Codec<T> codec) {
         return codec.optionalFieldOf("data").codec();

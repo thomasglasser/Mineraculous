@@ -50,7 +50,6 @@ import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.FlyStraightTowardsParticle;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -71,6 +70,7 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
@@ -132,6 +132,9 @@ public class MineraculousClientEvents {
             event.insertAfter(MineraculousItems.CAT_STAFF.toStack(), MineraculousItems.BUTTERFLY_CANE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             event.insertAfter(MineraculousItems.BUTTERFLY_CANE.toStack(), MineraculousItems.GREAT_SWORD.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         } else if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
+            event.insertAfter(Items.COOKIE.getDefaultInstance(), MineraculousItems.RAW_MACARON.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.RAW_MACARON.toStack(), MineraculousItems.MACARON.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+
             addCheeses(event, Items.PUMPKIN_PIE.getDefaultInstance(), MineraculousItems.CHEESE);
             addCheeses(event, MineraculousItems.CHEESE.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousBlocks.CHEESE);
             addCheeses(event, MineraculousBlocks.CHEESE.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousItems.CAMEMBERT);
@@ -216,8 +219,11 @@ public class MineraculousClientEvents {
         }
     }
 
+    private static final int DEFAULT_MACARON_COLOR = 0xFFf9d7a4;
+
     static void onRegisterItemColorHandlers(RegisterColorHandlersEvent.Item event) {
-        event.register((stack, index) -> FastColor.ARGB32.opaque(MiraculousItemRenderer.getMiraculousOrDefault(stack).value().color().getValue()), MineraculousArmors.MIRACULOUS.getAllAsItems().toArray(new Item[0]));
+        event.register((stack, index) -> index == 0 ? FastColor.ARGB32.opaque(MiraculousItemRenderer.getMiraculousOrDefault(stack).value().color().getValue()) : -1, MineraculousArmors.MIRACULOUS.getAllAsItems().toArray(new Item[0]));
+        event.register((stack, index) -> index == 0 ? DyedItemColor.getOrDefault(stack, DEFAULT_MACARON_COLOR) : -1, MineraculousItems.RAW_MACARON, MineraculousItems.MACARON);
     }
 
     static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
@@ -238,6 +244,10 @@ public class MineraculousClientEvents {
         event.registerRenderBuffer(MineraculousRenderTypes.armorLuckyCharm());
         event.registerRenderBuffer(MineraculousRenderTypes.entityLuckyCharm());
         event.registerRenderBuffer(MineraculousRenderTypes.shieldLuckyCharm());
+        event.registerRenderBuffer(MineraculousRenderTypes.itemKamikotizing());
+        event.registerRenderBuffer(MineraculousRenderTypes.armorKamikotizing());
+        event.registerRenderBuffer(MineraculousRenderTypes.entityKamikotizing());
+        event.registerRenderBuffer(MineraculousRenderTypes.shieldKamikotizing());
     }
 
     static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
@@ -431,16 +441,8 @@ public class MineraculousClientEvents {
     }
 
     static void onClientChatReceived(ClientChatReceivedEvent.Player event) {
-        ClientLevel level = Minecraft.getInstance().level;
-        Player receiver = Minecraft.getInstance().player;
-        UUID senderId = event.getSender();
-        if (level != null && receiver != null) {
-            Player sender = level.getPlayerByUUID(event.getSender());
-            if (receiver != sender &&
-                    (receiver.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().map(chatter -> !chatter.equals(senderId)).orElse(false) ||
-                            (sender != null && sender.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().map(chatter -> !chatter.equals(receiver.getUUID())).orElse(false)))) {
-                event.setCanceled(true);
-            }
+        if (!AbilityEffectData.isMessageAllowed(ClientUtils.getLocalPlayer(), event.getSender())) {
+            event.setCanceled(true);
         }
     }
 }

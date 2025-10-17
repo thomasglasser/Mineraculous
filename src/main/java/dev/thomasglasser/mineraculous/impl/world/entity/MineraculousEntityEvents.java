@@ -55,6 +55,7 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
+import net.neoforged.neoforge.event.entity.living.LivingSwapItemsEvent;
 import net.neoforged.neoforge.event.entity.living.MobEffectEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -76,13 +77,13 @@ public class MineraculousEntityEvents {
             miraculousesData.getTransformed().forEach(miraculous -> {
                 Miraculous value = miraculous.value();
                 MiraculousData miraculousData = miraculousesData.get(miraculous);
-                AbilityData abilityData = new AbilityData(miraculousData.powerLevel(), miraculousData.powerActive());
+                AbilityData abilityData = AbilityData.of(miraculousData);
                 value.passiveAbilities().forEach(ability -> ability.value().joinLevel(abilityData, level, livingEntity));
                 value.activeAbility().value().joinLevel(abilityData, level, livingEntity);
             });
             entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {
                 Kamikotization value = data.kamikotization().value();
-                AbilityData abilityData = new AbilityData(0, data.powerActive());
+                AbilityData abilityData = AbilityData.of(data);
                 value.passiveAbilities().forEach(ability -> ability.value().joinLevel(abilityData, level, livingEntity));
                 value.powerSource().right().ifPresent(ability -> ability.value().joinLevel(abilityData, level, livingEntity));
             });
@@ -278,6 +279,11 @@ public class MineraculousEntityEvents {
         }
     }
 
+    public static void onLivingSwapHands(LivingSwapItemsEvent.Hands event) {
+        if (event.getItemSwappedToMainHand().has(MineraculousDataComponents.KAMIKOTIZING) || event.getItemSwappedToOffHand().has(MineraculousDataComponents.KAMIKOTIZING))
+            event.setCanceled(true);
+    }
+
     /// Death
     public static void onLivingDeath(LivingDeathEvent event) {
         LivingEntity entity = event.getEntity();
@@ -332,6 +338,9 @@ public class MineraculousEntityEvents {
                     AbilityReversionItemData.get(level).putRemovable(recoverer, id);
                     item.getItem().set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, id);
                 }
+                if (stack.has(MineraculousDataComponents.KAMIKOTIZING)) {
+                    stack.remove(MineraculousDataComponents.KAMIKOTIZING);
+                }
             }
         }
     }
@@ -358,13 +367,13 @@ public class MineraculousEntityEvents {
                 miraculousesData.getTransformed().forEach(miraculous -> {
                     Miraculous value = miraculous.value();
                     MiraculousData miraculousData = miraculousesData.get(miraculous);
-                    AbilityData abilityData = new AbilityData(miraculousData.powerLevel(), miraculousData.powerActive());
+                    AbilityData abilityData = AbilityData.of(miraculousData);
                     value.passiveAbilities().forEach(ability -> ability.value().leaveLevel(abilityData, level, livingEntity));
                     value.activeAbility().value().leaveLevel(abilityData, level, livingEntity);
                 });
                 entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {
                     Kamikotization value = data.kamikotization().value();
-                    AbilityData abilityData = new AbilityData(0, data.powerActive());
+                    AbilityData abilityData = AbilityData.of(data);
                     value.passiveAbilities().forEach(ability -> ability.value().leaveLevel(abilityData, level, livingEntity));
                     value.powerSource().right().ifPresent(ability -> ability.value().leaveLevel(abilityData, level, livingEntity));
                 });

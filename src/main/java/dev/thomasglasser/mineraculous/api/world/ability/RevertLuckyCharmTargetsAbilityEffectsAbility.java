@@ -8,7 +8,6 @@ import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.EffectRevertingItem;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
@@ -46,9 +45,9 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                         for (UUID relatedId : entityData.getAndClearTrackedAndRelatedEntities(target)) {
                             Entity r = level.getEntity(relatedId);
                             if (r instanceof LivingEntity related) {
-                                related.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization).or(() -> related.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION)).ifPresent(kamikotization -> {
-                                    Kamikotization value = kamikotization.value();
-                                    AbilityData abilityData = new AbilityData(0, false);
+                                related.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).or(() -> related.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION)).ifPresent(kamikotizationData -> {
+                                    Kamikotization value = kamikotizationData.kamikotization().value();
+                                    AbilityData abilityData = AbilityData.of(kamikotizationData);
                                     value.powerSource().ifLeft(tool -> {
                                         if (tool.getItem() instanceof EffectRevertingItem item) {
                                             item.revert(related);
@@ -59,7 +58,7 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                                 MiraculousesData miraculousesData = related.getData(MineraculousAttachmentTypes.MIRACULOUSES);
                                 for (Holder<Miraculous> miraculous : miraculousesData.keySet()) {
                                     Miraculous value = miraculous.value();
-                                    AbilityData abilityData = new AbilityData(miraculousesData.get(miraculous).powerLevel(), false);
+                                    AbilityData abilityData = AbilityData.of(miraculousesData.get(miraculous));
                                     value.activeAbility().value().revert(abilityData, level, related);
                                     value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related));
                                 }

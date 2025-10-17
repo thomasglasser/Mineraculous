@@ -5,14 +5,15 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import net.minecraft.Util;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.PatchedDataComponentMap;
@@ -36,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class MineraculousItemUtils {
     public static final Component ITEM_UNBREAKABLE_KEY = Component.translatable("mineraculous.item_unbreakable");
+    public static final Component KAMIKOTIZED_ITEM_UNBREAKABLE_KEY = Component.translatable("mineraculous.kamikotized_item_unbreakable");
 
     /**
      * Tries to break the provided {@link ItemStack}, checking its {@link Kamikotization}.
@@ -69,13 +71,22 @@ public class MineraculousItemUtils {
             if (breaker instanceof Player player) {
                 player.displayClientMessage(ITEM_UNBREAKABLE_KEY, true);
             }
+        } else if (stack.has(MineraculousDataComponents.KAMIKOTIZING) || breaker != null && stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.getOrDefault(MineraculousDataComponents.OWNER, Util.NIL_UUID).equals(breaker.getUUID())) {
+            if (breaker instanceof Player player) {
+                player.displayClientMessage(KAMIKOTIZED_ITEM_UNBREAKABLE_KEY, true);
+            }
         } else {
             if (stack.isDamageableItem()) {
                 int damage = 100;
                 if (breaker != null) {
-                    MiraculousesData data = breaker.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                    for (Holder<Miraculous> miraculous : data.getTransformed()) {
-                        damage += 100 * data.get(miraculous).powerLevel();
+                    MiraculousesData miraculousesData = breaker.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                    if (miraculousesData.isTransformed()) {
+                        damage += 100 * miraculousesData.getPowerLevel();
+                    } else {
+                        Optional<KamikotizationData> kamikotizationData = breaker.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
+                        if (kamikotizationData.isPresent()) {
+                            damage += 100 * kamikotizationData.get().kamikoData().powerLevel();
+                        }
                     }
                 }
                 hurtAndBreak(stack, damage, level, breaker, EquipmentSlot.MAINHAND);

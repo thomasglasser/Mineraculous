@@ -1,0 +1,10 @@
+{
+  "type": "mineraculous:smelting_transmute",
+  "category": "food",
+  "cookingtime": 200,
+  "experience": 0.35,
+  "ingredient": {
+    "item": "mineraculous:raw_macaron"
+  },
+  "result": "mineraculous:macaron"
+}

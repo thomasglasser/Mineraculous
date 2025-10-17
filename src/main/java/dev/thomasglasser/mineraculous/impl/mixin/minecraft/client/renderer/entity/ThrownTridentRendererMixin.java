@@ -14,6 +14,6 @@ import org.spongepowered.asm.mixin.injection.At;
 public class ThrownTridentRendererMixin {
     @ModifyExpressionValue(method = "render(Lnet/minecraft/world/entity/projectile/ThrownTrident;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/ItemRenderer;getFoilBufferDirect(Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/RenderType;ZZ)Lcom/mojang/blaze3d/vertex/VertexConsumer;"))
     private VertexConsumer checkLuckyCharm(VertexConsumer original, @Local(argsOnly = true) MultiBufferSource bufferSource, @Local(argsOnly = true) ThrownTrident trident) {
-        return MineraculousClientUtils.checkLuckyCharm(original, bufferSource, trident.getPickupItemStackOrigin(), false, true);
+        return MineraculousClientUtils.checkItemShaders(original, bufferSource, trident.getPickupItemStackOrigin(), false, true);
     }
 }

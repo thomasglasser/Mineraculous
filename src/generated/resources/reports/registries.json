@@ -60,6 +60,7 @@
     "mineraculous:hide_enchantments",
     "mineraculous:kamiko_data",
     "mineraculous:kamikotization",
+    "mineraculous:kamikotizing",
     "mineraculous:kwami_data",
     "mineraculous:ladybug_yoyo_mode",
     "mineraculous:lucky_charm",
@@ -113,11 +114,13 @@
     "mineraculous:kwami",
     "mineraculous:ladybug_armor_trim_smithing_template",
     "mineraculous:ladybug_yoyo",
+    "mineraculous:macaron",
     "mineraculous:miraculous",
     "mineraculous:miraculous_boots",
     "mineraculous:miraculous_chestplate",
     "mineraculous:miraculous_leggings",
     "mineraculous:miraculous_mask",
+    "mineraculous:raw_macaron",
     "mineraculous:ripened_camembert_block",
     "mineraculous:ripened_camembert_wedge",
     "mineraculous:ripened_cheese_block",
@@ -173,7 +176,10 @@
     "mineraculous:fromager"
   ],
   "minecraft:recipe_serializer": [
-    "mineraculous:crafting_special_cheesewedge"
+    "mineraculous:campfire_cooking_transmute",
+    "mineraculous:crafting_special_cheesewedge",
+    "mineraculous:smelting_transmute",
+    "mineraculous:smoking_transmute"
   ],
   "minecraft:sensor_type": [
     "mineraculous:player_item_tempting"

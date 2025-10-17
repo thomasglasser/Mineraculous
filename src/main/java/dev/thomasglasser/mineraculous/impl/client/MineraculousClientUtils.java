@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.impl.client;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
-import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
@@ -17,7 +16,7 @@ import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationDat
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.MiraculousTransferScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.AbstractKamikotizationChatScreen;
-import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.KamikotizationSelectionScreen;
+import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.KamikotizationItemSelectionScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.PerformerKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterCosmeticOptions;
@@ -29,6 +28,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateSpecialPlaye
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
@@ -61,6 +61,8 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
@@ -158,16 +160,22 @@ public class MineraculousClientUtils {
         return false;
     }
 
-    public static void openExternalCuriosInventoryScreen(Player target) {
+    public static void openExternalCuriosInventoryScreenForStealing(Player target) {
         TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), true));
-        Minecraft.getInstance().setScreen(new ExternalCuriosInventoryScreen(target, true, ((slot, target1, menu) -> {
-            if (slot instanceof CurioSlot curioSlot)
-                TommyLibServices.NETWORK.sendToServer(new ServerboundStealCurioPayload(target1.getUUID(), new CuriosData(curioSlot.getSlotContext())));
-            else
-                TommyLibServices.NETWORK.sendToServer(new ServerboundStealItemPayload(target1.getUUID(), menu.slots.indexOf(slot)));
-        }), exit -> {
-            TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), false));
-        }));
+        Minecraft.getInstance().setScreen(new ExternalCuriosInventoryScreen(target, true) {
+            @Override
+            public void pickUp(Slot slot, Player target, AbstractContainerMenu menu) {
+                if (slot instanceof CurioSlot curioSlot)
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundStealCurioPayload(target.getUUID(), new CuriosData(curioSlot.getSlotContext())));
+                else
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundStealItemPayload(target.getUUID(), menu.slots.indexOf(slot)));
+            }
+
+            @Override
+            public void onClose(boolean exit) {
+                TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), false));
+            }
+        });
     }
 
     public static void remoteCloseKamikotizationChatScreen(boolean cancel) {
@@ -175,11 +183,11 @@ public class MineraculousClientUtils {
             screen.onClose(cancel, false);
     }
 
-    public static void openKamikotizationSelectionScreen(Player target, KamikoData kamikoData) {
-        Minecraft.getInstance().setScreen(new KamikotizationSelectionScreen(target, kamikoData));
+    public static void beginKamikotizationSelection(Player target, KamikoData kamikoData) {
+        Minecraft.getInstance().setScreen(new KamikotizationItemSelectionScreen(target, kamikoData));
     }
 
-    public static void openReceiverKamikotizationChatScreen(UUID other, KamikotizationData kamikotizationData, Either<Integer, CuriosData> slotInfo) {
+    public static void openReceiverKamikotizationChatScreen(UUID other, KamikotizationData kamikotizationData, SlotInfo slotInfo) {
         Minecraft.getInstance().setScreen(new ReceiverKamikotizationChatScreen(other, kamikotizationData, slotInfo));
     }
 
@@ -215,8 +223,15 @@ public class MineraculousClientUtils {
     }
 
     // Rendering
-    public static VertexConsumer checkLuckyCharm(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack, boolean armor, boolean entity) {
-        if (itemStack.has(MineraculousDataComponents.LUCKY_CHARM) && !itemStack.is(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE)) {
+    public static VertexConsumer checkItemShaders(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack, boolean armor, boolean entity) {
+        if (itemStack.has(MineraculousDataComponents.KAMIKOTIZING)) {
+            if (entity) {
+                return itemStack.is(Items.SHIELD)
+                        ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.shieldKamikotizing()), buffer)
+                        : VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.entityKamikotizing()), buffer);
+            }
+            return VertexMultiConsumer.create(bufferSource.getBuffer(armor ? MineraculousRenderTypes.armorKamikotizing() : MineraculousRenderTypes.itemKamikotizing()), buffer);
+        } else if (itemStack.has(MineraculousDataComponents.LUCKY_CHARM) && !itemStack.is(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE)) {
             if (entity) {
                 return itemStack.is(Items.SHIELD)
                         ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.shieldLuckyCharm()), buffer)

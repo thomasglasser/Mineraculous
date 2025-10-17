@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.api.world.miraculous;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
@@ -82,10 +83,6 @@ public record Miraculous(TextColor color, String acceptableSlot, Optional<Intege
         return tool.copy();
     }
 
-    public static String toLanguageKey(ResourceKey<Miraculous> key) {
-        return key.location().toLanguageKey(key.registry().getPath());
-    }
-
     public static TagKey<Item> createFoodsTag(ResourceKey<Miraculous> key) {
         return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(key.location().getNamespace(), "kwami_foods/" + key.location().getPath()));
     }
@@ -109,7 +106,7 @@ public record Miraculous(TextColor color, String acceptableSlot, Optional<Intege
         if (miraculous != null) {
             ResourceKey<Miraculous> key = miraculous.getKey();
             if (key != null) {
-                return Component.translatable(toLanguageKey(key)).append(" ").append(original).withColor(miraculous.value().color().getValue());
+                return Component.translatable(MineraculousConstants.toLanguageKey(key)).append(" ").append(original).withColor(miraculous.value().color().getValue());
             }
         }
         return original;

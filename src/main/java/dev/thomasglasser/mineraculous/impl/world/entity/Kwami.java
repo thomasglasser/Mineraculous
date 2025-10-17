@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
@@ -468,7 +469,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     @Override
     protected Component getTypeName() {
         if (name == null)
-            name = Component.translatable(Miraculous.toLanguageKey(getMiraculous().getKey())).append(" ").append(super.getTypeName());
+            name = Component.translatable(MineraculousConstants.toLanguageKey(getMiraculous().getKey())).append(" ").append(super.getTypeName());
         return name;
     }
 

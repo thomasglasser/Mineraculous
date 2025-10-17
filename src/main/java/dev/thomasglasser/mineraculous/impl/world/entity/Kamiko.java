@@ -12,7 +12,7 @@ import dev.thomasglasser.mineraculous.api.world.entity.ai.sensing.PlayerItemTemp
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
-import dev.thomasglasser.mineraculous.impl.network.ClientboundOpenKamikotizationSelectionScreenPayload;
+import dev.thomasglasser.mineraculous.impl.network.ClientboundBeginKamikotizationSelectionPayload;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncInventoryPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
@@ -74,6 +74,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     public static final ResourceLocation SPECTATOR_SHADER = MineraculousConstants.modLoc("shaders/post/kamiko.json");
     public static final Component CANT_KAMIKOTIZE_TRANSFORMED = Component.translatable("entity.mineraculous.kamiko.cant_kamikotize_transformed");
 
+    private static final EntityDataAccessor<Integer> DATA_POWER_LEVEL = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_NAME_COLOR = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Optional<ResourceLocation>> DATA_FACE_MASK_TEXTURE = SynchedEntityData.defineId(Kamiko.class, MineraculousEntityDataSerializers.OPTIONAL_RESOURCE_LOCATION.get());
 
@@ -88,8 +89,17 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
+        builder.define(DATA_POWER_LEVEL, 0);
         builder.define(DATA_NAME_COLOR, -1);
         builder.define(DATA_FACE_MASK_TEXTURE, Optional.empty());
+    }
+
+    public int getPowerLevel() {
+        return entityData.get(DATA_POWER_LEVEL);
+    }
+
+    public void setPowerLevel(int level) {
+        entityData.set(DATA_POWER_LEVEL, level);
     }
 
     public int getNameColor() {
@@ -261,7 +271,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
             player.getData(MineraculousAttachmentTypes.INVENTORY_TRACKERS).add(owner.getUUID());
             owner.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withSpectationInterrupted().save(owner, true);
             remove(RemovalReason.DISCARDED);
-            TommyLibServices.NETWORK.sendToClient(new ClientboundOpenKamikotizationSelectionScreenPayload(player.getUUID(), new KamikoData(getUUID(), getOwnerUUID(), getNameColor(), getFaceMaskTexture())), owner);
+            TommyLibServices.NETWORK.sendToClient(new ClientboundBeginKamikotizationSelectionPayload(player.getUUID(), new KamikoData(getUUID(), getOwnerUUID(), getPowerLevel(), getNameColor(), getFaceMaskTexture())), owner);
         }
     }
 
@@ -270,9 +280,12 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         super.setOwnerUUID(uuid);
         if (uuid != null && level() instanceof ServerLevel level) {
             if (level.getEntity(uuid) instanceof LivingEntity owner) {
-                List<Holder<Miraculous>> transformed = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed();
+                MiraculousesData miraculousesData = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                List<Holder<Miraculous>> transformed = miraculousesData.getTransformed();
                 if (!transformed.isEmpty()) {
-                    Miraculous value = transformed.getFirst().value();
+                    Holder<Miraculous> first = transformed.getFirst();
+                    setPowerLevel(miraculousesData.get(first).powerLevel() / 10);
+                    Miraculous value = first.value();
                     setNameColor(value.color().getValue());
                     SpectateEntityAbility ability = (SpectateEntityAbility) Ability.getFirstMatching(a -> a instanceof SpectateEntityAbility sEA && sEA.isValidEntity(level, owner, this), value, true);
                     if (ability != null) {
@@ -280,6 +293,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                     }
                 } else {
                     owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {
+                        setPowerLevel(data.kamikoData().powerLevel() / 10);
                         setNameColor(data.kamikoData().nameColor());
                         setFaceMaskTexture(data.kamikoData().faceMaskTexture());
                     });

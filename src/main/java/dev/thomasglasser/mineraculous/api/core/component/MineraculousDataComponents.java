@@ -11,6 +11,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Kamikotizing;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
@@ -70,10 +71,10 @@ public class MineraculousDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ButterflyCaneItem.Mode>> BUTTERFLY_CANE_MODE = DATA_COMPONENTS.register("butterfly_cane_mode", ButterflyCaneItem.Mode.STREAM_CODEC, ButterflyCaneItem.Mode.CODEC, true);
 
     // Abilities
-    /// The {@link LuckyCharm} data associated with the summoned stack.
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<LuckyCharm>> LUCKY_CHARM = DATA_COMPONENTS.register("lucky_charm", LuckyCharm.STREAM_CODEC, LuckyCharm.CODEC, false);
     /// A {@link UUID} registered to {@link AbilityReversionItemData} for ability reversion.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> REVERTIBLE_ITEM_ID = DATA_COMPONENTS.register("revertible_item_id", UUIDUtil.STREAM_CODEC, UUIDUtil.CODEC, false);
+    /// The {@link LuckyCharm} data associated with the summoned stack.
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<LuckyCharm>> LUCKY_CHARM = DATA_COMPONENTS.register("lucky_charm", LuckyCharm.STREAM_CODEC, LuckyCharm.CODEC, false);
 
     // Miraculous
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Holder<Miraculous>>> MIRACULOUS = DATA_COMPONENTS.register("miraculous", Miraculous.STREAM_CODEC, Miraculous.CODEC, false);
@@ -86,6 +87,7 @@ public class MineraculousDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Holder<Kamikotization>>> KAMIKOTIZATION = DATA_COMPONENTS.register("kamikotization", Kamikotization.STREAM_CODEC, Kamikotization.CODEC, false);
     /// The {@link KamikoData} holding information about the {@link Kamiko} associated with the stack.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<KamikoData>> KAMIKO_DATA = DATA_COMPONENTS.register("kamiko_data", KamikoData.STREAM_CODEC, KamikoData.CODEC, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Kamikotizing>> KAMIKOTIZING = DATA_COMPONENTS.register("kamikotizing", Kamikotizing.STREAM_CODEC, false);
 
     @ApiStatus.Internal
     public static void init() {}

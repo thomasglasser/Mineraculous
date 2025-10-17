@@ -124,7 +124,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                 }
                 if (stack.has(MineraculousDataComponents.POWERED)) {
                     stack.remove(MineraculousDataComponents.POWERED);
-                    Kwami kwami = MineraculousEntityUtils.summonKwami(stack.getOrDefault(MineraculousDataComponents.CHARGED, true), miraculousId, level, miraculous, entity);
+                    Kwami kwami = MineraculousEntityUtils.summonKwami(entity, stack.getOrDefault(MineraculousDataComponents.CHARGED, true), miraculousId, miraculous, true, null);
                     if (kwami != null) {
                         stack.set(MineraculousDataComponents.KWAMI_ID, kwami.getUUID());
                     } else {

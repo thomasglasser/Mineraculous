@@ -44,6 +44,7 @@ public class MineraculousClient {
         modBus.addListener(MineraculousClientEvents::onRegisterClientReloadListeners);
         modBus.addListener(MineraculousClientEvents::onRegisterRenderBuffers);
         modBus.addListener(MineraculousClientEvents::onRegisterClientExtensions);
+        modBus.addListener(MineraculousClientEvents::onRegisterClientTooltipComponentFactories);
         modBus.addListener(MineraculousClientEvents::onRegisterGuiLayers);
         modBus.addListener(MineraculousClientEvents::onConfigChanged);
 

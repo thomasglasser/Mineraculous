@@ -31,6 +31,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -114,31 +115,43 @@ public class MineraculousEntityUtils {
     }
 
     /**
-     * Summons a {@link Kwami} with the provided charge, miraculous ID, and miraculous in the provided level.
+     * Summons a {@link Kwami} with the provided charge, miraculous ID, and miraculous for the provided owner.
      *
-     * @param charged      Whether the kwami is charged
-     * @param miraculousId The related miraculous item {@link UUID}
-     * @param level        The level to summon the kwami in
-     * @param miraculous   The miraculous of the kwami
-     * @param owner        The owner of the kwami
+     * @param owner         The owner of the kwami
+     * @param charged       Whether the kwami is charged
+     * @param miraculousId  The related miraculous item {@link UUID}
+     * @param miraculous    The miraculous of the kwami
+     * @param playAnimation Whether to play the kwami summon animation
      * @return The summoned kwami
      */
-    public static Kwami summonKwami(boolean charged, UUID miraculousId, ServerLevel level, Holder<Miraculous> miraculous, Entity owner) {
+    public static Kwami summonKwami(Entity owner, boolean charged, UUID miraculousId, Holder<Miraculous> miraculous, boolean playAnimation, @Nullable UUID uuidOverride) {
+        Level level = owner.level();
         Kwami kwami = MineraculousEntityTypes.KWAMI.get().create(level);
         if (kwami != null) {
-            kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt());
+            kwami.setCharged(charged);
             kwami.setMiraculous(miraculous);
             kwami.setMiraculousId(miraculousId);
-            kwami.setCharged(charged);
-            kwami.setPos(owner.position());
             if (owner instanceof Player player) {
                 kwami.tame(player);
             } else {
                 kwami.setOwnerUUID(owner.getUUID());
                 kwami.setTame(true, true);
             }
+            kwami.setYRot(owner.getYRot() + 180);
+            kwami.setYHeadRot(owner.getYRot() + 180);
+            if (playAnimation) {
+                kwami.moveTo(owner.position());
+                kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt());
+                kwami.playSound(MineraculousSoundEvents.KWAMI_SUMMON.get());
+            } else {
+                Vec3 ownerPos = owner.position();
+                Vec3 lookDirection = owner.getLookAngle();
+                Vec3 kwamiPos = ownerPos.add(lookDirection.scale(1.5));
+                kwami.moveTo(kwamiPos.x, owner.getEyeY(), kwamiPos.z);
+            }
+            if (uuidOverride != null)
+                kwami.setUUID(uuidOverride);
             level.addFreshEntity(kwami);
-            kwami.playSound(MineraculousSoundEvents.KWAMI_SUMMON.get());
             return kwami;
         }
         return null;

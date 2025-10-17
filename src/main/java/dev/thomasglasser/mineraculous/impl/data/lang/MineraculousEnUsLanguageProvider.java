@@ -43,10 +43,12 @@ import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
+import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
+import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiFoods;
 import dev.thomasglasser.tommylib.api.data.lang.ExtendedEnUsLanguageProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
@@ -129,6 +131,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousItems.MACARON.get(), "Macaron");
         add(MineraculousBlocks.HIBISCUS_BUSH.asItem(), "Hibiscus");
 
+        add(KwamiItem.CHARGED, "Charged");
+        add(KwamiItem.NOT_CHARGED, "Not Charged");
+
         // Tool Modes
         addRadialMenuOptions(LadybugYoyoItem.Mode.values());
         addRadialMenuOptions(CatStaffItem.Mode.values());
@@ -143,6 +148,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(Active.PRESS_KEY_TO_TOGGLE, "Press %s to %s");
         add(Active.ACTIVATE, "Activate");
         add(Active.DEACTIVATE, "Deactivate");
+
+        add(KwamiFoods.FOODS, "Foods:");
+        add(KwamiFoods.TREATS, "Treats:");
     }
 
     private void addBlocks() {
@@ -192,8 +200,6 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.CUSTOMIZE_OPEN_SUCCESS_SELF, "Opening %s miraculous look customization screen.");
         add(MiraculousCommand.CUSTOMIZE_OPEN_SUCCESS_OTHER, "Opening %s miraculous look customization screen for %s.");
         // Charged
-        add(MiraculousCommand.CHARGED_TRUE, "charged");
-        add(MiraculousCommand.CHARGED_FALSE, "not charged");
         add(MiraculousCommand.CHARGED_QUERY_SUCCESS_SELF, "Your %s kwami is %s.");
         add(MiraculousCommand.CHARGED_QUERY_SUCCESS_OTHER, "%s's %s kwami is %s.");
         add(MiraculousCommand.CHARGED_SET_SUCCESS_SELF, "Set charged state of %s kwami to %s");
@@ -244,6 +250,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(ExternalInventoryScreen.ITEM_BOUND_KEY, "This item is bound to the player.");
         add(MineraculousItemUtils.ITEM_UNBREAKABLE_KEY, "This item is unbreakable by normal means.");
         add(MineraculousItemUtils.KAMIKOTIZED_ITEM_UNBREAKABLE_KEY, "You feel compelled to leave this item unbroken.");
+
+        // Miraculous Data
+        add(MiraculousData.KWAMI_NOT_FOUND, "%s Kwami not found in the world.");
 
         // Kamiko Gui
         add(KamikoTargetPlayerMenuCategory.TARGET_PROMPT, "Select a player to target");

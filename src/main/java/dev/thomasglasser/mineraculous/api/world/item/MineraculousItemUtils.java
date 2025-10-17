@@ -91,9 +91,12 @@ public class MineraculousItemUtils {
                 }
                 hurtAndBreak(stack, damage, level, breaker, EquipmentSlot.MAINHAND);
             } else {
+                if (breaker != null) {
+                    breaker.onEquippedItemBroken(stack.getItem(), EquipmentSlot.MAINHAND);
+                }
+                level.playSound(null, new BlockPos((int) pos.x, (int) pos.y, (int) pos.z), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1f, 1f);
                 Kamikotization.checkBroken(stack, level, pos);
                 stack.shrink(1);
-                level.playSound(null, new BlockPos((int) pos.x, (int) pos.y, (int) pos.z), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1f, 1f);
             }
         }
         return Pair.of(stack, rest);

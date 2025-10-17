@@ -8,16 +8,21 @@ import dev.thomasglasser.mineraculous.api.world.inventory.tooltip.LabeledItemTag
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.KwamiItemRenderer;
+import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiFoods;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -104,6 +109,55 @@ public class KwamiItem extends Item implements GeoItem {
 
         if (!level.isClientSide() && !stack.has(MineraculousDataComponents.MIRACULOUS)) {
             stack.set(MineraculousDataComponents.MIRACULOUS, level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getAny().orElse(null));
+        }
+
+        // Inventory Interaction
+        if (entity.tickCount % SharedConstants.TICKS_PER_SECOND == 0 && entity instanceof ServerPlayer player) {
+            boolean interact = (MineraculousServerConfig.get().kwamiItemInventoryInteractionChance.getAsDouble() / 100.0) >= level.random.nextDouble();
+            if (interact) {
+                KwamiFoods kwamiFoods = stack.get(MineraculousDataComponents.KWAMI_FOODS);
+                if (MineraculousServerConfig.get().enableKwamiItemCharging.getAsBoolean() && !stack.getOrDefault(MineraculousDataComponents.CHARGED, true) && kwamiFoods != null) {
+                    // Eat and charge
+                    for (ItemStack s : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
+                        if (s.is(kwamiFoods.foods()) || s.is(kwamiFoods.treats())) {
+                            if (s.is(kwamiFoods.treats()) || (s.is(kwamiFoods.foods()) && level.random.nextInt(3) == 0)) {
+                                stack.set(MineraculousDataComponents.CHARGED, true);
+                            }
+                            s.shrink(1);
+                            break;
+                        }
+                    }
+                } else {
+                    if (MineraculousServerConfig.get().enableKwamiItemMoving.getAsBoolean() && level.random.nextBoolean()) {
+                        // Move to random empty spot
+                        int current = player.getInventory().items.indexOf(stack);
+                        IntList emptySlots = new IntArrayList();
+                        for (int i = 0; i < player.getInventory().items.size(); i++) {
+                            if (i != current && player.getInventory().items.get(i).isEmpty()) {
+                                emptySlots.add(i);
+                            }
+                        }
+                        int slot = emptySlots.getInt(level.random.nextInt(emptySlots.size()));
+                        player.getInventory().items.set(slot, stack.copy());
+                        stack.setCount(0);
+                    } else if (MineraculousServerConfig.get().enableKwamiItemSwapping.getAsBoolean() && level.random.nextBoolean()) {
+                        // Move to random filled spot and swap item
+                        int current = player.getInventory().items.indexOf(stack);
+                        IntList filledSlots = new IntArrayList();
+                        for (int i = 0; i < player.getInventory().items.size(); i++) {
+                            if (i != current && !player.getInventory().items.get(i).isEmpty()) {
+                                filledSlots.add(i);
+                            }
+                        }
+                        int slot = filledSlots.getInt(level.random.nextInt(filledSlots.size()));
+                        ItemStack other = player.getInventory().items.get(slot);
+                        player.getInventory().items.set(slot, stack.copy());
+                        player.getInventory().items.set(current, other.copy());
+                        stack.setCount(0);
+                        other.setCount(0);
+                    }
+                }
+            }
         }
     }
 

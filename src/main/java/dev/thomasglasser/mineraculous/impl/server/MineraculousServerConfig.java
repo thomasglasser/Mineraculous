@@ -12,6 +12,10 @@ public class MineraculousServerConfig {
     public final ModConfigSpec.BooleanValue enableCustomization;
     public final ModConfigSpec.EnumValue<PermissionMode> customizationPermissionsMode;
     public final ModConfigSpec.IntValue kwamiSummonTime;
+    public final ModConfigSpec.DoubleValue kwamiItemInventoryInteractionChance;
+    public final ModConfigSpec.BooleanValue enableKwamiItemCharging;
+    public final ModConfigSpec.BooleanValue enableKwamiItemMoving;
+    public final ModConfigSpec.BooleanValue enableKwamiItemSwapping;
     public final ModConfigSpec.BooleanValue enableMiraculousTimer;
     public final ModConfigSpec.IntValue miraculousTimerDuration;
     public final ModConfigSpec.BooleanValue enableLimitedPower;
@@ -38,6 +42,14 @@ public class MineraculousServerConfig {
                 .defineEnum("customization_permission_mode", PermissionMode.WHITELIST);
         kwamiSummonTime = builder
                 .defineInRange("kwami_summon_time", 2, 1, 60);
+        kwamiItemInventoryInteractionChance = builder
+                .defineInRange("kwami_item_inventory_interaction_chance", 1.0, 0, 100);
+        enableKwamiItemCharging = builder
+                .define("enable_kwami_item_charging", true);
+        enableKwamiItemMoving = builder
+                .define("enable_kwami_item_moving", true);
+        enableKwamiItemSwapping = builder
+                .define("enable_kwami_item_swapping", true);
         enableMiraculousTimer = builder
                 .define("enable_miraculous_timer", true);
         miraculousTimerDuration = builder

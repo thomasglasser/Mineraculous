@@ -19,9 +19,6 @@ import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -30,6 +27,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Reverts the ability effects of the {@link LuckyCharm} target and related entities.
@@ -52,9 +53,15 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                         AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
                         for (UUID relatedId : entityData.getAndClearTrackedAndRelatedEntities(target)) {
                             Entity r = level.getEntity(relatedId);
+                            /*
+                            TODO create an array for block targets and an array for entity targets.
+                             Probably iterate through all related livingEntities and add the targets in
+                             the arrays declared here. I still have to work on gradually fixing things, which
+                             I think requires refactoring the .revert method and it should be called somewhere else.
+                             */
                             if (r instanceof LivingEntity related) {
                                 //TODO rework on this when adding the summoning visual
-                                List<BlockPos> blockTargets = getBlockTargets(level, relatedId);
+                                List<BlockPos> blockTargets = getBlockTargets(level, relatedId); //TEMPORARY, the final arrays should hold every related entity's revert data.
                                 blockTargets = MineraculousMathUtils.reduceNearbyBlocks(blockTargets);
                                 if (blockTargets != null && !blockTargets.isEmpty()) {
                                     MiraculousLadybug miraculousLadybug1 = new MiraculousLadybug(MineraculousEntityTypes.MIRACULOUS_LADYBUG.get(), level);

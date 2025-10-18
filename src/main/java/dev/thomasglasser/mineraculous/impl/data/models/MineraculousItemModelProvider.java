@@ -76,6 +76,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         basicItem(MineraculousBlocks.HIBISCUS_BUSH.asItem());
 
         basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK);
+        basicBlockItem(MineraculousBlocks.OVEN);
 
         MineraculousBlocks.CHEESE.forEach((age, block) -> withBitesOverrides(block, basicBlockItem(block)));
         MineraculousBlocks.WAXED_CHEESE.forEach((age, block) -> withBitesOverrides(MineraculousBlocks.CHEESE.get(age), withExistingParent(block.getId().getPath(), MineraculousBlocks.CHEESE.get(age).getId().withPrefix("block/"))));

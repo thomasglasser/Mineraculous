@@ -12,6 +12,7 @@ import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import java.util.Objects;
 import java.util.SortedMap;
 import net.minecraft.data.PackOutput;
+import net.minecraft.world.level.block.FurnaceBlock;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
@@ -31,6 +32,13 @@ public class MineraculousBlockStateProvider extends ExtendedBlockStateProvider {
         cheese(MineraculousBlocks.CAMEMBERT, MineraculousBlocks.WAXED_CAMEMBERT, "camembert");
 
         simpleBlock(MineraculousBlocks.CHEESE_POT.get(), models().getExistingFile(blockLoc(MineraculousBlocks.CHEESE_POT)));
+        getVariantBuilder(MineraculousBlocks.OVEN.get()).forAllStates(state -> {
+            boolean lit = state.getValue(FurnaceBlock.LIT);
+            return ConfiguredModel.builder()
+                    .modelFile(lit ? models().withExistingParent(MineraculousBlocks.OVEN.getId().getPath() + "_on", "block/furnace_on") : models().withExistingParent(MineraculousBlocks.OVEN.getId().getPath(), "block/furnace"))
+                    .rotationY((int) state.getValue(FurnaceBlock.FACING).getOpposite().toYRot())
+                    .build();
+        });
 
         getVariantBuilder(MineraculousBlocks.HIBISCUS_BUSH.get()).forAllStates(state -> {
             int stage = state.getValue(SweetBerryBushBlock.AGE);

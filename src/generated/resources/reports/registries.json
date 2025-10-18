@@ -24,6 +24,7 @@
     "mineraculous:fresh_camembert_block",
     "mineraculous:fresh_cheese_block",
     "mineraculous:hibiscus_bush",
+    "mineraculous:oven",
     "mineraculous:ripened_camembert_block",
     "mineraculous:ripened_cheese_block",
     "mineraculous:time_honored_camembert_block",
@@ -38,6 +39,9 @@
     "mineraculous:waxed_ripened_cheese_block",
     "mineraculous:waxed_time_honored_camembert_block",
     "mineraculous:waxed_time_honored_cheese_block"
+  ],
+  "minecraft:block_entity_type": [
+    "mineraculous:oven"
   ],
   "minecraft:creative_mode_tab": [
     "mineraculous:kamikotizables",
@@ -119,6 +123,7 @@
     "mineraculous:miraculous_chestplate",
     "mineraculous:miraculous_leggings",
     "mineraculous:miraculous_mask",
+    "mineraculous:oven",
     "mineraculous:raw_macaron",
     "mineraculous:ripened_camembert_block",
     "mineraculous:ripened_camembert_wedge",
@@ -155,6 +160,9 @@
   "minecraft:loot_number_provider_type": [
     "mineraculous:power_level_multiplier"
   ],
+  "minecraft:menu": [
+    "mineraculous:oven"
+  ],
   "minecraft:mob_effect": [
     "mineraculous:cataclysm"
   ],
@@ -177,8 +185,13 @@
   "minecraft:recipe_serializer": [
     "mineraculous:campfire_cooking_transmute",
     "mineraculous:crafting_special_cheesewedge",
+    "mineraculous:oven",
+    "mineraculous:oven_transmute",
     "mineraculous:smelting_transmute",
     "mineraculous:smoking_transmute"
+  ],
+  "minecraft:recipe_type": [
+    "mineraculous:oven"
   ],
   "minecraft:sensor_type": [
     "mineraculous:player_item_tempting"

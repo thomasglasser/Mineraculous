@@ -14,10 +14,13 @@ import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSer
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.sensing.MineraculousSensorTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.npc.MineraculousVillagerProfessions;
+import dev.thomasglasser.mineraculous.api.world.inventory.MineraculousMenuTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmorMaterials;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.api.world.item.crafting.MineraculousRecipeTypes;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
+import dev.thomasglasser.mineraculous.api.world.level.block.entity.MineraculousBlockEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.level.storage.loot.parameters.MineraculousLootContextParamSets;
 import dev.thomasglasser.mineraculous.impl.commands.MineraculousCommandEvents;
 import dev.thomasglasser.mineraculous.impl.core.MineraculousCoreEvents;
@@ -60,8 +63,11 @@ public class Mineraculous {
         MineraculousEntityTypes.init();
         MineraculousParticleTypes.init();
         MineraculousBlocks.init();
+        MineraculousBlockEntityTypes.init();
+        MineraculousMenuTypes.init();
         MineraculousArmorMaterials.init();
         MineraculousDataComponents.init();
+        MineraculousRecipeTypes.init();
         MineraculousRecipeSerializers.init();
         MineraculousAttachmentTypes.init();
         MineraculousEntityDataSerializers.init();

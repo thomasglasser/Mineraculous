@@ -8,6 +8,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "geckolib.renderer.GeoRendererMixin",
+    "minecraft.data.recipes.SimpleCookingRecipeBuilderMixin",
     "minecraft.server.level.ServerLevelMixin",
     "minecraft.server.level.ServerPlayer$1Mixin",
     "minecraft.server.level.ServerPlayer$2Mixin",

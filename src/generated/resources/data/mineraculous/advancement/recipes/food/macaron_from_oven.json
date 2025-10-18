@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_raw_macaron": {
+      "conditions": {
+        "items": [
+          {
+            "items": "mineraculous:raw_macaron"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "mineraculous:macaron_from_oven"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_raw_macaron"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "mineraculous:macaron_from_oven"
+    ]
+  }
+}

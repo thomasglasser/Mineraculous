@@ -71,6 +71,33 @@
         "class": "dev/thomasglasser/mineraculous/api/world/item/MineraculousItemDisplayContexts",
         "field": "CURIOS_RIGHT_LEG"
       }
+    },
+    {
+      "enum": "net/minecraft/world/inventory/RecipeBookType",
+      "name": "MINERACULOUS_OVEN",
+      "constructor": "()V",
+      "parameters": {
+        "class": "dev/thomasglasser/mineraculous/impl/world/inventory/MineraculousRecipeBookTypes",
+        "field": "OVEN"
+      }
+    },
+    {
+      "enum": "net/minecraft/client/RecipeBookCategories",
+      "name": "MINERACULOUS_OVEN_SEARCH",
+      "constructor": "(Ljava/util/function/Supplier;)V",
+      "parameters": {
+        "class": "dev/thomasglasser/mineraculous/api/client/MineraculousRecipeBookCategories",
+        "field": "OVEN_SEARCH"
+      }
+    },
+    {
+      "enum": "net/minecraft/client/RecipeBookCategories",
+      "name": "MINERACULOUS_OVEN_FOOD",
+      "constructor": "(Ljava/util/function/Supplier;)V",
+      "parameters": {
+        "class": "dev/thomasglasser/mineraculous/api/client/MineraculousRecipeBookCategories",
+        "field": "OVEN_FOOD"
+      }
     }
   ]
 }

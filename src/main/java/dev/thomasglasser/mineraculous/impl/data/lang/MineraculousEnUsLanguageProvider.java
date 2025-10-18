@@ -33,9 +33,12 @@ import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.Kam
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.KamikotizationSelectionScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.PerformerKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
+import dev.thomasglasser.mineraculous.impl.client.gui.screens.recipebook.OvenRecipeBookComponent;
 import dev.thomasglasser.mineraculous.impl.data.MineraculousDataGenerators;
 import dev.thomasglasser.mineraculous.impl.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundWakeUpPayload;
+import dev.thomasglasser.mineraculous.impl.plugins.jade.OvenProvider;
+import dev.thomasglasser.mineraculous.impl.plugins.jei.MineraculousJeiPlugin;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.server.commands.MiraculousCommand;
 import dev.thomasglasser.mineraculous.impl.server.packs.repository.MineraculousPackCompatibility;
@@ -47,6 +50,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
+import dev.thomasglasser.mineraculous.impl.world.level.block.entity.OvenBlockEntity;
 import dev.thomasglasser.tommylib.api.data.lang.ExtendedEnUsLanguageProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
@@ -54,6 +58,7 @@ import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
 import java.util.Map;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.ItemNameBlockItem;
+import snownee.jade.api.IJadeProvider;
 
 public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvider {
     public MineraculousEnUsLanguageProvider(PackOutput output) {
@@ -112,6 +117,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         }
     }
 
+    protected void add(IJadeProvider provider, String name) {
+        add("config.jade.plugin_" + provider.getUid().getNamespace() + "." + provider.getUid().getPath(), name);
+    }
+
     private void add(MineraculousPackCompatibility compatibility, String description, String confirmation) {
         add(compatibility.getDescription(), description);
         add(compatibility.getConfirmation(), confirmation);
@@ -147,6 +156,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     private void addBlocks() {
         add(MineraculousBlocks.CATACLYSM_BLOCK.get(), "Block of Cataclysm");
         add(MineraculousBlocks.CHEESE_POT.get(), "Cheese Pot");
+        add(MineraculousBlocks.OVEN.get(), "Oven");
         add(MineraculousBlocks.HIBISCUS_BUSH.get(), "Hibiscus Bush");
 
         cheese(MineraculousItems.CHEESE, MineraculousItems.WAXED_CHEESE, MineraculousBlocks.CHEESE, MineraculousBlocks.WAXED_CHEESE, "Cheese");
@@ -238,6 +248,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousClientUtils.GUI_CHOOSE, "Choose");
         add(MineraculousClientUtils.GUI_NAME, "Name");
 
+        // Block Entity Screens
+        add(OvenBlockEntity.NAME, "Oven");
+        add(OvenRecipeBookComponent.FILTER_NAME, "Showing Ovenable");
+
         // Taking/Breaking
         add(ServerboundWakeUpPayload.STEALING_WARNING, "You may not rest now, there are thieves nearby.");
         add(ExternalInventoryScreen.ITEM_BOUND_KEY, "This item is bound to the player.");
@@ -274,6 +288,12 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousTransferScreen.TITLE, "Miraculous Transfer");
         add(MiraculousEligiblePlayerEntry.RENOUNCE, "Renounce");
         add(MiraculousEligiblePlayerEntry.TRANSFER, "Transfer");
+
+        // JEI
+        add(MineraculousJeiPlugin.OVEN_CATEGORY, "Oven");
+
+        // Jade
+        add(OvenProvider.INSTANCE, "Oven");
     }
 
     private void addDamageTypes() {

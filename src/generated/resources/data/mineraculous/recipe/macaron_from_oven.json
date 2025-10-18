@@ -1,0 +1,10 @@
+{
+  "type": "mineraculous:oven_transmute",
+  "category": "food",
+  "cookingtime": 400,
+  "experience": 0.35,
+  "ingredient": {
+    "item": "mineraculous:raw_macaron"
+  },
+  "result": "mineraculous:macaron"
+}

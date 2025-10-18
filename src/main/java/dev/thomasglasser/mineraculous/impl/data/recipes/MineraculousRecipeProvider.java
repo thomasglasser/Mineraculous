@@ -29,6 +29,8 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
@@ -49,13 +51,26 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
     }
 
     protected void buildCrafting(RecipeOutput recipeOutput) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, MineraculousBlocks.CHEESE_POT.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, MineraculousBlocks.CHEESE_POT)
                 .pattern("I I")
                 .pattern("ICI")
                 .pattern("III")
                 .define('I', ConventionalItemTags.IRON_INGOTS)
                 .define('C', MineraculousItemTags.CHEESE_BLOCKS)
-                .unlockedBy("has_cheese_blocks", has(MineraculousItemTags.CHEESE_BLOCKS))
+                .unlockedBy(getHasName(ConventionalItemTags.IRON_INGOTS), has(ConventionalItemTags.IRON_INGOTS))
+                .unlockedBy(getHasName(MineraculousItemTags.CHEESE_BLOCKS), has(MineraculousItemTags.CHEESE_BLOCKS))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, MineraculousBlocks.OVEN)
+                .pattern("III")
+                .pattern("IFI")
+                .pattern("PPP")
+                .define('I', ConventionalItemTags.IRON_INGOTS)
+                .define('F', Items.FURNACE)
+                .define('P', ItemTags.PLANKS)
+                .unlockedBy(getHasName(ConventionalItemTags.IRON_INGOTS), has(ConventionalItemTags.IRON_INGOTS))
+                .unlockedBy(getHasName(Items.FURNACE), has(Items.FURNACE))
+                .unlockedBy(getHasName(ItemTags.PLANKS), has(ItemTags.PLANKS))
                 .save(recipeOutput);
 
         // Cheese
@@ -76,6 +91,18 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
         simpleTransmuteSmokingRecipe(recipeOutput, MineraculousItems.RAW_MACARON, MineraculousItems.MACARON, 0.35f);
         simpleTransmuteCampfireCookingRecipe(recipeOutput, MineraculousItems.RAW_MACARON, MineraculousItems.MACARON, 0.35f);
         simpleTransmuteOvenRecipe(recipeOutput, MineraculousItems.RAW_MACARON, MineraculousItems.MACARON, 0.35f);
+    }
+
+    protected static String getHasName(TagKey<?> tag) {
+        String[] split = tag.location().getPath().split("/");
+        StringBuilder builder = new StringBuilder();
+        builder.append("has_");
+        for (int i = split.length - 1; i >= 0; i--) {
+            builder.append(split[i]);
+            if (i > 0)
+                builder.append("_");
+        }
+        return builder.toString();
     }
 
     protected static void simpleTransmuteSmeltingRecipe(RecipeOutput recipeOutput, ItemLike ingredient, ItemLike result, float experience) {

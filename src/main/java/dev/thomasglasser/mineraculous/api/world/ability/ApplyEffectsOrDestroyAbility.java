@@ -103,18 +103,6 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
     }
 
     @Override
-    public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
-        AbilityReversionEntityData.get(level).revert(performer.getUUID(), level, entity -> {
-            if (entity instanceof LivingEntity livingEntity) {
-                for (Holder<MobEffect> effect : effects) {
-                    livingEntity.removeEffect(effect);
-                }
-            }
-        });
-        AbilityReversionItemData.get(level).markReverted(performer.getUUID());
-    }
-
-    @Override
     public MapCodec<? extends Ability> codec() {
         return AbilitySerializers.APPLY_EFFECTS_OR_DESTROY.get();
     }

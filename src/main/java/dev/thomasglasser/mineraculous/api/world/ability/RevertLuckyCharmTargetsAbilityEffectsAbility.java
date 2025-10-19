@@ -1,36 +1,34 @@
 package dev.thomasglasser.mineraculous.api.world.ability;
 
+import com.google.common.collect.Multimap;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
-import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.api.world.item.EffectRevertingItem;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBlockData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
-import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
-
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Reverts the ability effects of the {@link LuckyCharm} target and related entities.
@@ -51,15 +49,11 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                 if (luckyCharm.owner().equals(performerId)) {
                     luckyCharm.target().ifPresent(target -> {
                         AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
-                        for (UUID relatedId : entityData.getAndClearTrackedAndRelatedEntities(target)) {
-                            Entity r = level.getEntity(relatedId);
-                            /*
-                            TODO create an array for block targets and an array for entity targets.
-                             Probably iterate through all related livingEntities and add the targets in
-                             the arrays declared here. I still have to work on gradually fixing things, which
-                             I think requires refactoring the .revert method and it should be called somewhere else.
-                             */
-                            if (r instanceof LivingEntity related) {
+                        Set<UUID> toRevert = new ReferenceOpenHashSet<>();
+                        toRevert.add(performerId);
+                        collectToRevert(target, entityData, toRevert);
+                        for (UUID relatedId : toRevert) {
+                            if (level.getEntity(relatedId) instanceof LivingEntity related) {
                                 //TODO rework on this when adding the summoning visual
                                 List<BlockPos> blockTargets = getBlockTargets(level, relatedId); //TEMPORARY, the final arrays should hold every related entity's revert data.
                                 blockTargets = MineraculousMathUtils.reduceNearbyBlocks(blockTargets);
@@ -71,23 +65,28 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                                     targetData.save(miraculousLadybug1, true);
                                 }
 
-                                related.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization).or(() -> related.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION)).ifPresent(kamikotization -> {
-                                    Kamikotization value = kamikotization.value();
-                                    AbilityData abilityData = new AbilityData(0, false);
-                                    value.powerSource().ifLeft(tool -> {
-                                        if (tool.getItem() instanceof EffectRevertingItem item) {
-                                            item.revert(related);
-                                        }
-                                    }).ifRight(ability -> ability.value().revert(abilityData, level, related));
-                                    value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related));
-                                });
-                                MiraculousesData miraculousesData = related.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                                for (Holder<Miraculous> miraculous : miraculousesData.keySet()) {
-                                    Miraculous value = miraculous.value();
-                                    AbilityData abilityData = new AbilityData(miraculousesData.get(miraculous).powerLevel(), false);
-                                    value.activeAbility().value().revert(abilityData, level, related);
-                                    value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related));
-                                }
+                                Multimap<ResourceKey<Level>, Vec3> entityPositions = entityData.getReversionPositions(relatedId);
+                                Multimap<ResourceKey<Level>, BlockPos> blockPositions = AbilityReversionBlockData.get(level).getReversionPositions(relatedId);
+                                // TODO: Do something with the positions
+
+                                // TODO: Move this to ML when the actual reversion happens
+//                                related.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization).or(() -> related.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION)).ifPresent(kamikotization -> {
+//                                    Kamikotization value = kamikotization.value();
+//                                    AbilityData abilityData = new AbilityData(0, false);
+//                                    value.powerSource().ifLeft(tool -> {
+//                                        if (tool.getItem() instanceof EffectRevertingItem item) {
+//                                            item.revert(related);
+//                                        }
+//                                    }).ifRight(ability -> ability.value().revert(abilityData, level, related, ));
+//                                    value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related, ));
+//                                });
+//                                MiraculousesData miraculousesData = related.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+//                                for (Holder<Miraculous> miraculous : miraculousesData.keySet()) {
+//                                    Miraculous value = miraculous.value();
+//                                    AbilityData abilityData = new AbilityData(miraculousesData.get(miraculous).powerLevel(), false);
+//                                    value.activeAbility().value().revert(abilityData, level, related, );
+//                                    value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related, ));
+//                                }
                             }
                         }
                     });
@@ -98,6 +97,15 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
             }
         }
         return State.FAIL;
+    }
+
+    private void collectToRevert(UUID uuid, AbilityReversionEntityData entityData, Set<UUID> toRevert) {
+        for (UUID related : entityData.getAndClearTrackedAndRelatedEntities(uuid)) {
+            if (!toRevert.contains(related)) {
+                toRevert.add(related);
+                collectToRevert(related, entityData, toRevert);
+            }
+        }
     }
 
     @Override

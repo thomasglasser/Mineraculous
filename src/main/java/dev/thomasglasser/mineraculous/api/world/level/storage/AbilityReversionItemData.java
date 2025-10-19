@@ -47,50 +47,65 @@ public class AbilityReversionItemData extends SavedData {
     }
 
     public void tick(Entity entity) {
+        if (entity.tickCount % 10 == 0) {
+            if (checkReverted(entity)) {
+                // TODO: Miraculous Ladybug visual?
+            }
+        }
+    }
+
+    public boolean checkReverted(Entity entity) {
+        boolean reverted = false;
         if (entity instanceof LivingEntity livingEntity) {
             if (livingEntity instanceof Player player) {
                 Inventory inventory = player.getInventory();
-                checkReverted(inventory.items, inventory);
+                if (checkReverted(inventory.items, inventory))
+                    reverted = true;
             } else if (livingEntity instanceof InventoryCarrier carrier) {
                 SimpleContainer inventory = carrier.getInventory();
-                checkReverted(inventory.getItems(), inventory);
+                if (checkReverted(inventory.getItems(), inventory))
+                    reverted = true;
             }
             for (EquipmentSlot slot : EquipmentSlot.values()) {
                 ItemStack stack = livingEntity.getItemBySlot(slot);
                 ItemStack recovered = checkReverted(stack);
                 if (recovered != null) {
                     livingEntity.setItemSlot(slot, recovered);
-                    stack.setCount(0);
+                    reverted = true;
                 }
             }
             List<Map.Entry<CuriosData, ItemStack>> curios = new ReferenceArrayList<>(CuriosUtils.getAllItems(livingEntity).entrySet());
-            checkReverted(curios.size(), i -> curios.get(i).getValue(), (i, stack) -> {
+            if (checkReverted(curios.size(), i -> curios.get(i).getValue(), (i, stack) -> {
                 CuriosData curiosData = curios.get(i).getKey();
                 CuriosUtils.setStackInSlot(livingEntity, curiosData, stack);
-            });
+            }))
+                reverted = true;
         } else if (entity instanceof ItemEntity itemEntity) {
             ItemStack stack = itemEntity.getItem();
             ItemStack recovered = checkReverted(stack);
             if (recovered != null) {
                 itemEntity.setItem(recovered);
-                stack.setCount(0);
+                reverted = true;
             }
         }
+        return reverted;
     }
 
-    private void checkReverted(int size, Function<Integer, ItemStack> getter, BiConsumer<Integer, ItemStack> setter) {
+    private boolean checkReverted(int size, Function<Integer, ItemStack> getter, BiConsumer<Integer, ItemStack> setter) {
+        boolean reverted = false;
         for (int i = 0; i < size; i++) {
             ItemStack stack = getter.apply(i);
             ItemStack recovered = checkReverted(stack);
             if (recovered != null) {
                 setter.accept(i, recovered);
-                stack.setCount(0);
+                reverted = true;
             }
         }
+        return reverted;
     }
 
-    private void checkReverted(NonNullList<ItemStack> items, Container container) {
-        checkReverted(items.size(), container::getItem, container::setItem);
+    private boolean checkReverted(NonNullList<ItemStack> items, Container container) {
+        return checkReverted(items.size(), container::getItem, container::setItem);
     }
 
     public ItemStack checkReverted(ItemStack itemStack) {

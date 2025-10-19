@@ -26,10 +26,13 @@ public record MiraculousAbilityHandler(Holder<Miraculous> miraculous) implements
     }
 
     @Override
-    public @Nullable UUID getAndAssignBlame(ItemStack stack, LivingEntity performer) {
-        UUID id = performer.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).curiosData().map(curiosData -> CuriosUtils.getStackInSlot(performer, curiosData).get(MineraculousDataComponents.MIRACULOUS_ID)).orElse(null);
-        stack.set(MineraculousDataComponents.MIRACULOUS_ID, id);
-        return id;
+    public @Nullable UUID getBlame(LivingEntity performer) {
+        return performer.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).curiosData().map(curiosData -> CuriosUtils.getStackInSlot(performer, curiosData).get(MineraculousDataComponents.MIRACULOUS_ID)).orElse(null);
+    }
+
+    @Override
+    public void assignBlame(UUID blame, ItemStack stack, LivingEntity performer) {
+        stack.set(MineraculousDataComponents.MIRACULOUS_ID, blame);
     }
 
     @Override

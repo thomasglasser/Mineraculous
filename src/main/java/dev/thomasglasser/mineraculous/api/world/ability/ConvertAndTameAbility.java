@@ -65,11 +65,6 @@ public record ConvertAndTameAbility(EntityType<?> newType, Optional<EntityPredic
     }
 
     @Override
-    public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
-        AbilityReversionEntityData.get(level).revertConversions(performer.getUUID(), level);
-    }
-
-    @Override
     public MapCodec<? extends Ability> codec() {
         return AbilitySerializers.CONVERT_AND_TAME.get();
     }

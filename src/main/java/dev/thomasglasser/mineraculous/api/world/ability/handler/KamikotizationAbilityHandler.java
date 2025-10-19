@@ -24,9 +24,13 @@ public record KamikotizationAbilityHandler(Holder<Kamikotization> kamikotization
     }
 
     @Override
-    public UUID getAndAssignBlame(ItemStack stack, LivingEntity performer) {
-        stack.set(MineraculousDataComponents.KAMIKOTIZATION, kamikotization);
+    public UUID getBlame(LivingEntity performer) {
         return performer.getUUID();
+    }
+
+    @Override
+    public void assignBlame(UUID blame, ItemStack stack, LivingEntity performer) {
+        stack.set(MineraculousDataComponents.KAMIKOTIZATION, kamikotization);
     }
 
     @Override

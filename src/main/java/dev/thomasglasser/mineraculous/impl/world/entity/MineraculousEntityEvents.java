@@ -336,7 +336,7 @@ public class MineraculousEntityEvents {
     public static void onLivingDrops(LivingDropsEvent event) {
         LivingEntity entity = event.getEntity();
         if (entity.level() instanceof ServerLevel level) {
-            UUID recoverer = AbilityReversionEntityData.get(level).getCause(entity, level);
+            UUID recoverer = AbilityReversionEntityData.get(level).findCause(entity, level);
             for (ItemEntity item : event.getDrops()) {
                 ItemStack stack = item.getItem();
                 if (entity.hasEffect(MineraculousMobEffects.CATACLYSM) && !stack.is(MineraculousItemTags.CATACLYSM_IMMUNE)) {

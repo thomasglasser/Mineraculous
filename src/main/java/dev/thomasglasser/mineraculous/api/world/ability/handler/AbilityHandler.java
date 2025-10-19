@@ -21,14 +21,22 @@ public interface AbilityHandler {
     default void triggerPerformAdvancement(ServerPlayer performer, AbilityContext context) {}
 
     /**
-     * Determines the blame {@link UUID} for the performer and assigns it to the provided {@link ItemStack}.
-     *
-     * @param stack     The stack to assign the blame to
+     * Determines the blame {@link UUID} for the provided performer.
+     * 
      * @param performer The performer to get the blame from
      * @return The blame UUID, or null if there isn't one
      */
     @Nullable
-    UUID getAndAssignBlame(ItemStack stack, LivingEntity performer);
+    UUID getBlame(LivingEntity performer);
+
+    /**
+     * Determines the blame {@link UUID} for the performer and assigns it to the provided {@link ItemStack}.
+     *
+     * @param blame     The blame UUID to assign
+     * @param stack     The stack to assign the blame to
+     * @param performer The performer to get the blame from
+     */
+    void assignBlame(UUID blame, ItemStack stack, LivingEntity performer);
 
     /**
      * Determines the blame {@link UUID} and returns it if it matches the blame of the provided {@link ItemStack}.

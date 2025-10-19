@@ -1,6 +1,8 @@
 package dev.thomasglasser.mineraculous.api.world.level.storage;
 
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Table;
 import it.unimi.dsi.fastutil.Pair;
 import java.util.ArrayList;
@@ -16,9 +18,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
+import org.jetbrains.annotations.Nullable;
 
 /// Data for reverting trackable block changes
 public class AbilityReversionBlockData extends SavedData {
@@ -33,21 +35,19 @@ public class AbilityReversionBlockData extends SavedData {
         return new Factory<>(AbilityReversionBlockData::new, AbilityReversionBlockData::load, DataFixTypes.LEVEL);
     }
 
-    public void revert(UUID owner, ServerLevel level) {
-        for (Map.Entry<Pair<ResourceKey<Level>, BlockPos>, BlockState> entry : revertibleBlocks.row(owner).entrySet()) {
-            ServerLevel targetLevel = level.getServer().getLevel(entry.getKey().left());
-            if (targetLevel != null) {
-                targetLevel.setBlock(entry.getKey().right(), entry.getValue(), Block.UPDATE_ALL);
-            }
+    public Multimap<ResourceKey<Level>, BlockPos> getReversionPositions(UUID uuid) {
+        Multimap<ResourceKey<Level>, BlockPos> positions = MultimapBuilder.hashKeys().arrayListValues().build();
+        for (Pair<ResourceKey<Level>, BlockPos> pos : revertibleBlocks.row(uuid).keySet()) {
+            positions.put(pos.left(), pos.right());
         }
-        revertibleBlocks.row(owner).clear();
-        setDirty();
+        return positions;
     }
 
-    public void putRevertible(UUID owner, ResourceKey<Level> dimension, Map<BlockPos, BlockState> revertible) {
-        Map<Pair<ResourceKey<Level>, BlockPos>, BlockState> row = revertibleBlocks.row(owner);
-        for (Map.Entry<BlockPos, BlockState> entry : revertible.entrySet()) {
-            row.put(Pair.of(dimension, entry.getKey()), entry.getValue());
+    public void revert(UUID owner, ServerLevel level, BlockPos pos) {
+        Pair<ResourceKey<Level>, BlockPos> loc = Pair.of(level.dimension(), pos);
+        BlockState state = revertibleBlocks.remove(owner, loc);
+        if (state != null) {
+            level.setBlockAndUpdate(pos, state);
         }
         setDirty();
     }
@@ -56,7 +56,7 @@ public class AbilityReversionBlockData extends SavedData {
         revertibleBlocks.put(owner, Pair.of(dimension, pos), state);
     }
 
-    public UUID getCause(ResourceKey<Level> dimension, BlockPos pos) {
+    public @Nullable UUID getCause(ResourceKey<Level> dimension, BlockPos pos) {
         for (Table.Cell<UUID, Pair<ResourceKey<Level>, BlockPos>, BlockState> cell : revertibleBlocks.cellSet()) {
             if (cell.getColumnKey().equals(Pair.of(dimension, pos)))
                 return cell.getRowKey();

@@ -8,6 +8,9 @@ import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.ability.SpectateEntityAbility;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
+import dev.thomasglasser.mineraculous.api.world.entity.ai.behavior.DuplicateAndCopyMemories;
+import dev.thomasglasser.mineraculous.api.world.entity.ai.memory.DuplicationStatus;
+import dev.thomasglasser.mineraculous.api.world.entity.ai.memory.MineraculousMemoryModuleTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.sensing.PlayerItemTemptingSensor;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
@@ -19,9 +22,12 @@ import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
@@ -43,8 +49,10 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -56,6 +64,7 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowOwner;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowTemptation;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomFlyingTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.InvalidateAttackTarget;
 import net.tslat.smartbrainlib.api.core.navigation.SmoothFlyingPathNavigation;
@@ -216,7 +225,14 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                     }
                 }.invalidateIf(EntityUtils.TARGET_TOO_FAR_PREDICATE),
                 new SetWalkTargetToAttackTarget<Kamiko>(),
-                new MoveToWalkTarget<Kamiko>());
+                new MoveToWalkTarget<Kamiko>().whenStopping(this::onMoveToWalkTargetStopping));
+    }
+
+    protected void onMoveToWalkTargetStopping(Kamiko kamiko) {
+        DuplicationStatus duplicationStatus = BrainUtils.getMemory(kamiko, MineraculousMemoryModuleTypes.DUPLICATION_STATUS.get());
+        if (duplicationStatus == DuplicationStatus.SHOULD_DUPLICATE) {
+            BrainUtils.setMemory(kamiko, MineraculousMemoryModuleTypes.DUPLICATION_STATUS.get(), DuplicationStatus.IS_DUPLICATING);
+        }
     }
 
     @Override
@@ -231,6 +247,27 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     protected boolean shouldFollowOwner(Kamiko kamiko) {
         LivingEntity owner = getOwner();
         return owner != null && !BrainUtils.hasMemory(kamiko.getBrain(), MemoryModuleType.ATTACK_TARGET) && (owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent());
+    }
+
+    public BrainActivityGroup<? extends Kamiko> getRestTasks() {
+        return new BrainActivityGroup<Kamiko>(Activity.REST).priority(5).behaviours(
+                new FirstApplicableBehaviour<>(
+                        new SetRandomWalkTarget<>()
+                                .startCondition(kamiko -> BrainUtils.getMemory(kamiko, MineraculousMemoryModuleTypes.DUPLICATION_STATUS.get()) == DuplicationStatus.SHOULD_DUPLICATE),
+                        new DuplicateAndCopyMemories<>().startCondition(kamiko -> BrainUtils.getMemory(kamiko, MineraculousMemoryModuleTypes.DUPLICATION_STATUS.get()) == DuplicationStatus.IS_DUPLICATING)))
+                .onlyStartWithMemoryStatus(MineraculousMemoryModuleTypes.DUPLICATION_STATUS.get(), MemoryStatus.VALUE_PRESENT);
+    }
+
+    @Override
+    public Map<Activity, BrainActivityGroup<? extends Kamiko>> getAdditionalTasks() {
+        return Util.make(new Reference2ReferenceOpenHashMap<>(), map -> {
+            map.put(Activity.REST, getRestTasks());
+        });
+    }
+
+    @Override
+    public List<Activity> getActivityPriorities() {
+        return ObjectArrayList.of(Activity.FIGHT, Activity.REST, Activity.IDLE);
     }
 
     @Override

@@ -7,19 +7,27 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 /// A {@link PieceBlock} with 4 pieces and a smaller shape
-public class CheeseFullBlock extends PieceBlock {
+public class SmallFourPieceBlock extends PieceBlock {
     public static final int MAX_PIECES = 4;
-    protected static final VoxelShape SHAPE = Block.box(4.0, 0.0, 4.0, 12.0, 3.0, 12.0);
+    protected static final VoxelShape[] SHAPE_BY_PIECE = new VoxelShape[] {
+            Block.box(4.0, 0.0, 4.0, 12.0, 3.0, 12.0),
+            Shapes.or(
+                    Block.box(4.0, 0.0, 8.0, 8.0, 3.0, 12.0),
+                    Block.box(8.0, 0.0, 4.0, 12.0, 3.0, 12.0)),
+            Block.box(4.0, 0.0, 8.0, 12.0, 3.0, 12.0),
+            Block.box(4.0, 0.0, 8.0, 8.0, 3.0, 12.0)
+    };
 
-    public CheeseFullBlock(Holder<Item> piece, Properties properties) {
+    public SmallFourPieceBlock(Holder<Item> piece, Properties properties) {
         super(MAX_PIECES, piece, properties);
     }
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
+        return SHAPE_BY_PIECE[state.getValue(getMissingPiecesProperty())];
     }
 }

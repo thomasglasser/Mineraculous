@@ -31,7 +31,7 @@ public class ThrownButterflyCane extends ItemBreakingQuicklyReturningThrownSword
 
     public ThrownButterflyCane(double x, double y, double z, Level level, ItemStack pickupItemStack) {
         super(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), x, y, z, level, pickupItemStack, 8, null, null);
-        if (pickupItemStack.get(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY) == ButterflyCaneItem.Ability.BLADE) {
+        if (pickupItemStack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE) == ButterflyCaneItem.Mode.BLADE) {
             this.entityData.set(DATA_SHOW_BLADE, true);
             setBaseDamage(15);
         }

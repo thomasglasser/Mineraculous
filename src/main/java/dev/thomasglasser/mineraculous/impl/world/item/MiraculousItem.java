@@ -1,15 +1,18 @@
 package dev.thomasglasser.mineraculous.impl.world.item;
 
+import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
+import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
+import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -20,7 +23,10 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -92,6 +98,9 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
             }
             if (!stack.has(MineraculousDataComponents.POWERED) && !stack.has(MineraculousDataComponents.KWAMI_ID)) {
                 stack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
+            }
+            if (entity instanceof LivingEntity livingEntity && !CuriosUtils.isEquipped(livingEntity, stack)) {
+                stack.set(MineraculousDataComponents.TEXTURE_STATE, stack.has(MineraculousDataComponents.POWERED) ? TextureState.POWERED : TextureState.ACTIVE);
             }
         }
     }
@@ -173,5 +182,53 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                 return this.renderer;
             }
         });
+    }
+
+    public enum TextureState implements StringRepresentable {
+        HIDDEN,
+        ACTIVE,
+        POWERED_1(1),
+        POWERED_2(2),
+        POWERED_3(3),
+        POWERED_4(4),
+        POWERED;
+
+        public static final Codec<TextureState> CODEC = StringRepresentable.fromEnum(TextureState::values);
+        public static final StreamCodec<ByteBuf, TextureState> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(TextureState::of, TextureState::getSerializedName);
+
+        private final int frame;
+
+        TextureState(int frame) {
+            this.frame = frame;
+        }
+
+        TextureState() {
+            this(-1);
+        }
+
+        public int frame() {
+            return frame;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return name().toLowerCase();
+        }
+
+        public static TextureState of(String name) {
+            return valueOf(name.toUpperCase());
+        }
+
+        public static TextureState forFrame(int frame) {
+            return switch (frame) {
+                case -1 -> HIDDEN;
+                case 0 -> ACTIVE;
+                case 1 -> POWERED_1;
+                case 2 -> POWERED_2;
+                case 3 -> POWERED_3;
+                case 4 -> POWERED_4;
+                default -> POWERED;
+            };
+        }
     }
 }

@@ -1,0 +1,13 @@
+{
+  "type": "mineraculous:oven",
+  "category": "food",
+  "cookingtime": 400,
+  "experience": 0.35,
+  "ingredient": {
+    "item": "minecraft:potato"
+  },
+  "result": {
+    "count": 1,
+    "id": "minecraft:baked_potato"
+  }
+}

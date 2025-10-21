@@ -78,7 +78,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, ICurioItem, RadialMenuProvider<CatStaffItem.Ability>, LeftClickTrackingItem {
+public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, ICurioItem, RadialMenuProvider<CatStaffItem.Mode>, LeftClickTrackingItem {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final String CONTROLLER_USE = "use_controller";
     public static final String CONTROLLER_EXTEND = "extend_controller";
@@ -122,7 +122,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
                 if (carrierID != null) {
                     Entity entity = ClientUtils.getEntityById(carrierID);
                     if (entity instanceof Player player) {
-                        boolean travelEligible = player.getUseItem() == stack && !player.getCooldowns().isOnCooldown(stack.getItem()) && !player.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == Ability.TRAVEL && !player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling();
+                        boolean travelEligible = player.getUseItem() == stack && !player.getCooldowns().isOnCooldown(stack.getItem()) && !player.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_MODE) == Mode.TRAVEL && !player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling();
                         if (stack.has(MineraculousDataComponents.BLOCKING) || travelEligible) {
                             return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
                         }
@@ -155,12 +155,12 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
         if (entity instanceof LivingEntity livingEntity) {
             if (Active.isActive(stack)) {
                 boolean inHand = livingEntity.getMainHandItem() == stack || livingEntity.getOffhandItem() == stack;
-                Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
-                if (ability != null) {
+                Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
+                if (mode != null) {
                     PerchingCatStaffData perchingData = livingEntity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
                     TravelingCatStaffData travelingData = livingEntity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
                     if (inHand) {
-                        switch (ability) {
+                        switch (mode) {
                             case PERCH -> CatStaffPerchHandler.tick(level, livingEntity);
                             case TRAVEL -> CatStaffTravelHandler.tick(stack, level, livingEntity);
                             default -> {
@@ -191,19 +191,19 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
         ItemStack stack = player.getItemInHand(hand);
         if (!Active.isActive(stack))
             return InteractionResultHolder.fail(stack);
-        if (stack.has(MineraculousDataComponents.CAT_STAFF_ABILITY)) {
-            Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
-            if (ability == Ability.BLOCK || ability == Ability.THROW || ability == Ability.TRAVEL)
+        if (stack.has(MineraculousDataComponents.CAT_STAFF_MODE)) {
+            Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
+            if (mode == Mode.BLOCK || mode == Mode.THROW || mode == Mode.TRAVEL)
                 player.startUsingItem(hand);
-            else if (ability == Ability.PERCH) {
+            else if (mode == Mode.PERCH) {
                 PerchingCatStaffData perchingCatStaffData = player.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
                 CatStaffPerchHandler.itemUsed(level, player, perchingCatStaffData);
                 player.awardStat(Stats.ITEM_USED.get(this));
-            } else if (ability == Ability.SPYGLASS) {
+            } else if (mode == Mode.SPYGLASS) {
                 level.playSound(null, player, SoundEvents.SPYGLASS_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
                 player.startUsingItem(hand);
             }
-            if (ability == Ability.TRAVEL)
+            if (mode == Mode.TRAVEL)
                 CatStaffTravelHandler.init(level, player);
             return InteractionResultHolder.consume(stack);
         }
@@ -214,7 +214,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     public void onUseTick(Level level, LivingEntity livingEntity, ItemStack stack, int remainingUseDuration) {
         super.onUseTick(level, livingEntity, stack, remainingUseDuration);
         if (livingEntity instanceof Player player) {
-            boolean travelEligible = !player.getCooldowns().isOnCooldown(stack.getItem()) && !player.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == Ability.TRAVEL && !player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling() && stack.getUseDuration(livingEntity) - remainingUseDuration > 1;
+            boolean travelEligible = !player.getCooldowns().isOnCooldown(stack.getItem()) && !player.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_MODE) == Mode.TRAVEL && !player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling() && stack.getUseDuration(livingEntity) - remainingUseDuration > 1;
             if ((stack.has(MineraculousDataComponents.BLOCKING) || travelEligible) && remainingUseDuration % 10 == 0) {
                 player.playSound(MineraculousSoundEvents.GENERIC_SPIN.get());
             }
@@ -222,8 +222,8 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     }
 
     public void releaseUsing(ItemStack stack, Level level, LivingEntity livingEntity, int timeLeft) {
-        Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
-        if (ability == Ability.THROW) {
+        Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
+        if (mode == Mode.THROW) {
             int i = this.getUseDuration(stack, livingEntity) - timeLeft;
             if (i >= 10) {
                 if (!level.isClientSide) {
@@ -250,8 +250,8 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
-        return switch (ability) {
+        Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
+        return switch (mode) {
             case BLOCK -> UseAnim.BLOCK;
             case SPYGLASS -> UseAnim.SPYGLASS;
             case THROW -> UseAnim.SPEAR;
@@ -267,9 +267,9 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     @Override
     public boolean onLeftClick(ItemStack stack, LivingEntity livingEntity) {
         if (Active.isActive(stack)) {
-            Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
+            Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE.get());
             Level level = livingEntity.level();
-            if (ability == Ability.PERCH) {
+            if (mode == Mode.PERCH) {
                 PerchingCatStaffData perchingCatStaffData = livingEntity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
                 CatStaffPerchHandler.itemLeftClicked(level, livingEntity, perchingCatStaffData);
                 if (livingEntity instanceof Player player) {
@@ -288,8 +288,8 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
 
     @Override
     public boolean canPerformAction(ItemStack stack, ItemAbility itemAbility) {
-        Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY.get());
-        return switch (ability) {
+        Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE.get());
+        return switch (mode) {
             case BLOCK -> itemAbility == ItemAbilities.SHIELD_BLOCK;
             case SPYGLASS -> itemAbility == ItemAbilities.SPYGLASS_SCOPE;
             case THROW -> itemAbility == ItemAbilities.TRIDENT_THROW;
@@ -299,8 +299,8 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
 
     @Override
     public ItemAttributeModifiers getDefaultAttributeModifiers(ItemStack stack) {
-        Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
-        if (Active.isActive(stack) && ability != Ability.PHONE && ability != Ability.SPYGLASS)
+        Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
+        if (Active.isActive(stack) && mode != Mode.PHONE && mode != Mode.SPYGLASS)
             return EXTENDED_ATTRIBUTE_MODIFIERS;
         return super.getDefaultAttributeModifiers(stack);
     }
@@ -349,13 +349,13 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     }
 
     @Override
-    public List<Ability> getOptions(ItemStack stack, InteractionHand hand, Player holder) {
-        return Ability.valuesList();
+    public List<Mode> getOptions(ItemStack stack, InteractionHand hand, Player holder) {
+        return Mode.valuesList();
     }
 
     @Override
-    public Supplier<DataComponentType<Ability>> getComponentType(ItemStack stack, InteractionHand hand, Player holder) {
-        return MineraculousDataComponents.CAT_STAFF_ABILITY;
+    public Supplier<DataComponentType<Mode>> getComponentType(ItemStack stack, InteractionHand hand, Player holder) {
+        return MineraculousDataComponents.CAT_STAFF_MODE;
     }
 
     @Override
@@ -365,14 +365,14 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     }
 
     @Override
-    public Ability setOption(ItemStack stack, InteractionHand hand, Player holder, int index) {
-        Ability old = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
-        Ability selected = RadialMenuProvider.super.setOption(stack, hand, holder, index);
+    public Mode setOption(ItemStack stack, InteractionHand hand, Player holder, int index) {
+        Mode old = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
+        Mode selected = RadialMenuProvider.super.setOption(stack, hand, holder, index);
         if (holder.level() instanceof ServerLevel level) {
             String anim = null;
-            if (selected == Ability.PHONE || selected == Ability.SPYGLASS) {
+            if (selected == Mode.PHONE || selected == Mode.SPYGLASS) {
                 anim = ANIMATION_OPEN;
-            } else if (old == Ability.PHONE || old == Ability.SPYGLASS) {
+            } else if (old == Mode.PHONE || old == Mode.SPYGLASS) {
                 anim = ANIMATION_CLOSE;
             }
             if (anim != null) {
@@ -387,7 +387,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
         return slotChanged && super.shouldCauseReequipAnimation(oldStack, newStack, true);
     }
 
-    public enum Ability implements RadialMenuOption, StringRepresentable {
+    public enum Mode implements RadialMenuOption, StringRepresentable {
         BLOCK,
         PERCH,
         PHONE((stack, player) -> MineraculousConstants.Dependencies.TOMMYTECH.isLoaded()),
@@ -395,21 +395,21 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
         THROW,
         TRAVEL;
 
-        public static final Codec<Ability> CODEC = StringRepresentable.fromEnum(Ability::values);
-        public static final StreamCodec<ByteBuf, Ability> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(Ability::of, Ability::getSerializedName);
+        public static final Codec<Mode> CODEC = StringRepresentable.fromEnum(Mode::values);
+        public static final StreamCodec<ByteBuf, Mode> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(Mode::of, Mode::getSerializedName);
 
-        private static final List<Ability> VALUES_LIST = new ReferenceArrayList<>(values());
+        private static final List<Mode> VALUES_LIST = new ReferenceArrayList<>(values());
 
         private final BiPredicate<ItemStack, Player> enabledPredicate;
         private final Component displayName;
 
-        Ability() {
+        Mode() {
             this((stack, player) -> true);
         }
 
-        Ability(BiPredicate<ItemStack, Player> enabledPredicate) {
+        Mode(BiPredicate<ItemStack, Player> enabledPredicate) {
             this.enabledPredicate = enabledPredicate;
-            this.displayName = Component.translatable(MineraculousItems.CAT_STAFF.getId().toLanguageKey("ability", getSerializedName()));
+            this.displayName = Component.translatable(MineraculousItems.CAT_STAFF.getId().toLanguageKey("mode", getSerializedName()));
         }
 
         @Override
@@ -427,11 +427,11 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
             return name().toLowerCase();
         }
 
-        public static List<Ability> valuesList() {
+        public static List<Mode> valuesList() {
             return VALUES_LIST;
         }
 
-        public static Ability of(String name) {
+        public static Mode of(String name) {
             return valueOf(name.toUpperCase());
         }
     }

@@ -45,6 +45,8 @@ public class MineraculousClient {
         modBus.addListener(MineraculousClientEvents::onRegisterRenderBuffers);
         modBus.addListener(MineraculousClientEvents::onRegisterClientExtensions);
         modBus.addListener(MineraculousClientEvents::onRegisterGuiLayers);
+        modBus.addListener(MineraculousClientEvents::onRegisterMenuScreens);
+        modBus.addListener(MineraculousClientEvents::onRegisterRecipeBookCategories);
         modBus.addListener(MineraculousClientEvents::onConfigChanged);
 
         modBus.addListener(MineraculousRenderStateShards::onRegisterShaders);

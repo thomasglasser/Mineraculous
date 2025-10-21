@@ -12,13 +12,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BlockItemStateProperties;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
@@ -27,7 +25,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.HitResult;
 
 /// A block composed of pieces that can be missing
-public class PieceBlock extends HorizontalDirectionalBlock {
+public class PieceBlock extends Block {
     public static final MapCodec<PieceBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Codec.INT.fieldOf("max_pieces").forGetter(PieceBlock::getMaxPieces),
             BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("piece").forGetter(PieceBlock::getPiece),
@@ -46,7 +44,7 @@ public class PieceBlock extends HorizontalDirectionalBlock {
         StateDefinition.Builder<Block, BlockState> builder = new StateDefinition.Builder<>(this);
         this.createBlockStateDefinition(builder);
         this.stateDefinition = builder.create(Block::defaultBlockState, BlockState::new);
-        this.registerDefaultState(this.stateDefinition.any().setValue(missingPiecesProperty, 0).setValue(FACING, Direction.NORTH));
+        this.registerDefaultState(this.stateDefinition.any().setValue(missingPiecesProperty, 0));
     }
 
     public int getMaxPieces() {
@@ -68,12 +66,6 @@ public class PieceBlock extends HorizontalDirectionalBlock {
     @Override
     protected MapCodec<? extends PieceBlock> codec() {
         return CODEC;
-    }
-
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
-        Direction opposite = context.getHorizontalDirection().getOpposite();
-        return this.defaultBlockState().setValue(FACING, opposite);
     }
 
     @Override
@@ -100,7 +92,6 @@ public class PieceBlock extends HorizontalDirectionalBlock {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         if (missingPiecesProperty != null) {
             builder.add(missingPiecesProperty);
-            builder.add(FACING);
         }
     }
 

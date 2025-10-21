@@ -10,8 +10,8 @@ import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.renderer.item.GlowingDefaultedGeoItemRenderer;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
@@ -22,6 +22,7 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
@@ -40,12 +41,9 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
 
     @Override
     public ResourceLocation getTextureLocation(CatStaffItem animatable) {
-        ItemStack stack = getCurrentItemStack();
-        if (stack != null) {
-            CatStaffItem.Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
-            if (ability == CatStaffItem.Ability.PHONE) {
-                return PHONE_LOCATION;
-            }
+        CatStaffItem.Mode mode = getCurrentItemStack().get(MineraculousDataComponents.CAT_STAFF_MODE);
+        if (mode == CatStaffItem.Mode.PHONE) {
+            return PHONE_LOCATION;
         }
         return super.getTextureLocation(animatable);
     }
@@ -53,28 +51,27 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
     @Override
     public void defaultRender(PoseStack poseStack, CatStaffItem animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
         ItemStack stack = getCurrentItemStack();
-        if (stack.get(MineraculousDataComponents.CARRIER) != null) {
-            Integer carrierId = stack.get(MineraculousDataComponents.CARRIER);
-            if (carrierId != null && Minecraft.getInstance().level != null) {
-                Entity carrier = Minecraft.getInstance().level.getEntity(carrierId);
-                if (carrier != null) {
-                    CatStaffItem.Ability ability = stack.get(MineraculousDataComponents.CAT_STAFF_ABILITY);
-                    if (ability == CatStaffItem.Ability.PERCH || ability == CatStaffItem.Ability.TRAVEL) {
-                        TravelingCatStaffData travelingCatStaffData = carrier.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
-                        PerchingCatStaffData perchingCatStaffData = carrier.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-                        if (travelingCatStaffData.traveling() || perchingCatStaffData.perching()) {
-                            boolean firstPersonHand = this.renderPerspective == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
-                            boolean thirdPersonHand = this.renderPerspective == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
+        Integer carrierId = stack.get(MineraculousDataComponents.CARRIER);
+        Level level = ClientUtils.getLevel();
+        if (carrierId != null && level != null) {
+            Entity carrier = level.getEntity(carrierId);
+            if (carrier != null) {
+                CatStaffItem.Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
+                if (mode == CatStaffItem.Mode.PERCH || mode == CatStaffItem.Mode.TRAVEL) {
+                    TravelingCatStaffData travelingCatStaffData = carrier.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
+                    PerchingCatStaffData perchingCatStaffData = carrier.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+                    if (travelingCatStaffData.traveling() || perchingCatStaffData.perching()) {
+                        boolean firstPersonHand = this.renderPerspective == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.FIRST_PERSON_LEFT_HAND;
+                        boolean thirdPersonHand = this.renderPerspective == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND || this.renderPerspective == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
 
-                            if (MineraculousClientUtils.isFirstPerson() &&
-                                    MineraculousClientUtils.getCameraEntity() == carrier &&
-                                    firstPersonHand) {
-                                return;
-                            }
-
-                            if (thirdPersonHand) return;
-
+                        if (MineraculousClientUtils.isFirstPerson() &&
+                                MineraculousClientUtils.getCameraEntity() == carrier &&
+                                firstPersonHand) {
+                            return;
                         }
+
+                        if (thirdPersonHand) return;
+
                     }
                 }
             }
@@ -96,8 +93,8 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
             ItemStack offhandItem = player.getOffhandItem();
             ItemStack mainHandItem = player.getMainHandItem();
 
-            boolean lHCatStaffPerch = offhandItem.is(MineraculousItems.CAT_STAFF) && offhandItem.has(MineraculousDataComponents.ACTIVE) && offhandItem.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
-            boolean rHCatStaffPerch = mainHandItem.is(MineraculousItems.CAT_STAFF) && mainHandItem.has(MineraculousDataComponents.ACTIVE) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.PERCH;
+            boolean lHCatStaffPerch = offhandItem.is(MineraculousItems.CAT_STAFF) && offhandItem.has(MineraculousDataComponents.ACTIVE) && offhandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.PERCH;
+            boolean rHCatStaffPerch = mainHandItem.is(MineraculousItems.CAT_STAFF) && mainHandItem.has(MineraculousDataComponents.ACTIVE) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.PERCH;
 
             if (lHCatStaffPerch || rHCatStaffPerch) {
                 PerchingCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
@@ -145,8 +142,8 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         ItemStack offhandItem = player.getOffhandItem();
         ItemStack mainHandItem = player.getMainHandItem();
 
-        boolean lHCatStaffTravel = offhandItem.is(MineraculousItems.CAT_STAFF) && offhandItem.has(MineraculousDataComponents.ACTIVE) && offhandItem.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
-        boolean rHCatStaffTravel = mainHandItem.is(MineraculousItems.CAT_STAFF) && mainHandItem.has(MineraculousDataComponents.ACTIVE) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_ABILITY) == CatStaffItem.Ability.TRAVEL;
+        boolean lHCatStaffTravel = offhandItem.is(MineraculousItems.CAT_STAFF) && offhandItem.has(MineraculousDataComponents.ACTIVE) && offhandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.TRAVEL;
+        boolean rHCatStaffTravel = mainHandItem.is(MineraculousItems.CAT_STAFF) && mainHandItem.has(MineraculousDataComponents.ACTIVE) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.TRAVEL;
 
         if (lHCatStaffTravel || rHCatStaffTravel) {
             TravelingCatStaffData travelingCatStaffData = player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);

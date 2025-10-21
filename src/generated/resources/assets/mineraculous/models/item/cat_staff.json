@@ -113,22 +113,22 @@
     {
       "model": "mineraculous:item/cat_staff_phone",
       "predicate": {
-        "mineraculous:ability": 3.0,
-        "mineraculous:active": 1.0
+        "mineraculous:active": 1.0,
+        "mineraculous:mode": 3.0
       }
     },
     {
       "model": "mineraculous:item/cat_staff_spyglass",
       "predicate": {
-        "mineraculous:ability": 4.0,
-        "mineraculous:active": 1.0
+        "mineraculous:active": 1.0,
+        "mineraculous:mode": 4.0
       }
     },
     {
       "model": "mineraculous:item/cat_staff_active",
       "predicate": {
-        "mineraculous:ability": 5.0,
-        "mineraculous:active": 1.0
+        "mineraculous:active": 1.0,
+        "mineraculous:mode": 5.0
       }
     }
   ],

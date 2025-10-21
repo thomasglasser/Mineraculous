@@ -29,11 +29,16 @@ import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.kamiko.categories.KamikoTargetPlayerMenuCategory;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.MiraculousEligiblePlayerEntry;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.MiraculousTransferScreen;
+import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.KamikotizationItemSelectionScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.KamikotizationSelectionScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.PerformerKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
+import dev.thomasglasser.mineraculous.impl.client.gui.screens.recipebook.OvenRecipeBookComponent;
+import dev.thomasglasser.mineraculous.impl.data.MineraculousDataGenerators;
 import dev.thomasglasser.mineraculous.impl.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundWakeUpPayload;
+import dev.thomasglasser.mineraculous.impl.plugins.jade.OvenProvider;
+import dev.thomasglasser.mineraculous.impl.plugins.jei.MineraculousJeiPlugin;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.server.commands.MiraculousCommand;
 import dev.thomasglasser.mineraculous.impl.server.packs.repository.MineraculousPackCompatibility;
@@ -45,6 +50,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
+import dev.thomasglasser.mineraculous.impl.world.level.block.entity.OvenBlockEntity;
 import dev.thomasglasser.tommylib.api.data.lang.ExtendedEnUsLanguageProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
@@ -52,6 +58,7 @@ import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
 import java.util.Map;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.ItemNameBlockItem;
+import snownee.jade.api.IJadeProvider;
 
 public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvider {
     public MineraculousEnUsLanguageProvider(PackOutput output) {
@@ -104,10 +111,14 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(option.displayName(), name);
     }
 
-    protected <T extends Enum<T> & RadialMenuOption> void addToolAbilities(T[] options) {
+    protected <T extends Enum<T> & RadialMenuOption> void addRadialMenuOptions(T[] options) {
         for (T option : options) {
             add(option.displayName(), capitalize(option.name()));
         }
+    }
+
+    protected void add(IJadeProvider provider, String name) {
+        add("config.jade.plugin_" + provider.getUid().getNamespace() + "." + provider.getUid().getPath(), name);
     }
 
     private void add(MineraculousPackCompatibility compatibility, String description, String confirmation) {
@@ -122,12 +133,14 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousItems.MIRACULOUS.get(), "Miraculous");
         add(MineraculousItems.GREAT_SWORD.get(), "Great Sword");
         add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
+        add(MineraculousItems.RAW_MACARON.get(), "Raw Macaron");
+        add(MineraculousItems.MACARON.get(), "Macaron");
         add(MineraculousBlocks.HIBISCUS_BUSH.asItem(), "Hibiscus");
 
-        // Tool Abilities
-        addToolAbilities(LadybugYoyoItem.Ability.values());
-        addToolAbilities(CatStaffItem.Ability.values());
-        addToolAbilities(ButterflyCaneItem.Ability.values());
+        // Tool Modes
+        addRadialMenuOptions(LadybugYoyoItem.Mode.values());
+        addRadialMenuOptions(CatStaffItem.Mode.values());
+        addRadialMenuOptions(ButterflyCaneItem.Mode.values());
 
         // Armor
         addSuitArmor(MineraculousArmors.MIRACULOUS, "Miraculous");
@@ -143,6 +156,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     private void addBlocks() {
         add(MineraculousBlocks.CATACLYSM_BLOCK.get(), "Block of Cataclysm");
         add(MineraculousBlocks.CHEESE_POT.get(), "Cheese Pot");
+        add(MineraculousBlocks.OVEN.get(), "Oven");
         add(MineraculousBlocks.HIBISCUS_BUSH.get(), "Hibiscus Bush");
 
         cheese(MineraculousItems.CHEESE, MineraculousItems.WAXED_CHEESE, MineraculousBlocks.CHEESE, MineraculousBlocks.WAXED_CHEESE, "Cheese");
@@ -210,6 +224,11 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(Miraculouses.BUTTERFLY, "Butterfly");
         add(Miraculouses.CAT, "Cat");
         add(Miraculouses.LADYBUG, "Ladybug");
+
+        // TODO: Remove when testing is done
+        addCapitalized(MineraculousDataGenerators.CAT_KAMIKOTIZATION);
+        addCapitalized(MineraculousDataGenerators.LADYBUG_KAMIKOTIZATION);
+        addCapitalized(MineraculousDataGenerators.STORMY_KAMIKOTIZATION);
     }
 
     private void addAbilities() {
@@ -223,6 +242,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
     private void addProfessions() {
         addProfession(MineraculousVillagerProfessions.FROMAGER, "Fromager");
+        addProfession(MineraculousVillagerProfessions.BAKER, "Baker");
     }
 
     private void addGuis() {
@@ -230,10 +250,15 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousClientUtils.GUI_CHOOSE, "Choose");
         add(MineraculousClientUtils.GUI_NAME, "Name");
 
+        // Block Entity Screens
+        add(OvenBlockEntity.NAME, "Oven");
+        add(OvenRecipeBookComponent.FILTER_NAME, "Showing Ovenable");
+
         // Taking/Breaking
         add(ServerboundWakeUpPayload.STEALING_WARNING, "You may not rest now, there are thieves nearby.");
         add(ExternalInventoryScreen.ITEM_BOUND_KEY, "This item is bound to the player.");
         add(MineraculousItemUtils.ITEM_UNBREAKABLE_KEY, "This item is unbreakable by normal means.");
+        add(MineraculousItemUtils.KAMIKOTIZED_ITEM_UNBREAKABLE_KEY, "You feel compelled to leave this item unbroken.");
 
         // Kamiko Gui
         add(KamikoTargetPlayerMenuCategory.TARGET_PROMPT, "Select a player to target");
@@ -243,6 +268,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         // Kamikotization View
         add(MineraculousGuis.REVOKE, "Revoke Kamikotization");
         add(MineraculousGuis.PRESS_KEY, "(Press %s)");
+
+        // Kamikotization Item Selection Screen
+        add(KamikotizationItemSelectionScreen.APPLIES_TO, "Applies to:");
 
         // Kamikotization Selection Screen
         add(KamikotizationSelectionScreen.TITLE, "Kamikotization");
@@ -262,6 +290,12 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousTransferScreen.TITLE, "Miraculous Transfer");
         add(MiraculousEligiblePlayerEntry.RENOUNCE, "Renounce");
         add(MiraculousEligiblePlayerEntry.TRANSFER, "Transfer");
+
+        // JEI
+        add(MineraculousJeiPlugin.OVEN_CATEGORY, "Oven");
+
+        // Jade
+        add(OvenProvider.INSTANCE, "Oven");
     }
 
     private void addDamageTypes() {
@@ -357,17 +391,23 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         // Server
         addConfigSection(MineraculousServerConfig.MIRACULOUS, "Miraculous", "Settings for miraculous");
+        addConfig(MineraculousServerConfig.get().enableBuffsOnTransformation, "Enable Buffs on Transformation", "Enable having buffs when transforming");
+        addConfig(MineraculousServerConfig.get().maxToolLength, "Maximum Tool Length", "Amount of blocks that tools can be extended to");
+
+        addConfigSection(MineraculousServerConfig.CUSTOMIZATION, "Customization", "Settings for customization");
         addConfig(MineraculousServerConfig.get().enableCustomization, "Enable Customization", "Enable customization of miraculous suits and items. §4WARNING: This may lead to vulnerabilities. Only enable if you trust server members.");
         addConfig(MineraculousServerConfig.get().customizationPermissionsMode, "Customization Permissions Mode", "Permissions mode for customization. Whitelist: Only whitelisted players can customize. Blacklist: Only non-blacklisted players can customize.");
-        addConfig(MineraculousServerConfig.get().kwamiSummonTime, "Kwami Summon Time", "The amount of time (in seconds) that it takes for a kwami to summon");
+
+        addConfigSection(MineraculousServerConfig.ABILITIES, "Abilities", "Settings for abilities");
         addConfig(MineraculousServerConfig.get().enableMiraculousTimer, "Enable Miraculous Timer", "Enable the detransformation timer for miraculous holders before they reach full maturity");
         addConfig(MineraculousServerConfig.get().miraculousTimerDuration, "Miraculous Timer Duration", "The amount of time (in seconds) between a miraculous holder using their power and detransforming");
         addConfig(MineraculousServerConfig.get().enableLimitedPower, "Enable Limited Power", "Enable limited power for miraculous holders before they reach adulthood");
         addConfig(MineraculousServerConfig.get().enableKamikotizationRejection, "Enable Kamikotization Rejection", "Enable rejection of kamikotization by the victim");
-        addConfig(MineraculousServerConfig.get().enableBuffsOnTransformation, "Enable Buffs on Transformation", "Enable having buffs when transforming");
         addConfig(MineraculousServerConfig.get().luckyCharmSummonTimeMin, "Minimum Lucky Charm Summon Time", "The minimum amount of time (in seconds) that it takes for a lucky charm to be summoned");
         addConfig(MineraculousServerConfig.get().luckyCharmSummonTimeMax, "Maximum Lucky Charm Summon Time", "The maximum amount of time (in seconds) that it takes for a lucky charm to be summoned");
-        addConfig(MineraculousServerConfig.get().maxToolLength, "Maximum Tool Length", "Amount of blocks that tools can be extended to");
+
+        addConfigSection(MineraculousServerConfig.KWAMIS, "Kwamis", "Settings for kwamis");
+        addConfig(MineraculousServerConfig.get().kwamiSummonTime, "Kwami Summon Time", "The amount of time (in seconds) that it takes for a kwami to summon");
 
         addConfigSection(MineraculousServerConfig.STEALING, "Stealing", "Settings for item stealing");
         addConfig(MineraculousServerConfig.get().stealingDuration, "Stealing Duration", "Duration in seconds that the key must be held to steal an item");

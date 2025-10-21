@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.api;
 
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.fml.ModList;
 import org.slf4j.Logger;
@@ -14,6 +15,10 @@ public class MineraculousConstants {
 
     public static ResourceLocation modLoc(String path) {
         return ResourceLocation.fromNamespaceAndPath(MineraculousConstants.MOD_ID, path);
+    }
+
+    public static String toLanguageKey(ResourceKey<?> key) {
+        return key.location().toLanguageKey(key.registry().getPath());
     }
 
     public enum Dependencies {

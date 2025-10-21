@@ -26,6 +26,6 @@ public class MineraculousTrimPatterns {
     }
 
     private static void register(BootstrapContext<TrimPattern> context, ResourceKey<TrimPattern> pattern, Holder<Item> template) {
-        context.register(pattern, new TrimPattern(pattern.location(), template, Component.translatable(pattern.location().toLanguageKey(pattern.registry().getPath())), false));
+        context.register(pattern, new TrimPattern(pattern.location(), template, Component.translatable(MineraculousConstants.toLanguageKey(pattern)), false));
     }
 }

@@ -40,15 +40,15 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.GUI).rotation(90, 180, 0).translation(-3, 3.5F, 0).scale(3).end()
                 .end();
         miraculous(Miraculouses.CAT)
-                .transform(MineraculousItemDisplayContexts.CURIOS_RIGHT_ARM.getValue()).rotation(90, 0, 270).translation(-1.45F, 9.4F, 0.5F).scale(0.3F).end()
-                .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0, 0, 0.5F).scale(0.3F).end()
-                .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).translation(0, 0, 0.5F).scale(0.3F).end()
-                .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(4.5F, 0, 0).scale(0.3F).end()
-                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).translation(-4.5F, 0, 0).scale(0.3F).end()
-                .transform(ItemDisplayContext.HEAD).translation(0, -2, -6).scale(0.3F).end()
-                .transform(ItemDisplayContext.GROUND).translation(0, -4F, 0).scale(0.3F).end()
-                .transform(ItemDisplayContext.FIXED).translation(0, -1F, 0).scale(0.6F).end()
-                .transform(ItemDisplayContext.GUI).rotation(0, 180, 0).translation(0, -4.5F, 0).scale(3F).end()
+                .transform(MineraculousItemDisplayContexts.CURIOS_RIGHT_ARM.getValue()).rotation(90, 0, 270).translation(-0.85F, 9.6F, 0.5F).scale(0.1F).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(90, 0, 0).translation(0, 0.3F, 0).scale(0.1F).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(90, 0, 0).translation(0, 0.3F, 0).scale(0.1F).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).rotation(90, 0, 0).translation(4, 1, 0).scale(0.1F).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).rotation(90, 0, 0).translation(-4, 1, 0).scale(0.1F).end()
+                .transform(ItemDisplayContext.HEAD).translation(0, -2, -6.25F).scale(0.1F).end()
+                .transform(ItemDisplayContext.GROUND).translation(0, -4, 0).scale(0.1F).end()
+                .transform(ItemDisplayContext.FIXED).translation(0, -0.75F, 0).scale(0.2F).end()
+                .transform(ItemDisplayContext.GUI).rotation(0, 180, 0).translation(0, -5.25F, 0).scale(1.5F).end()
                 .end();
         miraculous(Miraculouses.BUTTERFLY)
                 .transform(MineraculousItemDisplayContexts.CURIOS_BODY.getValue()).rotation(0, 0, 180).translation(0, 4, -2.2F).scale(0.2F).end()
@@ -67,13 +67,16 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
 
         withEntityModel(MineraculousItems.MIRACULOUS).guiLight(BlockModel.GuiLight.FRONT);
 
-        basicItem(MineraculousItems.CATACLYSM_DUST.get());
+        basicItem(MineraculousItems.CATACLYSM_DUST);
         basicItem(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE);
         basicItem(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE);
         basicItem(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE);
+        basicItem(MineraculousItems.RAW_MACARON);
+        basicItem(MineraculousItems.MACARON);
         basicItem(MineraculousBlocks.HIBISCUS_BUSH.asItem());
 
         basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK);
+        basicBlockItem(MineraculousBlocks.OVEN);
 
         MineraculousBlocks.CHEESE.forEach((age, block) -> withBitesOverrides(block, basicBlockItem(block)));
         MineraculousBlocks.WAXED_CHEESE.forEach((age, block) -> withBitesOverrides(MineraculousBlocks.CHEESE.get(age), withExistingParent(block.getId().getPath(), MineraculousBlocks.CHEESE.get(age).getId().withPrefix("block/"))));
@@ -139,22 +142,22 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .end()
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.PHONE))
+                .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Mode.PHONE))
                 .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_phone"), inHandLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_phone"))))
                 .end()
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.PURIFY))
+                .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Mode.PURIFY))
                 .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_purify"), inHandLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_purify"))))
                 .end()
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.SPYGLASS))
+                .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Mode.SPYGLASS))
                 .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_spyglass"), inHandSpyglassLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_spyglass"))))
                 .end()
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.SPYGLASS) + 1)
+                .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Mode.SPYGLASS) + 1)
                 .model(activeLadybugYoyo)
                 .end()
                 .override()
@@ -170,12 +173,12 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .model(blockingLadybugYoyo)
                 .end()
                 .override()
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.PURIFY))
+                .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Mode.PURIFY))
                 .predicate(MineraculousItemProperties.BLOCKING, 1)
                 .model(withSeparateInventoryModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_blocking_purify"), inHandBlockingLadybugYoyo, basicItem(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_blocking_purify"))))
                 .end()
                 .override()
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Ability.PURIFY) + 1)
+                .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(LadybugYoyoItem.Mode.PURIFY) + 1)
                 .predicate(MineraculousItemProperties.BLOCKING, 1)
                 .model(blockingLadybugYoyo)
                 .end();
@@ -207,17 +210,17 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .end()
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(CatStaffItem.Ability.PHONE))
+                .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(CatStaffItem.Mode.PHONE))
                 .model(withSeparateInventoryModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_phone"), inHandCatStaff, basicItem(MineraculousItems.CAT_STAFF.getId().withSuffix("_phone"))))
                 .end()
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(CatStaffItem.Ability.SPYGLASS))
+                .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(CatStaffItem.Mode.SPYGLASS))
                 .model(withSeparateInventoryModel(MineraculousItems.CAT_STAFF.getId().withSuffix("_spyglass"), inHandSpyglassCatStaff, basicItem(MineraculousItems.CAT_STAFF.getId().withSuffix("_spyglass"))))
                 .end()
                 .override()
                 .predicate(MineraculousItemProperties.ACTIVE, 1)
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(CatStaffItem.Ability.SPYGLASS) + 1)
+                .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(CatStaffItem.Mode.SPYGLASS) + 1)
                 .model(activeCatStaff)
                 .end();
 
@@ -251,33 +254,33 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .end();
         withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE, inHandButterflyCane, inventoryButterflyCane)
                 .override()
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.BLADE))
+                .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Mode.BLADE))
                 .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade"), inHandButterflyCaneBlade, basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_blade"))))
                 .end()
                 .override()
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.BLADE) + 1)
+                .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Mode.BLADE) + 1)
                 .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE, inHandButterflyCane, inventoryButterflyCane))
                 .end()
                 .override()
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.KAMIKO_STORE))
+                .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Mode.KAMIKO_STORE))
                 .predicate(MineraculousItemProperties.STORING, 0)
                 .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_kamiko_store"), inHandButterflyCane, basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_kamiko_store"))))
                 .end()
                 .override()
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.KAMIKO_STORE))
+                .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Mode.KAMIKO_STORE))
                 .predicate(MineraculousItemProperties.STORING, 1)
                 .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE, inHandButterflyCane, inventoryButterflyCane))
                 .end()
                 .override()
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.PHONE))
+                .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Mode.PHONE))
                 .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_phone"), inHandButterflyCane, basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_phone"))))
                 .end()
                 .override()
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.SPYGLASS))
+                .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Mode.SPYGLASS))
                 .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_spyglass"), inHandSpyglassButterflyCane, basicInventoryItem(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_spyglass"))))
                 .end()
                 .override()
-                .predicate(MineraculousItemProperties.ABILITY, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Ability.SPYGLASS) + 1)
+                .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Mode.SPYGLASS) + 1)
                 .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE, inHandButterflyCane, inventoryButterflyCane))
                 .end();
     }

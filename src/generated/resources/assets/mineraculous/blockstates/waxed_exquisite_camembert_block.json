@@ -1,64 +1,16 @@
 {
   "variants": {
-    "facing=east,missing_pieces=0": {
-      "model": "mineraculous:block/exquisite_camembert_block",
-      "y": 90
-    },
-    "facing=east,missing_pieces=1": {
-      "model": "mineraculous:block/exquisite_camembert_block_slice1",
-      "y": 90
-    },
-    "facing=east,missing_pieces=2": {
-      "model": "mineraculous:block/exquisite_camembert_block_slice2",
-      "y": 90
-    },
-    "facing=east,missing_pieces=3": {
-      "model": "mineraculous:block/exquisite_camembert_block_slice3",
-      "y": 90
-    },
-    "facing=north,missing_pieces=0": {
+    "missing_pieces=0": {
       "model": "mineraculous:block/exquisite_camembert_block"
     },
-    "facing=north,missing_pieces=1": {
+    "missing_pieces=1": {
       "model": "mineraculous:block/exquisite_camembert_block_slice1"
     },
-    "facing=north,missing_pieces=2": {
+    "missing_pieces=2": {
       "model": "mineraculous:block/exquisite_camembert_block_slice2"
     },
-    "facing=north,missing_pieces=3": {
+    "missing_pieces=3": {
       "model": "mineraculous:block/exquisite_camembert_block_slice3"
-    },
-    "facing=south,missing_pieces=0": {
-      "model": "mineraculous:block/exquisite_camembert_block",
-      "y": 180
-    },
-    "facing=south,missing_pieces=1": {
-      "model": "mineraculous:block/exquisite_camembert_block_slice1",
-      "y": 180
-    },
-    "facing=south,missing_pieces=2": {
-      "model": "mineraculous:block/exquisite_camembert_block_slice2",
-      "y": 180
-    },
-    "facing=south,missing_pieces=3": {
-      "model": "mineraculous:block/exquisite_camembert_block_slice3",
-      "y": 180
-    },
-    "facing=west,missing_pieces=0": {
-      "model": "mineraculous:block/exquisite_camembert_block",
-      "y": 270
-    },
-    "facing=west,missing_pieces=1": {
-      "model": "mineraculous:block/exquisite_camembert_block_slice1",
-      "y": 270
-    },
-    "facing=west,missing_pieces=2": {
-      "model": "mineraculous:block/exquisite_camembert_block_slice2",
-      "y": 270
-    },
-    "facing=west,missing_pieces=3": {
-      "model": "mineraculous:block/exquisite_camembert_block_slice3",
-      "y": 270
     }
   }
 }

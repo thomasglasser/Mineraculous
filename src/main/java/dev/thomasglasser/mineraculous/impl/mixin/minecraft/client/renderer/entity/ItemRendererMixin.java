@@ -15,6 +15,6 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 public class ItemRendererMixin {
     @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/ItemRenderer;renderModelLists(Lnet/minecraft/client/resources/model/BakedModel;Lnet/minecraft/world/item/ItemStack;IILcom/mojang/blaze3d/vertex/PoseStack;Lcom/mojang/blaze3d/vertex/VertexConsumer;)V"), index = 5)
     private VertexConsumer checkLuckyCharm(VertexConsumer buffer, @Local(argsOnly = true) MultiBufferSource bufferSource, @Local RenderType renderType, @Local(argsOnly = true) ItemStack itemStack) {
-        return MineraculousClientUtils.checkLuckyCharm(buffer, bufferSource, itemStack, false, false);
+        return MineraculousClientUtils.checkItemShaders(buffer, bufferSource, itemStack, false, false);
     }
 }

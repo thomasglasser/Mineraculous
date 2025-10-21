@@ -23,6 +23,7 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEn
 import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
+import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
@@ -134,6 +135,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                         Optional<Integer> transformationFrames = value.transformationFrames();
 
                         miraculousStack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
+                        miraculousStack.set(MineraculousDataComponents.TEXTURE_STATE, MiraculousItem.TextureState.POWERED);
                         CuriosUtils.setStackInSlot(entity, curiosData, miraculousStack);
 
                         ArmorData armor = new ArmorData(entity.getItemBySlot(EquipmentSlot.HEAD), entity.getItemBySlot(EquipmentSlot.CHEST), entity.getItemBySlot(EquipmentSlot.LEGS), entity.getItemBySlot(EquipmentSlot.FEET));
@@ -147,14 +149,14 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                         }
 
                         if (/*name.isEmpty()*/false && entity instanceof Player player) {
-                            player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(Miraculous.toLanguageKey(key)), key.location().getPath()), true);
+                            player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(MineraculousConstants.toLanguageKey(key)), key.location().getPath()), true);
                         }
 
                         level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.transformSound(), entity.getSoundSource(), 1, 1);
                         level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, miraculousEffect) -> MineraculousEntityUtils.applyInfiniteHiddenEffect(entity, level.holderOrThrow(effect), miraculousEffect.amplifier() + ((!miraculousEffect.toggleable() || MineraculousServerConfig.get().enableBuffsOnTransformation.get()) ? powerLevel / 10 : 0)));
                         entity.getAttributes().addTransientAttributeModifiers(getMiraculousAttributes(level, powerLevel));
 
-                        AbilityData data = new AbilityData(powerLevel, false);
+                        AbilityData data = AbilityData.of(this);
                         value.activeAbility().value().transform(data, level, entity);
                         value.passiveAbilities().forEach(ability -> ability.value().transform(data, level, entity));
                         AbilityReversionEntityData.get(level).startTracking(entity.getUUID());
@@ -197,6 +199,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         }
 
         miraculousStack.remove(MineraculousDataComponents.REMAINING_TICKS);
+        miraculousStack.set(MineraculousDataComponents.TEXTURE_STATE, removed ? MiraculousItem.TextureState.ACTIVE : MiraculousItem.TextureState.HIDDEN);
 
         if (removed) {
             MineraculousEntityUtils.renounceKwami(miraculousStack.get(MineraculousDataComponents.KWAMI_ID), miraculousStack, level);
@@ -230,7 +233,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         }
         entity.getAttributes().removeAttributeModifiers(getMiraculousAttributes(level, powerLevel));
 
-        AbilityData data = new AbilityData(powerLevel, powerActive);
+        AbilityData data = AbilityData.of(this);
         value.activeAbility().value().detransform(data, level, entity);
         value.passiveAbilities().forEach(ability -> ability.value().detransform(data, level, entity));
 
@@ -294,29 +297,51 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                         detransform(entity, level, miraculous, null, false);
                         return;
                     } else {
+                        MiraculousItem.TextureState textureState;
                         remainingTicks = remainingTicks.map(i -> i - 1);
                         int ticks = remainingTicks.get();
                         int seconds = ticks / SharedConstants.TICKS_PER_SECOND;
                         if (seconds < 10) {
                             if (ticks % 4 == 0) {
                                 level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.timerWarningSound().value(), entity.getSoundSource(), 1, 1);
+                                textureState = MiraculousItem.TextureState.ACTIVE;
+                            } else {
+                                textureState = MiraculousItem.TextureState.POWERED_1;
                             }
                         } else {
                             int maxSeconds = MineraculousServerConfig.get().miraculousTimerDuration.get();
                             int threshold = Math.max(maxSeconds / 5, 1);
                             int frame = seconds / threshold + 1;
-                            if (seconds % threshold == 0 && ticks % (20 / frame + (frame > 3 ? 2 : 3)) == 0) {
-                                level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.timerWarningSound().value(), entity.getSoundSource(), 1, 1);
+                            if (seconds % threshold == 0) {
+                                if (ticks % (20 / frame + (frame > 3 ? 2 : 3)) == 0) {
+                                    level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.timerWarningSound().value(), entity.getSoundSource(), 1, 1);
+                                    textureState = MiraculousItem.TextureState.forFrame(frame - 1);
+                                } else {
+                                    textureState = MiraculousItem.TextureState.forFrame(frame - 2);
+                                }
+                            } else {
+                                if (seconds % 2 == 0) {
+                                    textureState = MiraculousItem.TextureState.forFrame(frame - 1);
+                                } else {
+                                    textureState = MiraculousItem.TextureState.forFrame(frame);
+                                }
                             }
                         }
-                    }
-                    if (curiosData.isPresent()) {
-                        ItemStack stack = CuriosUtils.getStackInSlot(entity, curiosData.get());
-                        stack.set(MineraculousDataComponents.REMAINING_TICKS, remainingTicks.get());
-                        CuriosUtils.setStackInSlot(entity, curiosData.get(), stack);
+                        if (curiosData.isPresent()) {
+                            ItemStack stack = CuriosUtils.getStackInSlot(entity, curiosData.get());
+                            stack.set(MineraculousDataComponents.REMAINING_TICKS, remainingTicks.get());
+                            stack.set(MineraculousDataComponents.TEXTURE_STATE, textureState);
+                            CuriosUtils.setStackInSlot(entity, curiosData.get(), stack);
+                        }
                     }
                 } else {
                     remainingTicks = Optional.empty();
+                    if (curiosData.isPresent()) {
+                        ItemStack stack = CuriosUtils.getStackInSlot(entity, curiosData.get());
+                        stack.remove(MineraculousDataComponents.REMAINING_TICKS);
+                        stack.set(MineraculousDataComponents.TEXTURE_STATE, MiraculousItem.TextureState.POWERED);
+                        CuriosUtils.setStackInSlot(entity, curiosData.get(), stack);
+                    }
                 }
 
                 level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((key, miraculousEffect) -> {
@@ -328,7 +353,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
 
                 boolean powerActive = this.powerActive;
                 boolean countdownStarted = this.countdownStarted;
-                AbilityData data = new AbilityData(powerLevel, powerActive);
+                AbilityData data = AbilityData.of(this);
                 AbilityHandler handler = new MiraculousAbilityHandler(miraculous);
                 Ability.State passiveState = AbilityUtils.performPassiveAbilities(level, entity, data, handler, null, miraculous.value().passiveAbilities());
                 if (powerActive) {
@@ -349,6 +374,10 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                 }
 
                 tickTransformed(remainingTicks, powerActive, countdownStarted).save(miraculous, entity, true);
+            } else if (curiosData.isPresent()) {
+                ItemStack stack = CuriosUtils.getStackInSlot(entity, curiosData.get());
+                stack.set(MineraculousDataComponents.TEXTURE_STATE, entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() ? MiraculousItem.TextureState.ACTIVE : MiraculousItem.TextureState.HIDDEN);
+                CuriosUtils.setStackInSlot(entity, curiosData.get(), stack);
             }
         });
     }
@@ -358,7 +387,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
     }
 
     public void performAbilities(ServerLevel level, LivingEntity entity, Holder<Miraculous> miraculous, @Nullable AbilityContext context) {
-        AbilityData data = new AbilityData(powerLevel, powerActive);
+        AbilityData data = AbilityData.of(this);
         AbilityHandler handler = new MiraculousAbilityHandler(miraculous);
         Ability.State state = AbilityUtils.performPassiveAbilities(level, entity, data, handler, context, miraculous.value().passiveAbilities());
         if (state.isSuccess() && powerActive) {
@@ -403,7 +432,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         finishDetransformation().save(miraculous, entity, true);
     }
 
-    private static Multimap<Holder<Attribute>, AttributeModifier> getMiraculousAttributes(ServerLevel level, int powerLevel) {
+    public static Multimap<Holder<Attribute>, AttributeModifier> getMiraculousAttributes(ServerLevel level, int powerLevel) {
         Multimap<Holder<Attribute>, AttributeModifier> attributeModifiers = HashMultimap.create();
         Registry<Attribute> attributes = level.registryAccess().registryOrThrow(Registries.ATTRIBUTE);
         attributes.getDataMap(MineraculousDataMaps.MIRACULOUS_ATTRIBUTE_MODIFIERS).forEach((attribute, settings) -> attributeModifiers.put(attributes.getHolderOrThrow(attribute), new AttributeModifier(MineraculousConstants.modLoc("miraculous_buff"), (settings.amount() * (powerLevel / 10.0)), settings.operation())));

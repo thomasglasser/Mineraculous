@@ -20,6 +20,7 @@ public class MineraculousPoiTypeTagsProvider extends ExtendedTagsProvider<PoiTyp
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         tag(PoiTypeTags.ACQUIRABLE_JOB_SITE)
-                .add(MineraculousPoiTypes.FROMAGER);
+                .add(MineraculousPoiTypes.FROMAGER)
+                .add(MineraculousPoiTypes.BAKER);
     }
 }

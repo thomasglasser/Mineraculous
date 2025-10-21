@@ -82,6 +82,15 @@ repositories {
 		}
 		filter { includeGroupAndSubgroups "com.klikli_dev" }
 	}
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Voice Chat API'
+                url = 'https://maven.maxhenkel.de/repository/public'
+            }
+        }
+        filter { includeGroupAndSubgroups "de.maxhenkel.voicechat" }
+    }
 	maven {
 		name = 'TommyLib'
 		url = 'https://dl.cloudsmith.io/public/thomasglasser/tommylib/maven/'
@@ -164,10 +173,12 @@ dependencies {
 	implementation "maven.modrinth:lithostitched:${lithostitched_version}-neoforge-${previous_minecraft_version}"
 
 	implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
-	implementation "com.klikli_dev:modonomicon-${minecraft_version}-neoforge:${modonomicon_version}"
+    implementation "maven.modrinth:jade:${jade_version}+neoforge"
+    implementation "com.klikli_dev:modonomicon-${minecraft_version}-neoforge:${modonomicon_version}"
+    implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
 
 	// Runtime
-	localRuntime "maven.modrinth:jade:${jade_version}+neoforge"
+    localRuntime "maven.modrinth:simple-voice-chat:neoforge-${minecraft_version}-${voicechat_version}"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
@@ -194,6 +205,7 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
 			lithostitched_version: lithostitched_version,
 			jei_version: jei_version,
 			modonomicon_version: modonomicon_version,
+            voicechat_api_version: voicechat_api_version,
 	]
 
 	inputs.properties replaceProperties

@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,12 +14,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
-public record ServerboundStartKamikotizationDetransformationPayload(Optional<UUID> targetId, KamikotizationData data, boolean instant) implements ExtendedPacketPayload {
-
+public record ServerboundStartKamikotizationDetransformationPayload(Optional<UUID> targetId, boolean instant) implements ExtendedPacketPayload {
     public static final Type<ServerboundStartKamikotizationDetransformationPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_start_kamikotization_detransformation"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundStartKamikotizationDetransformationPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), ServerboundStartKamikotizationDetransformationPayload::targetId,
-            KamikotizationData.STREAM_CODEC, ServerboundStartKamikotizationDetransformationPayload::data,
             ByteBufCodecs.BOOL, ServerboundStartKamikotizationDetransformationPayload::instant,
             ServerboundStartKamikotizationDetransformationPayload::new);
 
@@ -34,7 +32,7 @@ public record ServerboundStartKamikotizationDetransformationPayload(Optional<UUI
             target = player;
         }
         if (target != null) {
-            data.detransform(target, level, target.position().add(0, 1, 0), instant);
+            target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.detransform(target, level, target.position().add(0, 1, 0), instant));
         }
     }
 

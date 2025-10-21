@@ -25,7 +25,7 @@ public class BlockingDefaultedGeoItemRenderer<T extends Item & GeoAnimatable> ex
     }
 
     public boolean isBlocking() {
-        return getCurrentItemStack() != null && getCurrentItemStack().has(MineraculousDataComponents.BLOCKING);
+        return getCurrentItemStack().has(MineraculousDataComponents.BLOCKING);
     }
 
     public GeoModel<T> getBlockingModel() {

@@ -109,6 +109,14 @@ public class MiraculousesData {
         return false;
     }
 
+    public int getPowerLevel() {
+        int powerLevel = 0;
+        for (Holder<Miraculous> miraculous : keySet()) {
+            powerLevel = Math.max(powerLevel, get(miraculous).powerLevel());
+        }
+        return powerLevel;
+    }
+
     public void save(Entity entity, boolean syncToClient) {
         entity.setData(MineraculousAttachmentTypes.MIRACULOUSES, this);
         if (syncToClient)

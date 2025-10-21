@@ -80,6 +80,7 @@ public class MineraculousDataMapProvider extends DataMapProvider {
 
         builder(NeoForgeDataMaps.RAID_HERO_GIFTS)
                 .add(MineraculousVillagerProfessions.FROMAGER, new RaidHeroGift(MineraculousGiftLootKeys.FROMAGER_GIFT), false)
+                .add(MineraculousVillagerProfessions.BAKER, new RaidHeroGift(MineraculousGiftLootKeys.BAKER_GIFT), false)
                 .build();
     }
 }

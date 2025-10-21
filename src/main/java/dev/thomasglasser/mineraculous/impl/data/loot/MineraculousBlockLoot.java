@@ -33,6 +33,7 @@ public class MineraculousBlockLoot extends ExtendedBlockLootSubProvider {
         HolderLookup.RegistryLookup<Enchantment> enchantments = registries.lookupOrThrow(Registries.ENCHANTMENT);
 
         dropSelf(MineraculousBlocks.CHEESE_POT.get());
+        dropSelf(MineraculousBlocks.OVEN.get());
 
         dropOther(MineraculousBlocks.CATACLYSM_BLOCK.get(), MineraculousItems.CATACLYSM_DUST.get());
 

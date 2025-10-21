@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.api.world.miraculous;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
@@ -18,7 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -57,7 +58,7 @@ public record Miraculous(TextColor color, String acceptableSlot, Optional<Intege
             SoundEvent.CODEC.optionalFieldOf("detransform_sound", MineraculousSoundEvents.GENERIC_DETRANSFORM).forGetter(Miraculous::detransformSound),
             SoundEvent.CODEC.optionalFieldOf("timer_warning_sound", MineraculousSoundEvents.GENERIC_TIMER_WARNING).forGetter(Miraculous::timerWarningSound),
             SoundEvent.CODEC.optionalFieldOf("timer_end_sound", MineraculousSoundEvents.GENERIC_TIMER_END).forGetter(Miraculous::timerEndSound)).apply(instance, Miraculous::new));
-    public static final Codec<Holder<Miraculous>> CODEC = RegistryFileCodec.create(MineraculousRegistries.MIRACULOUS, DIRECT_CODEC);
+    public static final Codec<Holder<Miraculous>> CODEC = RegistryFixedCodec.create(MineraculousRegistries.MIRACULOUS);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, Miraculous> DIRECT_STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
             ByteBufCodecs.fromCodec(TextColor.CODEC), Miraculous::color,
@@ -80,10 +81,6 @@ public record Miraculous(TextColor color, String acceptableSlot, Optional<Intege
     @Override
     public ItemStack tool() {
         return tool.copy();
-    }
-
-    public static String toLanguageKey(ResourceKey<Miraculous> key) {
-        return key.location().toLanguageKey(key.registry().getPath());
     }
 
     public static TagKey<Item> createFoodsTag(ResourceKey<Miraculous> key) {
@@ -109,7 +106,7 @@ public record Miraculous(TextColor color, String acceptableSlot, Optional<Intege
         if (miraculous != null) {
             ResourceKey<Miraculous> key = miraculous.getKey();
             if (key != null) {
-                return Component.translatable(toLanguageKey(key)).append(" ").append(original).withColor(miraculous.value().color().getValue());
+                return Component.translatable(MineraculousConstants.toLanguageKey(key)).append(" ").append(original).withColor(miraculous.value().color().getValue());
             }
         }
         return original;

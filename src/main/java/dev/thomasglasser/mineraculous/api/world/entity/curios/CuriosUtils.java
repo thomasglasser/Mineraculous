@@ -90,4 +90,15 @@ public class CuriosUtils {
         }));
         return items;
     }
+
+    /**
+     * Checks if the provided {@link ItemStack} is equipped in the provided {@link LivingEntity}'s Curios inventory.
+     *
+     * @param entity The entity to check for the stack in
+     * @param stack  The stack to check for
+     * @return Whether the stack is equipped
+     */
+    public static boolean isEquipped(LivingEntity entity, ItemStack stack) {
+        return CuriosApi.getCuriosInventory(entity).map(curios -> curios.isEquipped(s -> s == stack)).orElse(false);
+    }
 }

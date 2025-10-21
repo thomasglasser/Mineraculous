@@ -37,8 +37,8 @@ public class MineraculousItemProperties {
     public static final ResourceLocation MISSING_PIECES = MineraculousConstants.modLoc(PieceBlock.MISSING_PIECES);
 
     // Specific
-    /// {@link Enum#ordinal()} {@code + 1} of a Miraculous tool ability.
-    public static final ResourceLocation ABILITY = MineraculousConstants.modLoc("ability");
+    /// {@link Enum#ordinal()} {@code + 1} of a Miraculous tool mode.
+    public static final ResourceLocation MODE = MineraculousConstants.modLoc("mode");
     /// Thrown state of a {@link LadybugYoyoItem}.
     public static final ResourceLocation THROWN = MineraculousConstants.modLoc("thrown");
     /// Whether a {@link ButterflyCaneItem} owner is currently storing a kamiko
@@ -85,7 +85,7 @@ public class MineraculousItemProperties {
         });
 
         // Miraculous Tools
-        ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), ABILITY, getEnumPropertyFunction(MineraculousDataComponents.LADYBUG_YOYO_ABILITY.get()));
+        ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), MODE, getEnumPropertyFunction(MineraculousDataComponents.LADYBUG_YOYO_MODE.get()));
         ItemProperties.register(MineraculousItems.LADYBUG_YOYO.get(), THROWN, (stack, level, entity, seed) -> {
             if (entity instanceof Player player) {
                 ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
@@ -98,8 +98,8 @@ public class MineraculousItemProperties {
             }
             return 0;
         });
-        ItemProperties.register(MineraculousItems.CAT_STAFF.get(), ABILITY, getEnumPropertyFunction(MineraculousDataComponents.CAT_STAFF_ABILITY.get()));
-        ItemProperties.register(MineraculousItems.BUTTERFLY_CANE.get(), ABILITY, getEnumPropertyFunction(MineraculousDataComponents.BUTTERFLY_CANE_ABILITY.get()));
+        ItemProperties.register(MineraculousItems.CAT_STAFF.get(), MODE, getEnumPropertyFunction(MineraculousDataComponents.CAT_STAFF_MODE.get()));
+        ItemProperties.register(MineraculousItems.BUTTERFLY_CANE.get(), MODE, getEnumPropertyFunction(MineraculousDataComponents.BUTTERFLY_CANE_MODE.get()));
         ItemProperties.register(MineraculousItems.BUTTERFLY_CANE.get(), STORING, (stack, level, entity, seed) -> {
             UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
             if (ownerId != null && level != null) {

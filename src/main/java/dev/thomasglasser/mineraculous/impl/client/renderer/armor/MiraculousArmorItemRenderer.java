@@ -2,20 +2,19 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.armor;
 
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
+import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.MiraculousArmorItem;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.Map;
 import java.util.Optional;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
@@ -24,57 +23,45 @@ import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
 public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmorItem> {
     private static final Map<Holder<Miraculous>, GeoModel<MiraculousArmorItem>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
+    private static final Map<ResourceLocation, Int2ObjectMap<ResourceLocation>> FRAME_TEXTURES = new Object2ReferenceOpenHashMap<>();
 
     public MiraculousArmorItemRenderer() {
-        super(null);
+        super((GeoModel<MiraculousArmorItem>) null);
         addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
     }
 
-    public static void clearModels() {
+    public static void clearAssets() {
         DEFAULT_MODELS.clear();
+        FRAME_TEXTURES.clear();
     }
 
     @Override
     public ResourceLocation getTextureLocation(MiraculousArmorItem animatable) {
+        ResourceLocation base = super.getTextureLocation(animatable);
         ItemStack stack = getCurrentStack();
-        if (stack != null) {
-            Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-            Entity entity = getCurrentEntity();
-            if (miraculous != null && entity != null) {
-                Optional<Integer> transformationFrames = miraculous.value().transformationFrames();
-                if (transformationFrames.isPresent()) {
-                    Integer transformationTicks = stack.get(MineraculousDataComponents.TRANSFORMATION_FRAMES);
-                    Integer detransformationTicks = stack.get(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
-                    int frame = transformationTicks == null ? detransformationTicks == null ? -1 : detransformationTicks : transformationFrames.get() - transformationTicks;
-                    if (frame >= 0) {
-                        ResourceLocation texture = super.getTextureLocation(animatable).withPath(path -> path.replace(".png", "_" + frame + ".png"));
-                        if (Minecraft.getInstance().getResourceManager().getResource(texture).isPresent() || Minecraft.getInstance().getTextureManager().getTexture(texture, MissingTextureAtlasSprite.getTexture()) != MissingTextureAtlasSprite.getTexture())
-                            return texture;
-                    }
-                }
+        Holder<Miraculous> miraculous = MiraculousItemRenderer.getMiraculousOrDefault(stack);
+        Optional<Integer> transformationFrames = miraculous.value().transformationFrames();
+        if (transformationFrames.isPresent()) {
+            Integer transformationTicks = stack.get(MineraculousDataComponents.TRANSFORMATION_FRAMES);
+            Integer detransformationTicks = stack.get(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
+            int frame = transformationTicks == null ? detransformationTicks == null ? -1 : detransformationTicks : transformationFrames.get() - transformationTicks;
+            if (frame >= 0) {
+                ResourceLocation texture = FRAME_TEXTURES.computeIfAbsent(base, loc -> new Int2ObjectOpenHashMap<>()).computeIfAbsent(frame, i -> base.withPath(path -> path.replace(".png", "_" + i + ".png")));
+                if (MineraculousClientUtils.isValidTexture(texture))
+                    return texture;
             }
         }
-        return super.getTextureLocation(animatable);
+        return base;
     }
 
     @Override
     public GeoModel<MiraculousArmorItem> getGeoModel() {
-        Holder<Miraculous> miraculous = getCurrentStack().get(MineraculousDataComponents.MIRACULOUS);
-        Level level = ClientUtils.getLevel();
-        if (miraculous == null && level != null) {
-            miraculous = level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getAny().orElse(null);
-        }
-        if (miraculous != null) {
-            if (!DEFAULT_MODELS.containsKey(miraculous))
-                DEFAULT_MODELS.put(miraculous, createDefaultGeoModel(miraculous));
-            return DEFAULT_MODELS.get(miraculous);
-        }
-        throw new IllegalStateException("Tried to render a Miraculous Armor Item without any registered miraculous");
+        return DEFAULT_MODELS.computeIfAbsent(MiraculousItemRenderer.getMiraculousOrDefault(getCurrentStack()), this::createDefaultGeoModel);
     }
 
     private GeoModel<MiraculousArmorItem> createDefaultGeoModel(Holder<Miraculous> miraculous) {
-        return new DefaultedItemGeoModel<>(ResourceLocation.fromNamespaceAndPath(miraculous.getKey().location().getNamespace(), "armor/miraculous/" + miraculous.getKey().location().getPath())) {
-            private final ResourceLocation texture = ResourceLocation.fromNamespaceAndPath(miraculous.getKey().location().getNamespace(), "textures/entity/equipment/humanoid/miraculous/" + miraculous.getKey().location().getPath() + ".png");
+        return new DefaultedItemGeoModel<>(miraculous.getKey().location().withPrefix("armor/miraculous/")) {
+            private final ResourceLocation texture = miraculous.getKey().location().withPath(path -> "textures/entity/equipment/humanoid/miraculous/" + path + ".png");
 
             @Override
             public ResourceLocation getTextureResource(MiraculousArmorItem animatable) {

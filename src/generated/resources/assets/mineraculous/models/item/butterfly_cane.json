@@ -62,45 +62,45 @@
     {
       "model": "mineraculous:item/butterfly_cane_blade",
       "predicate": {
-        "mineraculous:ability": 1.0
+        "mineraculous:mode": 1.0
       }
     },
     {
       "model": "mineraculous:item/butterfly_cane",
       "predicate": {
-        "mineraculous:ability": 2.0
+        "mineraculous:mode": 2.0
       }
     },
     {
       "model": "mineraculous:item/butterfly_cane_kamiko_store",
       "predicate": {
-        "mineraculous:ability": 3.0,
+        "mineraculous:mode": 3.0,
         "mineraculous:storing": 0.0
       }
     },
     {
       "model": "mineraculous:item/butterfly_cane",
       "predicate": {
-        "mineraculous:ability": 3.0,
+        "mineraculous:mode": 3.0,
         "mineraculous:storing": 1.0
       }
     },
     {
       "model": "mineraculous:item/butterfly_cane_phone",
       "predicate": {
-        "mineraculous:ability": 4.0
+        "mineraculous:mode": 4.0
       }
     },
     {
       "model": "mineraculous:item/butterfly_cane_spyglass",
       "predicate": {
-        "mineraculous:ability": 5.0
+        "mineraculous:mode": 5.0
       }
     },
     {
       "model": "mineraculous:item/butterfly_cane",
       "predicate": {
-        "mineraculous:ability": 6.0
+        "mineraculous:mode": 6.0
       }
     }
   ],

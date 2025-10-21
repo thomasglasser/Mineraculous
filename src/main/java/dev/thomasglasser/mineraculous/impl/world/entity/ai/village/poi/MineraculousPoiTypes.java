@@ -18,6 +18,7 @@ public class MineraculousPoiTypes {
 
     /// POI Type for the {@link MineraculousVillagerProfessions#FROMAGER} {@link VillagerProfession}.
     public static final DeferredHolder<PoiType, PoiType> FROMAGER = registerForVillager("fromager", MineraculousBlocks.CHEESE_POT);
+    public static final DeferredHolder<PoiType, PoiType> BAKER = registerForVillager("baker", MineraculousBlocks.OVEN);
 
     private static Supplier<Set<BlockState>> getBlockStates(DeferredBlock<?> block) {
         return () -> ImmutableSet.copyOf(block.get().getStateDefinition().getPossibleStates());

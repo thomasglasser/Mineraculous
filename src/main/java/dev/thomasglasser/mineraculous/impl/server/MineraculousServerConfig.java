@@ -9,17 +9,23 @@ public class MineraculousServerConfig {
 
     // Miraculous
     public static final String MIRACULOUS = "miraculous";
+    public final ModConfigSpec.BooleanValue enableBuffsOnTransformation;
+    public final ModConfigSpec.IntValue maxToolLength;
+
+    public static final String CUSTOMIZATION = "customization";
     public final ModConfigSpec.BooleanValue enableCustomization;
     public final ModConfigSpec.EnumValue<PermissionMode> customizationPermissionsMode;
-    public final ModConfigSpec.IntValue kwamiSummonTime;
+
+    public static final String ABILITIES = "abilities";
     public final ModConfigSpec.BooleanValue enableMiraculousTimer;
     public final ModConfigSpec.IntValue miraculousTimerDuration;
     public final ModConfigSpec.BooleanValue enableLimitedPower;
     public final ModConfigSpec.BooleanValue enableKamikotizationRejection;
-    public final ModConfigSpec.BooleanValue enableBuffsOnTransformation;
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMin;
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMax;
-    public final ModConfigSpec.IntValue maxToolLength;
+
+    public static final String KWAMIS = "kwamis";
+    public final ModConfigSpec.IntValue kwamiSummonTime;
 
     // Stealing
     public static final String STEALING = "stealing";
@@ -32,12 +38,17 @@ public class MineraculousServerConfig {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
         builder.push(MIRACULOUS);
+        enableBuffsOnTransformation = builder
+                .define("enable_buffs_on_transformation", false);
+        maxToolLength = builder
+                .defineInRange("max_tool_length", 128, 32, 512);
+        builder.push(CUSTOMIZATION);
         enableCustomization = builder
                 .define("enable_customization", false);
         customizationPermissionsMode = builder
                 .defineEnum("customization_permission_mode", PermissionMode.WHITELIST);
-        kwamiSummonTime = builder
-                .defineInRange("kwami_summon_time", 2, 1, 60);
+        builder.pop();
+        builder.push(ABILITIES);
         enableMiraculousTimer = builder
                 .define("enable_miraculous_timer", true);
         miraculousTimerDuration = builder
@@ -46,14 +57,15 @@ public class MineraculousServerConfig {
                 .define("enable_limited_power", true);
         enableKamikotizationRejection = builder
                 .define("enable_kamikotization_rejection", true);
-        enableBuffsOnTransformation = builder
-                .define("enable_buffs_on_transformation", false);
         luckyCharmSummonTimeMin = builder
                 .defineInRange("lucky_charm_summon_time_min", 3, 0, Integer.MAX_VALUE);
         luckyCharmSummonTimeMax = builder
                 .defineInRange("lucky_charm_summon_time_max", 6, 0, Integer.MAX_VALUE);
-        maxToolLength = builder
-                .defineInRange("max_tool_length", 128, 32, 512);
+        builder.pop();
+        builder.push(KWAMIS);
+        kwamiSummonTime = builder
+                .defineInRange("kwami_summon_time", 2, 1, 60);
+        builder.pop();
         builder.pop();
 
         builder.push(STEALING);

@@ -99,6 +99,10 @@ public record AbilityEffectData(boolean playedContinuousAbilityStartSound, Optio
             TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.ABILITY_EFFECTS, this), entity.getServer());
     }
 
+    public static boolean isMessageAllowed(Entity receiver, UUID senderId) {
+        return receiver.getUUID().equals(senderId) || receiver.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().map(id -> id.equals(senderId)).orElse(true);
+    }
+
     public static void removeFaceMaskTexture(Entity entity, Optional<ResourceLocation> faceMaskTexture) {
         AbilityEffectData abilityEffectData = entity.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
         abilityEffectData.faceMaskTexture().ifPresent(texture -> {

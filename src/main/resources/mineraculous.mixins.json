@@ -8,6 +8,7 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "geckolib.renderer.GeoRendererMixin",
+    "minecraft.data.recipes.SimpleCookingRecipeBuilderMixin",
     "minecraft.server.level.ServerLevelMixin",
     "minecraft.server.level.ServerPlayer$1Mixin",
     "minecraft.server.level.ServerPlayer$2Mixin",
@@ -17,6 +18,7 @@
     "minecraft.world.entity.EntityMixin",
     "minecraft.world.entity.LeashableMixin",
     "minecraft.world.entity.player.PlayerMixin",
+    "minecraft.world.inventory.AbstractContainerMenuMixin",
     "minecraft.world.item.BlockItemMixin",
     "minecraft.world.item.BucketItemMixin",
     "minecraft.world.item.ItemStackMixin",

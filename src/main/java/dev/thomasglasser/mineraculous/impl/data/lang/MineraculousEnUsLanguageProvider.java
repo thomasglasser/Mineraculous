@@ -241,6 +241,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
     private void addProfessions() {
         addProfession(MineraculousVillagerProfessions.FROMAGER, "Fromager");
+        addProfession(MineraculousVillagerProfessions.BAKER, "Baker");
     }
 
     private void addGuis() {

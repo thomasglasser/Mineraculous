@@ -1,5 +1,8 @@
 {
   "values": {
+    "mineraculous:baker": {
+      "loot_table": "mineraculous:gameplay/hero_of_the_village/baker_gift"
+    },
     "mineraculous:fromager": {
       "loot_table": "mineraculous:gameplay/hero_of_the_village/fromager_gift"
     }

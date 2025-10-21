@@ -21,6 +21,7 @@ import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.item.crafting.MineraculousRecipeTypes;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.block.entity.MineraculousBlockEntityTypes;
+import dev.thomasglasser.mineraculous.api.world.level.storage.loot.functions.MineraculousLootItemFunctionTypes;
 import dev.thomasglasser.mineraculous.api.world.level.storage.loot.parameters.MineraculousLootContextParamSets;
 import dev.thomasglasser.mineraculous.impl.commands.MineraculousCommandEvents;
 import dev.thomasglasser.mineraculous.impl.core.MineraculousCoreEvents;
@@ -82,6 +83,7 @@ public class Mineraculous {
         MineraculousNumberProviders.init();
         MineraculousLootItemConditions.init();
         MineraculousLootContextParamSets.init();
+        MineraculousLootItemFunctionTypes.init();
     }
 
     private void addEventListeners(IEventBus modBus) {

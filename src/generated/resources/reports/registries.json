@@ -157,6 +157,9 @@
   "minecraft:loot_condition_type": [
     "mineraculous:has_item"
   ],
+  "minecraft:loot_function_type": [
+    "mineraculous:dye_randomly"
+  ],
   "minecraft:loot_number_provider_type": [
     "mineraculous:power_level_multiplier"
   ],
@@ -180,6 +183,7 @@
     "mineraculous:summoning_ladybug"
   ],
   "minecraft:point_of_interest_type": [
+    "mineraculous:baker",
     "mineraculous:fromager"
   ],
   "minecraft:recipe_serializer": [
@@ -234,6 +238,7 @@
     "mineraculous:ladybug"
   ],
   "minecraft:villager_profession": [
+    "mineraculous:baker",
     "mineraculous:fromager"
   ],
   "mineraculous:ability": [

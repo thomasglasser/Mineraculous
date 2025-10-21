@@ -1,15 +1,23 @@
 package dev.thomasglasser.mineraculous.impl.util;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector2d;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.Vec3;
 
 public class MineraculousMathUtils {
     public static Vec3 projectOnCircle(Vec3 fromPointToCenter, Vec3 vec3) {
@@ -50,6 +58,25 @@ public class MineraculousMathUtils {
         for (BlockPos pos : blockPos)
             toReturn.add(pos.getCenter());
         return toReturn;
+    }
+
+    // generates the positions of n points on a circle, equally spaced between each other.
+    public static ArrayList<Vector2d> generateCirclePoints(double rad, int n) {
+        ArrayList<Vector2d> points = new ArrayList<>();
+        double angleStep = 2 * Math.PI / n;
+
+        for (int i = 0; i < n; i++) {
+            double angle = i * angleStep;
+            double x = rad * Math.cos(angle);
+            double y = rad * Math.sin(angle);
+            points.add(new Vector2d(x, y));
+        }
+
+        return points;
+    }
+
+    public static Vec3i getVec3i(Vec3 vec) {
+        return new Vec3i((int) vec.x, (int) vec.y, (int) vec.z);
     }
 
     public static class CatmullRom {
@@ -205,6 +232,16 @@ public class MineraculousMathUtils {
         }
 
         return result;
+    }
+
+    public static Multimap<ResourceKey<Level>, BlockPos> reduceNearbyBlocks(Multimap<ResourceKey<Level>, BlockPos> blockPositions) {
+        Multimap<ResourceKey<Level>, BlockPos> reducedBlockPositions = ArrayListMultimap.create();
+        for (ResourceKey<Level> levelKey : blockPositions.keySet()) {
+            Collection<BlockPos> positions = blockPositions.get(levelKey);
+            List<BlockPos> reduced = MineraculousMathUtils.reduceNearbyBlocks(new ArrayList<>(positions));
+            reducedBlockPositions.putAll(levelKey, reduced);
+        }
+        return reducedBlockPositions;
     }
 
     //GREEDY TSP

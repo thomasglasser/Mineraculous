@@ -2,10 +2,9 @@ package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -13,6 +12,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MiraculousLadybug extends Entity {
     public MineraculousMathUtils.CatmullRom path;
@@ -30,6 +32,15 @@ public class MiraculousLadybug extends Entity {
         this.oldSplinePosition = 0;
     }
 
+    public MiraculousLadybug(Level level) {
+        super(MineraculousEntityTypes.MIRACULOUS_LADYBUG.get(), level);
+        this.noPhysics = true;
+        this.noCulling = true;
+        this.shouldUpdatePath = true;
+        this.splinePositionParameter = 0;
+        this.oldSplinePosition = 0;
+    }
+
     @Override
     public void tick() {
         super.tick();
@@ -37,11 +48,12 @@ public class MiraculousLadybug extends Entity {
         if ((targetData.blockTargets() == null || targetData.blockTargets().isEmpty())) {
             this.discard();
             return;
-        }//TODO extract methods for target setup
-        List<Vec3> blockTargets = MineraculousMathUtils.sortTargets(
-                MineraculousMathUtils.getCenter(targetData.blockTargets()),
-                this.blockPosition().getCenter());
+        }
         if (this.shouldUpdatePath) { // this part should run only once in the entity's lifetime
+            //TODO extract methods for target setup
+            List<Vec3> blockTargets = MineraculousMathUtils.sortTargets(
+                    MineraculousMathUtils.getCenter(targetData.blockTargets()),
+                    this.blockPosition().getCenter());
             updatePath(blockTargets);
         } else {
             setPosition();
@@ -84,7 +96,9 @@ public class MiraculousLadybug extends Entity {
     }
 
     private void setPosition() {
+        double before = splinePositionParameter;
         splinePositionParameter = path.advanceParameter(splinePositionParameter, 0.8); //0.8
+        if (before == splinePositionParameter) this.discard();
         this.setPos(path.getPoint(splinePositionParameter));
     }
 

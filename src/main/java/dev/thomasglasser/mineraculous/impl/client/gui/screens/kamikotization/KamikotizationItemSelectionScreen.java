@@ -14,6 +14,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundSetItemKamikotizin
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSpawnTamedKamikoPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
@@ -32,6 +33,7 @@ import net.minecraft.world.item.ItemStack;
 import top.theillusivec4.curios.common.inventory.CurioSlot;
 
 public class KamikotizationItemSelectionScreen extends ExternalCuriosInventoryScreen {
+    public static final String NO_KAMIKOTIZATIONS = "gui.kamikotization_item_selection.no_kamikotizations";
     public static final Component APPLIES_TO = Component.translatable("gui.kamikotization_item_selection.applies_to").withStyle(ChatFormatting.GRAY);
 
     private final Multimap<ItemStack, Holder<Kamikotization>> kamikotizations = MultimapBuilder.hashKeys().linkedListValues().build();
@@ -46,13 +48,17 @@ public class KamikotizationItemSelectionScreen extends ExternalCuriosInventorySc
         this.kamikoData = kamikoData;
         Registry<Kamikotization> registry = target.level().registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION);
         for (ItemStack stack : getMenu().getItems()) {
-            if (!stack.has(MineraculousDataComponents.KAMIKOTIZATION)) {
+            if (!(stack.isEmpty() || stack.has(MineraculousDataComponents.KAMIKOTIZATION))) {
                 for (Kamikotization kamikotization : registry) {
                     if (kamikotization.itemPredicate().test(stack)) {
                         kamikotizations.put(stack, registry.wrapAsHolder(kamikotization));
                     }
                 }
             }
+        }
+        if (kamikotizations.isEmpty()) {
+            ClientUtils.getLocalPlayer().displayClientMessage(Component.translatable(NO_KAMIKOTIZATIONS, target.getDisplayName()), true);
+            onClose();
         }
     }
 

@@ -72,6 +72,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, GeoEntity {
     public static final ResourceLocation SPECTATOR_SHADER = MineraculousConstants.modLoc("shaders/post/kamiko.json");
+    public static final Component DETRANSFORM_TO_TRANSFORM = Component.translatable("entity.mineraculous.kamiko.detransform_to_transform");
     public static final Component CANT_KAMIKOTIZE_TRANSFORMED = Component.translatable("entity.mineraculous.kamiko.cant_kamikotize_transformed");
 
     private static final EntityDataAccessor<Integer> DATA_POWER_LEVEL = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.INT);
@@ -215,8 +216,21 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                         return entity.canBeSeenByAnyone();
                     }
                 }.invalidateIf(EntityUtils.TARGET_TOO_FAR_PREDICATE),
-                new SetWalkTargetToAttackTarget<Kamiko>(),
+                new SetWalkTargetToAttackTarget<Kamiko>().startCondition(kamiko -> {
+                    LivingEntity target = kamiko.getTarget();
+                    if (target == null)
+                        return false;
+                    return checkTargetAndAlertTransformedOwner(target);
+                }),
                 new MoveToWalkTarget<Kamiko>());
+    }
+
+    public boolean checkTargetAndAlertTransformedOwner(LivingEntity target) {
+        boolean delay = target != null && target.getUUID().equals(getOwnerUUID()) && target.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed();
+        if (delay && target instanceof Player player) {
+            player.displayClientMessage(DETRANSFORM_TO_TRANSFORM, true);
+        }
+        return !delay;
     }
 
     @Override
@@ -261,7 +275,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
 
     @Override
     public void playerTouch(Player player) {
-        if (getTarget() == player && getOwner() instanceof ServerPlayer owner) {
+        if (getTarget() == player && getOwner() instanceof ServerPlayer owner && checkTargetAndAlertTransformedOwner(player)) {
             if (player.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
                 owner.displayClientMessage(CANT_KAMIKOTIZE_TRANSFORMED, true);
                 setTarget(null);

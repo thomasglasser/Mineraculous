@@ -261,6 +261,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         // Kamiko Gui
         add(KamikoTargetPlayerMenuCategory.TARGET_PROMPT, "Select a player to target");
+        add(Kamiko.DETRANSFORM_TO_TRANSFORM, "Kamikotization will begin when you detransform.");
         add(Kamiko.CANT_KAMIKOTIZE_TRANSFORMED, "Kamikotizing transformed players is not currently supported.");
         add(Kamikotization.NO_KAMIKOTIZATIONS, "No Kamikotizations found in world, have you installed any addons?");
 
@@ -273,7 +274,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         // Kamikotization Selection Screen
         add(KamikotizationSelectionScreen.TITLE, "Kamikotization");
-        add(KamikotizationSelectionScreen.NO_KAMIKOTIZATIONS, "No valid kamikotizations found for %s");
+        add(KamikotizationItemSelectionScreen.NO_KAMIKOTIZATIONS, "No valid kamikotizations found for %s");
         add(KamikotizationSelectionScreen.TOOL, "Tool:");
         add(KamikotizationSelectionScreen.ACTIVE_ABILITY, "Active Ability:");
         add(KamikotizationSelectionScreen.PASSIVE_ABILITIES, "Passive Abilities:");

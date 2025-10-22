@@ -1,6 +1,8 @@
 package dev.thomasglasser.mineraculous.api.world.level.storage;
 
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Table;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
@@ -18,6 +20,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -36,6 +40,7 @@ public class AbilityReversionEntityData extends SavedData {
     private final Map<UUID, List<Pair<ResourceKey<Level>, CompoundTag>>> revertibleEntities = new Object2ObjectOpenHashMap<>();
     private final Map<UUID, List<UUID>> removableEntities = new Object2ObjectOpenHashMap<>();
     private final Table<UUID, UUID, Pair<ResourceKey<Level>, CompoundTag>> convertedEntities = HashBasedTable.create();
+    private final Multimap<UUID, UUID> copiedEntities = MultimapBuilder.hashKeys().arrayListValues().build();
 
     public static AbilityReversionEntityData get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(AbilityReversionEntityData.factory(), AbilityReversionEntityData.FILE_ID);
@@ -185,32 +190,54 @@ public class AbilityReversionEntityData extends SavedData {
         setDirty();
     }
 
-    public boolean isConverted(UUID entity) {
-        return convertedEntities.containsColumn(entity);
+    public void putCopied(Entity original, Entity copy) {
+        UUID converter = getConverter(original.getUUID());
+        if (converter != null) {
+            copiedEntities.put(converter, copy.getUUID());
+        }
     }
 
-    public void revertConversions(UUID performer, ServerLevel level) {
+    public @Nullable UUID getConverter(UUID entity) {
+        for (UUID performer : convertedEntities.rowKeySet()) {
+            if (convertedEntities.contains(performer, entity))
+                return performer;
+        }
+        return null;
+    }
+
+    public boolean isConvertedOrCopied(UUID entity) {
+        return convertedEntities.containsColumn(entity) || copiedEntities.containsValue(entity);
+    }
+
+    public void revertConversionsAndCopies(UUID performer, ServerLevel level) {
         Map<UUID, Pair<ResourceKey<Level>, CompoundTag>> row = convertedEntities.row(performer);
         Collection<Pair<ResourceKey<Level>, CompoundTag>> conversions = row.values();
         for (Pair<ResourceKey<Level>, CompoundTag> data : conversions) {
             revertConversion(data, level);
         }
         row.clear();
-    }
-
-    public @Nullable Entity revertConversion(UUID performer, UUID entity, ServerLevel level) {
-        Pair<ResourceKey<Level>, CompoundTag> original = convertedEntities.remove(performer, entity);
-        if (original != null) {
-            return revertConversion(original, level);
+        for (UUID id : copiedEntities.removeAll(performer)) {
+            Entity entity = MineraculousEntityUtils.findEntity(level, id);
+            if (entity != null) {
+                entity.discard();
+            }
         }
-        return null;
     }
 
-    public @Nullable Entity revertConversion(UUID entity, ServerLevel level) {
+    public @Nullable Entity revertConversionOrCopy(UUID entity, ServerLevel level) {
         for (UUID performer : convertedEntities.rowKeySet()) {
             Pair<ResourceKey<Level>, CompoundTag> original = convertedEntities.remove(performer, entity);
             if (original != null) {
                 return revertConversion(original, level);
+            }
+        }
+        for (UUID performer : copiedEntities.keySet()) {
+            if (copiedEntities.containsEntry(performer, entity)) {
+                copiedEntities.remove(performer, entity);
+                Entity copy = MineraculousEntityUtils.findEntity(level, entity);
+                if (copy != null) {
+                    copy.discard();
+                }
             }
         }
         return null;
@@ -301,6 +328,18 @@ public class AbilityReversionEntityData extends SavedData {
             converted.add(compoundTag);
         }
         tag.put("ConvertedEntities", converted);
+        ListTag copied = new ListTag();
+        for (UUID uuid : copiedEntities.keySet()) {
+            ListTag entities = new ListTag();
+            for (UUID relatedEntity : copiedEntities.get(uuid)) {
+                entities.add(NbtUtils.createUUID(relatedEntity));
+            }
+            CompoundTag compoundTag = new CompoundTag();
+            compoundTag.putUUID("UUID", uuid);
+            compoundTag.put("Related", entities);
+            copied.add(compoundTag);
+        }
+        tag.put("CopiedEntities", copied);
         return tag;
     }
 
@@ -351,6 +390,14 @@ public class AbilityReversionEntityData extends SavedData {
                 ResourceKey<Level> dimension = Level.RESOURCE_KEY_CODEC.parse(NbtOps.INSTANCE, entityData.get("Dimension")).getOrThrow();
                 CompoundTag data = entityData.getCompound("Data");
                 abilityReversionEntityData.convertedEntities.put(performer, entity, Pair.of(dimension, data));
+            }
+        }
+        ListTag copied = tag.getList("CopiedEntities", ListTag.TAG_COMPOUND);
+        for (int i = 0; i < copied.size(); i++) {
+            CompoundTag compoundTag = copied.getCompound(i);
+            UUID uuid = compoundTag.getUUID("UUID");
+            for (Tag entityId : compoundTag.getList("Entities", ListTag.TAG_INT_ARRAY)) {
+                abilityReversionEntityData.copiedEntities.put(uuid, NbtUtils.loadUUID(entityId));
             }
         }
         return abilityReversionEntityData;

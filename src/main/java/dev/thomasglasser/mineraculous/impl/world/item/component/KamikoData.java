@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.impl.world.item.component;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.api.world.entity.ai.memory.DuplicationStatus;
+import dev.thomasglasser.mineraculous.api.world.entity.ai.memory.DuplicationState;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.memory.MineraculousMemoryModuleTypes;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
@@ -48,7 +48,7 @@ public record KamikoData(UUID uuid, UUID owner, int powerLevel, int nameColor, O
             kamiko.setUUID(uuid);
             kamiko.setOwnerUUID(owner);
             if (makeDuplicate && MineraculousServerConfig.get().enableKamikoDuplication.getAsBoolean()) {
-                BrainUtils.setMemory(kamiko, MineraculousMemoryModuleTypes.DUPLICATION_STATUS.get(), DuplicationStatus.SHOULD_DUPLICATE);
+                BrainUtils.setMemory(kamiko, MineraculousMemoryModuleTypes.DUPLICATION_STATUS.get(), DuplicationState.LOOKING_FOR_RESTING_LOCATION);
             }
             level.addFreshEntity(kamiko);
         }

@@ -23,6 +23,7 @@ import dev.thomasglasser.mineraculous.impl.data.recipes.MineraculousRecipeProvid
 import dev.thomasglasser.mineraculous.impl.data.sounds.MineraculousSoundDefinitionsProvider;
 import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousBlockTagsProvider;
 import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousDamageTypeTagsProvider;
+import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousEntityTypeTagsProvider;
 import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousItemTagsProvider;
 import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousPaintingVariantTagsProvider;
 import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousPoiTypeTagsProvider;
@@ -98,6 +99,7 @@ public class MineraculousDataGenerators {
         DataGenerationUtils.createProvider(event, MineraculousPoiTypeTagsProvider::new);
         DataGenerationUtils.createProvider(event, MineraculousDamageTypeTagsProvider::new);
         DataGenerationUtils.createProvider(event, MineraculousPaintingVariantTagsProvider::new);
+        DataGenerationUtils.createProvider(event, MineraculousEntityTypeTagsProvider::new);
         DataGenerationUtils.createProvider(event, MiraculousTagsProvider::new);
         event.createProvider(MineraculousDataMapProvider::new);
         DataGenerationUtils.createProvider(event, MineraculousCuriosProvider::new);

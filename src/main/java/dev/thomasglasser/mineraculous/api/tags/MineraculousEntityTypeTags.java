@@ -10,6 +10,8 @@ public class MineraculousEntityTypeTags {
     /// Entities from any mod that can be considered a butterfly.
     public static final TagKey<EntityType<?>> BUTTERFLIES = createC("butterflies");
 
+    public static final TagKey<EntityType<?>> LADYBUG_YOYO_EXTENDED_RANGE = create("ladybug_yoyo_extended_range");
+
     private static TagKey<EntityType<?>> create(String name) {
         return TagKey.create(Registries.ENTITY_TYPE, MineraculousConstants.modLoc(name));
     }

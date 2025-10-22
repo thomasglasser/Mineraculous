@@ -39,7 +39,7 @@ public record ConvertAndTameAbility(EntityType<?> newType, Optional<EntityPredic
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context instanceof EntityAbilityContext(Entity target)) {
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
-            if (isValidEntity(level, target.position(), target) && !entityData.isConverted(target.getUUID())) {
+            if (isValidEntity(level, target.position(), target) && !entityData.isConvertedOrCopied(target.getUUID())) {
                 Entity newEntity = newType.create(level);
                 if (newEntity != null) {
                     if (newEntity instanceof TamableAnimal tamable) {
@@ -66,7 +66,7 @@ public record ConvertAndTameAbility(EntityType<?> newType, Optional<EntityPredic
 
     @Override
     public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
-        AbilityReversionEntityData.get(level).revertConversions(performer.getUUID(), level);
+        AbilityReversionEntityData.get(level).revertConversionsAndCopies(performer.getUUID(), level);
     }
 
     @Override

@@ -1,10 +1,10 @@
 package dev.thomasglasser.mineraculous.impl.mixin.minecraft.client.renderer.entity.layers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
-import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -18,8 +18,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class HumanoidArmorLayerMixin {
     @Inject(method = "renderArmorPiece(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/entity/EquipmentSlot;ILnet/minecraft/client/model/HumanoidModel;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;hasFoil()Z"))
     private void renderLuckyCharm(PoseStack poseStack, MultiBufferSource bufferSource, LivingEntity livingEntity, EquipmentSlot slot, int packedLight, HumanoidModel<?> model, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
-        if (livingEntity.getItemBySlot(slot).has(MineraculousDataComponents.LUCKY_CHARM)) {
-            model.renderToBuffer(poseStack, bufferSource.getBuffer(MineraculousRenderTypes.armorLuckyCharm()), packedLight, OverlayTexture.NO_OVERLAY);
+        RenderType renderType = MineraculousClientUtils.checkArmorShaders(livingEntity.getItemBySlot(slot));
+        if (renderType != null) {
+            model.renderToBuffer(poseStack, bufferSource.getBuffer(renderType), packedLight, OverlayTexture.NO_OVERLAY);
         }
     }
 }

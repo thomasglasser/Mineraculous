@@ -46,6 +46,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
@@ -223,23 +224,31 @@ public class MineraculousClientUtils {
     }
 
     // Rendering
-    public static VertexConsumer checkItemShaders(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack, boolean armor, boolean entity) {
-        if (itemStack.has(MineraculousDataComponents.KAMIKOTIZING)) {
+    public static VertexConsumer checkItemShaders(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack stack, boolean armor, boolean entity) {
+        if (stack.has(MineraculousDataComponents.KAMIKOTIZING)) {
             if (entity) {
-                return itemStack.is(Items.SHIELD)
+                return stack.is(Items.SHIELD)
                         ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.shieldKamikotizing()), buffer)
                         : VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.entityKamikotizing()), buffer);
             }
             return VertexMultiConsumer.create(bufferSource.getBuffer(armor ? MineraculousRenderTypes.armorKamikotizing() : MineraculousRenderTypes.itemKamikotizing()), buffer);
-        } else if (itemStack.has(MineraculousDataComponents.LUCKY_CHARM) && !itemStack.is(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE)) {
+        } else if (stack.has(MineraculousDataComponents.LUCKY_CHARM) && !stack.is(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE)) {
             if (entity) {
-                return itemStack.is(Items.SHIELD)
+                return stack.is(Items.SHIELD)
                         ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.shieldLuckyCharm()), buffer)
                         : VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.entityLuckyCharm()), buffer);
             }
             return VertexMultiConsumer.create(bufferSource.getBuffer(armor ? MineraculousRenderTypes.armorLuckyCharm() : MineraculousRenderTypes.itemLuckyCharm()), buffer);
         }
         return buffer;
+    }
+
+    public static @Nullable RenderType checkArmorShaders(ItemStack stack) {
+        if (stack.has(MineraculousDataComponents.KAMIKOTIZING))
+            return MineraculousRenderTypes.armorKamikotizing();
+        else if (stack.has(MineraculousDataComponents.LUCKY_CHARM) && !stack.is(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE))
+            return MineraculousRenderTypes.armorLuckyCharm();
+        return null;
     }
 
     public static int getCataclysmPixel(RandomSource random) {

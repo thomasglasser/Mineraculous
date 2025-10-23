@@ -2,14 +2,6 @@ package dev.thomasglasser.mineraculous.impl.util;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Vector2d;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,6 +10,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector2d;
 
 public class MineraculousMathUtils {
     public static Vec3 projectOnCircle(Vec3 fromPointToCenter, Vec3 vec3) {
@@ -77,6 +76,82 @@ public class MineraculousMathUtils {
 
     public static Vec3i getVec3i(Vec3 vec) {
         return new Vec3i((int) vec.x, (int) vec.y, (int) vec.z);
+    }
+
+    //ALGORITHMS
+    //ITERATIVE FILL
+    public static List<BlockPos> reduceNearbyBlocks(List<BlockPos> positions) {
+        List<BlockPos> result = new ArrayList<>();
+        Set<BlockPos> unvisited = new HashSet<>(positions);
+
+        while (!unvisited.isEmpty()) {
+            BlockPos start = unvisited.iterator().next();
+            result.add(start);
+
+            Queue<BlockPos> queue = new LinkedList<>();
+            queue.add(start);
+            unvisited.remove(start);
+
+            while (!queue.isEmpty()) {
+                BlockPos current = queue.poll();
+                for (int dx = -1; dx <= 1; dx++) {
+                    for (int dy = -1; dy <= 1; dy++) {
+                        for (int dz = -1; dz <= 1; dz++) {
+                            if (dx != 0 || dy != 0 || dz != 0) {
+                                BlockPos neighbor = new BlockPos(
+                                        current.getX() + dx,
+                                        current.getY() + dy,
+                                        current.getZ() + dz);
+
+                                if (unvisited.contains(neighbor)) {
+                                    queue.add(neighbor);
+                                    unvisited.remove(neighbor);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public static Multimap<ResourceKey<Level>, BlockPos> reduceNearbyBlocks(Multimap<ResourceKey<Level>, BlockPos> blockPositions) {
+        Multimap<ResourceKey<Level>, BlockPos> reducedBlockPositions = ArrayListMultimap.create();
+        for (ResourceKey<Level> levelKey : blockPositions.keySet()) {
+            Collection<BlockPos> positions = blockPositions.get(levelKey);
+            List<BlockPos> reduced = MineraculousMathUtils.reduceNearbyBlocks(new ArrayList<>(positions));
+            reducedBlockPositions.putAll(levelKey, reduced);
+        }
+        return reducedBlockPositions;
+    }
+
+    //GREEDY TSP
+    public static List<Vec3> sortTargets(List<Vec3> targets, Vec3 position) {
+        List<Vec3> toVisit = new ArrayList<>(targets);
+        List<Vec3> ordered = new ArrayList<>();
+
+        Vec3 current = new Vec3(position.toVector3f());
+
+        while (!toVisit.isEmpty()) {
+            Vec3 nearest = null;
+            double nearestDist = Double.MAX_VALUE;
+
+            for (Vec3 target : toVisit) {
+                double dist = current.distanceTo(target);
+                if (dist < nearestDist) {
+                    nearestDist = dist;
+                    nearest = target;
+                }
+            }
+
+            ordered.add(nearest);
+            toVisit.remove(nearest);
+            current = nearest;
+        }
+        ordered.add(0, new Vec3(position.toVector3f()));
+        return ordered;
     }
 
     public static class CatmullRom {
@@ -193,81 +268,5 @@ public class MineraculousMathUtils {
 
             return Math.max(getFirstParameter(), curT);
         }
-    }
-
-    //ALGORITHMS
-    //ITERATIVE FILL
-    public static List<BlockPos> reduceNearbyBlocks(List<BlockPos> positions) {
-        List<BlockPos> result = new ArrayList<>();
-        Set<BlockPos> unvisited = new HashSet<>(positions);
-
-        while (!unvisited.isEmpty()) {
-            BlockPos start = unvisited.iterator().next();
-            result.add(start);
-
-            Queue<BlockPos> queue = new LinkedList<>();
-            queue.add(start);
-            unvisited.remove(start);
-
-            while (!queue.isEmpty()) {
-                BlockPos current = queue.poll();
-                for (int dx = -1; dx <= 1; dx++) {
-                    for (int dy = -1; dy <= 1; dy++) {
-                        for (int dz = -1; dz <= 1; dz++) {
-                            if (dx != 0 || dy != 0 || dz != 0) {
-                                BlockPos neighbor = new BlockPos(
-                                        current.getX() + dx,
-                                        current.getY() + dy,
-                                        current.getZ() + dz);
-
-                                if (unvisited.contains(neighbor)) {
-                                    queue.add(neighbor);
-                                    unvisited.remove(neighbor);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
-    public static Multimap<ResourceKey<Level>, BlockPos> reduceNearbyBlocks(Multimap<ResourceKey<Level>, BlockPos> blockPositions) {
-        Multimap<ResourceKey<Level>, BlockPos> reducedBlockPositions = ArrayListMultimap.create();
-        for (ResourceKey<Level> levelKey : blockPositions.keySet()) {
-            Collection<BlockPos> positions = blockPositions.get(levelKey);
-            List<BlockPos> reduced = MineraculousMathUtils.reduceNearbyBlocks(new ArrayList<>(positions));
-            reducedBlockPositions.putAll(levelKey, reduced);
-        }
-        return reducedBlockPositions;
-    }
-
-    //GREEDY TSP
-    public static List<Vec3> sortTargets(List<Vec3> targets, Vec3 position) {
-        List<Vec3> toVisit = new ArrayList<>(targets);
-        List<Vec3> ordered = new ArrayList<>();
-
-        Vec3 current = new Vec3(position.toVector3f());
-
-        while (!toVisit.isEmpty()) {
-            Vec3 nearest = null;
-            double nearestDist = Double.MAX_VALUE;
-
-            for (Vec3 target : toVisit) {
-                double dist = current.distanceTo(target);
-                if (dist < nearestDist) {
-                    nearestDist = dist;
-                    nearest = target;
-                }
-            }
-
-            ordered.add(nearest);
-            toVisit.remove(nearest);
-            current = nearest;
-        }
-        ordered.add(0, new Vec3(position.toVector3f()));
-        return ordered;
     }
 }

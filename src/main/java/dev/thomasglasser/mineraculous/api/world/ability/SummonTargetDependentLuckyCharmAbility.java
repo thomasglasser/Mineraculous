@@ -12,6 +12,7 @@ import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.item.LuckyCharmSummoningItem;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
@@ -152,13 +153,7 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             if (level.getBlockState(performer.blockPosition().above()).isAir())
                 spawnPos = spawnPos.add(0, 1, 0);
         } else {
-            for (int i = 0; i < 5; i++) {
-                if (level.getBlockState(performer.blockPosition().above(i + 1)).isAir()) {
-                    spawnPos = spawnPos.add(0, 1, 0);
-                } else {
-                    break;
-                }
-            }
+            spawnPos = MineraculousEntityUtils.findAvailablePositionAbove(spawnPos, level, 5);
         }
         return spawnPos;
     }

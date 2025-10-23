@@ -128,6 +128,12 @@ public class MineraculousEntityEvents {
                 entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.tick(livingEntity, level));
             }
 
+            if (entity instanceof ItemEntity itemEntity) {
+                itemEntity.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TRIGGER).ifPresent(data -> {
+                    data.tick(itemEntity, level);
+                });
+            }
+
             ItemStack weaponItem = entity.getWeaponItem();
             if (entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent() && (weaponItem == null || !weaponItem.is(MineraculousItems.LADYBUG_YOYO))) {
                 LadybugYoyoItem.removeHeldLeash(entity);

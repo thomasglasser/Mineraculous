@@ -5,8 +5,6 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -14,6 +12,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MiraculousLadybug extends Entity {
     public MineraculousMathUtils.CatmullRom path;
@@ -49,10 +49,12 @@ public class MiraculousLadybug extends Entity {
             return;
         }
         if (this.shouldUpdatePath) { // this part should run only once in the entity's lifetime
-            //TODO extract methods for target setup
+            //TODO extract methods for target setup and make a list with universal targets
+            List<BlockPos> unsortedBlockTargets = targetData.blockTargets();
             List<Vec3> blockTargets = MineraculousMathUtils.sortTargets(
-                    MineraculousMathUtils.getCenter(targetData.blockTargets()),
+                    MineraculousMathUtils.getCenter(unsortedBlockTargets.subList(1, unsortedBlockTargets.size())),
                     this.blockPosition().getCenter());
+            blockTargets.add(1, unsortedBlockTargets.getFirst().getCenter());
             updatePath(blockTargets);
         } else {
             setPosition();
@@ -111,7 +113,22 @@ public class MiraculousLadybug extends Entity {
 
     private void updatePath(List<Vec3> blockTargets) {
         ArrayList<Vec3> targets = new ArrayList<>();
-        targets.addAll(blockTargets);
+        if (blockTargets.size() < 2) {
+            this.discard();
+            return;
+        }
+
+        Vec3 start = blockTargets.get(0);
+        Vec3 second = blockTargets.get(1);
+
+        int straightSegments = 10; // higher = smoother line
+        for (int i = 0; i <= straightSegments; i++) {
+            double t = i / (double) straightSegments;
+            Vec3 interp = start.lerp(second, t);
+            targets.add(interp);
+        }
+        targets.addAll(blockTargets.subList(2, blockTargets.size()));
+
         this.path = new MineraculousMathUtils.CatmullRom(targets);
         this.splinePositionParameter = path.getFirstParameter();
         this.shouldUpdatePath = false;
@@ -144,4 +161,5 @@ public class MiraculousLadybug extends Entity {
     public boolean isAttackable() {
         return false;
     }
+
 }

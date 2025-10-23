@@ -23,7 +23,6 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -326,7 +325,7 @@ public class KamikotizationSelectionScreen extends Screen {
             TommyLibServices.NETWORK.sendToServer(new ServerboundSetItemKamikotizingPayload(Optional.of(target.getUUID()), false, slotInfo));
             AbilityEffectData.removeFaceMaskTexture(player, kamikoData.faceMaskTexture());
         } else {
-            KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, name.getValue(), Util.NIL_UUID, Optional.empty(), slotCount, false, false);
+            KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, name.getValue(), slotCount);
             if (target == minecraft.player) {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationTransformationPayload(kamikotizationData, slotInfo));
                 TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(target.getUUID(), target.getUUID(), kamikotizationData.kamikotization().getKey()));

@@ -175,6 +175,7 @@ public class MineraculousKeyMappings {
     }
 
     private static int takeTicks = 0;
+    private static int breakCooldown = 0;
 
     public static int getTakeTicks() {
         return takeTicks;
@@ -197,15 +198,19 @@ public class MineraculousKeyMappings {
                 } else if (takeTicks > 0) {
                     takeTicks = 0;
                 }
-            } else if (player.tickCount % 10 == 0) {
-                // Holding the key down causes some issues with stack miscounts, so we slow down breaking
+            } else if (breakCooldown <= 0) {
                 TommyLibServices.NETWORK.sendToServer(ServerboundTryBreakItemPayload.INSTANCE);
+                breakCooldown = 5;
             }
         }
+        if (breakCooldown > 0)
+            breakCooldown--;
     }
 
     private static void handleNoTakeBreakItem() {
         takeTicks = 0;
+        if (breakCooldown > 0)
+            breakCooldown--;
     }
 
     private static void handleToggleNightVision() {

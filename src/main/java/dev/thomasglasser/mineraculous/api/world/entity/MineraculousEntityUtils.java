@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.api.world.entity;
 
-import com.mojang.datafixers.util.Pair;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
@@ -84,9 +83,9 @@ public class MineraculousEntityUtils {
      */
     public static void tryBreakItemEntity(ItemEntity itemEntity, ServerLevel serverLevel) {
         Vec3 position = itemEntity.position();
-        Pair<ItemStack, ItemStack> result = MineraculousItemUtils.tryBreakItem(itemEntity.getItem(), serverLevel, position, null);
-        ItemStack stack = result.getFirst();
-        ItemStack rest = result.getSecond();
+        MineraculousItemUtils.BreakResult result = MineraculousItemUtils.tryBreakItem(itemEntity.getItem(), serverLevel, position, null);
+        ItemStack stack = result.original();
+        ItemStack rest = result.remainder();
         if (stack.isEmpty()) {
             itemEntity.discard();
         } else {

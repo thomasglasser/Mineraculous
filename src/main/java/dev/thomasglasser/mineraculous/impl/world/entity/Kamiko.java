@@ -31,6 +31,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
@@ -170,7 +171,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
 
     @Override
     public boolean isInvulnerableTo(DamageSource source) {
-        return !source.is(MineraculousDamageTypeTags.HURTS_KAMIKOS);
+        return !(source.is(MineraculousDamageTypeTags.HURTS_KAMIKOS) || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY) || source.isCreativePlayer());
     }
 
     @Override

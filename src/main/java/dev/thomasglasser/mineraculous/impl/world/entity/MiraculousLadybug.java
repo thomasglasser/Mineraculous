@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
@@ -52,10 +53,10 @@ public class MiraculousLadybug extends Entity {
             //TODO extract methods for target setup and make a list with universal targets
             List<BlockPos> unsortedBlockTargets = targetData.blockTargets();
             List<Vec3> blockTargets = MineraculousMathUtils.sortTargets(
-                    MineraculousMathUtils.getCenter(unsortedBlockTargets.subList(1, unsortedBlockTargets.size())),
-                    this.blockPosition().getCenter());
-            blockTargets.add(1, unsortedBlockTargets.getFirst().getCenter());
+                    MineraculousMathUtils.getCenter(unsortedBlockTargets.subList(1, unsortedBlockTargets.size())));
+            blockTargets.addFirst(unsortedBlockTargets.getFirst().getCenter());
             updatePath(blockTargets);
+            MineraculousConstants.LOGGER.info("" + blockTargets);
         } else {
             setPosition();
             setFacingDirection();
@@ -112,26 +113,17 @@ public class MiraculousLadybug extends Entity {
     }
 
     private void updatePath(List<Vec3> blockTargets) {
-        ArrayList<Vec3> targets = new ArrayList<>();
-        if (blockTargets.size() < 2) {
-            this.discard();
-            return;
-        }
-
-        Vec3 start = blockTargets.get(0);
-        Vec3 second = blockTargets.get(1);
-
-        int straightSegments = 10; // higher = smoother line
-        for (int i = 0; i <= straightSegments; i++) {
-            double t = i / (double) straightSegments;
-            Vec3 interp = start.lerp(second, t);
-            targets.add(interp);
-        }
-        targets.addAll(blockTargets.subList(2, blockTargets.size()));
-
-        this.path = new MineraculousMathUtils.CatmullRom(targets);
-        this.splinePositionParameter = path.getFirstParameter();
-        this.shouldUpdatePath = false;
+        if (blockTargets.size() >= 2) {
+            ArrayList<Vec3> targets = new ArrayList<>(blockTargets.subList(2, blockTargets.size()));
+            Vec3 spawnPos = blockTargets.get(0);
+            Vec3 circlePos = blockTargets.get(1);
+            for (int i = 0; i <= 25; i++) {
+                targets.add(i, spawnPos.lerp(circlePos, i / 25d));
+            }
+            this.path = new MineraculousMathUtils.CatmullRom(targets);
+            this.splinePositionParameter = path.getFirstParameter();
+            this.shouldUpdatePath = false;
+        } else this.discard();
     }
 
     public double getDistanceToNearestTarget() {
@@ -161,5 +153,4 @@ public class MiraculousLadybug extends Entity {
     public boolean isAttackable() {
         return false;
     }
-
 }

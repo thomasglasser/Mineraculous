@@ -2,6 +2,13 @@ package dev.thomasglasser.mineraculous.impl.util;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector2d;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -10,13 +17,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Vector2d;
 
 public class MineraculousMathUtils {
     public static Vec3 projectOnCircle(Vec3 fromPointToCenter, Vec3 vec3) {
@@ -128,6 +128,11 @@ public class MineraculousMathUtils {
     }
 
     //GREEDY TSP
+    public static List<Vec3> sortTargets(List<Vec3> targets) {
+        if (targets.isEmpty()) return List.of();
+        return sortTargets(targets, targets.getFirst());
+    }
+
     public static List<Vec3> sortTargets(List<Vec3> targets, Vec3 position) {
         List<Vec3> toVisit = new ArrayList<>(targets);
         List<Vec3> ordered = new ArrayList<>();
@@ -150,8 +155,20 @@ public class MineraculousMathUtils {
             toVisit.remove(nearest);
             current = nearest;
         }
-        ordered.add(0, new Vec3(position.toVector3f()));
         return ordered;
+    }
+
+    /**
+     * works only if A, B, C are collinear (on the same straight line)
+     * returns true if A is between C and B
+     * C ---- A ---- B or B ---- A ---- C
+     */
+    public static boolean isBetween(Vec3 A, Vec3 B, Vec3 C) {
+        Vec3 ab = A.subtract(B);
+        Vec3 cb = C.subtract(B);
+
+        double dot = ab.dot(cb);
+        return dot > 0 && dot < cb.lengthSqr();
     }
 
     public static class CatmullRom {
@@ -167,11 +184,13 @@ public class MineraculousMathUtils {
             pts.add(pts.get(maxIndex).subtract(pts.get(maxIndex - 1)).add(pts.get(maxIndex)));
             this.points = Collections.unmodifiableList(pts);
 
-            // Uniform parameterization
+            // Centripetal parameterization
             ArrayList<Double> tValues = new ArrayList<>(points.size());
             tValues.add(0d);
             for (int i = 1; i < points.size(); i++) {
-                tValues.add(tValues.get(i - 1) + 1.0);
+                double dist = points.get(i).distanceTo(points.get(i - 1));
+                // centripetal spacing — sqrt of distance
+                tValues.add(tValues.get(i - 1) + Math.sqrt(Math.max(dist, 1e-9)));
             }
             this.T = Collections.unmodifiableList(tValues);
 
@@ -242,7 +261,13 @@ public class MineraculousMathUtils {
             Vec3 P1 = points.get(index);
             Vec3 v1 = tangents.get(index - 1);
             double u = (t - T.get(index - 1)) / (T.get(index) - T.get(index - 1));
-            return hermiteDerivative(u, P0, v0, P1, v1);
+
+            // derivative returned by hermiteDerivative is dP/du
+            Vec3 dPdu = hermiteDerivative(u, P0, v0, P1, v1);
+
+            // convert to dP/dt using chain rule: dP/dt = dP/du * du/dt
+            double du_dt = 1.0 / (T.get(index) - T.get(index - 1));
+            return dPdu.scale(du_dt);
         }
 
         public double advanceParameter(double t, double speed) {

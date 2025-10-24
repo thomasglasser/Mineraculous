@@ -11,6 +11,9 @@ import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
@@ -26,9 +29,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2d;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 public record MiraculousLadybugTriggerData(List<BlockPos> blockTasks, List<Vec3> entityTasks, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound, int tickCount) {
 
@@ -130,8 +130,7 @@ public record MiraculousLadybugTriggerData(List<BlockPos> blockTasks, List<Vec3>
                     vec3.y + yOffset,
                     vec3.z + zOffset,
                     1,
-                    0, 0, 0, 0
-            );
+                    0, 0, 0, 0);
         }
     }
 
@@ -147,6 +146,7 @@ public record MiraculousLadybugTriggerData(List<BlockPos> blockTasks, List<Vec3>
             Vec3 targetPos = spawnPos.add(x, 0, y);
             BlockPos newTarget = new BlockPos(MineraculousMathUtils.getVec3i(targetPos));
             updatedBlockTargets.addFirst(new BlockPos(newTarget));
+            updatedBlockTargets.addFirst(new BlockPos(MineraculousMathUtils.getVec3i(spawnPos)));
             task = task.withBlockTargets(updatedBlockTargets);
             MiraculousLadybug miraculousLadybug = new MiraculousLadybug(level);
             miraculousLadybug.setPos(spawnPos);

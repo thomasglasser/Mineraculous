@@ -165,8 +165,8 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                             startTransformation(frames).save(miraculous, entity, true);
                         }, () -> finishTransformation(entity, level, miraculous));
 
-                        if (entity instanceof Player player) {
-                            player.refreshDisplayName();
+                        if (entity instanceof ServerPlayer player) {
+                            MineraculousEntityUtils.refreshAndSyncDisplayName(player);
                         }
                     } else {
                         kwami.playHurtSound(level.damageSources().starve());
@@ -256,8 +256,8 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
             CuriosUtils.setStackInSlot(entity, curiosData.get(), miraculousStack);
         }
 
-        if (entity instanceof Player player) {
-            player.refreshDisplayName();
+        if (entity instanceof ServerPlayer player) {
+            MineraculousEntityUtils.refreshAndSyncDisplayName(player);
         }
     }
 

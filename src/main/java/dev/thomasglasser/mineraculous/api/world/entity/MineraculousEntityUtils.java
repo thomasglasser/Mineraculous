@@ -10,8 +10,10 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEn
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import dev.thomasglasser.mineraculous.impl.network.ClientboundRefreshDisplayNamePayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.List;
@@ -22,6 +24,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -73,6 +76,11 @@ public class MineraculousEntityUtils {
             }
         }
         return original;
+    }
+
+    public static void refreshAndSyncDisplayName(ServerPlayer player) {
+        player.refreshDisplayName();
+        TommyLibServices.NETWORK.sendToTrackingClientsAndSelf(new ClientboundRefreshDisplayNamePayload(player.getUUID()), player);
     }
 
     /**

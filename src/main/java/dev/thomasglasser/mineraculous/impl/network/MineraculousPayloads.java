@@ -71,7 +71,8 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ClientboundSyncSpecialPlayerChoicesPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncSpecialPlayerChoicesPayload.CODEC),
             new PayloadInfo<>(ClientboundOpenMiraculousTransferScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundOpenMiraculousTransferScreenPayload.CODEC),
             new PayloadInfo<>(ClientboundAddRightHandParticlesPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundAddRightHandParticlesPayload.CODEC),
-            new PayloadInfo<>(ClientboundSyncArrowPickupStackPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncArrowPickupStackPayload.CODEC));
+            new PayloadInfo<>(ClientboundSyncArrowPickupStackPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncArrowPickupStackPayload.CODEC),
+            new PayloadInfo<>(ClientboundRefreshDisplayNamePayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRefreshDisplayNamePayload.CODEC));
 
     public static void onRegisterPackets(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(MineraculousConstants.MOD_ID);

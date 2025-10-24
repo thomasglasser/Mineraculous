@@ -42,7 +42,6 @@ import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.Vec3;
@@ -135,8 +134,8 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
 
         startTransformation(revertibleId, kamikotizedSlot, kamikotizationStack.getCount()).save(entity, true);
 
-        if (entity instanceof Player player) {
-            player.refreshDisplayName();
+        if (entity instanceof ServerPlayer player) {
+            MineraculousEntityUtils.refreshAndSyncDisplayName(player);
         }
 
         return kamikotizationStack;
@@ -164,8 +163,8 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
             startDetransformation().save(entity, true);
         }
 
-        if (entity instanceof Player player) {
-            player.refreshDisplayName();
+        if (entity instanceof ServerPlayer player) {
+            MineraculousEntityUtils.refreshAndSyncDisplayName(player);
         }
     }
 

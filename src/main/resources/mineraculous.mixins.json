@@ -28,6 +28,7 @@
     "neoforge.common.extensions.IItemExtensionMixin"
   ],
   "client": [
+    "geckolib.renderer.GeoEntityRendererMixin",
     "minecraft.client.MinecraftMixin",
     "minecraft.client.gui.GuiMixin",
     "minecraft.client.gui.screens.packs.PackSelectionModelEntryBaseMixin",

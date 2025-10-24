@@ -21,7 +21,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
@@ -84,11 +83,11 @@ public record Miraculous(TextColor color, String acceptableSlot, Optional<Intege
     }
 
     public static TagKey<Item> createFoodsTag(ResourceKey<Miraculous> key) {
-        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(key.location().getNamespace(), "kwami_foods/" + key.location().getPath()));
+        return TagKey.create(Registries.ITEM, key.location().withPrefix("kwami_foods/"));
     }
 
     public static TagKey<Item> createTreatsTag(ResourceKey<Miraculous> key) {
-        return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(key.location().getNamespace(), "kwami_treats/" + key.location().getPath()));
+        return TagKey.create(Registries.ITEM, key.location().withPrefix("kwami_treats/"));
     }
 
     public static ItemStack createItemStack(ItemLike item, Holder<Miraculous> miraculous) {

@@ -245,7 +245,8 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
 
     protected boolean shouldFollowOwner(Kamiko kamiko) {
         LivingEntity owner = getOwner();
-        return owner != null && !BrainUtils.hasMemory(kamiko.getBrain(), MemoryModuleType.ATTACK_TARGET) && (owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent());
+        LivingEntity target = BrainUtils.getMemory(kamiko.getBrain(), MemoryModuleType.ATTACK_TARGET);
+        return owner != null && (target == null || target == owner) && (owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent());
     }
 
     @Override
@@ -282,8 +283,10 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                 setTarget(null);
                 return;
             }
-            TommyLibServices.NETWORK.sendToClient(new ClientboundSyncInventoryPayload(player), owner);
-            player.getData(MineraculousAttachmentTypes.INVENTORY_TRACKERS).add(owner.getUUID());
+            if (player != owner) {
+                TommyLibServices.NETWORK.sendToClient(new ClientboundSyncInventoryPayload(player), owner);
+                player.getData(MineraculousAttachmentTypes.INVENTORY_TRACKERS).add(owner.getUUID());
+            }
             owner.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withSpectationInterrupted().save(owner, true);
             remove(RemovalReason.DISCARDED);
             TommyLibServices.NETWORK.sendToClient(new ClientboundBeginKamikotizationSelectionPayload(player.getUUID(), new KamikoData(getUUID(), getOwnerUUID(), getPowerLevel(), getNameColor(), getFaceMaskTexture())), owner);

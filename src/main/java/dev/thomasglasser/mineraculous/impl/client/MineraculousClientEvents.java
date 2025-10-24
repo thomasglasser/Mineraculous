@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.MineraculousRecipeBookCategories;
 import dev.thomasglasser.mineraculous.api.client.gui.MineraculousGuiLayers;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.ExternalMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.KamikotizationParticle;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
@@ -98,6 +99,7 @@ import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
@@ -441,6 +443,12 @@ public class MineraculousClientEvents {
             if (!MineraculousGuiLayers.isAllowedSpectatingGuiLayer(event.getName())) {
                 event.setCanceled(true);
             }
+        }
+    }
+
+    static void onRenderInventoryMobEffects(ScreenEvent.RenderInventoryMobEffects event) {
+        if (Minecraft.getInstance().screen instanceof ExternalMenuScreen) {
+            event.setCanceled(true);
         }
     }
 

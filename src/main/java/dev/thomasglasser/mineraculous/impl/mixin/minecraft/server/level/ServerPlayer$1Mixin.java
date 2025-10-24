@@ -21,7 +21,7 @@ public class ServerPlayer$1Mixin {
     ServerPlayer this$0;
 
     @Inject(method = "sendSlotChange", at = @At("TAIL"))
-    private void updateInventoryOnSlotChange(AbstractContainerMenu container, int slot, ItemStack itemStack, CallbackInfo ci) {
+    private void syncInventoryOnSlotChange(AbstractContainerMenu container, int slot, ItemStack itemStack, CallbackInfo ci) {
         for (UUID uuid : this$0.getData(MineraculousAttachmentTypes.INVENTORY_TRACKERS)) {
             if (this$0.level().getPlayerByUUID(uuid) instanceof ServerPlayer tracker) {
                 TommyLibServices.NETWORK.sendToClient(new ClientboundSyncInventoryPayload(this$0), tracker);

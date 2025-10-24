@@ -112,6 +112,14 @@ public class KamikotizationSelectionScreen extends Screen {
     }
 
     @Override
+    public void tick() {
+        super.tick();
+        if (!target.isAlive() || target.isRemoved()) {
+            onClose();
+        }
+    }
+
+    @Override
     public void resize(Minecraft minecraft, int width, int height) {
         String s = this.name.getValue();
         this.init(minecraft, width, height);

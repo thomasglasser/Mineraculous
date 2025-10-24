@@ -16,15 +16,13 @@ import net.minecraft.network.chat.Component;
 public class ReceiverKamikotizationChatScreen extends AbstractKamikotizationChatScreen {
     public static final Component ACCEPT = Component.translatable("gui.kamikotization.chat.accept");
 
-    private final UUID other;
     private final KamikotizationData kamikotizationData;
     private final SlotInfo slotInfo;
 
     protected Button accept;
 
     public ReceiverKamikotizationChatScreen(UUID other, KamikotizationData kamikotizationData, SlotInfo slotInfo) {
-        super("", kamikotizationData.kamikoData().faceMaskTexture());
-        this.other = other;
+        super("", other, kamikotizationData.kamikoData().faceMaskTexture());
         this.kamikotizationData = kamikotizationData;
         this.slotInfo = slotInfo;
     }
@@ -40,6 +38,7 @@ public class ReceiverKamikotizationChatScreen extends AbstractKamikotizationChat
 
     @Override
     public void onClose(boolean cancel, boolean initiated) {
+        UUID other = this.other.getUUID();
         if (cancel) {
             if (initiated) {
                 if (!MineraculousServerConfig.get().enableKamikotizationRejection.get()) {

@@ -125,15 +125,17 @@ public class SelectionGui implements SelectionMenuListener {
     }
 
     public void onMouseScrolled(int amount) {
-        int i = this.menu.getSelectedSlot() + amount;
+        if (this.isMenuActive()) {
+            int i = this.menu.getSelectedSlot() + amount;
 
-        while (i >= 0 && i <= 8 && (this.menu.getItem(i) == SelectionMenu.EMPTY_SLOT || !this.menu.getItem(i).isEnabled())) {
-            i += amount;
-        }
+            while (i >= 0 && i <= 8 && (this.menu.getItem(i) == SelectionMenu.EMPTY_SLOT || !this.menu.getItem(i).isEnabled())) {
+                i += amount;
+            }
 
-        if (i >= 0 && i <= 8) {
-            this.menu.selectSlot(i);
-            this.lastSelectionTime = Util.getMillis();
+            if (i >= 0 && i <= 8) {
+                this.menu.selectSlot(i);
+                this.lastSelectionTime = Util.getMillis();
+            }
         }
     }
 

@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.InventorySyncTracker;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
@@ -198,6 +199,12 @@ public class MineraculousClientUtils {
 
     public static void openMiraculousTransferScreen(int kwamiId) {
         Minecraft.getInstance().setScreen(new MiraculousTransferScreen(kwamiId));
+    }
+
+    public static void triggerInventorySyncTracker(Player player) {
+        if (Minecraft.getInstance().screen instanceof InventorySyncTracker tracker) {
+            tracker.onInventorySynced(player);
+        }
     }
 
     // Camera

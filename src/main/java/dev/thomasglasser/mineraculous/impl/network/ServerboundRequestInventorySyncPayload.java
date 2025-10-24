@@ -23,7 +23,7 @@ public record ServerboundRequestInventorySyncPayload(UUID uuid, boolean track) i
     @Override
     public void handle(Player player) {
         Player target = player.level().getPlayerByUUID(uuid);
-        if (target != null) {
+        if (target != null && target != player) {
             TommyLibServices.NETWORK.sendToClient(new ClientboundSyncInventoryPayload(target), (ServerPlayer) player);
             if (track) {
                 target.getData(MineraculousAttachmentTypes.INVENTORY_TRACKERS).add(player.getUUID());

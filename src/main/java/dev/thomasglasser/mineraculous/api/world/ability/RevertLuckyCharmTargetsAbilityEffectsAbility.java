@@ -1,36 +1,44 @@
 package dev.thomasglasser.mineraculous.api.world.ability;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.Table;
 import com.ibm.icu.impl.Pair;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBlockData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTriggerData;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * Reverts the ability effects of the {@link LuckyCharm} target and related entities.
@@ -53,16 +61,37 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                 Set<UUID> toRevert = new ReferenceOpenHashSet<>();
                 toRevert.add(performerId);
                 collectToRevert(target, entityData, toRevert);
-                //TODO for Tommy: please give me the entity data here. I need a way to get their width/height, and the position they are moved at.
-                // I want to spawn particles at the moved positions, is that ok?
-                Pair<Multimap<ResourceKey<Level>, Vec3>, Multimap<ResourceKey<Level>, BlockPos>> positions = gatherReversionPositions(level, toRevert);
+                Pair<Table<ResourceKey<Level>, Vec3, List<CompoundTag>>, Multimap<ResourceKey<Level>, BlockPos>> positions = gatherReversionPositions(level, toRevert);
                 Multimap<ResourceKey<Level>, BlockPos> blockPositions = positions.second;
-                Multimap<ResourceKey<Level>, Vec3> entityPositions = positions.first; //TODO for Tommy: i suppose theese are the positions they should be at after mlb tell me if im wrong.
+                // Final positions after recovery, where they were originally at when affected
+                Table<ResourceKey<Level>, Vec3, List<CompoundTag>> entityPositions = positions.first;
+                Map<Vec3, List<CompoundTag>> row = entityPositions.row(level.dimension());
+                for (Map.Entry<Vec3, List<CompoundTag>> entry : row.entrySet()) {
+                    for (CompoundTag tag : row.get(entry.getKey())) {
+                        UUID entityId = tag.getUUID("UUID");
+                        ListTag pos = tag.getList("Pos", ListTag.TAG_DOUBLE);
+                        double x = pos.getDouble(0);
+                        double y = pos.getDouble(1);
+                        double z = pos.getDouble(2);
+                        Entity entity = MineraculousEntityUtils.findEntity(level, entityId);
+                        if (entity != null && !entity.isRemoved() && entity.isAlive()) {
+                            // TODO: Existing entity process
+                        } else {
+                            // TODO: Removed entity process
+                        }
+
+                        // Getting the height (do it when ur about to recover so ur not loading the entity a bunch)
+                        Entity newEntity = EntityType.loadEntityRecursive(tag, level, e -> e);
+                        newEntity.getBoundingBox();
+                        newEntity.getBbWidth();
+                        newEntity.getBbHeight();
+                    }
+                }
                 //TODO treat other dimensions as well
                 ResourceKey<Level> currentLevelKey = level.dimension();
                 blockPositions = MineraculousMathUtils.reduceNearbyBlocks(blockPositions);
                 List<BlockPos> blockTargets = new ArrayList<>(blockPositions.get(currentLevelKey));
-                List<Vec3> entityTargets = new ArrayList<>(entityPositions.get(currentLevelKey));
+                List<Vec3> entityTargets = new ArrayList<>(entityPositions.row(currentLevelKey).keySet());
                 ItemEntity luckyCharmEntity = new ItemEntity(level, performer.getX(), performer.getY() + 2, performer.getZ(), stack);
                 luckyCharmEntity.setNeverPickUp();
                 luckyCharmEntity.setUnlimitedLifetime();
@@ -78,16 +107,17 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
         return State.FAIL;
     }
 
-    private static Pair<Multimap<ResourceKey<Level>, Vec3>, Multimap<ResourceKey<Level>, BlockPos>> gatherReversionPositions(ServerLevel level, Set<UUID> toRevert) {
-        Multimap<ResourceKey<Level>, Vec3> entityPositions = ArrayListMultimap.create();
+    private static Pair<Table<ResourceKey<Level>, Vec3, List<CompoundTag>>, Multimap<ResourceKey<Level>, BlockPos>> gatherReversionPositions(ServerLevel level, Set<UUID> toRevert) {
+        Table<ResourceKey<Level>, Vec3, List<CompoundTag>> entityPositions = HashBasedTable.create();
         Multimap<ResourceKey<Level>, BlockPos> blockPositions = ArrayListMultimap.create();
         AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
         for (UUID relatedId : toRevert) {
             if (level.getEntity(relatedId) instanceof LivingEntity) {
-                Multimap<ResourceKey<Level>, Vec3> relatedEntityPositions = entityData.getReversionPositions(relatedId);
                 Multimap<ResourceKey<Level>, BlockPos> relatedBlockPositions = AbilityReversionBlockData.get(level).getReversionPositions(relatedId);
-                entityPositions.putAll(relatedEntityPositions);
                 blockPositions.putAll(relatedBlockPositions);
+                for (Map.Entry<ResourceKey<Level>, Vec3> entry : entityData.getReversionPositions(relatedId).entries()) {
+                    entityPositions.put(entry.getKey(), entry.getValue(), entityData.getRevertibleAt(relatedId, entry.getKey(), entry.getValue()));
+                }
 
                 // TODO: Move this to ML when the actual reversion happens
 //                related.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization).or(() -> related.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION)).ifPresent(kamikotization -> {

@@ -101,6 +101,10 @@ public class AbilityReversionEntityData extends SavedData {
         return positions;
     }
 
+    public List<CompoundTag> getRevertibleAt(UUID uuid, ResourceKey<Level> dimension, Vec3 pos) {
+        return getOrCreateRevertible(uuid, Pair.of(dimension, pos));
+    }
+
     public void revert(UUID owner, ServerLevel level, Vec3 pos) {
         Pair<ResourceKey<Level>, Vec3> loc = Pair.of(level.dimension(), pos);
         List<CompoundTag> revertible = revertibleEntities.remove(owner, loc);

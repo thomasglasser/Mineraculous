@@ -36,6 +36,7 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.LuckyCharmItem
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownButterflyCaneRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownCatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownLadybugYoyoRenderer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.entity.YoyoRopeRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.FaceMaskLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.LegacyDevTeamLayer;
@@ -48,6 +49,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPay
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.inventory.MineraculousRecipeBookTypes;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUtils;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.HashMap;
@@ -71,6 +73,8 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.FastColor;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -430,10 +434,16 @@ public class MineraculousClientEvents {
         int light = renderDispatcher.getPackedLightCoords(player, partialTick);
 
         if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson()) {
+            poseStack.pushPose();
             poseStack.translate(0, -1.6d, 0);
             if (playerPerchRendererMap.containsKey(player.getUUID()))
                 playerPerchRendererMap.get(player.getUUID()).renderPerch(player, poseStack, bufferSource, light, partialTick);
             CatStaffRenderer.renderTravel(player, poseStack, bufferSource, light, partialTick);
+            poseStack.popPose();
+
+            if (MineraculousClientUtils.getCameraEntity() instanceof Leashable leashable && leashable.getLeashHolder() instanceof Player holder) {
+                holder.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).map(LeashingLadybugYoyoData::maxRopeLength).ifPresent(maxLength -> YoyoRopeRenderer.render((Entity) leashable, holder, maxLength, poseStack, bufferSource, partialTick));
+            }
         }
     }
 

@@ -95,6 +95,8 @@ public class MineraculousClientUtils {
     }
 
     public static boolean renderBetaTesterLayer(AbstractClientPlayer player) {
+        if (player != ClientUtils.getLocalPlayer() && !MineraculousClientConfig.get().displayOthersBetaTesterCosmetic.getAsBoolean())
+            return false;
         return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayBeta() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, betaChoice(player).slot());
     }
 
@@ -103,10 +105,14 @@ public class MineraculousClientUtils {
     }
 
     public static boolean renderDevLayer(AbstractClientPlayer player) {
+        if (player != ClientUtils.getLocalPlayer() && !MineraculousClientConfig.get().displayOthersDevTeamCosmetic.getAsBoolean())
+            return false;
         return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
     }
 
     public static boolean renderLegacyDevLayer(AbstractClientPlayer player) {
+        if (player != ClientUtils.getLocalPlayer() && !MineraculousClientConfig.get().displayOthersLegacyDevTeamCosmetic.getAsBoolean())
+            return false;
         return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayLegacyDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
     }
 
@@ -114,10 +120,10 @@ public class MineraculousClientUtils {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateSpecialPlayerDataPayload(player.getUUID(), new SpecialPlayerData(
-                    MineraculousClientConfig.get().betaTesterCosmeticChoice.get(),
-                    MineraculousClientConfig.get().displayBetaTesterCosmetic.get(),
-                    MineraculousClientConfig.get().displayDevTeamCosmetic.get(),
-                    MineraculousClientConfig.get().displayLegacyDevTeamCosmetic.get())));
+                    MineraculousClientConfig.get().selfBetaTesterCosmeticChoice.get(),
+                    MineraculousClientConfig.get().displaySelfBetaTesterCosmetic.get(),
+                    MineraculousClientConfig.get().displaySelfDevTeamCosmetic.get(),
+                    MineraculousClientConfig.get().displaySelfLegacyDevTeamCosmetic.get())));
         }
     }
 

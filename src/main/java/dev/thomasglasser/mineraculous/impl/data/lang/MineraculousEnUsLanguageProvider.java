@@ -417,10 +417,15 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         // Client
         addConfigSection(MineraculousClientConfig.COSMETICS, "Player Cosmetics", "Settings for player cosmetics");
-        addConfig(MineraculousClientConfig.get().displayBetaTesterCosmetic, "Display Beta Tester Cosmetic", "Display your preferred Beta Tester Cosmetic (if eligible)");
-        addConfig(MineraculousClientConfig.get().betaTesterCosmeticChoice, "Beta Tester Cosmetic Choice", "The Beta Tester Cosmetic to be displayed (if eligible)");
-        addConfig(MineraculousClientConfig.get().displayDevTeamCosmetic, "Display Dev Team Cosmetic", "Display the Dev Team cosmetic (if eligible)");
-        addConfig(MineraculousClientConfig.get().displayLegacyDevTeamCosmetic, "Display Legacy Dev Team Cosmetic", "Display the Legacy Dev Team cosmetic (if eligible)");
+        addConfigSection(MineraculousClientConfig.SELF, "Self", "Settings for your own player cosmetics");
+        addConfig(MineraculousClientConfig.get().displaySelfBetaTesterCosmetic, "Display Beta Tester Cosmetic", "Display your preferred Beta Tester Cosmetic (if eligible)");
+        addConfig(MineraculousClientConfig.get().selfBetaTesterCosmeticChoice, "Beta Tester Cosmetic Choice", "The Beta Tester Cosmetic to be displayed (if eligible)");
+        addConfig(MineraculousClientConfig.get().displaySelfDevTeamCosmetic, "Display Dev Team Cosmetic", "Display your Dev Team cosmetic (if eligible)");
+        addConfig(MineraculousClientConfig.get().displaySelfLegacyDevTeamCosmetic, "Display Legacy Dev Team Cosmetic", "Display your Legacy Dev Team cosmetic (if eligible)");
+        addConfigSection(MineraculousClientConfig.OTHERS, "Others", "Settings for other players' cosmetics");
+        addConfig(MineraculousClientConfig.get().displayOthersBetaTesterCosmetic, "Display Beta Tester Cosmetic", "Display other players' preferred Beta Tester Cosmetic (if eligible)");
+        addConfig(MineraculousClientConfig.get().displayOthersDevTeamCosmetic, "Display Dev Team Cosmetic", "Display other players' Dev Team cosmetic (if eligible)");
+        addConfig(MineraculousClientConfig.get().displayOthersLegacyDevTeamCosmetic, "Display Legacy Dev Team Cosmetic", "Display other players' Legacy Dev Team cosmetic (if eligible)");
 
         addConfigSection(MineraculousClientConfig.RADIAL_MENU, "Tool Wheel", "Settings for the tool wheel");
         addConfig(MineraculousClientConfig.get().animationSpeed, "Animation Speed", "The speed at which the tool wheel opens");

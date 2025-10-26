@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Function;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceKey;
@@ -78,6 +79,30 @@ public class MineraculousMathUtils {
         return new Vec3i((int) vec.x, (int) vec.y, (int) vec.z);
     }
 
+    //TODO check kwami implementation and if u can replace their spin with this.
+
+    /**
+     * angleStep is represented in radians
+     * yStep MUST be >= 0
+     * height and width MUST be > 0
+     **/
+    public static List<Vec3> spinAround(Vec3 position, double width, double height, double angleStep, double yStep) {
+        ArrayList<Vec3> toReturn = new ArrayList<>();
+        double radius = width;
+        double y = 0;
+        double alpha = 0;
+        while (y <= height) {
+            double x = Math.sin(alpha) * radius;
+            double z = Math.cos(alpha) * radius;
+            Vec3 point = new Vec3(x, y, z);
+            toReturn.add(position.add(point));
+
+            y += yStep;
+            alpha += angleStep;
+        }
+        return toReturn;
+    }
+
     //ALGORITHMS
     //ITERATIVE FILL
     public static List<BlockPos> reduceNearbyBlocks(List<BlockPos> positions) {
@@ -117,6 +142,7 @@ public class MineraculousMathUtils {
         return result;
     }
 
+    //TODO make representative blocks
     public static Multimap<ResourceKey<Level>, BlockPos> reduceNearbyBlocks(Multimap<ResourceKey<Level>, BlockPos> blockPositions) {
         Multimap<ResourceKey<Level>, BlockPos> reducedBlockPositions = ArrayListMultimap.create();
         for (ResourceKey<Level> levelKey : blockPositions.keySet()) {
@@ -128,23 +154,19 @@ public class MineraculousMathUtils {
     }
 
     //GREEDY TSP
-    public static List<Vec3> sortTargets(List<Vec3> targets) {
-        if (targets.isEmpty()) return List.of();
-        return sortTargets(targets, targets.getFirst());
-    }
+    public static <T> List<T> sortTargets(List<T> targets, Vec3 startPosition, Function<T, Vec3> positionExtractor) {
+        List<T> toVisit = new ArrayList<>(targets);
+        List<T> ordered = new ArrayList<>();
 
-    public static List<Vec3> sortTargets(List<Vec3> targets, Vec3 position) {
-        List<Vec3> toVisit = new ArrayList<>(targets);
-        List<Vec3> ordered = new ArrayList<>();
-
-        Vec3 current = new Vec3(position.toVector3f());
+        Vec3 current = startPosition;
 
         while (!toVisit.isEmpty()) {
-            Vec3 nearest = null;
+            T nearest = null;
             double nearestDist = Double.MAX_VALUE;
 
-            for (Vec3 target : toVisit) {
-                double dist = current.distanceTo(target);
+            for (T target : toVisit) {
+                Vec3 targetPos = positionExtractor.apply(target);
+                double dist = current.distanceTo(targetPos);
                 if (dist < nearestDist) {
                     nearestDist = dist;
                     nearest = target;
@@ -153,7 +175,7 @@ public class MineraculousMathUtils {
 
             ordered.add(nearest);
             toVisit.remove(nearest);
-            current = nearest;
+            current = positionExtractor.apply(nearest);
         }
         return ordered;
     }

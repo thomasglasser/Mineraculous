@@ -10,19 +10,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
-import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBlockData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTriggerData;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -39,6 +33,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Reverts the ability effects of the {@link LuckyCharm} target and related entities.
@@ -66,32 +67,30 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                 // Final positions after recovery, where they were originally at when affected
                 Table<ResourceKey<Level>, Vec3, List<CompoundTag>> entityPositions = positions.first;
                 Map<Vec3, List<CompoundTag>> row = entityPositions.row(level.dimension());
+                ArrayList<MiraculousLadybugTargetData.EntityTarget> entityTargets = new ArrayList<>();
+                Set<UUID> seen = new HashSet<>();
                 for (Map.Entry<Vec3, List<CompoundTag>> entry : row.entrySet()) {
                     for (CompoundTag tag : row.get(entry.getKey())) {
                         UUID entityId = tag.getUUID("UUID");
+                        if (!seen.add(entityId)) continue;
+
                         ListTag pos = tag.getList("Pos", ListTag.TAG_DOUBLE);
                         double x = pos.getDouble(0);
                         double y = pos.getDouble(1);
                         double z = pos.getDouble(2);
-                        Entity entity = MineraculousEntityUtils.findEntity(level, entityId);
-                        if (entity != null && !entity.isRemoved() && entity.isAlive()) {
-                            // TODO: Existing entity process
-                        } else {
-                            // TODO: Removed entity process
-                        }
 
-                        // Getting the height (do it when ur about to recover so ur not loading the entity a bunch)
                         Entity newEntity = EntityType.loadEntityRecursive(tag, level, e -> e);
-                        newEntity.getBoundingBox();
-                        newEntity.getBbWidth();
-                        newEntity.getBbHeight();
+                        Vec3 currentPosition = newEntity != null ? new Vec3(x, y, z) : entry.getKey();
+                        float width = newEntity != null ? newEntity.getBbWidth() : 1f;
+                        float height = newEntity != null ? newEntity.getBbHeight() : 2f;
+
+                        entityTargets.add(new MiraculousLadybugTargetData.EntityTarget(currentPosition, width, height));
                     }
                 }
                 //TODO treat other dimensions as well
                 ResourceKey<Level> currentLevelKey = level.dimension();
                 blockPositions = MineraculousMathUtils.reduceNearbyBlocks(blockPositions);
-                List<BlockPos> blockTargets = new ArrayList<>(blockPositions.get(currentLevelKey));
-                List<Vec3> entityTargets = new ArrayList<>(entityPositions.row(currentLevelKey).keySet());
+                ArrayList<BlockPos> blockTargets = new ArrayList<>(blockPositions.get(currentLevelKey));
                 ItemEntity luckyCharmEntity = new ItemEntity(level, performer.getX(), performer.getY() + 2, performer.getZ(), stack);
                 luckyCharmEntity.setNeverPickUp();
                 luckyCharmEntity.setUnlimitedLifetime();

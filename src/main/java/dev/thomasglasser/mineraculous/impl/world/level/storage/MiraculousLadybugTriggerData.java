@@ -10,10 +10,6 @@ import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
@@ -29,18 +25,21 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2d;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
-public record MiraculousLadybugTriggerData(List<BlockPos> blockTasks, List<Vec3> entityTasks, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound, int tickCount) {
+public record MiraculousLadybugTriggerData(List<BlockPos> blockTasks, List<MiraculousLadybugTargetData.EntityTarget> entityTasks, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound, int tickCount) {
 
     public static final Codec<MiraculousLadybugTriggerData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BlockPos.CODEC.listOf().fieldOf("block_tasks").forGetter(MiraculousLadybugTriggerData::blockTasks),
-            Vec3.CODEC.listOf().fieldOf("entity_tasks").forGetter(MiraculousLadybugTriggerData::entityTasks),
+            MiraculousLadybugTargetData.EntityTarget.CODEC.listOf().fieldOf("entity_tasks").forGetter(MiraculousLadybugTriggerData::entityTasks),
             Codec.INT.optionalFieldOf("performer_id").forGetter(MiraculousLadybugTriggerData::performerId),
             SoundEvent.CODEC.optionalFieldOf("revert_sound").forGetter(MiraculousLadybugTriggerData::revertSound),
             Codec.INT.fieldOf("tick_count").forGetter(MiraculousLadybugTriggerData::tickCount)).apply(instance, MiraculousLadybugTriggerData::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousLadybugTriggerData> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC.apply(ByteBufCodecs.list()), MiraculousLadybugTriggerData::blockTasks,
-            TommyLibExtraStreamCodecs.VEC_3.apply(ByteBufCodecs.list()), MiraculousLadybugTriggerData::entityTasks,
+            MiraculousLadybugTargetData.EntityTarget.STREAM_CODEC.apply(ByteBufCodecs.list()), MiraculousLadybugTriggerData::entityTasks,
             ByteBufCodecs.optional(ByteBufCodecs.INT), MiraculousLadybugTriggerData::performerId,
             ByteBufCodecs.optional(SoundEvent.STREAM_CODEC), MiraculousLadybugTriggerData::revertSound,
             ByteBufCodecs.INT, MiraculousLadybugTriggerData::tickCount,
@@ -51,7 +50,7 @@ public record MiraculousLadybugTriggerData(List<BlockPos> blockTasks, List<Vec3>
         this(ImmutableList.of(), ImmutableList.of(), Optional.empty(), Optional.empty(), 0);
     }
 
-    public MiraculousLadybugTriggerData(List<BlockPos> blockTasks, List<Vec3> entityTasks, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound) {
+    public MiraculousLadybugTriggerData(List<BlockPos> blockTasks, List<MiraculousLadybugTargetData.EntityTarget> entityTasks, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound) {
         this(blockTasks, entityTasks, performerId, revertSound, 0);
     }
 
@@ -102,8 +101,8 @@ public record MiraculousLadybugTriggerData(List<BlockPos> blockTasks, List<Vec3>
                     spawnSphereParticles(MineraculousParticleTypes.SUMMONING_LADYBUG.get(), level, entity.position(), 200);
                     spawnSphereParticles(ParticleTypes.END_ROD, level, entity.position(), 10);
                 } else if (tickCount > 20) {
-                    List<MiraculousLadybugTargetData> taskTable = assignTasks(blockTasks, entityTasks);
-                    spawnMiraculousLadybugs(level, entity, performer, taskTable);
+                    ArrayList<MiraculousLadybugTargetData> taskTable = assignTasks(blockTasks, entityTasks);
+                    spawnMiraculousLadybugs(level, entity, taskTable);
                     LuckyCharmIdData.get(level).incrementLuckyCharmId(performer.getUUID());
                     entity.discard();
                 }
@@ -134,13 +133,13 @@ public record MiraculousLadybugTriggerData(List<BlockPos> blockTasks, List<Vec3>
         }
     }
 
-    private static void spawnMiraculousLadybugs(ServerLevel level, Entity entity, LivingEntity performer, List<MiraculousLadybugTargetData> taskTable) {
+    private static void spawnMiraculousLadybugs(ServerLevel level, Entity entity, List<MiraculousLadybugTargetData> taskTable) {
         ArrayList<Vector2d> circle = MineraculousMathUtils.generateCirclePoints(50, taskTable.size());
         Vec3 spawnPos = entity.position();
 
         for (int i = 0; i < taskTable.size(); i++) {
             MiraculousLadybugTargetData task = taskTable.get(i);
-            List<BlockPos> updatedBlockTargets = new ArrayList<>(task.blockTargets());
+            ArrayList<BlockPos> updatedBlockTargets = new ArrayList<>(task.blockTargets());
             int x = (int) circle.get(i).x;
             int y = (int) circle.get(i).y;
             Vec3 circlePos = spawnPos.add(x, 0, y);
@@ -156,7 +155,7 @@ public record MiraculousLadybugTriggerData(List<BlockPos> blockTasks, List<Vec3>
         }
     }
 
-    private static List<MiraculousLadybugTargetData> assignTasks(List<BlockPos> blockTargets, List<Vec3> entityTargets) {
+    private static ArrayList<MiraculousLadybugTargetData> assignTasks(List<BlockPos> blockTargets, List<MiraculousLadybugTargetData.EntityTarget> entityTargets) {
         ArrayList<MiraculousLadybugTargetData> taskTable = new ArrayList<>();
         int taskIndex = -1;
 
@@ -188,14 +187,14 @@ public record MiraculousLadybugTriggerData(List<BlockPos> blockTasks, List<Vec3>
             int start = 0;
             for (int i = 0; i < maxCount; i++) { //in case the remainder is smaller than 8, entities with no task will be completely discarded
                 int end = start + tasksPerEntity + (i < remainder ? 1 : 0);
-                List<Vec3> subTargets = entityTargets.subList(start, Math.min(end, entityTasks));
+                List<MiraculousLadybugTargetData.EntityTarget> subTargets = entityTargets.subList(start, Math.min(end, entityTasks));
                 if (taskIndex < taskTable.size()) {
                     taskTable.set(taskIndex, taskTable.get(taskIndex).withEntityTargets(subTargets));
                 } else {
                     taskTable.add(new MiraculousLadybugTargetData(ImmutableList.of(), subTargets));
-                    taskIndex++;
-                    taskIndex = taskIndex >= MIRACULOUS_LADYBUGS_COUNT ? taskIndex % MIRACULOUS_LADYBUGS_COUNT : taskIndex;
                 }
+                taskIndex++;
+                taskIndex = taskIndex >= MIRACULOUS_LADYBUGS_COUNT ? taskIndex % MIRACULOUS_LADYBUGS_COUNT : taskIndex;
                 start = end;
             }
         }

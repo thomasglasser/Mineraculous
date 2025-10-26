@@ -17,6 +17,13 @@ import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTriggerData;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -33,13 +40,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * Reverts the ability effects of the {@link LuckyCharm} target and related entities.
@@ -87,7 +87,7 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                         entityTargets.add(new MiraculousLadybugTargetData.EntityTarget(currentPosition, width, height));
                     }
                 }
-                //TODO treat other dimensions as well
+                //TODO treat other dimensions as well (ill just spawn particles cuz lazy)
                 ResourceKey<Level> currentLevelKey = level.dimension();
                 blockPositions = MineraculousMathUtils.reduceNearbyBlocks(blockPositions);
                 ArrayList<BlockPos> blockTargets = new ArrayList<>(blockPositions.get(currentLevelKey));

@@ -10,6 +10,9 @@ import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
@@ -25,9 +28,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2d;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 public record MiraculousLadybugTriggerData(List<BlockPos> blockTasks, List<MiraculousLadybugTargetData.EntityTarget> entityTasks, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound, int tickCount) {
 
@@ -134,14 +134,19 @@ public record MiraculousLadybugTriggerData(List<BlockPos> blockTasks, List<Mirac
     }
 
     private static void spawnMiraculousLadybugs(ServerLevel level, Entity entity, List<MiraculousLadybugTargetData> taskTable) {
-        ArrayList<Vector2d> circle = MineraculousMathUtils.generateCirclePoints(50, taskTable.size());
+        ArrayList<Vector2d> circle = MineraculousMathUtils.generateCirclePoints(50, MIRACULOUS_LADYBUGS_COUNT);
         Vec3 spawnPos = entity.position();
 
-        for (int i = 0; i < taskTable.size(); i++) {
-            MiraculousLadybugTargetData task = taskTable.get(i);
-            ArrayList<BlockPos> updatedBlockTargets = new ArrayList<>(task.blockTargets());
-            int x = (int) circle.get(i).x;
-            int y = (int) circle.get(i).y;
+        int spawnedMLBCount;
+        for (spawnedMLBCount = 0; spawnedMLBCount < MIRACULOUS_LADYBUGS_COUNT; spawnedMLBCount++) {
+            MiraculousLadybugTargetData task = new MiraculousLadybugTargetData();
+            ArrayList<BlockPos> updatedBlockTargets = new ArrayList<>();
+            if (spawnedMLBCount < taskTable.size()) {
+                task = taskTable.get(spawnedMLBCount);
+                updatedBlockTargets = new ArrayList<>(task.blockTargets());
+            }
+            int x = (int) circle.get(spawnedMLBCount).x;
+            int y = (int) circle.get(spawnedMLBCount).y;
             Vec3 circlePos = spawnPos.add(x, 0, y);
             updatedBlockTargets.addFirst(new BlockPos(MineraculousMathUtils.getVec3i(circlePos)));
             updatedBlockTargets.addFirst(new BlockPos(MineraculousMathUtils.getVec3i(spawnPos)));

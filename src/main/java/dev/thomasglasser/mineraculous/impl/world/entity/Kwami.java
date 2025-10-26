@@ -10,6 +10,7 @@ import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundOpenMiraculousTransferScreenPayload;
+import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
@@ -214,13 +215,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         setSummonTicks(getSummonTicks() - 1);
         LivingEntity owner = getOwner();
         if (owner != null) {
-            Vec3 ownerEyePos = owner.getEyePosition();
-
-            Vec3 lookVec = ownerEyePos.subtract(this.position());
-            float yaw = (float) (Math.toDegrees(Math.atan2(lookVec.z, lookVec.x)) - 90.0F);
-            float pitch = (float) (-Math.toDegrees(Math.atan2(lookVec.y, Math.sqrt(lookVec.x * lookVec.x + lookVec.z * lookVec.z))));
-
-            if (this.getY() < ownerEyePos.y - this.getBbHeight() / 2) {
+            if (this.getY() < owner.getEyeY() - this.getBbHeight() / 2) {
                 summonRadius += SUMMON_RADIUS_STEP;
                 summonAngle += SUMMON_ANGLE_STEP;
                 if (summonRadius > SUMMON_MAX_RADIUS) {
@@ -230,13 +225,15 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                 Vec3 ownerPos = owner.position();
                 double startY = ownerPos.y + owner.getBbHeight() / 2;
                 double t = Math.min(summonRadius / SUMMON_MAX_RADIUS, 1.0);
-                double y = startY + (ownerEyePos.y - startY) * t - this.getBbHeight() / 2;
+                double y = startY + (owner.getEyeY() - startY) * t - this.getBbHeight() / 2;
 
                 float baseYawRad = (float) Math.toRadians(180 + owner.getYRot());
                 double x = ownerPos.x + summonRadius * Math.cos(summonAngle + baseYawRad);
                 double z = ownerPos.z + summonRadius * Math.sin(summonAngle + baseYawRad);
 
-                this.moveTo(x, y, z, yaw, pitch);
+                this.moveTo(x, y, z);
+                this.setYRot(owner.getYRot() + 180);
+                this.setYHeadRot(owner.getYRot() + 180);
             }
         }
     }
@@ -352,11 +349,14 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         if (player.getUUID().equals(getOwnerUUID())) {
-            ItemStack stack = player.getItemInHand(hand);
-            if (!stack.isEmpty()) {
-                if (player instanceof ServerPlayer serverPlayer) {
+            if (player instanceof ServerPlayer serverPlayer) {
+                ItemStack stack = player.getItemInHand(hand);
+                if (stack.isEmpty()) {
+                    player.setItemInHand(hand, KwamiItem.create(this));
+                    discard();
+                } else {
                     UUID stackId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
-                    if (!serverPlayer.serverLevel().getPlayers(p -> RENOUNCE_PREDICATE.test(this, p)).isEmpty() && stack.getItem() instanceof MiraculousItem && stackId != null && stackId.equals(getMiraculousId())) {
+                    if (stack.getItem() instanceof MiraculousItem && stackId != null && stackId.equals(getMiraculousId()) && !serverPlayer.serverLevel().getPlayers(p -> RENOUNCE_PREDICATE.test(this, p)).isEmpty()) {
                         TommyLibServices.NETWORK.sendToClient(new ClientboundOpenMiraculousTransferScreenPayload(getId()), serverPlayer);
                     } else if (!isCharged() && getMainHandItem().isEmpty()) {
                         if (isTreat(stack) || isPreferredFood(stack) || isFood(stack)) {
@@ -374,8 +374,8 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                         }
                     }
                 }
-                return InteractionResult.sidedSuccess(level().isClientSide);
             }
+            return InteractionResult.sidedSuccess(level().isClientSide);
         }
         return InteractionResult.FAIL;
     }
@@ -403,26 +403,37 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         return cache;
     }
 
-    public boolean isFood(ItemStack stack) {
-        return stack.has(DataComponents.FOOD);
+    @Override
+    public boolean isFood(ItemStack itemStack) {
+        return itemStack.has(DataComponents.FOOD);
     }
 
-    public boolean isPreferredFood(ItemStack stack) {
+    public @Nullable TagKey<Item> getFoodsTag() {
         if (getMiraculous() != null) {
             if (preferredFoodsTag == null)
                 preferredFoodsTag = Miraculous.createPreferredFoodsTag(getMiraculous().getKey());
-            return stack.is(preferredFoodsTag);
+            return preferredFoodsTag;
         }
-        return false;
+        return null;
     }
 
-    public boolean isTreat(ItemStack stack) {
+    public boolean isPreferredFood(ItemStack stack) {
+        TagKey<Item> preferredFoodsTag = getFoodsTag();
+        return preferredFoodsTag != null && stack.is(preferredFoodsTag);
+    }
+
+    public @Nullable TagKey<Item> getTreatsTag() {
         if (getMiraculous() != null) {
             if (treatsTag == null)
                 treatsTag = Miraculous.createTreatsTag(getMiraculous().getKey());
-            return stack.is(treatsTag);
+            return treatsTag;
         }
-        return false;
+        return null;
+    }
+
+    public boolean isTreat(ItemStack stack) {
+        TagKey<Item> treatTag = getTreatsTag();
+        return treatTag != null && stack.is(treatTag);
     }
 
     @Override

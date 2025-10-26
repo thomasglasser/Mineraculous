@@ -24,7 +24,6 @@
     "mineraculous:fresh_camembert_block",
     "mineraculous:fresh_cheese_block",
     "mineraculous:hibiscus_bush",
-    "mineraculous:oven",
     "mineraculous:ripened_camembert_block",
     "mineraculous:ripened_cheese_block",
     "mineraculous:time_honored_camembert_block",
@@ -39,9 +38,6 @@
     "mineraculous:waxed_ripened_cheese_block",
     "mineraculous:waxed_time_honored_camembert_block",
     "mineraculous:waxed_time_honored_cheese_block"
-  ],
-  "minecraft:block_entity_type": [
-    "mineraculous:oven"
   ],
   "minecraft:creative_mode_tab": [
     "mineraculous:kamikotizables",
@@ -66,6 +62,7 @@
     "mineraculous:kamikotization",
     "mineraculous:kamikotizing",
     "mineraculous:kwami_data",
+    "mineraculous:kwami_foods",
     "mineraculous:ladybug_yoyo_mode",
     "mineraculous:lucky_charm",
     "mineraculous:miraculous",
@@ -115,6 +112,7 @@
     "mineraculous:kamikotization_chestplate",
     "mineraculous:kamikotization_leggings",
     "mineraculous:kamikotization_mask",
+    "mineraculous:kwami",
     "mineraculous:ladybug_armor_trim_smithing_template",
     "mineraculous:ladybug_yoyo",
     "mineraculous:macaron",
@@ -123,7 +121,6 @@
     "mineraculous:miraculous_chestplate",
     "mineraculous:miraculous_leggings",
     "mineraculous:miraculous_mask",
-    "mineraculous:oven",
     "mineraculous:raw_macaron",
     "mineraculous:ripened_camembert_block",
     "mineraculous:ripened_camembert_wedge",
@@ -157,14 +154,8 @@
   "minecraft:loot_condition_type": [
     "mineraculous:has_item"
   ],
-  "minecraft:loot_function_type": [
-    "mineraculous:dye_randomly"
-  ],
   "minecraft:loot_number_provider_type": [
     "mineraculous:power_level_multiplier"
-  ],
-  "minecraft:menu": [
-    "mineraculous:oven"
   ],
   "minecraft:mob_effect": [
     "mineraculous:cataclysm"
@@ -183,19 +174,13 @@
     "mineraculous:summoning_ladybug"
   ],
   "minecraft:point_of_interest_type": [
-    "mineraculous:baker",
     "mineraculous:fromager"
   ],
   "minecraft:recipe_serializer": [
     "mineraculous:campfire_cooking_transmute",
     "mineraculous:crafting_special_cheesewedge",
-    "mineraculous:oven",
-    "mineraculous:oven_transmute",
     "mineraculous:smelting_transmute",
     "mineraculous:smoking_transmute"
-  ],
-  "minecraft:recipe_type": [
-    "mineraculous:oven"
   ],
   "minecraft:sensor_type": [
     "mineraculous:player_item_tempting"
@@ -238,7 +223,6 @@
     "mineraculous:ladybug"
   ],
   "minecraft:villager_profession": [
-    "mineraculous:baker",
     "mineraculous:fromager"
   ],
   "mineraculous:ability": [

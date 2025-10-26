@@ -139,12 +139,6 @@ neoForge {
 			gameDirectory = project.layout.projectDirectory.dir('runs/client_alt_alt')
 			programArguments.addAll "--username", "DevAltAlt"
 		}
-        auth_client {
-            client()
-            ideName = "Auth Client"
-            devLogin = true
-            gameDirectory = project.layout.projectDirectory.dir('runs/auth_client')
-        }
 		server {
 			server()
 			ideName = "Server"
@@ -179,11 +173,11 @@ dependencies {
 	implementation "maven.modrinth:lithostitched:${lithostitched_version}-neoforge-${previous_minecraft_version}"
 
 	implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
-    implementation "maven.modrinth:jade:${jade_version}+neoforge"
-    implementation "com.klikli_dev:modonomicon-${minecraft_version}-neoforge:${modonomicon_version}"
+	implementation "com.klikli_dev:modonomicon-${minecraft_version}-neoforge:${modonomicon_version}"
     implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
 
 	// Runtime
+	localRuntime "maven.modrinth:jade:${jade_version}+neoforge"
     localRuntime "maven.modrinth:simple-voice-chat:neoforge-${minecraft_version}-${voicechat_version}"
 }
 

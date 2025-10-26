@@ -23,6 +23,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
@@ -52,6 +53,7 @@ public class KamikotizationSelectionScreen extends Screen {
     public static final Component TOOL = Component.translatable("gui.kamikotization.tool");
     public static final Component ACTIVE_ABILITY = Component.translatable("gui.kamikotization.active_ability");
     public static final Component PASSIVE_ABILITIES = Component.translatable("gui.kamikotization.passive_abilities");
+    public static final String NO_KAMIKOTIZATIONS = "gui.kamikotization.no_kamikotizations";
 
     private final List<Holder<Kamikotization>> kamikotizations;
     private final Player target;
@@ -108,14 +110,6 @@ public class KamikotizationSelectionScreen extends Screen {
             selectOrDone.setY(((this.height - BACKGROUND_HEIGHT) / 2) + 175);
             addRenderableWidget(selectOrDone);
             onKamikotizationChanged();
-        }
-    }
-
-    @Override
-    public void tick() {
-        super.tick();
-        if (!target.isAlive() || target.isRemoved()) {
-            onClose();
         }
     }
 
@@ -328,12 +322,16 @@ public class KamikotizationSelectionScreen extends Screen {
     public void onClose(boolean cancel) {
         super.onClose();
         LocalPlayer player = this.minecraft.player;
+        if (selectedKamikotization == null) {
+            player.displayClientMessage(Component.translatable(NO_KAMIKOTIZATIONS, target.getDisplayName()), true);
+            cancel = true;
+        }
         if (cancel) {
             TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(player.getUUID(), target.blockPosition().above()));
             TommyLibServices.NETWORK.sendToServer(new ServerboundSetItemKamikotizingPayload(Optional.of(target.getUUID()), false, slotInfo));
             AbilityEffectData.removeFaceMaskTexture(player, kamikoData.faceMaskTexture());
         } else {
-            KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, name.getValue(), slotCount);
+            KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, name.getValue(), Util.NIL_UUID, Optional.empty(), slotCount, false, false);
             if (target == minecraft.player) {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationTransformationPayload(kamikotizationData, slotInfo));
                 TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(target.getUUID(), target.getUUID(), kamikotizationData.kamikotization().getKey()));

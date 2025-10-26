@@ -73,6 +73,10 @@ public class MineraculousKeyMappings {
             if (!transformed.isEmpty()) {
                 Holder<Miraculous> miraculous = transformed.getFirst();
                 TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), false));
+            } else if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
+                if (MineraculousServerConfig.get().enableKamikotizationRejection.get()) {
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationDetransformationPayload(Optional.empty(), false));
+                }
             } else {
                 List<RadialMenuOption> options = new ReferenceArrayList<>();
                 Map<RadialMenuOption, Holder<Miraculous>> miraculousOptions = new Reference2ReferenceOpenHashMap<>();

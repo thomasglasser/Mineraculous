@@ -12,6 +12,8 @@ import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Kamikotizing;
+import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiFoods;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Kamikotizing;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
@@ -64,6 +66,9 @@ public class MineraculousDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> REMAINING_TICKS = DATA_COMPONENTS.registerInteger("remaining_ticks", true, true);
     /// Determines the texture to use for the item.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<MiraculousItem.TextureState>> TEXTURE_STATE = DATA_COMPONENTS.register("texture_state", MiraculousItem.TextureState.STREAM_CODEC, MiraculousItem.TextureState.CODEC, true);
+
+    // Kwami Item
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<KwamiFoods>> KWAMI_FOODS = DATA_COMPONENTS.register("kwami_foods", KwamiFoods.STREAM_CODEC, KwamiFoods.CODEC, false);
 
     // Miraculous Tools
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<LadybugYoyoItem.Mode>> LADYBUG_YOYO_MODE = DATA_COMPONENTS.register("ladybug_yoyo_mode", LadybugYoyoItem.Mode.STREAM_CODEC, LadybugYoyoItem.Mode.CODEC, true);

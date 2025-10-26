@@ -59,9 +59,9 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean prefe
                 AbilityReversionBlockData.get(level).putRevertible(performer.getUUID(), level.dimension(), originals);
                 Ability.playSound(level, performer, replaceSound);
             }
-            return State.SUCCESS;
+            return State.CONSUME;
         }
-        return State.FAIL;
+        return State.PASS;
     }
 
     private boolean canBlockBeReplaced(ServerLevel level, BlockPos pos) {

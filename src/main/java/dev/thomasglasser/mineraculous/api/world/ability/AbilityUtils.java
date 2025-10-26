@@ -32,11 +32,11 @@ public class AbilityUtils {
     public static Ability.State performPassiveAbilities(ServerLevel level, LivingEntity performer, AbilityData data, AbilityHandler handler, @Nullable AbilityContext context, HolderSet<Ability> passiveAbilities) {
         for (Holder<Ability> ability : passiveAbilities) {
             Ability.State state = ability.value().perform(data, level, performer, handler, context);
-            if (state.shouldConsume()) {
+            if (state.shouldStop()) {
                 return state;
             }
         }
-        return Ability.State.CONTINUE;
+        return Ability.State.PASS;
     }
 
     /**
@@ -52,9 +52,9 @@ public class AbilityUtils {
      */
     public static Ability.State performActiveAbility(ServerLevel level, LivingEntity performer, AbilityData abilityData, AbilityHandler handler, @Nullable AbilityContext context, Optional<Holder<Ability>> activeAbility) {
         if (abilityData.powerActive()) {
-            return activeAbility.map(ability -> ability.value().perform(abilityData, level, performer, handler, context)).orElse(Ability.State.FAIL);
+            return activeAbility.map(ability -> ability.value().perform(abilityData, level, performer, handler, context)).orElse(Ability.State.CANCEL);
         }
-        return Ability.State.FAIL;
+        return Ability.State.CANCEL;
     }
 
     /**

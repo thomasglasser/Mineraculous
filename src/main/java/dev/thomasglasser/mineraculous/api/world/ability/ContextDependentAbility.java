@@ -41,15 +41,14 @@ public record ContextDependentAbility(Optional<Holder<Ability>> blockAbility, Op
             case null -> {
                 for (Holder<Ability> holder : passiveAbilities) {
                     State state = holder.value().perform(data, level, performer, handler, null);
-                    if (state.shouldConsume()) {
+                    if (state.shouldStop()) {
                         return state;
                     }
                 }
-                return State.CONTINUE;
             }
             default -> {}
         }
-        return State.FAIL;
+        return State.PASS;
     }
 
     @Override

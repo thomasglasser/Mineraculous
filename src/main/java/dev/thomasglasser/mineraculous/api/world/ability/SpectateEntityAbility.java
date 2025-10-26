@@ -56,11 +56,11 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
             AbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
             if (abilityEffectData.spectationInterrupted()) {
                 stopSpectation(level, performer);
-                return State.SUCCESS;
+                return State.CONSUME;
             } else if (data.powerActive()) {
                 if (abilityEffectData.spectatingId().isPresent()) {
                     stopSpectation(level, performer);
-                    return State.SUCCESS;
+                    return State.CONSUME;
                 } else {
                     List<? extends Entity> entities = level.getEntities(EntityTypeTest.forClass(Entity.class), entity -> isValidEntity(level, performer, entity));
                     if (!entities.isEmpty()) {
@@ -76,15 +76,12 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
                             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.of(target.getId())), player);
                         }
                         Ability.playSound(level, performer, startSound);
-                        return State.SUCCESS;
+                        return State.CONSUME;
                     }
-                    return State.CONTINUE;
                 }
-            } else {
-                return abilityEffectData.spectatingId().isPresent() ? State.SUCCESS : State.CONTINUE;
             }
         }
-        return State.FAIL;
+        return State.PASS;
     }
 
     public boolean isValidEntity(ServerLevel level, LivingEntity performer, Entity target) {

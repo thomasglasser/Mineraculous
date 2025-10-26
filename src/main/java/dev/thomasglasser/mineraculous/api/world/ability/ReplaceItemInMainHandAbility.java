@@ -43,7 +43,7 @@ public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakO
         if (context == null) {
             ItemStack stack = performer.getMainHandItem();
             if (stack.isEmpty()) {
-                return State.FAIL;
+                return State.PASS;
             }
             if (validItems.map(predicate -> predicate.test(stack)).orElse(false) || invalidItems.map(predicate -> !predicate.test(stack)).orElse(false)) {
                 ItemStack replacement = this.replacement.copy();
@@ -60,9 +60,9 @@ public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakO
                 performer.setItemInHand(InteractionHand.MAIN_HAND, replacement);
                 Ability.playSound(level, performer, replaceSound);
             }
-            return State.SUCCESS;
+            return State.CONSUME;
         }
-        return State.FAIL;
+        return State.PASS;
     }
 
     @Override

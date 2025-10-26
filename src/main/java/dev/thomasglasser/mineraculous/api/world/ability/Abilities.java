@@ -68,6 +68,7 @@ public class Abilities {
                 Optional.empty(),
                 Optional.of(Holder.direct(new ConvertAndTameAbility(
                         MineraculousEntityTypes.KAMIKO.get(),
+                        true,
                         Optional.of(EntityPredicate.Builder.entity()/*.of(MineraculousEntityTypeTags.BUTTERFLIES)*/.build()),
                         Optional.empty(),
                         Optional.of(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE)))),

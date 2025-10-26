@@ -104,9 +104,9 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
                 target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withKillCredit(Optional.of(performer.getUUID())).save(target, true);
             }
             Ability.playSound(level, performer, applySound);
-            return State.SUCCESS;
+            return State.CONSUME;
         }
-        return State.FAIL;
+        return State.PASS;
     }
 
     @Override

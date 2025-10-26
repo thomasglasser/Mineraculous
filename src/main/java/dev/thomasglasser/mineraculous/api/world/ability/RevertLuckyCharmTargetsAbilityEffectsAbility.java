@@ -67,11 +67,11 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                     });
                     LuckyCharmIdData.get(level).incrementLuckyCharmId(performerId);
                     Ability.playSound(level, performer, revertSound);
-                    return State.SUCCESS;
+                    return State.CONSUME;
                 }
             }
         }
-        return State.FAIL;
+        return State.PASS;
     }
 
     @Override

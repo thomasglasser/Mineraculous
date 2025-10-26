@@ -8,6 +8,7 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
+import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.ability.AbilityData;
 import dev.thomasglasser.mineraculous.api.world.ability.AbilityUtils;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
@@ -212,16 +213,19 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
     public void performAbilities(ServerLevel level, LivingEntity entity, @Nullable AbilityContext context) {
         AbilityData data = AbilityData.of(this);
         KamikotizationAbilityHandler handler = new KamikotizationAbilityHandler(kamikotization);
-        if (AbilityUtils.performPassiveAbilities(level, entity, data, handler, context, kamikotization.value().passiveAbilities()).isSuccess() && powerActive) {
-            withPowerActive(false).save(entity, true);
-        } else if (powerActive) {
-            boolean success = AbilityUtils.performActiveAbility(level, entity, data, handler, context, kamikotization.value().powerSource().right()).isSuccess();
-            if (success) {
-                if (context != null && entity instanceof ServerPlayer player) {
-                    MineraculousCriteriaTriggers.PERFORMED_KAMIKOTIZATION_ACTIVE_ABILITY.get().trigger(player, kamikotization.getKey(), context.advancementContext());
+        Ability.State state = AbilityUtils.performPassiveAbilities(level, entity, data, handler, context, kamikotization.value().passiveAbilities());
+        if (powerActive) {
+            if (state.shouldStop()) {
+                withPowerActive(false).save(entity, true);
+            } else {
+                state = AbilityUtils.performActiveAbility(level, entity, data, handler, context, kamikotization.value().powerSource().right());
+                if (state.isSuccess()) {
+                    if (context != null && entity instanceof ServerPlayer player) {
+                        MineraculousCriteriaTriggers.PERFORMED_KAMIKOTIZATION_ACTIVE_ABILITY.get().trigger(player, kamikotization.getKey(), context.advancementContext());
+                    }
                 }
+                withPowerActive(!state.shouldStop()).save(entity, true);
             }
-            withPowerActive(!success).save(entity, true);
         }
     }
 

@@ -66,7 +66,7 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             Optional<Vec3> spawnPos = Optional.empty();
             if (tool != null && tool.getItem() instanceof LuckyCharmSummoningItem toolItem) {
                 spawnPos = toolItem.getSummonPosition(level, performer, tool);
-                if (spawnPos == null) return State.FAIL;
+                if (spawnPos == null) return State.CANCEL;
             }
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
             Entity target = determineTarget(level, entityData.getTrackedEntity(performer.getUUID()), performer);
@@ -99,9 +99,9 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             item.moveTo(spawnPos.orElseGet(() -> defaultLuckyCharmSpawnPosition(level, performer)));
             level.addFreshEntity(item);
             Ability.playSound(level, performer, summonSound);
-            return State.SUCCESS;
+            return State.CONSUME;
         }
-        return State.FAIL;
+        return State.CANCEL;
     }
 
     private @Nullable Entity determineTarget(ServerLevel level, @Nullable UUID trackedId, LivingEntity performer) {

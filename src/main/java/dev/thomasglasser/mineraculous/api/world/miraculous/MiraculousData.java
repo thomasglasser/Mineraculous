@@ -355,21 +355,19 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                 boolean countdownStarted = this.countdownStarted;
                 AbilityData data = AbilityData.of(this);
                 AbilityHandler handler = new MiraculousAbilityHandler(miraculous);
-                Ability.State passiveState = AbilityUtils.performPassiveAbilities(level, entity, data, handler, null, miraculous.value().passiveAbilities());
+                Ability.State state = AbilityUtils.performPassiveAbilities(level, entity, data, handler, null, miraculous.value().passiveAbilities());
                 if (powerActive) {
-                    if (passiveState.isSuccess()) {
+                    if (state.shouldStop()) {
                         powerActive = false;
                     } else if (canUseMainPower()) {
-                        Ability.State state = AbilityUtils.performActiveAbility(level, entity, data, handler, null, Optional.of(miraculous.value().activeAbility()));
-                        if (state.shouldConsume()) {
+                        state = AbilityUtils.performActiveAbility(level, entity, data, handler, null, Optional.of(miraculous.value().activeAbility()));
+                        if (state.shouldStop()) {
                             powerActive = false;
                             if (state.isSuccess()) {
                                 countdownStarted = hasLimitedPower();
                             }
                         }
                         remainingTicks = countdownStarted ? remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND)) : Optional.empty();
-                    } else if (passiveState.shouldConsume()) {
-                        powerActive = false;
                     }
                 }
 
@@ -390,16 +388,20 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         AbilityData data = AbilityData.of(this);
         AbilityHandler handler = new MiraculousAbilityHandler(miraculous);
         Ability.State state = AbilityUtils.performPassiveAbilities(level, entity, data, handler, context, miraculous.value().passiveAbilities());
-        if (state.isSuccess() && powerActive) {
-            withPowerActive(false).save(miraculous, entity, true);
-        } else if (powerActive && canUseMainPower()) {
-            boolean success = AbilityUtils.performActiveAbility(level, entity, data, handler, context, Optional.of(miraculous.value().activeAbility())).isSuccess();
-            if (success) {
-                if (context != null && entity instanceof ServerPlayer player) {
-                    MineraculousCriteriaTriggers.PERFORMED_MIRACULOUS_ACTIVE_ABILITY.get().trigger(player, miraculous.getKey(), context.advancementContext());
+        if (powerActive) {
+            if (state.shouldStop()) {
+                withPowerActive(false).save(miraculous, entity, true);
+            } else if (canUseMainPower()) {
+                state = AbilityUtils.performActiveAbility(level, entity, data, handler, context, Optional.of(miraculous.value().activeAbility()));
+                if (state.isSuccess()) {
+                    if (context != null && entity instanceof ServerPlayer player) {
+                        MineraculousCriteriaTriggers.PERFORMED_MIRACULOUS_ACTIVE_ABILITY.get().trigger(player, miraculous.getKey(), context.advancementContext());
+                    }
+                    usedMainPower().save(miraculous, entity, true);
+                } else if (state.shouldStop()) {
+                    withPowerActive(false).save(miraculous, entity, true);
                 }
             }
-            usedMainPower(success).save(miraculous, entity, true);
         }
     }
 
@@ -495,8 +497,8 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         return new MiraculousData(curiosData, transformed, transformationState.map(TransformationState::decrementFrames), remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities, buffsActive);
     }
 
-    private MiraculousData usedMainPower(boolean consume) {
-        return new MiraculousData(curiosData, transformed, transformationState, hasLimitedPower() ? remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND)) : Optional.empty(), toolId, powerLevel, !consume && powerActive, consume, storedEntities, buffsActive);
+    private MiraculousData usedMainPower() {
+        return new MiraculousData(curiosData, transformed, transformationState, hasLimitedPower() ? remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND)) : Optional.empty(), toolId, powerLevel, false, hasLimitedPower(), storedEntities, buffsActive);
     }
 
     public MiraculousData equip(CuriosData curiosData) {

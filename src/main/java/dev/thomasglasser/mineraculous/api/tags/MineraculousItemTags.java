@@ -47,6 +47,8 @@ public class MineraculousItemTags {
     // Lucky Charms
     /// Items that do not have a visual change when given the {@link MineraculousDataComponents#LUCKY_CHARM} component.
     public static final TagKey<Item> LUCKY_CHARM_SHADER_IMMUNE = create("lucky_charm_shader_immune");
+    /// {@link net.minecraft.world.item.ProjectileItem}s that shoot down from the {@link dev.thomasglasser.mineraculous.impl.world.entity.LuckyCharmItemSpawner} instead of dropping normally
+    public static final TagKey<Item> SHOOTING_PROJECTILES = create("shooting_projectiles");
     /// Lucky charm options when no specific pool is specified.
     public static final TagKey<Item> GENERIC_LUCKY_CHARMS = create("lucky_charms/generic");
     /// Items passed in a {@link Warden} lucky charm to distract it.

@@ -153,6 +153,12 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         tag(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE)
                 .add(MineraculousItems.GREAT_SWORD);
 
+        tag(MineraculousItemTags.SHOOTING_PROJECTILES)
+                .add(MineraculousItems.BUTTERFLY_CANE)
+                .add(MineraculousItems.CAT_STAFF)
+                .add(Items.TRIDENT)
+                .addTag(ItemTags.ARROWS);
+
         tag(MineraculousItemTags.GENERIC_LUCKY_CHARMS)
                 .add(Items.APPLE)
                 .addTag(ConventionalItemTags.TOOLS)

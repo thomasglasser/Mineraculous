@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
+import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -74,7 +75,7 @@ public class LuckyCharmItemSpawner extends Entity {
         ItemStack itemstack = this.getItem();
         if (!itemstack.isEmpty()) {
             List<Entity> entities = new ReferenceArrayList<>();
-            if (itemstack.getItem() instanceof ProjectileItem projectileItem) {
+            if (itemstack.getItem() instanceof ProjectileItem projectileItem && itemstack.is(MineraculousItemTags.SHOOTING_PROJECTILES)) {
                 for (int i = 0; i < itemstack.getCount(); i++) {
                     Direction direction = Direction.DOWN;
                     Projectile projectile = projectileItem.asProjectile(level, this.position(), itemstack, direction);

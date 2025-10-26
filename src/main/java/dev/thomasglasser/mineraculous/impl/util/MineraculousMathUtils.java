@@ -2,13 +2,6 @@ package dev.thomasglasser.mineraculous.impl.util;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Vector2d;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,6 +10,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector2d;
 
 public class MineraculousMathUtils {
     public static Vec3 projectOnCircle(Vec3 fromPointToCenter, Vec3 vec3) {
@@ -158,23 +158,14 @@ public class MineraculousMathUtils {
         return ordered;
     }
 
-    /**
-     * works only if A, B, C are collinear (on the same straight line)
-     * returns true if A is between C and B
-     * C ---- A ---- B or B ---- A ---- C
-     */
-    public static boolean isBetween(Vec3 A, Vec3 B, Vec3 C) {
-        Vec3 ab = A.subtract(B);
-        Vec3 cb = C.subtract(B);
-
-        double dot = ab.dot(cb);
-        return dot > 0 && dot < cb.lengthSqr();
-    }
-
     public static class CatmullRom {
         private final List<Vec3> points;
         private final List<Double> T;
         private final List<Vec3> tangents;
+
+        public CatmullRom(List<Vec3> targets) {
+            this(new ArrayList<>(targets));
+        }
 
         public CatmullRom(ArrayList<Vec3> targets) {
             // Add the ghost points
@@ -189,7 +180,6 @@ public class MineraculousMathUtils {
             tValues.add(0d);
             for (int i = 1; i < points.size(); i++) {
                 double dist = points.get(i).distanceTo(points.get(i - 1));
-                // centripetal spacing — sqrt of distance
                 tValues.add(tValues.get(i - 1) + Math.sqrt(Math.max(dist, 1e-9)));
             }
             this.T = Collections.unmodifiableList(tValues);

@@ -14,11 +14,6 @@ import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTriggerData;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -31,6 +26,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Reverts the ability effects of the {@link LuckyCharm} target and related entities.
@@ -53,9 +53,11 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                 Set<UUID> toRevert = new ReferenceOpenHashSet<>();
                 toRevert.add(performerId);
                 collectToRevert(target, entityData, toRevert);
+                //TODO for Tommy: please give me the entity data here. I need a way to get their width/height, and the position they are moved at.
+                // I want to spawn particles at the moved positions, is that ok?
                 Pair<Multimap<ResourceKey<Level>, Vec3>, Multimap<ResourceKey<Level>, BlockPos>> positions = gatherReversionPositions(level, toRevert);
                 Multimap<ResourceKey<Level>, BlockPos> blockPositions = positions.second;
-                Multimap<ResourceKey<Level>, Vec3> entityPositions = positions.first;
+                Multimap<ResourceKey<Level>, Vec3> entityPositions = positions.first; //TODO for Tommy: i suppose theese are the positions they should be at after mlb tell me if im wrong.
                 //TODO treat other dimensions as well
                 ResourceKey<Level> currentLevelKey = level.dimension();
                 blockPositions = MineraculousMathUtils.reduceNearbyBlocks(blockPositions);

@@ -143,11 +143,11 @@ public record MiraculousLadybugTriggerData(List<BlockPos> blockTasks, List<Vec3>
             List<BlockPos> updatedBlockTargets = new ArrayList<>(task.blockTargets());
             int x = (int) circle.get(i).x;
             int y = (int) circle.get(i).y;
-            Vec3 targetPos = spawnPos.add(x, 0, y);
-            BlockPos newTarget = new BlockPos(MineraculousMathUtils.getVec3i(targetPos));
-            updatedBlockTargets.addFirst(new BlockPos(newTarget));
+            Vec3 circlePos = spawnPos.add(x, 0, y);
+            updatedBlockTargets.addFirst(new BlockPos(MineraculousMathUtils.getVec3i(circlePos)));
             updatedBlockTargets.addFirst(new BlockPos(MineraculousMathUtils.getVec3i(spawnPos)));
             task = task.withBlockTargets(updatedBlockTargets);
+            task = task.calculateSpline();
             MiraculousLadybug miraculousLadybug = new MiraculousLadybug(level);
             miraculousLadybug.setPos(spawnPos);
             level.addFreshEntity(miraculousLadybug);

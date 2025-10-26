@@ -5,10 +5,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -35,9 +37,9 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
     @Override
     public void render(MiraculousLadybug entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        double splineParameter = Mth.lerp(partialTick, entity.oldSplinePosition, entity.splinePositionParameter);
-        if (entity.path instanceof MineraculousMathUtils.CatmullRom path &&
-                splineParameter >= path.getFirstParameter()) {
+        MiraculousLadybugTargetData targetData = entity.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+        double splineParameter = Mth.lerp(partialTick, entity.oldSplinePosition, targetData.splinePosition());
+        if (entity.path instanceof MineraculousMathUtils.CatmullRom path && splineParameter >= path.getFirstParameter()) {
             Vec3 interpolatedPos = MineraculousClientUtils.getInterpolatedPos(entity, partialTick);
             updateTailPoints(path, splineParameter, interpolatedPos, entity.getDistanceToNearestTarget());
             spawnLadybugs();

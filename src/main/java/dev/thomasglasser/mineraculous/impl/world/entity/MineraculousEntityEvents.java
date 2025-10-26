@@ -22,6 +22,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItem
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
@@ -140,8 +141,10 @@ public class MineraculousEntityEvents {
             }
         }
 
-        if (entity instanceof MiraculousLadybug miraculousLadybug)
-            miraculousLadybug.oldSplinePosition = miraculousLadybug.splinePositionParameter;
+        if (entity instanceof MiraculousLadybug miraculousLadybug) {
+            MiraculousLadybugTargetData targetData = miraculousLadybug.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+            miraculousLadybug.oldSplinePosition = targetData.splinePosition();
+        }
     }
 
     public static void checkInventoryComponents(Entity entity) {

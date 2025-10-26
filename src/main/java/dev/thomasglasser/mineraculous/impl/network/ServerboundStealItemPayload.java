@@ -39,7 +39,7 @@ public record ServerboundStealItemPayload(UUID target, int slot) implements Exte
                 player.displayClientMessage(ExternalInventoryScreen.ITEM_BOUND_KEY, true);
             } else {
                 target.getInventory().removeItem(stack);
-                giveOrDropItem(player, stack);
+                giveOrDropItem(player, stack.copyAndClear());
             }
         }
     }

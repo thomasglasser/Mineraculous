@@ -41,7 +41,7 @@ public record ServerboundStealCurioPayload(UUID target, CuriosData data) impleme
                 player.displayClientMessage(ExternalInventoryScreen.ITEM_BOUND_KEY, true);
             } else {
                 CuriosUtils.setStackInSlot(target, this.data, ItemStack.EMPTY);
-                ServerboundStealItemPayload.giveOrDropItem(player, stack);
+                ServerboundStealItemPayload.giveOrDropItem(player, stack.copyAndClear());
             }
         }
     }

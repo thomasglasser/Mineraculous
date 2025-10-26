@@ -139,6 +139,12 @@ neoForge {
 			gameDirectory = project.layout.projectDirectory.dir('runs/client_alt_alt')
 			programArguments.addAll "--username", "DevAltAlt"
 		}
+        auth_client {
+            client()
+            ideName = "Auth Client"
+            devLogin = true
+            gameDirectory = project.layout.projectDirectory.dir('runs/auth_client')
+        }
 		server {
 			server()
 			ideName = "Server"

@@ -36,9 +36,16 @@ import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -51,6 +58,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.HttpTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.network.chat.Component;
@@ -68,6 +76,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -292,6 +301,59 @@ public class MineraculousClientUtils {
         } catch (Exception e) {
             throw new IllegalStateException("Failed to load cataclysm texture", e);
         }
+    }
+
+    public static @Nullable NativeImage getNativeImage(HttpTexture texture) {
+        AtomicReference<NativeImage> image = new AtomicReference<>();
+        if (texture.file != null && texture.file.isFile()) {
+            MineraculousConstants.LOGGER.debug("Loading http texture from local cache ({})", texture.file);
+            try {
+                FileInputStream fileinputstream = new FileInputStream(texture.file);
+                image.set(texture.load(fileinputstream));
+            } catch (FileNotFoundException e) {
+                MineraculousConstants.LOGGER.error("Couldn't load http texture from local cache", e);
+            }
+        }
+
+        if (image.get() == null) {
+            HttpURLConnection httpurlconnection = null;
+            MineraculousConstants.LOGGER.debug("Downloading http texture from {} to {}", texture.urlString, texture.file);
+
+            try {
+                httpurlconnection = (HttpURLConnection) new URI(texture.urlString).toURL().openConnection(Minecraft.getInstance().getProxy());
+                httpurlconnection.setDoInput(true);
+                httpurlconnection.setDoOutput(false);
+                httpurlconnection.connect();
+                if (httpurlconnection.getResponseCode() / 100 == 2) {
+                    InputStream inputstream;
+                    if (texture.file != null) {
+                        FileUtils.copyInputStreamToFile(httpurlconnection.getInputStream(), texture.file);
+                        inputstream = new FileInputStream(texture.file);
+                    } else {
+                        inputstream = httpurlconnection.getInputStream();
+                    }
+
+                    Minecraft.getInstance().execute(() -> {
+                        NativeImage image1 = texture.load(inputstream);
+                        if (image1 != null) {
+                            image.set(image1);
+                        }
+                        try {
+                            inputstream.close();
+                        } catch (IOException e) {
+                            MineraculousConstants.LOGGER.error("Couldn't close http texture input stream", e);
+                        }
+                    });
+                }
+            } catch (Exception exception) {
+                MineraculousConstants.LOGGER.error("Couldn't download http texture", exception);
+            } finally {
+                if (httpurlconnection != null) {
+                    httpurlconnection.disconnect();
+                }
+            }
+        }
+        return image.get();
     }
 
     // Misc

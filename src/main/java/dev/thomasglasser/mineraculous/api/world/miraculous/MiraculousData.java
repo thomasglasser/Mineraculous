@@ -129,7 +129,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
             UUID kwamiId = miraculousStack.get(MineraculousDataComponents.KWAMI_ID);
             if (kwamiId != null) {
                 for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
-                    if (stack.getItem() instanceof KwamiItem) {
+                    if (stack.getItem() instanceof KwamiItem && stack.get(MineraculousDataComponents.KWAMI_ID).equals(kwamiId)) {
                         KwamiItem.summonKwami(stack, entity);
                     }
                 }
@@ -180,7 +180,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                     }
                 } else {
                     if (entity instanceof Player player) {
-                        player.displayClientMessage(Component.translatable(KWAMI_NOT_FOUND, MineraculousConstants.toLanguageKey(miraculous.getKey())), true);
+                        player.displayClientMessage(Component.translatable(KWAMI_NOT_FOUND, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.getKey()))), true);
                     } else {
                         MineraculousConstants.LOGGER.error("Tried to transform entity {} with invalid kwami id {}", entity.getName().plainCopy().getString(), kwamiId);
                     }

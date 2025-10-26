@@ -28,7 +28,7 @@ public class FaceMaskModel extends Model {
         MeshDefinition definition = new MeshDefinition();
         PartDefinition root = definition.getRoot();
 
-        PartDefinition mask = root.addOrReplaceChild("mask", CubeListBuilder.create().texOffs(0, 0).addBox(-7.5F, -37.0F, -8.0F, 15.0F, 15.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
+        PartDefinition mask = root.addOrReplaceChild("mask", CubeListBuilder.create().texOffs(0, 0).addBox(-7.5F, -37.0F, -8.0F, 15.0F, 15.0F, 0.001F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 24.0F, 0.0F));
 
         return LayerDefinition.create(definition, 32, 16);
     }

@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization;
 
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +29,7 @@ public abstract class AbstractKamikotizationChatScreen extends ChatScreen {
 
     protected AbstractKamikotizationChatScreen(String initialText, UUID other, Optional<ResourceLocation> faceMaskTexture) {
         super(initialText);
-        this.other = minecraft.level.getPlayerByUUID(other);
+        this.other = ClientUtils.getLevel().getPlayerByUUID(other);
         this.faceMaskTexture = faceMaskTexture;
     }
 

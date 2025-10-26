@@ -147,6 +147,11 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
             MineraculousConstants.LOGGER.error("Kamiko could not be created for player {}", entity.getName().plainCopy().getString());
         }
 
+        LivingEntity owner = level.getEntity(kamikoData.owner()) instanceof LivingEntity l ? l : null;
+        if (owner != null && owner.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS.get()).spectatingId().map(id -> id.equals(entity.getUUID())).orElse(false)) {
+            owner.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS.get()).withSpectationInterrupted().save(owner, true);
+        }
+
         level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM, entity.getSoundSource(), 1, 1);
         for (ResourceKey<MobEffect> effect : level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).keySet()) {
             entity.removeEffect(level.holderOrThrow(effect));

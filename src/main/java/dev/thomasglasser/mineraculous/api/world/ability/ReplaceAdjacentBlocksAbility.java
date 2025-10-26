@@ -57,8 +57,8 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean prefe
                     level.setBlock(blockPos, MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL);
                 }
                 AbilityReversionBlockData.get(level).putRevertible(performer.getUUID(), level.dimension(), originals);
+                Ability.playSound(level, performer, replaceSound);
             }
-            Ability.playSound(level, performer, replaceSound);
             return State.SUCCESS;
         }
         return State.FAIL;

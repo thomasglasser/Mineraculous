@@ -45,13 +45,19 @@ public class AbilityReversionBlockData extends SavedData {
     public void putRevertible(UUID owner, ResourceKey<Level> dimension, Map<BlockPos, BlockState> revertible) {
         Map<Pair<ResourceKey<Level>, BlockPos>, BlockState> row = revertibleBlocks.row(owner);
         for (Map.Entry<BlockPos, BlockState> entry : revertible.entrySet()) {
-            row.put(Pair.of(dimension, entry.getKey()), entry.getValue());
+            Pair<ResourceKey<Level>, BlockPos> location = Pair.of(dimension, entry.getKey());
+            if (!row.containsKey(location))
+                row.put(location, entry.getValue());
         }
         setDirty();
     }
 
     public void putRevertible(UUID owner, ResourceKey<Level> dimension, BlockPos pos, BlockState state) {
-        revertibleBlocks.put(owner, Pair.of(dimension, pos), state);
+        Pair<ResourceKey<Level>, BlockPos> location = Pair.of(dimension, pos);
+        if (!revertibleBlocks.contains(owner, location)) {
+            revertibleBlocks.put(owner, location, state);
+            setDirty();
+        }
     }
 
     public UUID getCause(ResourceKey<Level> dimension, BlockPos pos) {

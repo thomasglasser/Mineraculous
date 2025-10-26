@@ -42,22 +42,24 @@ public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakO
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null) {
             ItemStack stack = performer.getMainHandItem();
-            if (stack.isEmpty() || validItems.map(predicate -> !predicate.test(stack)).orElse(false) || invalidItems.map(predicate -> predicate.test(stack)).orElse(false)) {
+            if (stack.isEmpty()) {
                 return State.FAIL;
             }
-            ItemStack replacement = this.replacement.copy();
-            UUID id = UUID.randomUUID();
-            replacement.set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, id);
-            AbilityReversionItemData.get(level).putRevertible(performer.getUUID(), id, stack);
-            if (breakOriginal) {
-                if (stack.isDamageableItem()) {
-                    MineraculousItemUtils.hurtAndBreak(stack, stack.getMaxDamage(), level, performer, EquipmentSlot.MAINHAND);
-                } else {
-                    Kamikotization.checkBroken(stack, level, performer);
+            if (validItems.map(predicate -> predicate.test(stack)).orElse(false) || invalidItems.map(predicate -> !predicate.test(stack)).orElse(false)) {
+                ItemStack replacement = this.replacement.copy();
+                UUID id = UUID.randomUUID();
+                replacement.set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, id);
+                AbilityReversionItemData.get(level).putRevertible(performer.getUUID(), id, stack);
+                if (breakOriginal) {
+                    if (stack.isDamageableItem()) {
+                        MineraculousItemUtils.hurtAndBreak(stack, stack.getMaxDamage(), level, performer, EquipmentSlot.MAINHAND);
+                    } else {
+                        Kamikotization.checkBroken(stack, level, performer);
+                    }
                 }
+                performer.setItemInHand(InteractionHand.MAIN_HAND, replacement);
+                Ability.playSound(level, performer, replaceSound);
             }
-            performer.setItemInHand(InteractionHand.MAIN_HAND, replacement);
-            Ability.playSound(level, performer, replaceSound);
             return State.SUCCESS;
         }
         return State.FAIL;

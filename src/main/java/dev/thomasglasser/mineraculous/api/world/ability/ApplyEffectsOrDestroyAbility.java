@@ -40,17 +40,19 @@ import org.jetbrains.annotations.Nullable;
  * @param effects            The {@link MobEffect}s to apply
  * @param effectSettings     The {@link EffectSettings} to use when applying the effects
  * @param damageType         The {@link DamageType} to use on the target (for aggro, credit, and destruction)
+ * @param additive           Whether the effects can be applied additively or replace the existing effects
  * @param overrideKillCredit Whether the target's kill credit should be overridden and given to the performer
  * @param allowBlocking      Whether the target can block the effects with an active blocking item
  * @param dropItem           The {@link Item} to drop in replacement of the blocking item or non-living {@link Entity}'s drops
  * @param applySound         The sound to play when the ability is performed
  */
-public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectSettings effectSettings, Optional<ResourceKey<DamageType>> damageType, boolean overrideKillCredit, boolean allowBlocking, Optional<Item> dropItem, Optional<Holder<SoundEvent>> applySound) implements Ability {
+public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectSettings effectSettings, Optional<ResourceKey<DamageType>> damageType, boolean additive, boolean overrideKillCredit, boolean allowBlocking, Optional<Item> dropItem, Optional<Holder<SoundEvent>> applySound) implements Ability {
 
     public static final MapCodec<ApplyEffectsOrDestroyAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             RegistryCodecs.homogeneousList(Registries.MOB_EFFECT).fieldOf("effects").forGetter(ApplyEffectsOrDestroyAbility::effects),
             EffectSettings.CODEC.optionalFieldOf("effect_settings", EffectSettings.DEFAULT).forGetter(ApplyEffectsOrDestroyAbility::effectSettings),
             ResourceKey.codec(Registries.DAMAGE_TYPE).optionalFieldOf("damage_type").forGetter(ApplyEffectsOrDestroyAbility::damageType),
+            Codec.BOOL.optionalFieldOf("additive", false).forGetter(ApplyEffectsOrDestroyAbility::additive),
             Codec.BOOL.optionalFieldOf("override_kill_credit", false).forGetter(ApplyEffectsOrDestroyAbility::overrideKillCredit),
             Codec.BOOL.optionalFieldOf("allow_blocking", true).forGetter(ApplyEffectsOrDestroyAbility::allowBlocking),
             BuiltInRegistries.ITEM.byNameCodec().optionalFieldOf("drop_item").forGetter(ApplyEffectsOrDestroyAbility::dropItem),
@@ -76,7 +78,12 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
                     }
                 } else {
                     for (Holder<MobEffect> mobEffect : effects) {
-                        MobEffectInstance effect = new MobEffectInstance(mobEffect, effectSettings.duration(), (data.powerLevel() / 10), effectSettings.ambient(), effectSettings.showParticles(), effectSettings.showIcon());
+                        int amplifier = data.powerLevel() / 10;
+                        MobEffectInstance existing = livingEntity.getEffect(mobEffect);
+                        if (additive && existing != null) {
+                            amplifier += existing.getAmplifier() + 1;
+                        }
+                        MobEffectInstance effect = new MobEffectInstance(mobEffect, effectSettings.duration(), amplifier, effectSettings.ambient(), effectSettings.showParticles(), effectSettings.showIcon());
                         livingEntity.addEffect(effect);
                     }
                 }

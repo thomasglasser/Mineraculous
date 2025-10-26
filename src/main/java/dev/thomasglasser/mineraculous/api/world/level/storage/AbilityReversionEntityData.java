@@ -156,6 +156,7 @@ public class AbilityReversionEntityData extends SavedData {
         if (!removableEntities.containsKey(owner))
             removableEntities.put(owner, new ReferenceArrayList<>());
         removableEntities.get(owner).add(entity.getUUID());
+        setDirty();
     }
 
     public UUID getCause(Entity entity, ServerLevel level) {
@@ -196,6 +197,7 @@ public class AbilityReversionEntityData extends SavedData {
             revertConversion(data, level);
         }
         row.clear();
+        setDirty();
     }
 
     public @Nullable Entity revertConversion(UUID performer, UUID entity, ServerLevel level) {

@@ -93,12 +93,11 @@ public class AbilityReversionItemData extends SavedData {
         checkReverted(items.size(), container::getItem, container::setItem);
     }
 
-    public ItemStack checkReverted(ItemStack itemStack) {
-        if (itemStack.has(MineraculousDataComponents.REVERTIBLE_ITEM_ID)) {
-            UUID id = itemStack.get(MineraculousDataComponents.REVERTIBLE_ITEM_ID);
+    public ItemStack checkReverted(ItemStack stack) {
+        if (stack.has(MineraculousDataComponents.REVERTIBLE_ITEM_ID)) {
+            UUID id = stack.get(MineraculousDataComponents.REVERTIBLE_ITEM_ID);
             if (revertedItems.containsKey(id)) {
-                ItemStack recovered = revertedItems.get(id).copy();
-                revertedItems.remove(id);
+                ItemStack recovered = revertedItems.remove(id).copy();
                 setDirty();
                 return recovered;
             }
@@ -110,13 +109,15 @@ public class AbilityReversionItemData extends SavedData {
         if (revertibleItems.containsRow(owner)) {
             revertedItems.putAll(revertibleItems.row(owner));
             revertibleItems.row(owner).clear();
+            setDirty();
         }
-        setDirty();
     }
 
     public void putRevertible(UUID owner, UUID item, ItemStack stack) {
-        revertibleItems.put(owner, item, stack.copy());
-        setDirty();
+        if (!revertibleItems.contains(owner, item)) {
+            revertibleItems.put(owner, item, stack.copy());
+            setDirty();
+        }
     }
 
     public void putRemovable(UUID owner, UUID item) {
@@ -124,13 +125,14 @@ public class AbilityReversionItemData extends SavedData {
     }
 
     public void revertKamikotized(LivingEntity owner, UUID item) {
-        revertedItems.put(item, revertibleItems.remove(owner.getUUID(), item));
-        EntityUtils.addToInventoryOrDrop(owner, kamikotizedItems.get(item));
-        setDirty();
+        ItemStack stack = kamikotizedItems.remove(item);
+        if (stack != null) {
+            EntityUtils.addToInventoryOrDrop(owner, stack);
+            setDirty();
+        }
     }
 
-    public void putKamikotized(UUID owner, UUID item, ItemStack stack) {
-        putRemovable(owner, item);
+    public void putKamikotized(UUID item, ItemStack stack) {
         kamikotizedItems.put(item, stack.copy());
         setDirty();
     }

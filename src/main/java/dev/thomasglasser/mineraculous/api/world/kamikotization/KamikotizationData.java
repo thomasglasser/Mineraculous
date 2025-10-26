@@ -111,7 +111,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         kamikotizationStack.set(MineraculousDataComponents.OWNER, entity.getUUID());
 
         UUID revertibleId = UUID.randomUUID();
-        AbilityReversionItemData.get(level).putKamikotized(entity.getUUID(), revertibleId, originalStack);
+        AbilityReversionItemData.get(level).putKamikotized(revertibleId, originalStack);
         kamikotizationStack.set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, revertibleId);
 
         level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM, entity.getSoundSource(), 1, 1);

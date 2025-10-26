@@ -109,6 +109,7 @@ public class Abilities {
                         Optional.of(MineraculousDamageTypes.CATACLYSM),
                         true,
                         true,
+                        true,
                         Optional.of(MineraculousItems.CATACLYSM_DUST.get()),
                         Optional.of(MineraculousSoundEvents.CATACLYSM_USE)))),
                 HolderSet.direct(

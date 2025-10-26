@@ -1,12 +1,12 @@
 package dev.thomasglasser.mineraculous.api.world.item;
 
-import com.mojang.datafixers.util.Pair;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -22,14 +22,16 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.Unbreakable;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
@@ -48,20 +50,41 @@ public class MineraculousItemUtils {
      * @param breaker The entity breaking the stack if present
      * @return A pair of the broken stack and remainder stack
      */
-    public static Pair<ItemStack, ItemStack> tryBreakItem(ItemStack stack, ServerLevel level, Vec3 pos, @Nullable LivingEntity breaker) {
-        ItemStack rest = stack.copyWithCount(stack.getCount() - 1);
-        stack.setCount(1);
+    public static BreakResult tryBreakItem(ItemStack stack, ServerLevel level, Vec3 pos, @Nullable LivingEntity breaker) {
+        if (stack.has(DataComponents.UNBREAKABLE)) {
+            if (breaker instanceof Player player) {
+                player.displayClientMessage(ITEM_UNBREAKABLE_KEY, true);
+            }
+            return BreakResult.fail(stack);
+        } else if (stack.has(MineraculousDataComponents.KAMIKOTIZING) || breaker != null && stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.getOrDefault(MineraculousDataComponents.OWNER, Util.NIL_UUID).equals(breaker.getUUID())) {
+            if (breaker instanceof Player player) {
+                player.displayClientMessage(KAMIKOTIZED_ITEM_UNBREAKABLE_KEY, true);
+            }
+            return BreakResult.fail(stack);
+        }
+        ItemStack remainder = ItemStack.EMPTY;
         if (!stack.isDamageableItem()) {
             if (stack.getItem() instanceof BlockItem blockItem) {
                 float max = blockItem.getBlock().defaultDestroyTime();
                 if (max > -1) {
+                    if (stack.getCount() > 1) {
+                        remainder = stack.copyWithCount(stack.getCount() - 1);
+                        stack = stack.copyWithCount(1);
+                    }
                     stack.set(DataComponents.MAX_DAMAGE, (int) (max * 100));
                     stack.set(DataComponents.DAMAGE, 0);
                     stack.set(DataComponents.MAX_STACK_SIZE, 1);
                 } else {
-                    stack.set(DataComponents.UNBREAKABLE, new Unbreakable(false));
+                    if (breaker instanceof Player player) {
+                        player.displayClientMessage(ITEM_UNBREAKABLE_KEY, true);
+                    }
+                    return BreakResult.fail(stack);
                 }
             } else if (stack.is(MineraculousItemTags.TOUGH)) {
+                if (stack.getCount() > 1) {
+                    remainder = stack.copyWithCount(stack.getCount() - 1);
+                    stack = stack.copyWithCount(1);
+                }
                 stack.set(DataComponents.MAX_DAMAGE, 200);
                 stack.set(DataComponents.DAMAGE, 0);
                 stack.set(DataComponents.MAX_STACK_SIZE, 1);
@@ -71,10 +94,7 @@ public class MineraculousItemUtils {
             if (breaker instanceof Player player) {
                 player.displayClientMessage(ITEM_UNBREAKABLE_KEY, true);
             }
-        } else if (stack.has(MineraculousDataComponents.KAMIKOTIZING) || breaker != null && stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.getOrDefault(MineraculousDataComponents.OWNER, Util.NIL_UUID).equals(breaker.getUUID())) {
-            if (breaker instanceof Player player) {
-                player.displayClientMessage(KAMIKOTIZED_ITEM_UNBREAKABLE_KEY, true);
-            }
+            return BreakResult.fail(stack);
         } else {
             if (stack.isDamageableItem()) {
                 int damage = 100;
@@ -89,14 +109,36 @@ public class MineraculousItemUtils {
                         }
                     }
                 }
+                if (stack.getCount() > 1) {
+                    remainder = stack.copyWithCount(stack.getCount() - 1);
+                    stack = stack.copyWithCount(1);
+                }
                 hurtAndBreak(stack, damage, level, breaker, EquipmentSlot.MAINHAND);
+                return BreakResult.hurtSuccess(stack, remainder);
             } else {
+                if (breaker != null) {
+                    breaker.onEquippedItemBroken(stack.getItem(), EquipmentSlot.MAINHAND);
+                }
+                level.playSound(null, new BlockPos((int) pos.x, (int) pos.y, (int) pos.z), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1f, 1f);
                 Kamikotization.checkBroken(stack, level, pos);
                 stack.shrink(1);
-                level.playSound(null, new BlockPos((int) pos.x, (int) pos.y, (int) pos.z), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1f, 1f);
+                return BreakResult.shrinkSuccess(stack);
             }
         }
-        return Pair.of(stack, rest);
+    }
+
+    public record BreakResult(ItemStack original, ItemStack remainder) {
+        public static BreakResult fail(ItemStack original) {
+            return new BreakResult(original, ItemStack.EMPTY);
+        }
+
+        public static BreakResult shrinkSuccess(ItemStack remainder) {
+            return new BreakResult(ItemStack.EMPTY, remainder);
+        }
+
+        public static BreakResult hurtSuccess(ItemStack original, ItemStack remainder) {
+            return new BreakResult(original, remainder);
+        }
     }
 
     /**
@@ -157,6 +199,51 @@ public class MineraculousItemUtils {
         double overrideDelta = Math.max(entity.getDeltaMovement().y, -0.1);
         entity.setDeltaMovement(entity.getDeltaMovement().x, overrideDelta, entity.getDeltaMovement().z);
         entity.resetFallDistance();
+    }
+
+    public static ItemStack applyDyesToUndyeable(ItemStack stack, List<DyeItem> dyes) {
+        ItemStack itemstack = stack.copyWithCount(1);
+        int i = 0;
+        int j = 0;
+        int k = 0;
+        int l = 0;
+        int i1 = 0;
+        DyedItemColor dyeditemcolor = itemstack.get(DataComponents.DYED_COLOR);
+        if (dyeditemcolor != null) {
+            int j1 = FastColor.ARGB32.red(dyeditemcolor.rgb());
+            int k1 = FastColor.ARGB32.green(dyeditemcolor.rgb());
+            int l1 = FastColor.ARGB32.blue(dyeditemcolor.rgb());
+            l += Math.max(j1, Math.max(k1, l1));
+            i += j1;
+            j += k1;
+            k += l1;
+            i1++;
+        }
+
+        for (DyeItem dyeitem : dyes) {
+            int j3 = dyeitem.getDyeColor().getTextureDiffuseColor();
+            int i2 = FastColor.ARGB32.red(j3);
+            int j2 = FastColor.ARGB32.green(j3);
+            int k2 = FastColor.ARGB32.blue(j3);
+            l += Math.max(i2, Math.max(j2, k2));
+            i += i2;
+            j += j2;
+            k += k2;
+            i1++;
+        }
+
+        int l2 = i / i1;
+        int i3 = j / i1;
+        int k3 = k / i1;
+        float f = (float) l / (float) i1;
+        float f1 = (float) Math.max(l2, Math.max(i3, k3));
+        l2 = (int) ((float) l2 * f / f1);
+        i3 = (int) ((float) i3 * f / f1);
+        k3 = (int) ((float) k3 * f / f1);
+        int l3 = FastColor.ARGB32.color(0, l2, i3, k3);
+        boolean flag = dyeditemcolor == null || dyeditemcolor.showInTooltip();
+        itemstack.set(DataComponents.DYED_COLOR, new DyedItemColor(l3, flag));
+        return itemstack;
     }
 
     /**

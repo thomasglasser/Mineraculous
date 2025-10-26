@@ -18,17 +18,17 @@ import org.joml.Matrix4f;
 public class MineraculousRenderStateShards {
     public static final RenderStateShard.ShaderStateShard RENDERTYPE_GLINT_TRANSLUCENT_LIGHTMAP_SHADER = new RenderStateShard.ShaderStateShard(MineraculousRenderStateShards::getRendertypeGlintTranslucentLightmapShader);
 
-    public static final RenderStateShard.TexturingStateShard ITEM_SHADER_TEXTURING = new RenderStateShard.TexturingStateShard(
-            "item_shader_texturing", () -> setupItemShaderTexturing(4, Mth.PI / 12), RenderSystem::resetTextureMatrix);
+    public static final RenderStateShard.TexturingStateShard ITEM_LUCKY_CHARM_TEXTURING = new RenderStateShard.TexturingStateShard(
+            "item_lucky_charm_texturing", () -> setupLuckyCharmTexturing(4, Mth.PI / 12), RenderSystem::resetTextureMatrix);
 
-    public static final RenderStateShard.TexturingStateShard ENTITY_SHADER_TEXTURING = new RenderStateShard.TexturingStateShard(
-            "entity_shader_texturing", () -> setupItemShaderTexturing(0.75f, Mth.PI / 18), RenderSystem::resetTextureMatrix);
+    public static final RenderStateShard.TexturingStateShard ENTITY_LUCKY_CHARM_TEXTURING = new RenderStateShard.TexturingStateShard(
+            "entity_lucky_charm_texturing", () -> setupLuckyCharmTexturing(0.75f, Mth.PI / 18), RenderSystem::resetTextureMatrix);
 
-    public static final RenderStateShard.TexturingStateShard ARMOR_SHADER_TEXTURING = new RenderStateShard.TexturingStateShard(
-            "armor_shader_texturing", () -> setupItemShaderTexturing(1, 0), RenderSystem::resetTextureMatrix);
+    public static final RenderStateShard.TexturingStateShard ARMOR_LUCKY_CHARM_TEXTURING = new RenderStateShard.TexturingStateShard(
+            "armor_lucky_charm_texturing", () -> setupLuckyCharmTexturing(1, 0), RenderSystem::resetTextureMatrix);
 
-    public static final RenderStateShard.TexturingStateShard SHIELD_SHADER_TEXTURING = new RenderStateShard.TexturingStateShard(
-            "shield_shader_texturing", () -> setupItemShaderTexturing(16, Mth.PI / 18), RenderSystem::resetTextureMatrix);
+    public static final RenderStateShard.TexturingStateShard SHIELD_LUCKY_CHARM_TEXTURING = new RenderStateShard.TexturingStateShard(
+            "shield_lucky_charm_texturing", () -> setupLuckyCharmTexturing(16, Mth.PI / 18), RenderSystem::resetTextureMatrix);
 
     public static final RenderStateShard.TexturingStateShard ITEM_KAMIKOTIZING_TEXTURING = new RenderStateShard.TexturingStateShard(
             "item_kamikotizing_texturing", () -> setupKamikotizingTexturing(4, Mth.PI / 12, 1), RenderSystem::resetTextureMatrix);
@@ -50,7 +50,7 @@ public class MineraculousRenderStateShards {
         return rendertypeGlintTranslucentLightmapShader;
     }
 
-    private static void setupItemShaderTexturing(float scale, float rotate) {
+    private static void setupLuckyCharmTexturing(float scale, float rotate) {
         RenderSystem.setTextureMatrix(new Matrix4f().rotateZ(rotate).scale(scale));
     }
 

@@ -3,21 +3,25 @@ package dev.thomasglasser.mineraculous.impl.data.recipes;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.api.world.item.crafting.OvenRecipe;
 import dev.thomasglasser.mineraculous.api.world.item.crafting.transmute.SimpleTransmuteCookingRecipeBuilder;
 import dev.thomasglasser.mineraculous.api.world.item.crafting.transmute.SimpleTransmuteCookingSerializer;
 import dev.thomasglasser.mineraculous.api.world.item.crafting.transmute.TransmuteCampfireCookingRecipe;
+import dev.thomasglasser.mineraculous.api.world.item.crafting.transmute.TransmuteOvenRecipe;
 import dev.thomasglasser.mineraculous.api.world.item.crafting.transmute.TransmuteSmokingRecipe;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
 import dev.thomasglasser.mineraculous.impl.world.item.crafting.CheeseWedgeRecipe;
+import dev.thomasglasser.mineraculous.impl.world.item.crafting.MineraculousRecipeSerializers;
 import dev.thomasglasser.tommylib.api.data.recipes.ExtendedRecipeProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;
 import java.util.SortedMap;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -25,6 +29,8 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
@@ -45,13 +51,26 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
     }
 
     protected void buildCrafting(RecipeOutput recipeOutput) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, MineraculousBlocks.CHEESE_POT.get())
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, MineraculousBlocks.CHEESE_POT)
                 .pattern("I I")
                 .pattern("ICI")
                 .pattern("III")
                 .define('I', ConventionalItemTags.IRON_INGOTS)
                 .define('C', MineraculousItemTags.CHEESE_BLOCKS)
-                .unlockedBy("has_cheese_blocks", has(MineraculousItemTags.CHEESE_BLOCKS))
+                .unlockedBy(getHasName(ConventionalItemTags.IRON_INGOTS), has(ConventionalItemTags.IRON_INGOTS))
+                .unlockedBy(getHasName(MineraculousItemTags.CHEESE_BLOCKS), has(MineraculousItemTags.CHEESE_BLOCKS))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, MineraculousBlocks.OVEN)
+                .pattern("III")
+                .pattern("IFI")
+                .pattern("PPP")
+                .define('I', ConventionalItemTags.IRON_INGOTS)
+                .define('F', Items.FURNACE)
+                .define('P', ItemTags.PLANKS)
+                .unlockedBy(getHasName(ConventionalItemTags.IRON_INGOTS), has(ConventionalItemTags.IRON_INGOTS))
+                .unlockedBy(getHasName(Items.FURNACE), has(Items.FURNACE))
+                .unlockedBy(getHasName(ItemTags.PLANKS), has(ItemTags.PLANKS))
                 .save(recipeOutput);
 
         // Cheese
@@ -66,9 +85,24 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
     }
 
     protected void buildCooking(RecipeOutput recipeOutput) {
+        cookRecipes(recipeOutput, "oven", MineraculousRecipeSerializers.OVEN.get(), OvenRecipe::new, 400);
+
         simpleTransmuteSmeltingRecipe(recipeOutput, MineraculousItems.RAW_MACARON, MineraculousItems.MACARON, 0.35f);
         simpleTransmuteSmokingRecipe(recipeOutput, MineraculousItems.RAW_MACARON, MineraculousItems.MACARON, 0.35f);
         simpleTransmuteCampfireCookingRecipe(recipeOutput, MineraculousItems.RAW_MACARON, MineraculousItems.MACARON, 0.35f);
+        simpleTransmuteOvenRecipe(recipeOutput, MineraculousItems.RAW_MACARON, MineraculousItems.MACARON, 0.35f);
+    }
+
+    protected static String getHasName(TagKey<?> tag) {
+        String[] split = tag.location().getPath().split("/");
+        StringBuilder builder = new StringBuilder();
+        builder.append("has_");
+        for (int i = split.length - 1; i >= 0; i--) {
+            builder.append(split[i]);
+            if (i > 0)
+                builder.append("_");
+        }
+        return builder.toString();
     }
 
     protected static void simpleTransmuteSmeltingRecipe(RecipeOutput recipeOutput, ItemLike ingredient, ItemLike result, float experience) {
@@ -88,7 +122,7 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
             float experience) {
         SimpleTransmuteCookingRecipeBuilder.generic(Ingredient.of(material), RecipeCategory.FOOD, result, experience, cookingTime, cookingSerializer, recipeFactory)
                 .unlockedBy(getHasName(material), has(material))
-                .save(recipeOutput, getItemName(result) + "_from_" + cookingMethod);
+                .save(recipeOutput, BuiltInRegistries.ITEM.getKey(result.asItem()).withSuffix("_from_" + cookingMethod));
     }
 
     protected static void simpleTransmuteSmokingRecipe(RecipeOutput recipeOutput, ItemLike ingredient, ItemLike result, float experience) {
@@ -97,6 +131,10 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
 
     protected static void simpleTransmuteCampfireCookingRecipe(RecipeOutput recipeOutput, ItemLike ingredient, ItemLike result, float experience) {
         simpleTransmuteCookingRecipe(recipeOutput, "campfire_cooking", RecipeSerializer.CAMPFIRE_COOKING_RECIPE, TransmuteCampfireCookingRecipe::new, 600, ingredient, result, experience);
+    }
+
+    protected static void simpleTransmuteOvenRecipe(RecipeOutput recipeOutput, ItemLike ingredient, ItemLike result, float experience) {
+        simpleTransmuteCookingRecipe(recipeOutput, "oven", MineraculousRecipeSerializers.OVEN.get(), TransmuteOvenRecipe::new, 400, ingredient, result, experience);
     }
 
     protected void cheeseWaxRecipes(RecipeOutput recipeOutput, SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> waxables, SortedMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> waxedBlocks) {

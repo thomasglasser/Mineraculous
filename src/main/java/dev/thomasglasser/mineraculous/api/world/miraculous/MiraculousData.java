@@ -23,7 +23,6 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEn
 import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
-import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
@@ -74,7 +73,6 @@ import org.jetbrains.annotations.Nullable;
 public record MiraculousData(Optional<CuriosData> curiosData, boolean transformed, Optional<TransformationState> transformationState, Optional<Integer> remainingTicks, int toolId, int powerLevel, boolean powerActive, boolean countdownStarted, List<CompoundTag> storedEntities, boolean buffsActive) {
 
     public static final String NAME_NOT_SET = "miraculous_data.name.not_set";
-    public static final String KWAMI_NOT_FOUND = "miraculous_data.kwami_not_found";
     public static final int MAX_POWER_LEVEL = 100;
 
     public static final Codec<MiraculousData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -128,11 +126,6 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
             ItemStack miraculousStack = CuriosUtils.getStackInSlot(entity, curiosData);
             UUID kwamiId = miraculousStack.get(MineraculousDataComponents.KWAMI_ID);
             if (kwamiId != null) {
-                for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
-                    if (stack.getItem() instanceof KwamiItem) {
-                        KwamiItem.summonKwami(stack, entity);
-                    }
-                }
                 if (level.getEntity(kwamiId) instanceof Kwami kwami) {
                     if (kwami.isCharged() && kwami.getMainHandItem().isEmpty() && kwami.getSummonTicks() <= 0) {
                         kwami.setTransforming(true);
@@ -179,11 +172,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                         kwami.playHurtSound(level.damageSources().starve());
                     }
                 } else {
-                    if (entity instanceof Player player) {
-                        player.displayClientMessage(Component.translatable(KWAMI_NOT_FOUND, MineraculousConstants.toLanguageKey(miraculous.getKey())), true);
-                    } else {
-                        MineraculousConstants.LOGGER.error("Tried to transform entity {} with invalid kwami id {}", entity.getName().plainCopy().getString(), kwamiId);
-                    }
+                    MineraculousConstants.LOGGER.error("Tried to transform entity {} with invalid kwami id {}", entity.getName().plainCopy().getString(), kwamiId);
                 }
             } else {
                 MineraculousConstants.LOGGER.error("Tried to transform entity {} with no Kwami Data", entity.getName().plainCopy().getString());
@@ -249,7 +238,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         value.passiveAbilities().forEach(ability -> ability.value().detransform(data, level, entity));
 
         if (!removed) {
-            Kwami kwami = MineraculousEntityUtils.summonKwami(entity, false, miraculousId, miraculous, true, null);
+            Kwami kwami = MineraculousEntityUtils.summonKwami(false, miraculousId, level, miraculous, entity);
             if (kwami == null) {
                 MineraculousConstants.LOGGER.error("Kwami could not be created for entity {}", entity.getName().plainCopy().getString());
             }

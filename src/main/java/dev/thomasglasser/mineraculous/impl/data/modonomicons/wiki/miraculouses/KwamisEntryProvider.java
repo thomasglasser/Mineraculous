@@ -4,7 +4,7 @@ import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
-import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.WikiBookSubProvider;
@@ -83,8 +83,7 @@ public class KwamisEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected BookIconModel entryIcon() {
-        // TODO: Replace with kwami item
-        return BookIconModel.create(Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.head(), registries().holderOrThrow(Miraculouses.BUTTERFLY)));
+        return BookIconModel.create(Miraculous.createItemStack(MineraculousItems.KWAMI, registries().holderOrThrow(Miraculouses.CAT)));
     }
 
     @Override

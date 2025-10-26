@@ -162,6 +162,12 @@ public class KwamiItem extends Item implements GeoItem {
     }
 
     @Override
+    public boolean onDroppedByPlayer(ItemStack item, Player player) {
+        summonKwami(item, player);
+        return true;
+    }
+
+    @Override
     public void createGeoRenderer(Consumer<GeoRenderProvider> consumer) {
         consumer.accept(new GeoRenderProvider() {
             private KwamiItemRenderer renderer;

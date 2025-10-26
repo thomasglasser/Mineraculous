@@ -8,14 +8,14 @@ import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
-import java.util.ArrayList;
-import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import java.util.ArrayList;
+import java.util.List;
 
 public record MiraculousLadybugTargetData(List<BlockPos> blockTargets, List<EntityTarget> entityTargets, List<Vec3> pathControlPoints, double splinePosition) {
 
@@ -68,6 +68,11 @@ public record MiraculousLadybugTargetData(List<BlockPos> blockTargets, List<Enti
 
     public MiraculousLadybugTargetData calculateSpline() {
         List<Vec3> controlPoints = calculateControlPoints(blockTargets, entityTargets);
+        int controlPointsCount = controlPoints.size();
+        Vec3 last = controlPoints.get(controlPointsCount - 1);
+        Vec3 secondLast = controlPoints.get(controlPointsCount - 2);
+        Vec3 newPoint = last.subtract(secondLast).normalize().scale(15).add(last);
+        controlPoints.add(newPoint);
         MineraculousMathUtils.CatmullRom path = new MineraculousMathUtils.CatmullRom(controlPoints);
         return new MiraculousLadybugTargetData(this.blockTargets, this.entityTargets, controlPoints, path.getFirstParameter());
     }

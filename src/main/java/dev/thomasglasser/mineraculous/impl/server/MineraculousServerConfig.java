@@ -26,10 +26,6 @@ public class MineraculousServerConfig {
 
     public static final String KWAMIS = "kwamis";
     public final ModConfigSpec.IntValue kwamiSummonTime;
-    public final ModConfigSpec.DoubleValue kwamiItemInventoryInteractionChance;
-    public final ModConfigSpec.BooleanValue enableKwamiItemCharging;
-    public final ModConfigSpec.BooleanValue enableKwamiItemMoving;
-    public final ModConfigSpec.BooleanValue enableKwamiItemSwapping;
 
     // Stealing
     public static final String STEALING = "stealing";
@@ -69,14 +65,6 @@ public class MineraculousServerConfig {
         builder.push(KWAMIS);
         kwamiSummonTime = builder
                 .defineInRange("kwami_summon_time", 2, 1, 60);
-        kwamiItemInventoryInteractionChance = builder
-                .defineInRange("kwami_item_inventory_interaction_chance", 1.0, 0, 100);
-        enableKwamiItemCharging = builder
-                .define("enable_kwami_item_charging", true);
-        enableKwamiItemMoving = builder
-                .define("enable_kwami_item_moving", true);
-        enableKwamiItemSwapping = builder
-                .define("enable_kwami_item_swapping", true);
         builder.pop();
         builder.pop();
 

@@ -11,15 +11,10 @@ public class MineraculousRenderTypes {
     private static final ResourceLocation ENTITY_LUCKY_CHARM_TEXTURE = createLuckyCharmTexture("entity");
     private static final ResourceLocation ENTITY_KAMIKOTIZING_TEXTURE = createKamikotizingTexture("entity");
 
-    private static final RenderType ITEM_LUCKY_CHARM = createLuckyCharm("item", MineraculousRenderStateShards.ITEM_SHADER_TEXTURING, false);
-    private static final RenderType ARMOR_LUCKY_CHARM = createLuckyCharm("armor", MineraculousRenderStateShards.ARMOR_SHADER_TEXTURING, true);
-    private static final RenderType ENTITY_LUCKY_CHARM = createLuckyCharm("entity", ENTITY_LUCKY_CHARM_TEXTURE, MineraculousRenderStateShards.ENTITY_SHADER_TEXTURING, false);
-    private static final RenderType SHIELD_LUCKY_CHARM = createLuckyCharm("shield", ENTITY_LUCKY_CHARM_TEXTURE, MineraculousRenderStateShards.SHIELD_SHADER_TEXTURING, false);
-
-    private static final RenderType ITEM_KAMIKOTIZING = createKamikotizing("item", MineraculousRenderStateShards.ITEM_SHADER_TEXTURING, false);
-    private static final RenderType ARMOR_KAMIKOTIZING = createKamikotizing("armor", MineraculousRenderStateShards.ARMOR_SHADER_TEXTURING, true);
-    private static final RenderType ENTITY_KAMIKOTIZING = createKamikotizing("entity", ENTITY_KAMIKOTIZING_TEXTURE, MineraculousRenderStateShards.ENTITY_SHADER_TEXTURING, false);
-    private static final RenderType SHIELD_KAMIKOTIZING = createKamikotizing("shield", ENTITY_KAMIKOTIZING_TEXTURE, MineraculousRenderStateShards.SHIELD_SHADER_TEXTURING, false);
+    private static final RenderType ITEM_LUCKY_CHARM = createLuckyCharm("item", MineraculousRenderStateShards.ITEM_LUCKY_CHARM_TEXTURING, false);
+    private static final RenderType ARMOR_LUCKY_CHARM = createLuckyCharm("armor", MineraculousRenderStateShards.ARMOR_LUCKY_CHARM_TEXTURING, true);
+    private static final RenderType ENTITY_LUCKY_CHARM = createLuckyCharm("entity", ENTITY_LUCKY_CHARM_TEXTURE, MineraculousRenderStateShards.ENTITY_LUCKY_CHARM_TEXTURING, false);
+    private static final RenderType SHIELD_LUCKY_CHARM = createLuckyCharm("shield", ENTITY_LUCKY_CHARM_TEXTURE, MineraculousRenderStateShards.SHIELD_LUCKY_CHARM_TEXTURING, false);
 
     private static final RenderType ITEM_KAMIKOTIZING = createKamikotizing("item", MineraculousRenderStateShards.ITEM_KAMIKOTIZING_TEXTURING, false);
     private static final RenderType ARMOR_KAMIKOTIZING = createKamikotizing("armor", MineraculousRenderStateShards.ARMOR_KAMIKOTIZING_TEXTURING, true);

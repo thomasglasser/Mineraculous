@@ -15,7 +15,6 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
-import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import java.util.UUID;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -32,6 +31,8 @@ public class MiraculousCommand {
     public static final String CUSTOMIZE_OPEN_SUCCESS_SELF = "commands.miraculous.customize.open.success.self";
     public static final String CUSTOMIZE_OPEN_SUCCESS_OTHER = "commands.miraculous.customize.open.success.other";
     // Charged
+    public static final Component CHARGED_TRUE = Component.translatable("commands.miraculous.charged.true");
+    public static final Component CHARGED_FALSE = Component.translatable("commands.miraculous.charged.false");
     public static final String CHARGED_QUERY_SUCCESS_SELF = "commands.miraculous.charged.query.success.self";
     public static final String CHARGED_QUERY_SUCCESS_OTHER = "commands.miraculous.charged.query.success.other";
     public static final String CHARGED_SET_SUCCESS_SELF = "commands.miraculous.charged.set.success.self";
@@ -99,7 +100,7 @@ public class MiraculousCommand {
             if (kwamiId != null) {
                 Kwami kwami = context.getSource().getLevel().getEntity(kwamiId) instanceof Kwami k ? k : null;
                 if (kwami != null) {
-                    context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_QUERY_SUCCESS_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), kwami.isCharged() ? KwamiItem.CHARGED : KwamiItem.NOT_CHARGED) : Component.translatable(CHARGED_QUERY_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), kwami.isCharged() ? KwamiItem.CHARGED : KwamiItem.NOT_CHARGED), true);
+                    context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_QUERY_SUCCESS_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), kwami.isCharged() ? CHARGED_TRUE : CHARGED_FALSE) : Component.translatable(CHARGED_QUERY_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), kwami.isCharged() ? CHARGED_TRUE : CHARGED_FALSE), true);
                     return 1;
                 } else {
                     context.getSource().sendFailure(self ? Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key()))) : Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_OTHER, entity.getDisplayName(), Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key()))));
@@ -128,7 +129,7 @@ public class MiraculousCommand {
                 Kwami kwami = context.getSource().getLevel().getEntity(kwamiId) instanceof Kwami k ? k : null;
                 if (kwami != null) {
                     kwami.setCharged(charged);
-                    context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_SET_SUCCESS_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), charged ? KwamiItem.CHARGED : KwamiItem.NOT_CHARGED) : Component.translatable(CHARGED_SET_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), charged ? KwamiItem.CHARGED : KwamiItem.NOT_CHARGED), true);
+                    context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_SET_SUCCESS_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), charged ? CHARGED_TRUE : CHARGED_FALSE) : Component.translatable(CHARGED_SET_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), charged ? CHARGED_TRUE : CHARGED_FALSE), true);
                     return 1;
                 } else {
                     context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_KWAMI_NOT_FOUND_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key()))));

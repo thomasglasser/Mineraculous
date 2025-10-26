@@ -6,9 +6,9 @@
   "hide_while_locked": false,
   "icon": {
     "components": {
-      "mineraculous:miraculous": "mineraculous:cat"
+      "mineraculous:miraculous": "mineraculous:butterfly"
     },
-    "item": "mineraculous:kwami"
+    "item": "mineraculous:miraculous_mask"
   },
   "name": "book.mineraculous.wiki.miraculouses.kwamis.name",
   "pages": [

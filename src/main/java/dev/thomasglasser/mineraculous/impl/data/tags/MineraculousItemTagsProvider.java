@@ -81,11 +81,12 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
 
         // Cat
         tag(MineraculousItemTags.CAT_KWAMI_PREFERRED_FOODS)
-                .addTag(MineraculousItemTags.CHEESES_FOODS);
+                .addTag(MineraculousItemTags.CHEESES_FOODS)
+                .addTag(MineraculousItemTags.CHEESE_BLOCKS_FOODS);
 
         tag(MineraculousItemTags.CAT_KWAMI_TREATS)
                 .addTag(MineraculousItemTags.CAMEMBERT)
-                .addTag(MineraculousItemTags.CHEESE_BLOCKS_FOODS);
+                .addTag(MineraculousItemTags.CAMEMBERT_BLOCKS);
 
         // Butterfly
         tag(MineraculousItemTags.BUTTERFLY_KWAMI_PREFERRED_FOODS)

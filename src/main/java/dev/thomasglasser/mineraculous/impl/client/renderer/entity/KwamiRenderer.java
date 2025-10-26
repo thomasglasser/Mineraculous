@@ -11,6 +11,7 @@ import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -27,6 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -141,14 +143,14 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
             Holder<Miraculous> miraculous = animatable.getMiraculous();
             if (miraculous != null) {
                 if (!models.containsKey(miraculous))
-                    models.put(miraculous, createGeoModel(miraculous));
+                    models.put(miraculous, createGeoModel(miraculous, Kwami::isCharged));
                 return models.get(miraculous);
             }
         }
         return super.getGeoModel();
     }
 
-    private GeoModel<T> createGeoModel(Holder<Miraculous> miraculous) {
+    public static <T extends GeoAnimatable> GeoModel<T> createGeoModel(Holder<Miraculous> miraculous, Predicate<T> chargedPredicate) {
         return new DefaultedEntityGeoModel<>(miraculous.getKey().location().withPrefix("miraculous/")) {
             private ResourceLocation hungryTexture;
 
@@ -157,7 +159,7 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
                 if (hungryTexture == null) {
                     hungryTexture = super.getTextureResource(animatable).withPath(path -> path.replace(".png", "_hungry.png"));
                 }
-                if (!animatable.isCharged())
+                if (!chargedPredicate.test(animatable))
                     return hungryTexture;
                 return super.getTextureResource(animatable);
             }

@@ -1,5 +1,6 @@
 {
   "values": [
-    "#c:foods/cheeses"
+    "#c:foods/cheeses",
+    "#c:foods/cheese_blocks"
   ]
 }

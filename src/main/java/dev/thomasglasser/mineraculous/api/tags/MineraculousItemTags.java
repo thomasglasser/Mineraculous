@@ -11,15 +11,15 @@ import net.minecraft.world.item.Item;
 public class MineraculousItemTags {
     // Kwami Foods and Treats
     /// Items that can be used to have a chance to charge the butterfly kwami.
-    public static final TagKey<Item> BUTTERFLY_KWAMI_FOODS = Miraculous.createFoodsTag(Miraculouses.BUTTERFLY);
+    public static final TagKey<Item> BUTTERFLY_KWAMI_PREFERRED_FOODS = Miraculous.createPreferredFoodsTag(Miraculouses.BUTTERFLY);
     /// Items that can be used to immediately charge the butterfly kwami.
     public static final TagKey<Item> BUTTERFLY_KWAMI_TREATS = Miraculous.createTreatsTag(Miraculouses.BUTTERFLY);
     /// Items that can be used to have a chance to charge the cat kwami.
-    public static final TagKey<Item> CAT_KWAMI_FOODS = Miraculous.createFoodsTag(Miraculouses.CAT);
+    public static final TagKey<Item> CAT_KWAMI_PREFERRED_FOODS = Miraculous.createPreferredFoodsTag(Miraculouses.CAT);
     /// Items that can be used to immediately charge the cat kwami.
     public static final TagKey<Item> CAT_KWAMI_TREATS = Miraculous.createTreatsTag(Miraculouses.CAT);
     /// Items that can be used to have a chance to charge the ladybug kwami.
-    public static final TagKey<Item> LADYBUG_KWAMI_FOODS = Miraculous.createFoodsTag(Miraculouses.LADYBUG);
+    public static final TagKey<Item> LADYBUG_KWAMI_PREFERRED_FOODS = Miraculous.createPreferredFoodsTag(Miraculouses.LADYBUG);
     /// Items that can be used to immediately charge the ladybug kwami.
     public static final TagKey<Item> LADYBUG_KWAMI_TREATS = Miraculous.createTreatsTag(Miraculouses.LADYBUG);
 

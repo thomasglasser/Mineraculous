@@ -82,8 +82,8 @@ public record Miraculous(TextColor color, String acceptableSlot, Optional<Intege
         return tool.copy();
     }
 
-    public static TagKey<Item> createFoodsTag(ResourceKey<Miraculous> key) {
-        return TagKey.create(Registries.ITEM, key.location().withPrefix("kwami_foods/"));
+    public static TagKey<Item> createPreferredFoodsTag(ResourceKey<Miraculous> key) {
+        return TagKey.create(Registries.ITEM, key.location().withPrefix("kwami_preferred_foods/"));
     }
 
     public static TagKey<Item> createTreatsTag(ResourceKey<Miraculous> key) {

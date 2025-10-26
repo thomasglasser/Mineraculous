@@ -71,7 +71,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
 
     private void addKwamiFoods() {
         // Ladybug
-        tag(MineraculousItemTags.LADYBUG_KWAMI_FOODS)
+        tag(MineraculousItemTags.LADYBUG_KWAMI_PREFERRED_FOODS)
                 .add(Items.BREAD);
 
         tag(MineraculousItemTags.LADYBUG_KWAMI_TREATS)
@@ -80,7 +80,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
                 .add(Items.CAKE);
 
         // Cat
-        tag(MineraculousItemTags.CAT_KWAMI_FOODS)
+        tag(MineraculousItemTags.CAT_KWAMI_PREFERRED_FOODS)
                 .addTag(MineraculousItemTags.CHEESES_FOODS);
 
         tag(MineraculousItemTags.CAT_KWAMI_TREATS)
@@ -88,7 +88,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
                 .addTag(MineraculousItemTags.CHEESE_BLOCKS_FOODS);
 
         // Butterfly
-        tag(MineraculousItemTags.BUTTERFLY_KWAMI_FOODS)
+        tag(MineraculousItemTags.BUTTERFLY_KWAMI_PREFERRED_FOODS)
                 .addTag(ItemTags.FLOWERS);
 
         tag(MineraculousItemTags.BUTTERFLY_KWAMI_TREATS)

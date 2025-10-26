@@ -111,8 +111,8 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     protected LivingEntity owner;
 
     private Component name;
-    private TagKey<Item> foodTag;
-    private TagKey<Item> treatTag;
+    private TagKey<Item> preferredFoodsTag;
+    private TagKey<Item> treatsTag;
 
     private double summonAngle;
     private double summonRadius;
@@ -269,10 +269,10 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         tickBrain(this);
 
         ItemStack mainHandItem = getMainHandItem();
-        if (eatTicks > 0 && (isFood(mainHandItem) || isTreat(mainHandItem))) {
+        if (eatTicks > 0 && (isTreat(mainHandItem) || isPreferredFood(mainHandItem) || isFood(mainHandItem))) {
             eatTicks--;
             if (eatTicks <= 1) {
-                if (isTreat(mainHandItem) || (isFood(mainHandItem) && random.nextInt(3) == 0)) {
+                if (isTreat(mainHandItem) || (isPreferredFood(mainHandItem) && random.nextInt(3) == 0) || (isFood(mainHandItem) && random.nextInt(10) == 0)) {
                     setCharged(true);
                 }
                 setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
@@ -319,7 +319,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                         UUID stackId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
                         return stackId != null && stackId.equals(kwami.getMiraculousId());
                     } else if (!kwami.isCharged()) {
-                        return isFood(stack) || isTreat(stack);
+                        return isTreat(stack) || isPreferredFood(stack) || isFood(stack);
                     }
                     return false;
                 }));
@@ -359,7 +359,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                     if (!serverPlayer.serverLevel().getPlayers(p -> RENOUNCE_PREDICATE.test(this, p)).isEmpty() && stack.getItem() instanceof MiraculousItem && stackId != null && stackId.equals(getMiraculousId())) {
                         TommyLibServices.NETWORK.sendToClient(new ClientboundOpenMiraculousTransferScreenPayload(getId()), serverPlayer);
                     } else if (!isCharged() && getMainHandItem().isEmpty()) {
-                        if (isTreat(stack) || isFood(stack)) {
+                        if (isTreat(stack) || isPreferredFood(stack) || isFood(stack)) {
                             setItemInHand(InteractionHand.MAIN_HAND, stack.copyWithCount(1));
                             FoodProperties foodProperties = stack.get(DataComponents.FOOD);
                             if (foodProperties != null) {
@@ -389,7 +389,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         }));
         controllers.add(new AnimationController<>(this, "item_controller", state -> {
             ItemStack mainHandItem = this.getMainHandItem();
-            if (isFood(mainHandItem) || isTreat(mainHandItem)) {
+            if (!isCharged() && isTreat(mainHandItem) || isPreferredFood(mainHandItem) || isFood(mainHandItem)) {
                 return state.setAndContinue(EAT);
             } else if (!mainHandItem.isEmpty()) {
                 return state.setAndContinue(HOLD);
@@ -404,19 +404,23 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     }
 
     public boolean isFood(ItemStack stack) {
+        return stack.has(DataComponents.FOOD);
+    }
+
+    public boolean isPreferredFood(ItemStack stack) {
         if (getMiraculous() != null) {
-            if (foodTag == null)
-                foodTag = Miraculous.createFoodsTag(getMiraculous().getKey());
-            return stack.is(foodTag);
+            if (preferredFoodsTag == null)
+                preferredFoodsTag = Miraculous.createPreferredFoodsTag(getMiraculous().getKey());
+            return stack.is(preferredFoodsTag);
         }
         return false;
     }
 
     public boolean isTreat(ItemStack stack) {
         if (getMiraculous() != null) {
-            if (treatTag == null)
-                treatTag = Miraculous.createTreatsTag(getMiraculous().getKey());
-            return stack.is(treatTag);
+            if (treatsTag == null)
+                treatsTag = Miraculous.createTreatsTag(getMiraculous().getKey());
+            return stack.is(treatsTag);
         }
         return false;
     }

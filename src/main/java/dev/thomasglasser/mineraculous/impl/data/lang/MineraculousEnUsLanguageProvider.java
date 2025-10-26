@@ -368,11 +368,11 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousBlockTags.CAMEMBERT_BLOCKS, MineraculousItemTags.CAMEMBERT_BLOCKS, "Camembert Blocks");
 
         // Item Tags
-        add(MineraculousItemTags.BUTTERFLY_KWAMI_FOODS, "Butterfly Kwami Foods");
+        add(MineraculousItemTags.BUTTERFLY_KWAMI_PREFERRED_FOODS, "Butterfly Kwami Preferred Foods");
         add(MineraculousItemTags.BUTTERFLY_KWAMI_TREATS, "Butterfly Kwami Treats");
-        add(MineraculousItemTags.CAT_KWAMI_FOODS, "Cat Kwami Foods");
+        add(MineraculousItemTags.CAT_KWAMI_PREFERRED_FOODS, "Cat Kwami Preferred Foods");
         add(MineraculousItemTags.CAT_KWAMI_TREATS, "Cat Kwami Treats");
-        add(MineraculousItemTags.LADYBUG_KWAMI_FOODS, "Ladybug Kwami Foods");
+        add(MineraculousItemTags.LADYBUG_KWAMI_PREFERRED_FOODS, "Ladybug Kwami Preferred Foods");
         add(MineraculousItemTags.LADYBUG_KWAMI_TREATS, "Ladybug Kwami Treats");
         add(MineraculousItemTags.CHEESES_FOODS, "Cheeses");
         add(MineraculousItemTags.CHEESE, "Cheese");

@@ -43,7 +43,7 @@ public class MiraculousLadybug extends Entity {
             } else {
                 splinePositionParameter = setPosition(splinePositionParameter);
                 setFacingDirection(splinePositionParameter);
-                setDistanceNearestTarget(level, targetData);
+                setDistanceNearestBlockTarget(level, targetData);
             }
             if (!level.isClientSide()) {
                 MiraculousLadybugTargetData newTargetData = targetData.setSplinePosition(splinePositionParameter);
@@ -54,7 +54,7 @@ public class MiraculousLadybug extends Entity {
         } else this.discard();
     }
 
-    private void setDistanceNearestTarget(Level level, MiraculousLadybugTargetData targetData) {
+    private void setDistanceNearestBlockTarget(Level level, MiraculousLadybugTargetData targetData) {
         if (level.isClientSide()) {
             double distance = Double.MAX_VALUE;
             for (BlockPos blockPos : targetData.blockTargets()) {
@@ -99,7 +99,7 @@ public class MiraculousLadybug extends Entity {
         this.setXRot((float) pitch);
     }
 
-    public double getDistanceToNearestTarget() {
+    public double getDistanceToNearestBlockTarget() {
         return this.distanceNearestTarget;
     }
 

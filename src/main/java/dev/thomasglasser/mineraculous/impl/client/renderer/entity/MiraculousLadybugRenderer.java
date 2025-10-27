@@ -11,9 +11,6 @@ import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -23,6 +20,9 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
 
 public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug> {
     private ArrayList<MagicLadybug> magicLadybugs = new ArrayList<>();
@@ -41,7 +41,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         double splineParameter = Mth.lerp(partialTick, entity.oldSplinePosition, targetData.splinePosition());
         if (entity.path instanceof MineraculousMathUtils.CatmullRom path && splineParameter >= path.getFirstParameter()) {
             Vec3 interpolatedPos = MineraculousClientUtils.getInterpolatedPos(entity, partialTick);
-            updateTailPoints(path, splineParameter, interpolatedPos, entity.getDistanceToNearestTarget());
+            updateTailPoints(path, splineParameter, interpolatedPos, entity.getDistanceToNearestBlockTarget());
             spawnLadybugs();
             updateLadybugs();
             renderLadybugs(bufferSource, poseStack);

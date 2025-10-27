@@ -7,6 +7,7 @@ import com.google.common.collect.Table;
 import com.ibm.icu.impl.Pair;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
@@ -17,17 +18,9 @@ import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTriggerData;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -40,6 +33,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Reverts the ability effects of the {@link LuckyCharm} target and related entities.
@@ -61,30 +61,34 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                 AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
                 Set<UUID> toRevert = new ReferenceOpenHashSet<>();
                 toRevert.add(performerId);
-                collectToRevert(target, entityData, toRevert);
+                collectToRevert(target, entityData, toRevert); //TODO for Tommy: pretty PLEASE help me with the Multimap<UUID, BlockPos/Vec3>
                 Pair<Table<ResourceKey<Level>, Vec3, List<CompoundTag>>, Multimap<ResourceKey<Level>, BlockPos>> positions = gatherReversionPositions(level, toRevert);
                 Multimap<ResourceKey<Level>, BlockPos> blockPositions = positions.second;
                 // Final positions after recovery, where they were originally at when affected
                 Table<ResourceKey<Level>, Vec3, List<CompoundTag>> entityPositions = positions.first;
                 Map<Vec3, List<CompoundTag>> row = entityPositions.row(level.dimension());
                 ArrayList<MiraculousLadybugTargetData.EntityTarget> entityTargets = new ArrayList<>();
-                Set<UUID> seen = new HashSet<>();
+                Set<UUID> seen = new HashSet<>(); //TODO for Tommy: needs a proper fix, I got the same entity added more times
                 for (Map.Entry<Vec3, List<CompoundTag>> entry : row.entrySet()) {
                     for (CompoundTag tag : row.get(entry.getKey())) {
                         UUID entityId = tag.getUUID("UUID");
                         if (!seen.add(entityId)) continue;
-
-                        ListTag pos = tag.getList("Pos", ListTag.TAG_DOUBLE);
-                        double x = pos.getDouble(0);
-                        double y = pos.getDouble(1);
-                        double z = pos.getDouble(2);
-
-                        Entity newEntity = EntityType.loadEntityRecursive(tag, level, e -> e);
-                        Vec3 currentPosition = newEntity != null ? new Vec3(x, y, z) : entry.getKey();
-                        float width = newEntity != null ? newEntity.getBbWidth() : 1f;
-                        float height = newEntity != null ? newEntity.getBbHeight() : 2f;
-
-                        entityTargets.add(new MiraculousLadybugTargetData.EntityTarget(currentPosition, width, height));
+                        Entity entity = level.getEntity(entityId);
+                        float width = 1;
+                        float height = 2;
+                        if (!entity.isRemoved() && !entity.isAlive()) {
+                            width = entity.getBbWidth();
+                            height = entity.getBbHeight();
+                        } else {
+                            if(EntityType.by(tag).isPresent()) {
+                                width = EntityType.by(tag).get().getWidth();
+                                height = EntityType.by(tag).get().getHeight();
+                            } else {
+                                MineraculousConstants.LOGGER.error("Couldn't find entity type inside RevertLuckyCharmTargetsAbilityEffectsAbility");
+                            }
+                        }
+                        Vec3 toFixPosition = entry.getKey();
+                        entityTargets.add(new MiraculousLadybugTargetData.EntityTarget(toFixPosition, width, height));
                     }
                 }
                 //TODO treat other dimensions as well (ill just spawn particles cuz lazy)
@@ -98,7 +102,7 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                 performer.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
                 luckyCharmEntity.setDeltaMovement(0, 1.3, 0);
                 luckyCharmEntity.hurtMarked = true;
-                MiraculousLadybugTriggerData triggerData = new MiraculousLadybugTriggerData(blockTargets, entityTargets, Optional.of(performer.getId()), revertSound);
+                MiraculousLadybugTriggerData triggerData = new MiraculousLadybugTriggerData(blockTargets, entityTargets, Optional.of(performer.getId()), new ArrayList<>(toRevert), revertSound);
                 triggerData.save(luckyCharmEntity, true);
             });
             return State.SUCCESS;

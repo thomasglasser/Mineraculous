@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
 import com.google.common.collect.ImmutableList;
+import com.klikli_dev.modonomicon.util.Codecs;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
@@ -16,27 +17,30 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
-public record MiraculousLadybugTargetData(List<BlockPos> blockTargets, List<EntityTarget> entityTargets, List<Vec3> pathControlPoints, double splinePosition) {
+public record MiraculousLadybugTargetData(List<BlockPos> blockTargets, List<EntityTarget> entityTargets, List<UUID> toRevert, List<Vec3> pathControlPoints, double splinePosition) {
 
     public static final Codec<MiraculousLadybugTargetData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             BlockPos.CODEC.listOf().fieldOf("block_targets").forGetter(MiraculousLadybugTargetData::blockTargets),
             EntityTarget.CODEC.listOf().fieldOf("entity_targets").forGetter(MiraculousLadybugTargetData::entityTargets),
+            Codecs.UUID.listOf().fieldOf("to_revert").forGetter(MiraculousLadybugTargetData::toRevert),
             Vec3.CODEC.listOf().fieldOf("path_control_points").forGetter(MiraculousLadybugTargetData::pathControlPoints),
             Codec.DOUBLE.fieldOf("spline_position").forGetter(MiraculousLadybugTargetData::splinePosition)).apply(instance, MiraculousLadybugTargetData::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousLadybugTargetData> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC.apply(ByteBufCodecs.list()), MiraculousLadybugTargetData::blockTargets,
             EntityTarget.STREAM_CODEC.apply(ByteBufCodecs.list()), MiraculousLadybugTargetData::entityTargets,
+            ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString).apply(ByteBufCodecs.list()), MiraculousLadybugTargetData::toRevert,
             TommyLibExtraStreamCodecs.VEC_3.apply(ByteBufCodecs.list()), MiraculousLadybugTargetData::pathControlPoints,
             ByteBufCodecs.DOUBLE, MiraculousLadybugTargetData::splinePosition,
             MiraculousLadybugTargetData::new);
 
     public MiraculousLadybugTargetData() {
-        this(ImmutableList.of(), ImmutableList.of(), ImmutableList.of(), 0);
+        this(ImmutableList.of(), ImmutableList.of(), ImmutableList.of(), ImmutableList.of(), 0);
     }
 
-    public MiraculousLadybugTargetData(List<BlockPos> blockTargets, List<EntityTarget> entityTargets) {
-        this(blockTargets, entityTargets, ImmutableList.of(), 0);
+    public MiraculousLadybugTargetData(List<BlockPos> blockTargets, List<EntityTarget> entityTargets, List<UUID> toRevert) {
+        this(blockTargets, entityTargets, toRevert, ImmutableList.of(), 0);
     }
 
     public void save(Entity entity, boolean syncToClient) {
@@ -55,15 +59,15 @@ public record MiraculousLadybugTargetData(List<BlockPos> blockTargets, List<Enti
     }
 
     public MiraculousLadybugTargetData withEntityTargets(List<EntityTarget> newTargets) {
-        return new MiraculousLadybugTargetData(blockTargets, newTargets, pathControlPoints, splinePosition);
+        return new MiraculousLadybugTargetData(blockTargets, newTargets, toRevert, pathControlPoints, splinePosition);
     }
 
     public MiraculousLadybugTargetData withBlockTargets(List<BlockPos> newTargets) {
-        return new MiraculousLadybugTargetData(newTargets, entityTargets, pathControlPoints, splinePosition);
+        return new MiraculousLadybugTargetData(newTargets, entityTargets, toRevert, pathControlPoints, splinePosition);
     }
 
     public MiraculousLadybugTargetData setSplinePosition(double splinePosition) {
-        return new MiraculousLadybugTargetData(blockTargets, entityTargets, pathControlPoints, splinePosition);
+        return new MiraculousLadybugTargetData(blockTargets, entityTargets, toRevert, pathControlPoints, splinePosition);
     }
 
     public MiraculousLadybugTargetData calculateSpline() {
@@ -74,10 +78,9 @@ public record MiraculousLadybugTargetData(List<BlockPos> blockTargets, List<Enti
         Vec3 newPoint = last.subtract(secondLast).normalize().scale(15).add(last);
         controlPoints.add(newPoint);
         MineraculousMathUtils.CatmullRom path = new MineraculousMathUtils.CatmullRom(controlPoints);
-        return new MiraculousLadybugTargetData(this.blockTargets, this.entityTargets, controlPoints, path.getFirstParameter());
+        return new MiraculousLadybugTargetData(blockTargets, entityTargets, toRevert, controlPoints, path.getFirstParameter());
     }
 
-    //TODO add spirals!!!!!
     private static List<Vec3> calculateControlPoints(List<BlockPos> blockTargets, List<EntityTarget> entityTargets) {
         ArrayList<EntityTarget> targets = new ArrayList<>();
         int blockCount = blockTargets.size();

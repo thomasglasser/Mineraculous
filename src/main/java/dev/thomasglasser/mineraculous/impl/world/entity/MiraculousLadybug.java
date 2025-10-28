@@ -5,7 +5,6 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
@@ -46,8 +45,7 @@ public class MiraculousLadybug extends Entity {
                 setDistanceNearestBlockTarget(level, targetData);
             }
             if (!level.isClientSide()) {
-                MiraculousLadybugTargetData newTargetData = targetData.setSplinePosition(splinePositionParameter);
-                newTargetData.save(this, true);
+                targetData.withSplinePosition(splinePositionParameter).save(this, true);
             } else {
                 renderParticles();
             }
@@ -57,8 +55,8 @@ public class MiraculousLadybug extends Entity {
     private void setDistanceNearestBlockTarget(Level level, MiraculousLadybugTargetData targetData) {
         if (level.isClientSide()) {
             double distance = Double.MAX_VALUE;
-            for (BlockPos blockPos : targetData.blockTargets()) {
-                distance = Math.min(distance, blockPos.getCenter().distanceTo(this.position()));
+            for (MiraculousLadybugTargetData.BlockTarget target : targetData.blockTargets()) {
+                distance = Math.min(distance, target.position().distanceTo(this.position()));
             }
             this.distanceNearestTarget = distance;
         }
@@ -97,6 +95,27 @@ public class MiraculousLadybug extends Entity {
         double pitch = Math.toDegrees(-Math.atan2(tangent.y, Math.sqrt(tangent.x * tangent.x + tangent.z * tangent.z)));
         this.setYRot((float) yaw);
         this.setXRot((float) pitch);
+    }
+
+    // TODO: Call when reverting at pos
+    private void revert() {
+//        related.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization).or(() -> related.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION)).ifPresent(kamikotization -> {
+//            Kamikotization value = kamikotization.value();
+//            AbilityData abilityData = new AbilityData(0, false);
+//            value.powerSource().ifLeft(tool -> {
+//                if (tool.getItem() instanceof EffectRevertingItem item) {
+//                    item.revert(related);
+//                }
+//            }).ifRight(ability -> ability.value().revert(abilityData, level, related, ));
+//            value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related, ));
+//        });
+//        MiraculousesData miraculousesData = related.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+//        for (Holder<Miraculous> miraculous : miraculousesData.keySet()) {
+//            Miraculous value = miraculous.value();
+//            AbilityData abilityData = new AbilityData(miraculousesData.get(miraculous).powerLevel(), false);
+//            value.activeAbility().value().revert(abilityData, level, related, );
+//            value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related, ));
+//        }
     }
 
     public double getDistanceToNearestBlockTarget() {

@@ -1,21 +1,12 @@
 package dev.thomasglasser.mineraculous.impl.util;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-import java.util.function.Function;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2d;
 
@@ -51,13 +42,6 @@ public class MineraculousMathUtils {
             movement = movement.normalize();
         }
         return movement;
-    }
-
-    public static ArrayList<Vec3> getCenter(List<BlockPos> blockPos) {
-        ArrayList<Vec3> toReturn = new ArrayList<>();
-        for (BlockPos pos : blockPos)
-            toReturn.add(pos.getCenter());
-        return toReturn;
     }
 
     // generates the positions of n points on a circle, equally spaced between each other.
@@ -105,68 +89,58 @@ public class MineraculousMathUtils {
 
     //ALGORITHMS
     //ITERATIVE FILL
-    public static List<BlockPos> reduceNearbyBlocks(List<BlockPos> positions) {
-        List<BlockPos> result = new ArrayList<>();
-        Set<BlockPos> unvisited = new HashSet<>(positions);
-
-        while (!unvisited.isEmpty()) {
-            BlockPos start = unvisited.iterator().next();
-            result.add(start);
-
-            Queue<BlockPos> queue = new LinkedList<>();
-            queue.add(start);
-            unvisited.remove(start);
-
-            while (!queue.isEmpty()) {
-                BlockPos current = queue.poll();
-                for (int dx = -1; dx <= 1; dx++) {
-                    for (int dy = -1; dy <= 1; dy++) {
-                        for (int dz = -1; dz <= 1; dz++) {
-                            if (dx != 0 || dy != 0 || dz != 0) {
-                                BlockPos neighbor = new BlockPos(
-                                        current.getX() + dx,
-                                        current.getY() + dy,
-                                        current.getZ() + dz);
-
-                                if (unvisited.contains(neighbor)) {
-                                    queue.add(neighbor);
-                                    unvisited.remove(neighbor);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
-    //TODO make representative blocks
-    public static Multimap<ResourceKey<Level>, BlockPos> reduceNearbyBlocks(Multimap<ResourceKey<Level>, BlockPos> blockPositions) {
-        Multimap<ResourceKey<Level>, BlockPos> reducedBlockPositions = ArrayListMultimap.create();
-        for (ResourceKey<Level> levelKey : blockPositions.keySet()) {
-            Collection<BlockPos> positions = blockPositions.get(levelKey);
-            List<BlockPos> reduced = MineraculousMathUtils.reduceNearbyBlocks(new ArrayList<>(positions));
-            reducedBlockPositions.putAll(levelKey, reduced);
-        }
-        return reducedBlockPositions;
+    public static Collection<MiraculousLadybugTargetData.BlockTarget> reduceNearbyBlocks(Collection<MiraculousLadybugTargetData.BlockTarget> positions) {
+        // TODO: Fix
+//        List<BlockPos> result = new ArrayList<>();
+//        Set<BlockPos> unvisited = new HashSet<>(positions);
+//
+//        while (!unvisited.isEmpty()) {
+//            BlockPos start = unvisited.iterator().next();
+//            result.add(start);
+//
+//            Queue<BlockPos> queue = new LinkedList<>();
+//            queue.add(start);
+//            unvisited.remove(start);
+//
+//            while (!queue.isEmpty()) {
+//                BlockPos current = queue.poll();
+//                for (int dx = -1; dx <= 1; dx++) {
+//                    for (int dy = -1; dy <= 1; dy++) {
+//                        for (int dz = -1; dz <= 1; dz++) {
+//                            if (dx != 0 || dy != 0 || dz != 0) {
+//                                BlockPos neighbor = new BlockPos(
+//                                        current.getX() + dx,
+//                                        current.getY() + dy,
+//                                        current.getZ() + dz);
+//
+//                                if (unvisited.contains(neighbor)) {
+//                                    queue.add(neighbor);
+//                                    unvisited.remove(neighbor);
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        return result;
+        return positions;
     }
 
     //GREEDY TSP
-    public static <T> List<T> sortTargets(List<T> targets, Vec3 startPosition, Function<T, Vec3> positionExtractor) {
-        List<T> toVisit = new ArrayList<>(targets);
-        List<T> ordered = new ArrayList<>();
+    public static List<MiraculousLadybugTargetData.Target> sortTargets(Collection<MiraculousLadybugTargetData.Target> targets, MiraculousLadybugTargetData.Target startTarget) {
+        List<MiraculousLadybugTargetData.Target> toVisit = new ArrayList<>(targets);
+        List<MiraculousLadybugTargetData.Target> ordered = new ArrayList<>();
 
-        Vec3 current = startPosition;
+        Vec3 current = startTarget.position();
 
         while (!toVisit.isEmpty()) {
-            T nearest = null;
+            MiraculousLadybugTargetData.Target nearest = null;
             double nearestDist = Double.MAX_VALUE;
 
-            for (T target : toVisit) {
-                Vec3 targetPos = positionExtractor.apply(target);
-                double dist = current.distanceTo(targetPos);
+            for (MiraculousLadybugTargetData.Target target : toVisit) {
+                double dist = current.distanceTo(target.position());
                 if (dist < nearestDist) {
                     nearestDist = dist;
                     nearest = target;
@@ -175,7 +149,8 @@ public class MineraculousMathUtils {
 
             ordered.add(nearest);
             toVisit.remove(nearest);
-            current = positionExtractor.apply(nearest);
+            if (nearest != null)
+                current = nearest.position();
         }
         return ordered;
     }

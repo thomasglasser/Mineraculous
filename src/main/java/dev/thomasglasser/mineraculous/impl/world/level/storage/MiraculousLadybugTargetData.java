@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
 import com.google.common.collect.ImmutableList;
-import com.klikli_dev.modonomicon.util.Codecs;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
@@ -9,38 +8,40 @@ import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
+import io.netty.buffer.ByteBuf;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
-public record MiraculousLadybugTargetData(List<BlockPos> blockTargets, List<EntityTarget> entityTargets, List<UUID> toRevert, List<Vec3> pathControlPoints, double splinePosition) {
+public record MiraculousLadybugTargetData(List<BlockTarget> blockTargets, List<EntityTarget> entityTargets, List<Vec3> pathControlPoints, double splinePosition) {
 
     public static final Codec<MiraculousLadybugTargetData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BlockPos.CODEC.listOf().fieldOf("block_targets").forGetter(MiraculousLadybugTargetData::blockTargets),
+            BlockTarget.CODEC.listOf().fieldOf("block_targets").forGetter(MiraculousLadybugTargetData::blockTargets),
             EntityTarget.CODEC.listOf().fieldOf("entity_targets").forGetter(MiraculousLadybugTargetData::entityTargets),
-            Codecs.UUID.listOf().fieldOf("to_revert").forGetter(MiraculousLadybugTargetData::toRevert),
             Vec3.CODEC.listOf().fieldOf("path_control_points").forGetter(MiraculousLadybugTargetData::pathControlPoints),
             Codec.DOUBLE.fieldOf("spline_position").forGetter(MiraculousLadybugTargetData::splinePosition)).apply(instance, MiraculousLadybugTargetData::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousLadybugTargetData> STREAM_CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC.apply(ByteBufCodecs.list()), MiraculousLadybugTargetData::blockTargets,
+            BlockTarget.STREAM_CODEC.apply(ByteBufCodecs.list()), MiraculousLadybugTargetData::blockTargets,
             EntityTarget.STREAM_CODEC.apply(ByteBufCodecs.list()), MiraculousLadybugTargetData::entityTargets,
-            ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString).apply(ByteBufCodecs.list()), MiraculousLadybugTargetData::toRevert,
             TommyLibExtraStreamCodecs.VEC_3.apply(ByteBufCodecs.list()), MiraculousLadybugTargetData::pathControlPoints,
             ByteBufCodecs.DOUBLE, MiraculousLadybugTargetData::splinePosition,
             MiraculousLadybugTargetData::new);
 
     public MiraculousLadybugTargetData() {
-        this(ImmutableList.of(), ImmutableList.of(), ImmutableList.of(), ImmutableList.of(), 0);
+        this(ImmutableList.of(), ImmutableList.of(), ImmutableList.of(), 0);
     }
 
-    public MiraculousLadybugTargetData(List<BlockPos> blockTargets, List<EntityTarget> entityTargets, List<UUID> toRevert) {
-        this(blockTargets, entityTargets, toRevert, ImmutableList.of(), 0);
+    public MiraculousLadybugTargetData(Collection<BlockTarget> blockTargets, Collection<EntityTarget> entityTargets) {
+        this(ImmutableList.copyOf(blockTargets), ImmutableList.copyOf(entityTargets), ImmutableList.of(), 0);
     }
 
     public void save(Entity entity, boolean syncToClient) {
@@ -58,80 +59,85 @@ public record MiraculousLadybugTargetData(List<BlockPos> blockTargets, List<Enti
         }
     }
 
-    public MiraculousLadybugTargetData withEntityTargets(List<EntityTarget> newTargets) {
-        return new MiraculousLadybugTargetData(blockTargets, newTargets, toRevert, pathControlPoints, splinePosition);
+    public MiraculousLadybugTargetData withSplinePosition(double splinePosition) {
+        return new MiraculousLadybugTargetData(blockTargets, entityTargets, pathControlPoints, splinePosition);
     }
 
-    public MiraculousLadybugTargetData withBlockTargets(List<BlockPos> newTargets) {
-        return new MiraculousLadybugTargetData(newTargets, entityTargets, toRevert, pathControlPoints, splinePosition);
-    }
-
-    public MiraculousLadybugTargetData setSplinePosition(double splinePosition) {
-        return new MiraculousLadybugTargetData(blockTargets, entityTargets, toRevert, pathControlPoints, splinePosition);
-    }
-
-    public MiraculousLadybugTargetData calculateSpline() {
-        List<Vec3> controlPoints = calculateControlPoints(blockTargets, entityTargets);
+    public MiraculousLadybugTargetData calculateSpline(List<BlockTarget> updatedBlockTargets) {
+        List<Vec3> controlPoints = calculateControlPoints(updatedBlockTargets, entityTargets);
         int controlPointsCount = controlPoints.size();
         Vec3 last = controlPoints.get(controlPointsCount - 1);
         Vec3 secondLast = controlPoints.get(controlPointsCount - 2);
         Vec3 newPoint = last.subtract(secondLast).normalize().scale(15).add(last);
         controlPoints.add(newPoint);
         MineraculousMathUtils.CatmullRom path = new MineraculousMathUtils.CatmullRom(controlPoints);
-        return new MiraculousLadybugTargetData(blockTargets, entityTargets, toRevert, controlPoints, path.getFirstParameter());
+        return new MiraculousLadybugTargetData(updatedBlockTargets, entityTargets, controlPoints, path.getFirstParameter());
     }
 
-    private static List<Vec3> calculateControlPoints(List<BlockPos> blockTargets, List<EntityTarget> entityTargets) {
-        ArrayList<EntityTarget> targets = new ArrayList<>();
+    private static List<Vec3> calculateControlPoints(List<BlockTarget> blockTargets, List<EntityTarget> entityTargets) {
+        ArrayList<Target> targets = new ArrayList<>();
         int blockCount = blockTargets.size();
         int entityCount = entityTargets.size();
         if (blockCount >= 3)
-            targets.addAll(EntityTarget.convertToEntityTarget(MineraculousMathUtils.getCenter(blockTargets.subList(2, blockCount))));
+            targets.addAll(blockTargets.subList(2, blockCount));
         if (entityCount > 0)
             targets.addAll(entityTargets);
-        Vec3 spawnPos = blockTargets.get(0).getCenter();
-        Vec3 circlePos = blockTargets.get(1).getCenter();
-        targets = new ArrayList<>(MineraculousMathUtils.sortTargets(targets, circlePos, EntityTarget::position));
-        targets.addFirst(EntityTarget.convertToEntityTarget(circlePos));
-        targets.addFirst(EntityTarget.convertToEntityTarget(spawnPos));
+        BlockTarget spawnPos = blockTargets.getFirst();
+        BlockTarget circlePos = blockTargets.get(1);
+        targets = new ArrayList<>(MineraculousMathUtils.sortTargets(targets, circlePos));
+        targets.addFirst(circlePos);
+        targets.addFirst(spawnPos);
         int targetsCount = targets.size();
         ArrayList<Vec3> controlPoints = new ArrayList<>();
         if (targetsCount >= 3) {
             for (int i = 2; i < targetsCount; i++) {
-                EntityTarget target = targets.get(i);
-                if (target.width == -1) { //normal target
-                    controlPoints.add(target.position);
-                } else { //spin target
-                    controlPoints.addAll(MineraculousMathUtils.spinAround(target.position, target.width, target.height, Math.PI / 2d, target.height / 16d));
+                Target target = targets.get(i);
+                if (target instanceof EntityTarget entityTarget) { // Spin Target
+                    controlPoints.addAll(MineraculousMathUtils.spinAround(target.position(), entityTarget.width, entityTarget.height, Math.PI / 2d, entityTarget.height / 16d));
+                } else { // Normal Target
+                    controlPoints.add(target.position());
                 }
             }
         }
         for (int i = 0; i <= 25; i++) {
-            controlPoints.add(i, spawnPos.lerp(circlePos, i / 25d));
+            controlPoints.add(i, spawnPos.position().lerp(circlePos.position(), i / 25d));
         }
         return controlPoints;
     }
-    public record EntityTarget(Vec3 position, float width, float height) {
+    public interface Target {
+        Vec3 position();
+    }
 
-        public static Codec<EntityTarget> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    public record BlockTarget(BlockPos blockPosition, UUID cause) implements Target {
+        public static final Codec<BlockTarget> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                BlockPos.CODEC.fieldOf("block_position").forGetter(BlockTarget::blockPosition),
+                UUIDUtil.CODEC.fieldOf("cause").forGetter(BlockTarget::cause)).apply(instance, BlockTarget::new));
+        public static final StreamCodec<ByteBuf, BlockTarget> STREAM_CODEC = StreamCodec.composite(
+                BlockPos.STREAM_CODEC, BlockTarget::blockPosition,
+                UUIDUtil.STREAM_CODEC, BlockTarget::cause,
+                BlockTarget::new);
+
+        @Override
+        public Vec3 position() {
+            return blockPosition.getCenter();
+        }
+
+        public static BlockTarget wrap(BlockPos blockPosition) {
+            return new BlockTarget(blockPosition, Util.NIL_UUID);
+        }
+    }
+
+    public record EntityTarget(Vec3 position, UUID cause, float width, float height) implements Target {
+        public static final Codec<EntityTarget> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Vec3.CODEC.fieldOf("position").forGetter(EntityTarget::position),
+                UUIDUtil.CODEC.fieldOf("cause").forGetter(EntityTarget::cause),
                 Codec.FLOAT.fieldOf("width").forGetter(EntityTarget::width),
                 Codec.FLOAT.fieldOf("height").forGetter(EntityTarget::height)).apply(instance, EntityTarget::new));
-        public static StreamCodec<RegistryFriendlyByteBuf, EntityTarget> STREAM_CODEC = StreamCodec.composite(
+        public static final StreamCodec<RegistryFriendlyByteBuf, EntityTarget> STREAM_CODEC = StreamCodec.composite(
                 TommyLibExtraStreamCodecs.VEC_3, EntityTarget::position,
+                UUIDUtil.STREAM_CODEC, EntityTarget::cause,
                 ByteBufCodecs.FLOAT, EntityTarget::width,
                 ByteBufCodecs.FLOAT, EntityTarget::height,
                 EntityTarget::new);
-        public static EntityTarget convertToEntityTarget(Vec3 pos) {
-            return new EntityTarget(pos, -1, -1);
-        }
-
-        public static ArrayList<EntityTarget> convertToEntityTarget(ArrayList<Vec3> arrayList) {
-            ArrayList<EntityTarget> toReturn = new ArrayList<>();
-            for (Vec3 vec : arrayList) {
-                toReturn.add(convertToEntityTarget(vec));
-            }
-            return toReturn;
-        }
     }
 }

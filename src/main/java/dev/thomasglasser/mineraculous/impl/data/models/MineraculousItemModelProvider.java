@@ -52,15 +52,15 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.GUI).rotation(0, 180, 0).translation(0, -5.25F, 0).scale(1.5F).end()
                 .end();
         miraculous(Miraculouses.BUTTERFLY)
-                .transform(MineraculousItemDisplayContexts.CURIOS_BODY.getValue()).rotation(0, 0, 180).translation(0, 4, -2.2F).scale(0.2F).end()
-                .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(90, 0, 0).translation(0, 0.25F, -1.75F).scale(0.2F).end()
-                .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(90, 0, 0).translation(0, 0.25F, -1.75F).scale(0.2F).end()
-                .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(4.5F, -1, 0).scale(0.2F).end()
-                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).translation(-4.5F, -1, 0).scale(0.2F).end()
-                .transform(ItemDisplayContext.HEAD).rotation(0, 0, 45).translation(6.5F, 3, -6.5F).scale(0.2F).end()
-                .transform(ItemDisplayContext.GROUND).translation(0, -5, 0).scale(0.2F).end()
-                .transform(ItemDisplayContext.FIXED).translation(0, -4.75F, 0).scale(0.4F).end()
-                .transform(ItemDisplayContext.GUI).rotation(0, 180, 0).translation(0, -11, 0).end()
+                .transform(MineraculousItemDisplayContexts.CURIOS_BODY.getValue()).rotation(0, 0, 180).translation(0, 3, -2.2F).scale(0.2F).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(90, 0, 0).translation(0, 0, -1).scale(0.2F).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(90, 0, 0).translation(0, 0, -1).scale(0.2F).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(4.25F, 0, 0).scale(0.2F).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).translation(-4.25F, 0, 0).scale(0.2F).end()
+                .transform(ItemDisplayContext.HEAD).rotation(0, 0, 45).translation(6, 3.75F, -6.5F).scale(0.2F).end()
+                .transform(ItemDisplayContext.GROUND).translation(0, -4, 0).scale(0.2F).end()
+                .transform(ItemDisplayContext.FIXED).translation(0, -3, 0).scale(0.4F).end()
+                .transform(ItemDisplayContext.GUI).rotation(0, 180, 0).translation(0, -7, 0).end()
                 .end();
 
         MineraculousArmors.MIRACULOUS.getAll().forEach(item -> singleTexture(item.getId().getPath(), mcItemLoc("generated"), "layer0", modItemLoc("miraculous/armor")));

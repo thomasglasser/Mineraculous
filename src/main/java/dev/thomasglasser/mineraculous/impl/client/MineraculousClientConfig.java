@@ -45,7 +45,7 @@ public class MineraculousClientConfig {
 
         builder.push(MIRACULOUS_LADYBUG);
         magicLadybugsLifetime = builder
-                .defineInRange("magic_ladybugs_lifetime", 22, 6, 45);
+                .defineInRange("magic_ladybugs_lifetime", 22, 6, 45); //TODO change the default value and its name in enus language provider
         magicLadybugsShakeStrength = builder
                 .defineInRange("magic_ladybugs_shake_strength", 20, 0, 30);
         builder.pop();

@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
 import com.google.common.collect.ImmutableList;
+import com.ibm.icu.impl.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
@@ -136,32 +137,31 @@ public record MiraculousLadybugTriggerData(List<MiraculousLadybugTargetData.Bloc
     private void spawnMiraculousLadybugs(ServerLevel level, Entity entity) {
         ArrayList<Vector2d> circle = MineraculousMathUtils.generateCirclePoints(50, MIRACULOUS_LADYBUGS_COUNT);
         Vec3 spawnPos = entity.position();
-        List<MiraculousLadybugTargetData> targetDatas = assignTargets(blockTargets, entityTargets);
+        ArrayList<Pair<List<MiraculousLadybugTargetData.BlockTarget>, List<MiraculousLadybugTargetData.EntityTarget>>> targetDatas = assignTargets(blockTargets, entityTargets);
 
         int spawnedMLBCount;
         for (spawnedMLBCount = 0; spawnedMLBCount < MIRACULOUS_LADYBUGS_COUNT; spawnedMLBCount++) {
-            MiraculousLadybugTargetData targetData = new MiraculousLadybugTargetData();
+            Pair<List<MiraculousLadybugTargetData.BlockTarget>, List<MiraculousLadybugTargetData.EntityTarget>> targetData = Pair.of(List.of(), List.of());
             ArrayList<MiraculousLadybugTargetData.BlockTarget> updatedBlockTargets = new ArrayList<>();
             if (spawnedMLBCount < targetDatas.size()) {
                 targetData = targetDatas.get(spawnedMLBCount);
-                updatedBlockTargets = new ArrayList<>(targetData.blockTargets());
+                updatedBlockTargets = new ArrayList<>(targetData.first);
             }
             int x = (int) circle.get(spawnedMLBCount).x;
             int y = (int) circle.get(spawnedMLBCount).y;
             Vec3 circlePos = spawnPos.add(x, 0, y);
             updatedBlockTargets.addFirst(MiraculousLadybugTargetData.BlockTarget.wrap(new BlockPos(MineraculousMathUtils.getVec3i(circlePos))));
             updatedBlockTargets.addFirst(MiraculousLadybugTargetData.BlockTarget.wrap(new BlockPos(MineraculousMathUtils.getVec3i(spawnPos))));
-            targetData = targetData.calculateSpline(updatedBlockTargets);
             MiraculousLadybug miraculousLadybug = new MiraculousLadybug(level);
             miraculousLadybug.setPos(spawnPos);
             level.addFreshEntity(miraculousLadybug);
-            targetData.save(miraculousLadybug, true);
-            level.sendParticles(ParticleTypes.FLASH, spawnPos.x, spawnPos.y, spawnPos.z, 1, 0, 0, 0, 0);
+            MiraculousLadybugTargetData.create(updatedBlockTargets, targetData.second).save(miraculousLadybug, true);
         }
+        level.sendParticles(ParticleTypes.FLASH, spawnPos.x, spawnPos.y, spawnPos.z, 1, 0, 0, 0, 0);
     }
 
-    private static ArrayList<MiraculousLadybugTargetData> assignTargets(List<MiraculousLadybugTargetData.BlockTarget> blockTargets, List<MiraculousLadybugTargetData.EntityTarget> entityTargets) {
-        ArrayList<MiraculousLadybugTargetData> targets = new ArrayList<>();
+    private static ArrayList<Pair<List<MiraculousLadybugTargetData.BlockTarget>, List<MiraculousLadybugTargetData.EntityTarget>>> assignTargets(List<MiraculousLadybugTargetData.BlockTarget> blockTargets, List<MiraculousLadybugTargetData.EntityTarget> entityTargets) {
+        ArrayList<Pair<List<MiraculousLadybugTargetData.BlockTarget>, List<MiraculousLadybugTargetData.EntityTarget>>> targets = new ArrayList<>();
 
         int blockCount = blockTargets.size();
         int entityCount = entityTargets.size();
@@ -204,7 +204,7 @@ public record MiraculousLadybugTriggerData(List<MiraculousLadybugTargetData.Bloc
             }
 
             // Add the combined target data
-            targets.add(new MiraculousLadybugTargetData(blockSubTargets, entitySubTargets));
+            targets.add(Pair.of(blockSubTargets, entitySubTargets));
         }
 
         return targets;

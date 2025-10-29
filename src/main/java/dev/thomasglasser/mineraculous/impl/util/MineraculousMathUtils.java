@@ -4,7 +4,12 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybug
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
@@ -90,42 +95,47 @@ public class MineraculousMathUtils {
     //ALGORITHMS
     //ITERATIVE FILL
     public static Collection<MiraculousLadybugTargetData.BlockTarget> reduceNearbyBlocks(Collection<MiraculousLadybugTargetData.BlockTarget> positions) {
-        // TODO: Fix
-//        List<BlockPos> result = new ArrayList<>();
-//        Set<BlockPos> unvisited = new HashSet<>(positions);
-//
-//        while (!unvisited.isEmpty()) {
-//            BlockPos start = unvisited.iterator().next();
-//            result.add(start);
-//
-//            Queue<BlockPos> queue = new LinkedList<>();
-//            queue.add(start);
-//            unvisited.remove(start);
-//
-//            while (!queue.isEmpty()) {
-//                BlockPos current = queue.poll();
-//                for (int dx = -1; dx <= 1; dx++) {
-//                    for (int dy = -1; dy <= 1; dy++) {
-//                        for (int dz = -1; dz <= 1; dz++) {
-//                            if (dx != 0 || dy != 0 || dz != 0) {
-//                                BlockPos neighbor = new BlockPos(
-//                                        current.getX() + dx,
-//                                        current.getY() + dy,
-//                                        current.getZ() + dz);
-//
-//                                if (unvisited.contains(neighbor)) {
-//                                    queue.add(neighbor);
-//                                    unvisited.remove(neighbor);
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        return result;
-        return positions;
+        Set<MiraculousLadybugTargetData.BlockTarget> unvisited = new HashSet<>(positions);
+        List<MiraculousLadybugTargetData.BlockTarget> result = new ArrayList<>();
+
+        while (!unvisited.isEmpty()) {
+            MiraculousLadybugTargetData.BlockTarget startTarget = unvisited.iterator().next();
+            result.add(startTarget);
+            unvisited.remove(startTarget);
+
+            Queue<MiraculousLadybugTargetData.BlockTarget> queue = new LinkedList<>();
+            queue.add(startTarget);
+
+            while (!queue.isEmpty()) {
+                MiraculousLadybugTargetData.BlockTarget currentTarget = queue.poll();
+                BlockPos current = currentTarget.blockPosition();
+                for (int dx = -1; dx <= 1; dx++) {
+                    for (int dy = -1; dy <= 1; dy++) {
+                        for (int dz = -1; dz <= 1; dz++) {
+                            if (dx != 0 || dy != 0 || dz != 0) {
+                                BlockPos neighborPos = current.offset(dx, dy, dz);
+                                MiraculousLadybugTargetData.BlockTarget neighborTarget = findByPos(unvisited, neighborPos);
+                                if (neighborTarget != null) {
+                                    queue.add(neighborTarget);
+                                    unvisited.remove(neighborTarget);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private static MiraculousLadybugTargetData.BlockTarget findByPos(Set<MiraculousLadybugTargetData.BlockTarget> set, BlockPos pos) {
+        for (MiraculousLadybugTargetData.BlockTarget t : set) {
+            if (t.blockPosition().equals(pos)) {
+                return t;
+            }
+        }
+        return null;
     }
 
     //GREEDY TSP

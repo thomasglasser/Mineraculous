@@ -56,11 +56,15 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                 AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
                 Set<UUID> toRevert = collectToRevert(target, entityData);
                 Pair<Multimap<ResourceKey<Level>, MiraculousLadybugTargetData.BlockTarget>, Multimap<ResourceKey<Level>, MiraculousLadybugTargetData.EntityTarget>> positions = gatherReversionPositions(level, toRevert);
+
                 Multimap<ResourceKey<Level>, MiraculousLadybugTargetData.BlockTarget> blockPositions = positions.first;
                 Multimap<ResourceKey<Level>, MiraculousLadybugTargetData.EntityTarget> entityPositions = positions.second;
                 ResourceKey<Level> currentDimension = level.dimension();
+
                 Collection<MiraculousLadybugTargetData.BlockTarget> blockTargets = MineraculousMathUtils.reduceNearbyBlocks(blockPositions.removeAll(currentDimension));
                 Collection<MiraculousLadybugTargetData.EntityTarget> entityTargets = entityPositions.removeAll(currentDimension);
+                revertInOtherDimensions(blockPositions, entityPositions);
+
                 ItemEntity luckyCharmEntity = new ItemEntity(level, performer.getX(), performer.getY() + 2, performer.getZ(), stack.copy());
                 luckyCharmEntity.setNeverPickUp();
                 luckyCharmEntity.setUnlimitedLifetime();
@@ -69,7 +73,6 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                 luckyCharmEntity.setDeltaMovement(0, 1.3, 0);
                 luckyCharmEntity.hurtMarked = true;
                 new MiraculousLadybugTriggerData(blockTargets, entityTargets, Optional.of(performer.getId()), revertSound).save(luckyCharmEntity, true);
-                revertInOtherDimensions(blockPositions, entityPositions);
             });
             return State.SUCCESS;
         }
@@ -77,7 +80,24 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
     }
 
     //TODO treat other dimensions as well (ill just spawn particles cuz lazy)
-    private void revertInOtherDimensions(Multimap<ResourceKey<Level>, MiraculousLadybugTargetData.BlockTarget> blockPositions, Multimap<ResourceKey<Level>, MiraculousLadybugTargetData.EntityTarget> entityPositions) {}
+    private void revertInOtherDimensions(
+            Multimap<ResourceKey<Level>, MiraculousLadybugTargetData.BlockTarget> blockPositions,
+            Multimap<ResourceKey<Level>, MiraculousLadybugTargetData.EntityTarget> entityPositions) {
+        for (ResourceKey<Level> dimension : blockPositions.keySet()) {
+            Collection<MiraculousLadybugTargetData.BlockTarget> blocks = blockPositions.get(dimension);
+
+            for (MiraculousLadybugTargetData.BlockTarget blockTarget : blocks) {
+                //TODO revert blocks here
+            }
+        }
+
+        for (ResourceKey<Level> dimension : entityPositions.keySet()) {
+            Collection<MiraculousLadybugTargetData.EntityTarget> entities = entityPositions.get(dimension);
+            for (MiraculousLadybugTargetData.EntityTarget entityTarget : entities) {
+                //TODO revert entities here
+            }
+        }
+    }
 
     private static Pair<Multimap<ResourceKey<Level>, MiraculousLadybugTargetData.BlockTarget>, Multimap<ResourceKey<Level>, MiraculousLadybugTargetData.EntityTarget>> gatherReversionPositions(ServerLevel level, Set<UUID> toRevert) {
         Multimap<ResourceKey<Level>, MiraculousLadybugTargetData.BlockTarget> blockPositions = HashMultimap.create();

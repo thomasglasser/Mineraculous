@@ -213,8 +213,8 @@ public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffIt
         float z1 = o[2] + bodyDirectionF.z();
         float z2 = o[3] + bodyDirectionF.z();
         int light = 15728880;
-        float uMin = 4 / 16f, uMax = 14 / 16f;
-        float vMin = 0f, vMax = 10 / 16f;
+        float uMin = 4 / 16f, uMax = 31 / 32f;
+        float vMin = 0f, vMax = 11 / 16f;
         vertex(vertexConsumer, pose, x1, pawTop, z1, uMin, vMin, light);
         vertex(vertexConsumer, pose, x1, pawBottom, z1, uMin, vMax, light);
         vertex(vertexConsumer, pose, x2, pawBottom, z2, uMax, vMax, light);

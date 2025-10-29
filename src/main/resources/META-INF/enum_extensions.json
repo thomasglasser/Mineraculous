@@ -29,11 +29,20 @@
     },
     {
       "enum": "net/minecraft/world/item/ItemDisplayContext",
-      "name": "MINERACULOUS_CURIOS_EARRINGS",
+      "name": "MINERACULOUS_CURIOS_LEFT_EARRING",
       "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
       "parameters": {
         "class": "dev/thomasglasser/mineraculous/api/world/item/MineraculousItemDisplayContexts",
-        "field": "CURIOS_EARRINGS"
+        "field": "CURIOS_LEFT_EARRING"
+      }
+    },
+    {
+      "enum": "net/minecraft/world/item/ItemDisplayContext",
+      "name": "MINERACULOUS_CURIOS_RIGHT_EARRING",
+      "constructor": "(ILjava/lang/String;Ljava/lang/String;)V",
+      "parameters": {
+        "class": "dev/thomasglasser/mineraculous/api/world/item/MineraculousItemDisplayContexts",
+        "field": "CURIOS_RIGHT_EARRING"
       }
     },
     {

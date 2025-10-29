@@ -29,8 +29,8 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
     @Override
     protected void registerModels() {
         miraculous(Miraculouses.LADYBUG)
-                .transform(MineraculousItemDisplayContexts.CURIOS_LEFT_EARRING.getValue()).rotation(90, 0, 90).translation(-4, -2.65F, -0.5F).scale(0.2F).end()
-                .transform(MineraculousItemDisplayContexts.CURIOS_RIGHT_EARRING.getValue()).rotation(90, 0, 90).translation(-4, -2.65F, -0.5F).scale(0.2F).end()
+                .transform(MineraculousItemDisplayContexts.CURIOS_LEFT_EARRING.getValue()).rotation(90, 0, 90).translation(-3.5F, -2.4F, -0.85F).scale(0.2F).end()
+                .transform(MineraculousItemDisplayContexts.CURIOS_RIGHT_EARRING.getValue()).rotation(90, 0, 90).translation(-3.5F, -3, -0.15F).scale(0.2F).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).translation(0, -0.5F, 1).scale(0.2F).end()
                 .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).translation(0, -0.5F, 1).scale(0.2F).end()
                 .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).translation(4, -0.25F, 0).scale(0.2F).end()

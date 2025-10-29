@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.LinkedHashMultimap;
@@ -9,41 +10,60 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBlockData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 // note: the keys of the targets map are indexes for pathControlPoints
-// TODO need an util for Multimap codec/streamcodec (for safety please also add linked multi map so the keys remain in the order i add them).
-public record MiraculousLadybugTargetData(List<Vec3> pathControlPoints, Map<Integer, List<Target>> targets, double splinePosition) {
+public record MiraculousLadybugTargetData(List<Vec3> pathControlPoints, Multimap<Integer, Target> targets, double splinePosition) {
 
     public static final Codec<MiraculousLadybugTargetData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Vec3.CODEC.listOf().fieldOf("path_control_points").forGetter(MiraculousLadybugTargetData::pathControlPoints),
-            Codec.unboundedMap(Codec.INT, TargetType.TARGET_CODEC.listOf()).fieldOf("targets").forGetter(MiraculousLadybugTargetData::targets),
+            Codec.unboundedMap(Codec.STRING, TargetType.TARGET_CODEC.listOf()).fieldOf("targets").forGetter(MiraculousLadybugTargetData::targetsMap),
             Codec.DOUBLE.fieldOf("spline_position").forGetter(MiraculousLadybugTargetData::splinePosition)).apply(instance, MiraculousLadybugTargetData::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousLadybugTargetData> STREAM_CODEC = StreamCodec.composite(
             TommyLibExtraStreamCodecs.VEC_3.apply(ByteBufCodecs.list()), MiraculousLadybugTargetData::pathControlPoints,
             ByteBufCodecs.map(
                     Maps::newHashMapWithExpectedSize,
-                    ByteBufCodecs.INT,
+                    ByteBufCodecs.STRING_UTF8,
                     TargetType.TARGET_STREAM_CODEC.apply(ByteBufCodecs.list())),
-            MiraculousLadybugTargetData::targets,
+            MiraculousLadybugTargetData::targetsMap,
             ByteBufCodecs.DOUBLE, MiraculousLadybugTargetData::splinePosition,
             MiraculousLadybugTargetData::new);
+
+    public MiraculousLadybugTargetData(List<Vec3> pathControlPoints, Map<String, List<Target>> targets, double splinePosition) {
+        this(pathControlPoints, convertTargets(targets), splinePosition);
+    }
+
+    private static Multimap<Integer, Target> convertTargets(Map<String, List<Target>> map) {
+        Multimap<Integer, Target> multimap = HashMultimap.create();
+        map.forEach((index, targets) -> multimap.putAll(Integer.parseInt(index), targets));
+        return multimap;
+    }
+
+    public Map<String, List<Target>> targetsMap() {
+        Map<String, List<Target>> targetsMap = new HashMap<>();
+        targets.asMap().forEach((index, targets) -> targetsMap.put(String.valueOf(index), ImmutableList.copyOf(targets)));
+        return targetsMap;
+    }
 
     public MiraculousLadybugTargetData() {
         this(ImmutableList.of(), ImmutableMap.of(), 0);
@@ -100,12 +120,8 @@ public record MiraculousLadybugTargetData(List<Vec3> pathControlPoints, Map<Inte
         Vec3 secondLast = controlPoints.get(controlPointsCount - 2);
         Vec3 newPoint = last.subtract(secondLast).normalize().scale(20).add(last);
         controlPoints.add(newPoint);
-        Map<Integer, List<Target>> targetsMap = targetMap.asMap().entrySet().stream()
-                .collect(Maps::newHashMap,
-                        (m, e) -> m.put(e.getKey(), List.copyOf(e.getValue())),
-                        Map::putAll);
         MineraculousMathUtils.CatmullRom path = new MineraculousMathUtils.CatmullRom(controlPoints);
-        return new MiraculousLadybugTargetData(controlPoints, targetsMap, path.getFirstParameter());
+        return new MiraculousLadybugTargetData(controlPoints, targetMap, path.getFirstParameter());
     }
 
     private static List<Target> sortedTargets(List<BlockTarget> blockTargets, List<EntityTarget> entityTargets) {
@@ -162,6 +178,8 @@ public record MiraculousLadybugTargetData(List<Vec3> pathControlPoints, Map<Inte
         Vec3 position();
 
         TargetType type();
+
+        void revert(ServerLevel level);
     }
 
     public record BlockTarget(BlockPos blockPosition, UUID cause) implements Target {
@@ -173,18 +191,23 @@ public record MiraculousLadybugTargetData(List<Vec3> pathControlPoints, Map<Inte
                 UUIDUtil.STREAM_CODEC, BlockTarget::cause,
                 BlockTarget::new);
 
-        @Override
-        public Vec3 position() {
-            return blockPosition.getCenter();
-        }
-
         public static BlockTarget wrap(BlockPos blockPosition) {
             return new BlockTarget(blockPosition, Util.NIL_UUID);
         }
 
         @Override
+        public Vec3 position() {
+            return blockPosition.getCenter();
+        }
+
+        @Override
         public TargetType type() {
             return TargetType.BLOCK;
+        }
+
+        @Override
+        public void revert(ServerLevel level) {
+            AbilityReversionBlockData.get(level).revert(cause, level, blockPosition);
         }
     }
 
@@ -204,6 +227,11 @@ public record MiraculousLadybugTargetData(List<Vec3> pathControlPoints, Map<Inte
         @Override
         public TargetType type() {
             return TargetType.ENTITY;
+        }
+
+        @Override
+        public void revert(ServerLevel level) {
+            AbilityReversionEntityData.get(level).revert(cause, level, position);
         }
     }
 }

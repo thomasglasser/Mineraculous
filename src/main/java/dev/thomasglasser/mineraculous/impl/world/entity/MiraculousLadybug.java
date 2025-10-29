@@ -17,7 +17,7 @@ public class MiraculousLadybug extends Entity {
     public MineraculousMathUtils.CatmullRom path = null;
     public double oldSplinePosition = 0;
     private double distanceNearestBlockTarget = 0;
-    private static final double TARGET_DISTANCE_TOLERANCE = 0.3; // block-unit
+    private static final double TARGET_DISTANCE_TOLERANCE = 3; // block-unit
 
     public MiraculousLadybug(EntityType<? extends MiraculousLadybug> entityType, Level level) {
         super(entityType, level);
@@ -61,15 +61,15 @@ public class MiraculousLadybug extends Entity {
         double splinePos = targetData.splinePosition();
         Vec3 pos = this.position();
         if (entityLevel instanceof ServerLevel serverLevel) {
-            NearestTargetResult<MiraculousLadybugTargetData.Target> result =
-                findNearestTargetData(
-                        splinePos,
-                        pos,
-                        MiraculousLadybugTargetData.Target.class
-                );
+            NearestTargetResult<MiraculousLadybugTargetData.Target> result = findNearestTargetData(
+                    splinePos,
+                    pos,
+                    MiraculousLadybugTargetData.Target.class);
 
-            if (result.distance() <= TARGET_DISTANCE_TOLERANCE && result.target() != null) {
-                // TODO for Tommy: revert using result.target()
+            MiraculousLadybugTargetData.Target target = result.target();
+            System.out.println(result.distance());
+            if (result.distance() <= TARGET_DISTANCE_TOLERANCE && target != null) {
+                target.revert(serverLevel);
             }
         }
     }
@@ -80,12 +80,10 @@ public class MiraculousLadybug extends Entity {
         Vec3 pos = this.position();
         double splinePos = targetData.splinePosition();
         if (level.isClientSide()) {
-            NearestTargetResult<MiraculousLadybugTargetData.BlockTarget> result =
-                findNearestTargetData(
-                        splinePos,
-                        pos,
-                        MiraculousLadybugTargetData.BlockTarget.class
-                );
+            NearestTargetResult<MiraculousLadybugTargetData.BlockTarget> result = findNearestTargetData(
+                    splinePos,
+                    pos,
+                    MiraculousLadybugTargetData.BlockTarget.class);
 
             this.distanceNearestBlockTarget = result.distance();
         }
@@ -97,12 +95,9 @@ public class MiraculousLadybug extends Entity {
 
         int i = start;
         while ((step > 0 && i <= limit) || (step < 0 && i >= limit)) {
-            var targets = targetMap.get(i);
-            if (targets != null) {
-                for (var target : targets) {
-                    if (type.isInstance(target)) {
-                        return type.cast(target);
-                    }
+            for (var target : targetMap.get(i)) {
+                if (type.isInstance(target)) {
+                    return type.cast(target);
                 }
             }
             i += step;
@@ -174,11 +169,9 @@ public class MiraculousLadybug extends Entity {
     }
 
     private <T extends MiraculousLadybugTargetData.Target> NearestTargetResult<T> findNearestTargetData(
-        double splinePos,
-        Vec3 pos,
-        Class<T> targetType
-    ) {
-
+            double splinePos,
+            Vec3 pos,
+            Class<T> targetType) {
         T back = findNearestTarget(targetType, (int) splinePos, -1, path.getFirstParameter());
         T front = findNearestTarget(targetType, (int) splinePos + 1, 1, path.getLastParameter());
 

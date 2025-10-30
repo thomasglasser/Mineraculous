@@ -12,12 +12,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-
+//TODO clean this code
 public class MiraculousLadybug extends Entity {
     public MineraculousMathUtils.CatmullRom path = null;
     public double oldSplinePosition = 0;
     private double distanceNearestBlockTarget = 0;
-    private static final double TARGET_DISTANCE_TOLERANCE = 3; // block-unit
 
     public MiraculousLadybug(EntityType<? extends MiraculousLadybug> entityType, Level level) {
         super(entityType, level);
@@ -58,18 +57,17 @@ public class MiraculousLadybug extends Entity {
     private void revertReachedTarget() {
         Level entityLevel = this.level();
         MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+        var targetMap = targetData.targets();
         double splinePos = targetData.splinePosition();
-        Vec3 pos = this.position();
         if (entityLevel instanceof ServerLevel serverLevel) {
-            NearestTargetResult<MiraculousLadybugTargetData.Target> result = findNearestTargetData(
-                    splinePos,
-                    pos,
-                    MiraculousLadybugTargetData.Target.class);
-
-            MiraculousLadybugTargetData.Target target = result.target();
-            System.out.println(result.distance());
-            if (result.distance() <= TARGET_DISTANCE_TOLERANCE && target != null) {
-                target.revert(serverLevel);
+            int approaching = path.findSegment(splinePos);
+            if (approaching != -1) {
+                int passed = approaching - 3; //subtracted the first ghost point
+                if (targetMap.containsKey(passed)) {
+                    for (MiraculousLadybugTargetData.Target target : targetMap.get(passed)) {
+                        target.revert(serverLevel);
+                    }
+                }
             }
         }
     }
@@ -126,7 +124,7 @@ public class MiraculousLadybug extends Entity {
 
     private double setPosition(double splinePositionParameter) {
         double before = splinePositionParameter;
-        splinePositionParameter = path.advanceParameter(splinePositionParameter, 0.8); //0.8
+        splinePositionParameter = path.advanceParameter(splinePositionParameter, 0.7); //TODO make the speed server configurable 0.6 -> 0.8 (def: 0.7)
         if (before == splinePositionParameter) this.discard();
         this.setPos(path.getPoint(splinePositionParameter));
         return splinePositionParameter;

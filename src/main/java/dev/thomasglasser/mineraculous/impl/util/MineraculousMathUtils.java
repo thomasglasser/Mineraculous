@@ -228,7 +228,7 @@ public class MineraculousMathUtils {
         }
 
         // Find which segment t belongs to
-        private int findSegment(double t) {
+        public int findSegment(double t) {
             // clamp t to valid range
             t = Math.max(getFirstParameter(), Math.min(t, getLastParameter() - 1e-9));
             for (int i = 1; i < T.size(); i++) {

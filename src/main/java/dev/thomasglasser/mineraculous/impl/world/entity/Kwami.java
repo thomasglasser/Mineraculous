@@ -241,9 +241,10 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private void tickTransforming() {
         LivingEntity owner = getOwner();
         if (owner != null) {
-            setDeltaMovement(owner.getEyePosition().subtract(this.getEyePosition()).scale(0.4));
-            if (this.getEyePosition().closerThan(owner.getEyePosition(), 0.1)) {
-                setTransforming(false);
+            Vec3 middlePos = this.getBoundingBox().getCenter();
+            Vec3 ownerMiddlePos = owner.getBoundingBox().getCenter();
+            setDeltaMovement(ownerMiddlePos.subtract(middlePos).normalize().scale(0.6 + (owner.isSprinting() ? 0.2 : 0)));
+            if (ownerMiddlePos.closerThan(middlePos, 0.3)) {
                 discard();
             }
         } else {

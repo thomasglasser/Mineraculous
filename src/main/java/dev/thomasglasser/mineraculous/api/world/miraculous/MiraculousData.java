@@ -249,7 +249,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         value.passiveAbilities().forEach(ability -> ability.value().detransform(data, level, entity));
 
         if (!removed) {
-            Kwami kwami = MineraculousEntityUtils.summonKwami(entity, false, miraculousId, miraculous, true, null);
+            Kwami kwami = MineraculousEntityUtils.summonKwami(entity, false, miraculousId, miraculous, true, miraculousStack.get(MineraculousDataComponents.KWAMI_ID));
             if (kwami == null) {
                 MineraculousConstants.LOGGER.error("Kwami could not be created for entity {}", entity.getName().plainCopy().getString());
             }

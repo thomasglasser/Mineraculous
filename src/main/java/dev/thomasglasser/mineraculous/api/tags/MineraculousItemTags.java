@@ -54,6 +54,9 @@ public class MineraculousItemTags {
     /// Items passed in a {@link Warden} lucky charm to distract it.
     public static final TagKey<Item> WARDEN_DISTRACTORS = create("warden_distractors");
 
+    // Kamikotization
+    public static final TagKey<Item> KAMIKOTIZATION_IMMUNE = create("kamikotization_immune");
+
     private static TagKey<Item> create(String name) {
         return TagKey.create(Registries.ITEM, MineraculousConstants.modLoc(name));
     }

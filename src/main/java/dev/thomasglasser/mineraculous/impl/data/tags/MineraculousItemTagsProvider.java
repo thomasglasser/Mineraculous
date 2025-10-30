@@ -36,6 +36,9 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         addAbilities();
 
         // Misc
+        tag(MineraculousItemTags.KAMIKOTIZATION_IMMUNE)
+                .add(MineraculousItems.KWAMI);
+
         tag(MineraculousItemTags.TOUGH)
                 .add(Items.NETHER_STAR)
                 .add(Items.TOTEM_OF_UNDYING)

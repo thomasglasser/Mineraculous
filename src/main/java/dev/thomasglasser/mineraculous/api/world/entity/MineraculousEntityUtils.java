@@ -33,7 +33,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -132,7 +131,10 @@ public class MineraculousEntityUtils {
      * @return The summoned kwami
      */
     public static Kwami summonKwami(Entity owner, boolean charged, UUID miraculousId, Holder<Miraculous> miraculous, boolean playAnimation, @Nullable UUID uuidOverride) {
-        Level level = owner.level();
+        ServerLevel level = (ServerLevel) owner.level();
+        if (uuidOverride != null && level.getEntity(uuidOverride) instanceof Kwami kwami) {
+            return kwami;
+        }
         Kwami kwami = MineraculousEntityTypes.KWAMI.get().create(level);
         if (kwami != null) {
             kwami.setCharged(charged);

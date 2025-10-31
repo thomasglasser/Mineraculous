@@ -299,7 +299,7 @@ public class MineraculousEntityEvents {
                     if (kamikotization == data.kamikotization()) {
                         UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
                         if (ownerId == null || ownerId.equals(entity.getUUID())) {
-                            data.detransform(entity, level, entity.position().add(0, 1, 0), true);
+                            data.detransform(entity, level, entity.position().add(0, 1, 0), true, null);
                         }
                     }
                 });

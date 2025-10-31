@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
@@ -30,12 +32,14 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.saveddata.SavedData;
+import org.jetbrains.annotations.Nullable;
 
 /// Data for reverting trackable item changes
 public class AbilityReversionItemData extends SavedData {
     public static final String FILE_ID = "ability_reversion_item";
     private final Table<UUID, UUID, ItemStack> revertibleItems = HashBasedTable.create();
-    private final Map<UUID, ItemStack> revertedItems = new Object2ObjectOpenHashMap<>();
+    private final Map<UUID, ItemStack> revertMarkedItems = new Object2ObjectOpenHashMap<>();
+    private final List<UUID> revertedItems = new ObjectArrayList<>();
     private final Map<UUID, ItemStack> kamikotizedItems = new Object2ObjectOpenHashMap<>();
 
     public static AbilityReversionItemData get(ServerLevel level) {
@@ -96,8 +100,14 @@ public class AbilityReversionItemData extends SavedData {
     public ItemStack checkReverted(ItemStack stack) {
         if (stack.has(MineraculousDataComponents.REVERTIBLE_ITEM_ID)) {
             UUID id = stack.get(MineraculousDataComponents.REVERTIBLE_ITEM_ID);
-            if (revertedItems.containsKey(id)) {
-                ItemStack recovered = revertedItems.remove(id).copy();
+            if (revertMarkedItems.containsKey(id) || revertedItems.contains(id)) {
+                ItemStack recovered = revertMarkedItems.remove(id);
+                if (recovered == null) {
+                    recovered = ItemStack.EMPTY;
+                } else {
+                    revertedItems.add(id);
+                    recovered = recovered.copy();
+                }
                 setDirty();
                 return recovered;
             }
@@ -107,7 +117,7 @@ public class AbilityReversionItemData extends SavedData {
 
     public void markReverted(UUID owner) {
         if (revertibleItems.containsRow(owner)) {
-            revertedItems.putAll(revertibleItems.row(owner));
+            revertMarkedItems.putAll(revertibleItems.row(owner));
             revertibleItems.row(owner).clear();
             setDirty();
         }
@@ -124,11 +134,23 @@ public class AbilityReversionItemData extends SavedData {
         putRevertible(owner, item, ItemStack.EMPTY);
     }
 
-    public void revertKamikotized(LivingEntity owner, UUID item) {
-        ItemStack stack = kamikotizedItems.remove(item);
-        if (stack != null) {
-            EntityUtils.addToInventoryOrDrop(owner, stack);
+    public void revertKamikotized(LivingEntity owner, UUID item, @Nullable ItemStack kamikotizedStack) {
+        ItemStack original = kamikotizedItems.remove(item);
+        if (original != null) {
+            ItemStack reverted;
+            if (kamikotizedStack != null) {
+                reverted = original.copyWithCount(Math.max(1, kamikotizedStack.getCount()));
+                reverted.copyFrom(kamikotizedStack, DataComponents.DAMAGE, DataComponents.MAX_DAMAGE);
+
+                UUID revertibleId = UUID.randomUUID();
+                reverted.set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, revertibleId);
+                putRevertible(owner.getUUID(), revertibleId, original);
+            } else {
+                reverted = original.copy();
+            }
+            revertedItems.add(item);
             setDirty();
+            EntityUtils.addToInventoryOrDrop(owner, reverted);
         }
     }
 
@@ -154,12 +176,17 @@ public class AbilityReversionItemData extends SavedData {
             revertibleItems.add(compoundTag);
         }
         tag.put("RevertibleItems", revertibleItems);
-        ListTag revertedItems = new ListTag();
-        for (Map.Entry<UUID, ItemStack> entry : this.revertedItems.entrySet()) {
+        ListTag revertMarkedItems = new ListTag();
+        for (Map.Entry<UUID, ItemStack> entry : this.revertMarkedItems.entrySet()) {
             CompoundTag compoundTag = new CompoundTag();
             compoundTag.putUUID("UUID", entry.getKey());
             compoundTag.put("ItemStack", entry.getValue().saveOptional(registries));
-            revertedItems.add(compoundTag);
+            revertMarkedItems.add(compoundTag);
+        }
+        tag.put("RevertMarkedItems", revertMarkedItems);
+        CompoundTag revertedItems = new CompoundTag();
+        for (UUID uuid : this.revertedItems) {
+            revertedItems.putUUID(uuid.toString(), uuid);
         }
         tag.put("RevertedItems", revertedItems);
         ListTag kamikotizedItems = new ListTag();
@@ -187,12 +214,16 @@ public class AbilityReversionItemData extends SavedData {
                 miraculousRecoveryEntityData.revertibleItems.put(owner, item, itemStack);
             }
         }
-        ListTag revertedItems = tag.getList("RevertedItems", 10);
-        for (int i = 0; i < revertedItems.size(); i++) {
-            CompoundTag compoundTag = revertedItems.getCompound(i);
+        ListTag revertMarkedItems = tag.getList("RevertMarkedItems", 10);
+        for (int i = 0; i < revertMarkedItems.size(); i++) {
+            CompoundTag compoundTag = revertMarkedItems.getCompound(i);
             UUID uuid = compoundTag.getUUID("UUID");
             ItemStack itemStack = ItemStack.parseOptional(registries, compoundTag.getCompound("ItemStack"));
-            miraculousRecoveryEntityData.revertedItems.put(uuid, itemStack);
+            miraculousRecoveryEntityData.revertMarkedItems.put(uuid, itemStack);
+        }
+        CompoundTag revertedItems = tag.getCompound("RevertedItems");
+        for (String key : revertedItems.getAllKeys()) {
+            miraculousRecoveryEntityData.revertedItems.add(revertedItems.getUUID(key));
         }
         ListTag kamikotizedItems = tag.getList("KamikotizedItems", 10);
         for (int i = 0; i < kamikotizedItems.size(); i++) {

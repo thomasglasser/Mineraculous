@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalC
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.InventorySyncTracker;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
@@ -68,7 +69,7 @@ public class KamikotizationItemSelectionScreen extends ExternalCuriosInventorySc
     }
 
     protected void determineKamikotizations(ItemStack stack, Registry<Kamikotization> registry) {
-        if (!(stack.isEmpty() || stack.has(MineraculousDataComponents.KAMIKOTIZATION))) {
+        if (!(stack.isEmpty() || stack.is(MineraculousItemTags.KAMIKOTIZATION_IMMUNE) || stack.has(MineraculousDataComponents.KAMIKOTIZATION))) {
             for (Kamikotization kamikotization : registry) {
                 if (kamikotization.itemPredicate().test(stack)) {
                     kamikotizations.put(stack, registry.wrapAsHolder(kamikotization));

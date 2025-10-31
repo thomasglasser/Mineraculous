@@ -1,16 +1,23 @@
 package dev.thomasglasser.mineraculous.impl.util;
 
-import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
+import com.google.common.collect.ImmutableList;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugBlockTarget;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTarget;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2d;
@@ -68,6 +75,29 @@ public class MineraculousMathUtils {
         return new Vec3i((int) vec.x, (int) vec.y, (int) vec.z);
     }
 
+    public static void spawnBlockParticles(ServerLevel level, BlockPos pos, SimpleParticleType type, int particleCount) {
+        double startX = pos.getX();
+        double startY = pos.getY();
+        double startZ = pos.getZ();
+
+        double step = 1.0 / (particleCount - 1); // space between particles
+
+        for (int x = 0; x < particleCount; x++) {
+            for (int y = 0; y < particleCount; y++) {
+                for (int z = 0; z < particleCount; z++) {
+                    double px = startX + x * step;
+                    double py = startY + y * step;
+                    double pz = startZ + z * step;
+
+                    level.sendParticles(
+                            type,
+                            px, py, pz,
+                            1, 0, 0, 0, 0);
+                }
+            }
+        }
+    }
+
     //TODO check kwami implementation and if u can replace their spin with this.
 
     /**
@@ -92,64 +122,128 @@ public class MineraculousMathUtils {
         return toReturn;
     }
 
+    public static BlockPos findNearestBlockPos(Vec3 pos, Iterable<BlockPos> candidates) {
+        BlockPos best = null;
+        double bestDistSq = Double.POSITIVE_INFINITY;
+        for (BlockPos c : candidates) {
+            double dx = pos.x - (c.getX() + 0.5);
+            double dy = pos.y - (c.getY() + 0.5);
+            double dz = pos.z - (c.getZ() + 0.5);
+            double d2 = dx * dx + dy * dy + dz * dz;
+            if (d2 < bestDistSq) {
+                bestDistSq = d2;
+                best = c;
+            }
+        }
+        return best;
+    }
+
+    public static List<List<BlockPos>> buildRevertLayers(BlockPos origin, java.util.Set<BlockPos> validBlocks) {
+        List<List<BlockPos>> layers = new ArrayList<>();
+        java.util.Set<BlockPos> remaining = new java.util.HashSet<>(validBlocks);
+        if (!remaining.contains(origin)) {
+            return layers;
+        }
+
+        List<BlockPos> current = new ArrayList<>();
+        current.add(origin);
+        remaining.remove(origin);
+        layers.add(ImmutableList.copyOf(current));
+
+        List<int[]> offsets = new ArrayList<>(26);
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                for (int dz = -1; dz <= 1; dz++) {
+                    if (dx == 0 && dy == 0 && dz == 0) continue;
+                    offsets.add(new int[] { dx, dy, dz });
+                }
+            }
+        }
+
+        while (true) {
+            List<BlockPos> nextLayer = new ArrayList<>();
+            for (BlockPos bp : current) {
+                for (int[] off : offsets) {
+                    BlockPos n = bp.offset(off[0], off[1], off[2]);
+                    if (remaining.contains(n)) {
+                        nextLayer.add(n);
+                        remaining.remove(n);
+                    }
+                }
+            }
+            if (nextLayer.isEmpty()) break;
+            layers.add(ImmutableList.copyOf(nextLayer));
+            current = nextLayer;
+        }
+        return layers;
+    }
+
     //ALGORITHMS
     //ITERATIVE FILL
-    public static Collection<MiraculousLadybugTargetData.BlockTarget> reduceNearbyBlocks(Collection<MiraculousLadybugTargetData.BlockTarget> positions) {
-        Set<MiraculousLadybugTargetData.BlockTarget> unvisited = new HashSet<>(positions);
-        List<MiraculousLadybugTargetData.BlockTarget> result = new ArrayList<>();
+    public static Collection<MiraculousLadybugBlockTarget> reduceNearbyBlocks(Collection<MiraculousLadybugBlockTarget> input) {
+        // Flatten input into one big map of BlockPos -> UUID
+        Map<BlockPos, UUID> allBlocks = new HashMap<>();
+        for (var bt : input) {
+            for (var entry : bt.blocksToRevert().entrySet()) {
+                allBlocks.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        Set<BlockPos> unvisited = new HashSet<>(allBlocks.keySet());
+        List<MiraculousLadybugBlockTarget> result = new ArrayList<>();
 
         while (!unvisited.isEmpty()) {
-            MiraculousLadybugTargetData.BlockTarget startTarget = unvisited.iterator().next();
-            result.add(startTarget);
-            unvisited.remove(startTarget);
+            BlockPos start = unvisited.iterator().next();
+            Map<BlockPos, UUID> clump = new HashMap<>();
 
-            Queue<MiraculousLadybugTargetData.BlockTarget> queue = new LinkedList<>();
-            queue.add(startTarget);
+            Queue<BlockPos> queue = new LinkedList<>();
+            queue.add(start);
+            unvisited.remove(start);
 
             while (!queue.isEmpty()) {
-                MiraculousLadybugTargetData.BlockTarget currentTarget = queue.poll();
-                BlockPos current = currentTarget.blockPosition();
+                BlockPos current = queue.poll();
+                clump.put(current, allBlocks.get(current));
+
                 for (int dx = -1; dx <= 1; dx++) {
                     for (int dy = -1; dy <= 1; dy++) {
                         for (int dz = -1; dz <= 1; dz++) {
-                            if (dx != 0 || dy != 0 || dz != 0) {
-                                BlockPos neighborPos = current.offset(dx, dy, dz);
-                                MiraculousLadybugTargetData.BlockTarget neighborTarget = findByPos(unvisited, neighborPos);
-                                if (neighborTarget != null) {
-                                    queue.add(neighborTarget);
-                                    unvisited.remove(neighborTarget);
-                                }
+                            if (dx == 0 && dy == 0 && dz == 0) continue;
+                            BlockPos neighbor = current.offset(dx, dy, dz);
+                            if (unvisited.remove(neighbor)) {
+                                queue.add(neighbor);
                             }
                         }
                     }
                 }
             }
+
+            double avgX = 0, avgY = 0, avgZ = 0;
+            for (BlockPos pos : clump.keySet()) {
+                avgX += pos.getX() + 0.5;
+                avgY += pos.getY() + 0.5;
+                avgZ += pos.getZ() + 0.5;
+            }
+            int size = clump.size();
+            Vec3 center = new Vec3(avgX / size, avgY / size, avgZ / size);
+
+            result.add(new MiraculousLadybugBlockTarget(center, clump));
         }
 
         return result;
     }
 
-    private static MiraculousLadybugTargetData.BlockTarget findByPos(Set<MiraculousLadybugTargetData.BlockTarget> set, BlockPos pos) {
-        for (MiraculousLadybugTargetData.BlockTarget t : set) {
-            if (t.blockPosition().equals(pos)) {
-                return t;
-            }
-        }
-        return null;
-    }
-
     //GREEDY TSP
-    public static List<MiraculousLadybugTargetData.Target> sortTargets(Collection<MiraculousLadybugTargetData.Target> targets, MiraculousLadybugTargetData.Target startTarget) {
-        List<MiraculousLadybugTargetData.Target> toVisit = new ArrayList<>(targets);
-        List<MiraculousLadybugTargetData.Target> ordered = new ArrayList<>();
+    public static List<MiraculousLadybugTarget> sortTargets(Collection<MiraculousLadybugTarget> targets, MiraculousLadybugTarget startTarget) {
+        List<MiraculousLadybugTarget> toVisit = new ArrayList<>(targets);
+        List<MiraculousLadybugTarget> ordered = new ArrayList<>();
 
         Vec3 current = startTarget.position();
 
         while (!toVisit.isEmpty()) {
-            MiraculousLadybugTargetData.Target nearest = null;
+            MiraculousLadybugTarget nearest = null;
             double nearestDist = Double.MAX_VALUE;
 
-            for (MiraculousLadybugTargetData.Target target : toVisit) {
+            for (MiraculousLadybugTarget target : toVisit) {
                 double dist = current.distanceTo(target.position());
                 if (dist < nearestDist) {
                     nearestDist = dist;

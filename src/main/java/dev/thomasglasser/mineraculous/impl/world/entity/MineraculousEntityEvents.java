@@ -129,6 +129,11 @@ public class MineraculousEntityEvents {
                 entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.tick(livingEntity, level));
             }
 
+            if (entity instanceof MiraculousLadybug miraculousLadybug) {
+                MiraculousLadybugTargetData targetData = miraculousLadybug.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+                targetData.tick(level).save(miraculousLadybug, true);
+            }
+
             if (entity instanceof ItemEntity itemEntity) {
                 itemEntity.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TRIGGER).ifPresent(data -> {
                     data.tick(itemEntity, level);

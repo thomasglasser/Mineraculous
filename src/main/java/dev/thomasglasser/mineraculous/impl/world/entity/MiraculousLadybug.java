@@ -1,9 +1,13 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugBlockTarget;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTarget;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -12,8 +16,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-//TODO clean this code
+// TODO clean this code
+
 public class MiraculousLadybug extends Entity {
+    private static final double DEFAULT_SPEED = 0.7;
+
     public MineraculousMathUtils.CatmullRom path = null;
     public double oldSplinePosition = 0;
     private double distanceNearestBlockTarget = 0;
@@ -47,7 +54,8 @@ public class MiraculousLadybug extends Entity {
                 revertReachedTarget();
             }
             if (!level.isClientSide()) {
-                targetData.withSplinePosition(splinePositionParameter).save(this, true);
+                MiraculousLadybugTargetData freshData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+                freshData.withSplinePosition(splinePositionParameter).save(this, true);
             } else {
                 renderParticles();
             }
@@ -64,8 +72,22 @@ public class MiraculousLadybug extends Entity {
             if (approaching != -1) {
                 int passed = approaching - 3; //subtracted the first ghost point
                 if (targetMap.containsKey(passed)) {
-                    for (MiraculousLadybugTargetData.Target target : targetMap.get(passed)) {
-                        target.revert(serverLevel);
+                    Multimap<Integer, MiraculousLadybugTarget> newTargets = LinkedHashMultimap.create(targetMap);
+                    boolean changed = false;
+
+                    for (MiraculousLadybugTarget target : targetMap.get(passed)) {
+                        boolean isNotBlock = !(target instanceof MiraculousLadybugBlockTarget);
+                        if (isNotBlock || (target instanceof MiraculousLadybugBlockTarget blockT && blockT.revertingTicks() == -1)) {
+                            MiraculousLadybugTarget newTarget = target.revert(serverLevel);
+                            newTargets.remove(passed, target);
+                            newTargets.put(passed, newTarget);
+                            changed = true;
+                        }
+                    }
+
+                    if (changed) {
+                        MiraculousLadybugTargetData updatedData = new MiraculousLadybugTargetData(targetData.pathControlPoints(), newTargets, targetData.splinePosition());
+                        updatedData.save(this, true);
                     }
                 }
             }
@@ -78,16 +100,16 @@ public class MiraculousLadybug extends Entity {
         Vec3 pos = this.position();
         double splinePos = targetData.splinePosition();
         if (level.isClientSide()) {
-            NearestTargetResult<MiraculousLadybugTargetData.BlockTarget> result = findNearestTargetData(
+            NearestTargetResult<MiraculousLadybugBlockTarget> result = findNearestTargetData(
                     splinePos,
                     pos,
-                    MiraculousLadybugTargetData.BlockTarget.class);
+                    MiraculousLadybugBlockTarget.class);
 
             this.distanceNearestBlockTarget = result.distance();
         }
     }
 
-    private <T extends MiraculousLadybugTargetData.Target> T findNearestTarget(Class<T> type, int start, int step, double limit) {
+    private <T extends MiraculousLadybugTarget> T findNearestTarget(Class<T> type, int start, int step, double limit) {
         var targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
         var targetMap = targetData.targets();
 
@@ -125,7 +147,7 @@ public class MiraculousLadybug extends Entity {
     private double setPosition(double splinePositionParameter) {
         double before = splinePositionParameter;
         splinePositionParameter = path.advanceParameter(splinePositionParameter, 0.7); //TODO make the speed server configurable 0.6 -> 0.8 (def: 0.7)
-        if (before == splinePositionParameter) this.discard();
+        if (before == splinePositionParameter) this.discard(); //TODO find a way so it wont discard while targets are reverting.
         this.setPos(path.getPoint(splinePositionParameter));
         return splinePositionParameter;
     }
@@ -166,7 +188,7 @@ public class MiraculousLadybug extends Entity {
         return false;
     }
 
-    private <T extends MiraculousLadybugTargetData.Target> NearestTargetResult<T> findNearestTargetData(
+    private <T extends MiraculousLadybugTarget> NearestTargetResult<T> findNearestTargetData(
             double splinePos,
             Vec3 pos,
             Class<T> targetType) {

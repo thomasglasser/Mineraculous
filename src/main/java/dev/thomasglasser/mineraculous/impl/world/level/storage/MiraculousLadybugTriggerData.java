@@ -31,17 +31,17 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2d;
 
-public record MiraculousLadybugTriggerData(List<MiraculousLadybugTargetData.BlockTarget> blockTargets, List<MiraculousLadybugTargetData.EntityTarget> entityTargets, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound, int tickCount) {
+public record MiraculousLadybugTriggerData(List<MiraculousLadybugBlockTarget> blockTargets, List<MiraculousLadybugEntityTarget> entityTargets, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound, int tickCount) {
 
     public static final Codec<MiraculousLadybugTriggerData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            MiraculousLadybugTargetData.BlockTarget.CODEC.listOf().fieldOf("block_targets").forGetter(MiraculousLadybugTriggerData::blockTargets),
-            MiraculousLadybugTargetData.EntityTarget.CODEC.listOf().fieldOf("entity_targets").forGetter(MiraculousLadybugTriggerData::entityTargets),
+            MiraculousLadybugBlockTarget.CODEC.listOf().fieldOf("block_targets").forGetter(MiraculousLadybugTriggerData::blockTargets),
+            MiraculousLadybugEntityTarget.CODEC.listOf().fieldOf("entity_targets").forGetter(MiraculousLadybugTriggerData::entityTargets),
             Codec.INT.optionalFieldOf("performer_id").forGetter(MiraculousLadybugTriggerData::performerId),
             SoundEvent.CODEC.optionalFieldOf("revert_sound").forGetter(MiraculousLadybugTriggerData::revertSound),
             Codec.INT.fieldOf("tick_count").forGetter(MiraculousLadybugTriggerData::tickCount)).apply(instance, MiraculousLadybugTriggerData::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousLadybugTriggerData> STREAM_CODEC = StreamCodec.composite(
-            MiraculousLadybugTargetData.BlockTarget.STREAM_CODEC.apply(ByteBufCodecs.list()), MiraculousLadybugTriggerData::blockTargets,
-            MiraculousLadybugTargetData.EntityTarget.STREAM_CODEC.apply(ByteBufCodecs.list()), MiraculousLadybugTriggerData::entityTargets,
+            MiraculousLadybugBlockTarget.STREAM_CODEC.apply(ByteBufCodecs.list()), MiraculousLadybugTriggerData::blockTargets,
+            MiraculousLadybugEntityTarget.STREAM_CODEC.apply(ByteBufCodecs.list()), MiraculousLadybugTriggerData::entityTargets,
             ByteBufCodecs.optional(ByteBufCodecs.INT), MiraculousLadybugTriggerData::performerId,
             ByteBufCodecs.optional(SoundEvent.STREAM_CODEC), MiraculousLadybugTriggerData::revertSound,
             ByteBufCodecs.INT, MiraculousLadybugTriggerData::tickCount,
@@ -52,7 +52,7 @@ public record MiraculousLadybugTriggerData(List<MiraculousLadybugTargetData.Bloc
         this(ImmutableList.of(), ImmutableList.of(), Optional.empty(), Optional.empty(), 0);
     }
 
-    public MiraculousLadybugTriggerData(Collection<MiraculousLadybugTargetData.BlockTarget> blockTargets, Collection<MiraculousLadybugTargetData.EntityTarget> entityTargets, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound) {
+    public MiraculousLadybugTriggerData(Collection<MiraculousLadybugBlockTarget> blockTargets, Collection<MiraculousLadybugEntityTarget> entityTargets, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound) {
         this(ImmutableList.copyOf(blockTargets), ImmutableList.copyOf(entityTargets), performerId, revertSound, 0);
     }
 
@@ -137,12 +137,12 @@ public record MiraculousLadybugTriggerData(List<MiraculousLadybugTargetData.Bloc
     private void spawnMiraculousLadybugs(ServerLevel level, Entity entity) {
         ArrayList<Vector2d> circle = MineraculousMathUtils.generateCirclePoints(50, MIRACULOUS_LADYBUGS_COUNT);
         Vec3 spawnPos = entity.position();
-        ArrayList<Pair<List<MiraculousLadybugTargetData.BlockTarget>, List<MiraculousLadybugTargetData.EntityTarget>>> targetDatas = assignTargets(blockTargets, entityTargets);
+        ArrayList<Pair<List<MiraculousLadybugBlockTarget>, List<MiraculousLadybugEntityTarget>>> targetDatas = assignTargets(blockTargets, entityTargets);
 
         int spawnedMLBCount;
         for (spawnedMLBCount = 0; spawnedMLBCount < MIRACULOUS_LADYBUGS_COUNT; spawnedMLBCount++) {
-            Pair<List<MiraculousLadybugTargetData.BlockTarget>, List<MiraculousLadybugTargetData.EntityTarget>> targetData = Pair.of(List.of(), List.of());
-            ArrayList<MiraculousLadybugTargetData.BlockTarget> updatedBlockTargets = new ArrayList<>();
+            Pair<List<MiraculousLadybugBlockTarget>, List<MiraculousLadybugEntityTarget>> targetData = Pair.of(List.of(), List.of());
+            ArrayList<MiraculousLadybugBlockTarget> updatedBlockTargets = new ArrayList<>();
             if (spawnedMLBCount < targetDatas.size()) {
                 targetData = targetDatas.get(spawnedMLBCount);
                 updatedBlockTargets = new ArrayList<>(targetData.first);
@@ -150,8 +150,8 @@ public record MiraculousLadybugTriggerData(List<MiraculousLadybugTargetData.Bloc
             int x = (int) circle.get(spawnedMLBCount).x;
             int y = (int) circle.get(spawnedMLBCount).y;
             Vec3 circlePos = spawnPos.add(x, 0, y);
-            updatedBlockTargets.addFirst(MiraculousLadybugTargetData.BlockTarget.wrap(new BlockPos(MineraculousMathUtils.getVec3i(circlePos))));
-            updatedBlockTargets.addFirst(MiraculousLadybugTargetData.BlockTarget.wrap(new BlockPos(MineraculousMathUtils.getVec3i(spawnPos))));
+            updatedBlockTargets.addFirst(MiraculousLadybugBlockTarget.wrap(new BlockPos(MineraculousMathUtils.getVec3i(circlePos))));
+            updatedBlockTargets.addFirst(MiraculousLadybugBlockTarget.wrap(new BlockPos(MineraculousMathUtils.getVec3i(spawnPos))));
             MiraculousLadybug miraculousLadybug = new MiraculousLadybug(level);
             miraculousLadybug.setPos(spawnPos);
             level.addFreshEntity(miraculousLadybug);
@@ -160,8 +160,8 @@ public record MiraculousLadybugTriggerData(List<MiraculousLadybugTargetData.Bloc
         level.sendParticles(ParticleTypes.FLASH, spawnPos.x, spawnPos.y, spawnPos.z, 1, 0, 0, 0, 0);
     }
 
-    private static ArrayList<Pair<List<MiraculousLadybugTargetData.BlockTarget>, List<MiraculousLadybugTargetData.EntityTarget>>> assignTargets(List<MiraculousLadybugTargetData.BlockTarget> blockTargets, List<MiraculousLadybugTargetData.EntityTarget> entityTargets) {
-        ArrayList<Pair<List<MiraculousLadybugTargetData.BlockTarget>, List<MiraculousLadybugTargetData.EntityTarget>>> targets = new ArrayList<>();
+    private static ArrayList<Pair<List<MiraculousLadybugBlockTarget>, List<MiraculousLadybugEntityTarget>>> assignTargets(List<MiraculousLadybugBlockTarget> blockTargets, List<MiraculousLadybugEntityTarget> entityTargets) {
+        ArrayList<Pair<List<MiraculousLadybugBlockTarget>, List<MiraculousLadybugEntityTarget>>> targets = new ArrayList<>();
 
         int blockCount = blockTargets.size();
         int entityCount = entityTargets.size();
@@ -186,8 +186,8 @@ public record MiraculousLadybugTriggerData(List<MiraculousLadybugTargetData.Bloc
         int entityStart = 0;
 
         for (int i = 0; i < maxCount; i++) {
-            List<MiraculousLadybugTargetData.BlockTarget> blockSubTargets = ImmutableList.of();
-            List<MiraculousLadybugTargetData.EntityTarget> entitySubTargets = ImmutableList.of();
+            List<MiraculousLadybugBlockTarget> blockSubTargets = ImmutableList.of();
+            List<MiraculousLadybugEntityTarget> entitySubTargets = ImmutableList.of();
 
             // Handle blocks
             if (i < blockMaxCount) {

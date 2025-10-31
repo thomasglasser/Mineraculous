@@ -475,6 +475,8 @@
   "mineraculous.configuration.enable_limited_power.tooltip": "Enable limited power for miraculous holders before they reach adulthood",
   "mineraculous.configuration.enable_miraculous_timer": "Enable Miraculous Timer",
   "mineraculous.configuration.enable_miraculous_timer.tooltip": "Enable the detransformation timer for miraculous holders before they reach full maturity",
+  "mineraculous.configuration.enable_mlb_clump_detection": "Enable Miraculous Ladybug Block Clump Detection",
+  "mineraculous.configuration.enable_mlb_clump_detection.tooltip": "Makes Miraculous Ladybug affect connected blocks as one target instead of individually",
   "mineraculous.configuration.enable_sleep_stealing": "Enable Sleep Stealing",
   "mineraculous.configuration.enable_sleep_stealing.tooltip": "Enable item stealing from players while they sleep",
   "mineraculous.configuration.enable_universal_stealing": "Enable Universal Stealing",

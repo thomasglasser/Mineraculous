@@ -76,26 +76,21 @@ public class MineraculousMathUtils {
     }
 
     public static void spawnBlockParticles(ServerLevel level, BlockPos pos, SimpleParticleType type, int particleCount) {
-        double startX = pos.getX();
-        double startY = pos.getY();
-        double startZ = pos.getZ();
+        Vec3 center = pos.getCenter();
+        double startX = center.x;
+        double startY = center.y;
+        double startZ = center.z;
 
-        double step = 1.0 / (particleCount - 1); // space between particles
-
-        for (int x = 0; x < particleCount; x++) {
-            for (int y = 0; y < particleCount; y++) {
-                for (int z = 0; z < particleCount; z++) {
-                    double px = startX + x * step;
-                    double py = startY + y * step;
-                    double pz = startZ + z * step;
-
-                    level.sendParticles(
-                            type,
-                            px, py, pz,
-                            1, 0, 0, 0, 0);
-                }
-            }
-        }
+        level.sendParticles(
+                type,
+                startX,
+                startY,
+                startZ,
+                particleCount,
+                0.2,
+                0.2,
+                0.2,
+                0.2);
     }
 
     //TODO check kwami implementation and if u can replace their spin with this.

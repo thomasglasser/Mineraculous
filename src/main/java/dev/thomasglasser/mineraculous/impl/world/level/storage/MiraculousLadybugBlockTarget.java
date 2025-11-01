@@ -92,6 +92,11 @@ public record MiraculousLadybugBlockTarget(Vec3 position, Map<BlockPos, UUID> bl
         return new MiraculousLadybugBlockTarget(position, remaining, 0, layers, 0);
     }
 
+    @Override
+    public boolean shouldStartRevert() {
+        return revertingTicks == -1;
+    }
+
     public MiraculousLadybugBlockTarget tick(ServerLevel level) {
         if (revertingTicks >= 0 && !revertLayers.isEmpty()) {
             int newTicks = revertingTicks + 1;
@@ -108,7 +113,7 @@ public record MiraculousLadybugBlockTarget(Vec3 position, Map<BlockPos, UUID> bl
         for (BlockPos bp : layer) {
             UUID cause = remaining.remove(bp);
             AbilityReversionBlockData.get(level).revert(cause != null ? cause : Util.NIL_UUID, level, bp);
-            MineraculousMathUtils.spawnBlockParticles(level, bp, MineraculousParticleTypes.SUMMONING_LADYBUG.get(), 20);
+            MineraculousMathUtils.spawnBlockParticles(level, bp, MineraculousParticleTypes.SUMMONING_LADYBUG.get(), 500);
         }
 
         return new MiraculousLadybugBlockTarget(position, remaining, revertingTicks, revertLayers, layerIndex);

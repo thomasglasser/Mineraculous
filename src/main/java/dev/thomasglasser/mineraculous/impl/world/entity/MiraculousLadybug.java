@@ -42,24 +42,24 @@ public class MiraculousLadybug extends Entity {
         super.tick();
         Level level = this.level();
         MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
-        double splinePositionParameter = targetData.splinePosition();
         if (targetData.pathControlPoints() != null && !targetData.pathControlPoints().isEmpty()) {
             if (this.path == null) {
-                this.path = new MineraculousMathUtils.CatmullRom(targetData.pathControlPoints());
-                splinePositionParameter = path.getFirstParameter();
+                setupPath();
             } else {
-                splinePositionParameter = setPosition(splinePositionParameter);
-                setFacingDirection(splinePositionParameter);
-                setDistanceNearestBlockTarget();
                 revertReachedTarget();
-            }
-            if (!level.isClientSide()) {
-                MiraculousLadybugTargetData freshData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
-                freshData.withSplinePosition(splinePositionParameter).save(this, true);
-            } else {
-                renderParticles();
+                setPosition(level);
+                setFacingDirection();
+                setDistanceNearestBlockTarget();
+                spawnParticles(level);
             }
         } else this.discard();
+    }
+
+    private void setupPath() {
+        MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+        this.path = new MineraculousMathUtils.CatmullRom(targetData.pathControlPoints());
+        double splinePositionParameter = path.getFirstParameter();
+        targetData.withSplinePosition(splinePositionParameter).save(this, true);
     }
 
     private void revertReachedTarget() {
@@ -76,8 +76,7 @@ public class MiraculousLadybug extends Entity {
                     boolean changed = false;
 
                     for (MiraculousLadybugTarget target : targetMap.get(passed)) {
-                        boolean isNotBlock = !(target instanceof MiraculousLadybugBlockTarget);
-                        if (isNotBlock || (target instanceof MiraculousLadybugBlockTarget blockT && blockT.revertingTicks() == -1)) {
+                        if (target.shouldStartRevert()) {
                             MiraculousLadybugTarget newTarget = target.revert(serverLevel);
                             newTargets.remove(passed, target);
                             newTargets.put(passed, newTarget);
@@ -100,7 +99,7 @@ public class MiraculousLadybug extends Entity {
         Vec3 pos = this.position();
         double splinePos = targetData.splinePosition();
         if (level.isClientSide()) {
-            NearestTargetResult<MiraculousLadybugBlockTarget> result = findNearestTargetData(
+            NearestTargetResult<MiraculousLadybugBlockTarget> result = findNearestTarget(
                     splinePos,
                     pos,
                     MiraculousLadybugBlockTarget.class);
@@ -109,50 +108,84 @@ public class MiraculousLadybug extends Entity {
         }
     }
 
-    private <T extends MiraculousLadybugTarget> T findNearestTarget(Class<T> type, int start, int step, double limit) {
-        var targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
-        var targetMap = targetData.targets();
+    private <T extends MiraculousLadybugTarget> NearestTargetResult<T> findNearestTarget(
+            double splinePos,
+            Vec3 pos,
+            Class<T> type) {
+        MiraculousLadybugTargetData data = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+        Multimap<Integer, MiraculousLadybugTarget> map = data.targets();
 
-        int i = start;
+        int approaching = path.findSegment(splinePos);
+        int passedControlPoint = approaching != -1 ? approaching - 3 : 0;
+        T back = scanTargets(map, type, passedControlPoint, false, path.getFirstParameter());
+        T front = scanTargets(map, type, passedControlPoint + 1, true, path.getLastParameter());
+
+        if (front == null && back == null)
+            return new NearestTargetResult<>(null, 100);
+
+        double backDist = back != null ? pos.distanceTo(back.position()) : Double.MAX_VALUE;
+        double frontDist = front != null ? pos.distanceTo(front.position()) : Double.MAX_VALUE;
+
+        return backDist < frontDist
+                ? new NearestTargetResult<>(back, backDist)
+                : new NearestTargetResult<>(front, frontDist);
+    }
+
+    private <T extends MiraculousLadybugTarget> T scanTargets(
+            Multimap<Integer, MiraculousLadybugTarget> targets,
+            Class<T> type, int currentlyPassedControlPoint, boolean forward, double limit) {
+        int i = currentlyPassedControlPoint;
+        int step = forward ? 1 : -1;
         while ((step > 0 && i <= limit) || (step < 0 && i >= limit)) {
-            for (var target : targetMap.get(i)) {
-                if (type.isInstance(target)) {
-                    return type.cast(target);
-                }
+            for (MiraculousLadybugTarget t : targets.get(i)) {
+                if (type.isInstance(t)) return type.cast(t);
             }
             i += step;
         }
         return null;
     }
 
-    private void renderParticles() {
-        Level level = this.level();
-        Vec3 look = this.getLookAngle().scale(-2);
-        for (int i = 1; i <= 5; i++)
-            level.addParticle(
-                    MineraculousParticleTypes.SPARKLE.get(),
-                    this.getX() + look.x + Math.random() * 5 - 2.5,
-                    this.getY() + look.y + Math.random() * 5 - 2.5,
-                    this.getZ() + look.z + Math.random() * 5 - 2.5,
-                    0, 0, 0);
-        for (int i = 1; i <= 3; i++)
-            level.addParticle(
-                    MineraculousParticleTypes.SUMMONING_LADYBUG.get(),
-                    this.getX() + look.x + Math.random() * 5 - 2.5,
-                    this.getY() + look.y + Math.random() * 5 - 2.5,
-                    this.getZ() + look.z + Math.random() * 5 - 2.5,
-                    0, 0, 0);
+    private void spawnParticles(Level level) {
+        if (level.isClientSide()) {
+            Vec3 look = this.getLookAngle().scale(-2);
+            double bx = this.getX() + look.x;
+            double by = this.getY() + look.y;
+            double bz = this.getZ() + look.z;
+
+            for (int i = 0; i < 5; i++) {
+                level().addParticle(
+                        MineraculousParticleTypes.SPARKLE.get(),
+                        bx + randomOffset(), by + randomOffset(), bz + randomOffset(),
+                        0, 0, 0);
+            }
+            for (int i = 0; i < 3; i++) {
+                level().addParticle(
+                        MineraculousParticleTypes.SUMMONING_LADYBUG.get(),
+                        bx + randomOffset(), by + randomOffset(), bz + randomOffset(),
+                        0, 0, 0);
+            }
+        }
     }
 
-    private double setPosition(double splinePositionParameter) {
-        double before = splinePositionParameter;
-        splinePositionParameter = path.advanceParameter(splinePositionParameter, 0.7); //TODO make the speed server configurable 0.6 -> 0.8 (def: 0.7)
-        if (before == splinePositionParameter) this.discard(); //TODO find a way so it wont discard while targets are reverting.
-        this.setPos(path.getPoint(splinePositionParameter));
-        return splinePositionParameter;
+    private static double randomOffset() {
+        return Math.random() * 5 - 2.5;
     }
 
-    private void setFacingDirection(double splinePositionParameter) {
+    private void setPosition(Level level) {
+        if (!level.isClientSide()) {
+            MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+            double splinePositionParameter = targetData.splinePosition();
+            double before = splinePositionParameter;
+            splinePositionParameter = path.advanceParameter(splinePositionParameter, 0.7); //TODO make the speed server configurable 0.6 -> 0.8 (def: 0.7)
+            //if (before == splinePositionParameter) this.discard(); //TODO find a way so it wont discard while targets are reverting.
+            this.setPos(path.getPoint(splinePositionParameter));
+            targetData.withSplinePosition(splinePositionParameter).save(this, true);
+        }
+    }
+
+    private void setFacingDirection() {
+        MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+        double splinePositionParameter = targetData.splinePosition();
         Vec3 tangent = path.getDerivative(splinePositionParameter).normalize();
         double yaw = Math.toDegrees(Math.atan2(tangent.z, tangent.x)) - 90.0;
         double pitch = Math.toDegrees(-Math.atan2(tangent.y, Math.sqrt(tangent.x * tangent.x + tangent.z * tangent.z)));
@@ -186,28 +219,6 @@ public class MiraculousLadybug extends Entity {
     @Override
     public boolean isAttackable() {
         return false;
-    }
-
-    private <T extends MiraculousLadybugTarget> NearestTargetResult<T> findNearestTargetData(
-            double splinePos,
-            Vec3 pos,
-            Class<T> targetType) {
-        T back = findNearestTarget(targetType, (int) splinePos, -1, path.getFirstParameter());
-        T front = findNearestTarget(targetType, (int) splinePos + 1, 1, path.getLastParameter());
-
-        if (front == null && back == null) {
-            return new NearestTargetResult<>(null, 100);
-        } else if (front == null) {
-            return new NearestTargetResult<>(back, pos.distanceTo(back.position()));
-        } else if (back == null) {
-            return new NearestTargetResult<>(front, pos.distanceTo(front.position()));
-        } else {
-            double distBack = pos.distanceTo(back.position());
-            double distFront = pos.distanceTo(front.position());
-            return distBack < distFront
-                    ? new NearestTargetResult<>(back, distBack)
-                    : new NearestTargetResult<>(front, distFront);
-        }
     }
 
     private record NearestTargetResult<T>(T target, double distance) {}

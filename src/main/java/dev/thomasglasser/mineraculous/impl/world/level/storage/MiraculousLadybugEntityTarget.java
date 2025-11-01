@@ -38,6 +38,11 @@ public record MiraculousLadybugEntityTarget(Vec3 position, UUID cause, float wid
         return this;
     }
 
+    @Override
+    public boolean shouldStartRevert() {
+        return true;
+    }
+
     public List<Vec3> getSpiralPoints() {
         return MineraculousMathUtils.spinAround(
                 position(),

@@ -25,10 +25,12 @@ public class FaceMaskLayer<T extends LivingEntity, M extends PlayerModel<T>> ext
     @Override
     public void render(PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight, T livingEntity, float v, float v1, float v2, float v3, float v4, float v5) {
         livingEntity.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).faceMaskTexture().ifPresent(texture -> {
+            poseStack.pushPose();
             VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entityTranslucent(texture));
             poseStack.scale(0.625F, 0.625F, 0.625F);
             getParentModel().getHead().translateAndRotate(poseStack);
             model.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY);
+            poseStack.popPose();
         });
     }
 }

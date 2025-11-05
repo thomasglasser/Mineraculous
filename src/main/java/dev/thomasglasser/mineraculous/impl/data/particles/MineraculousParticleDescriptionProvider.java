@@ -15,6 +15,7 @@ public class MineraculousParticleDescriptionProvider extends ParticleDescription
     protected void addDescriptions() {
         sprite(MineraculousParticleTypes.BLACK_ORB.get(), MineraculousConstants.modLoc("black_orb"));
         sprite(MineraculousParticleTypes.KAMIKOTIZATION.get(), MineraculousConstants.modLoc("kamikotization"));
+        sprite(MineraculousParticleTypes.REVERTING_LADYBUG.get(), MineraculousConstants.modLoc("ladybug"));
         sprite(MineraculousParticleTypes.SPARKLE.get(), MineraculousConstants.modLoc("sparkle"));
         sprite(MineraculousParticleTypes.SUMMONING_LADYBUG.get(), MineraculousConstants.modLoc("ladybug"));
     }

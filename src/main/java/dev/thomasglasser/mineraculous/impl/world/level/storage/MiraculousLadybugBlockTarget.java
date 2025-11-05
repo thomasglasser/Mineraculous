@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public record MiraculousLadybugBlockTarget(Vec3 position, Map<BlockPos, UUID> blocksToRevert, int revertingTicks, List<List<BlockPos>> revertLayers, int currentLayerIndex) implements MiraculousLadybugTarget {
-
+    //TODO for Tommy some wiered stuff going around here with the codec please help, ask for more details
     public static final Codec<MiraculousLadybugBlockTarget> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Vec3.CODEC.fieldOf("block_position").forGetter(MiraculousLadybugBlockTarget::position),
             Codec.unboundedMap(Codec.STRING.xmap(
@@ -57,8 +57,12 @@ public record MiraculousLadybugBlockTarget(Vec3 position, Map<BlockPos, UUID> bl
         this(center, clump, -1, ImmutableList.of(), -1);
     }
 
-    public static MiraculousLadybugBlockTarget wrap(BlockPos blockPosition) {
-        return new MiraculousLadybugBlockTarget(blockPosition, Util.NIL_UUID);
+    public static MiraculousLadybugBlockTarget wrap(Vec3 pos) {
+        return new MiraculousLadybugBlockTarget(pos, Map.of(), -1, ImmutableList.of(), -1);
+    }
+
+    public MiraculousLadybugBlockTarget withTicks(int tick) {
+        return new MiraculousLadybugBlockTarget(position, blocksToRevert, tick, revertLayers, currentLayerIndex);
     }
 
     @Override
@@ -83,13 +87,19 @@ public record MiraculousLadybugBlockTarget(Vec3 position, Map<BlockPos, UUID> bl
         // revert first layer immediately
         if (!layers.isEmpty()) {
             for (BlockPos bp : layers.get(0)) {
-                UUID cause = remaining.remove(bp);
-                AbilityReversionBlockData.get(level).revert(cause != null ? cause : Util.NIL_UUID, level, bp);
-                MineraculousMathUtils.spawnBlockParticles(level, bp, MineraculousParticleTypes.SUMMONING_LADYBUG.get(), 20);
+                revertBlock(bp, remaining, level);
             }
         }
 
         return new MiraculousLadybugBlockTarget(position, remaining, 0, layers, 0);
+    }
+
+    @Override
+    public void revertInstantly(ServerLevel level) {
+        Map<BlockPos, UUID> remaining = new HashMap<>(blocksToRevert);
+        for (BlockPos bp : List.copyOf(remaining.keySet())) {
+            revertBlock(bp, remaining, level);
+        }
     }
 
     @Override
@@ -98,11 +108,14 @@ public record MiraculousLadybugBlockTarget(Vec3 position, Map<BlockPos, UUID> bl
     }
 
     public MiraculousLadybugBlockTarget tick(ServerLevel level) {
-        if (revertingTicks >= 0 && !revertLayers.isEmpty()) {
+        if (revertingTicks >= 0) {
+            if (blocksToRevert.isEmpty())
+                return withTicks(-1);
             int newTicks = revertingTicks + 1;
-            if (newTicks % 10 == 0) return revertLayer(level, currentLayerIndex + 1);
-            return new MiraculousLadybugBlockTarget(position, blocksToRevert, newTicks, revertLayers, currentLayerIndex);
-        } else return this; //return new BlockTarget(position, blocksToRevert, -1, revertLayers, -1);
+            if (newTicks % 20 == 0) return revertLayer(level, currentLayerIndex + 1);
+            return withTicks(newTicks);
+        }
+        return this;
     }
 
     private MiraculousLadybugBlockTarget revertLayer(ServerLevel level, int layerIndex) {
@@ -111,11 +124,15 @@ public record MiraculousLadybugBlockTarget(Vec3 position, Map<BlockPos, UUID> bl
         Map<BlockPos, UUID> remaining = new HashMap<>(blocksToRevert);
 
         for (BlockPos bp : layer) {
-            UUID cause = remaining.remove(bp);
-            AbilityReversionBlockData.get(level).revert(cause != null ? cause : Util.NIL_UUID, level, bp);
-            MineraculousMathUtils.spawnBlockParticles(level, bp, MineraculousParticleTypes.SUMMONING_LADYBUG.get(), 500);
+            revertBlock(bp, remaining, level);
         }
 
         return new MiraculousLadybugBlockTarget(position, remaining, revertingTicks, revertLayers, layerIndex);
+    }
+
+    private void revertBlock(BlockPos bp, Map<BlockPos, UUID> remaining, ServerLevel level) {
+        UUID cause = remaining.remove(bp);
+        AbilityReversionBlockData.get(level).revert(cause != null ? cause : Util.NIL_UUID, level, bp);
+        MineraculousMathUtils.spawnBlockParticles(level, bp, MineraculousParticleTypes.REVERTING_LADYBUG.get(), 100); // keep it 100 on the land, the sea, the sky
     }
 }

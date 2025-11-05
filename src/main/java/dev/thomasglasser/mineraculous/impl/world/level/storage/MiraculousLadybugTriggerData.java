@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -150,8 +149,8 @@ public record MiraculousLadybugTriggerData(List<MiraculousLadybugBlockTarget> bl
             int x = (int) circle.get(spawnedMLBCount).x;
             int y = (int) circle.get(spawnedMLBCount).y;
             Vec3 circlePos = spawnPos.add(x, 0, y);
-            updatedBlockTargets.addFirst(MiraculousLadybugBlockTarget.wrap(new BlockPos(MineraculousMathUtils.getVec3i(circlePos))));
-            updatedBlockTargets.addFirst(MiraculousLadybugBlockTarget.wrap(new BlockPos(MineraculousMathUtils.getVec3i(spawnPos))));
+            updatedBlockTargets.addFirst(MiraculousLadybugBlockTarget.wrap(circlePos));
+            updatedBlockTargets.addFirst(MiraculousLadybugBlockTarget.wrap(spawnPos));
             MiraculousLadybug miraculousLadybug = new MiraculousLadybug(level);
             miraculousLadybug.setPos(spawnPos);
             level.addFreshEntity(miraculousLadybug);

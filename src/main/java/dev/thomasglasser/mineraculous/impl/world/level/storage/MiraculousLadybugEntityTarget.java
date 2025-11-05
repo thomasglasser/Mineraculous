@@ -34,8 +34,13 @@ public record MiraculousLadybugEntityTarget(Vec3 position, UUID cause, float wid
 
     @Override
     public MiraculousLadybugEntityTarget revert(ServerLevel level) {
-        AbilityReversionEntityData.get(level).revert(cause, level, position);
+        revertInstantly(level);
         return this;
+    }
+
+    @Override
+    public void revertInstantly(ServerLevel level) {
+        AbilityReversionEntityData.get(level).revert(cause, level, position);
     }
 
     @Override

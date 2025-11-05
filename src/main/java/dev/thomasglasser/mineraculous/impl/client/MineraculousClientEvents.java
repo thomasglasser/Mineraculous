@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.client.MineraculousRecipeBookCategorie
 import dev.thomasglasser.mineraculous.api.client.gui.MineraculousGuiLayers;
 import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.KamikotizationParticle;
+import dev.thomasglasser.mineraculous.api.client.particle.RevertingLadybugParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.SparkleParticle;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.api.client.renderer.item.MineraculousItemProperties;
@@ -201,6 +202,7 @@ public class MineraculousClientEvents {
     static void onRegisterParticleProviders(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(MineraculousParticleTypes.BLACK_ORB.get(), HoveringOrbParticle.Provider::new);
         event.registerSpriteSet(MineraculousParticleTypes.KAMIKOTIZATION.get(), KamikotizationParticle.Provider::new);
+        event.registerSpriteSet(MineraculousParticleTypes.REVERTING_LADYBUG.get(), RevertingLadybugParticle.Provider::new);
         event.registerSpriteSet(MineraculousParticleTypes.SPARKLE.get(), SparkleParticle.Provider::new);
         event.registerSpriteSet(MineraculousParticleTypes.SUMMONING_LADYBUG.get(), sprites -> (type, level, x, y, z, xSpeed, ySpeed, zSpeed) -> {
             FlyStraightTowardsParticle flystraighttowardsparticle = new FlyStraightTowardsParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, -1, -1);

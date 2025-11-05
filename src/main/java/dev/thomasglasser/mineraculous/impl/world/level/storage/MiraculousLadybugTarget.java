@@ -10,5 +10,7 @@ public interface MiraculousLadybugTarget {
 
     MiraculousLadybugTarget revert(ServerLevel level);
 
+    void revertInstantly(ServerLevel level);
+
     boolean shouldStartRevert();
 }

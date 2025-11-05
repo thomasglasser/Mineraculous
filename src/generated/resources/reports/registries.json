@@ -181,6 +181,7 @@
   "minecraft:particle_type": [
     "mineraculous:black_orb",
     "mineraculous:kamikotization",
+    "mineraculous:reverting_ladybug",
     "mineraculous:sparkle",
     "mineraculous:summoning_ladybug"
   ],

@@ -62,32 +62,56 @@ public class MiraculousLadybug extends Entity {
         targetData.withSplinePosition(splinePositionParameter).save(this, true);
     }
 
+    public void revertAllTargets(ServerLevel serverLevel) {
+        Multimap<Integer, MiraculousLadybugTarget> targetMap = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET).targets();
+        for (Integer index : targetMap.keySet()) {
+            revertTargetsAtIndex(serverLevel, targetMap, index, true);
+        }
+    }
+
+    private void revertTarget(ServerLevel serverLevel, Multimap<Integer, MiraculousLadybugTarget> targetMap, int index) {
+        revertTargetsAtIndex(serverLevel, targetMap, index, false);
+    }
+
+    private void revertTargetsAtIndex(ServerLevel serverLevel, Multimap<Integer, MiraculousLadybugTarget> targetMap, int index, boolean instant) {
+        MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+        Multimap<Integer, MiraculousLadybugTarget> newTargets = LinkedHashMultimap.create(targetMap);
+
+        boolean changed = false;
+
+        for (MiraculousLadybugTarget target : targetMap.get(index)) {
+            if (target.shouldStartRevert()) {
+                if (instant)
+                    target.revertInstantly(serverLevel);
+                else {
+                    MiraculousLadybugTarget newTarget = target.revert(serverLevel);
+                    newTargets.remove(index, target);
+                    newTargets.put(index, newTarget);
+                    changed = true;
+                }
+            }
+        }
+
+        if (changed) {
+            MiraculousLadybugTargetData updatedData = new MiraculousLadybugTargetData(
+                    targetData.pathControlPoints(),
+                    newTargets,
+                    targetData.splinePosition());
+            updatedData.save(this, true);
+        }
+    }
+
     private void revertReachedTarget() {
         Level entityLevel = this.level();
         MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
-        var targetMap = targetData.targets();
+        Multimap<Integer, MiraculousLadybugTarget> targetMap = targetData.targets();
         double splinePos = targetData.splinePosition();
         if (entityLevel instanceof ServerLevel serverLevel) {
             int approaching = path.findSegment(splinePos);
             if (approaching != -1) {
                 int passed = approaching - 3; //subtracted the first ghost point
                 if (targetMap.containsKey(passed)) {
-                    Multimap<Integer, MiraculousLadybugTarget> newTargets = LinkedHashMultimap.create(targetMap);
-                    boolean changed = false;
-
-                    for (MiraculousLadybugTarget target : targetMap.get(passed)) {
-                        if (target.shouldStartRevert()) {
-                            MiraculousLadybugTarget newTarget = target.revert(serverLevel);
-                            newTargets.remove(passed, target);
-                            newTargets.put(passed, newTarget);
-                            changed = true;
-                        }
-                    }
-
-                    if (changed) {
-                        MiraculousLadybugTargetData updatedData = new MiraculousLadybugTargetData(targetData.pathControlPoints(), newTargets, targetData.splinePosition());
-                        updatedData.save(this, true);
-                    }
+                    this.revertTarget(serverLevel, targetMap, passed);
                 }
             }
         }
@@ -171,14 +195,31 @@ public class MiraculousLadybug extends Entity {
         return Math.random() * 5 - 2.5;
     }
 
+    private boolean shouldDiscard(double previousSplinePos, double splinePos, MiraculousLadybugTargetData data) {
+        if (previousSplinePos != splinePos) {
+            return false;
+        }
+
+        Multimap<Integer, MiraculousLadybugTarget> map = data.targets();
+        for (MiraculousLadybugTarget target : map.values()) {
+            if (!target.shouldStartRevert()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private void setPosition(Level level) {
-        if (!level.isClientSide()) {
+        if (level instanceof ServerLevel) {
             MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
             double splinePositionParameter = targetData.splinePosition();
             double before = splinePositionParameter;
             splinePositionParameter = path.advanceParameter(splinePositionParameter, 0.7); //TODO make the speed server configurable 0.6 -> 0.8 (def: 0.7)
-            //if (before == splinePositionParameter) this.discard(); //TODO find a way so it wont discard while targets are reverting.
-            this.setPos(path.getPoint(splinePositionParameter));
+            if (this.shouldDiscard(before, splinePositionParameter, targetData)) {
+                this.discard();
+            }
+            this.moveTo(path.getPoint(splinePositionParameter));
             targetData.withSplinePosition(splinePositionParameter).save(this, true);
         }
     }

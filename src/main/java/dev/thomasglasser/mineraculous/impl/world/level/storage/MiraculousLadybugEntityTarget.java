@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
@@ -52,8 +53,23 @@ public record MiraculousLadybugEntityTarget(Vec3 position, UUID cause, float wid
         return MineraculousMathUtils.spinAround(
                 position(),
                 width,
+                width,
                 height,
                 Math.PI / 2d,
                 height / 16d);
+    }
+
+    public void spawnParticles(ServerLevel level) {
+        for (Vec3 pos : this.getSpiralPoints()) {
+            double x = pos.x;
+            double y = pos.y;
+            double z = pos.z;
+            level.sendParticles(
+                    MineraculousParticleTypes.REVERTING_LADYBUG.get(),
+                    x,
+                    y,
+                    z,
+                    5, 0, 0, 0, 0.1);
+        }
     }
 }

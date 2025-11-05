@@ -93,28 +93,41 @@ public class MineraculousMathUtils {
                 0.2);
     }
 
-    //TODO check kwami implementation and if u can replace their spin with this.
-
     /**
-     * angleStep is represented in radians
-     * yStep MUST be >= 0
-     * height and width MUST be > 0
-     **/
-    public static List<Vec3> spinAround(Vec3 position, double width, double height, double angleStep, double yStep) {
-        ArrayList<Vec3> toReturn = new ArrayList<>();
-        double radius = width;
-        double y = 0;
+     * Generates a spiral (cylindrical or conical) path around a center point.
+     *
+     * @param center     the center position
+     * @param baseRadius radius at the bottom
+     * @param topRadius  radius at the top (same as baseRadius for a cylinder)
+     * @param height     total height of the spiral
+     * @param angleStep  rotation step in radians
+     * @param yStep      vertical step per point
+     * @return list of Vec3 points along the spiral
+     */
+    public static List<Vec3> spinAround(
+            Vec3 center,
+            double baseRadius,
+            double topRadius,
+            double height,
+            double angleStep,
+            double yStep) {
+        List<Vec3> points = new ArrayList<>();
         double alpha = 0;
-        while (y <= height) {
-            double x = Math.sin(alpha) * radius;
-            double z = Math.cos(alpha) * radius;
-            Vec3 point = new Vec3(x, y, z);
-            toReturn.add(position.add(point));
+        double y = 0;
 
-            y += yStep;
+        while (y <= height) {
+            double t = y / height;
+            double radius = baseRadius + (topRadius - baseRadius) * t;
+
+            double x = Math.cos(alpha) * radius;
+            double z = Math.sin(alpha) * radius;
+
+            points.add(center.add(x, y, z));
             alpha += angleStep;
+            y += yStep;
         }
-        return toReturn;
+
+        return points;
     }
 
     public static BlockPos findNearestBlockPos(Vec3 pos, Iterable<BlockPos> candidates) {

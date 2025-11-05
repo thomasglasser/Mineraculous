@@ -406,6 +406,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfig(MineraculousServerConfig.get().luckyCharmSummonTimeMin, "Minimum Lucky Charm Summon Time", "The minimum amount of time (in seconds) that it takes for a lucky charm to be summoned");
         addConfig(MineraculousServerConfig.get().luckyCharmSummonTimeMax, "Maximum Lucky Charm Summon Time", "The maximum amount of time (in seconds) that it takes for a lucky charm to be summoned");
         addConfig(MineraculousServerConfig.get().enableMLBClumpDetection, "Enable Miraculous Ladybug Block Clump Detection", "Makes Miraculous Ladybug affect connected blocks as one target instead of individually");
+        addConfig(MineraculousServerConfig.get().mlbSpeed, "Miraculous Ladybug Speed", "How fast will Miraculous Ladybug clumps will fly around");
 
         addConfigSection(MineraculousServerConfig.KWAMIS, "Kwamis", "Settings for kwamis");
         addConfig(MineraculousServerConfig.get().kwamiSummonTime, "Kwami Summon Time", "The amount of time (in seconds) that it takes for a kwami to summon");
@@ -428,6 +429,6 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         addConfigSection(MineraculousClientConfig.MIRACULOUS_LADYBUG, "Miraculous Ladybug Ability", "Settings for miraculous ladybug ability visuals");
         addConfig(MineraculousClientConfig.get().magicLadybugsShakeStrength, "Magic Ladybugs' Shaking Strength", "The power of the shaking effect magic ladybugs have.");
-        addConfig(MineraculousClientConfig.get().magicLadybugsLifetime, "Magic Ladybugs Count", "The number of rendered magic ladybugs inside a clump.");
+        addConfig(MineraculousClientConfig.get().magicLadybugsLifetime, "Magic Ladybugs Lifetime", "How much a single tiny miraculous ladybug lives. (lower value -> bigger performance)");
     }
 }

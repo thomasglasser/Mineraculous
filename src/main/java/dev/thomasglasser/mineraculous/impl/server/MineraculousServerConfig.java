@@ -24,6 +24,7 @@ public class MineraculousServerConfig {
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMin;
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMax;
     public final ModConfigSpec.BooleanValue enableMLBClumpDetection;
+    public final ModConfigSpec.IntValue mlbSpeed;
 
     public static final String KWAMIS = "kwamis";
     public final ModConfigSpec.IntValue kwamiSummonTime;
@@ -64,6 +65,8 @@ public class MineraculousServerConfig {
                 .defineInRange("lucky_charm_summon_time_max", 6, 0, Integer.MAX_VALUE);
         enableMLBClumpDetection = builder
                 .define("enable_mlb_clump_detection", true);
+        mlbSpeed = builder
+                .defineInRange("mlb_speed", 70, 60, 80);
         builder.pop();
         builder.push(KWAMIS);
         kwamiSummonTime = builder

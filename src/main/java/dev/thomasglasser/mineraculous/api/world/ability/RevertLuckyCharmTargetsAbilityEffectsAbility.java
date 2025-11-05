@@ -92,7 +92,6 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
             if (targetLevel != null) {
                 Collection<MiraculousLadybugBlockTarget> blocks = new ArrayList<>(blockPositions.get(dimension));
                 blockPositions.removeAll(dimension);
-                // TODO: Fancy effects for reversion
                 for (MiraculousLadybugBlockTarget blockTarget : blocks) {
                     MiraculousLadybugBlockTarget newTarget = blockTarget.revert(targetLevel);
                     blockPositions.put(dimension, newTarget);
@@ -107,9 +106,9 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
             if (targetLevel != null) {
                 Collection<MiraculousLadybugEntityTarget> entities = new ArrayList<>(entityPositions.get(dimension));
                 entityPositions.removeAll(dimension);
-                // TODO: Fancy effects for reversion
                 for (MiraculousLadybugEntityTarget entityTarget : entities) {
                     MiraculousLadybugEntityTarget newTarget = entityTarget.revert(targetLevel);
+                    newTarget.spawnParticles(level);
                     entityPositions.put(dimension, newTarget);
                 }
             } else {

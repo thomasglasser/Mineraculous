@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugBlockTarget;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTarget;
@@ -16,11 +17,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
-// TODO clean this code
 
 public class MiraculousLadybug extends Entity {
-    private static final double DEFAULT_SPEED = 0.7;
-
     public MineraculousMathUtils.CatmullRom path = null;
     public double oldSplinePosition = 0;
     private double distanceNearestBlockTarget = 0;
@@ -212,10 +210,11 @@ public class MiraculousLadybug extends Entity {
 
     private void setPosition(Level level) {
         if (level instanceof ServerLevel) {
+            double speed = MineraculousServerConfig.get().mlbSpeed.get() / 100f;
             MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
             double splinePositionParameter = targetData.splinePosition();
             double before = splinePositionParameter;
-            splinePositionParameter = path.advanceParameter(splinePositionParameter, 0.7); //TODO make the speed server configurable 0.6 -> 0.8 (def: 0.7)
+            splinePositionParameter = path.advanceParameter(splinePositionParameter, speed);
             if (this.shouldDiscard(before, splinePositionParameter, targetData)) {
                 this.discard();
             }

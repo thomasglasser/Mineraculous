@@ -3,8 +3,10 @@ package dev.thomasglasser.mineraculous.api.world.level.storage;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
+import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -29,7 +31,9 @@ import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.Vec3;
 
 /// Data for reverting trackable item changes
 public class AbilityReversionItemData extends SavedData {
@@ -49,7 +53,27 @@ public class AbilityReversionItemData extends SavedData {
     public void tick(Entity entity) {
         if (entity.tickCount % 10 == 0) {
             if (checkReverted(entity)) {
-                // TODO: Miraculous Ladybug visual?
+                Level level = entity.level();
+                if (level instanceof ServerLevel serverLevel) {
+                    List<Vec3> spiral = MineraculousMathUtils.spinAround(
+                            entity.position(),
+                            entity.getBbWidth(),
+                            entity.getBbWidth(),
+                            entity.getBbHeight(),
+                            Math.PI / 2d,
+                            entity.getBbHeight() / 16d);
+                    for (Vec3 pos : spiral) {
+                        double x = pos.x;
+                        double y = pos.y;
+                        double z = pos.z;
+                        serverLevel.sendParticles(
+                                MineraculousParticleTypes.REVERTING_LADYBUG.get(),
+                                x,
+                                y,
+                                z,
+                                5, 0, 0, 0, 0.1);
+                    }
+                }
             }
         }
     }

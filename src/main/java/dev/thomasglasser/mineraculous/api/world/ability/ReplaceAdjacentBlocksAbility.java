@@ -8,10 +8,8 @@ import dev.thomasglasser.mineraculous.api.world.ability.context.BlockAbilityCont
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBlockData;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.ArrayDeque;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
@@ -50,13 +48,11 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean prefe
         if (context instanceof BlockAbilityContext(BlockPos pos)) {
             if (canBlockBeReplaced(level, pos)) {
                 Set<BlockPos> affected = getAffectedBlocks(level, pos, Math.max(data.powerLevel(), 1) * 100);
-                Map<BlockPos, BlockState> originals = new Object2ObjectOpenHashMap<>();
-                for (BlockPos blockPos : affected) {
-                    BlockState original = level.getBlockState(blockPos);
-                    originals.put(blockPos, original);
-                    level.setBlock(blockPos, MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL);
+                AbilityReversionBlockData reversionData = AbilityReversionBlockData.get(level);
+                for (BlockPos affectedPos : affected) {
+                    reversionData.putRevertible(performer.getUUID(), level.dimension(), affectedPos, level.getBlockState(affectedPos));
+                    level.setBlock(affectedPos, MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL);
                 }
-                AbilityReversionBlockData.get(level).putRevertible(performer.getUUID(), level.dimension(), originals);
                 Ability.playSound(level, performer, replaceSound);
             }
             return State.CONSUME;

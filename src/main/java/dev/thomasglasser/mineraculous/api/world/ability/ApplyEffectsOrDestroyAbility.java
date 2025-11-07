@@ -111,13 +111,7 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
 
     @Override
     public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
-        AbilityReversionEntityData.get(level).revert(performer.getUUID(), level, entity -> {
-            if (entity instanceof LivingEntity livingEntity) {
-                for (Holder<MobEffect> effect : effects) {
-                    livingEntity.removeEffect(effect);
-                }
-            }
-        });
+        AbilityReversionEntityData.get(level).revert(performer.getUUID(), level);
         AbilityReversionItemData.get(level).markReverted(performer.getUUID());
     }
 

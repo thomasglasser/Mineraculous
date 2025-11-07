@@ -165,7 +165,7 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
     @Override
     public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
         AbilityReversionBlockData.get(level).revert(performer.getUUID(), level);
-        AbilityReversionEntityData.get(level).revert(performer.getUUID(), level, entity -> {});
+        AbilityReversionEntityData.get(level).revert(performer.getUUID(), level);
     }
 
     @Override

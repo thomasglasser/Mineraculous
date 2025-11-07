@@ -4,6 +4,7 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
@@ -11,6 +12,7 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybug
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTarget;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
@@ -23,6 +25,8 @@ public class MiraculousLadybug extends Entity {
     public double oldSplinePosition = 0;
     private double distanceNearestBlockTarget = 0;
 
+    private static final EntityDataAccessor<MiraculousLadybugTargetData> DATA_TARGET = SynchedEntityData.defineId(MiraculousLadybug.class, MineraculousEntityDataSerializers.MIRACULOUS_LADYBUG_TARGET_DATA.get());
+
     public MiraculousLadybug(EntityType<? extends MiraculousLadybug> entityType, Level level) {
         super(entityType, level);
         this.noPhysics = true;
@@ -30,7 +34,7 @@ public class MiraculousLadybug extends Entity {
     }
 
     public MiraculousLadybug(Level level) {
-        super(MineraculousEntityTypes.MIRACULOUS_LADYBUG.get(), level);
+        this(MineraculousEntityTypes.MIRACULOUS_LADYBUG.get(), level);
         this.noPhysics = true;
         this.noCulling = true;
     }
@@ -62,7 +66,7 @@ public class MiraculousLadybug extends Entity {
 
     public void revertAllTargets(ServerLevel serverLevel) {
         Multimap<Integer, MiraculousLadybugTarget> targetMap = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET).targets();
-        for (Integer index : targetMap.keySet()) {
+        for (int index : targetMap.keySet()) {
             revertTargetsAtIndex(serverLevel, targetMap, index, true);
         }
     }
@@ -210,7 +214,7 @@ public class MiraculousLadybug extends Entity {
 
     private void setPosition(Level level) {
         if (level instanceof ServerLevel) {
-            double speed = MineraculousServerConfig.get().mlbSpeed.get() / 100f;
+            double speed = MineraculousServerConfig.get().miraculousLadybugSpeed.get() / 100f;
             MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
             double splinePositionParameter = targetData.splinePosition();
             double before = splinePositionParameter;
@@ -238,7 +242,13 @@ public class MiraculousLadybug extends Entity {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {}
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(DATA_TARGET, new MiraculousLadybugTargetData());
+    }
+
+    public MiraculousLadybugTargetData getMode() {
+        return this.entityData.get(DATA_TARGET);
+    }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {}

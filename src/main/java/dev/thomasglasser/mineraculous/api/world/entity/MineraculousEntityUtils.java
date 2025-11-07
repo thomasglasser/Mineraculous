@@ -12,7 +12,6 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
-import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -194,14 +193,17 @@ public class MineraculousEntityUtils {
     }
 
     public static Vec3 findAvailablePositionAbove(Vec3 vec, Level level, int max) {
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(
+                vec.x, vec.y, vec.z);
+        int initialY = pos.getY();
+
         for (int i = 0; i <= max; i++) {
-            Vec3 above = vec.add(0, 1, 0);
-            if (level.getBlockState(new BlockPos(MineraculousMathUtils.getVec3i(above))).isAir()) {
-                vec = above;
-            } else {
+            pos.above();
+            if (!level.getBlockState(pos).isAir()) {
+                pos.setY(initialY + i);
                 break;
             }
         }
-        return vec;
+        return new Vec3(vec.x, pos.getY(), vec.z);
     }
 }

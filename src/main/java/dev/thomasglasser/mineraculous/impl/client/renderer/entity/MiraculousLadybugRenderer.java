@@ -11,25 +11,22 @@ import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
+import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
 
 public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug> {
-    private ArrayList<MagicLadybug> magicLadybugs = new ArrayList<>();
+    private ArrayList<TexturedOutlinedQuad> texturedOutlinedQuads = new ArrayList<>();
     private ArrayList<TailPoint> tailPoints = new ArrayList<>();
-
-    private static final ResourceLocation LADYBUG_TEXTURE = MineraculousConstants.modLoc("textures/particle/ladybug.png");
-    private static final ResourceLocation LADYBUG_OUTLINE_TEXTURE = MineraculousConstants.modLoc("textures/particle/ladybug_glow.png");
 
     public MiraculousLadybugRenderer(EntityRendererProvider.Context context) {
         super(context);
@@ -39,13 +36,14 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
     public void render(MiraculousLadybug entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         MiraculousLadybugTargetData targetData = entity.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
         double splineParameter = Mth.lerp(partialTick, entity.oldSplinePosition, targetData.splinePosition());
-        if (entity.path instanceof MineraculousMathUtils.CatmullRom path && splineParameter >= path.getFirstParameter()) {
+        MineraculousMathUtils.CatmullRom path = entity.path;
+        if (path != null && splineParameter >= path.getFirstParameter()) {
             Vec3 interpolatedPos = MineraculousClientUtils.getInterpolatedPos(entity, partialTick);
-            updateTailPoints(path, splineParameter, interpolatedPos, entity.getDistanceToNearestBlockTarget());
+            updateTailPoints(entity.path, splineParameter, interpolatedPos, entity.getDistanceToNearestBlockTarget());
             spawnLadybugs();
             updateLadybugs();
             renderLadybugs(bufferSource, poseStack);
-            magicLadybugs.removeIf(ladybug -> ladybug.life <= 0);
+            texturedOutlinedQuads.removeIf(ladybug -> ladybug.life <= 0);
         }
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
     }
@@ -76,7 +74,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
                         .add(tailPoints.get(i - 1).position);
             }
             double spawnRate = 100;
-            double deltaSeconds = Minecraft.getInstance().getTimer().getRealtimeDeltaTicks() / 20.0;
+            double deltaSeconds = Minecraft.getInstance().getTimer().getRealtimeDeltaTicks() / SharedConstants.TICKS_PER_SECOND;
             double toSpawn = spawnRate * deltaSeconds;
             for (int j = 1; j <= toSpawn; j++) summonMagicLadybug(tailPoint.position);
             if (Math.random() < (toSpawn % 1)) summonMagicLadybug(tailPoint.position);
@@ -86,7 +84,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
     private void updateLadybugs() {
         Random random = new Random();
 
-        for (MagicLadybug ladybug : magicLadybugs) {
+        for (TexturedOutlinedQuad ladybug : texturedOutlinedQuads) {
             // Get nearest and second-nearest tail points
             Pair<TailPoint, TailPoint> nearPoints = findNearestTwoPoints(ladybug.pos, tailPoints);
             TailPoint nearest = nearPoints.first;
@@ -106,7 +104,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         }
     }
 
-    private void constrainLadybug(MagicLadybug ladybug, TailPoint nearest, TailPoint secondNearest) {
+    private void constrainLadybug(TexturedOutlinedQuad ladybug, TailPoint nearest, TailPoint secondNearest) {
         Vec3 position = ladybug.pos;
         if (secondNearest == null) {
             if (position.subtract(nearest.position).length() > nearest.radius) {
@@ -143,8 +141,8 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         }
     }
 
-    private static void applyMotion(MagicLadybug ladybug, Random random, Vec3 forward, Vec3 upward, Vec3 sideway) {
-        double shakeStrength = MineraculousClientConfig.get().magicLadybugsShakeStrength.get() / 100f;
+    private static void applyMotion(TexturedOutlinedQuad ladybug, Random random, Vec3 forward, Vec3 upward, Vec3 sideway) {
+        double shakeStrength = MineraculousClientConfig.get().shakeStrength.get() / 100f;
         double dx = -0.03; // slowly slide backwards
         double dy = (random.nextDouble() - 0.5) * shakeStrength;
         double dz = (random.nextDouble() - 0.5) * shakeStrength;
@@ -186,45 +184,42 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
     private void summonMagicLadybug(Vec3 position) {
         double size = 0.1 + (Math.random() * (0.3 - 0.1));
-        int lbLifetime = MineraculousClientConfig.get().magicLadybugsLifetime.getAsInt();
+        int lbLifetime = MineraculousClientConfig.get().lifetime.getAsInt();
         double x = Math.random() * 9 - 4.5;
         double y = Math.random() * 9 - 4.5;
         double z = Math.random() * 9 - 4.5;
         Vec3 spawnPos = new Vec3(x, y, z).add(position);
 
-        MagicLadybug ladybug = new MagicLadybug(spawnPos, size, lbLifetime);
-        magicLadybugs.add(ladybug);
+        TexturedOutlinedQuad ladybug = new TexturedOutlinedQuad(spawnPos, size, lbLifetime);
+        texturedOutlinedQuads.add(ladybug);
     }
 
     private void renderLadybugs(MultiBufferSource multiBufferSource, PoseStack poseStack) {
-        HashMap<MagicLadybug, Double> rotations = new HashMap<>();
-        for (MagicLadybug ladybug : magicLadybugs) {
+        HashMap<TexturedOutlinedQuad, Double> rotations = new HashMap<>();
+        for (TexturedOutlinedQuad ladybug : texturedOutlinedQuads) {
             rotations.computeIfAbsent(ladybug, (k) -> Math.random() * 360);
         }
 
-        for (MagicLadybug ladybug : magicLadybugs) {
+        for (TexturedOutlinedQuad ladybug : texturedOutlinedQuads) {
             ladybug.renderOutline(multiBufferSource, poseStack, rotations.getOrDefault(ladybug, 0d));
         }
 
-        for (MagicLadybug ladybug : magicLadybugs) {
+        for (TexturedOutlinedQuad ladybug : texturedOutlinedQuads) {
             ladybug.renderBody(multiBufferSource, poseStack, rotations.getOrDefault(ladybug, 0d));
         }
     }
 
     @Override
     public ResourceLocation getTextureLocation(MiraculousLadybug entity) {
-        return MineraculousConstants.modLoc("textures/item/empty.png");
+        return MineraculousConstants.EMPTY_TEXTURE;
     }
 
-    private static class MagicLadybug {
+    private static class TexturedOutlinedQuad {
         private Vec3 pos; // relative to the entity
         private final double size;
         private double life;
 
-        private final RenderType LADYBUG = MineraculousRenderTypes.magicLadybugBody(LADYBUG_TEXTURE);
-        private final RenderType OUTLINE = MineraculousRenderTypes.magicLadybugOutline(LADYBUG_OUTLINE_TEXTURE);
-
-        private MagicLadybug(Vec3 pos, double size, double life) {
+        private TexturedOutlinedQuad(Vec3 pos, double size, double life) {
             this.pos = pos;
             this.size = size;
             this.life = life;
@@ -236,7 +231,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
         private void renderOutline(MultiBufferSource multiBufferSource, PoseStack poseStack, double degrees) {
             MineraculousClientUtils.rotateFacingCamera(poseStack, pos, degrees);
-            VertexConsumer ladybug_outline = multiBufferSource.getBuffer(OUTLINE);
+            VertexConsumer ladybug_outline = multiBufferSource.getBuffer(MineraculousRenderTypes.LADYBUG_OUTLINE);
             double quadSize = size * 0.47 / 0.4;
             MineraculousClientUtils.vertex(ladybug_outline, poseStack.last(), pos.add(-quadSize, quadSize, 0), 0, 0, LightTexture.FULL_BRIGHT);
             MineraculousClientUtils.vertex(ladybug_outline, poseStack.last(), pos.add(quadSize, quadSize, 0), 1, 0, LightTexture.FULL_BRIGHT);
@@ -247,7 +242,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
         private void renderBody(MultiBufferSource multiBufferSource, PoseStack poseStack, double degrees) {
             MineraculousClientUtils.rotateFacingCamera(poseStack, pos, degrees);
-            VertexConsumer ladybug = multiBufferSource.getBuffer(LADYBUG);
+            VertexConsumer ladybug = multiBufferSource.getBuffer(MineraculousRenderTypes.LADYBUG_BODY);
             double quadSize = size;
             MineraculousClientUtils.vertex(ladybug, poseStack.last(), pos.add(-quadSize, quadSize, 0), 0, 0, LightTexture.FULL_BRIGHT);
             MineraculousClientUtils.vertex(ladybug, poseStack.last(), pos.add(quadSize, quadSize, 0), 1, 0, LightTexture.FULL_BRIGHT);

@@ -9,10 +9,6 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBl
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
@@ -20,6 +16,10 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public record MiraculousLadybugBlockTarget(Vec3 position, Map<BlockPos, UUID> blocksToRevert, int revertingTicks, List<List<BlockPos>> revertLayers, int currentLayerIndex) implements MiraculousLadybugTarget {
 
@@ -134,6 +134,6 @@ public record MiraculousLadybugBlockTarget(Vec3 position, Map<BlockPos, UUID> bl
     private void revertBlock(BlockPos bp, Map<BlockPos, UUID> remaining, ServerLevel level) {
         UUID cause = remaining.remove(bp);
         AbilityReversionBlockData.get(level).revert(cause != null ? cause : Util.NIL_UUID, level, bp);
-        MineraculousMathUtils.spawnBlockParticles(level, bp, MineraculousParticleTypes.REVERTING_LADYBUG.get(), 100); // keep it 100 on the land, the sea, the sky
+        MineraculousMathUtils.spawnBlockParticles(level, bp, MineraculousParticleTypes.REVERTING_LADYBUG.get(), 22); // keep it 100 on the land, the sea, the sky
     }
 }

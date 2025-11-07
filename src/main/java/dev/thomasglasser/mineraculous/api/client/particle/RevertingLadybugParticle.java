@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.api.client.particle;
 
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousParticleRenderTypes;
+import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
@@ -13,8 +14,8 @@ import net.minecraft.core.particles.SimpleParticleType;
 public class RevertingLadybugParticle extends TextureSheetParticle {
     public RevertingLadybugParticle(ClientLevel level, double x, double y, double z) {
         super(level, x, y, z);
-        scale(level.random.nextInt(1, 7) / 5f);
-        this.lifetime = 50;
+        scale(level.random.nextInt(1, MineraculousClientConfig.get().size.getAsInt()) / 6f);
+        this.lifetime = level.random.nextInt(30, 60);
         float r = (float) Math.random();
         this.oRoll = r;
         this.roll = r;
@@ -22,7 +23,7 @@ public class RevertingLadybugParticle extends TextureSheetParticle {
 
     @Override
     public void tick() {
-        this.alpha = ((float) (this.lifetime - this.age)) / (float) this.lifetime * 0.89f;
+        scale((this.lifetime - this.age) / (float) this.lifetime * 1.2f);
         this.move(0, 0.003, 0);
         super.tick();
     }

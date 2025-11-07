@@ -64,7 +64,7 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
             Multimap<ResourceKey<Level>, MiraculousLadybugEntityTarget> entityPositions = positions.second;
             ResourceKey<Level> currentDimension = level.dimension();
 
-            boolean reduceClumps = MineraculousServerConfig.get().enableMLBClumpDetection.get();
+            boolean reduceClumps = MineraculousServerConfig.get().enableMiraculousLadybugClumpDetection.get();
             Collection<MiraculousLadybugBlockTarget> blocksInThisDimension = blockPositions.removeAll(currentDimension);
             Collection<MiraculousLadybugBlockTarget> blockTargets = reduceClumps ? MineraculousMathUtils.reduceNearbyBlocks(blocksInThisDimension) : blocksInThisDimension;
             Collection<MiraculousLadybugEntityTarget> entityTargets = entityPositions.removeAll(currentDimension);

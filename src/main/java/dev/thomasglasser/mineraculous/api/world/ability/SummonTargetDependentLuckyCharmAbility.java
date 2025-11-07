@@ -26,7 +26,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Optional;
-import java.util.UUID;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
@@ -34,7 +34,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.OwnableEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -69,7 +68,7 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
                 if (spawnPos == null) return State.CANCEL;
             }
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
-            Entity target = determineTarget(level, entityData.getTrackedEntity(performer.getUUID()), performer);
+            Entity target = determineTarget(level, performer);
             if (target != null) {
                 entityData.putRelatedEntity(performer.getUUID(), target.getUUID());
                 entityData.putRelatedEntity(target.getUUID(), performer.getUUID());
@@ -103,11 +102,9 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
         return State.CANCEL;
     }
 
-    private @Nullable Entity determineTarget(ServerLevel level, @Nullable UUID trackedId, LivingEntity performer) {
-        Entity target = trackedId != null ? level.getEntity(trackedId) : null;
-        if (target == null) {
-            target = performer.getKillCredit();
-        }
+    // TODO: Move to event and add priority for kamikotized then miraculous holders then bosses
+    private @Nullable Entity determineTarget(ServerLevel level, LivingEntity performer) {
+        Entity target = performer.getKillCredit();
         if (target == null) {
             target = performer.getLastHurtMob();
         }
@@ -146,20 +143,10 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
     }
 
     private Vec3 defaultLuckyCharmSpawnPosition(ServerLevel level, LivingEntity performer) {
-        Vec3 spawnPos = performer.position();
-        if (performer instanceof Player player && player.isCrouching()) {
-            if (level.getBlockState(performer.blockPosition().above()).isAir())
-                spawnPos = spawnPos.add(0, 1, 0);
-        } else {
-            for (int i = 0; i < 5; i++) {
-                if (level.getBlockState(performer.blockPosition().above(i + 1)).isAir()) {
-                    spawnPos = spawnPos.add(0, 1, 0);
-                } else {
-                    break;
-                }
-            }
-        }
-        return spawnPos;
+        Vec3 above = performer.position().add(0, performer.getBbHeight() / 2, 0);
+        if (level.getBlockState(BlockPos.containing(above)).isAir())
+            return above;
+        return performer.position();
     }
 
     @Override

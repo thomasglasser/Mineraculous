@@ -62,15 +62,6 @@ public class AbilityReversionEntityData extends SavedData {
         return trackedAndRelatedEntities.containsKey(uuid);
     }
 
-    public @Nullable UUID getTrackedEntity(UUID uuid) {
-        for (UUID tracked : trackedAndRelatedEntities.keySet()) {
-            if (trackedAndRelatedEntities.get(tracked).contains(uuid)) {
-                return tracked;
-            }
-        }
-        return null;
-    }
-
     public Set<UUID> getRelatedEntities(UUID uuid) {
         return trackedAndRelatedEntities.get(uuid);
     }

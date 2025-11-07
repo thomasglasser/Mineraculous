@@ -55,10 +55,10 @@ import dev.thomasglasser.tommylib.api.data.lang.ExtendedEnUsLanguageProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.world.item.armor.ArmorSet;
+import java.util.Map;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.ItemNameBlockItem;
 import snownee.jade.api.IJadeProvider;
-import java.util.Map;
 
 public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvider {
     public MineraculousEnUsLanguageProvider(PackOutput output) {

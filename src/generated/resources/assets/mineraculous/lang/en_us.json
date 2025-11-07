@@ -505,6 +505,8 @@
   "mineraculous.configuration.radial_menu.tooltip": "Settings for the tool wheel",
   "mineraculous.configuration.shake_strength": "Magic Ladybugs' Shaking Strength",
   "mineraculous.configuration.shake_strength.tooltip": "The power of the shaking effect magic ladybugs have.",
+  "mineraculous.configuration.size": "Reverting Ladybug Particle Size",
+  "mineraculous.configuration.size.tooltip": "The scale for Reverting Ladybug particle",
   "mineraculous.configuration.stealing": "Stealing",
   "mineraculous.configuration.stealing.tooltip": "Settings for item stealing",
   "mineraculous.configuration.stealing_duration": "Stealing Duration",

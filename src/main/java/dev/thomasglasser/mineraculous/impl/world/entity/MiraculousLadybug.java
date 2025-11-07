@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.impl.world.entity;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
-import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
@@ -12,6 +11,7 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybug
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTarget;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
@@ -21,8 +21,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public class MiraculousLadybug extends Entity {
-    public MineraculousMathUtils.CatmullRom path = null;
-    public double oldSplinePosition = 0;
+    private MineraculousMathUtils.CatmullRom path = null;
+    private double oldSplinePosition = 0;
     private double distanceNearestBlockTarget = 0;
 
     private static final EntityDataAccessor<MiraculousLadybugTargetData> DATA_TARGET = SynchedEntityData.defineId(MiraculousLadybug.class, MineraculousEntityDataSerializers.MIRACULOUS_LADYBUG_TARGET_DATA.get());
@@ -40,10 +40,33 @@ public class MiraculousLadybug extends Entity {
     }
 
     @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(DATA_TARGET, new MiraculousLadybugTargetData());
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag compound) {
+        setTargetData(MiraculousLadybugTargetData.CODEC.parse(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), compound.get("TargetData")).getOrThrow());
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag compound) {
+        compound.put("TargetData", MiraculousLadybugTargetData.CODEC.encodeStart(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), getTargetData()).getOrThrow());
+    }
+
+    public void setTargetData(MiraculousLadybugTargetData data) {
+        entityData.set(DATA_TARGET, data);
+    }
+
+    public MiraculousLadybugTargetData getTargetData() {
+        return entityData.get(DATA_TARGET);
+    }
+
+    @Override
     public void tick() {
         super.tick();
         Level level = this.level();
-        MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+        MiraculousLadybugTargetData targetData = this.getTargetData();
         if (targetData.pathControlPoints() != null && !targetData.pathControlPoints().isEmpty()) {
             if (this.path == null) {
                 setupPath();
@@ -57,18 +80,34 @@ public class MiraculousLadybug extends Entity {
         } else this.discard();
     }
 
-    private void setupPath() {
-        MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
-        this.path = new MineraculousMathUtils.CatmullRom(targetData.pathControlPoints());
-        double splinePositionParameter = path.getFirstParameter();
-        targetData.withSplinePosition(splinePositionParameter).save(this, true);
-    }
-
     public void revertAllTargets(ServerLevel serverLevel) {
-        Multimap<Integer, MiraculousLadybugTarget> targetMap = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET).targets();
+        Multimap<Integer, MiraculousLadybugTarget> targetMap = this.getTargetData().targets();
         for (int index : targetMap.keySet()) {
             revertTargetsAtIndex(serverLevel, targetMap, index, true);
         }
+    }
+
+    public MineraculousMathUtils.CatmullRom getPath() {
+        return path;
+    }
+
+    public void setOldSplinePosition(double d) {
+        this.oldSplinePosition = d;
+    }
+
+    public double getOldSplinePosition() {
+        return this.oldSplinePosition;
+    }
+
+    public double getDistanceToNearestBlockTarget() {
+        return this.distanceNearestBlockTarget;
+    }
+
+    private void setupPath() {
+        MiraculousLadybugTargetData targetData = this.getTargetData();
+        this.path = new MineraculousMathUtils.CatmullRom(targetData.pathControlPoints());
+        double splinePositionParameter = path.getFirstParameter();
+        this.setTargetData(targetData.withSplinePosition(splinePositionParameter));
     }
 
     private void revertTarget(ServerLevel serverLevel, Multimap<Integer, MiraculousLadybugTarget> targetMap, int index) {
@@ -76,7 +115,7 @@ public class MiraculousLadybug extends Entity {
     }
 
     private void revertTargetsAtIndex(ServerLevel serverLevel, Multimap<Integer, MiraculousLadybugTarget> targetMap, int index, boolean instant) {
-        MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+        MiraculousLadybugTargetData targetData = this.getTargetData();
         Multimap<Integer, MiraculousLadybugTarget> newTargets = LinkedHashMultimap.create(targetMap);
 
         boolean changed = false;
@@ -99,13 +138,13 @@ public class MiraculousLadybug extends Entity {
                     targetData.pathControlPoints(),
                     newTargets,
                     targetData.splinePosition());
-            updatedData.save(this, true);
+            this.setTargetData(updatedData);
         }
     }
 
     private void revertReachedTarget() {
         Level entityLevel = this.level();
-        MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+        MiraculousLadybugTargetData targetData = this.getTargetData();
         Multimap<Integer, MiraculousLadybugTarget> targetMap = targetData.targets();
         double splinePos = targetData.splinePosition();
         if (entityLevel instanceof ServerLevel serverLevel) {
@@ -120,7 +159,7 @@ public class MiraculousLadybug extends Entity {
     }
 
     private void setDistanceNearestBlockTarget() {
-        MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+        MiraculousLadybugTargetData targetData = this.getTargetData();
         Level level = this.level();
         Vec3 pos = this.position();
         double splinePos = targetData.splinePosition();
@@ -138,7 +177,7 @@ public class MiraculousLadybug extends Entity {
             double splinePos,
             Vec3 pos,
             Class<T> type) {
-        MiraculousLadybugTargetData data = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+        MiraculousLadybugTargetData data = this.getTargetData();
         Multimap<Integer, MiraculousLadybugTarget> map = data.targets();
 
         int approaching = path.findSegment(splinePos);
@@ -215,7 +254,7 @@ public class MiraculousLadybug extends Entity {
     private void setPosition(Level level) {
         if (level instanceof ServerLevel) {
             double speed = MineraculousServerConfig.get().miraculousLadybugSpeed.get() / 100f;
-            MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+            MiraculousLadybugTargetData targetData = this.getTargetData();
             double splinePositionParameter = targetData.splinePosition();
             double before = splinePositionParameter;
             splinePositionParameter = path.advanceParameter(splinePositionParameter, speed);
@@ -223,12 +262,12 @@ public class MiraculousLadybug extends Entity {
                 this.discard();
             }
             this.moveTo(path.getPoint(splinePositionParameter));
-            targetData.withSplinePosition(splinePositionParameter).save(this, true);
+            this.setTargetData(targetData.withSplinePosition(splinePositionParameter));
         }
     }
 
     private void setFacingDirection() {
-        MiraculousLadybugTargetData targetData = this.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
+        MiraculousLadybugTargetData targetData = this.getTargetData();
         double splinePositionParameter = targetData.splinePosition();
         Vec3 tangent = path.getDerivative(splinePositionParameter).normalize();
         double yaw = Math.toDegrees(Math.atan2(tangent.z, tangent.x)) - 90.0;
@@ -236,25 +275,6 @@ public class MiraculousLadybug extends Entity {
         this.setYRot((float) yaw);
         this.setXRot((float) pitch);
     }
-
-    public double getDistanceToNearestBlockTarget() {
-        return this.distanceNearestBlockTarget;
-    }
-
-    @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(DATA_TARGET, new MiraculousLadybugTargetData());
-    }
-
-    public MiraculousLadybugTargetData getMode() {
-        return this.entityData.get(DATA_TARGET);
-    }
-
-    @Override
-    public void readAdditionalSaveData(CompoundTag compound) {}
-
-    @Override
-    public void addAdditionalSaveData(CompoundTag compound) {}
 
     @Override
     public boolean isPickable() {

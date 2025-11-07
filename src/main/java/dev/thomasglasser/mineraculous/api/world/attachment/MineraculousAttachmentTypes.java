@@ -7,7 +7,6 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTriggerData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
@@ -47,7 +46,7 @@ public class MineraculousAttachmentTypes {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<KamikotizationData>>> OLD_KAMIKOTIZATION = ATTACHMENT_TYPES.register("old_kamikotization", () -> AttachmentType.builder(Optional::<KamikotizationData>empty).serialize(optionalCodec(KamikotizationData.CODEC)).build());
 
     // Miraculous Ladybug ability
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<MiraculousLadybugTargetData>> MIRACULOUS_LADYBUG_TARGET = ATTACHMENT_TYPES.register("miraculous_ladybug_target", () -> AttachmentType.builder(MiraculousLadybugTargetData::new).serialize(MiraculousLadybugTargetData.CODEC).build());
+    //public static final DeferredHolder<AttachmentType<?>, AttachmentType<MiraculousLadybugTargetData>> MIRACULOUS_LADYBUG_TARGET = ATTACHMENT_TYPES.register("miraculous_ladybug_target", () -> AttachmentType.builder(MiraculousLadybugTargetData::new).serialize(MiraculousLadybugTargetData.CODEC).build());
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<MiraculousLadybugTriggerData>>> MIRACULOUS_LADYBUG_TRIGGER = ATTACHMENT_TYPES.register("miraculous_ladybug_trigger", () -> AttachmentType.builder(Optional::<MiraculousLadybugTriggerData>empty).serialize(optionalCodec(MiraculousLadybugTriggerData.CODEC)).build());
 
     private static <T> Codec<Optional<T>> optionalCodec(Codec<T> codec) {

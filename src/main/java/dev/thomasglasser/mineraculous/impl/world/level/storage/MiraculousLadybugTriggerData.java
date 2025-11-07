@@ -154,7 +154,7 @@ public record MiraculousLadybugTriggerData(List<MiraculousLadybugBlockTarget> bl
             MiraculousLadybug miraculousLadybug = new MiraculousLadybug(level);
             miraculousLadybug.setPos(spawnPos);
             level.addFreshEntity(miraculousLadybug);
-            MiraculousLadybugTargetData.create(updatedBlockTargets, targetData.second).save(miraculousLadybug, true);
+            miraculousLadybug.setTargetData(MiraculousLadybugTargetData.create(updatedBlockTargets, targetData.second));
         }
         level.sendParticles(ParticleTypes.FLASH, spawnPos.x, spawnPos.y, spawnPos.z, 1, 0, 0, 0, 0);
     }

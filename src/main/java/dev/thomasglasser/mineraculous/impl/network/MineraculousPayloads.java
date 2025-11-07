@@ -7,7 +7,6 @@ import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationDat
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTriggerData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
@@ -83,7 +82,7 @@ public class MineraculousPayloads {
         NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.ABILITY_EFFECTS.get(), AbilityEffectData.STREAM_CODEC);
         NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO.get(), ThrownLadybugYoyoData.STREAM_CODEC);
         NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.MIRACULOUSES.get(), MiraculousesData.STREAM_CODEC);
-        NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET.get(), MiraculousLadybugTargetData.STREAM_CODEC);
+        //NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET.get(), MiraculousLadybugTargetData.STREAM_CODEC);
         NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TRIGGER.get(), ByteBufCodecs.optional(MiraculousLadybugTriggerData.STREAM_CODEC));
         NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.KAMIKOTIZATION.get(), ByteBufCodecs.optional(KamikotizationData.STREAM_CODEC));
         NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE.get(), ByteBufCodecs.BOOL);

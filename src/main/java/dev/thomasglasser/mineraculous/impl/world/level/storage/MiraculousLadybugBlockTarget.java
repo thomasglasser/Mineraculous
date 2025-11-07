@@ -9,6 +9,10 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBl
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
@@ -16,10 +20,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public record MiraculousLadybugBlockTarget(Vec3 position, Map<BlockPos, UUID> blocksToRevert, int revertingTicks, List<List<BlockPos>> revertLayers, int currentLayerIndex) implements MiraculousLadybugTarget {
 

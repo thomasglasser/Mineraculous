@@ -130,8 +130,8 @@ public class MineraculousEntityEvents {
             }
 
             if (entity instanceof MiraculousLadybug miraculousLadybug) {
-                MiraculousLadybugTargetData targetData = miraculousLadybug.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
-                targetData.tick(level).save(miraculousLadybug, true);
+                MiraculousLadybugTargetData targetData = miraculousLadybug.getTargetData();
+                miraculousLadybug.setTargetData(targetData.tick(level));
             }
 
             if (entity instanceof ItemEntity itemEntity) {
@@ -147,8 +147,8 @@ public class MineraculousEntityEvents {
         }
 
         if (entity instanceof MiraculousLadybug miraculousLadybug) {
-            MiraculousLadybugTargetData targetData = miraculousLadybug.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
-            miraculousLadybug.oldSplinePosition = targetData.splinePosition();
+            MiraculousLadybugTargetData targetData = miraculousLadybug.getTargetData();
+            miraculousLadybug.setOldSplinePosition(targetData.splinePosition());
         }
     }
 

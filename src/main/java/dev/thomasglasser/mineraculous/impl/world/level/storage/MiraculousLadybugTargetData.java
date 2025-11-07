@@ -8,10 +8,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
-import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,7 +18,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 // Note: the keys of the targets map are indexes for pathControlPoints.
@@ -83,21 +79,6 @@ public record MiraculousLadybugTargetData(List<Vec3> pathControlPoints, Multimap
         }
 
         return new MiraculousLadybugTargetData(pathControlPoints, newTargets, splinePosition);
-    }
-
-    public void save(Entity entity, boolean syncToClient) {
-        entity.setData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET, this);
-        if (syncToClient) {
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET, this), entity.getServer());
-        }
-    }
-
-    public static void remove(Entity entity, boolean syncToClient) {
-        MiraculousLadybugTargetData newValue = new MiraculousLadybugTargetData();
-        entity.setData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET, newValue);
-        if (syncToClient) {
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET, newValue), entity.getServer());
-        }
     }
 
     private static void mapTargetsToControlPoints(List<Vec3> controlPoints, Multimap<Integer, MiraculousLadybugTarget> targetMap, MiraculousLadybugTarget target, int prependPoints) {

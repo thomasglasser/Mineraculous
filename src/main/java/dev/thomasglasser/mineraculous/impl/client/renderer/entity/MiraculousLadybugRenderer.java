@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
-import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
@@ -34,12 +33,13 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
     @Override
     public void render(MiraculousLadybug entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        MiraculousLadybugTargetData targetData = entity.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET);
-        double splineParameter = Mth.lerp(partialTick, entity.oldSplinePosition, targetData.splinePosition());
-        MineraculousMathUtils.CatmullRom path = entity.path;
+        MiraculousLadybugTargetData targetData = entity.getTargetData();
+        System.out.println("great war" + targetData);
+        double splineParameter = Mth.lerp(partialTick, entity.getOldSplinePosition(), targetData.splinePosition());
+        MineraculousMathUtils.CatmullRom path = entity.getPath();
         if (path != null && splineParameter >= path.getFirstParameter()) {
             Vec3 interpolatedPos = MineraculousClientUtils.getInterpolatedPos(entity, partialTick);
-            updateTailPoints(entity.path, splineParameter, interpolatedPos, entity.getDistanceToNearestBlockTarget());
+            updateTailPoints(path, splineParameter, interpolatedPos, entity.getDistanceToNearestBlockTarget());
             spawnLadybugs();
             updateLadybugs();
             renderLadybugs(bufferSource, poseStack);

@@ -37,38 +37,34 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
         if (context == null && data.powerActive()) {
             ItemStack stack = performer.getMainHandItem();
             LuckyCharm luckyCharm = stack.get(MineraculousDataComponents.LUCKY_CHARM);
-            if (luckyCharm != null) {
-                UUID performerId = handler.getMatchingBlame(stack, performer);
-                if (luckyCharm.owner().equals(performerId)) {
-                    luckyCharm.target().ifPresent(target -> {
-                        AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
-                        for (UUID relatedId : entityData.getAndClearTrackedAndRelatedEntities(target)) {
-                            Entity r = level.getEntity(relatedId);
-                            if (r instanceof LivingEntity related) {
-                                related.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).or(() -> related.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION)).ifPresent(kamikotizationData -> {
-                                    Kamikotization value = kamikotizationData.kamikotization().value();
-                                    AbilityData abilityData = AbilityData.of(kamikotizationData);
-                                    value.powerSource().ifLeft(tool -> {
-                                        if (tool.getItem() instanceof EffectRevertingItem item) {
-                                            item.revert(related);
-                                        }
-                                    }).ifRight(ability -> ability.value().revert(abilityData, level, related));
-                                    value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related));
-                                });
-                                MiraculousesData miraculousesData = related.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                                for (Holder<Miraculous> miraculous : miraculousesData.keySet()) {
-                                    Miraculous value = miraculous.value();
-                                    AbilityData abilityData = AbilityData.of(miraculousesData.get(miraculous));
-                                    value.activeAbility().value().revert(abilityData, level, related);
-                                    value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related));
+            if (luckyCharm != null && luckyCharm.owner().equals(performer.getUUID())) {
+                UUID targetId = luckyCharm.target().orElse(performer.getUUID());
+                AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
+                for (UUID relatedId : entityData.getAndClearTrackedAndRelatedEntities(targetId)) {
+                    Entity r = level.getEntity(relatedId);
+                    if (r instanceof LivingEntity related) {
+                        related.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).or(() -> related.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION)).ifPresent(kamikotizationData -> {
+                            Kamikotization value = kamikotizationData.kamikotization().value();
+                            AbilityData abilityData = AbilityData.of(kamikotizationData);
+                            value.powerSource().ifLeft(tool -> {
+                                if (tool.getItem() instanceof EffectRevertingItem item) {
+                                    item.revert(related);
                                 }
-                            }
+                            }).ifRight(ability -> ability.value().revert(abilityData, level, related));
+                            value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related));
+                        });
+                        MiraculousesData miraculousesData = related.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                        for (Holder<Miraculous> miraculous : miraculousesData.keySet()) {
+                            Miraculous value = miraculous.value();
+                            AbilityData abilityData = AbilityData.of(miraculousesData.get(miraculous));
+                            value.activeAbility().value().revert(abilityData, level, related);
+                            value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related));
                         }
-                    });
-                    LuckyCharmIdData.get(level).incrementLuckyCharmId(performerId);
-                    Ability.playSound(level, performer, revertSound);
-                    return State.CONSUME;
+                    }
                 }
+                LuckyCharmIdData.get(level).incrementLuckyCharmId(performer.getUUID());
+                Ability.playSound(level, performer, revertSound);
+                return State.CONSUME;
             }
         }
         return State.PASS;

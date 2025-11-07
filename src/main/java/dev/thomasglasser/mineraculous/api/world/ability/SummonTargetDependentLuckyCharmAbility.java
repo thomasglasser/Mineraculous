@@ -93,8 +93,7 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             if (stack.isEmpty()) {
                 stack = BuiltInRegistries.ITEM.getTag(MineraculousItemTags.GENERIC_LUCKY_CHARMS).orElseThrow().getRandomElement(level.random).orElseThrow().value().getDefaultInstance();
             }
-            UUID uuid = handler.getAndAssignBlame(stack, performer);
-            stack.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.ofNullable(target).map(Entity::getUUID), uuid, uuid != null ? LuckyCharmIdData.get(level).incrementLuckyCharmId(uuid) : 0));
+            stack.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.ofNullable(target).map(Entity::getUUID), performer.getUUID(), LuckyCharmIdData.get(level).incrementLuckyCharmId(performer.getUUID())));
             LuckyCharmItemSpawner item = LuckyCharmItemSpawner.create(level, stack);
             item.moveTo(spawnPos.orElseGet(() -> defaultLuckyCharmSpawnPosition(level, performer)));
             level.addFreshEntity(item);

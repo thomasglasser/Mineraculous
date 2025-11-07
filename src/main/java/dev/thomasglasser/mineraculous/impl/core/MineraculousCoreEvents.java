@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.core;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.core.dispenser.ActiveProjectileDispenseBehavior;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousBuiltInRegistries;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
@@ -10,21 +11,15 @@ import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.tommylib.api.packs.PackInfo;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.nio.file.Path;
 import java.util.Optional;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Position;
-import net.minecraft.core.dispenser.BlockSource;
-import net.minecraft.core.dispenser.ProjectileDispenseBehavior;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.Pack;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -44,18 +39,7 @@ public class MineraculousCoreEvents {
     // Setup
     public static void onFMLCommonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            DispenserBlock.registerBehavior(MineraculousItems.CAT_STAFF, new ProjectileDispenseBehavior(MineraculousItems.CAT_STAFF.get()) {
-                @Override
-                public ItemStack execute(BlockSource blockSource, ItemStack item) {
-                    if (Active.isActive(item))
-                        return super.execute(blockSource, item);
-                    Direction direction = blockSource.state().getValue(DispenserBlock.FACING);
-                    Position position = DispenserBlock.getDispensePosition(blockSource);
-                    ItemStack itemstack = item.split(1);
-                    spawnItem(blockSource.level(), itemstack, 6, direction, position);
-                    return item;
-                }
-            });
+            DispenserBlock.registerBehavior(MineraculousItems.CAT_STAFF, new ActiveProjectileDispenseBehavior(MineraculousItems.CAT_STAFF.get()));
             DispenserBlock.registerProjectileBehavior(MineraculousItems.BUTTERFLY_CANE);
         });
     }

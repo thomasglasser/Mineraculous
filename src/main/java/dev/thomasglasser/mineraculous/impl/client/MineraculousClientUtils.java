@@ -279,7 +279,7 @@ public class MineraculousClientUtils {
 
     public static void refreshCataclysmPixels() {
         CATACLYSM_PIXELS.clear();
-        try (AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(MineraculousConstants.modLoc("textures/entity/cataclysm.png"))) {
+        try (AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(MineraculousConstants.modLoc("textures/block/cataclysm_block.png"))) {
             NativeImage image;
             if (texture instanceof SimpleTexture simpleTexture) {
                 image = simpleTexture.getTextureImage(Minecraft.getInstance().getResourceManager()).getImage();

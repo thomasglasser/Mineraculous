@@ -6,6 +6,7 @@ import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTyp
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousBlockTags;
+import dev.thomasglasser.mineraculous.api.tags.MineraculousEntityTypeTags;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
@@ -27,7 +28,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 public class Abilities {
     // Butterfly
-    /// Converts an entity in {@link MineraculousEntityTypeTags#BUTTERFLIES} to a tamed {@link Kamiko} on right click.
+    /// Converts an entity in {@link dev.thomasglasser.mineraculous.api.tags.MineraculousEntityTypeTags#BUTTERFLIES} to a tamed {@link Kamiko} on right click.
     public static final ResourceKey<Ability> KAMIKOTIZATION = create("kamikotization");
     /// Toggles spectation of a nearby {@link Kamiko}.
     public static final ResourceKey<Ability> KAMIKO_CONTROL = create("kamiko_control");
@@ -107,8 +108,10 @@ public class Abilities {
                 Optional.of(Holder.direct(new ApplyEffectsOrDestroyAbility(
                         HolderSet.direct(MineraculousMobEffects.CATACLYSM),
                         new ApplyEffectsOrDestroyAbility.EffectSettings(-1, false, false),
-                        Optional.of(MineraculousDamageTypes.CATACLYSM),
                         true,
+                        Optional.empty(),
+                        Optional.of(EntityPredicate.Builder.entity().of(MineraculousEntityTypeTags.CATACLYSM_IMMUNE).build()),
+                        Optional.of(MineraculousDamageTypes.CATACLYSM),
                         true,
                         true,
                         Optional.of(MineraculousItems.CATACLYSM_DUST.get()),

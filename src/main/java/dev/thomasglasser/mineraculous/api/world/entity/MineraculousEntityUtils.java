@@ -133,7 +133,7 @@ public class MineraculousEntityUtils {
     public static Kwami summonKwami(Entity owner, boolean charged, UUID miraculousId, Holder<Miraculous> miraculous, boolean playAnimation, @Nullable UUID uuidOverride) {
         ServerLevel level = (ServerLevel) owner.level();
         if (uuidOverride != null && level.getEntity(uuidOverride) instanceof Kwami kwami) {
-            return kwami;
+            kwami.discard();
         }
         Kwami kwami = MineraculousEntityTypes.KWAMI.get().create(level);
         if (kwami != null) {

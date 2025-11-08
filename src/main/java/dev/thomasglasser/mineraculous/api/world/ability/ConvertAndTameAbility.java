@@ -20,7 +20,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -42,6 +41,8 @@ public record ConvertAndTameAbility(EntityType<?> newType, boolean requireNoneSt
     @Override
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context instanceof EntityAbilityContext(Entity target)) {
+            if (!isValidEntity(level, performer, target))
+                return State.CANCEL;
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
             boolean hasStored = false;
             if (requireNoneStored) {
@@ -56,7 +57,7 @@ public record ConvertAndTameAbility(EntityType<?> newType, boolean requireNoneSt
                     }
                 }
             }
-            if (!(requireNoneStored && hasStored) && isValidEntity(level, target.position(), target) && !entityData.isConverted(target.getUUID())) {
+            if (!(requireNoneStored && hasStored) && !entityData.isConverted(target.getUUID())) {
                 Entity newEntity = newType.create(level);
                 if (newEntity != null) {
                     if (newEntity instanceof TamableAnimal tamable) {
@@ -78,8 +79,8 @@ public record ConvertAndTameAbility(EntityType<?> newType, boolean requireNoneSt
         return State.PASS;
     }
 
-    private boolean isValidEntity(ServerLevel level, Vec3 pos, Entity entity) {
-        return validEntities.map(predicate -> predicate.matches(level, pos, entity)).orElse(true) && invalidEntities.map(predicate -> !predicate.matches(level, pos, entity)).orElse(true);
+    public boolean isValidEntity(ServerLevel level, LivingEntity performer, Entity target) {
+        return performer != target && validEntities.map(predicate -> predicate.matches(level, performer.position(), target)).orElse(true) && invalidEntities.map(predicate -> !predicate.matches(level, performer.position(), target)).orElse(true);
     }
 
     @Override

@@ -46,22 +46,23 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean prefe
     @Override
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context instanceof BlockAbilityContext(BlockPos pos)) {
-            if (canBlockBeReplaced(level, pos)) {
-                Set<BlockPos> affected = getAffectedBlocks(level, pos, Math.max(data.powerLevel(), 1) * 100);
-                AbilityReversionBlockData reversionData = AbilityReversionBlockData.get(level);
-                for (BlockPos affectedPos : affected) {
-                    reversionData.putRevertible(performer.getUUID(), level.dimension(), affectedPos, level.getBlockState(affectedPos));
-                    level.setBlock(affectedPos, MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL);
-                }
-                Ability.playSound(level, performer, replaceSound);
+            if (!isValidBlock(level, pos)) {
+                return State.CANCEL;
             }
+            Set<BlockPos> affected = getAffectedBlocks(level, pos, Math.max(data.powerLevel(), 1) * 100);
+            AbilityReversionBlockData reversionData = AbilityReversionBlockData.get(level);
+            for (BlockPos affectedPos : affected) {
+                reversionData.putRevertible(performer.getUUID(), level.dimension(), affectedPos, level.getBlockState(affectedPos));
+                level.setBlock(affectedPos, MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL);
+            }
+            Ability.playSound(level, performer, replaceSound);
             return State.CONSUME;
         }
         return State.PASS;
     }
 
-    private boolean canBlockBeReplaced(ServerLevel level, BlockPos pos) {
-        return !level.getBlockState(pos).isAir() && validBlocks.map(predicate -> predicate.matches(level, pos)).orElse(true) && invalidBlocks.map(predicate -> !predicate.matches(level, pos)).orElse(false);
+    public boolean isValidBlock(ServerLevel level, BlockPos pos) {
+        return !level.getBlockState(pos).isAir() && validBlocks.map(predicate -> predicate.matches(level, pos)).orElse(true) && invalidBlocks.map(predicate -> !predicate.matches(level, pos)).orElse(true);
     }
 
     private Set<BlockPos> getAffectedBlocks(ServerLevel level, BlockPos pos, int max) {
@@ -80,8 +81,7 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean prefe
         }
         while (!queue.isEmpty()) {
             BlockPos current = queue.poll();
-            BlockState state = level.getBlockState(current);
-            if (adjacent.size() < 100 && visited.add(current) && !state.isAir() && (!requireSame || state.is(block))) {
+            if (adjacent.size() < max && visited.add(current) && isValidBlock(level, current) && (!requireSame || level.getBlockState(current).is(block))) {
                 adjacent.add(current);
                 for (Direction direction : Direction.values()) {
                     BlockPos relative = current.relative(direction);

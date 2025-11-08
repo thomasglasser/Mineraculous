@@ -23,6 +23,9 @@
         "show_particles": false
       },
       "effects": "mineraculous:cataclysm",
+      "invalid_entities": {
+        "type": "#mineraculous:cataclysm_immune"
+      },
       "override_kill_credit": true
     },
     "passive": [

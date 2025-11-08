@@ -45,24 +45,29 @@ public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakO
             if (stack.isEmpty()) {
                 return State.PASS;
             }
-            if (validItems.map(predicate -> predicate.test(stack)).orElse(false) || invalidItems.map(predicate -> !predicate.test(stack)).orElse(false)) {
-                ItemStack replacement = this.replacement.copy();
-                UUID id = UUID.randomUUID();
-                replacement.set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, id);
-                AbilityReversionItemData.get(level).putRevertible(performer.getUUID(), id, stack);
-                if (breakOriginal) {
-                    if (stack.isDamageableItem()) {
-                        MineraculousItemUtils.hurtAndBreak(stack, stack.getMaxDamage(), level, performer, EquipmentSlot.MAINHAND);
-                    } else {
-                        Kamikotization.checkBroken(stack, level, performer);
-                    }
-                }
-                performer.setItemInHand(InteractionHand.MAIN_HAND, replacement);
-                Ability.playSound(level, performer, replaceSound);
+            if (!isValidItem(stack)) {
+                return State.CANCEL;
             }
+            ItemStack replacement = this.replacement.copy();
+            UUID id = UUID.randomUUID();
+            replacement.set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, id);
+            AbilityReversionItemData.get(level).putRevertible(performer.getUUID(), id, stack);
+            if (breakOriginal) {
+                if (stack.isDamageableItem()) {
+                    MineraculousItemUtils.hurtAndBreak(stack, stack.getMaxDamage(), level, performer, EquipmentSlot.MAINHAND);
+                } else {
+                    Kamikotization.checkBroken(stack, level, performer);
+                }
+            }
+            performer.setItemInHand(InteractionHand.MAIN_HAND, replacement);
+            Ability.playSound(level, performer, replaceSound);
             return State.CONSUME;
         }
         return State.PASS;
+    }
+
+    public boolean isValidItem(ItemStack stack) {
+        return validItems.map(predicate -> predicate.test(stack)).orElse(true) && invalidItems.map(predicate -> !predicate.test(stack)).orElse(true);
     }
 
     @Override

@@ -3,7 +3,10 @@ package dev.thomasglasser.mineraculous.impl.world.item.component;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.ai.memory.DuplicationState;
+import dev.thomasglasser.mineraculous.api.world.entity.ai.memory.MineraculousMemoryModuleTypes;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
+import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
@@ -13,6 +16,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+import net.tslat.smartbrainlib.util.BrainUtils;
 
 public record KamikoData(UUID uuid, UUID owner, int powerLevel, int nameColor, Optional<ResourceLocation> faceMaskTexture) {
 
@@ -37,12 +41,15 @@ public record KamikoData(UUID uuid, UUID owner, int powerLevel, int nameColor, O
         this.faceMaskTexture = faceMaskTexture;
     }
 
-    public Kamiko summon(ServerLevel level, Vec3 spawnPos) {
+    public Kamiko summon(ServerLevel level, Vec3 spawnPos, boolean makeDuplicate) {
         Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(level);
         if (kamiko != null) {
             kamiko.setPos(spawnPos);
             kamiko.setUUID(uuid);
             kamiko.setOwnerUUID(owner);
+            if (makeDuplicate && MineraculousServerConfig.get().enableKamikoDuplication.getAsBoolean()) {
+                BrainUtils.setMemory(kamiko, MineraculousMemoryModuleTypes.DUPLICATION_STATUS.get(), DuplicationState.LOOKING_FOR_RESTING_LOCATION);
+            }
             level.addFreshEntity(kamiko);
         }
         return kamiko;

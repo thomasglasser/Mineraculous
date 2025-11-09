@@ -4,6 +4,10 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.Table;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import java.util.List;
@@ -37,7 +41,7 @@ public class AbilityReversionEntityData extends SavedData {
     private final SetMultimap<UUID, RevertibleEntity> revertibleEntities = HashMultimap.create();
     private final SetMultimap<UUID, UUID> removableEntities = HashMultimap.create();
     private final SetMultimap<UUID, RevertibleEntity> convertedEntities = HashMultimap.create();
-
+    private final SetMultimap<UUID, UUID> copiedEntities = HashMultimap.create();
     public static AbilityReversionEntityData get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(AbilityReversionEntityData.factory(), AbilityReversionEntityData.FILE_ID);
     }
@@ -160,6 +164,7 @@ public class AbilityReversionEntityData extends SavedData {
         }
     }
 
+    // TODO: Implement copies
     public boolean isConverted(UUID entity) {
         for (RevertibleEntity revertible : convertedEntities.values()) {
             if (revertible.uuid().equals(entity))

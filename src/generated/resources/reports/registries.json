@@ -165,6 +165,11 @@
   "minecraft:loot_number_provider_type": [
     "mineraculous:power_level_multiplier"
   ],
+  "minecraft:memory_module_type": [
+    "mineraculous:duplicates_made",
+    "mineraculous:duplication_status",
+    "mineraculous:has_duplicated"
+  ],
   "minecraft:menu": [
     "mineraculous:oven"
   ],

@@ -188,7 +188,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                                         });
                                         if (entity != null) {
                                             serverLevel.addFreshEntity(entity);
-                                            Entity reverted = AbilityReversionEntityData.get(serverLevel).revertConversion(entity.getUUID(), serverLevel);
+                                            Entity reverted = AbilityReversionEntityData.get(serverLevel).revertConversionOrCopy(entity.getUUID(), serverLevel);
                                             if (reverted != null) {
                                                 reverted.addDeltaMovement(new Vec3(0, 1, 0));
                                                 reverted.hurtMarked = true;

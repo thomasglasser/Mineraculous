@@ -36,6 +36,9 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         addAbilities();
 
         // Misc
+        tag(ItemTags.SMALL_FLOWERS)
+                .add(MineraculousBlocks.HIBISCUS_BUSH.asItem());
+
         tag(MineraculousItemTags.KAMIKOTIZATION_IMMUNE)
                 .add(MineraculousItems.KWAMI);
 
@@ -93,7 +96,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
 
         // Butterfly
         tag(MineraculousItemTags.BUTTERFLY_KWAMI_PREFERRED_FOODS)
-                .addTag(ItemTags.FLOWERS);
+                .addTag(ItemTags.SMALL_FLOWERS);
 
         tag(MineraculousItemTags.BUTTERFLY_KWAMI_TREATS)
                 .add(MineraculousBlocks.HIBISCUS_BUSH.asItem());

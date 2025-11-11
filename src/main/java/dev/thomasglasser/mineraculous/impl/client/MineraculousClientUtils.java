@@ -29,7 +29,6 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundStealItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateSpecialPlayerDataPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
-import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -405,7 +404,7 @@ public class MineraculousClientUtils {
         vertex(vertexConsumer, pose, pos, u, v, light);
     }
 
-    public static Vec3 getInterpolatedPos(MiraculousLadybug entity, float partialTick) {
+    public static Vec3 getInterpolatedPos(Entity entity, float partialTick) {
         return new Vec3(
                 Mth.lerp(partialTick, entity.xOld, entity.getX()),
                 Mth.lerp(partialTick, entity.yOld, entity.getY()),

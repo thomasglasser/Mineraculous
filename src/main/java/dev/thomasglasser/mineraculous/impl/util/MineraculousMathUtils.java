@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.impl.util;
 
 import com.google.common.collect.ImmutableList;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugBlockTarget;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTarget;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.NewMLBTarget;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,7 +15,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -69,10 +68,6 @@ public class MineraculousMathUtils {
         }
 
         return points;
-    }
-
-    public static Vec3i getVec3i(Vec3 vec) {
-        return new Vec3i((int) vec.x, (int) vec.y, (int) vec.z);
     }
 
     public static void spawnBlockParticles(ServerLevel level, BlockPos pos, SimpleParticleType type, int particleCount) {
@@ -241,18 +236,18 @@ public class MineraculousMathUtils {
     }
 
     //GREEDY TSP
-    public static List<MiraculousLadybugTarget> sortTargets(Collection<MiraculousLadybugTarget> targets, MiraculousLadybugTarget startTarget) {
-        List<MiraculousLadybugTarget> toVisit = new ArrayList<>(targets);
-        List<MiraculousLadybugTarget> ordered = new ArrayList<>();
+    public static List<NewMLBTarget> sortTargets(Collection<NewMLBTarget> targets, Vec3 startTarget) {
+        List<NewMLBTarget> toVisit = new ArrayList<>(targets);
+        List<NewMLBTarget> ordered = new ArrayList<>();
 
-        Vec3 current = startTarget.position();
+        Vec3 current = startTarget;
 
         while (!toVisit.isEmpty()) {
-            MiraculousLadybugTarget nearest = null;
+            NewMLBTarget nearest = null;
             double nearestDist = Double.MAX_VALUE;
 
-            for (MiraculousLadybugTarget target : toVisit) {
-                double dist = current.distanceTo(target.position());
+            for (NewMLBTarget target : toVisit) {
+                double dist = current.distanceTo(target.getPosition());
                 if (dist < nearestDist) {
                     nearestDist = dist;
                     nearest = target;
@@ -262,7 +257,7 @@ public class MineraculousMathUtils {
             ordered.add(nearest);
             toVisit.remove(nearest);
             if (nearest != null)
-                current = nearest.position();
+                current = nearest.getPosition();
         }
         return ordered;
     }

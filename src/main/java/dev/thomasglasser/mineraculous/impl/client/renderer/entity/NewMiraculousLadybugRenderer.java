@@ -8,8 +8,7 @@ import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderType
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
-import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
+import dev.thomasglasser.mineraculous.impl.world.entity.NewMiraculousLadybug;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -23,19 +22,18 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
-public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug> {
+public class NewMiraculousLadybugRenderer extends EntityRenderer<NewMiraculousLadybug> {
     private ArrayList<TexturedOutlinedQuad> texturedOutlinedQuads = new ArrayList<>();
     private ArrayList<TailPoint> tailPoints = new ArrayList<>();
 
-    public MiraculousLadybugRenderer(EntityRendererProvider.Context context) {
+    public NewMiraculousLadybugRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
 
     @Override
-    public void render(MiraculousLadybug entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        MiraculousLadybugTargetData targetData = entity.getTargetData();
-        //System.out.println("great war" + targetData);
-        double splineParameter = Mth.lerp(partialTick, entity.getOldSplinePosition(), targetData.splinePosition());
+    public void render(NewMiraculousLadybug entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+        float splinePosition = entity.getSplinePosition();
+        double splineParameter = Mth.lerp(partialTick, entity.getOldSplinePosition(), splinePosition);
         MineraculousMathUtils.CatmullRom path = entity.getPath();
         if (path != null && splineParameter >= path.getFirstParameter()) {
             Vec3 interpolatedPos = MineraculousClientUtils.getInterpolatedPos(entity, partialTick);
@@ -210,7 +208,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
     }
 
     @Override
-    public ResourceLocation getTextureLocation(MiraculousLadybug entity) {
+    public ResourceLocation getTextureLocation(NewMiraculousLadybug entity) {
         return MineraculousConstants.EMPTY_TEXTURE;
     }
 

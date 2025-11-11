@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
@@ -35,8 +36,6 @@ public class MiraculousLadybug extends Entity {
 
     public MiraculousLadybug(Level level) {
         this(MineraculousEntityTypes.MIRACULOUS_LADYBUG.get(), level);
-        this.noPhysics = true;
-        this.noCulling = true;
     }
 
     @Override
@@ -46,11 +45,13 @@ public class MiraculousLadybug extends Entity {
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
+        System.out.println("read called");
         setTargetData(MiraculousLadybugTargetData.CODEC.parse(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), compound.get("TargetData")).getOrThrow());
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
+        System.out.println("add called");
         compound.put("TargetData", MiraculousLadybugTargetData.CODEC.encodeStart(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), getTargetData()).getOrThrow());
     }
 
@@ -77,6 +78,8 @@ public class MiraculousLadybug extends Entity {
                 setDistanceNearestBlockTarget();
                 spawnParticles(level);
             }
+            if (level.isClientSide())
+                MineraculousConstants.LOGGER.info("test" + this.getTargetData());
         } else this.discard();
     }
 

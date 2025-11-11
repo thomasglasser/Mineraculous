@@ -26,15 +26,7 @@ public record MiraculousLadybugBlockTarget(Vec3 position, Map<BlockPos, UUID> bl
     //TODO for Tommy some wiered stuff going around here with the codec please help, ask for more details
     public static final Codec<MiraculousLadybugBlockTarget> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Vec3.CODEC.fieldOf("block_position").forGetter(MiraculousLadybugBlockTarget::position),
-            Codec.unboundedMap(Codec.STRING.xmap(
-                    s -> {
-                        String[] parts = s.split(" ");
-                        return new BlockPos(
-                                Integer.parseInt(parts[0]),
-                                Integer.parseInt(parts[1]),
-                                Integer.parseInt(parts[2]));
-                    },
-                    BlockPos::toShortString), UUIDUtil.CODEC).fieldOf("blocks").forGetter(MiraculousLadybugBlockTarget::blocksToRevert),
+            Codec.unboundedMap(Codec.STRING.xmap(s -> BlockPos.of(Long.parseLong(s)), pos -> String.valueOf(pos.asLong())), UUIDUtil.CODEC).fieldOf("blocks").forGetter(MiraculousLadybugBlockTarget::blocksToRevert),
             Codec.INT.fieldOf("revertingTicks").forGetter(MiraculousLadybugBlockTarget::revertingTicks),
             BlockPos.CODEC.listOf().listOf().fieldOf("revertLayers").forGetter(MiraculousLadybugBlockTarget::revertLayers),
             Codec.INT.fieldOf("currentLayerIndex").forGetter(MiraculousLadybugBlockTarget::currentLayerIndex))
@@ -134,6 +126,6 @@ public record MiraculousLadybugBlockTarget(Vec3 position, Map<BlockPos, UUID> bl
     private void revertBlock(BlockPos bp, Map<BlockPos, UUID> remaining, ServerLevel level) {
         UUID cause = remaining.remove(bp);
         AbilityReversionBlockData.get(level).revert(cause != null ? cause : Util.NIL_UUID, level, bp);
-        MineraculousMathUtils.spawnBlockParticles(level, bp, MineraculousParticleTypes.REVERTING_LADYBUG.get(), 22); // keep it 100 on the land, the sea, the sky
+        MineraculousMathUtils.spawnBlockParticles(level, bp, MineraculousParticleTypes.REVERTING_LADYBUG.get(), 22); // hey! idk about you, but i am feeling 22!
     }
 }

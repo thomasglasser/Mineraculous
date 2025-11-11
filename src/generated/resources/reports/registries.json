@@ -86,6 +86,7 @@
     "mineraculous:kwami",
     "mineraculous:lucky_charm_item_spawner",
     "mineraculous:miraculous_ladybug",
+    "mineraculous:new_miraculous_ladybug",
     "mineraculous:thrown_butterfly_cane",
     "mineraculous:thrown_cat_staff",
     "mineraculous:thrown_ladybug_yoyo"
@@ -296,6 +297,7 @@
   "neoforge:entity_data_serializers": [
     "mineraculous:miraculous",
     "mineraculous:miraculous_ladybug_target_data",
+    "mineraculous:new_mlb_data",
     "mineraculous:optional_ladybug_yoyo_mode",
     "mineraculous:optional_resource_location",
     "mineraculous:uuid"

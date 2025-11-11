@@ -131,7 +131,7 @@ public record MiraculousLadybugTargetData(List<Vec3> pathControlPoints, Multimap
         targets.addAll(entityTargets);
         MiraculousLadybugBlockTarget spawnPos = blockTargets.getFirst();
         MiraculousLadybugBlockTarget circlePos = blockTargets.get(1);
-        List<MiraculousLadybugTarget> sorted = new ArrayList<>(MineraculousMathUtils.sortTargets(targets, circlePos));
+        List<MiraculousLadybugTarget> sorted = new ArrayList<>(/*MineraculousMathUtils.sortTargets(targets, circlePos)*/);
         sorted.addFirst(circlePos);
         sorted.addFirst(spawnPos);
         return sorted;

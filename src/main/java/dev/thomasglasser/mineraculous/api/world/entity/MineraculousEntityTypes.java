@@ -5,6 +5,7 @@ import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.entity.LuckyCharmItemSpawner;
 import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
+import dev.thomasglasser.mineraculous.impl.world.entity.NewMiraculousLadybug;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownButterflyCane;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
@@ -26,6 +27,9 @@ public class MineraculousEntityTypes {
     public static final DeferredHolder<EntityType<?>, EntityType<LuckyCharmItemSpawner>> LUCKY_CHARM_ITEM_SPAWNER = ENTITY_TYPES.register("lucky_charm_item_spawner", LuckyCharmItemSpawner::new, MobCategory.MISC, builder -> builder
             .sized(0.25F, 0.25F));
     public static final DeferredHolder<EntityType<?>, EntityType<MiraculousLadybug>> MIRACULOUS_LADYBUG = ENTITY_TYPES.register("miraculous_ladybug", MiraculousLadybug::new, MobCategory.MISC, builder -> builder
+            .sized(1.0F, 1.0F)
+            .clientTrackingRange(Integer.MAX_VALUE / 16));
+    public static final DeferredHolder<EntityType<?>, EntityType<NewMiraculousLadybug>> NEW_MIRACULOUS_LADYBUG = ENTITY_TYPES.register("new_miraculous_ladybug", NewMiraculousLadybug::new, MobCategory.MISC, builder -> builder
             .sized(1.0F, 1.0F)
             .clientTrackingRange(Integer.MAX_VALUE / 16));
 

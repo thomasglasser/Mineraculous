@@ -1,14 +1,13 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
 import com.google.common.collect.ImmutableList;
-import com.ibm.icu.impl.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
-import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
+import dev.thomasglasser.mineraculous.impl.world.entity.NewMiraculousLadybug;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.ArrayList;
@@ -30,17 +29,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2d;
 
-public record MiraculousLadybugTriggerData(List<MiraculousLadybugBlockTarget> blockTargets, List<MiraculousLadybugEntityTarget> entityTargets, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound, int tickCount) {
+public record MiraculousLadybugTriggerData(List<NewMLBTarget> targets, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound, int tickCount) {
 
     public static final Codec<MiraculousLadybugTriggerData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            MiraculousLadybugBlockTarget.CODEC.listOf().fieldOf("block_targets").forGetter(MiraculousLadybugTriggerData::blockTargets),
-            MiraculousLadybugEntityTarget.CODEC.listOf().fieldOf("entity_targets").forGetter(MiraculousLadybugTriggerData::entityTargets),
+            NewMLBTargetType.TARGET_CODEC.listOf().fieldOf("targets").forGetter(MiraculousLadybugTriggerData::targets),
             Codec.INT.optionalFieldOf("performer_id").forGetter(MiraculousLadybugTriggerData::performerId),
             SoundEvent.CODEC.optionalFieldOf("revert_sound").forGetter(MiraculousLadybugTriggerData::revertSound),
             Codec.INT.fieldOf("tick_count").forGetter(MiraculousLadybugTriggerData::tickCount)).apply(instance, MiraculousLadybugTriggerData::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousLadybugTriggerData> STREAM_CODEC = StreamCodec.composite(
-            MiraculousLadybugBlockTarget.STREAM_CODEC.apply(ByteBufCodecs.list()), MiraculousLadybugTriggerData::blockTargets,
-            MiraculousLadybugEntityTarget.STREAM_CODEC.apply(ByteBufCodecs.list()), MiraculousLadybugTriggerData::entityTargets,
+            NewMLBTargetType.TARGET_STREAM_CODEC.apply(ByteBufCodecs.list()), MiraculousLadybugTriggerData::targets,
             ByteBufCodecs.optional(ByteBufCodecs.INT), MiraculousLadybugTriggerData::performerId,
             ByteBufCodecs.optional(SoundEvent.STREAM_CODEC), MiraculousLadybugTriggerData::revertSound,
             ByteBufCodecs.INT, MiraculousLadybugTriggerData::tickCount,
@@ -48,15 +45,15 @@ public record MiraculousLadybugTriggerData(List<MiraculousLadybugBlockTarget> bl
 
     public static final int MIRACULOUS_LADYBUGS_COUNT = 8;
     public MiraculousLadybugTriggerData() {
-        this(ImmutableList.of(), ImmutableList.of(), Optional.empty(), Optional.empty(), 0);
+        this(ImmutableList.of(), Optional.empty(), Optional.empty(), 0);
     }
 
-    public MiraculousLadybugTriggerData(Collection<MiraculousLadybugBlockTarget> blockTargets, Collection<MiraculousLadybugEntityTarget> entityTargets, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound) {
-        this(ImmutableList.copyOf(blockTargets), ImmutableList.copyOf(entityTargets), performerId, revertSound, 0);
+    public MiraculousLadybugTriggerData(Collection<NewMLBTarget> targets, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound) {
+        this(ImmutableList.copyOf(targets), performerId, revertSound, 0);
     }
 
     public MiraculousLadybugTriggerData incrementTicks() {
-        return new MiraculousLadybugTriggerData(blockTargets, entityTargets, performerId, revertSound, tickCount + 1);
+        return new MiraculousLadybugTriggerData(targets, performerId, revertSound, tickCount + 1);
     }
 
     public void save(Entity entity, boolean syncToClient) {
@@ -135,77 +132,43 @@ public record MiraculousLadybugTriggerData(List<MiraculousLadybugBlockTarget> bl
 
     private void spawnMiraculousLadybugs(ServerLevel level, Entity entity) {
         ArrayList<Vector2d> circle = MineraculousMathUtils.generateCirclePoints(50, MIRACULOUS_LADYBUGS_COUNT);
-        Vec3 spawnPos = entity.position();
-        ArrayList<Pair<List<MiraculousLadybugBlockTarget>, List<MiraculousLadybugEntityTarget>>> targetDatas = assignTargets(blockTargets, entityTargets);
+        Vec3 spawnPosition = entity.position();
+        ArrayList<ArrayList<NewMLBTarget>> targetDatas = assignTargets();
 
         int spawnedMLBCount;
         for (spawnedMLBCount = 0; spawnedMLBCount < MIRACULOUS_LADYBUGS_COUNT; spawnedMLBCount++) {
-            Pair<List<MiraculousLadybugBlockTarget>, List<MiraculousLadybugEntityTarget>> targetData = Pair.of(List.of(), List.of());
-            ArrayList<MiraculousLadybugBlockTarget> updatedBlockTargets = new ArrayList<>();
-            if (spawnedMLBCount < targetDatas.size()) {
-                targetData = targetDatas.get(spawnedMLBCount);
-                updatedBlockTargets = new ArrayList<>(targetData.first);
-            }
-            int x = (int) circle.get(spawnedMLBCount).x;
-            int y = (int) circle.get(spawnedMLBCount).y;
-            Vec3 circlePos = spawnPos.add(x, 0, y);
-            updatedBlockTargets.addFirst(MiraculousLadybugBlockTarget.wrap(circlePos));
-            updatedBlockTargets.addFirst(MiraculousLadybugBlockTarget.wrap(spawnPos));
-            MiraculousLadybug miraculousLadybug = new MiraculousLadybug(level);
-            miraculousLadybug.setPos(spawnPos);
+            ArrayList<NewMLBTarget> targets = targetDatas.get(spawnedMLBCount);
+            double x = circle.get(spawnedMLBCount).x;
+            double y = circle.get(spawnedMLBCount).y;
+            Vec3 circlePosition = spawnPosition.add(x, 0, y);
+            targets = new ArrayList<>(MineraculousMathUtils.sortTargets(targets, circlePosition));
+            NewMLBTargetData targetData = NewMLBTargetData.create(targets, spawnPosition, circlePosition);
+            NewMiraculousLadybug miraculousLadybug = new NewMiraculousLadybug(level);
+            miraculousLadybug.setPos(spawnPosition);
             level.addFreshEntity(miraculousLadybug);
-            miraculousLadybug.setTargetData(MiraculousLadybugTargetData.create(updatedBlockTargets, targetData.second));
+            miraculousLadybug.setTargetData(targetData);
         }
-        level.sendParticles(ParticleTypes.FLASH, spawnPos.x, spawnPos.y, spawnPos.z, 1, 0, 0, 0, 0);
+        level.sendParticles(ParticleTypes.FLASH, spawnPosition.x, spawnPosition.y, spawnPosition.z, 1, 0, 0, 0, 0);
     }
 
-    private static ArrayList<Pair<List<MiraculousLadybugBlockTarget>, List<MiraculousLadybugEntityTarget>>> assignTargets(List<MiraculousLadybugBlockTarget> blockTargets, List<MiraculousLadybugEntityTarget> entityTargets) {
-        ArrayList<Pair<List<MiraculousLadybugBlockTarget>, List<MiraculousLadybugEntityTarget>>> targets = new ArrayList<>();
-
-        int blockCount = blockTargets.size();
-        int entityCount = entityTargets.size();
-        int totalCount = blockCount + entityCount;
-
-        if (totalCount == 0) {
-            return targets;
+    private ArrayList<ArrayList<NewMLBTarget>> assignTargets() {
+        ArrayList<ArrayList<NewMLBTarget>> targetsTable = new ArrayList<>(MIRACULOUS_LADYBUGS_COUNT);
+        for (int i = 0; i < MIRACULOUS_LADYBUGS_COUNT; i++) {
+            targetsTable.add(new ArrayList<>());
         }
-
-        // Calculate distribution for blocks
-        int blockTasksPerEntity = blockCount > 0 ? blockCount / MIRACULOUS_LADYBUGS_COUNT : 0;
-        int blockRemainder = blockCount > 0 ? blockCount % MIRACULOUS_LADYBUGS_COUNT : 0;
-        int blockMaxCount = Math.min(blockCount, MIRACULOUS_LADYBUGS_COUNT);
-
-        // Calculate distribution for entities
-        int entityTasksPerEntity = entityCount > 0 ? entityCount / MIRACULOUS_LADYBUGS_COUNT : 0;
-        int entityRemainder = entityCount > 0 ? entityCount % MIRACULOUS_LADYBUGS_COUNT : 0;
-        int entityMaxCount = Math.min(entityCount, MIRACULOUS_LADYBUGS_COUNT);
-
-        int maxCount = Math.max(blockMaxCount, entityMaxCount);
-        int blockStart = 0;
-        int entityStart = 0;
-
-        for (int i = 0; i < maxCount; i++) {
-            List<MiraculousLadybugBlockTarget> blockSubTargets = ImmutableList.of();
-            List<MiraculousLadybugEntityTarget> entitySubTargets = ImmutableList.of();
-
-            // Handle blocks
-            if (i < blockMaxCount) {
-                int blockEnd = blockStart + blockTasksPerEntity + (i < blockRemainder ? 1 : 0);
-                blockSubTargets = blockTargets.subList(blockStart, Math.min(blockEnd, blockCount));
-                blockStart = blockEnd;
+        int targetsCount = targets.size();
+        if (targetsCount != 0) {
+            int miraculousLadybugIndex = 0;
+            int targetIndex = 0;
+            while (targetsCount > 0) {
+                NewMLBTarget target = targets.get(targetIndex);
+                ArrayList<NewMLBTarget> list = targetsTable.get(miraculousLadybugIndex);
+                list.add(target);
+                targetsTable.set(miraculousLadybugIndex, list);
+                miraculousLadybugIndex = miraculousLadybugIndex == MIRACULOUS_LADYBUGS_COUNT - 1 ? 0 : miraculousLadybugIndex + 1;
+                targetsCount--;
             }
-
-            // Handle entities
-            if (i < entityMaxCount) {
-                int entityEnd = entityStart + entityTasksPerEntity + (i < entityRemainder ? 1 : 0);
-                entitySubTargets = entityTargets.subList(entityStart, Math.min(entityEnd, entityCount));
-                entityStart = entityEnd;
-            }
-
-            // Add the combined target data
-            targets.add(Pair.of(blockSubTargets, entitySubTargets));
         }
-
-        return targets;
+        return targetsTable;
     }
 }

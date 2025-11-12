@@ -70,7 +70,7 @@ public class MiraculousLadybug extends Entity {
         MiraculousLadybugTargetData targetData = this.getTargetData();
         if (targetData.pathControlPoints() != null && !targetData.pathControlPoints().isEmpty()) {
             if (this.path == null) {
-                setupPath();
+                setupPath(level);
             } else {
                 revertReachedTarget();
                 setPosition(level);
@@ -106,11 +106,13 @@ public class MiraculousLadybug extends Entity {
         return this.distanceNearestBlockTarget;
     }
 
-    private void setupPath() {
-        MiraculousLadybugTargetData targetData = this.getTargetData();
-        this.path = new MineraculousMathUtils.CatmullRom(targetData.pathControlPoints());
-        double splinePositionParameter = path.getFirstParameter();
-        this.setTargetData(targetData.withSplinePosition(splinePositionParameter));
+    private void setupPath(Level level) {
+        if (!level.isClientSide()) {
+            MiraculousLadybugTargetData targetData = this.getTargetData();
+            this.path = new MineraculousMathUtils.CatmullRom(targetData.pathControlPoints());
+            double splinePositionParameter = path.getFirstParameter();
+            this.setTargetData(targetData.withSplinePosition(splinePositionParameter));
+        }
     }
 
     private void revertTarget(ServerLevel serverLevel, Multimap<Integer, MiraculousLadybugTarget> targetMap, int index) {

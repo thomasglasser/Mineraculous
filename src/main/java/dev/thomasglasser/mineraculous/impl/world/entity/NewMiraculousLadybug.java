@@ -97,7 +97,7 @@ public class NewMiraculousLadybug extends Entity {
                 setFacingDirection();
                 distanceNearestBlockTarget = 7;
             }
-        } else this.discard();
+        } else if (!level.isClientSide()) this.discard();
     }
 
     private void setupPath() {

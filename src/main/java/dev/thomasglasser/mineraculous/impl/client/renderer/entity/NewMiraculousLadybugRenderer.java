@@ -9,6 +9,9 @@ import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.NewMiraculousLadybug;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -18,9 +21,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
 
 public class NewMiraculousLadybugRenderer extends EntityRenderer<NewMiraculousLadybug> {
     private ArrayList<TexturedOutlinedQuad> texturedOutlinedQuads = new ArrayList<>();
@@ -32,10 +32,10 @@ public class NewMiraculousLadybugRenderer extends EntityRenderer<NewMiraculousLa
 
     @Override
     public void render(NewMiraculousLadybug entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+        System.out.println("before if");
         float splinePosition = entity.getSplinePosition();
         double splineParameter = Mth.lerp(partialTick, entity.getOldSplinePosition(), splinePosition);
         MineraculousMathUtils.CatmullRom path = entity.getPath();
-        System.out.println("before if");
         if (path != null && splineParameter >= path.getFirstParameter() && splineParameter < path.getLastParameter() - 0.1d) {
             Vec3 interpolatedPos = entity.getPosition(0); //TODO check if actual interp is needed
             updateTailPoints(path, splineParameter, interpolatedPos, entity.getDistanceToNearestBlockTarget());

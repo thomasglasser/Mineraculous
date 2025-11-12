@@ -32,7 +32,6 @@ public class NewMiraculousLadybugRenderer extends EntityRenderer<NewMiraculousLa
 
     @Override
     public void render(NewMiraculousLadybug entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        System.out.println("before if");
         float splinePosition = entity.getSplinePosition();
         double splineParameter = Mth.lerp(partialTick, entity.getOldSplinePosition(), splinePosition);
         MineraculousMathUtils.CatmullRom path = entity.getPath();
@@ -43,20 +42,8 @@ public class NewMiraculousLadybugRenderer extends EntityRenderer<NewMiraculousLa
             updateLadybugs();
             renderLadybugs(bufferSource, poseStack);
             texturedOutlinedQuads.removeIf(ladybug -> ladybug.life <= 0);
-
         }
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
-    }
-
-    private static void quad(VertexConsumer vertexConsumer, PoseStack.Pose pose, int light, float u1, float u2, float v,
-            float x1, float y1, float z1,
-            float x2, float y2, float z2,
-            float x3, float y3, float z3,
-            float x4, float y4, float z4) {
-        MineraculousClientUtils.vertex(vertexConsumer, pose, x1, y1, z1, u1, v, light);
-        MineraculousClientUtils.vertex(vertexConsumer, pose, x2, y2, z2, u1, v, light);
-        MineraculousClientUtils.vertex(vertexConsumer, pose, x3, y3, z3, u2, v, light);
-        MineraculousClientUtils.vertex(vertexConsumer, pose, x4, y4, z4, u2, v, light);
     }
 
     private void updateTailPoints(MineraculousMathUtils.CatmullRom path, double positionParameter, Vec3 interpolatedPos, double distance) {

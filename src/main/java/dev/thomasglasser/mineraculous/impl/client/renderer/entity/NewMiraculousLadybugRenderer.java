@@ -9,9 +9,6 @@ import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.NewMiraculousLadybug;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -21,6 +18,9 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
 
 public class NewMiraculousLadybugRenderer extends EntityRenderer<NewMiraculousLadybug> {
     private ArrayList<TexturedOutlinedQuad> texturedOutlinedQuads = new ArrayList<>();
@@ -35,15 +35,28 @@ public class NewMiraculousLadybugRenderer extends EntityRenderer<NewMiraculousLa
         float splinePosition = entity.getSplinePosition();
         double splineParameter = Mth.lerp(partialTick, entity.getOldSplinePosition(), splinePosition);
         MineraculousMathUtils.CatmullRom path = entity.getPath();
-        if (path != null && splineParameter >= path.getFirstParameter()) {
-            Vec3 interpolatedPos = MineraculousClientUtils.getInterpolatedPos(entity, partialTick);
+        System.out.println("before if");
+        if (path != null && splineParameter >= path.getFirstParameter() && splineParameter < path.getLastParameter() - 0.1d) {
+            Vec3 interpolatedPos = entity.getPosition(0); //TODO check if actual interp is needed
             updateTailPoints(path, splineParameter, interpolatedPos, entity.getDistanceToNearestBlockTarget());
             spawnLadybugs();
             updateLadybugs();
             renderLadybugs(bufferSource, poseStack);
             texturedOutlinedQuads.removeIf(ladybug -> ladybug.life <= 0);
+
         }
         super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+    }
+
+    private static void quad(VertexConsumer vertexConsumer, PoseStack.Pose pose, int light, float u1, float u2, float v,
+            float x1, float y1, float z1,
+            float x2, float y2, float z2,
+            float x3, float y3, float z3,
+            float x4, float y4, float z4) {
+        MineraculousClientUtils.vertex(vertexConsumer, pose, x1, y1, z1, u1, v, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, x2, y2, z2, u1, v, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, x3, y3, z3, u2, v, light);
+        MineraculousClientUtils.vertex(vertexConsumer, pose, x4, y4, z4, u2, v, light);
     }
 
     private void updateTailPoints(MineraculousMathUtils.CatmullRom path, double positionParameter, Vec3 interpolatedPos, double distance) {

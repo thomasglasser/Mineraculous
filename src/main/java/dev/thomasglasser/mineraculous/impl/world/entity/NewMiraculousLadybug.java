@@ -62,6 +62,10 @@ public class NewMiraculousLadybug extends Entity {
         return distanceNearestBlockTarget;
     }
 
+    public void setOldSplinePosition(float f) {
+        oldSplinePosition = f;
+    }
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(DATA_TARGET, new NewMLBTargetData());
@@ -92,9 +96,6 @@ public class NewMiraculousLadybug extends Entity {
                 setPosition(level);
                 setFacingDirection();
                 distanceNearestBlockTarget = 7;
-                if (level.isClientSide()) {
-                    System.out.println("C " + getSplinePosition());
-                } else  System.out.println("S " + getSplinePosition());
             }
         } else this.discard();
     }

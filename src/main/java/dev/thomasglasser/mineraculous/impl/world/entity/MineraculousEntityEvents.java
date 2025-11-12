@@ -150,6 +150,11 @@ public class MineraculousEntityEvents {
             MiraculousLadybugTargetData targetData = miraculousLadybug.getTargetData();
             miraculousLadybug.setOldSplinePosition(targetData.splinePosition());
         }
+
+        if (entity instanceof NewMiraculousLadybug miraculousLadybug) {
+
+            miraculousLadybug.setOldSplinePosition(miraculousLadybug.getSplinePosition());
+        }
     }
 
     public static void checkInventoryComponents(Entity entity) {

@@ -37,9 +37,6 @@ import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -73,6 +70,9 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import top.theillusivec4.curios.common.inventory.CurioSlot;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 public class MineraculousClientUtils {
     public static final Component GUI_CHOOSE = Component.translatable("gui.choose");
@@ -402,12 +402,5 @@ public class MineraculousClientUtils {
     public static void vertex(VertexConsumer vertexConsumer, PoseStack.Pose pose, Vec3 position, float u, float v, int light) {
         Vector3f pos = position.toVector3f();
         vertex(vertexConsumer, pose, pos, u, v, light);
-    }
-
-    public static Vec3 getInterpolatedPos(Entity entity, float partialTick) {
-        return new Vec3(
-                Mth.lerp(partialTick, entity.xOld, entity.getX()),
-                Mth.lerp(partialTick, entity.yOld, entity.getY()),
-                Mth.lerp(partialTick, entity.zOld, entity.getZ()));
     }
 }

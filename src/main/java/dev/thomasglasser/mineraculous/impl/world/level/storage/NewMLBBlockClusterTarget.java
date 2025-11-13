@@ -5,11 +5,11 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
-import java.util.List;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+import java.util.List;
 
 public record NewMLBBlockClusterTarget(List<List<NewMLBBlockTarget>> blockLayers, Vec3 center, double width, double height, int tick, int currentLayer) implements NewMLBTarget {
 
@@ -62,10 +62,11 @@ public record NewMLBBlockClusterTarget(List<List<NewMLBBlockTarget>> blockLayers
     }
 
     @Override
-    public void instantRevert(ServerLevel level) {
+    public NewMLBTarget instantRevert(ServerLevel level) {
         for (List<NewMLBBlockTarget> layer : blockLayers)
             for (NewMLBBlockTarget blockTarget : layer)
                 blockTarget.instantRevert(level);
+        return null;
     }
 
     @Override

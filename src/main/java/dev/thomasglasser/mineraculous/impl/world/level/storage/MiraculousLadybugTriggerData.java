@@ -10,10 +10,6 @@ import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.NewMiraculousLadybug;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -28,6 +24,10 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2d;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 public record MiraculousLadybugTriggerData(List<NewMLBTarget> targets, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound, int tickCount) {
 
@@ -156,19 +156,17 @@ public record MiraculousLadybugTriggerData(List<NewMLBTarget> targets, Optional<
         for (int i = 0; i < MIRACULOUS_LADYBUGS_COUNT; i++) {
             targetsTable.add(new ArrayList<>());
         }
-        int targetsCount = targets.size();
-        if (targetsCount != 0) {
-            int miraculousLadybugIndex = 0;
-            int targetIndex = 0;
-            while (targetsCount > 0) {
-                NewMLBTarget target = targets.get(targetIndex);
-                ArrayList<NewMLBTarget> list = targetsTable.get(miraculousLadybugIndex);
-                list.add(target);
-                targetsTable.set(miraculousLadybugIndex, list);
-                miraculousLadybugIndex = miraculousLadybugIndex == MIRACULOUS_LADYBUGS_COUNT - 1 ? 0 : miraculousLadybugIndex + 1;
-                targetsCount--;
-            }
+        int targetsCount = targets.size() - 1;
+        int miraculousLadybugIndex = 0;
+        while (targetsCount > -1) {
+            NewMLBTarget target = targets.get(targetsCount);
+            ArrayList<NewMLBTarget> list = targetsTable.get(miraculousLadybugIndex);
+            list.add(target);
+            targetsTable.set(miraculousLadybugIndex, list);
+            miraculousLadybugIndex = miraculousLadybugIndex == MIRACULOUS_LADYBUGS_COUNT - 1 ? 0 : miraculousLadybugIndex + 1;
+            targetsCount--;
         }
+
         return targetsTable;
     }
 }

@@ -7,13 +7,13 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEn
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
-import java.util.List;
-import java.util.UUID;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+import java.util.List;
+import java.util.UUID;
 
 public record NewMLBEntityTarget(Vec3 position, UUID cause, double width, double height) implements NewMLBTarget {
 
@@ -57,13 +57,13 @@ public record NewMLBEntityTarget(Vec3 position, UUID cause, double width, double
 
     @Override
     public NewMLBEntityTarget startReversion(ServerLevel level) {
-        instantRevert(level);
-        return this;
+        return instantRevert(level);
     }
 
     @Override
-    public void instantRevert(ServerLevel level) {
+    public NewMLBEntityTarget instantRevert(ServerLevel level) {
         AbilityReversionEntityData.get(level).revert(cause, level, position);
+        return this;
     }
 
     @Override

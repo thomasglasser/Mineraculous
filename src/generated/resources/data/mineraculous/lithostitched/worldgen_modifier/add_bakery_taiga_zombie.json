@@ -1,0 +1,15 @@
+{
+  "type": "lithostitched:add_template_pool_elements",
+  "elements": [
+    {
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "mineraculous:village/taiga/houses/bakery",
+        "processors": "minecraft:zombie_taiga",
+        "projection": "rigid"
+      },
+      "weight": 5
+    }
+  ],
+  "template_pools": "minecraft:village/taiga/zombie/houses"
+}

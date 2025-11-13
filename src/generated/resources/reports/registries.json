@@ -1,5 +1,17 @@
 {
   "lithostitched:worldgen_modifier": [
+    "mineraculous:add_bakery_1_snowy",
+    "mineraculous:add_bakery_1_snowy_zombie",
+    "mineraculous:add_bakery_2_snowy",
+    "mineraculous:add_bakery_2_snowy_zombie",
+    "mineraculous:add_bakery_desert",
+    "mineraculous:add_bakery_desert_zombie",
+    "mineraculous:add_bakery_plains",
+    "mineraculous:add_bakery_plains_zombie",
+    "mineraculous:add_bakery_savanna",
+    "mineraculous:add_bakery_savanna_zombie",
+    "mineraculous:add_bakery_taiga",
+    "mineraculous:add_bakery_taiga_zombie",
     "mineraculous:add_creamery_desert",
     "mineraculous:add_creamery_desert_zombie",
     "mineraculous:add_creamery_plains",

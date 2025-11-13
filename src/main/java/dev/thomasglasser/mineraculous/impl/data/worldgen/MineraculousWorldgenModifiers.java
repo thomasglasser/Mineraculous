@@ -29,6 +29,14 @@ public class MineraculousWorldgenModifiers {
         Holder<StructureProcessorList> zombieSnowy = processors.getOrThrow(ProcessorLists.ZOMBIE_SNOWY);
         Holder<StructureProcessorList> zombieTaiga = processors.getOrThrow(ProcessorLists.ZOMBIE_TAIGA);
 
+        // Bakery
+        addStructureToVillage(context, "desert", "bakery", 4, null, zombieDesert);
+        addStructureToVillage(context, "plains", "bakery", 4, mossify10, zombiePlains);
+        addStructureToVillage(context, "savanna", "bakery", 3, null, zombieSavanna);
+        addStructureToVillage(context, "snowy", "bakery_1", 2, null, zombieSnowy);
+        addStructureToVillage(context, "snowy", "bakery_2", 2, null, zombieSnowy);
+        addStructureToVillage(context, "taiga", "bakery", 4, mossify10, zombieTaiga);
+
         // Creamery
         addStructureToVillage(context, "desert", "creamery", 8, null, zombieDesert);
         addStructureToVillage(context, "plains", "creamery", 10, mossify10, zombiePlains);

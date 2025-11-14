@@ -22,7 +22,6 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItem
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
@@ -129,11 +128,6 @@ public class MineraculousEntityEvents {
                 entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.tick(livingEntity, level));
             }
 
-            if (entity instanceof MiraculousLadybug miraculousLadybug) {
-                MiraculousLadybugTargetData targetData = miraculousLadybug.getTargetData();
-                miraculousLadybug.setTargetData(targetData.tick(level));
-            }
-
             if (entity instanceof ItemEntity itemEntity) {
                 itemEntity.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TRIGGER).ifPresent(data -> {
                     data.tick(itemEntity, level);
@@ -144,11 +138,6 @@ public class MineraculousEntityEvents {
             if (entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent() && (weaponItem == null || !weaponItem.is(MineraculousItems.LADYBUG_YOYO))) {
                 LadybugYoyoItem.removeHeldLeash(entity);
             }
-        }
-
-        if (entity instanceof MiraculousLadybug miraculousLadybug) {
-            MiraculousLadybugTargetData targetData = miraculousLadybug.getTargetData();
-            miraculousLadybug.setOldSplinePosition(targetData.splinePosition());
         }
     }
 

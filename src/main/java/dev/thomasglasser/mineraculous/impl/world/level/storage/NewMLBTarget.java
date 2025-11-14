@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
+import java.util.List;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
-import java.util.List;
 
 public interface NewMLBTarget {
     Vec3 getPosition();

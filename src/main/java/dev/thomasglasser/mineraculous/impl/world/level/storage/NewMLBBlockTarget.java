@@ -6,14 +6,14 @@ import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTyp
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBlockData;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import io.netty.buffer.ByteBuf;
+import java.util.List;
+import java.util.UUID;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
-import java.util.List;
-import java.util.UUID;
 
 public record NewMLBBlockTarget(BlockPos blockPos, UUID cause) implements NewMLBTarget {
     public static final Codec<NewMLBBlockTarget> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -53,7 +53,7 @@ public record NewMLBBlockTarget(BlockPos blockPos, UUID cause) implements NewMLB
     public NewMLBTarget instantRevert(ServerLevel level) {
         AbilityReversionBlockData.get(level).revert(cause == null ? Util.NIL_UUID : cause, level, blockPos);
         spawnParticles(level);
-        return this;
+        return null;
     }
 
     @Override

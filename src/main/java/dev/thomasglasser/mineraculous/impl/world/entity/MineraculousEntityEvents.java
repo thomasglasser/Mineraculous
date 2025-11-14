@@ -150,11 +150,6 @@ public class MineraculousEntityEvents {
             MiraculousLadybugTargetData targetData = miraculousLadybug.getTargetData();
             miraculousLadybug.setOldSplinePosition(targetData.splinePosition());
         }
-
-        if (entity instanceof NewMiraculousLadybug miraculousLadybug) {
-
-            miraculousLadybug.setOldSplinePosition(miraculousLadybug.getSplinePosition());
-        }
     }
 
     public static void checkInventoryComponents(Entity entity) {
@@ -299,7 +294,7 @@ public class MineraculousEntityEvents {
                 }
             }
         }
-        if (entity instanceof MiraculousLadybug) event.setCanceled(true);
+        if (entity instanceof NewMiraculousLadybug) event.setCanceled(true);
     }
 
     public static void onLivingSwapHands(LivingSwapItemsEvent.Hands event) {
@@ -385,7 +380,7 @@ public class MineraculousEntityEvents {
                     target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(target, true);
                 }
             });
-            if (entity instanceof MiraculousLadybug miraculousLadybug) {
+            if (entity instanceof NewMiraculousLadybug miraculousLadybug) {
                 miraculousLadybug.revertAllTargets(level);
             }
             if (entity instanceof LivingEntity livingEntity) {

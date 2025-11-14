@@ -2,14 +2,10 @@ package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.phys.Vec3;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +14,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 
 public record NewMLBBlockClusterTarget(List<List<NewMLBBlockTarget>> blockLayers, Vec3 center, double width, double height, int tick) implements NewMLBTarget {
 
@@ -34,7 +35,6 @@ public record NewMLBBlockClusterTarget(List<List<NewMLBBlockTarget>> blockLayers
             ByteBufCodecs.DOUBLE, NewMLBBlockClusterTarget::height,
             ByteBufCodecs.INT, NewMLBBlockClusterTarget::tick,
             NewMLBBlockClusterTarget::new);
-
     public NewMLBBlockClusterTarget withTicks(int t) {
         return new NewMLBBlockClusterTarget(blockLayers, center, width, height, t);
     }
@@ -66,8 +66,8 @@ public record NewMLBBlockClusterTarget(List<List<NewMLBBlockTarget>> blockLayers
                 width,
                 width,
                 height,
-                Math.PI / 2d,
-                height / 16d);
+                2 * Math.PI / width,
+                height / 16);
     }
 
     @Override
@@ -90,6 +90,7 @@ public record NewMLBBlockClusterTarget(List<List<NewMLBBlockTarget>> blockLayers
     @Override
     public NewMLBTarget tick(ServerLevel level) {
         if (tick >= 0) {
+            MineraculousConstants.LOGGER.info("cluster tick");
             if (blockLayers.isEmpty())
                 return withTicks(-1);
             if (tick % 20 == 0 || tick == 0)
@@ -111,7 +112,7 @@ public record NewMLBBlockClusterTarget(List<List<NewMLBBlockTarget>> blockLayers
         if (!blockLayers.isEmpty()) {
             List<NewMLBBlockTarget> layer = blockLayers.getFirst();
             for (NewMLBBlockTarget blockTarget : layer)
-                blockTarget.startReversion(level);
+                blockTarget.instantRevert(level);
             return withBlockLayers(new ArrayList<>(blockLayers.subList(1, blockLayers.size())));
         }
         return this;
@@ -127,7 +128,7 @@ public record NewMLBBlockClusterTarget(List<List<NewMLBBlockTarget>> blockLayers
             for (int dy = -1; dy <= 1; dy++) {
                 for (int dz = -1; dz <= 1; dz++) {
                     if (dx == 0 && dy == 0 && dz == 0) continue;
-                    off[i++] = new int[]{dx, dy, dz};
+                    off[i++] = new int[] { dx, dy, dz };
                 }
             }
         }
@@ -136,16 +137,14 @@ public record NewMLBBlockClusterTarget(List<List<NewMLBBlockTarget>> blockLayers
 
     public static Collection<NewMLBTarget> reduceNearbyBlocks(Collection<NewMLBTarget> input) {
         List<NewMLBBlockTarget> list = new ArrayList<>(input.size());
-            for (NewMLBTarget target : input) {
-                if (target instanceof NewMLBBlockTarget blockTarget)
-                    list.add(blockTarget);
-            }
+        for (NewMLBTarget target : input) {
+            if (target instanceof NewMLBBlockTarget blockTarget)
+                list.add(blockTarget);
+        }
         return reduceClumps(list);
     }
 
-
     public static Collection<NewMLBTarget> reduceClumps(Collection<NewMLBBlockTarget> input) {
-
         Map<BlockPos, NewMLBBlockTarget> allBlocks = new HashMap<>(input.size());
         for (NewMLBBlockTarget bt : input) {
             allBlocks.put(bt.blockPos(), bt);
@@ -187,9 +186,12 @@ public record NewMLBBlockClusterTarget(List<List<NewMLBBlockTarget>> blockLayers
                 int py = pos.getY();
                 int pz = pos.getZ();
 
-                if (px < minX) minX = px; else if (px > maxX) maxX = px;
-                if (py < minY) minY = py; else if (py > maxY) maxY = py;
-                if (pz < minZ) minZ = pz; else if (pz > maxZ) maxZ = pz;
+                if (px < minX) minX = px;
+                else if (px > maxX) maxX = px;
+                if (py < minY) minY = py;
+                else if (py > maxY) maxY = py;
+                if (pz < minZ) minZ = pz;
+                else if (pz > maxZ) maxZ = pz;
 
                 for (int[] o : NEIGHBOR_OFFSETS) {
                     mutable.set(px + o[0], py + o[1], pz + o[2]);
@@ -202,22 +204,30 @@ public record NewMLBBlockClusterTarget(List<List<NewMLBBlockTarget>> blockLayers
                     }
                 }
             }
+            if (clump.size() > 1) {
+                int centerX = (minX + maxX) / 2;
+                int centerY = (minY + maxY) / 2;
+                int centerZ = (minZ + maxZ) / 2;
+                Vec3 center = new Vec3(centerX + 0.5, centerY + 0.5, centerZ + 0.5);
 
-            int centerX = (minX + maxX) / 2;
-            int centerY = (minY + maxY) / 2;
-            int centerZ = (minZ + maxZ) / 2;
-            Vec3 center = new Vec3(centerX + 0.5, centerY + 0.5, centerZ + 0.5);
+                double width = ((maxX - minX + maxZ - minZ + 2) / 2d);
+                double height = (maxY - minY + 1);
 
-            double width = (Math.max(maxX - minX, maxZ - minZ) + 1) * Math.sqrt(2);
-            double height = (maxY - minY + 1) * Math.sqrt(2);
-
-            List<NewMLBBlockTarget> blockTargets = new ArrayList<>(clump.size());
-            for (BlockPos pos : clump) {
-                blockTargets.add(allBlocks.get(pos));
+                List<NewMLBBlockTarget> blockTargets = new ArrayList<>(clump.size());
+                for (BlockPos pos : clump) {
+                    blockTargets.add(allBlocks.get(pos));
+                }
+                NewMLBBlockClusterTarget cluster = create(blockTargets, center, width, height);
+                if (cluster != null)
+                    clumps.add(cluster);
+            } else if (clump.size() == 1) {
+                NewMLBBlockTarget single = allBlocks.get(clump.getFirst());
+                if (single != null) {
+                    clumps.add(single);
+                } else {
+                    throw new IllegalStateException("Inside NewMLBBlockClusterTarget::reduceClumps a list clump contained a BlockPos that wasn't in allBlocks: " + clump.getFirst());
+                }
             }
-            NewMLBBlockClusterTarget cluster = create(blockTargets, center, width, height);
-            if (cluster != null)
-                clumps.add(cluster);
         }
         return clumps;
     }
@@ -235,7 +245,9 @@ public record NewMLBBlockClusterTarget(List<List<NewMLBBlockTarget>> blockLayers
             }
         }
 
-        if (start == null) return null;
+        if (start == null) {
+            throw new IllegalStateException("Passed a list of NewMLBBlockTarget with null contents when calling NewMLBBlockCluster::create!");
+        }
 
         Map<BlockPos, NewMLBBlockTarget> map = new HashMap<>();
         for (NewMLBBlockTarget b : blockTargets) map.put(b.blockPos(), b);

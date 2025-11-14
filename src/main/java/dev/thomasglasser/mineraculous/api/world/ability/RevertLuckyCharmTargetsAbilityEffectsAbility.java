@@ -20,6 +20,13 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.NewMLBBlockTarget
 import dev.thomasglasser.mineraculous.impl.world.level.storage.NewMLBEntityTarget;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.NewMLBTarget;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -34,13 +41,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * Reverts the ability effects of the {@link LuckyCharm} target and related entities.

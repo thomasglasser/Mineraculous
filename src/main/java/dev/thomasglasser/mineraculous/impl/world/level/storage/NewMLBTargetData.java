@@ -80,7 +80,7 @@ public record NewMLBTargetData(List<Vec3> controlPoints, Multimap<Integer, NewML
     private static void mapTargets(List<NewMLBTarget> targets, Multimap<Integer, NewMLBTarget> targetMap, ArrayList<Vec3> controlPoints) {
         for (NewMLBTarget target : targets) {
             List<Vec3> targetControlPoints = target.getControlPoints();
-            int middleIndex = targetControlPoints.size() / 2 + targetControlPoints.size() + PREPEND_POINTS - 1;
+            int middleIndex = targetControlPoints.size() / 2 + PREPEND_POINTS;
             targetMap.put(middleIndex, target);
             controlPoints.addAll(targetControlPoints);
         }

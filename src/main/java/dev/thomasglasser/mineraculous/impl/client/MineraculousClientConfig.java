@@ -49,8 +49,8 @@ public class MineraculousClientConfig {
                 .defineInRange("lifetime", 13, 6, 22);
         shakeStrength = builder
                 .defineInRange("shake_strength", 20, 0, 30);
-        builder.pop();
         size = builder.defineInRange("size", 8, 5, 13);
+        builder.pop();
 
         configSpec = builder.build();
     }

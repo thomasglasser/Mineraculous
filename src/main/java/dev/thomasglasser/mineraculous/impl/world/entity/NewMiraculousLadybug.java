@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
@@ -41,7 +42,8 @@ public class NewMiraculousLadybug extends Entity {
     }
 
     public void setTargetData(NewMLBTargetData targetData) {
-        entityData.set(DATA_TARGET, targetData);
+        if (targetData != getTargetData())
+            entityData.set(DATA_TARGET, targetData);
     }
 
     public NewMLBTargetData getTargetData() {
@@ -106,10 +108,31 @@ public class NewMiraculousLadybug extends Entity {
             } else {
                 setPosition();
                 setFacingDirection();
+                revertReachedTarget();
                 spawnParticles();
                 setDistanceNearestBlockTarget();
             }
-        } else if (!level().isClientSide()) this.discard();
+        } else if (!level().isClientSide()) discard();
+
+        setOldSplinePosition(getSplinePosition());
+        tickData();
+    }
+
+    public void revertAllTargets(ServerLevel serverLevel) {
+        Multimap<Integer, NewMLBTarget> targetMap = this.getTargetData().targets();
+        for (int index : targetMap.keySet()) {
+            revertTargetsAtIndex(serverLevel, targetMap, index, true);
+        }
+    }
+
+    private void tickData() {
+        if (level() instanceof ServerLevel serverLevel) {
+            NewMLBTargetData targetData = getTargetData();
+            NewMLBTargetData newTargetData = targetData.tick(serverLevel);
+            if (targetData != newTargetData) {
+                setTargetData(newTargetData);
+            }
+        }
     }
 
     private void setupPath() {
@@ -120,12 +143,29 @@ public class NewMiraculousLadybug extends Entity {
 
     private void setPosition() {
         if (level() instanceof ServerLevel) {
-            double speed = MineraculousServerConfig.get().miraculousLadybugSpeed.get() / 100f;
-            double splinePositionParameter = getSplinePosition();
-            splinePositionParameter = path.advanceParameter(splinePositionParameter, speed);
-            this.moveTo(path.getPoint(splinePositionParameter));
-            setSplinePosition((float) splinePositionParameter);
+            float speed = MineraculousServerConfig.get().miraculousLadybugSpeed.get() / 100f;
+            float afterMovement = (float) path.advanceParameter(getSplinePosition(), speed);
+            if (shouldDiscard(afterMovement)) {
+                discard();
+            }
+            this.moveTo(path.getPoint(afterMovement));
+            setSplinePosition(afterMovement);
         }
+    }
+
+    private boolean shouldDiscard(float afterMovementPosition) {
+        NewMLBTargetData data = getTargetData();
+        Multimap<Integer, NewMLBTarget> map = data.targets();
+        for (NewMLBTarget target : map.values()) {
+            if (target.isReverting()) {
+                return false;
+            }
+        }
+        MineraculousConstants.LOGGER.info("b " + getSplinePosition() + " a " + afterMovementPosition);
+        if (getSplinePosition() != afterMovementPosition) {
+            return false;
+        }
+        return true;
     }
 
     private void setFacingDirection() {
@@ -144,7 +184,7 @@ public class NewMiraculousLadybug extends Entity {
         if (level() instanceof ServerLevel serverLevel) {
             int approaching = path.findSegment(splinePos);
             if (approaching != -1) {
-                int passed = approaching - 3; //subtracted the first ghost point
+                int passed = approaching - 2; //subtracted the first ghost point
                 if (targetMap.containsKey(passed)) {
                     revertTargets(serverLevel, targetMap, passed);
                 }
@@ -168,20 +208,20 @@ public class NewMiraculousLadybug extends Entity {
                     target.instantRevert(serverLevel);
                 else {
                     NewMLBTarget newTarget = target.startReversion(serverLevel);
-                    newTargets.remove(index, target);
-                    newTargets.put(index, newTarget);
-                    changed = true;
+                    if (newTarget != target) {
+                        newTargets.remove(index, target);
+                        changed = true;
+                        if (newTarget != null)
+                            newTargets.put(index, newTarget);
+                    }
                 }
             }
         }
 
-        /*if (changed) {
-            NewMLBTarget updatedData = new NewMLBTarget(
-                    targetData.pathControlPoints(),
-                    newTargets,
-                    targetData.splinePosition());
-            this.setTargetData(updatedData);
-        }*/
+        if (changed) {
+            NewMLBTargetData newTargetData = targetData.withTargets(newTargets);
+            this.setTargetData(newTargetData);
+        }
     }
 
     private void spawnParticles() {
@@ -247,7 +287,10 @@ public class NewMiraculousLadybug extends Entity {
         while ((step > 0 && i <= limit) || (step < 0 && i >= limit)) {
             for (NewMLBTarget target : targets.get(i)) {
                 // TODO when making the registry for targets ensure Target has a method which returns a boolean for this if
-                if (target instanceof NewMLBBlockTarget || target instanceof NewMLBBlockClusterTarget) {
+                // make this a switch case because it can need different implementation or sth
+                if (target instanceof NewMLBBlockTarget) {
+                    return target;
+                } else if (target instanceof NewMLBBlockClusterTarget clusterTarget && clusterTarget.width() > 5) {
                     return target;
                 }
             }

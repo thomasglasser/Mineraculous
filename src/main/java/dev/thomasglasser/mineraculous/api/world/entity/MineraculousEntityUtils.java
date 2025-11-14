@@ -198,7 +198,7 @@ public class MineraculousEntityUtils {
         int initialY = pos.getY();
 
         for (int i = 0; i <= max; i++) {
-            pos.above();
+            pos = pos.above().mutable();
             if (!level.getBlockState(pos).isAir()) {
                 pos.setY(initialY + i);
                 break;

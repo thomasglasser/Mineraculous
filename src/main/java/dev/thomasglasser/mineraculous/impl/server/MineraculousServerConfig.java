@@ -66,7 +66,7 @@ public class MineraculousServerConfig {
         enableMiraculousLadybugClumpDetection = builder
                 .define("enable_miraculous_ladybug_clump_detection", true);
         miraculousLadybugSpeed = builder
-                .defineInRange("miraculous_ladybug_speed", 70, 60, 80);
+                .defineInRange("miraculous_ladybug_speed", 70, 60, 100);
         builder.pop();
         builder.push(KWAMIS);
         kwamiSummonTime = builder

@@ -2,18 +2,18 @@ package dev.thomasglasser.mineraculous.impl.util;
 
 import com.google.common.collect.ImmutableList;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.NewMLBTarget;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Vector2d;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector2d;
 
 public class MineraculousMathUtils {
     public static Vec3 projectOnCircle(Vec3 fromPointToCenter, Vec3 vec3) {

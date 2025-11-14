@@ -38,7 +38,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
         double splineParameter = Mth.lerp(partialTick, entity.getOldSplinePosition(), targetData.splinePosition());
         MineraculousMathUtils.CatmullRom path = entity.getPath();
         if (path != null && splineParameter >= path.getFirstParameter()) {
-            Vec3 interpolatedPos = MineraculousClientUtils.getInterpolatedPos(entity, partialTick);
+            Vec3 interpolatedPos = entity.getPosition(partialTick);
             updateTailPoints(path, splineParameter, interpolatedPos, entity.getDistanceToNearestBlockTarget());
             spawnLadybugs();
             updateLadybugs();

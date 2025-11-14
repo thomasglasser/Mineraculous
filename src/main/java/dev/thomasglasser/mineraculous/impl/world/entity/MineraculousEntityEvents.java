@@ -283,7 +283,7 @@ public class MineraculousEntityEvents {
                 }
             }
         }
-        if (entity instanceof NewMiraculousLadybug) event.setCanceled(true);
+        if (entity instanceof MiraculousLadybug) event.setCanceled(true);
     }
 
     public static void onLivingSwapHands(LivingSwapItemsEvent.Hands event) {
@@ -369,7 +369,7 @@ public class MineraculousEntityEvents {
                     target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(target, true);
                 }
             });
-            if (entity instanceof NewMiraculousLadybug miraculousLadybug) {
+            if (entity instanceof MiraculousLadybug miraculousLadybug) {
                 miraculousLadybug.revertAllTargets(level);
             }
             if (entity instanceof LivingEntity livingEntity) {

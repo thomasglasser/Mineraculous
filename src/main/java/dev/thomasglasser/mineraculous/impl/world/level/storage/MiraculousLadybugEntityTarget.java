@@ -15,28 +15,28 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
-public record NewMLBEntityTarget(Vec3 position, UUID cause, double width, double height) implements NewMLBTarget {
+public record MiraculousLadybugEntityTarget(Vec3 position, UUID cause, double width, double height) implements MiraculousLadybugTarget {
 
-    public static final Codec<NewMLBEntityTarget> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Vec3.CODEC.fieldOf("position").forGetter(NewMLBEntityTarget::position),
-            UUIDUtil.CODEC.fieldOf("cause").forGetter(NewMLBEntityTarget::cause),
-            Codec.DOUBLE.fieldOf("width").forGetter(NewMLBEntityTarget::width),
-            Codec.DOUBLE.fieldOf("height").forGetter(NewMLBEntityTarget::height)).apply(instance, NewMLBEntityTarget::new));
+    public static final Codec<MiraculousLadybugEntityTarget> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Vec3.CODEC.fieldOf("position").forGetter(MiraculousLadybugEntityTarget::position),
+            UUIDUtil.CODEC.fieldOf("cause").forGetter(MiraculousLadybugEntityTarget::cause),
+            Codec.DOUBLE.fieldOf("width").forGetter(MiraculousLadybugEntityTarget::width),
+            Codec.DOUBLE.fieldOf("height").forGetter(MiraculousLadybugEntityTarget::height)).apply(instance, MiraculousLadybugEntityTarget::new));
 
-    public static final StreamCodec<ByteBuf, NewMLBEntityTarget> STREAM_CODEC = StreamCodec.composite(
-            TommyLibExtraStreamCodecs.VEC_3, NewMLBEntityTarget::position,
-            UUIDUtil.STREAM_CODEC, NewMLBEntityTarget::cause,
-            ByteBufCodecs.DOUBLE, NewMLBEntityTarget::width,
-            ByteBufCodecs.DOUBLE, NewMLBEntityTarget::height,
-            NewMLBEntityTarget::new);
+    public static final StreamCodec<ByteBuf, MiraculousLadybugEntityTarget> STREAM_CODEC = StreamCodec.composite(
+            TommyLibExtraStreamCodecs.VEC_3, MiraculousLadybugEntityTarget::position,
+            UUIDUtil.STREAM_CODEC, MiraculousLadybugEntityTarget::cause,
+            ByteBufCodecs.DOUBLE, MiraculousLadybugEntityTarget::width,
+            ByteBufCodecs.DOUBLE, MiraculousLadybugEntityTarget::height,
+            MiraculousLadybugEntityTarget::new);
     @Override
     public Vec3 getPosition() {
         return position;
     }
 
     @Override
-    public NewMLBTargetType type() {
-        return NewMLBTargetType.ENTITY;
+    public MiraculousLadybugTargetType type() {
+        return MiraculousLadybugTargetType.ENTITY;
     }
 
     @Override
@@ -56,18 +56,18 @@ public record NewMLBEntityTarget(Vec3 position, UUID cause, double width, double
     }
 
     @Override
-    public NewMLBEntityTarget startReversion(ServerLevel level) {
+    public MiraculousLadybugEntityTarget startReversion(ServerLevel level) {
         return instantRevert(level);
     }
 
     @Override
-    public NewMLBEntityTarget instantRevert(ServerLevel level) {
+    public MiraculousLadybugEntityTarget instantRevert(ServerLevel level) {
         AbilityReversionEntityData.get(level).revert(cause, level, position);
         return null;
     }
 
     @Override
-    public NewMLBTarget tick(ServerLevel level) {
+    public MiraculousLadybugTarget tick(ServerLevel level) {
         return this;
     }
 

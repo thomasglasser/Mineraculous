@@ -19,66 +19,66 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
-public record NewMLBTargetData(List<Vec3> controlPoints, Multimap<Integer, NewMLBTarget> targets) {
+public record MiraculousLadybugTargetData(List<Vec3> controlPoints, Multimap<Integer, MiraculousLadybugTarget> targets) {
     private static final int PREPEND_POINTS = 25;
 
-    public static final Codec<NewMLBTargetData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Vec3.CODEC.listOf().fieldOf("control_points").forGetter(NewMLBTargetData::controlPoints),
-            Codec.unboundedMap(Codec.STRING, NewMLBTargetType.TARGET_CODEC.listOf()).fieldOf("targets").forGetter(NewMLBTargetData::targetsMap))
-            .apply(instance, NewMLBTargetData::new));
-    public static final StreamCodec<RegistryFriendlyByteBuf, NewMLBTargetData> STREAM_CODEC = StreamCodec.composite(
-            TommyLibExtraStreamCodecs.VEC_3.apply(ByteBufCodecs.list()), NewMLBTargetData::controlPoints,
+    public static final Codec<MiraculousLadybugTargetData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            Vec3.CODEC.listOf().fieldOf("control_points").forGetter(MiraculousLadybugTargetData::controlPoints),
+            Codec.unboundedMap(Codec.STRING, MiraculousLadybugTargetType.TARGET_CODEC.listOf()).fieldOf("targets").forGetter(MiraculousLadybugTargetData::targetsMap))
+            .apply(instance, MiraculousLadybugTargetData::new));
+    public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousLadybugTargetData> STREAM_CODEC = StreamCodec.composite(
+            TommyLibExtraStreamCodecs.VEC_3.apply(ByteBufCodecs.list()), MiraculousLadybugTargetData::controlPoints,
             ByteBufCodecs.map(
                     Maps::newHashMapWithExpectedSize,
                     ByteBufCodecs.STRING_UTF8,
-                    NewMLBTargetType.TARGET_STREAM_CODEC.apply(ByteBufCodecs.list())),
-            NewMLBTargetData::targetsMap,
-            NewMLBTargetData::new);
+                    MiraculousLadybugTargetType.TARGET_STREAM_CODEC.apply(ByteBufCodecs.list())),
+            MiraculousLadybugTargetData::targetsMap,
+            MiraculousLadybugTargetData::new);
 
-    public NewMLBTargetData() {
+    public MiraculousLadybugTargetData() {
         this(ImmutableList.of(), ImmutableMap.of());
     }
 
-    public NewMLBTargetData withTargets(Multimap<Integer, NewMLBTarget> targets) {
-        return new NewMLBTargetData(controlPoints, targets);
+    public MiraculousLadybugTargetData withTargets(Multimap<Integer, MiraculousLadybugTarget> targets) {
+        return new MiraculousLadybugTargetData(controlPoints, targets);
     }
 
-    public NewMLBTargetData(List<Vec3> vec3s, Map<String, List<NewMLBTarget>> targets) {
+    public MiraculousLadybugTargetData(List<Vec3> vec3s, Map<String, List<MiraculousLadybugTarget>> targets) {
         this(vec3s, convertTargets(targets));
     }
 
-    public static NewMLBTargetData create(List<NewMLBTarget> targets, Vec3 spawnPosition, Vec3 circlePosition) {
-        Multimap<Integer, NewMLBTarget> targetMap = LinkedHashMultimap.create(); // maps control points to targets
+    public static MiraculousLadybugTargetData create(List<MiraculousLadybugTarget> targets, Vec3 spawnPosition, Vec3 circlePosition) {
+        Multimap<Integer, MiraculousLadybugTarget> targetMap = LinkedHashMultimap.create(); // maps control points to targets
         ArrayList<Vec3> controlPoints = new ArrayList<>();
         mapTargets(targets, targetMap, controlPoints);
         prependPoints(spawnPosition, circlePosition, controlPoints);
         extendLastControlPoint(controlPoints);
-        return new NewMLBTargetData(controlPoints, targetMap);
+        return new MiraculousLadybugTargetData(controlPoints, targetMap);
     }
 
-    public NewMLBTargetData tick(ServerLevel level) {
-        Multimap<Integer, NewMLBTarget> newTargets = LinkedHashMultimap.create();
-        for (Map.Entry<Integer, NewMLBTarget> entry : targets.entries()) {
-            NewMLBTarget target = entry.getValue().tick(level);
+    public MiraculousLadybugTargetData tick(ServerLevel level) {
+        Multimap<Integer, MiraculousLadybugTarget> newTargets = LinkedHashMultimap.create();
+        for (Map.Entry<Integer, MiraculousLadybugTarget> entry : targets.entries()) {
+            MiraculousLadybugTarget target = entry.getValue().tick(level);
             newTargets.put(entry.getKey(), target);
         }
         return this.withTargets(newTargets);
     }
 
-    private static Multimap<Integer, NewMLBTarget> convertTargets(Map<String, List<NewMLBTarget>> map) {
-        Multimap<Integer, NewMLBTarget> multimap = HashMultimap.create();
+    private static Multimap<Integer, MiraculousLadybugTarget> convertTargets(Map<String, List<MiraculousLadybugTarget>> map) {
+        Multimap<Integer, MiraculousLadybugTarget> multimap = HashMultimap.create();
         map.forEach((index, targets) -> multimap.putAll(Integer.parseInt(index), targets));
         return multimap;
     }
 
-    private Map<String, List<NewMLBTarget>> targetsMap() {
-        Map<String, List<NewMLBTarget>> targetsMap = new HashMap<>();
+    private Map<String, List<MiraculousLadybugTarget>> targetsMap() {
+        Map<String, List<MiraculousLadybugTarget>> targetsMap = new HashMap<>();
         targets.asMap().forEach((index, targets) -> targetsMap.put(String.valueOf(index), ImmutableList.copyOf(targets)));
         return targetsMap;
     }
 
-    private static void mapTargets(List<NewMLBTarget> targets, Multimap<Integer, NewMLBTarget> targetMap, ArrayList<Vec3> controlPoints) {
-        for (NewMLBTarget target : targets) {
+    private static void mapTargets(List<MiraculousLadybugTarget> targets, Multimap<Integer, MiraculousLadybugTarget> targetMap, ArrayList<Vec3> controlPoints) {
+        for (MiraculousLadybugTarget target : targets) {
             List<Vec3> targetControlPoints = target.getControlPoints();
             int middleIndex = targetControlPoints.size() / 2 + PREPEND_POINTS;
             targetMap.put(middleIndex, target);

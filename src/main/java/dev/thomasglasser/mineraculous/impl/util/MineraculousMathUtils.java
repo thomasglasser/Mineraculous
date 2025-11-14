@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.util;
 
 import com.google.common.collect.ImmutableList;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.NewMLBTarget;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTarget;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -177,17 +177,17 @@ public class MineraculousMathUtils {
 
     //ALGORITHMS
     //GREEDY TSP
-    public static List<NewMLBTarget> sortTargets(Collection<NewMLBTarget> targets, Vec3 startTarget) {
-        List<NewMLBTarget> toVisit = new ArrayList<>(targets);
-        List<NewMLBTarget> ordered = new ArrayList<>();
+    public static List<MiraculousLadybugTarget> sortTargets(Collection<MiraculousLadybugTarget> targets, Vec3 startTarget) {
+        List<MiraculousLadybugTarget> toVisit = new ArrayList<>(targets);
+        List<MiraculousLadybugTarget> ordered = new ArrayList<>();
 
         Vec3 current = startTarget;
 
         while (!toVisit.isEmpty()) {
-            NewMLBTarget nearest = null;
+            MiraculousLadybugTarget nearest = null;
             double nearestDist = Double.MAX_VALUE;
 
-            for (NewMLBTarget target : toVisit) {
+            for (MiraculousLadybugTarget target : toVisit) {
                 double dist = current.distanceTo(target.getPosition());
                 if (dist < nearestDist) {
                     nearestDist = dist;

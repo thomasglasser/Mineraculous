@@ -8,10 +8,10 @@ import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSer
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.NewMLBBlockClusterTarget;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.NewMLBBlockTarget;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.NewMLBTarget;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.NewMLBTargetData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugBlockClusterTarget;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugBlockTarget;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTarget;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -23,30 +23,30 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-public class NewMiraculousLadybug extends Entity {
+public class MiraculousLadybug extends Entity {
     private MineraculousMathUtils.CatmullRom path = null;
     private float oldSplinePosition = 0;
     private float distanceNearestBlockTarget = 0;
 
-    private static final EntityDataAccessor<NewMLBTargetData> DATA_TARGET = SynchedEntityData.defineId(NewMiraculousLadybug.class, MineraculousEntityDataSerializers.NEW_MIRACULOUS_LADYBUG_TARGET_DATA.get());
-    private static final EntityDataAccessor<Float> DATA_SPLINE_POSITION = SynchedEntityData.defineId(NewMiraculousLadybug.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<MiraculousLadybugTargetData> DATA_TARGET = SynchedEntityData.defineId(MiraculousLadybug.class, MineraculousEntityDataSerializers.MIRACULOUS_LADYBUG_TARGET_DATA.get());
+    private static final EntityDataAccessor<Float> DATA_SPLINE_POSITION = SynchedEntityData.defineId(MiraculousLadybug.class, EntityDataSerializers.FLOAT);
 
-    public NewMiraculousLadybug(EntityType<?> entityType, Level level) {
+    public MiraculousLadybug(EntityType<?> entityType, Level level) {
         super(entityType, level);
         this.noPhysics = true;
         this.noCulling = true;
     }
 
-    public NewMiraculousLadybug(Level level) {
-        this(MineraculousEntityTypes.NEW_MIRACULOUS_LADYBUG.get(), level);
+    public MiraculousLadybug(Level level) {
+        this(MineraculousEntityTypes.MIRACULOUS_LADYBUG.get(), level);
     }
 
-    public void setTargetData(NewMLBTargetData targetData) {
+    public void setTargetData(MiraculousLadybugTargetData targetData) {
         if (targetData != getTargetData())
             entityData.set(DATA_TARGET, targetData);
     }
 
-    public NewMLBTargetData getTargetData() {
+    public MiraculousLadybugTargetData getTargetData() {
         return entityData.get(DATA_TARGET);
     }
 
@@ -82,26 +82,26 @@ public class NewMiraculousLadybug extends Entity {
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(DATA_TARGET, new NewMLBTargetData());
+        builder.define(DATA_TARGET, new MiraculousLadybugTargetData());
         builder.define(DATA_SPLINE_POSITION, 0f);
     }
 
     @Override
     protected void readAdditionalSaveData(CompoundTag compoundTag) {
-        setTargetData(NewMLBTargetData.CODEC.parse(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), compoundTag.get("TargetData")).getOrThrow());
+        setTargetData(MiraculousLadybugTargetData.CODEC.parse(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), compoundTag.get("TargetData")).getOrThrow());
         setSplinePosition(compoundTag.getFloat("SplinePosition"));
     }
 
     @Override
     protected void addAdditionalSaveData(CompoundTag compoundTag) {
-        compoundTag.put("TargetData", NewMLBTargetData.CODEC.encodeStart(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), getTargetData()).getOrThrow());
+        compoundTag.put("TargetData", MiraculousLadybugTargetData.CODEC.encodeStart(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), getTargetData()).getOrThrow());
         compoundTag.putFloat("SplinePosition", getSplinePosition());
     }
 
     @Override
     public void tick() {
         super.tick();
-        NewMLBTargetData targetData = getTargetData();
+        MiraculousLadybugTargetData targetData = getTargetData();
         if (targetData.controlPoints() != null && !targetData.controlPoints().isEmpty()) {
             if (this.path == null) {
                 setupPath();
@@ -119,7 +119,7 @@ public class NewMiraculousLadybug extends Entity {
     }
 
     public void revertAllTargets(ServerLevel serverLevel) {
-        Multimap<Integer, NewMLBTarget> targetMap = this.getTargetData().targets();
+        Multimap<Integer, MiraculousLadybugTarget> targetMap = this.getTargetData().targets();
         for (int index : targetMap.keySet()) {
             revertTargetsAtIndex(serverLevel, targetMap, index, true);
         }
@@ -127,8 +127,8 @@ public class NewMiraculousLadybug extends Entity {
 
     private void tickData() {
         if (level() instanceof ServerLevel serverLevel) {
-            NewMLBTargetData targetData = getTargetData();
-            NewMLBTargetData newTargetData = targetData.tick(serverLevel);
+            MiraculousLadybugTargetData targetData = getTargetData();
+            MiraculousLadybugTargetData newTargetData = targetData.tick(serverLevel);
             if (targetData != newTargetData) {
                 setTargetData(newTargetData);
             }
@@ -136,7 +136,7 @@ public class NewMiraculousLadybug extends Entity {
     }
 
     private void setupPath() {
-        NewMLBTargetData targetData = this.getTargetData();
+        MiraculousLadybugTargetData targetData = this.getTargetData();
         path = new MineraculousMathUtils.CatmullRom(targetData.controlPoints());
         setSplinePosition((float) path.getFirstParameter());
     }
@@ -154,9 +154,9 @@ public class NewMiraculousLadybug extends Entity {
     }
 
     private boolean shouldDiscard(float afterMovementPosition) {
-        NewMLBTargetData data = getTargetData();
-        Multimap<Integer, NewMLBTarget> map = data.targets();
-        for (NewMLBTarget target : map.values()) {
+        MiraculousLadybugTargetData data = getTargetData();
+        Multimap<Integer, MiraculousLadybugTarget> map = data.targets();
+        for (MiraculousLadybugTarget target : map.values()) {
             if (target.isReverting()) {
                 return false;
             }
@@ -178,8 +178,8 @@ public class NewMiraculousLadybug extends Entity {
     }
 
     private void revertReachedTarget() {
-        NewMLBTargetData targetData = getTargetData();
-        Multimap<Integer, NewMLBTarget> targetMap = targetData.targets();
+        MiraculousLadybugTargetData targetData = getTargetData();
+        Multimap<Integer, MiraculousLadybugTarget> targetMap = targetData.targets();
         float splinePos = getSplinePosition();
         if (level() instanceof ServerLevel serverLevel) {
             int approaching = path.findSegment(splinePos);
@@ -192,22 +192,22 @@ public class NewMiraculousLadybug extends Entity {
         }
     }
 
-    private void revertTargets(ServerLevel serverLevel, Multimap<Integer, NewMLBTarget> targetMap, int index) {
+    private void revertTargets(ServerLevel serverLevel, Multimap<Integer, MiraculousLadybugTarget> targetMap, int index) {
         revertTargetsAtIndex(serverLevel, targetMap, index, false);
     }
 
-    private void revertTargetsAtIndex(ServerLevel serverLevel, Multimap<Integer, NewMLBTarget> targetMap, int index, boolean instant) {
-        NewMLBTargetData targetData = getTargetData();
-        Multimap<Integer, NewMLBTarget> newTargets = LinkedHashMultimap.create(targetMap);
+    private void revertTargetsAtIndex(ServerLevel serverLevel, Multimap<Integer, MiraculousLadybugTarget> targetMap, int index, boolean instant) {
+        MiraculousLadybugTargetData targetData = getTargetData();
+        Multimap<Integer, MiraculousLadybugTarget> newTargets = LinkedHashMultimap.create(targetMap);
 
         boolean changed = false;
 
-        for (NewMLBTarget target : targetMap.get(index)) {
+        for (MiraculousLadybugTarget target : targetMap.get(index)) {
             if (!target.isReverting()) {
                 if (instant)
                     target.instantRevert(serverLevel);
                 else {
-                    NewMLBTarget newTarget = target.startReversion(serverLevel);
+                    MiraculousLadybugTarget newTarget = target.startReversion(serverLevel);
                     if (newTarget != target) {
                         newTargets.remove(index, target);
                         changed = true;
@@ -219,7 +219,7 @@ public class NewMiraculousLadybug extends Entity {
         }
 
         if (changed) {
-            NewMLBTargetData newTargetData = targetData.withTargets(newTargets);
+            MiraculousLadybugTargetData newTargetData = targetData.withTargets(newTargets);
             this.setTargetData(newTargetData);
         }
     }
@@ -257,14 +257,14 @@ public class NewMiraculousLadybug extends Entity {
     }
 
     private float findNearestTargetDistance(Vec3 pos) {
-        NewMLBTargetData data = this.getTargetData();
-        Multimap<Integer, NewMLBTarget> targets = data.targets();
+        MiraculousLadybugTargetData data = this.getTargetData();
+        Multimap<Integer, MiraculousLadybugTarget> targets = data.targets();
 
         int approaching = path.findSegment(getSplinePosition());
         int passedControlPoint = approaching != -1 ? approaching - 3 : 0;
 
-        NewMLBTarget backTarget = scanAnyTarget(targets, passedControlPoint, false, (float) path.getFirstParameter());
-        NewMLBTarget frontTarget = scanAnyTarget(targets, passedControlPoint + 1, true, (float) path.getLastParameter());
+        MiraculousLadybugTarget backTarget = scanAnyTarget(targets, passedControlPoint, false, (float) path.getFirstParameter());
+        MiraculousLadybugTarget frontTarget = scanAnyTarget(targets, passedControlPoint + 1, true, (float) path.getLastParameter());
 
         if (frontTarget == null && backTarget == null) {
             return Float.MAX_VALUE;
@@ -276,8 +276,8 @@ public class NewMiraculousLadybug extends Entity {
         return Math.min(backDistance, frontDistance);
     }
 
-    private NewMLBTarget scanAnyTarget(
-            Multimap<Integer, NewMLBTarget> targets,
+    private MiraculousLadybugTarget scanAnyTarget(
+            Multimap<Integer, MiraculousLadybugTarget> targets,
             int currentlyPassedControlPoint,
             boolean forward,
             float limit) {
@@ -285,12 +285,12 @@ public class NewMiraculousLadybug extends Entity {
         int i = currentlyPassedControlPoint;
 
         while ((step > 0 && i <= limit) || (step < 0 && i >= limit)) {
-            for (NewMLBTarget target : targets.get(i)) {
+            for (MiraculousLadybugTarget target : targets.get(i)) {
                 // TODO when making the registry for targets ensure Target has a method which returns a boolean for this if
                 // make this a switch case because it can need different implementation or sth
-                if (target instanceof NewMLBBlockTarget) {
+                if (target instanceof MiraculousLadybugBlockTarget) {
                     return target;
-                } else if (target instanceof NewMLBBlockClusterTarget clusterTarget && clusterTarget.width() > 5) {
+                } else if (target instanceof MiraculousLadybugBlockClusterTarget clusterTarget && clusterTarget.width() > 5) {
                     return target;
                 }
             }

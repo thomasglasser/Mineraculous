@@ -7,7 +7,7 @@ import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTyp
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
-import dev.thomasglasser.mineraculous.impl.world.entity.NewMiraculousLadybug;
+import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
 import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.ArrayList;
@@ -29,15 +29,15 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2d;
 
-public record MiraculousLadybugTriggerData(List<NewMLBTarget> targets, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound, int tickCount) {
+public record MiraculousLadybugTriggerData(List<MiraculousLadybugTarget> targets, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound, int tickCount) {
 
     public static final Codec<MiraculousLadybugTriggerData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            NewMLBTargetType.TARGET_CODEC.listOf().fieldOf("targets").forGetter(MiraculousLadybugTriggerData::targets),
+            MiraculousLadybugTargetType.TARGET_CODEC.listOf().fieldOf("targets").forGetter(MiraculousLadybugTriggerData::targets),
             Codec.INT.optionalFieldOf("performer_id").forGetter(MiraculousLadybugTriggerData::performerId),
             SoundEvent.CODEC.optionalFieldOf("revert_sound").forGetter(MiraculousLadybugTriggerData::revertSound),
             Codec.INT.fieldOf("tick_count").forGetter(MiraculousLadybugTriggerData::tickCount)).apply(instance, MiraculousLadybugTriggerData::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousLadybugTriggerData> STREAM_CODEC = StreamCodec.composite(
-            NewMLBTargetType.TARGET_STREAM_CODEC.apply(ByteBufCodecs.list()), MiraculousLadybugTriggerData::targets,
+            MiraculousLadybugTargetType.TARGET_STREAM_CODEC.apply(ByteBufCodecs.list()), MiraculousLadybugTriggerData::targets,
             ByteBufCodecs.optional(ByteBufCodecs.INT), MiraculousLadybugTriggerData::performerId,
             ByteBufCodecs.optional(SoundEvent.STREAM_CODEC), MiraculousLadybugTriggerData::revertSound,
             ByteBufCodecs.INT, MiraculousLadybugTriggerData::tickCount,
@@ -48,7 +48,7 @@ public record MiraculousLadybugTriggerData(List<NewMLBTarget> targets, Optional<
         this(ImmutableList.of(), Optional.empty(), Optional.empty(), 0);
     }
 
-    public MiraculousLadybugTriggerData(Collection<NewMLBTarget> targets, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound) {
+    public MiraculousLadybugTriggerData(Collection<MiraculousLadybugTarget> targets, Optional<Integer> performerId, Optional<Holder<SoundEvent>> revertSound) {
         this(ImmutableList.copyOf(targets), performerId, revertSound, 0);
     }
 
@@ -133,17 +133,17 @@ public record MiraculousLadybugTriggerData(List<NewMLBTarget> targets, Optional<
     private void spawnMiraculousLadybugs(ServerLevel level, Entity entity) {
         ArrayList<Vector2d> circle = MineraculousMathUtils.generateCirclePoints(50, MIRACULOUS_LADYBUGS_COUNT);
         Vec3 spawnPosition = entity.position();
-        ArrayList<ArrayList<NewMLBTarget>> targetDatas = assignTargets();
+        ArrayList<ArrayList<MiraculousLadybugTarget>> targetDatas = assignTargets();
 
         int spawnedMLBCount;
         for (spawnedMLBCount = 0; spawnedMLBCount < MIRACULOUS_LADYBUGS_COUNT; spawnedMLBCount++) {
-            ArrayList<NewMLBTarget> targets = targetDatas.get(spawnedMLBCount);
+            ArrayList<MiraculousLadybugTarget> targets = targetDatas.get(spawnedMLBCount);
             double x = circle.get(spawnedMLBCount).x;
             double y = circle.get(spawnedMLBCount).y;
             Vec3 circlePosition = spawnPosition.add(x, 0, y);
             targets = new ArrayList<>(MineraculousMathUtils.sortTargets(targets, circlePosition));
-            NewMLBTargetData targetData = NewMLBTargetData.create(targets, spawnPosition, circlePosition);
-            NewMiraculousLadybug miraculousLadybug = new NewMiraculousLadybug(level);
+            MiraculousLadybugTargetData targetData = MiraculousLadybugTargetData.create(targets, spawnPosition, circlePosition);
+            MiraculousLadybug miraculousLadybug = new MiraculousLadybug(level);
             miraculousLadybug.setPos(spawnPosition);
             level.addFreshEntity(miraculousLadybug);
             miraculousLadybug.setTargetData(targetData);
@@ -151,16 +151,16 @@ public record MiraculousLadybugTriggerData(List<NewMLBTarget> targets, Optional<
         level.sendParticles(ParticleTypes.FLASH, spawnPosition.x, spawnPosition.y, spawnPosition.z, 1, 0, 0, 0, 0);
     }
 
-    private ArrayList<ArrayList<NewMLBTarget>> assignTargets() {
-        ArrayList<ArrayList<NewMLBTarget>> targetsTable = new ArrayList<>(MIRACULOUS_LADYBUGS_COUNT);
+    private ArrayList<ArrayList<MiraculousLadybugTarget>> assignTargets() {
+        ArrayList<ArrayList<MiraculousLadybugTarget>> targetsTable = new ArrayList<>(MIRACULOUS_LADYBUGS_COUNT);
         for (int i = 0; i < MIRACULOUS_LADYBUGS_COUNT; i++) {
             targetsTable.add(new ArrayList<>());
         }
         int targetsCount = targets.size() - 1;
         int miraculousLadybugIndex = 0;
         while (targetsCount > -1) {
-            NewMLBTarget target = targets.get(targetsCount);
-            ArrayList<NewMLBTarget> list = targetsTable.get(miraculousLadybugIndex);
+            MiraculousLadybugTarget target = targets.get(targetsCount);
+            ArrayList<MiraculousLadybugTarget> list = targetsTable.get(miraculousLadybugIndex);
             list.add(target);
             targetsTable.set(miraculousLadybugIndex, list);
             miraculousLadybugIndex = miraculousLadybugIndex == MIRACULOUS_LADYBUGS_COUNT - 1 ? 0 : miraculousLadybugIndex + 1;

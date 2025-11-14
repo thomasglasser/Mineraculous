@@ -8,7 +8,7 @@ import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderType
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
-import dev.thomasglasser.mineraculous.impl.world.entity.NewMiraculousLadybug;
+import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -22,16 +22,16 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
-public class NewMiraculousLadybugRenderer extends EntityRenderer<NewMiraculousLadybug> {
+public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug> {
     private ArrayList<TexturedOutlinedQuad> texturedOutlinedQuads = new ArrayList<>();
     private ArrayList<TailPoint> tailPoints = new ArrayList<>();
 
-    public NewMiraculousLadybugRenderer(EntityRendererProvider.Context context) {
+    public MiraculousLadybugRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
 
     @Override
-    public void render(NewMiraculousLadybug entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+    public void render(MiraculousLadybug entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         float splinePosition = entity.getSplinePosition();
         double splineParameter = Mth.lerp(partialTick, entity.getOldSplinePosition(), splinePosition);
         MineraculousMathUtils.CatmullRom path = entity.getPath();
@@ -208,7 +208,7 @@ public class NewMiraculousLadybugRenderer extends EntityRenderer<NewMiraculousLa
     }
 
     @Override
-    public ResourceLocation getTextureLocation(NewMiraculousLadybug entity) {
+    public ResourceLocation getTextureLocation(MiraculousLadybug entity) {
         return MineraculousConstants.EMPTY_TEXTURE;
     }
 

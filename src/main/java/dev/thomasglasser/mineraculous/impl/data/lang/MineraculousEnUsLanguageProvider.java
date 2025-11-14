@@ -170,7 +170,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), "Ladybug Yoyo");
         add(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), "Cat Staff");
         add(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), "Butterfly Cane");
-        add(MineraculousEntityTypes.NEW_MIRACULOUS_LADYBUG.get(), "Miraculous Ladybug");
+        add(MineraculousEntityTypes.MIRACULOUS_LADYBUG.get(), "Miraculous Ladybug");
     }
 
     private void addTabs() {

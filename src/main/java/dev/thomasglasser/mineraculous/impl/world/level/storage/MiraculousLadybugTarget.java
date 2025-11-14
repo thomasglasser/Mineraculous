@@ -4,20 +4,20 @@ import java.util.List;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
-public interface NewMLBTarget {
+public interface MiraculousLadybugTarget {
     Vec3 getPosition();
 
-    NewMLBTargetType type();
+    MiraculousLadybugTargetType type();
 
     boolean isReverting();
 
     List<Vec3> getControlPoints();
 
-    NewMLBTarget startReversion(ServerLevel level);
+    MiraculousLadybugTarget startReversion(ServerLevel level);
 
-    NewMLBTarget instantRevert(ServerLevel level);
+    MiraculousLadybugTarget instantRevert(ServerLevel level);
 
-    NewMLBTarget tick(ServerLevel level);
+    MiraculousLadybugTarget tick(ServerLevel level);
 
     void spawnParticles(ServerLevel level);
 }

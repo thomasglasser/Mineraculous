@@ -15,14 +15,14 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
-public record NewMLBBlockTarget(BlockPos blockPos, UUID cause) implements NewMLBTarget {
-    public static final Codec<NewMLBBlockTarget> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            BlockPos.CODEC.fieldOf("block_position").forGetter(NewMLBBlockTarget::blockPos),
-            UUIDUtil.CODEC.fieldOf("cause").forGetter(NewMLBBlockTarget::cause)).apply(instance, NewMLBBlockTarget::new));
-    public static final StreamCodec<ByteBuf, NewMLBBlockTarget> STREAM_CODEC = StreamCodec.composite(
-            BlockPos.STREAM_CODEC, NewMLBBlockTarget::blockPos,
-            UUIDUtil.STREAM_CODEC, NewMLBBlockTarget::cause,
-            NewMLBBlockTarget::new);
+public record MiraculousLadybugBlockTarget(BlockPos blockPos, UUID cause) implements MiraculousLadybugTarget {
+    public static final Codec<MiraculousLadybugBlockTarget> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            BlockPos.CODEC.fieldOf("block_position").forGetter(MiraculousLadybugBlockTarget::blockPos),
+            UUIDUtil.CODEC.fieldOf("cause").forGetter(MiraculousLadybugBlockTarget::cause)).apply(instance, MiraculousLadybugBlockTarget::new));
+    public static final StreamCodec<ByteBuf, MiraculousLadybugBlockTarget> STREAM_CODEC = StreamCodec.composite(
+            BlockPos.STREAM_CODEC, MiraculousLadybugBlockTarget::blockPos,
+            UUIDUtil.STREAM_CODEC, MiraculousLadybugBlockTarget::cause,
+            MiraculousLadybugBlockTarget::new);
 
     @Override
     public Vec3 getPosition() {
@@ -30,8 +30,8 @@ public record NewMLBBlockTarget(BlockPos blockPos, UUID cause) implements NewMLB
     }
 
     @Override
-    public NewMLBTargetType type() {
-        return NewMLBTargetType.BLOCK;
+    public MiraculousLadybugTargetType type() {
+        return MiraculousLadybugTargetType.BLOCK;
     }
 
     @Override
@@ -45,19 +45,19 @@ public record NewMLBBlockTarget(BlockPos blockPos, UUID cause) implements NewMLB
     }
 
     @Override
-    public NewMLBTarget startReversion(ServerLevel level) {
+    public MiraculousLadybugTarget startReversion(ServerLevel level) {
         return instantRevert(level);
     }
 
     @Override
-    public NewMLBTarget instantRevert(ServerLevel level) {
+    public MiraculousLadybugTarget instantRevert(ServerLevel level) {
         AbilityReversionBlockData.get(level).revert(cause == null ? Util.NIL_UUID : cause, level, blockPos);
         spawnParticles(level);
         return null;
     }
 
     @Override
-    public NewMLBTarget tick(ServerLevel level) {
+    public MiraculousLadybugTarget tick(ServerLevel level) {
         return this;
     }
 

@@ -15,7 +15,6 @@ public interface NewMLBTarget {
 
     NewMLBTarget startReversion(ServerLevel level);
 
-    //TODO might want to return a NewMLBTarget so unnecessary data gets deleted
     NewMLBTarget instantRevert(ServerLevel level);
 
     NewMLBTarget tick(ServerLevel level);

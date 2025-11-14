@@ -1,25 +1,19 @@
 package dev.thomasglasser.mineraculous.impl.util;
 
 import com.google.common.collect.ImmutableList;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugBlockTarget;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.NewMLBTarget;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2d;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class MineraculousMathUtils {
     public static Vec3 projectOnCircle(Vec3 fromPointToCenter, Vec3 vec3) {
@@ -141,9 +135,9 @@ public class MineraculousMathUtils {
         return best;
     }
 
-    public static List<List<BlockPos>> buildRevertLayers(BlockPos origin, java.util.Set<BlockPos> validBlocks) {
+    public static List<List<BlockPos>> buildRevertLayers(BlockPos origin, Set<BlockPos> validBlocks) {
         List<List<BlockPos>> layers = new ArrayList<>();
-        java.util.Set<BlockPos> remaining = new java.util.HashSet<>(validBlocks);
+        Set<BlockPos> remaining = new HashSet<>(validBlocks);
         if (!remaining.contains(origin)) {
             return layers;
         }
@@ -182,59 +176,6 @@ public class MineraculousMathUtils {
     }
 
     //ALGORITHMS
-    //ITERATIVE FILL
-    public static Collection<MiraculousLadybugBlockTarget> reduceNearbyBlocks(Collection<MiraculousLadybugBlockTarget> input) {
-        // Flatten input into one big map of BlockPos -> UUID
-        Map<BlockPos, UUID> allBlocks = new HashMap<>();
-        for (var bt : input) {
-            for (var entry : bt.blocksToRevert().entrySet()) {
-                allBlocks.put(entry.getKey(), entry.getValue());
-            }
-        }
-
-        Set<BlockPos> unvisited = new HashSet<>(allBlocks.keySet());
-        List<MiraculousLadybugBlockTarget> result = new ArrayList<>();
-
-        while (!unvisited.isEmpty()) {
-            BlockPos start = unvisited.iterator().next();
-            Map<BlockPos, UUID> clump = new HashMap<>();
-
-            Queue<BlockPos> queue = new LinkedList<>();
-            queue.add(start);
-            unvisited.remove(start);
-
-            while (!queue.isEmpty()) {
-                BlockPos current = queue.poll();
-                clump.put(current, allBlocks.get(current));
-
-                for (int dx = -1; dx <= 1; dx++) {
-                    for (int dy = -1; dy <= 1; dy++) {
-                        for (int dz = -1; dz <= 1; dz++) {
-                            if (dx == 0 && dy == 0 && dz == 0) continue;
-                            BlockPos neighbor = current.offset(dx, dy, dz);
-                            if (unvisited.remove(neighbor)) {
-                                queue.add(neighbor);
-                            }
-                        }
-                    }
-                }
-            }
-
-            double avgX = 0, avgY = 0, avgZ = 0;
-            for (BlockPos pos : clump.keySet()) {
-                avgX += pos.getX() + 0.5;
-                avgY += pos.getY() + 0.5;
-                avgZ += pos.getZ() + 0.5;
-            }
-            int size = clump.size();
-            Vec3 center = new Vec3(avgX / size, avgY / size, avgZ / size);
-
-            result.add(new MiraculousLadybugBlockTarget(center, clump));
-        }
-
-        return result;
-    }
-
     //GREEDY TSP
     public static List<NewMLBTarget> sortTargets(Collection<NewMLBTarget> targets, Vec3 startTarget) {
         List<NewMLBTarget> toVisit = new ArrayList<>(targets);

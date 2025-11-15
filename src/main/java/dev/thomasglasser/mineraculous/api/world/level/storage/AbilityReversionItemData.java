@@ -3,8 +3,10 @@ package dev.thomasglasser.mineraculous.api.world.level.storage;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
+import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -35,8 +37,10 @@ import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.phys.Vec3;
 
 /// Data for reverting trackable item changes
 public class AbilityReversionItemData extends SavedData {
@@ -55,50 +59,85 @@ public class AbilityReversionItemData extends SavedData {
     }
 
     public void tick(Entity entity) {
+        if (entity.tickCount % 10 == 0) {
+            if (checkReverted(entity)) {
+                Level level = entity.level();
+                if (level instanceof ServerLevel serverLevel) {
+                    List<Vec3> spiral = MineraculousMathUtils.spinAround(
+                            entity.position(),
+                            entity.getBbWidth(),
+                            entity.getBbWidth(),
+                            entity.getBbHeight(),
+                            Math.PI / 2d,
+                            entity.getBbHeight() / 16d);
+                    for (Vec3 pos : spiral) {
+                        double x = pos.x;
+                        double y = pos.y;
+                        double z = pos.z;
+                        serverLevel.sendParticles(
+                                MineraculousParticleTypes.REVERTING_LADYBUG.get(),
+                                x,
+                                y,
+                                z,
+                                5, 0, 0, 0, 0.1);
+                    }
+                }
+            }
+        }
+    }
+
+    public boolean checkReverted(Entity entity) {
+        boolean reverted = false;
         if (entity instanceof LivingEntity livingEntity) {
             if (livingEntity instanceof Player player) {
                 Inventory inventory = player.getInventory();
-                checkReverted(inventory.items, inventory);
+                if (checkReverted(inventory.items, inventory))
+                    reverted = true;
             } else if (livingEntity instanceof InventoryCarrier carrier) {
                 SimpleContainer inventory = carrier.getInventory();
-                checkReverted(inventory.getItems(), inventory);
+                if (checkReverted(inventory.getItems(), inventory))
+                    reverted = true;
             }
             for (EquipmentSlot slot : EquipmentSlot.values()) {
                 ItemStack stack = livingEntity.getItemBySlot(slot);
                 ItemStack recovered = checkReverted(stack);
                 if (recovered != null) {
                     livingEntity.setItemSlot(slot, recovered);
-                    stack.setCount(0);
+                    reverted = true;
                 }
             }
             List<Map.Entry<CuriosData, ItemStack>> curios = new ReferenceArrayList<>(CuriosUtils.getAllItems(livingEntity).entrySet());
-            checkReverted(curios.size(), i -> curios.get(i).getValue(), (i, stack) -> {
+            if (checkReverted(curios.size(), i -> curios.get(i).getValue(), (i, stack) -> {
                 CuriosData curiosData = curios.get(i).getKey();
                 CuriosUtils.setStackInSlot(livingEntity, curiosData, stack);
-            });
+            }))
+                reverted = true;
         } else if (entity instanceof ItemEntity itemEntity) {
             ItemStack stack = itemEntity.getItem();
             ItemStack recovered = checkReverted(stack);
             if (recovered != null) {
                 itemEntity.setItem(recovered);
-                stack.setCount(0);
+                reverted = true;
             }
         }
+        return reverted;
     }
 
-    private void checkReverted(int size, Function<Integer, ItemStack> getter, BiConsumer<Integer, ItemStack> setter) {
+    private boolean checkReverted(int size, Function<Integer, ItemStack> getter, BiConsumer<Integer, ItemStack> setter) {
+        boolean reverted = false;
         for (int i = 0; i < size; i++) {
             ItemStack stack = getter.apply(i);
             ItemStack recovered = checkReverted(stack);
             if (recovered != null) {
                 setter.accept(i, recovered);
-                stack.setCount(0);
+                reverted = true;
             }
         }
+        return reverted;
     }
 
-    private void checkReverted(NonNullList<ItemStack> items, Container container) {
-        checkReverted(items.size(), container::getItem, container::setItem);
+    private boolean checkReverted(NonNullList<ItemStack> items, Container container) {
+        return checkReverted(items.size(), container::getItem, container::setItem);
     }
 
     public ItemStack checkReverted(ItemStack stack) {

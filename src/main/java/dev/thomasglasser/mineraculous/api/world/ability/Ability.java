@@ -7,9 +7,6 @@ import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBlockData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionItemData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
@@ -80,15 +77,14 @@ public interface Ability {
     default void detransform(AbilityData data, ServerLevel level, LivingEntity performer) {}
 
     /**
-     * Called by {@link RevertLuckyCharmTargetsAbilityEffectsAbility} to revert this ability's trackable effects.
-     * This should use {@link AbilityReversionItemData},
-     * {@link AbilityReversionEntityData}, and {@link AbilityReversionBlockData} for ease and compat.
-     * 
+     * Called by {@link dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug} to revert this ability's trackable effects for the provided target not covered by the existing implementation.
+     *
      * @param data      The relevant {@link AbilityData} of the performer
      * @param level     The level the ability is being performed in
      * @param performer The performer of the ability
+     * @param target    The target of the reversion
      */
-    default void revert(AbilityData data, ServerLevel level, LivingEntity performer) {}
+    default <T> void revert(AbilityData data, ServerLevel level, LivingEntity performer, T target) {}
 
     /**
      * Called when the performer joins a new {@link Level}.

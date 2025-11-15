@@ -10,6 +10,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.Table;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
+import it.unimi.dsi.fastutil.Pair;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Supplier;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
@@ -58,10 +70,23 @@ public class AbilityReversionEntityData extends SavedData {
         }
     }
 
-    public boolean isBeingTracked(UUID uuid) {
-        return trackedAndRelatedEntities.containsKey(uuid);
+    // TODO: Move to an event
+    protected boolean shouldBeTracked(Entity entity) {
+        return entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent();
     }
 
+    public void putRelatedEntity(UUID trackedEntity, UUID relatedEntity) {
+        if (trackedEntity.equals(relatedEntity))
+            return;
+        Collection<UUID> related = relatedEntities.get(trackedEntity);
+        if (!related.contains(relatedEntity)) {
+            related.add(relatedEntity);
+            setDirty();
+        }
+    }
+  
+  
+    // TODO: Reimplement changes
     public Set<UUID> getRelatedEntities(UUID uuid) {
         return trackedAndRelatedEntities.get(uuid);
     }
@@ -105,6 +130,18 @@ public class AbilityReversionEntityData extends SavedData {
             }
         }
         setDirty();
+    }
+
+    protected <R, C, V> V computeIfAbsent(Table<R, C, V> table, R rowKey, C columnKey, Supplier<V> supplier) {
+        return table.row(rowKey).computeIfAbsent(columnKey, c -> supplier.get());
+    }
+
+    protected List<CompoundTag> getOrCreateRevertible(UUID owner, Pair<ResourceKey<Level>, Vec3> pos) {
+        return computeIfAbsent(revertibleEntities, owner, pos, ReferenceArrayList::new);
+    }
+
+    protected List<UUID> getOrCreateRemovable(UUID owner, Pair<ResourceKey<Level>, Vec3> pos) {
+        return computeIfAbsent(removableEntities, owner, pos, ReferenceArrayList::new);
     }
 
     public void putRevertible(UUID owner, Entity entity) {

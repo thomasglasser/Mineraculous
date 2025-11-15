@@ -50,14 +50,14 @@ public record ConvertAndTameAbility(EntityType<?> newType, boolean requireNoneSt
                 for (CompoundTag tag : stored) {
                     if (tag.contains("UUID")) {
                         UUID uuid = tag.getUUID("UUID");
-                        if (entityData.isConverted(uuid)) {
+                        if (entityData.isConvertedOrCopied(uuid)) {
                             hasStored = true;
                             break;
                         }
                     }
                 }
             }
-            if (!(requireNoneStored && hasStored) && !entityData.isConverted(target.getUUID())) {
+            if (!(requireNoneStored && hasStored) && !entityData.isConvertedOrCopied(target.getUUID())) {
                 Entity newEntity = newType.create(level);
                 if (newEntity != null) {
                     if (newEntity instanceof TamableAnimal tamable) {
@@ -85,7 +85,7 @@ public record ConvertAndTameAbility(EntityType<?> newType, boolean requireNoneSt
 
     @Override
     public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
-        AbilityReversionEntityData.get(level).revertConversions(performer.getUUID(), level);
+        AbilityReversionEntityData.get(level).revertConversionsAndCopies(performer.getUUID(), level);
     }
 
     @Override

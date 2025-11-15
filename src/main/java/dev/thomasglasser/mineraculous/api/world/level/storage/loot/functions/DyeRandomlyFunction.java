@@ -50,8 +50,8 @@ public class DyeRandomlyFunction extends LootItemConditionalFunction {
         return onlyDyeable ? DyedItemColor.applyDyes(stack, dyes) : MineraculousItemUtils.applyDyesToUndyeable(stack, dyes);
     }
 
-    public static DyeRandomlyFunction.Builder randomDye() {
-        return new DyeRandomlyFunction.Builder();
+    public static Builder randomDye() {
+        return new Builder();
     }
 
     public static class Builder extends LootItemConditionalFunction.Builder<Builder> {

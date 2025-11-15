@@ -21,7 +21,7 @@ public class MineraculousEntityTypes {
             .sized(0.3F, 0.4F));
     public static final DeferredHolder<EntityType<?>, EntityType<Kamiko>> KAMIKO = ENTITY_TYPES.register("kamiko", Kamiko::new, MobCategory.CREATURE, builder -> builder
             .clientTrackingRange(Integer.MAX_VALUE / 16)
-            .sized(1.0F, 1.0F));
+            .sized(0.25F, 0.25F));
     public static final DeferredHolder<EntityType<?>, EntityType<LuckyCharmItemSpawner>> LUCKY_CHARM_ITEM_SPAWNER = ENTITY_TYPES.register("lucky_charm_item_spawner", LuckyCharmItemSpawner::new, MobCategory.MISC, builder -> builder
             .sized(0.25F, 0.25F));
 

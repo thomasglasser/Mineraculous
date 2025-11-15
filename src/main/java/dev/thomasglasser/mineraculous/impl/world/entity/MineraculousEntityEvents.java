@@ -129,6 +129,10 @@ public class MineraculousEntityEvents {
                 entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.tick(livingEntity, level));
             }
 
+            if (entity instanceof ItemEntity itemEntity) {
+                itemEntity.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TRIGGER).ifPresent(data -> data.tick(itemEntity, level));
+            }
+
             ItemStack weaponItem = entity.getWeaponItem();
             if (entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent() && (weaponItem == null || !weaponItem.is(MineraculousItems.LADYBUG_YOYO))) {
                 LadybugYoyoItem.removeHeldLeash(entity);
@@ -272,6 +276,7 @@ public class MineraculousEntityEvents {
                 }
             }
         }
+        if (entity instanceof MiraculousLadybug) event.setCanceled(true);
     }
 
     public static void onLivingSwapHands(LivingSwapItemsEvent.Hands event) {
@@ -322,7 +327,7 @@ public class MineraculousEntityEvents {
     public static void onLivingDrops(LivingDropsEvent event) {
         LivingEntity entity = event.getEntity();
         if (entity.level() instanceof ServerLevel level) {
-            UUID recoverer = AbilityReversionEntityData.get(level).getCause(entity, level);
+            UUID recoverer = AbilityReversionEntityData.get(level).getCause(entity);
             for (ItemEntity item : event.getDrops()) {
                 ItemStack stack = item.getItem();
                 if (entity.hasEffect(MineraculousMobEffects.CATACLYSM) && !stack.is(MineraculousItemTags.CATACLYSM_IMMUNE)) {
@@ -357,6 +362,9 @@ public class MineraculousEntityEvents {
                     target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(target);
                 }
             });
+            if (entity instanceof MiraculousLadybug miraculousLadybug) {
+                miraculousLadybug.revertAllTargets(level);
+            }
             if (entity instanceof LivingEntity livingEntity) {
                 MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
                 miraculousesData.getTransformed().forEach(miraculous -> {

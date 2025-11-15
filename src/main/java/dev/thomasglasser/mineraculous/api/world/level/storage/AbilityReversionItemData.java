@@ -3,12 +3,17 @@ package dev.thomasglasser.mineraculous.api.world.level.storage;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
+import dev.thomasglasser.mineraculous.api.nbt.MineraculousNbtUtils;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
+import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,8 +24,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
@@ -35,7 +38,9 @@ import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /// Data for reverting trackable item changes
@@ -55,50 +60,85 @@ public class AbilityReversionItemData extends SavedData {
     }
 
     public void tick(Entity entity) {
+        if (entity.tickCount % 10 == 0) {
+            if (checkReverted(entity)) {
+                Level level = entity.level();
+                if (level instanceof ServerLevel serverLevel) {
+                    List<Vec3> spiral = MineraculousMathUtils.spinAround(
+                            entity.position(),
+                            entity.getBbWidth(),
+                            entity.getBbWidth(),
+                            entity.getBbHeight(),
+                            Math.PI / 2d,
+                            entity.getBbHeight() / 16d);
+                    for (Vec3 pos : spiral) {
+                        double x = pos.x;
+                        double y = pos.y;
+                        double z = pos.z;
+                        serverLevel.sendParticles(
+                                MineraculousParticleTypes.REVERTING_LADYBUG.get(),
+                                x,
+                                y,
+                                z,
+                                5, 0, 0, 0, 0.1);
+                    }
+                }
+            }
+        }
+    }
+
+    public boolean checkReverted(Entity entity) {
+        boolean reverted = false;
         if (entity instanceof LivingEntity livingEntity) {
             if (livingEntity instanceof Player player) {
                 Inventory inventory = player.getInventory();
-                checkReverted(inventory.items, inventory);
+                if (checkReverted(inventory.items, inventory))
+                    reverted = true;
             } else if (livingEntity instanceof InventoryCarrier carrier) {
                 SimpleContainer inventory = carrier.getInventory();
-                checkReverted(inventory.getItems(), inventory);
+                if (checkReverted(inventory.getItems(), inventory))
+                    reverted = true;
             }
             for (EquipmentSlot slot : EquipmentSlot.values()) {
                 ItemStack stack = livingEntity.getItemBySlot(slot);
                 ItemStack recovered = checkReverted(stack);
                 if (recovered != null) {
                     livingEntity.setItemSlot(slot, recovered);
-                    stack.setCount(0);
+                    reverted = true;
                 }
             }
             List<Map.Entry<CuriosData, ItemStack>> curios = new ReferenceArrayList<>(CuriosUtils.getAllItems(livingEntity).entrySet());
-            checkReverted(curios.size(), i -> curios.get(i).getValue(), (i, stack) -> {
+            if (checkReverted(curios.size(), i -> curios.get(i).getValue(), (i, stack) -> {
                 CuriosData curiosData = curios.get(i).getKey();
                 CuriosUtils.setStackInSlot(livingEntity, curiosData, stack);
-            });
+            }))
+                reverted = true;
         } else if (entity instanceof ItemEntity itemEntity) {
             ItemStack stack = itemEntity.getItem();
             ItemStack recovered = checkReverted(stack);
             if (recovered != null) {
                 itemEntity.setItem(recovered);
-                stack.setCount(0);
+                reverted = true;
             }
         }
+        return reverted;
     }
 
-    private void checkReverted(int size, Function<Integer, ItemStack> getter, BiConsumer<Integer, ItemStack> setter) {
+    private boolean checkReverted(int size, Function<Integer, ItemStack> getter, BiConsumer<Integer, ItemStack> setter) {
+        boolean reverted = false;
         for (int i = 0; i < size; i++) {
             ItemStack stack = getter.apply(i);
             ItemStack recovered = checkReverted(stack);
             if (recovered != null) {
                 setter.accept(i, recovered);
-                stack.setCount(0);
+                reverted = true;
             }
         }
+        return reverted;
     }
 
-    private void checkReverted(NonNullList<ItemStack> items, Container container) {
-        checkReverted(items.size(), container::getItem, container::setItem);
+    private boolean checkReverted(NonNullList<ItemStack> items, Container container) {
+        return checkReverted(items.size(), container::getItem, container::setItem);
     }
 
     public ItemStack checkReverted(ItemStack stack) {
@@ -163,58 +203,21 @@ public class AbilityReversionItemData extends SavedData {
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        CompoundTag revertible = new CompoundTag();
-        for (UUID ownerId : this.revertibleItems.rowKeySet()) {
-            CompoundTag entries = new CompoundTag();
-            for (Map.Entry<UUID, ItemStack> entry : this.revertibleItems.row(ownerId).entrySet()) {
-                entries.put(entry.getKey().toString(), ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, entry.getValue()).getOrThrow());
-            }
-            revertible.put(ownerId.toString(), entries);
-        }
-        tag.put("Revertible", revertible);
-        CompoundTag revertMarked = new CompoundTag();
-        for (Map.Entry<UUID, ItemStack> entry : this.revertMarkedItems.entrySet()) {
-            revertMarked.put(entry.getKey().toString(), ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, entry.getValue()).getOrThrow());
-        }
-        tag.put("RevertMarked", revertMarked);
-        ListTag reverted = new ListTag();
-        for (UUID itemId : this.revertedItems) {
-            reverted.add(NbtUtils.createUUID(itemId));
-        }
-        tag.put("Reverted", reverted);
-        CompoundTag kamikotized = new CompoundTag();
-        for (Map.Entry<UUID, ItemStack> entry : this.kamikotizedItems.entrySet()) {
-            kamikotized.put(entry.getKey().toString(), ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, entry.getValue()).getOrThrow());
-        }
-        tag.put("Kamikotized", kamikotized);
+        Function<ItemStack, Tag> itemEncoder = MineraculousNbtUtils.codecEncoder(ItemStack.CODEC);
+        tag.put("Revertible", MineraculousNbtUtils.writeStringRowKeyedTable(revertibleItems, UUID::toString, NbtUtils::createUUID, itemEncoder));
+        tag.put("RevertMarked", MineraculousNbtUtils.writeStringKeyedMap(revertMarkedItems, UUID::toString, itemEncoder));
+        tag.put("Reverted", MineraculousNbtUtils.writeCollection(revertedItems, NbtUtils::createUUID));
+        tag.put("Kamikotized", MineraculousNbtUtils.writeStringKeyedMap(kamikotizedItems, UUID::toString, itemEncoder));
         return tag;
     }
 
     public static AbilityReversionItemData load(CompoundTag tag, HolderLookup.Provider registries) {
+        Function<Tag, ItemStack> itemDecoder = MineraculousNbtUtils.codecDecoder(ItemStack.CODEC);
         AbilityReversionItemData data = new AbilityReversionItemData();
-        CompoundTag revertible = tag.getCompound("Revertible");
-        for (String ownerString : revertible.getAllKeys()) {
-            UUID ownerId = UUID.fromString(ownerString);
-            CompoundTag entries = revertible.getCompound(ownerString);
-            for (String itemString : entries.getAllKeys()) {
-                UUID itemId = UUID.fromString(itemString);
-                data.revertibleItems.put(ownerId, itemId, ItemStack.CODEC.parse(NbtOps.INSTANCE, entries.get(itemString)).getOrThrow());
-            }
-        }
-        CompoundTag revertMarked = tag.getCompound("RevertMarked");
-        for (String itemString : revertMarked.getAllKeys()) {
-            UUID itemId = UUID.fromString(itemString);
-            data.revertMarkedItems.put(itemId, ItemStack.CODEC.parse(NbtOps.INSTANCE, revertMarked.get(itemString)).getOrThrow());
-        }
-        ListTag reverted = tag.getList("Reverted", ListTag.TAG_INT_ARRAY);
-        for (Tag revertedId : reverted) {
-            data.revertedItems.add(NbtUtils.loadUUID(revertedId));
-        }
-        CompoundTag kamikotized = tag.getCompound("Kamikotized");
-        for (String itemString : kamikotized.getAllKeys()) {
-            UUID itemId = UUID.fromString(itemString);
-            data.kamikotizedItems.put(itemId, ItemStack.CODEC.parse(NbtOps.INSTANCE, kamikotized.get(itemString)).getOrThrow());
-        }
+        data.revertibleItems.putAll(MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Revertible"), UUID::fromString, NbtUtils::loadUUID, itemDecoder));
+        data.revertMarkedItems.putAll(MineraculousNbtUtils.readStringKeyedMap(Reference2ReferenceOpenHashMap::new, tag.getCompound("RevertMarked"), UUID::fromString, itemDecoder));
+        data.revertedItems.addAll(MineraculousNbtUtils.readCollection(ReferenceOpenHashSet::new, tag.getList("Reverted", Tag.TAG_INT_ARRAY), NbtUtils::loadUUID));
+        data.kamikotizedItems.putAll(MineraculousNbtUtils.readStringKeyedMap(Reference2ReferenceOpenHashMap::new, tag.getCompound("Kamikotized"), UUID::fromString, itemDecoder));
         return data;
     }
 }

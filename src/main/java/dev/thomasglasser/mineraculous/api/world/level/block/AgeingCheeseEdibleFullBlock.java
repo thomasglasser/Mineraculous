@@ -34,7 +34,7 @@ public class AgeingCheeseEdibleFullBlock extends SmallFourPieceBlock implements 
     protected final Age age;
     protected final FoodProperties foodProperties;
 
-    public AgeingCheeseEdibleFullBlock(Age age, FoodProperties foodProperties, Holder<Item> wedge, BlockBehaviour.Properties properties) {
+    public AgeingCheeseEdibleFullBlock(Age age, FoodProperties foodProperties, Holder<Item> wedge, Properties properties) {
         super(wedge, properties);
         this.age = age;
         this.foodProperties = foodProperties;

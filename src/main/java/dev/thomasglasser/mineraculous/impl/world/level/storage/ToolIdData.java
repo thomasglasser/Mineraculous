@@ -8,6 +8,7 @@ import java.util.UUID;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.Entity;
@@ -64,7 +65,7 @@ public class ToolIdData extends SavedData {
 
     public static ToolIdData load(CompoundTag tag, HolderLookup.Provider registries) {
         ToolIdData toolIdData = new ToolIdData();
-        ListTag listTag = tag.getList("ToolIds", ListTag.TAG_COMPOUND);
+        ListTag listTag = tag.getList("ToolIds", Tag.TAG_COMPOUND);
         for (int i = 0; i < listTag.size(); i++) {
             CompoundTag compoundTag = listTag.getCompound(i);
             UUID uuid = compoundTag.getUUID("Uuid");

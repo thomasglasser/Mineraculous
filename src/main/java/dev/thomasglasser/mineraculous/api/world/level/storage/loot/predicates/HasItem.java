@@ -49,19 +49,19 @@ public record HasItem(ItemPredicate predicate, boolean invert) implements LootIt
         return ReferenceOpenHashSet.of(LootContextParams.THIS_ENTITY);
     }
 
-    public static LootItemCondition.Builder hasItemsMatching(ItemPredicate predicate) {
+    public static Builder hasItemsMatching(ItemPredicate predicate) {
         return () -> new HasItem(predicate, false);
     }
 
-    public static LootItemCondition.Builder hasItemsMatching(ItemPredicate.Builder predicateBuilder) {
+    public static Builder hasItemsMatching(ItemPredicate.Builder predicateBuilder) {
         return () -> new HasItem(predicateBuilder.build(), false);
     }
 
-    public static LootItemCondition.Builder hasNoItemsMatching(ItemPredicate predicate) {
+    public static Builder hasNoItemsMatching(ItemPredicate predicate) {
         return () -> new HasItem(predicate, true);
     }
 
-    public static LootItemCondition.Builder hasNoItemsMatching(ItemPredicate.Builder predicateBuilder) {
+    public static Builder hasNoItemsMatching(ItemPredicate.Builder predicateBuilder) {
         return () -> new HasItem(predicateBuilder.build(), true);
     }
 }

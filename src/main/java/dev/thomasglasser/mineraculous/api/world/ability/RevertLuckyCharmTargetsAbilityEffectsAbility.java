@@ -83,9 +83,9 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
             luckyCharmEntity.setDeltaMovement(0, 1.3, 0);
             luckyCharmEntity.hurtMarked = true;
             new MiraculousLadybugTriggerData(targets, Optional.of(performer.getId()), revertSound).save(luckyCharmEntity, true);
-            return State.SUCCESS;
+            return State.CONSUME;
         }
-        return State.FAIL;
+        return State.PASS;
     }
 
     private void revertInOtherDimensions(
@@ -122,15 +122,16 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                 BlockPos pos = entry.getValue();
                 blockPositions.put(dimension, new MiraculousLadybugBlockTarget(pos, relatedId));
             }
-            for (Map.Entry<ResourceKey<Level>, Vec3> entry : entityData.getReversionPositions(relatedId).entries()) {
-                ResourceKey<Level> dimension = entry.getKey();
-                Vec3 pos = entry.getValue();
-                for (CompoundTag tag : entityData.getRevertibleAt(relatedId, dimension, pos)) {
-                    UUID entityId = tag.getUUID("UUID");
+            for (Map.Entry<ResourceKey<Level>, Vec3> location : entityData.getReversionAndConversionPositions(relatedId).entries()) {
+                ResourceKey<Level> dimension = location.getKey();
+                Vec3 pos = location.getValue();
+                for (Map.Entry<UUID, CompoundTag> entry : entityData.getRevertibleAndConvertedAt(relatedId, dimension, pos).entrySet()) {
+                    UUID entityId = entry.getKey();
                     Entity entity = MineraculousEntityUtils.findEntity(level, entityId);
                     if (entity != null) {
                         entityPositions.put(dimension, new MiraculousLadybugEntityTarget(pos, relatedId, entity.getBbWidth(), entity.getBbHeight()));
                     } else {
+                        CompoundTag tag = entry.getValue();
                         EntityType.by(tag).ifPresentOrElse(type -> entityPositions.put(dimension, new MiraculousLadybugEntityTarget(pos, relatedId, type.getWidth(), type.getHeight())), () -> MineraculousConstants.LOGGER.error("Invalid entity data passed to RevertLuckyCharmTargetsAbilityEffectsAbility: {}", tag));
                     }
                 }

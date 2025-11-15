@@ -1,21 +1,16 @@
 package dev.thomasglasser.mineraculous.api.world.level.storage;
 
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Table;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import it.unimi.dsi.fastutil.Pair;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Set;
+import dev.thomasglasser.mineraculous.api.nbt.MineraculousNbtUtils;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -38,15 +33,15 @@ public class AbilityReversionBlockData extends SavedData {
     }
 
     public Multimap<ResourceKey<Level>, BlockPos> getReversionPositions(UUID uuid) {
-        Multimap<ResourceKey<Level>, BlockPos> positions = MultimapBuilder.hashKeys().arrayListValues().build();
-        for (Pair<ResourceKey<Level>, BlockPos> pos : revertibleBlocks.row(uuid).keySet()) {
-            positions.put(pos.left(), pos.right());
+        Multimap<ResourceKey<Level>, BlockPos> positions = HashMultimap.create();
+        for (BlockLocation loc : revertibleBlocks.row(uuid).keySet()) {
+            positions.put(loc.dimension(), loc.pos());
         }
         return positions;
     }
 
     public void revert(UUID owner, ServerLevel level, BlockPos pos) {
-        Pair<ResourceKey<Level>, BlockPos> loc = Pair.of(level.dimension(), pos);
+        BlockLocation loc = new BlockLocation(level.dimension(), pos);
         BlockState state = revertibleBlocks.remove(owner, loc);
         if (state != null) {
             level.setBlockAndUpdate(pos, state);
@@ -63,8 +58,9 @@ public class AbilityReversionBlockData extends SavedData {
     }
 
     public @Nullable UUID getCause(ResourceKey<Level> dimension, BlockPos pos) {
-        for (Table.Cell<UUID, Pair<ResourceKey<Level>, BlockPos>, BlockState> cell : revertibleBlocks.cellSet()) {
-            if (cell.getColumnKey().equals(Pair.of(dimension, pos)))
+        BlockLocation location = new BlockLocation(dimension, pos);
+        for (Table.Cell<UUID, BlockLocation, BlockState> cell : revertibleBlocks.cellSet()) {
+            if (cell.getColumnKey().equals(location))
                 return cell.getRowKey();
         }
         return null;
@@ -72,34 +68,13 @@ public class AbilityReversionBlockData extends SavedData {
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        CompoundTag revertible = new CompoundTag();
-        for (UUID ownerId : revertibleBlocks.rowKeySet()) {
-            ListTag entries = new ListTag();
-            for (Map.Entry<BlockLocation, BlockState> entry : revertibleBlocks.row(ownerId).entrySet()) {
-                CompoundTag entryTag = new CompoundTag();
-                entryTag.put("Location", BlockLocation.CODEC.encodeStart(NbtOps.INSTANCE, entry.getKey()).getOrThrow());
-                entryTag.put("State", BlockState.CODEC.encodeStart(NbtOps.INSTANCE, entry.getValue()).getOrThrow());
-                entries.add(entryTag);
-            }
-            revertible.put(ownerId.toString(), entries);
-        }
-        tag.put("Revertible", revertible);
+        tag.put("Revertible", MineraculousNbtUtils.writeStringRowKeyedTable(revertibleBlocks, UUID::toString, MineraculousNbtUtils.codecEncoder(BlockLocation.CODEC), MineraculousNbtUtils.codecEncoder(BlockState.CODEC)));
         return tag;
     }
 
     public static AbilityReversionBlockData load(CompoundTag tag, HolderLookup.Provider registries) {
         AbilityReversionBlockData data = new AbilityReversionBlockData();
-        CompoundTag revertible = tag.getCompound("Revertible");
-        for (String ownerString : revertible.getAllKeys()) {
-            UUID ownerId = UUID.fromString(ownerString);
-            ListTag entries = revertible.getList(ownerString, ListTag.TAG_COMPOUND);
-            for (int i = 0; i < entries.size(); i++) {
-                CompoundTag entryTag = entries.getCompound(i);
-                BlockLocation location = BlockLocation.CODEC.parse(NbtOps.INSTANCE, entryTag.get("Location")).getOrThrow();
-                BlockState state = BlockState.CODEC.parse(NbtOps.INSTANCE, entryTag.get("State")).getOrThrow();
-                data.revertibleBlocks.put(ownerId, location, state);
-            }
-        }
+        data.revertibleBlocks.putAll(MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Revertible"), UUID::fromString, MineraculousNbtUtils.codecDecoder(BlockLocation.CODEC), MineraculousNbtUtils.codecDecoder(BlockState.CODEC)));
         return data;
     }
 
@@ -107,14 +82,5 @@ public class AbilityReversionBlockData extends SavedData {
         private static final Codec<BlockLocation> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Level.RESOURCE_KEY_CODEC.fieldOf("dimension").forGetter(BlockLocation::dimension),
                 BlockPos.CODEC.fieldOf("pos").forGetter(BlockLocation::pos)).apply(instance, BlockLocation::new));
-    }
-
-    public ArrayList<BlockPos> getRevertibleBlocks(UUID owner) {
-        Set<Pair<ResourceKey<Level>, BlockPos>> keys = this.revertibleBlocks.row(owner).keySet();
-        ArrayList<BlockPos> positions = new ArrayList<>(keys.size());
-        for (Pair<ResourceKey<Level>, BlockPos> pair : keys) {
-            positions.add(pair.second());
-        }
-        return positions;
     }
 }

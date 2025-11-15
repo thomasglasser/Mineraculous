@@ -36,7 +36,7 @@ public record ToggleableNightVisionAbility(Optional<ResourceLocation> shader, Op
         if (context == null) {
             checkNightVision(data.powerLevel(), level, performer);
         }
-        return State.CONTINUE;
+        return State.PASS;
     }
 
     @Override

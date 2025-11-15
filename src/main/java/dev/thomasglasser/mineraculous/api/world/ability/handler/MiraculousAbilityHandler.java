@@ -12,7 +12,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * An {@link AbilityHandler} for {@link Miraculous} abilities.
@@ -23,25 +22,6 @@ public record MiraculousAbilityHandler(Holder<Miraculous> miraculous) implements
     @Override
     public void triggerPerformAdvancement(ServerPlayer performer, AbilityContext context) {
         MineraculousCriteriaTriggers.PERFORMED_MIRACULOUS_ACTIVE_ABILITY.get().trigger(performer, miraculous.getKey(), context.advancementContext());
-    }
-
-    @Override
-    public @Nullable UUID getBlame(LivingEntity performer) {
-        return performer.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).curiosData().map(curiosData -> CuriosUtils.getStackInSlot(performer, curiosData).get(MineraculousDataComponents.MIRACULOUS_ID)).orElse(null);
-    }
-
-    @Override
-    public void assignBlame(UUID blame, ItemStack stack, LivingEntity performer) {
-        stack.set(MineraculousDataComponents.MIRACULOUS_ID, blame);
-    }
-
-    @Override
-    public @Nullable UUID getMatchingBlame(ItemStack stack, LivingEntity performer) {
-        UUID performerId = performer.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).curiosData().map(curiosData -> CuriosUtils.getStackInSlot(performer, curiosData).get(MineraculousDataComponents.MIRACULOUS_ID)).orElse(null);
-        UUID stackId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
-        if (performerId != null && performerId.equals(stackId))
-            return performerId;
-        return null;
     }
 
     @Override

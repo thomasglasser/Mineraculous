@@ -28,7 +28,9 @@
     "neoforge.common.extensions.IItemExtensionMixin"
   ],
   "client": [
+    "geckolib.renderer.GeoEntityRendererMixin",
     "minecraft.client.MinecraftMixin",
+    "minecraft.client.MouseHandlerMixin",
     "minecraft.client.gui.GuiMixin",
     "minecraft.client.gui.screens.packs.PackSelectionModelEntryBaseMixin",
     "minecraft.client.gui.screens.packs.PackSelectionModelEntryMixin",

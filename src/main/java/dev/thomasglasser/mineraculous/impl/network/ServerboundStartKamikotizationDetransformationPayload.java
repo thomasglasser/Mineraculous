@@ -32,7 +32,7 @@ public record ServerboundStartKamikotizationDetransformationPayload(Optional<UUI
             target = player;
         }
         if (target != null) {
-            target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.detransform(target, level, target.position().add(0, 1, 0), instant));
+            target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.detransform(target, level, target.position().add(0, 1, 0), instant, null));
         }
     }
 

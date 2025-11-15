@@ -46,10 +46,12 @@ import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
+import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
+import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiFoods;
 import dev.thomasglasser.mineraculous.impl.world.level.block.entity.OvenBlockEntity;
 import dev.thomasglasser.tommylib.api.data.lang.ExtendedEnUsLanguageProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
@@ -131,11 +133,15 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousItems.CAT_STAFF.get(), "Cat Staff");
         add(MineraculousItems.BUTTERFLY_CANE.get(), "Butterfly Cane");
         add(MineraculousItems.MIRACULOUS.get(), "Miraculous");
+        add(MineraculousItems.KWAMI.get(), "Kwami");
         add(MineraculousItems.GREAT_SWORD.get(), "Great Sword");
         add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
         add(MineraculousItems.RAW_MACARON.get(), "Raw Macaron");
         add(MineraculousItems.MACARON.get(), "Macaron");
         add(MineraculousBlocks.HIBISCUS_BUSH.asItem(), "Hibiscus");
+
+        add(KwamiItem.CHARGED, "Charged");
+        add(KwamiItem.NOT_CHARGED, "Not Charged");
 
         // Tool Modes
         addRadialMenuOptions(LadybugYoyoItem.Mode.values());
@@ -151,6 +157,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(Active.PRESS_KEY_TO_TOGGLE, "Press %s to %s");
         add(Active.ACTIVATE, "Activate");
         add(Active.DEACTIVATE, "Deactivate");
+
+        add(KwamiFoods.PREFERRED_FOODS, "Foods:");
+        add(KwamiFoods.TREATS, "Treats:");
     }
 
     private void addBlocks() {
@@ -202,8 +211,6 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousCommand.CUSTOMIZE_OPEN_SUCCESS_SELF, "Opening %s miraculous look customization screen.");
         add(MiraculousCommand.CUSTOMIZE_OPEN_SUCCESS_OTHER, "Opening %s miraculous look customization screen for %s.");
         // Charged
-        add(MiraculousCommand.CHARGED_TRUE, "charged");
-        add(MiraculousCommand.CHARGED_FALSE, "not charged");
         add(MiraculousCommand.CHARGED_QUERY_SUCCESS_SELF, "Your %s kwami is %s.");
         add(MiraculousCommand.CHARGED_QUERY_SUCCESS_OTHER, "%s's %s kwami is %s.");
         add(MiraculousCommand.CHARGED_SET_SUCCESS_SELF, "Set charged state of %s kwami to %s");
@@ -260,8 +267,12 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousItemUtils.ITEM_UNBREAKABLE_KEY, "This item is unbreakable by normal means.");
         add(MineraculousItemUtils.KAMIKOTIZED_ITEM_UNBREAKABLE_KEY, "You feel compelled to leave this item unbroken.");
 
+        // Miraculous Data
+        add(MiraculousData.KWAMI_NOT_FOUND, "%s Kwami not found in the world.");
+
         // Kamiko Gui
         add(KamikoTargetPlayerMenuCategory.TARGET_PROMPT, "Select a player to target");
+        add(Kamiko.DETRANSFORM_TO_TRANSFORM, "Kamikotization will begin when you detransform.");
         add(Kamiko.CANT_KAMIKOTIZE_TRANSFORMED, "Kamikotizing transformed players is not currently supported.");
         add(Kamikotization.NO_KAMIKOTIZATIONS, "No Kamikotizations found in world, have you installed any addons?");
 
@@ -274,7 +285,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         // Kamikotization Selection Screen
         add(KamikotizationSelectionScreen.TITLE, "Kamikotization");
-        add(KamikotizationSelectionScreen.NO_KAMIKOTIZATIONS, "No valid kamikotizations found for %s");
+        add(KamikotizationItemSelectionScreen.NO_KAMIKOTIZATIONS, "No valid kamikotizations found for %s");
         add(KamikotizationSelectionScreen.TOOL, "Tool:");
         add(KamikotizationSelectionScreen.ACTIVE_ABILITY, "Active Ability:");
         add(KamikotizationSelectionScreen.PASSIVE_ABILITIES, "Passive Abilities:");
@@ -368,11 +379,11 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousBlockTags.CAMEMBERT_BLOCKS, MineraculousItemTags.CAMEMBERT_BLOCKS, "Camembert Blocks");
 
         // Item Tags
-        add(MineraculousItemTags.BUTTERFLY_KWAMI_FOODS, "Butterfly Kwami Foods");
+        add(MineraculousItemTags.BUTTERFLY_KWAMI_PREFERRED_FOODS, "Butterfly Kwami Preferred Foods");
         add(MineraculousItemTags.BUTTERFLY_KWAMI_TREATS, "Butterfly Kwami Treats");
-        add(MineraculousItemTags.CAT_KWAMI_FOODS, "Cat Kwami Foods");
+        add(MineraculousItemTags.CAT_KWAMI_PREFERRED_FOODS, "Cat Kwami Preferred Foods");
         add(MineraculousItemTags.CAT_KWAMI_TREATS, "Cat Kwami Treats");
-        add(MineraculousItemTags.LADYBUG_KWAMI_FOODS, "Ladybug Kwami Foods");
+        add(MineraculousItemTags.LADYBUG_KWAMI_PREFERRED_FOODS, "Ladybug Kwami Preferred Foods");
         add(MineraculousItemTags.LADYBUG_KWAMI_TREATS, "Ladybug Kwami Treats");
         add(MineraculousItemTags.CHEESES_FOODS, "Cheeses");
         add(MineraculousItemTags.CHEESE, "Cheese");
@@ -410,6 +421,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         addConfigSection(MineraculousServerConfig.KWAMIS, "Kwamis", "Settings for kwamis");
         addConfig(MineraculousServerConfig.get().kwamiSummonTime, "Kwami Summon Time", "The amount of time (in seconds) that it takes for a kwami to summon");
+        addConfig(MineraculousServerConfig.get().kwamiItemInventoryInteractionChance, "Kwami Item Inventory Interaction Chance", "The chance (out of 100) that a kwami item interacts with the player's inventory. Set to 0 to disable.");
+        addConfig(MineraculousServerConfig.get().enableKwamiItemCharging, "Enable Kwami Item Charging", "Enable kwami items eating food out of the player's inventory to charge.");
+        addConfig(MineraculousServerConfig.get().enableKwamiItemMoving, "Enable Kwami Item Moving", "Enable kwami items moving around the player's empty inventory spaces.");
+        addConfig(MineraculousServerConfig.get().enableKwamiItemSwapping, "Enable Kwami Item Swapping", "Enable kwami items swapping with other items in the player's inventory.");
 
         addConfigSection(MineraculousServerConfig.STEALING, "Stealing", "Settings for item stealing");
         addConfig(MineraculousServerConfig.get().stealingDuration, "Stealing Duration", "Duration in seconds that the key must be held to steal an item");
@@ -419,10 +434,15 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         // Client
         addConfigSection(MineraculousClientConfig.COSMETICS, "Player Cosmetics", "Settings for player cosmetics");
-        addConfig(MineraculousClientConfig.get().displayBetaTesterCosmetic, "Display Beta Tester Cosmetic", "Display your preferred Beta Tester Cosmetic (if eligible)");
-        addConfig(MineraculousClientConfig.get().betaTesterCosmeticChoice, "Beta Tester Cosmetic Choice", "The Beta Tester Cosmetic to be displayed (if eligible)");
-        addConfig(MineraculousClientConfig.get().displayDevTeamCosmetic, "Display Dev Team Cosmetic", "Display the Dev Team cosmetic (if eligible)");
-        addConfig(MineraculousClientConfig.get().displayLegacyDevTeamCosmetic, "Display Legacy Dev Team Cosmetic", "Display the Legacy Dev Team cosmetic (if eligible)");
+        addConfigSection(MineraculousClientConfig.SELF, "Self", "Settings for your own player cosmetics");
+        addConfig(MineraculousClientConfig.get().displaySelfBetaTesterCosmetic, "Display Beta Tester Cosmetic", "Display your preferred Beta Tester Cosmetic (if eligible)");
+        addConfig(MineraculousClientConfig.get().selfBetaTesterCosmeticChoice, "Beta Tester Cosmetic Choice", "The Beta Tester Cosmetic to be displayed (if eligible)");
+        addConfig(MineraculousClientConfig.get().displaySelfDevTeamCosmetic, "Display Dev Team Cosmetic", "Display your Dev Team cosmetic (if eligible)");
+        addConfig(MineraculousClientConfig.get().displaySelfLegacyDevTeamCosmetic, "Display Legacy Dev Team Cosmetic", "Display your Legacy Dev Team cosmetic (if eligible)");
+        addConfigSection(MineraculousClientConfig.OTHERS, "Others", "Settings for other players' cosmetics");
+        addConfig(MineraculousClientConfig.get().displayOthersBetaTesterCosmetic, "Display Beta Tester Cosmetic", "Display other players' preferred Beta Tester Cosmetic (if eligible)");
+        addConfig(MineraculousClientConfig.get().displayOthersDevTeamCosmetic, "Display Dev Team Cosmetic", "Display other players' Dev Team cosmetic (if eligible)");
+        addConfig(MineraculousClientConfig.get().displayOthersLegacyDevTeamCosmetic, "Display Legacy Dev Team Cosmetic", "Display other players' Legacy Dev Team cosmetic (if eligible)");
 
         addConfigSection(MineraculousClientConfig.RADIAL_MENU, "Tool Wheel", "Settings for the tool wheel");
         addConfig(MineraculousClientConfig.get().animationSpeed, "Animation Speed", "The speed at which the tool wheel opens");

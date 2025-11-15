@@ -37,6 +37,7 @@ import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Leashable;
@@ -177,7 +178,7 @@ public class MineraculousEntityEvents {
     // Abilities
     public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
         Player player = event.getEntity();
-        if (player.level() instanceof ServerLevel level) {
+        if (event.getHand() == InteractionHand.MAIN_HAND && player.level() instanceof ServerLevel level) {
             AbilityUtils.performEntityAbilities(level, player, event.getTarget());
         }
     }
@@ -191,20 +192,13 @@ public class MineraculousEntityEvents {
         }
         if (player.level() instanceof ServerLevel level) {
             Entity target = event.getTarget();
-            // Living entities are handled via LivingDamageEvent.Post
-            if (!(target instanceof LivingEntity)) {
-                AbilityUtils.performEntityAbilities(level, player, target);
-            }
+            AbilityUtils.performEntityAbilities(level, player, target);
         }
     }
 
     public static void onPostLivingDamage(LivingDamageEvent.Post event) {
         if (event.getEntity().level() instanceof ServerLevel level) {
-            Entity attacker = event.getSource().getEntity();
             LivingEntity target = event.getEntity();
-            if (attacker instanceof LivingEntity livingAttacker) {
-                AbilityUtils.performEntityAbilities(level, livingAttacker, target);
-            }
             AbilityEffectData abilityEffectData = target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
             if (abilityEffectData.spectatingId().isPresent()) {
                 abilityEffectData.withSpectationInterrupted().save(target, true);
@@ -240,11 +234,12 @@ public class MineraculousEntityEvents {
     // Cataclysm
     public static void onEffectRemoved(MobEffectEvent.Remove event) {
         LivingEntity entity = event.getEntity();
-        if (event.getEffect() == MineraculousMobEffects.CATACLYSM && !(entity instanceof Player player && player.getAbilities().invulnerable)) {
+        if (event.getEffect().is(MineraculousMobEffects.CATACLYSM) && !(entity instanceof Player player && player.getAbilities().invulnerable)) {
             event.setCanceled(true);
-        }
-        if (entity.level() instanceof ServerLevel level && level.getChunkSource() instanceof ServerChunkCache chunkCache) {
-            chunkCache.broadcastAndSend(entity, new ClientboundRemoveMobEffectPacket(entity.getId(), event.getEffect()));
+        } else {
+            if (entity.level() instanceof ServerLevel level && level.getChunkSource() instanceof ServerChunkCache chunkCache) {
+                chunkCache.broadcastAndSend(entity, new ClientboundRemoveMobEffectPacket(entity.getId(), event.getEffect()));
+            }
         }
     }
 
@@ -311,7 +306,7 @@ public class MineraculousEntityEvents {
                     if (kamikotization == data.kamikotization()) {
                         UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
                         if (ownerId == null || ownerId.equals(entity.getUUID())) {
-                            data.detransform(entity, level, entity.position().add(0, 1, 0), true);
+                            data.detransform(entity, level, entity.position().add(0, 1, 0), true, null);
                         }
                     }
                 });

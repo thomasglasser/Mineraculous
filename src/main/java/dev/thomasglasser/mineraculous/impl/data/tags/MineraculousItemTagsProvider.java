@@ -36,6 +36,12 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         addAbilities();
 
         // Misc
+        tag(ItemTags.SMALL_FLOWERS)
+                .add(MineraculousBlocks.HIBISCUS_BUSH.asItem());
+
+        tag(MineraculousItemTags.KAMIKOTIZATION_IMMUNE)
+                .add(MineraculousItems.KWAMI);
+
         tag(MineraculousItemTags.TOUGH)
                 .add(Items.NETHER_STAR)
                 .add(Items.TOTEM_OF_UNDYING)
@@ -71,7 +77,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
 
     private void addKwamiFoods() {
         // Ladybug
-        tag(MineraculousItemTags.LADYBUG_KWAMI_FOODS)
+        tag(MineraculousItemTags.LADYBUG_KWAMI_PREFERRED_FOODS)
                 .add(Items.BREAD);
 
         tag(MineraculousItemTags.LADYBUG_KWAMI_TREATS)
@@ -80,16 +86,17 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
                 .add(Items.CAKE);
 
         // Cat
-        tag(MineraculousItemTags.CAT_KWAMI_FOODS)
-                .addTag(MineraculousItemTags.CHEESES_FOODS);
+        tag(MineraculousItemTags.CAT_KWAMI_PREFERRED_FOODS)
+                .addTag(MineraculousItemTags.CHEESES_FOODS)
+                .addTag(MineraculousItemTags.CHEESE_BLOCKS_FOODS);
 
         tag(MineraculousItemTags.CAT_KWAMI_TREATS)
                 .addTag(MineraculousItemTags.CAMEMBERT)
-                .addTag(MineraculousItemTags.CHEESE_BLOCKS_FOODS);
+                .addTag(MineraculousItemTags.CAMEMBERT_BLOCKS);
 
         // Butterfly
-        tag(MineraculousItemTags.BUTTERFLY_KWAMI_FOODS)
-                .addTag(ItemTags.FLOWERS);
+        tag(MineraculousItemTags.BUTTERFLY_KWAMI_PREFERRED_FOODS)
+                .addTag(ItemTags.SMALL_FLOWERS);
 
         tag(MineraculousItemTags.BUTTERFLY_KWAMI_TREATS)
                 .add(MineraculousBlocks.HIBISCUS_BUSH.asItem());
@@ -152,6 +159,12 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         // Lucky Charm
         tag(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE)
                 .add(MineraculousItems.GREAT_SWORD);
+
+        tag(MineraculousItemTags.SHOOTING_PROJECTILES)
+                .add(MineraculousItems.BUTTERFLY_CANE)
+                .add(MineraculousItems.CAT_STAFF)
+                .add(Items.TRIDENT)
+                .addTag(ItemTags.ARROWS);
 
         tag(MineraculousItemTags.GENERIC_LUCKY_CHARMS)
                 .add(Items.APPLE)

@@ -7,6 +7,8 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 
 public class MineraculousEntityTypeTags {
+    public static final TagKey<EntityType<?>> CATACLYSM_IMMUNE = create("cataclysm_immune");
+
     /// Entities from any mod that can be considered a butterfly.
     public static final TagKey<EntityType<?>> BUTTERFLIES = createC("butterflies");
 

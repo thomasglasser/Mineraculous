@@ -5,12 +5,10 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
-import java.util.UUID;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * An {@link AbilityHandler} for {@link Kamikotization} abilities.
@@ -21,24 +19,6 @@ public record KamikotizationAbilityHandler(Holder<Kamikotization> kamikotization
     @Override
     public void triggerPerformAdvancement(ServerPlayer performer, AbilityContext context) {
         MineraculousCriteriaTriggers.PERFORMED_KAMIKOTIZATION_ACTIVE_ABILITY.get().trigger(performer, kamikotization.getKey(), context.advancementContext());
-    }
-
-    @Override
-    public UUID getBlame(LivingEntity performer) {
-        return performer.getUUID();
-    }
-
-    @Override
-    public void assignBlame(UUID blame, ItemStack stack, LivingEntity performer) {
-        stack.set(MineraculousDataComponents.KAMIKOTIZATION, kamikotization);
-    }
-
-    @Override
-    public @Nullable UUID getMatchingBlame(ItemStack stack, LivingEntity performer) {
-        if (kamikotization == stack.get(MineraculousDataComponents.KAMIKOTIZATION)) {
-            return performer.getUUID();
-        }
-        return null;
     }
 
     @Override

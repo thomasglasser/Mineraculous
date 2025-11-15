@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.api.world.entity;
 
-import com.mojang.datafixers.util.Pair;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
@@ -11,8 +10,10 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEn
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import dev.thomasglasser.mineraculous.impl.network.ClientboundRefreshDisplayNamePayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.List;
@@ -24,6 +25,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -39,7 +41,7 @@ import org.jetbrains.annotations.Nullable;
 public class MineraculousEntityUtils {
     /**
      * Applies the provided {@link MobEffect} to the provided {@link LivingEntity} at the provided amplifier invisibly for an infinite duration.
-     * 
+     *
      * @param entity    The entity to apply the effect to
      * @param effect    The effect to apply to the entity
      * @param amplifier The amplifier to use for the effect
@@ -78,6 +80,11 @@ public class MineraculousEntityUtils {
         return original;
     }
 
+    public static void refreshAndSyncDisplayName(ServerPlayer player) {
+        player.refreshDisplayName();
+        TommyLibServices.NETWORK.sendToTrackingClientsAndSelf(new ClientboundRefreshDisplayNamePayload(player.getUUID()), player);
+    }
+
     /**
      * Performs item breaking on an {@link ItemEntity} and spawns a new item for the remaining stack.
      *
@@ -86,9 +93,9 @@ public class MineraculousEntityUtils {
      */
     public static void tryBreakItemEntity(ItemEntity itemEntity, ServerLevel serverLevel) {
         Vec3 position = itemEntity.position();
-        Pair<ItemStack, ItemStack> result = MineraculousItemUtils.tryBreakItem(itemEntity.getItem(), serverLevel, position, null);
-        ItemStack stack = result.getFirst();
-        ItemStack rest = result.getSecond();
+        MineraculousItemUtils.BreakResult result = MineraculousItemUtils.tryBreakItem(itemEntity.getItem(), serverLevel, position, null);
+        ItemStack stack = result.original();
+        ItemStack rest = result.remainder();
         if (stack.isEmpty()) {
             itemEntity.discard();
         } else {
@@ -116,31 +123,46 @@ public class MineraculousEntityUtils {
     }
 
     /**
-     * Summons a {@link Kwami} with the provided charge, miraculous ID, and miraculous in the provided level.
+     * Summons a {@link Kwami} with the provided charge, miraculous ID, and miraculous for the provided owner.
      *
-     * @param charged      Whether the kwami is charged
-     * @param miraculousId The related miraculous item {@link UUID}
-     * @param level        The level to summon the kwami in
-     * @param miraculous   The miraculous of the kwami
-     * @param owner        The owner of the kwami
+     * @param owner         The owner of the kwami
+     * @param charged       Whether the kwami is charged
+     * @param miraculousId  The related miraculous item {@link UUID}
+     * @param miraculous    The miraculous of the kwami
+     * @param playAnimation Whether to play the kwami summon animation
      * @return The summoned kwami
      */
-    public static Kwami summonKwami(boolean charged, UUID miraculousId, ServerLevel level, Holder<Miraculous> miraculous, Entity owner) {
+    public static Kwami summonKwami(Entity owner, boolean charged, UUID miraculousId, Holder<Miraculous> miraculous, boolean playAnimation, @Nullable UUID uuidOverride) {
+        ServerLevel level = (ServerLevel) owner.level();
+        if (uuidOverride != null && level.getEntity(uuidOverride) instanceof Kwami kwami) {
+            kwami.discard();
+        }
         Kwami kwami = MineraculousEntityTypes.KWAMI.get().create(level);
         if (kwami != null) {
-            kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt());
+            kwami.setCharged(charged);
             kwami.setMiraculous(miraculous);
             kwami.setMiraculousId(miraculousId);
-            kwami.setCharged(charged);
-            kwami.setPos(owner.position());
             if (owner instanceof Player player) {
                 kwami.tame(player);
             } else {
                 kwami.setOwnerUUID(owner.getUUID());
                 kwami.setTame(true, true);
             }
+            kwami.setYRot(owner.getYRot() + 180);
+            kwami.setYHeadRot(owner.getYRot() + 180);
+            if (playAnimation) {
+                kwami.moveTo(owner.position());
+                kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt());
+                kwami.playSound(MineraculousSoundEvents.KWAMI_SUMMON.get());
+            } else {
+                Vec3 ownerPos = owner.position();
+                Vec3 lookDirection = owner.getLookAngle();
+                Vec3 kwamiPos = ownerPos.add(lookDirection.scale(1.5));
+                kwami.moveTo(kwamiPos.x, owner.getEyeY(), kwamiPos.z);
+            }
+            if (uuidOverride != null)
+                kwami.setUUID(uuidOverride);
             level.addFreshEntity(kwami);
-            kwami.playSound(MineraculousSoundEvents.KWAMI_SUMMON.get());
             return kwami;
         }
         return null;

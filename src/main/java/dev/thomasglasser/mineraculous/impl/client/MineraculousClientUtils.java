@@ -8,6 +8,7 @@ import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.InventorySyncTracker;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
@@ -37,9 +38,16 @@ import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -48,9 +56,11 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.HttpTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.SimpleTexture;
@@ -69,6 +79,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -87,6 +98,8 @@ public class MineraculousClientUtils {
     }
 
     public static boolean renderBetaTesterLayer(AbstractClientPlayer player) {
+        if (player != ClientUtils.getLocalPlayer() && !MineraculousClientConfig.get().displayOthersBetaTesterCosmetic.getAsBoolean())
+            return false;
         return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayBeta() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, betaChoice(player).slot());
     }
 
@@ -95,10 +108,14 @@ public class MineraculousClientUtils {
     }
 
     public static boolean renderDevLayer(AbstractClientPlayer player) {
+        if (player != ClientUtils.getLocalPlayer() && !MineraculousClientConfig.get().displayOthersDevTeamCosmetic.getAsBoolean())
+            return false;
         return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
     }
 
     public static boolean renderLegacyDevLayer(AbstractClientPlayer player) {
+        if (player != ClientUtils.getLocalPlayer() && !MineraculousClientConfig.get().displayOthersLegacyDevTeamCosmetic.getAsBoolean())
+            return false;
         return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayLegacyDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
     }
 
@@ -106,10 +123,10 @@ public class MineraculousClientUtils {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateSpecialPlayerDataPayload(player.getUUID(), new SpecialPlayerData(
-                    MineraculousClientConfig.get().betaTesterCosmeticChoice.get(),
-                    MineraculousClientConfig.get().displayBetaTesterCosmetic.get(),
-                    MineraculousClientConfig.get().displayDevTeamCosmetic.get(),
-                    MineraculousClientConfig.get().displayLegacyDevTeamCosmetic.get())));
+                    MineraculousClientConfig.get().selfBetaTesterCosmeticChoice.get(),
+                    MineraculousClientConfig.get().displaySelfBetaTesterCosmetic.get(),
+                    MineraculousClientConfig.get().displaySelfDevTeamCosmetic.get(),
+                    MineraculousClientConfig.get().displaySelfLegacyDevTeamCosmetic.get())));
         }
     }
 
@@ -202,6 +219,12 @@ public class MineraculousClientUtils {
         Minecraft.getInstance().setScreen(new MiraculousTransferScreen(kwamiId));
     }
 
+    public static void triggerInventorySyncTracker(Player player) {
+        if (Minecraft.getInstance().screen instanceof InventorySyncTracker tracker) {
+            tracker.onInventorySynced(player);
+        }
+    }
+
     // Camera
     public static boolean isFirstPerson() {
         return Minecraft.getInstance().options.getCameraType().isFirstPerson();
@@ -226,17 +249,17 @@ public class MineraculousClientUtils {
     }
 
     // Rendering
-    public static VertexConsumer checkItemShaders(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack itemStack, boolean armor, boolean entity) {
-        if (itemStack.has(MineraculousDataComponents.KAMIKOTIZING)) {
+    public static VertexConsumer checkItemShaders(VertexConsumer buffer, MultiBufferSource bufferSource, ItemStack stack, boolean armor, boolean entity) {
+        if (stack.has(MineraculousDataComponents.KAMIKOTIZING)) {
             if (entity) {
-                return itemStack.is(Items.SHIELD)
+                return stack.is(Items.SHIELD)
                         ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.shieldKamikotizing()), buffer)
                         : VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.entityKamikotizing()), buffer);
             }
             return VertexMultiConsumer.create(bufferSource.getBuffer(armor ? MineraculousRenderTypes.armorKamikotizing() : MineraculousRenderTypes.itemKamikotizing()), buffer);
-        } else if (itemStack.has(MineraculousDataComponents.LUCKY_CHARM) && !itemStack.is(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE)) {
+        } else if (stack.has(MineraculousDataComponents.LUCKY_CHARM) && !stack.is(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE)) {
             if (entity) {
-                return itemStack.is(Items.SHIELD)
+                return stack.is(Items.SHIELD)
                         ? VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.shieldLuckyCharm()), buffer)
                         : VertexMultiConsumer.create(bufferSource.getBuffer(MineraculousRenderTypes.entityLuckyCharm()), buffer);
             }
@@ -245,13 +268,21 @@ public class MineraculousClientUtils {
         return buffer;
     }
 
+    public static @Nullable RenderType checkArmorShaders(ItemStack stack) {
+        if (stack.has(MineraculousDataComponents.KAMIKOTIZING))
+            return MineraculousRenderTypes.armorKamikotizing();
+        else if (stack.has(MineraculousDataComponents.LUCKY_CHARM) && !stack.is(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE))
+            return MineraculousRenderTypes.armorLuckyCharm();
+        return null;
+    }
+
     public static int getCataclysmPixel(RandomSource random) {
         return CATACLYSM_PIXELS.getInt(random.nextInt(CATACLYSM_PIXELS.size()));
     }
 
     public static void refreshCataclysmPixels() {
         CATACLYSM_PIXELS.clear();
-        try (AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(MineraculousConstants.modLoc("textures/entity/cataclysm.png"))) {
+        try (AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(MineraculousConstants.modLoc("textures/block/cataclysm_block.png"))) {
             NativeImage image;
             if (texture instanceof SimpleTexture simpleTexture) {
                 image = simpleTexture.getTextureImage(Minecraft.getInstance().getResourceManager()).getImage();
@@ -279,6 +310,59 @@ public class MineraculousClientUtils {
         } catch (Exception e) {
             throw new IllegalStateException("Failed to load cataclysm texture", e);
         }
+    }
+
+    public static @Nullable NativeImage getNativeImage(HttpTexture texture) {
+        AtomicReference<NativeImage> image = new AtomicReference<>();
+        if (texture.file != null && texture.file.isFile()) {
+            MineraculousConstants.LOGGER.debug("Loading http texture from local cache ({})", texture.file);
+            try {
+                FileInputStream fileinputstream = new FileInputStream(texture.file);
+                image.set(texture.load(fileinputstream));
+            } catch (FileNotFoundException e) {
+                MineraculousConstants.LOGGER.error("Couldn't load http texture from local cache", e);
+            }
+        }
+
+        if (image.get() == null) {
+            HttpURLConnection httpurlconnection = null;
+            MineraculousConstants.LOGGER.debug("Downloading http texture from {} to {}", texture.urlString, texture.file);
+
+            try {
+                httpurlconnection = (HttpURLConnection) new URI(texture.urlString).toURL().openConnection(Minecraft.getInstance().getProxy());
+                httpurlconnection.setDoInput(true);
+                httpurlconnection.setDoOutput(false);
+                httpurlconnection.connect();
+                if (httpurlconnection.getResponseCode() / 100 == 2) {
+                    InputStream inputstream;
+                    if (texture.file != null) {
+                        FileUtils.copyInputStreamToFile(httpurlconnection.getInputStream(), texture.file);
+                        inputstream = new FileInputStream(texture.file);
+                    } else {
+                        inputstream = httpurlconnection.getInputStream();
+                    }
+
+                    Minecraft.getInstance().execute(() -> {
+                        NativeImage image1 = texture.load(inputstream);
+                        if (image1 != null) {
+                            image.set(image1);
+                        }
+                        try {
+                            inputstream.close();
+                        } catch (IOException e) {
+                            MineraculousConstants.LOGGER.error("Couldn't close http texture input stream", e);
+                        }
+                    });
+                }
+            } catch (Exception exception) {
+                MineraculousConstants.LOGGER.error("Couldn't download http texture", exception);
+            } finally {
+                if (httpurlconnection != null) {
+                    httpurlconnection.disconnect();
+                }
+            }
+        }
+        return image.get();
     }
 
     // Misc

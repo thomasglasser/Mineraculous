@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
-import com.mojang.datafixers.util.Pair;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
@@ -22,9 +21,9 @@ public class ServerboundTryBreakItemPayload implements ExtendedPacketPayload {
     // ON SERVER
     @Override
     public void handle(Player player) {
-        Pair<ItemStack, ItemStack> result = MineraculousItemUtils.tryBreakItem(player.getMainHandItem(), (ServerLevel) player.level(), player.position().add(0, 1, 0), player);
-        ItemStack mainHandItem = result.getFirst();
-        ItemStack rest = result.getSecond();
+        MineraculousItemUtils.BreakResult result = MineraculousItemUtils.tryBreakItem(player.getMainHandItem(), (ServerLevel) player.level(), player.position().add(0, 1, 0), player);
+        ItemStack mainHandItem = result.original();
+        ItemStack rest = result.remainder();
         if (mainHandItem.isEmpty()) {
             player.setItemInHand(InteractionHand.MAIN_HAND, rest);
         } else {

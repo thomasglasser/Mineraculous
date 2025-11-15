@@ -13,15 +13,15 @@ public class MineraculousRenderTypes {
     private static final ResourceLocation LADYBUG_BODY_TEXTURE = MineraculousConstants.modLoc("textures/particle/ladybug.png");
     private static final ResourceLocation LADYBUG_OUTLINE_TEXTURE = MineraculousConstants.modLoc("textures/particle/ladybug_glow.png");
 
-    private static final RenderType ITEM_LUCKY_CHARM = createLuckyCharm("item", MineraculousRenderStateShards.ITEM_SHADER_TEXTURING, false);
-    private static final RenderType ARMOR_LUCKY_CHARM = createLuckyCharm("armor", MineraculousRenderStateShards.ARMOR_SHADER_TEXTURING, true);
-    private static final RenderType ENTITY_LUCKY_CHARM = createLuckyCharm("entity", ENTITY_LUCKY_CHARM_TEXTURE, MineraculousRenderStateShards.ENTITY_SHADER_TEXTURING, false);
-    private static final RenderType SHIELD_LUCKY_CHARM = createLuckyCharm("shield", ENTITY_LUCKY_CHARM_TEXTURE, MineraculousRenderStateShards.SHIELD_SHADER_TEXTURING, false);
+    private static final RenderType ITEM_LUCKY_CHARM = createLuckyCharm("item", MineraculousRenderStateShards.ITEM_LUCKY_CHARM_TEXTURING, false);
+    private static final RenderType ARMOR_LUCKY_CHARM = createLuckyCharm("armor", MineraculousRenderStateShards.ARMOR_LUCKY_CHARM_TEXTURING, true);
+    private static final RenderType ENTITY_LUCKY_CHARM = createLuckyCharm("entity", ENTITY_LUCKY_CHARM_TEXTURE, MineraculousRenderStateShards.ENTITY_LUCKY_CHARM_TEXTURING, false);
+    private static final RenderType SHIELD_LUCKY_CHARM = createLuckyCharm("shield", ENTITY_LUCKY_CHARM_TEXTURE, MineraculousRenderStateShards.SHIELD_LUCKY_CHARM_TEXTURING, false);
 
-    private static final RenderType ITEM_KAMIKOTIZING = createKamikotizing("item", MineraculousRenderStateShards.ITEM_SHADER_TEXTURING, false);
-    private static final RenderType ARMOR_KAMIKOTIZING = createKamikotizing("armor", MineraculousRenderStateShards.ARMOR_SHADER_TEXTURING, true);
-    private static final RenderType ENTITY_KAMIKOTIZING = createKamikotizing("entity", ENTITY_KAMIKOTIZING_TEXTURE, MineraculousRenderStateShards.ENTITY_SHADER_TEXTURING, false);
-    private static final RenderType SHIELD_KAMIKOTIZING = createKamikotizing("shield", ENTITY_KAMIKOTIZING_TEXTURE, MineraculousRenderStateShards.SHIELD_SHADER_TEXTURING, false);
+    private static final RenderType ITEM_KAMIKOTIZING = createKamikotizing("item", MineraculousRenderStateShards.ITEM_KAMIKOTIZING_TEXTURING, false);
+    private static final RenderType ARMOR_KAMIKOTIZING = createKamikotizing("armor", MineraculousRenderStateShards.ARMOR_KAMIKOTIZING_TEXTURING, true);
+    private static final RenderType ENTITY_KAMIKOTIZING = createKamikotizing("entity", ENTITY_KAMIKOTIZING_TEXTURE, MineraculousRenderStateShards.ENTITY_KAMIKOTIZING_TEXTURING, false);
+    private static final RenderType SHIELD_KAMIKOTIZING = createKamikotizing("shield", ENTITY_KAMIKOTIZING_TEXTURE, MineraculousRenderStateShards.SHIELD_KAMIKOTIZING_TEXTURING, false);
 
     public static final RenderType LADYBUG_BODY = magicLadybugBody();
     public static final RenderType LADYBUG_OUTLINE = magicLadybugOutline();
@@ -94,7 +94,7 @@ public class MineraculousRenderTypes {
                         .setLightmapState(RenderStateShard.LIGHTMAP)
                         .setWriteMaskState(RenderStateShard.COLOR_WRITE)
                         .setDepthTestState(RenderStateShard.EQUAL_DEPTH_TEST)
-                        .setTransparencyState(RenderStateShard.NO_TRANSPARENCY)
+                        .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
                         .setLayeringState(offsetZLayering ? RenderStateShard.VIEW_OFFSET_Z_LAYERING : RenderStateShard.NO_LAYERING)
                         .setCullState(RenderStateShard.NO_CULL)
                         .createCompositeState(false));

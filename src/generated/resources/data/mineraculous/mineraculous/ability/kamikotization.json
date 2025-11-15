@@ -4,6 +4,7 @@
     "type": "mineraculous:convert_and_tame",
     "convert_sound": "mineraculous:kamikotization_activate",
     "new_type": "mineraculous:kamiko",
+    "require_none_stored": true,
     "valid_entities": {}
   },
   "passive": {

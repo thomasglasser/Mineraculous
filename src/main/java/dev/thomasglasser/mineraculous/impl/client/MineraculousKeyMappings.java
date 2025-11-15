@@ -73,10 +73,6 @@ public class MineraculousKeyMappings {
             if (!transformed.isEmpty()) {
                 Holder<Miraculous> miraculous = transformed.getFirst();
                 TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), false));
-            } else if (player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
-                if (MineraculousServerConfig.get().enableKamikotizationRejection.get()) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationDetransformationPayload(Optional.empty(), false));
-                }
             } else {
                 List<RadialMenuOption> options = new ReferenceArrayList<>();
                 Map<RadialMenuOption, Holder<Miraculous>> miraculousOptions = new Reference2ReferenceOpenHashMap<>();
@@ -128,6 +124,11 @@ public class MineraculousKeyMappings {
             if (revokeButton.active) {
                 revokeButton.onPress();
             }
+        } else {
+            Player player = ClientUtils.getLocalPlayer();
+            if (player != null && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION.get()).isPresent() && MineraculousServerConfig.get().enableKamikotizationRejection.get()) {
+                TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationDetransformationPayload(Optional.empty(), false));
+            }
         }
     }
 
@@ -175,6 +176,7 @@ public class MineraculousKeyMappings {
     }
 
     private static int takeTicks = 0;
+    private static int breakCooldown = 0;
 
     public static int getTakeTicks() {
         return takeTicks;
@@ -197,15 +199,19 @@ public class MineraculousKeyMappings {
                 } else if (takeTicks > 0) {
                     takeTicks = 0;
                 }
-            } else if (player.tickCount % 10 == 0) {
-                // Holding the key down causes some issues with stack miscounts, so we slow down breaking
+            } else if (breakCooldown <= 0) {
                 TommyLibServices.NETWORK.sendToServer(ServerboundTryBreakItemPayload.INSTANCE);
+                breakCooldown = 5;
             }
         }
+        if (breakCooldown > 0)
+            breakCooldown--;
     }
 
     private static void handleNoTakeBreakItem() {
         takeTicks = 0;
+        if (breakCooldown > 0)
+            breakCooldown--;
     }
 
     private static void handleToggleNightVision() {

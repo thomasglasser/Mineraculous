@@ -11,15 +11,15 @@ import net.minecraft.world.item.Item;
 public class MineraculousItemTags {
     // Kwami Foods and Treats
     /// Items that can be used to have a chance to charge the butterfly kwami.
-    public static final TagKey<Item> BUTTERFLY_KWAMI_FOODS = Miraculous.createFoodsTag(Miraculouses.BUTTERFLY);
+    public static final TagKey<Item> BUTTERFLY_KWAMI_PREFERRED_FOODS = Miraculous.createPreferredFoodsTag(Miraculouses.BUTTERFLY);
     /// Items that can be used to immediately charge the butterfly kwami.
     public static final TagKey<Item> BUTTERFLY_KWAMI_TREATS = Miraculous.createTreatsTag(Miraculouses.BUTTERFLY);
     /// Items that can be used to have a chance to charge the cat kwami.
-    public static final TagKey<Item> CAT_KWAMI_FOODS = Miraculous.createFoodsTag(Miraculouses.CAT);
+    public static final TagKey<Item> CAT_KWAMI_PREFERRED_FOODS = Miraculous.createPreferredFoodsTag(Miraculouses.CAT);
     /// Items that can be used to immediately charge the cat kwami.
     public static final TagKey<Item> CAT_KWAMI_TREATS = Miraculous.createTreatsTag(Miraculouses.CAT);
     /// Items that can be used to have a chance to charge the ladybug kwami.
-    public static final TagKey<Item> LADYBUG_KWAMI_FOODS = Miraculous.createFoodsTag(Miraculouses.LADYBUG);
+    public static final TagKey<Item> LADYBUG_KWAMI_PREFERRED_FOODS = Miraculous.createPreferredFoodsTag(Miraculouses.LADYBUG);
     /// Items that can be used to immediately charge the ladybug kwami.
     public static final TagKey<Item> LADYBUG_KWAMI_TREATS = Miraculous.createTreatsTag(Miraculouses.LADYBUG);
 
@@ -47,10 +47,15 @@ public class MineraculousItemTags {
     // Lucky Charms
     /// Items that do not have a visual change when given the {@link MineraculousDataComponents#LUCKY_CHARM} component.
     public static final TagKey<Item> LUCKY_CHARM_SHADER_IMMUNE = create("lucky_charm_shader_immune");
+    /// {@link net.minecraft.world.item.ProjectileItem}s that shoot down from the {@link dev.thomasglasser.mineraculous.impl.world.entity.LuckyCharmItemSpawner} instead of dropping normally
+    public static final TagKey<Item> SHOOTING_PROJECTILES = create("shooting_projectiles");
     /// Lucky charm options when no specific pool is specified.
     public static final TagKey<Item> GENERIC_LUCKY_CHARMS = create("lucky_charms/generic");
     /// Items passed in a {@link Warden} lucky charm to distract it.
     public static final TagKey<Item> WARDEN_DISTRACTORS = create("warden_distractors");
+
+    // Kamikotization
+    public static final TagKey<Item> KAMIKOTIZATION_IMMUNE = create("kamikotization_immune");
 
     private static TagKey<Item> create(String name) {
         return TagKey.create(Registries.ITEM, MineraculousConstants.modLoc(name));

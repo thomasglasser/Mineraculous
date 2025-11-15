@@ -214,7 +214,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                     }
                 }
             }
-            return InteractionResultHolder.consume(stack);
+            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
         }
         return super.use(level, player, usedHand);
     }

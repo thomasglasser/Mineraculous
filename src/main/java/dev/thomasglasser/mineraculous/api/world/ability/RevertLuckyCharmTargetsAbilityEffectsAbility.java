@@ -147,8 +147,7 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
             ItemStack stack = performer.getMainHandItem();
             LuckyCharm luckyCharm = stack.get(MineraculousDataComponents.LUCKY_CHARM);
             if (luckyCharm != null) {
-                UUID performerId = handler.getMatchingBlame(stack, performer);
-                return luckyCharm.owner().equals(performerId);
+                return luckyCharm.owner().equals(performer.getUUID());
             }
         }
         return false;

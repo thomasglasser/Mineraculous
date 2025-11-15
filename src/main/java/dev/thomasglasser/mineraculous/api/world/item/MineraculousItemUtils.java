@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.api.world.item;
 
-import com.mojang.datafixers.util.Pair;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
@@ -33,7 +32,6 @@ import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
-import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
@@ -52,20 +50,41 @@ public class MineraculousItemUtils {
      * @param breaker The entity breaking the stack if present
      * @return A pair of the broken stack and remainder stack
      */
-    public static Pair<ItemStack, ItemStack> tryBreakItem(ItemStack stack, ServerLevel level, Vec3 pos, @Nullable LivingEntity breaker) {
-        ItemStack rest = stack.copyWithCount(stack.getCount() - 1);
-        stack.setCount(1);
+    public static BreakResult tryBreakItem(ItemStack stack, ServerLevel level, Vec3 pos, @Nullable LivingEntity breaker) {
+        if (stack.has(DataComponents.UNBREAKABLE)) {
+            if (breaker instanceof Player player) {
+                player.displayClientMessage(ITEM_UNBREAKABLE_KEY, true);
+            }
+            return BreakResult.fail(stack);
+        } else if (stack.has(MineraculousDataComponents.KAMIKOTIZING) || breaker != null && stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.getOrDefault(MineraculousDataComponents.OWNER, Util.NIL_UUID).equals(breaker.getUUID())) {
+            if (breaker instanceof Player player) {
+                player.displayClientMessage(KAMIKOTIZED_ITEM_UNBREAKABLE_KEY, true);
+            }
+            return BreakResult.fail(stack);
+        }
+        ItemStack remainder = ItemStack.EMPTY;
         if (!stack.isDamageableItem()) {
             if (stack.getItem() instanceof BlockItem blockItem) {
                 float max = blockItem.getBlock().defaultDestroyTime();
                 if (max > -1) {
+                    if (stack.getCount() > 1) {
+                        remainder = stack.copyWithCount(stack.getCount() - 1);
+                        stack = stack.copyWithCount(1);
+                    }
                     stack.set(DataComponents.MAX_DAMAGE, (int) (max * 100));
                     stack.set(DataComponents.DAMAGE, 0);
                     stack.set(DataComponents.MAX_STACK_SIZE, 1);
                 } else {
-                    stack.set(DataComponents.UNBREAKABLE, new Unbreakable(false));
+                    if (breaker instanceof Player player) {
+                        player.displayClientMessage(ITEM_UNBREAKABLE_KEY, true);
+                    }
+                    return BreakResult.fail(stack);
                 }
             } else if (stack.is(MineraculousItemTags.TOUGH)) {
+                if (stack.getCount() > 1) {
+                    remainder = stack.copyWithCount(stack.getCount() - 1);
+                    stack = stack.copyWithCount(1);
+                }
                 stack.set(DataComponents.MAX_DAMAGE, 200);
                 stack.set(DataComponents.DAMAGE, 0);
                 stack.set(DataComponents.MAX_STACK_SIZE, 1);
@@ -75,10 +94,7 @@ public class MineraculousItemUtils {
             if (breaker instanceof Player player) {
                 player.displayClientMessage(ITEM_UNBREAKABLE_KEY, true);
             }
-        } else if (stack.has(MineraculousDataComponents.KAMIKOTIZING) || breaker != null && stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.getOrDefault(MineraculousDataComponents.OWNER, Util.NIL_UUID).equals(breaker.getUUID())) {
-            if (breaker instanceof Player player) {
-                player.displayClientMessage(KAMIKOTIZED_ITEM_UNBREAKABLE_KEY, true);
-            }
+            return BreakResult.fail(stack);
         } else {
             if (stack.isDamageableItem()) {
                 int damage = 100;
@@ -93,7 +109,12 @@ public class MineraculousItemUtils {
                         }
                     }
                 }
+                if (stack.getCount() > 1) {
+                    remainder = stack.copyWithCount(stack.getCount() - 1);
+                    stack = stack.copyWithCount(1);
+                }
                 hurtAndBreak(stack, damage, level, breaker, EquipmentSlot.MAINHAND);
+                return BreakResult.hurtSuccess(stack, remainder);
             } else {
                 if (breaker != null) {
                     breaker.onEquippedItemBroken(stack.getItem(), EquipmentSlot.MAINHAND);
@@ -101,9 +122,23 @@ public class MineraculousItemUtils {
                 level.playSound(null, new BlockPos((int) pos.x, (int) pos.y, (int) pos.z), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1f, 1f);
                 Kamikotization.checkBroken(stack, level, pos);
                 stack.shrink(1);
+                return BreakResult.shrinkSuccess(stack);
             }
         }
-        return Pair.of(stack, rest);
+    }
+
+    public record BreakResult(ItemStack original, ItemStack remainder) {
+        public static BreakResult fail(ItemStack original) {
+            return new BreakResult(original, ItemStack.EMPTY);
+        }
+
+        public static BreakResult shrinkSuccess(ItemStack remainder) {
+            return new BreakResult(ItemStack.EMPTY, remainder);
+        }
+
+        public static BreakResult hurtSuccess(ItemStack original, ItemStack remainder) {
+            return new BreakResult(original, remainder);
+        }
     }
 
     /**

@@ -14,6 +14,7 @@
     },
     "entity": {
       "type": "mineraculous:apply_effects_or_destroy",
+      "additive": true,
       "apply_sound": "mineraculous:cataclysm_use",
       "damage_type": "mineraculous:cataclysm",
       "drop_item": "mineraculous:cataclysm_dust",
@@ -22,6 +23,9 @@
         "show_particles": false
       },
       "effects": "mineraculous:cataclysm",
+      "invalid_entities": {
+        "type": "#mineraculous:cataclysm_immune"
+      },
       "override_kill_credit": true
     },
     "passive": [

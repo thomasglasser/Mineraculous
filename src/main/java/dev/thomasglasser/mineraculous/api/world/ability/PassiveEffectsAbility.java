@@ -34,9 +34,8 @@ public record PassiveEffectsAbility(HolderSet<MobEffect> effects, int startAmpli
                     MineraculousEntityUtils.applyInfiniteHiddenEffect(performer, effect, startAmplifier + (data.powerLevel() / 10));
                 }
             }
-            return State.CONTINUE;
         }
-        return State.FAIL;
+        return State.PASS;
     }
 
     @Override

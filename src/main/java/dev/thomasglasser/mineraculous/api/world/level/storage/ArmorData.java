@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import java.util.Optional;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -35,6 +36,18 @@ public record ArmorData(ItemStack head, ItemStack chest, ItemStack legs, ItemSta
         entity.setItemSlot(EquipmentSlot.LEGS, legs);
         entity.setItemSlot(EquipmentSlot.FEET, feet);
         entity.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.empty());
+    }
+
+    public ItemStack removeFrom(EquipmentSlot slot, Entity entity) {
+        ItemStack stack = switch (slot) {
+            case HEAD -> head.copyAndClear();
+            case CHEST -> chest.copyAndClear();
+            case LEGS -> legs.copyAndClear();
+            case FEET -> feet.copyAndClear();
+            default -> throw new IllegalArgumentException("Invalid slot " + slot);
+        };
+        entity.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(this));
+        return stack;
     }
 
     public static void restoreOrClear(LivingEntity entity) {

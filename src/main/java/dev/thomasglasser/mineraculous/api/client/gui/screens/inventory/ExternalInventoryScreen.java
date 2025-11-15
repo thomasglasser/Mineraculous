@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.api.client.gui.screens.inventory;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.ExternalMenuScreen;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.CrafterScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -35,8 +34,8 @@ public abstract class ExternalInventoryScreen extends InventoryScreen implements
 
     @Override
     public void containerTick() {
-        if (requireLooking && MineraculousClientUtils.getLookEntity() != target) {
-            Minecraft.getInstance().setScreen(null);
+        if ((!target.isAlive() || target.isRemoved()) || requireLooking && MineraculousClientUtils.getLookEntity() != target) {
+            onClose();
         }
     }
 

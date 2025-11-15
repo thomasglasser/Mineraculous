@@ -1,0 +1,15 @@
+{
+  "type": "lithostitched:add_template_pool_elements",
+  "elements": [
+    {
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "mineraculous:village/snowy/houses/bakery_1",
+        "processors": "minecraft:zombie_snowy",
+        "projection": "rigid"
+      },
+      "weight": 2
+    }
+  ],
+  "template_pools": "minecraft:village/snowy/zombie/houses"
+}

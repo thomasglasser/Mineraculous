@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
+import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.KamikotizationItemSelectionScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.KamikotizationSelectionScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
@@ -54,12 +55,13 @@ public class AkumatizationPackEnUsLanguageProvider extends EnUsOverrideLanguageP
     private void addGuis() {
         // Kamiko Gui
         add(MineraculousGuis.REVOKE, "Revoke Akumatization");
+        add(Kamiko.DETRANSFORM_TO_TRANSFORM, "Akumatization will begin when you detransform.");
         add(Kamiko.CANT_KAMIKOTIZE_TRANSFORMED, "Akumatizing transformed players is not currently supported.");
         add(Kamikotization.NO_KAMIKOTIZATIONS, "No Akumatizations found in world, have you installed any addons?");
 
         // Kamikotization Selection Screen
         add(KamikotizationSelectionScreen.TITLE, "Akumatization");
-        add(KamikotizationSelectionScreen.NO_KAMIKOTIZATIONS, "No valid akumatizations found for %s");
+        add(KamikotizationItemSelectionScreen.NO_KAMIKOTIZATIONS, "No valid akumatizations found for %s");
 
         // Receiver Kamikotization Chat Screen
         add(ReceiverKamikotizationChatScreen.ACCEPT, "Accept Akumatization");

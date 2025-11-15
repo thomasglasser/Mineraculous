@@ -6,11 +6,15 @@ import com.llamalad7.mixinextras.sugar.Local;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import java.util.Optional;
+import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Leashable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Leashable.class)
 public interface LeashableMixin {
@@ -45,5 +49,12 @@ public interface LeashableMixin {
             return false;
         }
         return original;
+    }
+
+    @Inject(method = "setLeashedTo(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity;Z)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;broadcast(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/network/protocol/Packet;)V"))
+    private static <E extends Entity & Leashable> void syncLeashDataToSelf(E entity, Entity leashHolder, boolean broadcastPacket, CallbackInfo ci) {
+        if (entity instanceof ServerPlayer player) {
+            player.connection.send(new ClientboundSetEntityLinkPacket(entity, leashHolder));
+        }
     }
 }

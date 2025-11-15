@@ -23,6 +23,7 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEn
 import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
+import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
@@ -73,6 +74,7 @@ import org.jetbrains.annotations.Nullable;
 public record MiraculousData(Optional<CuriosData> curiosData, boolean transformed, Optional<TransformationState> transformationState, Optional<Integer> remainingTicks, int toolId, int powerLevel, boolean powerActive, boolean countdownStarted, List<CompoundTag> storedEntities, boolean buffsActive) {
 
     public static final String NAME_NOT_SET = "miraculous_data.name.not_set";
+    public static final String KWAMI_NOT_FOUND = "miraculous_data.kwami_not_found";
     public static final int MAX_POWER_LEVEL = 100;
 
     public static final Codec<MiraculousData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -126,6 +128,11 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
             ItemStack miraculousStack = CuriosUtils.getStackInSlot(entity, curiosData);
             UUID kwamiId = miraculousStack.get(MineraculousDataComponents.KWAMI_ID);
             if (kwamiId != null) {
+                for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
+                    if (stack.getItem() instanceof KwamiItem && stack.get(MineraculousDataComponents.KWAMI_ID).equals(kwamiId)) {
+                        KwamiItem.summonKwami(stack, entity);
+                    }
+                }
                 if (level.getEntity(kwamiId) instanceof Kwami kwami) {
                     if (kwami.isCharged() && kwami.getMainHandItem().isEmpty() && kwami.getSummonTicks() <= 0) {
                         kwami.setTransforming(true);
@@ -165,14 +172,18 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                             startTransformation(frames).save(miraculous, entity, true);
                         }, () -> finishTransformation(entity, level, miraculous));
 
-                        if (entity instanceof Player player) {
-                            player.refreshDisplayName();
+                        if (entity instanceof ServerPlayer player) {
+                            MineraculousEntityUtils.refreshAndSyncDisplayName(player);
                         }
                     } else {
                         kwami.playHurtSound(level.damageSources().starve());
                     }
                 } else {
-                    MineraculousConstants.LOGGER.error("Tried to transform entity {} with invalid kwami id {}", entity.getName().plainCopy().getString(), kwamiId);
+                    if (entity instanceof Player player) {
+                        player.displayClientMessage(Component.translatable(KWAMI_NOT_FOUND, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.getKey()))), true);
+                    } else {
+                        MineraculousConstants.LOGGER.error("Tried to transform entity {} with invalid kwami id {}", entity.getName().plainCopy().getString(), kwamiId);
+                    }
                 }
             } else {
                 MineraculousConstants.LOGGER.error("Tried to transform entity {} with no Kwami Data", entity.getName().plainCopy().getString());
@@ -238,7 +249,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         value.passiveAbilities().forEach(ability -> ability.value().detransform(data, level, entity));
 
         if (!removed) {
-            Kwami kwami = MineraculousEntityUtils.summonKwami(false, miraculousId, level, miraculous, entity);
+            Kwami kwami = MineraculousEntityUtils.summonKwami(entity, false, miraculousId, miraculous, true, miraculousStack.get(MineraculousDataComponents.KWAMI_ID));
             if (kwami == null) {
                 MineraculousConstants.LOGGER.error("Kwami could not be created for entity {}", entity.getName().plainCopy().getString());
             }
@@ -256,8 +267,8 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
             CuriosUtils.setStackInSlot(entity, curiosData.get(), miraculousStack);
         }
 
-        if (entity instanceof Player player) {
-            player.refreshDisplayName();
+        if (entity instanceof ServerPlayer player) {
+            MineraculousEntityUtils.refreshAndSyncDisplayName(player);
         }
     }
 
@@ -355,21 +366,19 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                 boolean countdownStarted = this.countdownStarted;
                 AbilityData data = AbilityData.of(this);
                 AbilityHandler handler = new MiraculousAbilityHandler(miraculous);
-                Ability.State passiveState = AbilityUtils.performPassiveAbilities(level, entity, data, handler, null, miraculous.value().passiveAbilities());
+                Ability.State state = AbilityUtils.performPassiveAbilities(level, entity, data, handler, null, miraculous.value().passiveAbilities());
                 if (powerActive) {
-                    if (passiveState.isSuccess()) {
+                    if (state.shouldStop()) {
                         powerActive = false;
                     } else if (canUseMainPower()) {
-                        Ability.State state = AbilityUtils.performActiveAbility(level, entity, data, handler, null, Optional.of(miraculous.value().activeAbility()));
-                        if (state.shouldConsume()) {
+                        state = AbilityUtils.performActiveAbility(level, entity, data, handler, null, Optional.of(miraculous.value().activeAbility()));
+                        if (state.shouldStop()) {
                             powerActive = false;
                             if (state.isSuccess()) {
                                 countdownStarted = hasLimitedPower();
                             }
                         }
                         remainingTicks = countdownStarted ? remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND)) : Optional.empty();
-                    } else if (passiveState.shouldConsume()) {
-                        powerActive = false;
                     }
                 }
 
@@ -390,16 +399,20 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         AbilityData data = AbilityData.of(this);
         AbilityHandler handler = new MiraculousAbilityHandler(miraculous);
         Ability.State state = AbilityUtils.performPassiveAbilities(level, entity, data, handler, context, miraculous.value().passiveAbilities());
-        if (state.isSuccess() && powerActive) {
-            withPowerActive(false).save(miraculous, entity, true);
-        } else if (powerActive && canUseMainPower()) {
-            boolean success = AbilityUtils.performActiveAbility(level, entity, data, handler, context, Optional.of(miraculous.value().activeAbility())).isSuccess();
-            if (success) {
-                if (context != null && entity instanceof ServerPlayer player) {
-                    MineraculousCriteriaTriggers.PERFORMED_MIRACULOUS_ACTIVE_ABILITY.get().trigger(player, miraculous.getKey(), context.advancementContext());
+        if (powerActive) {
+            if (state.shouldStop()) {
+                withPowerActive(false).save(miraculous, entity, true);
+            } else if (canUseMainPower()) {
+                state = AbilityUtils.performActiveAbility(level, entity, data, handler, context, Optional.of(miraculous.value().activeAbility()));
+                if (state.isSuccess()) {
+                    if (context != null && entity instanceof ServerPlayer player) {
+                        MineraculousCriteriaTriggers.PERFORMED_MIRACULOUS_ACTIVE_ABILITY.get().trigger(player, miraculous.getKey(), context.advancementContext());
+                    }
+                    usedMainPower().save(miraculous, entity, true);
+                } else if (state.shouldStop()) {
+                    withPowerActive(false).save(miraculous, entity, true);
                 }
             }
-            usedMainPower(success).save(miraculous, entity, true);
         }
     }
 
@@ -495,8 +508,8 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         return new MiraculousData(curiosData, transformed, transformationState.map(TransformationState::decrementFrames), remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities, buffsActive);
     }
 
-    private MiraculousData usedMainPower(boolean consume) {
-        return new MiraculousData(curiosData, transformed, transformationState, hasLimitedPower() ? remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND)) : Optional.empty(), toolId, powerLevel, !consume && powerActive, consume, storedEntities, buffsActive);
+    private MiraculousData usedMainPower() {
+        return new MiraculousData(curiosData, transformed, transformationState, hasLimitedPower() ? remainingTicks.or(() -> Optional.of(MineraculousServerConfig.get().miraculousTimerDuration.get() * SharedConstants.TICKS_PER_SECOND)) : Optional.empty(), toolId, powerLevel, false, hasLimitedPower(), storedEntities, buffsActive);
     }
 
     public MiraculousData equip(CuriosData curiosData) {

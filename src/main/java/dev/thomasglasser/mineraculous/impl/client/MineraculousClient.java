@@ -44,6 +44,7 @@ public class MineraculousClient {
         modBus.addListener(MineraculousClientEvents::onRegisterClientReloadListeners);
         modBus.addListener(MineraculousClientEvents::onRegisterRenderBuffers);
         modBus.addListener(MineraculousClientEvents::onRegisterClientExtensions);
+        modBus.addListener(MineraculousClientEvents::onRegisterClientTooltipComponentFactories);
         modBus.addListener(MineraculousClientEvents::onRegisterGuiLayers);
         modBus.addListener(MineraculousClientEvents::onRegisterMenuScreens);
         modBus.addListener(MineraculousClientEvents::onRegisterRecipeBookCategories);
@@ -59,6 +60,7 @@ public class MineraculousClient {
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onInteractionKeyMappingTriggered);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderHand);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onPreRenderGuiLayer);
+        NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderInventoryMobEffects);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientPlayerLoggingIn);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onPlayerHeartType);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientChatReceived);

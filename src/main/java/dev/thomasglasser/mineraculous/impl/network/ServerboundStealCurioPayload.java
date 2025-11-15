@@ -15,7 +15,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
@@ -42,11 +41,7 @@ public record ServerboundStealCurioPayload(UUID target, CuriosData data) impleme
                 player.displayClientMessage(ExternalInventoryScreen.ITEM_BOUND_KEY, true);
             } else {
                 CuriosUtils.setStackInSlot(target, this.data, ItemStack.EMPTY);
-                if (player.getMainHandItem().isEmpty()) {
-                    player.setItemInHand(InteractionHand.MAIN_HAND, stack);
-                } else {
-                    player.drop(stack, true, true);
-                }
+                ServerboundStealItemPayload.giveOrDropItem(player, stack.copyAndClear());
             }
         }
     }

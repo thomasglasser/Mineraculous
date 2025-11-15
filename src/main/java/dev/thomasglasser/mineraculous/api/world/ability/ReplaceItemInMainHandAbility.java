@@ -71,11 +71,6 @@ public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakO
     }
 
     @Override
-    public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
-        AbilityReversionItemData.get(level).markReverted(performer.getUUID());
-    }
-
-    @Override
     public MapCodec<? extends Ability> codec() {
         return AbilitySerializers.REPLACE_ITEM_IN_MAIN_HAND.get();
     }

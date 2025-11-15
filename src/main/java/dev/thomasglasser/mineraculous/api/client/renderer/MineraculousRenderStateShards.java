@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 public class MineraculousRenderStateShards {
+    public static final RenderStateShard.ShaderStateShard RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_NO_LIGHTMAP_SHADER = new RenderStateShard.ShaderStateShard(MineraculousRenderStateShards::getRendertypeEntityTranslucentEmissiveNoLightmapShader);
     public static final RenderStateShard.ShaderStateShard RENDERTYPE_GLINT_TRANSLUCENT_LIGHTMAP_SHADER = new RenderStateShard.ShaderStateShard(MineraculousRenderStateShards::getRendertypeGlintTranslucentLightmapShader);
 
     public static final RenderStateShard.TexturingStateShard ITEM_LUCKY_CHARM_TEXTURING = new RenderStateShard.TexturingStateShard(
@@ -43,6 +44,14 @@ public class MineraculousRenderStateShards {
             "shield_kamikotizing_texturing", () -> setupKamikotizingTexturing(16, Mth.PI / 18, 8), RenderSystem::resetTextureMatrix);
 
     @Nullable
+    private static ShaderInstance rendertypeEntityTranslucentEmissiveNoLightmapShader;
+
+    @Nullable
+    public static ShaderInstance getRendertypeEntityTranslucentEmissiveNoLightmapShader() {
+        return rendertypeEntityTranslucentEmissiveNoLightmapShader;
+    }
+
+    @Nullable
     private static ShaderInstance rendertypeGlintTranslucentLightmapShader;
 
     @Nullable
@@ -67,6 +76,9 @@ public class MineraculousRenderStateShards {
     public static void onRegisterShaders(RegisterShadersEvent event) {
         try {
             ResourceProvider resourceProvider = event.getResourceProvider();
+            event.registerShader(
+                    new ShaderInstance(resourceProvider, MineraculousConstants.modLoc("rendertype_entity_translucent_emissive_no_lightmap"), DefaultVertexFormat.NEW_ENTITY),
+                    instance -> rendertypeEntityTranslucentEmissiveNoLightmapShader = instance);
             event.registerShader(
                     new ShaderInstance(resourceProvider, MineraculousConstants.modLoc("rendertype_glint_translucent_lightmap"), DefaultVertexFormat.POSITION_TEX_LIGHTMAP_COLOR),
                     instance -> rendertypeGlintTranslucentLightmapShader = instance);

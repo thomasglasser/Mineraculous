@@ -10,7 +10,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -54,28 +53,28 @@ public class YoyoRopeRenderer {
 
         double length = fromProjectileToHand.length();
         if (length >= maxLength) {
-            vertex(vertexConsumer, pose, (float) -ropeThickness.x, (float) -ropeThickness.y, (float) -ropeThickness.z, 0f, 1f);
-            vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x - ropeThickness.x), (float) (fromProjectileToHand.y - ropeThickness.y), (float) (fromProjectileToHand.z - ropeThickness.z), 1f, 1f);
-            vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x + ropeThickness.x), (float) (fromProjectileToHand.y + ropeThickness.y), (float) (fromProjectileToHand.z + ropeThickness.z), 1f, 0f);
-            vertex(vertexConsumer, pose, (float) ropeThickness.x, (float) +ropeThickness.y, (float) ropeThickness.z, 0f, 0f);
+            MineraculousClientUtils.vertex(vertexConsumer, pose, (float) -ropeThickness.x, (float) -ropeThickness.y, (float) -ropeThickness.z, 0f, 1f, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x - ropeThickness.x), (float) (fromProjectileToHand.y - ropeThickness.y), (float) (fromProjectileToHand.z - ropeThickness.z), 1f, 1f, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x + ropeThickness.x), (float) (fromProjectileToHand.y + ropeThickness.y), (float) (fromProjectileToHand.z + ropeThickness.z), 1f, 0f, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(vertexConsumer, pose, (float) ropeThickness.x, (float) +ropeThickness.y, (float) ropeThickness.z, 0f, 0f, LightTexture.FULL_BRIGHT);
         } else {
             List<RopePoint> pointList = calculateRopePoints(points, lastProjectilePos, lastPlayerHandPos, lastMaxLength, projectilePos, playerHandPos, maxLength);
 
             Vec3 firstPointPos = new Vec3(pointList.getFirst().worldX() + projectilePos.x, pointList.getFirst().localY() + projectilePos.y, pointList.getFirst().worldZ() + projectilePos.z);
             Vec3 projectileToFirstPointThickness = getSegmentThickness(projectilePos, firstPointPos);
-            vertex(vertexConsumer, pose, (float) (-projectileToFirstPointThickness.x), (float) (-projectileToFirstPointThickness.y), (float) (-projectileToFirstPointThickness.z), 0f, 1f);
-            vertex(vertexConsumer, pose, (float) (pointList.getFirst().worldX() - projectileToFirstPointThickness.x), (float) (pointList.getFirst().localY() - projectileToFirstPointThickness.y), (float) (pointList.getFirst().worldZ() - projectileToFirstPointThickness.z), 1f, 1f);
-            vertex(vertexConsumer, pose, (float) (pointList.getFirst().worldX() + projectileToFirstPointThickness.x), (float) (pointList.getFirst().localY() + projectileToFirstPointThickness.y), (float) (pointList.getFirst().worldZ() + projectileToFirstPointThickness.z), 1f, 0f);
-            vertex(vertexConsumer, pose, (float) (projectileToFirstPointThickness.x), (float) (projectileToFirstPointThickness.y), (float) (projectileToFirstPointThickness.z), 0f, 0f);
+            MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (-projectileToFirstPointThickness.x), (float) (-projectileToFirstPointThickness.y), (float) (-projectileToFirstPointThickness.z), 0f, 1f, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (pointList.getFirst().worldX() - projectileToFirstPointThickness.x), (float) (pointList.getFirst().localY() - projectileToFirstPointThickness.y), (float) (pointList.getFirst().worldZ() - projectileToFirstPointThickness.z), 1f, 1f, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (pointList.getFirst().worldX() + projectileToFirstPointThickness.x), (float) (pointList.getFirst().localY() + projectileToFirstPointThickness.y), (float) (pointList.getFirst().worldZ() + projectileToFirstPointThickness.z), 1f, 0f, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (projectileToFirstPointThickness.x), (float) (projectileToFirstPointThickness.y), (float) (projectileToFirstPointThickness.z), 0f, 0f, LightTexture.FULL_BRIGHT);
 
             for (int i = 0; i < POINTS - 1; i++) {
                 Vec3 pointPos = new Vec3(pointList.get(i).worldX() + projectilePos.x, pointList.get(i).localY() + projectilePos.y, pointList.get(i).worldZ() + projectilePos.z);
                 Vec3 nextPointPos = new Vec3(pointList.get(i + 1).worldX() + projectilePos.x, pointList.get(i + 1).localY() + projectilePos.y, pointList.get(i + 1).worldZ() + projectilePos.z);
                 Vec3 point1ToPoint2Thickness = getSegmentThickness(pointPos, nextPointPos);
-                vertex(vertexConsumer, pose, (float) (pointList.get(i).worldX() - point1ToPoint2Thickness.x), (float) (pointList.get(i).localY() - point1ToPoint2Thickness.y), (float) (pointList.get(i).worldZ() - point1ToPoint2Thickness.z), 0f, 1f);
-                vertex(vertexConsumer, pose, (float) (pointList.get(i + 1).worldX() - point1ToPoint2Thickness.x), (float) (pointList.get(i + 1).localY() - point1ToPoint2Thickness.y), (float) (pointList.get(i + 1).worldZ() - point1ToPoint2Thickness.z), 1f, 1f);
-                vertex(vertexConsumer, pose, (float) (pointList.get(i + 1).worldX() + point1ToPoint2Thickness.x), (float) (pointList.get(i + 1).localY() + point1ToPoint2Thickness.y), (float) (pointList.get(i + 1).worldZ() + point1ToPoint2Thickness.z), 1f, 0f);
-                vertex(vertexConsumer, pose, (float) (pointList.get(i).worldX() + point1ToPoint2Thickness.x), (float) (pointList.get(i).localY() + point1ToPoint2Thickness.y), (float) (pointList.get(i).worldZ() + point1ToPoint2Thickness.z), 0f, 0f);
+                MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (pointList.get(i).worldX() - point1ToPoint2Thickness.x), (float) (pointList.get(i).localY() - point1ToPoint2Thickness.y), (float) (pointList.get(i).worldZ() - point1ToPoint2Thickness.z), 0f, 1f, LightTexture.FULL_BRIGHT);
+                MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (pointList.get(i + 1).worldX() - point1ToPoint2Thickness.x), (float) (pointList.get(i + 1).localY() - point1ToPoint2Thickness.y), (float) (pointList.get(i + 1).worldZ() - point1ToPoint2Thickness.z), 1f, 1f, LightTexture.FULL_BRIGHT);
+                MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (pointList.get(i + 1).worldX() + point1ToPoint2Thickness.x), (float) (pointList.get(i + 1).localY() + point1ToPoint2Thickness.y), (float) (pointList.get(i + 1).worldZ() + point1ToPoint2Thickness.z), 1f, 0f, LightTexture.FULL_BRIGHT);
+                MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (pointList.get(i).worldX() + point1ToPoint2Thickness.x), (float) (pointList.get(i).localY() + point1ToPoint2Thickness.y), (float) (pointList.get(i).worldZ() + point1ToPoint2Thickness.z), 0f, 0f, LightTexture.FULL_BRIGHT);
             }
         }
     }
@@ -115,10 +114,6 @@ public class YoyoRopeRenderer {
                 || !lastProjectilePos.equals(projectilePos)
                 || !lastPlayerHandPos.equals(playerHandPos)
                 || lastMaxLength != maxLength;
-    }
-
-    private static void vertex(VertexConsumer vertexConsumer, PoseStack.Pose pose, float x, float y, float z, float u, float v) {
-        vertexConsumer.addVertex(pose, x, y, z).setColor(-1).setUv(u, v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(LightTexture.FULL_BRIGHT).setNormal(0, 1, 0);
     }
 
     private static Vec3 getSegmentThickness(Vec3 projectilePos, Vec3 handPos) {

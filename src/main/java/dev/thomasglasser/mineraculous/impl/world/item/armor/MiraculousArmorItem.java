@@ -28,7 +28,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class MiraculousArmorItem extends ArmorItem implements GeoArmorItem {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    public MiraculousArmorItem(Type type, Item.Properties pProperties) {
+    public MiraculousArmorItem(Type type, Properties pProperties) {
         super(MineraculousArmorMaterials.MIRACULOUS, type, pProperties
                 .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, false)
                 .component(DataComponents.UNBREAKABLE, new Unbreakable(false)));

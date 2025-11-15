@@ -95,11 +95,6 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean prefe
     }
 
     @Override
-    public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
-        AbilityReversionBlockData.get(level).revert(performer.getUUID(), level);
-    }
-
-    @Override
     public MapCodec<? extends Ability> codec() {
         return AbilitySerializers.REPLACE_ADJACENT_BLOCKS.get();
     }

@@ -10,6 +10,8 @@ import net.minecraft.resources.ResourceLocation;
 public class MineraculousRenderTypes {
     private static final ResourceLocation ENTITY_LUCKY_CHARM_TEXTURE = createLuckyCharmTexture("entity");
     private static final ResourceLocation ENTITY_KAMIKOTIZING_TEXTURE = createKamikotizingTexture("entity");
+    private static final ResourceLocation LADYBUG_BODY_TEXTURE = MineraculousConstants.modLoc("textures/particle/ladybug.png");
+    private static final ResourceLocation LADYBUG_OUTLINE_TEXTURE = MineraculousConstants.modLoc("textures/particle/ladybug_glow.png");
 
     private static final RenderType ITEM_LUCKY_CHARM = createLuckyCharm("item", MineraculousRenderStateShards.ITEM_LUCKY_CHARM_TEXTURING, false);
     private static final RenderType ARMOR_LUCKY_CHARM = createLuckyCharm("armor", MineraculousRenderStateShards.ARMOR_LUCKY_CHARM_TEXTURING, true);
@@ -20,6 +22,9 @@ public class MineraculousRenderTypes {
     private static final RenderType ARMOR_KAMIKOTIZING = createKamikotizing("armor", MineraculousRenderStateShards.ARMOR_KAMIKOTIZING_TEXTURING, true);
     private static final RenderType ENTITY_KAMIKOTIZING = createKamikotizing("entity", ENTITY_KAMIKOTIZING_TEXTURE, MineraculousRenderStateShards.ENTITY_KAMIKOTIZING_TEXTURING, false);
     private static final RenderType SHIELD_KAMIKOTIZING = createKamikotizing("shield", ENTITY_KAMIKOTIZING_TEXTURE, MineraculousRenderStateShards.SHIELD_KAMIKOTIZING_TEXTURING, false);
+
+    public static final RenderType LADYBUG_BODY = magicLadybugBody();
+    public static final RenderType LADYBUG_OUTLINE = magicLadybugOutline();
 
     public static RenderType itemLuckyCharm() {
         return ITEM_LUCKY_CHARM;
@@ -133,5 +138,42 @@ public class MineraculousRenderTypes {
 
     private static RenderType createKamikotizing(String name, ResourceLocation texture, RenderStateShard.TexturingStateShard texturingStateShard, boolean offsetZLayering) {
         return createItemShader(MineraculousConstants.modLoc(name + "_kamikotizing"), texture, texturingStateShard, offsetZLayering);
+    }
+
+    public static RenderType magicLadybugOutline() {
+        return RenderType.create(
+                "ladybug_outline",
+                DefaultVertexFormat.NEW_ENTITY,
+                VertexFormat.Mode.QUADS,
+                256,
+                false,
+                true,
+                RenderType.CompositeState.builder()
+                        .setShaderState(MineraculousRenderStateShards.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_NO_LIGHTMAP_SHADER)
+                        .setTextureState(new RenderStateShard.TextureStateShard(LADYBUG_OUTLINE_TEXTURE, false, true))
+                        .setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
+                        .setOverlayState(RenderStateShard.OVERLAY)
+                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
+                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                        .createCompositeState(false));
+    }
+
+    public static RenderType magicLadybugBody() {
+        return RenderType.create(
+                "ladybug_main",
+                DefaultVertexFormat.NEW_ENTITY,
+                VertexFormat.Mode.QUADS,
+                256,
+                true,
+                true,
+                RenderType.CompositeState.builder()
+                        .setShaderState(MineraculousRenderStateShards.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_NO_LIGHTMAP_SHADER)
+                        .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY) // keeps alpha blending
+                        .setTextureState(new RenderStateShard.TextureStateShard(LADYBUG_BODY_TEXTURE, false, false))
+                        .setCullState(RenderStateShard.CULL)
+                        .setOverlayState(RenderStateShard.OVERLAY)
+                        .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
+                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                        .createCompositeState(false));
     }
 }

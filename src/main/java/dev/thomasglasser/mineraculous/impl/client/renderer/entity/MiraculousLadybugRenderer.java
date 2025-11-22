@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 import com.ibm.icu.impl.Pair;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
@@ -140,7 +139,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
     }
 
     private static void applyMotion(TexturedOutlinedQuad ladybug, Random random, Vec3 forward, Vec3 upward, Vec3 sideway) {
-        double shakeStrength = MineraculousClientConfig.get().shakeStrength.get() / 100f;
+        double shakeStrength = MineraculousClientConfig.get().miraculousLadybugShakeStrength.get() / 100f;
         double dx = -0.03; // slowly slide backwards
         double dy = (random.nextDouble() - 0.5) * shakeStrength;
         double dz = (random.nextDouble() - 0.5) * shakeStrength;
@@ -182,7 +181,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
     private void summonMagicLadybug(Vec3 position) {
         double size = 0.1 + (Math.random() * (0.3 - 0.1));
-        int lbLifetime = MineraculousClientConfig.get().lifetime.getAsInt();
+        int lbLifetime = MineraculousClientConfig.get().miraculousLadybugLifetime.getAsInt();
         double x = Math.random() * 9 - 4.5;
         double y = Math.random() * 9 - 4.5;
         double z = Math.random() * 9 - 4.5;
@@ -209,7 +208,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
     @Override
     public ResourceLocation getTextureLocation(MiraculousLadybug entity) {
-        return MineraculousConstants.EMPTY_TEXTURE;
+        return null;
     }
 
     private static class TexturedOutlinedQuad {
@@ -229,7 +228,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
         private void renderOutline(MultiBufferSource multiBufferSource, PoseStack poseStack, double degrees) {
             MineraculousClientUtils.rotateFacingCamera(poseStack, pos, degrees);
-            VertexConsumer ladybug_outline = multiBufferSource.getBuffer(MineraculousRenderTypes.LADYBUG_OUTLINE);
+            VertexConsumer ladybug_outline = multiBufferSource.getBuffer(MineraculousRenderTypes.MIRACULOUS_LADYBUG_OUTLINE);
             double quadSize = size * 0.47 / 0.4;
             MineraculousClientUtils.vertex(ladybug_outline, poseStack.last(), pos.add(-quadSize, quadSize, 0), 0, 0, LightTexture.FULL_BRIGHT);
             MineraculousClientUtils.vertex(ladybug_outline, poseStack.last(), pos.add(quadSize, quadSize, 0), 1, 0, LightTexture.FULL_BRIGHT);
@@ -240,7 +239,7 @@ public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug>
 
         private void renderBody(MultiBufferSource multiBufferSource, PoseStack poseStack, double degrees) {
             MineraculousClientUtils.rotateFacingCamera(poseStack, pos, degrees);
-            VertexConsumer ladybug = multiBufferSource.getBuffer(MineraculousRenderTypes.LADYBUG_BODY);
+            VertexConsumer ladybug = multiBufferSource.getBuffer(MineraculousRenderTypes.MIRACULOUS_LADYBUG_BODY);
             double quadSize = size;
             MineraculousClientUtils.vertex(ladybug, poseStack.last(), pos.add(-quadSize, quadSize, 0), 0, 0, LightTexture.FULL_BRIGHT);
             MineraculousClientUtils.vertex(ladybug, poseStack.last(), pos.add(quadSize, quadSize, 0), 1, 0, LightTexture.FULL_BRIGHT);

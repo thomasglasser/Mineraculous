@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
@@ -90,7 +89,6 @@ public record MiraculousLadybugBlockClusterTarget(List<List<MiraculousLadybugBlo
     @Override
     public MiraculousLadybugTarget tick(ServerLevel level) {
         if (tick >= 0) {
-            MineraculousConstants.LOGGER.info("cluster tick");
             if (blockLayers.isEmpty())
                 return withTicks(-1);
             if (tick % 20 == 0 || tick == 0)

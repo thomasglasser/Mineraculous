@@ -448,8 +448,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfig(MineraculousClientConfig.get().animationSpeed, "Animation Speed", "The speed at which the tool wheel opens");
 
         addConfigSection(MineraculousClientConfig.MIRACULOUS_LADYBUG, "Miraculous Ladybug Ability", "Settings for miraculous ladybug ability visuals");
-        addConfig(MineraculousClientConfig.get().shakeStrength, "Magic Ladybugs' Shaking Strength", "The power of the shaking effect magic ladybugs have.");
-        addConfig(MineraculousClientConfig.get().lifetime, "Magic Ladybugs Lifetime", "How much a single tiny miraculous ladybug lives. (lower value -> bigger performance)");
-        addConfig(MineraculousClientConfig.get().size, "Reverting Ladybug Particle Size", "The scale for Reverting Ladybug particle");
+        addConfig(MineraculousClientConfig.get().miraculousLadybugShakeStrength, "Magic Ladybugs' Shaking Strength", "The power of the shaking effect magic ladybugs have.");
+        addConfig(MineraculousClientConfig.get().miraculousLadybugLifetime, "Magic Ladybugs Lifetime", "How much a single tiny miraculous ladybug lives. (lower value -> bigger performance)");
+        addConfig(MineraculousClientConfig.get().miraculousLadybugSize, "Reverting Ladybug Particle Size", "The scale for Reverting Ladybug particle");
     }
 }

@@ -10,7 +10,6 @@ public class MineraculousConstants {
     public static final String MOD_ID = "mineraculous";
     public static final String MOD_NAME = "Mineraculous";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
-    public static final ResourceLocation EMPTY_TEXTURE = modLoc("textures/misc/empty.png");
 
     public static final int API_VERSION = 1;
 

@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
@@ -161,7 +160,6 @@ public class MiraculousLadybug extends Entity {
                 return false;
             }
         }
-        MineraculousConstants.LOGGER.info("b " + getSplinePosition() + " a " + afterMovementPosition);
         if (getSplinePosition() != afterMovementPosition) {
             return false;
         }

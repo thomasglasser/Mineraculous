@@ -14,7 +14,7 @@ import net.minecraft.core.particles.SimpleParticleType;
 public class RevertingLadybugParticle extends TextureSheetParticle {
     public RevertingLadybugParticle(ClientLevel level, double x, double y, double z) {
         super(level, x, y, z);
-        scale(level.random.nextInt(1, MineraculousClientConfig.get().size.getAsInt()) / 6f);
+        scale(level.random.nextInt(1, MineraculousClientConfig.get().miraculousLadybugSize.getAsInt()) / 6f);
         this.lifetime = level.random.nextInt(30, 60);
         float r = (float) Math.random();
         this.oRoll = r;

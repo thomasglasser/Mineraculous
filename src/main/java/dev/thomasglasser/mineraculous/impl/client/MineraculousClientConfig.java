@@ -24,9 +24,9 @@ public class MineraculousClientConfig {
 
     //Miraculous Ladybug
     public static final String MIRACULOUS_LADYBUG = "miraculous_ladybug";
-    public final ModConfigSpec.IntValue shakeStrength;
-    public final ModConfigSpec.IntValue lifetime;
-    public final ModConfigSpec.IntValue size;
+    public final ModConfigSpec.IntValue miraculousLadybugShakeStrength;
+    public final ModConfigSpec.IntValue miraculousLadybugLifetime;
+    public final ModConfigSpec.IntValue miraculousLadybugSize;
 
     private final ModConfigSpec configSpec;
 
@@ -60,11 +60,11 @@ public class MineraculousClientConfig {
         builder.pop();
 
         builder.push(MIRACULOUS_LADYBUG);
-        lifetime = builder
-                .defineInRange("lifetime", 13, 6, 22);
-        shakeStrength = builder
-                .defineInRange("shake_strength", 20, 0, 30);
-        size = builder.defineInRange("size", 8, 5, 13);
+        miraculousLadybugLifetime = builder
+                .defineInRange("miraculous_ladybug_lifetime", 13, 6, 22);
+        miraculousLadybugShakeStrength = builder
+                .defineInRange("miraculous_ladybug_shake_strength", 20, 0, 30);
+        miraculousLadybugSize = builder.defineInRange("miraculous_ladybug_size", 8, 5, 13);
         builder.pop();
 
         configSpec = builder.build();

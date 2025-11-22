@@ -23,8 +23,8 @@ public class MineraculousRenderTypes {
     private static final RenderType ENTITY_KAMIKOTIZING = createKamikotizing("entity", ENTITY_KAMIKOTIZING_TEXTURE, MineraculousRenderStateShards.ENTITY_KAMIKOTIZING_TEXTURING, false);
     private static final RenderType SHIELD_KAMIKOTIZING = createKamikotizing("shield", ENTITY_KAMIKOTIZING_TEXTURE, MineraculousRenderStateShards.SHIELD_KAMIKOTIZING_TEXTURING, false);
 
-    public static final RenderType LADYBUG_BODY = magicLadybugBody();
-    public static final RenderType LADYBUG_OUTLINE = magicLadybugOutline();
+    public static final RenderType MIRACULOUS_LADYBUG_BODY = miraculousLadybugBody();
+    public static final RenderType MIRACULOUS_LADYBUG_OUTLINE = miraculousLadybugOutline();
 
     public static RenderType itemLuckyCharm() {
         return ITEM_LUCKY_CHARM;
@@ -140,7 +140,7 @@ public class MineraculousRenderTypes {
         return createItemShader(MineraculousConstants.modLoc(name + "_kamikotizing"), texture, texturingStateShard, offsetZLayering);
     }
 
-    public static RenderType magicLadybugOutline() {
+    public static RenderType miraculousLadybugOutline() {
         return RenderType.create(
                 "ladybug_outline",
                 DefaultVertexFormat.NEW_ENTITY,
@@ -158,7 +158,7 @@ public class MineraculousRenderTypes {
                         .createCompositeState(false));
     }
 
-    public static RenderType magicLadybugBody() {
+    public static RenderType miraculousLadybugBody() {
         return RenderType.create(
                 "ladybug_main",
                 DefaultVertexFormat.NEW_ENTITY,

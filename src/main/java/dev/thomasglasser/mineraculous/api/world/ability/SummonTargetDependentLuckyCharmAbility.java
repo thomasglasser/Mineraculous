@@ -142,7 +142,7 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
     }
 
     private Vec3 defaultLuckyCharmSpawnPosition(ServerLevel level, LivingEntity performer) {
-        Vec3 above = performer.position().add(0, performer.getBbHeight() / 2, 0);
+        Vec3 above = performer.position().add(0, performer.getBbHeight(), 0); //TODO fix this because it broke and wont go upwards
         if (level.getBlockState(BlockPos.containing(above)).isAir())
             return above;
         return performer.position();

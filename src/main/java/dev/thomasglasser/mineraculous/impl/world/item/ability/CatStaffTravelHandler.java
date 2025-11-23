@@ -74,7 +74,7 @@ public class CatStaffTravelHandler {
                 (float) livingEntity.getY(),
                 (float) initRot,
                 travelingCatStaffData.launch());
-        newTravelData.save(livingEntity, true);
+        newTravelData.save(livingEntity);
     }
 
     private static void behavior(ItemStack stack, LivingEntity livingEntity, TravelingCatStaffData travelData) {
@@ -99,14 +99,14 @@ public class CatStaffTravelHandler {
             }
 
             if (didLaunch && livingEntity.getDeltaMovement().y < -0.01) {
-                TravelingCatStaffData.remove(livingEntity, true);
+                TravelingCatStaffData.remove(livingEntity);
             } else {
                 TravelingCatStaffData newTravelData = new TravelingCatStaffData(
                         length, targetPos, true,
                         travelData.initialLookingAngle(),
                         travelData.y(),
                         travelData.initBodAngle(), didLaunch);
-                newTravelData.save(livingEntity, true);
+                newTravelData.save(livingEntity);
             }
             applyCollisionDamage(livingEntity);
         }
@@ -124,7 +124,7 @@ public class CatStaffTravelHandler {
             float damage = (float) (lostSpeed * 10.0 - 3.0);
 
             if (damage > 0.0F) {
-                TravelingCatStaffData.remove(entity, true);
+                TravelingCatStaffData.remove(entity);
                 entity.hurt(entity.damageSources().flyIntoWall(), damage);
             }
         }

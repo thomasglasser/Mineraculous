@@ -65,9 +65,9 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
                     List<? extends Entity> entities = level.getEntities(EntityTypeTest.forClass(Entity.class), entity -> isValidEntity(level, performer, entity));
                     if (!entities.isEmpty()) {
                         Entity target = entities.getFirst();
-                        abilityEffectData.withSpectation(Optional.of(target.getUUID()), shader, faceMaskTexture, privateChat ? Optional.of(target.getUUID()) : Optional.empty(), allowRemoteDamage, allowKamikotizationRevocation).save(performer, true);
+                        abilityEffectData.withSpectation(Optional.of(target.getUUID()), shader, faceMaskTexture, privateChat ? Optional.of(target.getUUID()) : Optional.empty(), allowRemoteDamage, allowKamikotizationRevocation).save(performer);
                         if (privateChat) {
-                            target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.of(performer.getUUID()), faceMaskTexture).save(target, true);
+                            target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.of(performer.getUUID()), faceMaskTexture).save(target);
                         }
                         if (overrideOwner && target instanceof TamableAnimal tamable) {
                             tamable.setOwnerUUID(performer.getUUID());
@@ -90,8 +90,8 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
 
     private void stopSpectation(ServerLevel level, LivingEntity performer) {
         AbilityEffectData data = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
-        data.spectatingId().map(level::getEntity).ifPresent(spectating -> spectating.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(spectating, true));
-        data.withSpectation(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), false, false).save(performer, true);
+        data.spectatingId().map(level::getEntity).ifPresent(spectating -> spectating.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(spectating));
+        data.withSpectation(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), false, false).save(performer);
         if (performer instanceof ServerPlayer player) {
             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.empty()), player);
         }

@@ -5,8 +5,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mojang.serialization.codecs.UnboundedMapCodec;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
@@ -58,7 +56,7 @@ public class MiraculousesData {
 
     public MiraculousData put(Entity entity, Holder<Miraculous> key, MiraculousData value, boolean syncToClient) {
         MiraculousData data = map.put(key, value);
-        save(entity, syncToClient);
+        save(entity);
         return data;
     }
 
@@ -117,9 +115,7 @@ public class MiraculousesData {
         return powerLevel;
     }
 
-    public void save(Entity entity, boolean syncToClient) {
+    public void save(Entity entity) {
         entity.setData(MineraculousAttachmentTypes.MIRACULOUSES, this);
-        if (syncToClient)
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.MIRACULOUSES, this), entity.getServer());
     }
 }

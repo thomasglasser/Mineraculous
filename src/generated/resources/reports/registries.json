@@ -294,6 +294,7 @@
     "mineraculous:ability_effects",
     "mineraculous:inventory_trackers",
     "mineraculous:kamikotization",
+    "mineraculous:kill_credit_override",
     "mineraculous:leashing_ladybug_yoyo",
     "mineraculous:miraculouses",
     "mineraculous:old_kamikotization",
@@ -308,5 +309,15 @@
     "mineraculous:optional_ladybug_yoyo_mode",
     "mineraculous:optional_resource_location",
     "mineraculous:uuid"
+  ],
+  "neoforge:synced_attachment_types": [
+    "mineraculous:ability_effects",
+    "mineraculous:kamikotization",
+    "mineraculous:leashing_ladybug_yoyo",
+    "mineraculous:miraculouses",
+    "mineraculous:perching_cat_staff",
+    "mineraculous:thrown_ladybug_yoyo",
+    "mineraculous:traveling_cat_staff",
+    "mineraculous:yoyo_leash_override"
   ]
 }

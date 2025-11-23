@@ -67,7 +67,7 @@ public record ToggleableNightVisionAbility(Optional<ResourceLocation> shader, Op
         } else {
             performer.removeEffect(MobEffects.NIGHT_VISION);
         }
-        performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).updateNightVision(giveNightVision ? shader : Optional.empty()).save(performer, true);
+        performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).updateNightVision(giveNightVision ? shader : Optional.empty()).save(performer);
         Ability.playSound(level, performer, giveNightVision ? applySound : removeSound);
     }
 

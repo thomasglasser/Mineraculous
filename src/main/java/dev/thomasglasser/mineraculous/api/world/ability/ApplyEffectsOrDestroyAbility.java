@@ -103,7 +103,7 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
             }
             performer.setLastHurtMob(target);
             if (overrideKillCredit) {
-                target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withKillCredit(Optional.of(performer.getUUID())).save(target, true);
+                target.setData(MineraculousAttachmentTypes.KILL_CREDIT_OVERRIDE, Optional.of(performer.getUUID()));
             }
             Ability.playSound(level, performer, applySound);
             return State.CONSUME;

@@ -165,7 +165,7 @@ public class MineraculousEntityEvents {
         if (event.getEntity().getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF).fastDescending()) {
             event.setDamageMultiplier(0);
             if (!event.getEntity().level().isClientSide)
-                PerchingCatStaffData.remove(event.getEntity(), true);
+                PerchingCatStaffData.remove(event.getEntity());
         }
     }
 
@@ -195,7 +195,7 @@ public class MineraculousEntityEvents {
             LivingEntity target = event.getEntity();
             AbilityEffectData abilityEffectData = target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
             if (abilityEffectData.spectatingId().isPresent()) {
-                abilityEffectData.withSpectationInterrupted().save(target, true);
+                abilityEffectData.withSpectationInterrupted().save(target);
             }
         }
     }
@@ -304,7 +304,7 @@ public class MineraculousEntityEvents {
                     }
                 });
             }
-            entity.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).killCredit().ifPresent(killCredit -> {
+            entity.getData(MineraculousAttachmentTypes.KILL_CREDIT_OVERRIDE).ifPresent(killCredit -> {
                 Entity killer = level.getEntity(killCredit);
                 if (killer instanceof Player player) {
                     entity.setLastHurtByPlayer(player);
@@ -348,13 +348,13 @@ public class MineraculousEntityEvents {
                 Entity yoyo = event.getLevel().getEntity(id);
                 if (yoyo != null)
                     yoyo.discard();
-                new ThrownLadybugYoyoData().save(entity, true);
+                new ThrownLadybugYoyoData().save(entity);
             });
             AbilityEffectData abilityEffectData = entity.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
             abilityEffectData.privateChat().ifPresent(id -> {
                 Entity target = level.getEntity(id);
                 if (target != null) {
-                    target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(target, true);
+                    target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(target);
                 }
             });
             if (entity instanceof LivingEntity livingEntity) {
@@ -386,7 +386,7 @@ public class MineraculousEntityEvents {
             Entity yoyo = serverPlayer.level().getEntity(id);
             if (yoyo != null)
                 yoyo.discard();
-            new ThrownLadybugYoyoData().save(serverPlayer, true);
+            new ThrownLadybugYoyoData().save(serverPlayer);
         });
     }
 }

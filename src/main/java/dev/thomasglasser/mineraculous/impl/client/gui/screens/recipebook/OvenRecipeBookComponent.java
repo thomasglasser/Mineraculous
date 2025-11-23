@@ -15,7 +15,7 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 
 public class OvenRecipeBookComponent extends AbstractFurnaceRecipeBookComponent {
-    public static final Component FILTER_NAME = Component.translatable("gui.recipebook.toggleRecipes.ovenable");
+    public static final Component FILTER_NAME = Component.translatable("gui.recipebook.toggleRecipes.oven_cookable");
 
     @Override
     protected Component getRecipeFilterName() {

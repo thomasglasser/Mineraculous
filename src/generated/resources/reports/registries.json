@@ -203,13 +203,13 @@
   "minecraft:recipe_serializer": [
     "mineraculous:campfire_cooking_transmute",
     "mineraculous:crafting_special_cheesewedge",
-    "mineraculous:oven",
-    "mineraculous:oven_transmute",
+    "mineraculous:oven_cooking",
+    "mineraculous:oven_cooking_transmute",
     "mineraculous:smelting_transmute",
     "mineraculous:smoking_transmute"
   ],
   "minecraft:recipe_type": [
-    "mineraculous:oven"
+    "mineraculous:oven_cooking"
   ],
   "minecraft:sensor_type": [
     "mineraculous:player_item_tempting"

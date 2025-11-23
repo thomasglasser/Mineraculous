@@ -258,7 +258,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         // Block Entity Screens
         add(OvenBlockEntity.NAME, "Oven");
-        add(OvenRecipeBookComponent.FILTER_NAME, "Showing Ovenable");
+        add(OvenRecipeBookComponent.FILTER_NAME, "Showing Oven Cookable");
 
         // Taking/Breaking
         add(ServerboundWakeUpPayload.STEALING_WARNING, "You may not rest now, there are thieves nearby.");
@@ -302,7 +302,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MiraculousEligiblePlayerEntry.TRANSFER, "Transfer");
 
         // JEI
-        add(MineraculousJeiPlugin.OVEN_CATEGORY, "Oven");
+        add(MineraculousJeiPlugin.OVEN_COOKING_CATEGORY, "Oven Cooking");
 
         // Jade
         add(OvenProvider.INSTANCE, "Oven");

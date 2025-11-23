@@ -134,7 +134,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                     }
                 }
                 if (level.getEntity(kwamiId) instanceof Kwami kwami) {
-                    if (kwami.isCharged() && kwami.getMainHandItem().isEmpty() && kwami.getSummonTicks() <= 0) {
+                    if (kwami.isCharged() && kwami.getMainHandItem().isEmpty() && !kwami.isInCubeForm()) {
                         kwami.setTransforming(true);
 
                         ResourceKey<Miraculous> key = miraculous.getKey();

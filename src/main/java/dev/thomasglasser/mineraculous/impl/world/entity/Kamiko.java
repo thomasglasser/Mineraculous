@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -252,6 +253,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     protected void onMoveToWalkTargetStopping(Kamiko kamiko) {
         if (BrainUtils.getMemory(kamiko, MineraculousMemoryModuleTypes.REPLICATION_STATUS.get()) == ReplicationState.LOOKING_FOR_RESTING_LOCATION && hasReachedTarget(kamiko, BrainUtils.getMemory(kamiko, MemoryModuleType.WALK_TARGET))) {
             BrainUtils.setMemory(kamiko, MineraculousMemoryModuleTypes.REPLICATION_STATUS.get(), ReplicationState.REPLICATING);
+            BrainUtils.setMemory(kamiko, MineraculousMemoryModuleTypes.REPLICATION_WAIT_TICKS.get(), SharedConstants.TICKS_PER_SECOND);
         }
     }
 
@@ -400,6 +402,10 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         if (replicatesMade != null) {
             compound.putInt("ReplicatesMade", replicatesMade);
         }
+        Integer replicationWaitTicks = BrainUtils.getMemory(this, MineraculousMemoryModuleTypes.REPLICATION_WAIT_TICKS.get());
+        if (replicationWaitTicks != null) {
+            compound.putInt("ReplicationWaitTicks", replicationWaitTicks);
+        }
     }
 
     @Override
@@ -410,6 +416,9 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         }
         if (compound.contains("ReplicatesMade")) {
             BrainUtils.setMemory(this, MineraculousMemoryModuleTypes.REPLICATES_MADE.get(), compound.getInt("ReplicatesMade"));
+        }
+        if (compound.contains("ReplicationWaitTicks")) {
+            BrainUtils.setMemory(this, MineraculousMemoryModuleTypes.REPLICATION_WAIT_TICKS.get(), compound.getInt("ReplicationWaitTicks"));
         }
     }
 }

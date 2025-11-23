@@ -14,6 +14,7 @@ public class MineraculousMemoryModuleTypes {
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<ReplicationState>> REPLICATION_STATUS = register("replication_status");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Unit>> HAS_REPLICATED = register("has_replicated");
     public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Integer>> REPLICATES_MADE = register("replicates_made");
+    public static final DeferredHolder<MemoryModuleType<?>, MemoryModuleType<Integer>> REPLICATION_WAIT_TICKS = register("replication_wait_ticks");
 
     private static <T> DeferredHolder<MemoryModuleType<?>, MemoryModuleType<T>> register(String name) {
         return MEMORY_MODULE_TYPES.register(name, () -> new MemoryModuleType<>(Optional.empty()));

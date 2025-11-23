@@ -7,9 +7,7 @@ import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSer
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugBlockClusterTarget;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugBlockTarget;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTarget;
+import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTarget;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
@@ -118,7 +116,7 @@ public class MiraculousLadybug extends Entity {
     }
 
     public void revertAllTargets(ServerLevel serverLevel) {
-        Multimap<Integer, MiraculousLadybugTarget> targetMap = this.getTargetData().targets();
+        Multimap<Integer, MiraculousLadybugTarget<?>> targetMap = this.getTargetData().targets();
         for (int index : targetMap.keySet()) {
             revertTargetsAtIndex(serverLevel, targetMap, index, true);
         }
@@ -154,16 +152,13 @@ public class MiraculousLadybug extends Entity {
 
     private boolean shouldDiscard(float afterMovementPosition) {
         MiraculousLadybugTargetData data = getTargetData();
-        Multimap<Integer, MiraculousLadybugTarget> map = data.targets();
-        for (MiraculousLadybugTarget target : map.values()) {
+        Multimap<Integer, MiraculousLadybugTarget<?>> map = data.targets();
+        for (MiraculousLadybugTarget<?> target : map.values()) {
             if (target.isReverting()) {
                 return false;
             }
         }
-        if (getSplinePosition() != afterMovementPosition) {
-            return false;
-        }
-        return true;
+        return getSplinePosition() == afterMovementPosition;
     }
 
     private void setFacingDirection() {
@@ -177,7 +172,7 @@ public class MiraculousLadybug extends Entity {
 
     private void revertReachedTarget() {
         MiraculousLadybugTargetData targetData = getTargetData();
-        Multimap<Integer, MiraculousLadybugTarget> targetMap = targetData.targets();
+        Multimap<Integer, MiraculousLadybugTarget<?>> targetMap = targetData.targets();
         float splinePos = getSplinePosition();
         if (level() instanceof ServerLevel serverLevel) {
             int approaching = path.findSegment(splinePos);
@@ -190,22 +185,22 @@ public class MiraculousLadybug extends Entity {
         }
     }
 
-    private void revertTargets(ServerLevel serverLevel, Multimap<Integer, MiraculousLadybugTarget> targetMap, int index) {
+    private void revertTargets(ServerLevel serverLevel, Multimap<Integer, MiraculousLadybugTarget<?>> targetMap, int index) {
         revertTargetsAtIndex(serverLevel, targetMap, index, false);
     }
 
-    private void revertTargetsAtIndex(ServerLevel serverLevel, Multimap<Integer, MiraculousLadybugTarget> targetMap, int index, boolean instant) {
+    private void revertTargetsAtIndex(ServerLevel serverLevel, Multimap<Integer, MiraculousLadybugTarget<?>> targetMap, int index, boolean instant) {
         MiraculousLadybugTargetData targetData = getTargetData();
-        Multimap<Integer, MiraculousLadybugTarget> newTargets = LinkedHashMultimap.create(targetMap);
+        Multimap<Integer, MiraculousLadybugTarget<?>> newTargets = LinkedHashMultimap.create(targetMap);
 
         boolean changed = false;
 
-        for (MiraculousLadybugTarget target : targetMap.get(index)) {
+        for (MiraculousLadybugTarget<?> target : targetMap.get(index)) {
             if (!target.isReverting()) {
                 if (instant)
-                    target.instantRevert(serverLevel);
+                    target.revert(serverLevel, true);
                 else {
-                    MiraculousLadybugTarget newTarget = target.startReversion(serverLevel);
+                    MiraculousLadybugTarget<?> newTarget = target.revert(serverLevel, false);
                     if (newTarget != target) {
                         newTargets.remove(index, target);
                         changed = true;
@@ -256,26 +251,26 @@ public class MiraculousLadybug extends Entity {
 
     private float findNearestTargetDistance(Vec3 pos) {
         MiraculousLadybugTargetData data = this.getTargetData();
-        Multimap<Integer, MiraculousLadybugTarget> targets = data.targets();
+        Multimap<Integer, MiraculousLadybugTarget<?>> targets = data.targets();
 
         int approaching = path.findSegment(getSplinePosition());
         int passedControlPoint = approaching != -1 ? approaching - 3 : 0;
 
-        MiraculousLadybugTarget backTarget = scanAnyTarget(targets, passedControlPoint, false, (float) path.getFirstParameter());
-        MiraculousLadybugTarget frontTarget = scanAnyTarget(targets, passedControlPoint + 1, true, (float) path.getLastParameter());
+        MiraculousLadybugTarget<?> backTarget = scanAnyTarget(targets, passedControlPoint, false, (float) path.getFirstParameter());
+        MiraculousLadybugTarget<?> frontTarget = scanAnyTarget(targets, passedControlPoint + 1, true, (float) path.getLastParameter());
 
         if (frontTarget == null && backTarget == null) {
             return Float.MAX_VALUE;
         }
 
-        float backDistance = backTarget != null ? (float) pos.distanceTo(backTarget.getPosition()) : Float.MAX_VALUE;
-        float frontDistance = frontTarget != null ? (float) pos.distanceTo(frontTarget.getPosition()) : Float.MAX_VALUE;
+        float backDistance = backTarget != null ? (float) pos.distanceTo(backTarget.position()) : Float.MAX_VALUE;
+        float frontDistance = frontTarget != null ? (float) pos.distanceTo(frontTarget.position()) : Float.MAX_VALUE;
 
         return Math.min(backDistance, frontDistance);
     }
 
-    private MiraculousLadybugTarget scanAnyTarget(
-            Multimap<Integer, MiraculousLadybugTarget> targets,
+    private MiraculousLadybugTarget<?> scanAnyTarget(
+            Multimap<Integer, MiraculousLadybugTarget<?>> targets,
             int currentlyPassedControlPoint,
             boolean forward,
             float limit) {
@@ -283,14 +278,9 @@ public class MiraculousLadybug extends Entity {
         int i = currentlyPassedControlPoint;
 
         while ((step > 0 && i <= limit) || (step < 0 && i >= limit)) {
-            for (MiraculousLadybugTarget target : targets.get(i)) {
-                // TODO when making the registry for targets ensure Target has a method which returns a boolean for this if
-                // make this a switch case because it can need different implementation or sth
-                if (target instanceof MiraculousLadybugBlockTarget) {
+            for (MiraculousLadybugTarget<?> target : targets.get(i)) {
+                if (target.shouldExpandMiraculousLadybug())
                     return target;
-                } else if (target instanceof MiraculousLadybugBlockClusterTarget clusterTarget && clusterTarget.width() > 5) {
-                    return target;
-                }
             }
             i += step;
         }

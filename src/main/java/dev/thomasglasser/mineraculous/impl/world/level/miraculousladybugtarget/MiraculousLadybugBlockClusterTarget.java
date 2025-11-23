@@ -1,10 +1,14 @@
-package dev.thomasglasser.mineraculous.impl.world.level.storage;
+package dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,42 +23,75 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 
-public record MiraculousLadybugBlockClusterTarget(List<List<MiraculousLadybugBlockTarget>> blockLayers, Vec3 center, double width, double height, int tick) implements MiraculousLadybugTarget {
+public record MiraculousLadybugBlockClusterTarget(List<List<MiraculousLadybugBlockTarget>> blockLayers, Vec3 center, double width, double height, int tickCount) implements MiraculousLadybugTarget<MiraculousLadybugBlockClusterTarget> {
 
-    public static final Codec<MiraculousLadybugBlockClusterTarget> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    public static final MapCodec<MiraculousLadybugBlockClusterTarget> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             MiraculousLadybugBlockTarget.CODEC.listOf().listOf().fieldOf("block_layers").forGetter(MiraculousLadybugBlockClusterTarget::blockLayers),
             Vec3.CODEC.fieldOf("center_position").forGetter(MiraculousLadybugBlockClusterTarget::center),
             Codec.DOUBLE.fieldOf("width").forGetter(MiraculousLadybugBlockClusterTarget::width),
             Codec.DOUBLE.fieldOf("height").forGetter(MiraculousLadybugBlockClusterTarget::height),
-            Codec.INT.fieldOf("tick").forGetter(MiraculousLadybugBlockClusterTarget::tick)).apply(instance, MiraculousLadybugBlockClusterTarget::new));
+            Codec.INT.fieldOf("tick_count").forGetter(MiraculousLadybugBlockClusterTarget::tickCount)).apply(instance, MiraculousLadybugBlockClusterTarget::new));
+    public static final Codec<MiraculousLadybugBlockClusterTarget> CODEC = MAP_CODEC.codec();
     public static final StreamCodec<ByteBuf, MiraculousLadybugBlockClusterTarget> STREAM_CODEC = StreamCodec.composite(
             MiraculousLadybugBlockTarget.STREAM_CODEC.apply(ByteBufCodecs.list()).apply(ByteBufCodecs.list()), MiraculousLadybugBlockClusterTarget::blockLayers,
             TommyLibExtraStreamCodecs.VEC_3, MiraculousLadybugBlockClusterTarget::center,
             ByteBufCodecs.DOUBLE, MiraculousLadybugBlockClusterTarget::width,
             ByteBufCodecs.DOUBLE, MiraculousLadybugBlockClusterTarget::height,
-            ByteBufCodecs.INT, MiraculousLadybugBlockClusterTarget::tick,
+            ByteBufCodecs.INT, MiraculousLadybugBlockClusterTarget::tickCount,
             MiraculousLadybugBlockClusterTarget::new);
     public MiraculousLadybugBlockClusterTarget withTicks(int t) {
         return new MiraculousLadybugBlockClusterTarget(blockLayers, center, width, height, t);
     }
 
     public MiraculousLadybugBlockClusterTarget withBlockLayers(List<List<MiraculousLadybugBlockTarget>> bl) {
-        return new MiraculousLadybugBlockClusterTarget(bl, center, width, height, tick);
+        return new MiraculousLadybugBlockClusterTarget(bl, center, width, height, tickCount);
     }
 
     @Override
-    public Vec3 getPosition() {
-        return this.center;
+    public MiraculousLadybugTargetType<MiraculousLadybugBlockClusterTarget> type() {
+        return MiraculousLadybugTargetTypes.BLOCK_CLUSTER.get();
     }
 
     @Override
-    public MiraculousLadybugTargetType type() {
-        return MiraculousLadybugTargetType.BLOCK_CLUSTER;
+    public MiraculousLadybugTarget<MiraculousLadybugBlockClusterTarget> revert(ServerLevel level, boolean instant) {
+        if (instant) {
+            for (List<MiraculousLadybugBlockTarget> layer : blockLayers) {
+                for (MiraculousLadybugBlockTarget blockTarget : layer) {
+                    blockTarget.revert(level, true);
+                }
+            }
+            return withBlockLayers(List.of());
+        }
+        if (tickCount == -1 && !blockLayers.isEmpty())
+            return withTicks(0);
+        return this;
     }
 
     @Override
-    public boolean isReverting() {
-        return tick != -1;
+    public MiraculousLadybugTarget<MiraculousLadybugBlockClusterTarget> tick(ServerLevel level) {
+        if (tickCount >= 0) {
+            if (blockLayers.isEmpty())
+                return withTicks(-1);
+            if (tickCount % 20 == 0)
+                return revertLayer(level);
+            return withTicks(tickCount + 1);
+        }
+        return this;
+    }
+
+    private MiraculousLadybugBlockClusterTarget revertLayer(ServerLevel level) {
+        if (!blockLayers.isEmpty()) {
+            List<MiraculousLadybugBlockTarget> layer = blockLayers.getFirst();
+            for (MiraculousLadybugBlockTarget blockTarget : layer)
+                blockTarget.revert(level, false);
+            return withBlockLayers(new ArrayList<>(blockLayers.subList(1, blockLayers.size())));
+        }
+        return this;
+    }
+
+    @Override
+    public Vec3 position() {
+        return center;
     }
 
     @Override
@@ -70,50 +107,13 @@ public record MiraculousLadybugBlockClusterTarget(List<List<MiraculousLadybugBlo
     }
 
     @Override
-    public MiraculousLadybugTarget startReversion(ServerLevel level) {
-        if (tick == -1 && !blockLayers.isEmpty())
-            return withTicks(0);
-        return this;
+    public boolean isReverting() {
+        return tickCount != -1;
     }
 
     @Override
-    public MiraculousLadybugTarget instantRevert(ServerLevel level) {
-        for (List<MiraculousLadybugBlockTarget> layer : blockLayers) {
-            for (MiraculousLadybugBlockTarget blockTarget : layer) {
-                blockTarget.instantRevert(level);
-            }
-        }
-        return withBlockLayers(List.of());
-    }
-
-    @Override
-    public MiraculousLadybugTarget tick(ServerLevel level) {
-        if (tick >= 0) {
-            if (blockLayers.isEmpty())
-                return withTicks(-1);
-            if (tick % 20 == 0 || tick == 0)
-                return revertLayer(level);
-            int newTicks = tick + 1;
-            return withTicks(newTicks);
-        }
-        return this;
-    }
-
-    @Override
-    public void spawnParticles(ServerLevel level) { // No actual usage ever.
-        for (List<MiraculousLadybugBlockTarget> layer : blockLayers)
-            for (MiraculousLadybugBlockTarget blockTarget : layer)
-                blockTarget.spawnParticles(level);
-    }
-
-    private MiraculousLadybugBlockClusterTarget revertLayer(ServerLevel level) {
-        if (!blockLayers.isEmpty()) {
-            List<MiraculousLadybugBlockTarget> layer = blockLayers.getFirst();
-            for (MiraculousLadybugBlockTarget blockTarget : layer)
-                blockTarget.instantRevert(level);
-            return withBlockLayers(new ArrayList<>(blockLayers.subList(1, blockLayers.size())));
-        }
-        return this;
+    public boolean shouldExpandMiraculousLadybug() {
+        return width > 5;
     }
 
     //BFS FLOOD FILL
@@ -133,23 +133,14 @@ public record MiraculousLadybugBlockClusterTarget(List<List<MiraculousLadybugBlo
         return off;
     }
 
-    public static Collection<MiraculousLadybugTarget> reduceNearbyBlocks(Collection<MiraculousLadybugTarget> input) {
-        List<MiraculousLadybugBlockTarget> list = new ArrayList<>(input.size());
-        for (MiraculousLadybugTarget target : input) {
-            if (target instanceof MiraculousLadybugBlockTarget blockTarget)
-                list.add(blockTarget);
-        }
-        return reduceClumps(list);
-    }
-
-    public static Collection<MiraculousLadybugTarget> reduceClumps(Collection<MiraculousLadybugBlockTarget> input) {
-        Map<BlockPos, MiraculousLadybugBlockTarget> allBlocks = new HashMap<>(input.size());
-        for (MiraculousLadybugBlockTarget bt : input) {
-            allBlocks.put(bt.blockPos(), bt);
+    public static Collection<MiraculousLadybugTarget<?>> reduceNearbyBlocks(Collection<MiraculousLadybugBlockTarget> input) {
+        Map<BlockPos, MiraculousLadybugBlockTarget> targets = new Object2ObjectOpenHashMap<>(input.size());
+        for (MiraculousLadybugBlockTarget target : input) {
+            targets.put(target.blockPos(), target);
         }
 
-        Set<BlockPos> unvisited = new HashSet<>(allBlocks.keySet());
-        List<MiraculousLadybugTarget> clumps = new ArrayList<>();
+        Set<BlockPos> unvisited = new ObjectOpenHashSet<>(targets.keySet());
+        List<MiraculousLadybugTarget<?>> clumps = new ReferenceArrayList<>();
 
         BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
@@ -157,7 +148,7 @@ public record MiraculousLadybugBlockClusterTarget(List<List<MiraculousLadybugBlo
             BlockPos start = unvisited.iterator().next();
             unvisited.remove(start);
 
-            List<BlockPos> clump = new ArrayList<>();
+            List<BlockPos> clump = new ReferenceArrayList<>();
             clump.add(start);
 
             int minX = start.getX();
@@ -211,19 +202,19 @@ public record MiraculousLadybugBlockClusterTarget(List<List<MiraculousLadybugBlo
                 double width = ((maxX - minX + maxZ - minZ + 2) / 2d);
                 double height = (maxY - minY + 1);
 
-                List<MiraculousLadybugBlockTarget> blockTargets = new ArrayList<>(clump.size());
+                List<MiraculousLadybugBlockTarget> blockTargets = new ReferenceArrayList<>(clump.size());
                 for (BlockPos pos : clump) {
-                    blockTargets.add(allBlocks.get(pos));
+                    blockTargets.add(targets.get(pos));
                 }
                 MiraculousLadybugBlockClusterTarget cluster = create(blockTargets, center, width, height);
                 if (cluster != null)
                     clumps.add(cluster);
             } else if (clump.size() == 1) {
-                MiraculousLadybugBlockTarget single = allBlocks.get(clump.getFirst());
+                MiraculousLadybugBlockTarget single = targets.get(clump.getFirst());
                 if (single != null) {
                     clumps.add(single);
                 } else {
-                    throw new IllegalStateException("Inside MiraculousLadybugBlockClusterTarget::reduceClumps a list clump contained a BlockPos that wasn't in allBlocks: " + clump.getFirst());
+                    throw new IllegalStateException("Inside MiraculousLadybugBlockClusterTarget#reduceClumps a list clump contained a BlockPos that wasn't in allBlocks: " + clump.getFirst());
                 }
             }
         }
@@ -236,7 +227,7 @@ public record MiraculousLadybugBlockClusterTarget(List<List<MiraculousLadybugBlo
         MiraculousLadybugBlockTarget start = null;
         double bestDist = Double.MAX_VALUE;
         for (MiraculousLadybugBlockTarget b : blockTargets) {
-            double dist = b.getPosition().distanceToSqr(center);
+            double dist = b.position().distanceToSqr(center);
             if (dist < bestDist) {
                 bestDist = dist;
                 start = b;
@@ -244,7 +235,7 @@ public record MiraculousLadybugBlockClusterTarget(List<List<MiraculousLadybugBlo
         }
 
         if (start == null) {
-            throw new IllegalStateException("Passed a list of MiraculousLadybugBlockTarget with null contents when calling MiraculousLadybugBlockCluster::create!");
+            throw new IllegalStateException("Passed a list of MiraculousLadybugBlockTarget with null contents when calling MiraculousLadybugBlockCluster#create!");
         }
 
         Map<BlockPos, MiraculousLadybugBlockTarget> map = new HashMap<>();

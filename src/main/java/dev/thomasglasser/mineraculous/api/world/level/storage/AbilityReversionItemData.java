@@ -203,7 +203,7 @@ public class AbilityReversionItemData extends SavedData {
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        Function<ItemStack, Tag> itemEncoder = MineraculousNbtUtils.codecEncoder(ItemStack.CODEC);
+        Function<ItemStack, Tag> itemEncoder = MineraculousNbtUtils.codecEncoder(ItemStack.OPTIONAL_CODEC);
         tag.put("Revertible", MineraculousNbtUtils.writeStringRowKeyedTable(revertibleItems, UUID::toString, NbtUtils::createUUID, itemEncoder));
         tag.put("RevertMarked", MineraculousNbtUtils.writeStringKeyedMap(revertMarkedItems, UUID::toString, itemEncoder));
         tag.put("Reverted", MineraculousNbtUtils.writeCollection(revertedItems, NbtUtils::createUUID));
@@ -212,7 +212,7 @@ public class AbilityReversionItemData extends SavedData {
     }
 
     public static AbilityReversionItemData load(CompoundTag tag, HolderLookup.Provider registries) {
-        Function<Tag, ItemStack> itemDecoder = MineraculousNbtUtils.codecDecoder(ItemStack.CODEC);
+        Function<Tag, ItemStack> itemDecoder = MineraculousNbtUtils.codecDecoder(ItemStack.OPTIONAL_CODEC);
         AbilityReversionItemData data = new AbilityReversionItemData();
         data.revertibleItems.putAll(MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Revertible"), UUID::fromString, NbtUtils::loadUUID, itemDecoder));
         data.revertMarkedItems.putAll(MineraculousNbtUtils.readStringKeyedMap(Reference2ReferenceOpenHashMap::new, tag.getCompound("RevertMarked"), UUID::fromString, itemDecoder));

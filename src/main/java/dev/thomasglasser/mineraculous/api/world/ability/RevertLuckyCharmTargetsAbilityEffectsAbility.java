@@ -14,15 +14,13 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBl
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugBlockClusterTarget;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugBlockTarget;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugEntityTarget;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTarget;
+import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugBlockClusterTarget;
+import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugBlockTarget;
+import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugEntityTarget;
+import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTarget;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTriggerData;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -60,17 +58,17 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
             UUID target = luckyCharm.target().orElse(luckyCharm.owner());
             AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
             Set<UUID> toRevert = collectToRevert(target, entityData);
-            Multimap<ResourceKey<Level>, MiraculousLadybugTarget>[] positions = gatherReversionPositions(level, toRevert);
 
-            Multimap<ResourceKey<Level>, MiraculousLadybugTarget> blockPositions = positions[0];
-            Multimap<ResourceKey<Level>, MiraculousLadybugTarget> entityPositions = positions[1];
+            ReversionTargets positions = gatherReversionTargets(level, toRevert);
+            Multimap<ResourceKey<Level>, MiraculousLadybugBlockTarget> blockPositions = positions.blockTargets();
+            Multimap<ResourceKey<Level>, MiraculousLadybugEntityTarget> entityPositions = positions.entityTargets();
             ResourceKey<Level> currentDimension = level.dimension();
 
             boolean reduceClumps = MineraculousServerConfig.get().enableMiraculousLadybugClumpDetection.get();
-            Collection<MiraculousLadybugTarget> blocksInThisDimension = blockPositions.removeAll(currentDimension);
-            Collection<MiraculousLadybugTarget> blockTargets = reduceClumps ? MiraculousLadybugBlockClusterTarget.reduceNearbyBlocks(blocksInThisDimension) : blocksInThisDimension;
-            Collection<MiraculousLadybugTarget> entityTargets = entityPositions.removeAll(currentDimension);
-            Collection<MiraculousLadybugTarget> targets = new ArrayList<>();
+            Collection<MiraculousLadybugBlockTarget> allBlockTargets = blockPositions.removeAll(currentDimension);
+            Collection<? extends MiraculousLadybugTarget<?>> blockTargets = reduceClumps ? MiraculousLadybugBlockClusterTarget.reduceNearbyBlocks(allBlockTargets) : allBlockTargets;
+            Collection<MiraculousLadybugEntityTarget> entityTargets = entityPositions.removeAll(currentDimension);
+            Collection<MiraculousLadybugTarget<?>> targets = new ReferenceOpenHashSet<>();
             targets.addAll(blockTargets);
             targets.addAll(entityTargets);
             revertInOtherDimensions(blockPositions, entityPositions, level);
@@ -89,38 +87,35 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
     }
 
     private void revertInOtherDimensions(
-            Multimap<ResourceKey<Level>, MiraculousLadybugTarget> blockPositions,
-            Multimap<ResourceKey<Level>, MiraculousLadybugTarget> entityPositions,
+            Multimap<ResourceKey<Level>, ? extends MiraculousLadybugTarget<?>> blockTargets,
+            Multimap<ResourceKey<Level>, MiraculousLadybugEntityTarget> entityTargets,
             ServerLevel level) {
-        Multimap<ResourceKey<Level>, MiraculousLadybugTarget> targetPositions = ArrayListMultimap.create();
-        targetPositions.putAll(blockPositions);
-        targetPositions.putAll(entityPositions);
+        Multimap<ResourceKey<Level>, MiraculousLadybugTarget<?>> targetPositions = ArrayListMultimap.create();
+        targetPositions.putAll(blockTargets);
+        targetPositions.putAll(entityTargets);
 
         targetPositions.keySet().forEach(dimension -> {
             ServerLevel targetLevel = level.getServer().getLevel(dimension);
             if (targetLevel != null) {
-                List<MiraculousLadybugTarget> targets = new ArrayList<>(targetPositions.removeAll(dimension));
-
-                targets.replaceAll(t -> t.instantRevert(targetLevel));
-
-                targets.stream()
-                        .filter(t -> t instanceof MiraculousLadybugEntityTarget)
-                        .map(t -> (MiraculousLadybugEntityTarget) t)
-                        .forEach(t -> t.spawnParticles(level));
-            } else MineraculousConstants.LOGGER.error("Could not revert ability effects in dimension {} as it does not exist", dimension);
+                for (MiraculousLadybugTarget<?> target : targetPositions.removeAll(dimension)) {
+                    target.revert(targetLevel, true);
+                }
+            } else {
+                MineraculousConstants.LOGGER.error("Could not revert ability effects in dimension {} as it does not exist", dimension);
+            }
         });
     }
 
-    private static Multimap<ResourceKey<Level>, MiraculousLadybugTarget>[] gatherReversionPositions(ServerLevel level, Set<UUID> toRevert) {
-        Multimap<ResourceKey<Level>, MiraculousLadybugTarget> blockPositions = HashMultimap.create();
-        Multimap<ResourceKey<Level>, MiraculousLadybugTarget> entityPositions = HashMultimap.create();
+    private static ReversionTargets gatherReversionTargets(ServerLevel level, Set<UUID> toRevert) {
+        Multimap<ResourceKey<Level>, MiraculousLadybugBlockTarget> blockTargets = HashMultimap.create();
+        Multimap<ResourceKey<Level>, MiraculousLadybugEntityTarget> entityTargets = HashMultimap.create();
         AbilityReversionBlockData blockData = AbilityReversionBlockData.get(level);
         AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
         for (UUID relatedId : toRevert) {
             for (Map.Entry<ResourceKey<Level>, BlockPos> entry : blockData.getReversionPositions(relatedId).entries()) {
                 ResourceKey<Level> dimension = entry.getKey();
                 BlockPos pos = entry.getValue();
-                blockPositions.put(dimension, new MiraculousLadybugBlockTarget(pos, relatedId));
+                blockTargets.put(dimension, new MiraculousLadybugBlockTarget(pos, relatedId));
             }
             for (Map.Entry<ResourceKey<Level>, Vec3> location : entityData.getReversionAndConversionPositions(relatedId).entries()) {
                 ResourceKey<Level> dimension = location.getKey();
@@ -129,18 +124,15 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
                     UUID entityId = entry.getKey();
                     Entity entity = MineraculousEntityUtils.findEntity(level, entityId);
                     if (entity != null) {
-                        entityPositions.put(dimension, new MiraculousLadybugEntityTarget(pos, relatedId, entity.getBbWidth(), entity.getBbHeight()));
+                        entityTargets.put(dimension, new MiraculousLadybugEntityTarget(pos, relatedId, entity.getBbWidth(), entity.getBbHeight()));
                     } else {
                         CompoundTag tag = entry.getValue();
-                        EntityType.by(tag).ifPresentOrElse(type -> entityPositions.put(dimension, new MiraculousLadybugEntityTarget(pos, relatedId, type.getWidth(), type.getHeight())), () -> MineraculousConstants.LOGGER.error("Invalid entity data passed to RevertLuckyCharmTargetsAbilityEffectsAbility: {}", tag));
+                        EntityType.by(tag).ifPresentOrElse(type -> entityTargets.put(dimension, new MiraculousLadybugEntityTarget(pos, relatedId, type.getWidth(), type.getHeight())), () -> MineraculousConstants.LOGGER.error("Invalid entity data passed to RevertLuckyCharmTargetsAbilityEffectsAbility: {}", tag));
                     }
                 }
             }
         }
-        Multimap<ResourceKey<Level>, MiraculousLadybugTarget>[] toReturn = new Multimap[2];
-        toReturn[0] = blockPositions;
-        toReturn[1] = entityPositions;
-        return toReturn;
+        return new ReversionTargets(blockTargets, entityTargets);
     }
 
     private static boolean isValidLuckyCharmUse(AbilityData data, @Nullable AbilityContext context, LivingEntity performer, AbilityHandler handler) {
@@ -170,4 +162,6 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
     public MapCodec<? extends Ability> codec() {
         return AbilitySerializers.REVERT_LUCKY_CHARM_TARGETS_ABILITY_EFFECTS.get();
     }
+
+    private record ReversionTargets(Multimap<ResourceKey<Level>, MiraculousLadybugBlockTarget> blockTargets, Multimap<ResourceKey<Level>, MiraculousLadybugEntityTarget> entityTargets) {}
 }

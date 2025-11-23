@@ -293,6 +293,11 @@
     "mineraculous:cat",
     "mineraculous:ladybug"
   ],
+  "mineraculous:miraculous_ladybug_target_type": [
+    "mineraculous:block",
+    "mineraculous:block_cluster",
+    "mineraculous:entity"
+  ],
   "neoforge:attachment_types": [
     "mineraculous:ability_effects",
     "mineraculous:inventory_trackers",

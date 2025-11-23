@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.util;
 
 import com.google.common.collect.ImmutableList;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTarget;
+import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTarget;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -177,18 +177,18 @@ public class MineraculousMathUtils {
 
     //ALGORITHMS
     //GREEDY TSP
-    public static List<MiraculousLadybugTarget> sortTargets(Collection<MiraculousLadybugTarget> targets, Vec3 startTarget) {
-        List<MiraculousLadybugTarget> toVisit = new ArrayList<>(targets);
-        List<MiraculousLadybugTarget> ordered = new ArrayList<>();
+    public static List<MiraculousLadybugTarget<?>> sortTargets(Collection<MiraculousLadybugTarget<?>> targets, Vec3 startTarget) {
+        List<MiraculousLadybugTarget<?>> toVisit = new ArrayList<>(targets);
+        List<MiraculousLadybugTarget<?>> ordered = new ArrayList<>();
 
         Vec3 current = startTarget;
 
         while (!toVisit.isEmpty()) {
-            MiraculousLadybugTarget nearest = null;
+            MiraculousLadybugTarget<?> nearest = null;
             double nearestDist = Double.MAX_VALUE;
 
-            for (MiraculousLadybugTarget target : toVisit) {
-                double dist = current.distanceTo(target.getPosition());
+            for (MiraculousLadybugTarget<?> target : toVisit) {
+                double dist = current.distanceTo(target.position());
                 if (dist < nearestDist) {
                     nearestDist = dist;
                     nearest = target;
@@ -198,7 +198,7 @@ public class MineraculousMathUtils {
             ordered.add(nearest);
             toVisit.remove(nearest);
             if (nearest != null)
-                current = nearest.getPosition();
+                current = nearest.position();
         }
         return ordered;
     }
@@ -215,7 +215,7 @@ public class MineraculousMathUtils {
         public CatmullRom(ArrayList<Vec3> targets) {
             // Add the ghost points
             ArrayList<Vec3> pts = new ArrayList<>(targets);
-            pts.add(0, pts.get(0).subtract(pts.get(1)).add(pts.get(0))); //adds the ghost point
+            pts.addFirst(pts.get(0).subtract(pts.get(1)).add(pts.get(0))); //adds the ghost point
             int maxIndex = pts.size() - 1;
             pts.add(pts.get(maxIndex).subtract(pts.get(maxIndex - 1)).add(pts.get(maxIndex)));
             this.points = Collections.unmodifiableList(pts);

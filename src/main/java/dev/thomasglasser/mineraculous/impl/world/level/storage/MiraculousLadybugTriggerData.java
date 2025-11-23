@@ -9,8 +9,6 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTarget;
-import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -57,29 +55,12 @@ public record MiraculousLadybugTriggerData(List<MiraculousLadybugTarget<?>> targ
         return new MiraculousLadybugTriggerData(targets, performerId, revertSound, tickCount + 1);
     }
 
-    public void save(Entity entity, boolean syncToClient) {
+    public void save(Entity entity) {
         entity.setData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TRIGGER, Optional.of(this));
-        if (syncToClient) {
-            TommyLibServices.NETWORK.sendToAllClients(
-                    new ClientboundSyncDataAttachmentPayload<>(
-                            entity.getId(),
-                            MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TRIGGER,
-                            Optional.of(this)),
-                    entity.getServer());
-        }
     }
 
-    public static void remove(Entity entity, boolean syncToClient) {
-        MiraculousLadybugTriggerData newValue = new MiraculousLadybugTriggerData();
-        entity.setData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TRIGGER, Optional.of(newValue));
-        if (syncToClient) {
-            TommyLibServices.NETWORK.sendToAllClients(
-                    new ClientboundSyncDataAttachmentPayload<>(
-                            entity.getId(),
-                            MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TRIGGER,
-                            Optional.<Optional<MiraculousLadybugTriggerData>>empty()),
-                    entity.getServer());
-        }
+    public static void remove(Entity entity) {
+        entity.removeData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TRIGGER);
     }
 
     public LivingEntity getPerformer(Level level) {
@@ -90,7 +71,7 @@ public record MiraculousLadybugTriggerData(List<MiraculousLadybugTarget<?>> targ
         double y = entity.getDeltaMovement().y;
         if (entity.isNoGravity() || (!entity.isNoGravity() && y < 0.13)) {
             LivingEntity performer = this.getPerformer(level);
-            this.incrementTicks().save(entity, true);
+            this.incrementTicks().save(entity);
             entity.setNoGravity(true);
             entity.setDeltaMovement(0, 0, 0);
             entity.hurtMarked = true;

@@ -52,7 +52,7 @@ public class MineraculousAttachmentTypes {
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<KamikotizationData>>> OLD_KAMIKOTIZATION = ATTACHMENT_TYPES.register("old_kamikotization", () -> AttachmentType.builder(Optional::<KamikotizationData>empty).serialize(optionalCodec(KamikotizationData.CODEC)).build());
 
     // Miraculous Ladybug ability
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<MiraculousLadybugTriggerData>>> MIRACULOUS_LADYBUG_TRIGGER = ATTACHMENT_TYPES.register("miraculous_ladybug_trigger", () -> AttachmentType.builder(Optional::<MiraculousLadybugTriggerData>empty).serialize(optionalCodec(MiraculousLadybugTriggerData.CODEC)).build());
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<MiraculousLadybugTriggerData>>> MIRACULOUS_LADYBUG_TRIGGER = ATTACHMENT_TYPES.register("miraculous_ladybug_trigger", () -> AttachmentType.builder(Optional::<MiraculousLadybugTriggerData>empty).serialize(optionalCodec(MiraculousLadybugTriggerData.CODEC)).sync(optionalStreamCodec(MiraculousLadybugTriggerData.STREAM_CODEC)).build());
 
     private static <T> Codec<Optional<T>> optionalCodec(Codec<T> codec) {
         return codec.optionalFieldOf("data").codec();

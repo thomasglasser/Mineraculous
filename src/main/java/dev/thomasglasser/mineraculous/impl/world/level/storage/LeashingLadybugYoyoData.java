@@ -2,8 +2,6 @@ package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
-import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -28,20 +26,14 @@ public record LeashingLadybugYoyoData(int leashedId, float maxRopeLength) {
     }
 
     public LeashingLadybugYoyoData withMaxRopeLength(float maxRopeLength) {
-        return new LeashingLadybugYoyoData(leashedId, ThrownLadybugYoyo.clampMaxRopeLength(maxRopeLength));
+        return new LeashingLadybugYoyoData(leashedId, ThrownLadybugYoyo.clampMaxRopeLength(maxRopeLength, true));
     }
 
-    public void save(Entity entity, boolean syncToClient) {
+    public void save(Entity entity) {
         entity.setData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO, Optional.of(this));
-        if (syncToClient) {
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO, Optional.of(this)), entity.getServer());
-        }
     }
 
-    public static void remove(Entity entity, boolean syncToClient) {
-        entity.setData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO, Optional.empty());
-        if (syncToClient) {
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO, Optional.<LeashingLadybugYoyoData>empty()), entity.getServer());
-        }
+    public static void remove(Entity entity) {
+        entity.removeData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO);
     }
 }

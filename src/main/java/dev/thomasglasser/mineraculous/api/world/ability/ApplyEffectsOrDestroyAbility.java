@@ -12,6 +12,7 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEn
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionItemData;
 import java.util.Optional;
 import java.util.UUID;
+import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
@@ -21,7 +22,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -40,16 +40,20 @@ import org.jetbrains.annotations.Nullable;
  * @param effects            The {@link MobEffect}s to apply
  * @param effectSettings     The {@link EffectSettings} to use when applying the effects
  * @param damageType         The {@link DamageType} to use on the target (for aggro, credit, and destruction)
+ * @param additive           Whether the effects can be applied additively or replace the existing effects
  * @param overrideKillCredit Whether the target's kill credit should be overridden and given to the performer
  * @param allowBlocking      Whether the target can block the effects with an active blocking item
  * @param dropItem           The {@link Item} to drop in replacement of the blocking item or non-living {@link Entity}'s drops
  * @param applySound         The sound to play when the ability is performed
  */
-public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectSettings effectSettings, Optional<ResourceKey<DamageType>> damageType, boolean overrideKillCredit, boolean allowBlocking, Optional<Item> dropItem, Optional<Holder<SoundEvent>> applySound) implements Ability {
+public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectSettings effectSettings, boolean additive, Optional<EntityPredicate> validEntities, Optional<EntityPredicate> invalidEntities, Optional<ResourceKey<DamageType>> damageType, boolean overrideKillCredit, boolean allowBlocking, Optional<Item> dropItem, Optional<Holder<SoundEvent>> applySound) implements Ability {
 
     public static final MapCodec<ApplyEffectsOrDestroyAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             RegistryCodecs.homogeneousList(Registries.MOB_EFFECT).fieldOf("effects").forGetter(ApplyEffectsOrDestroyAbility::effects),
             EffectSettings.CODEC.optionalFieldOf("effect_settings", EffectSettings.DEFAULT).forGetter(ApplyEffectsOrDestroyAbility::effectSettings),
+            Codec.BOOL.optionalFieldOf("additive", false).forGetter(ApplyEffectsOrDestroyAbility::additive),
+            EntityPredicate.CODEC.optionalFieldOf("valid_entities").forGetter(ApplyEffectsOrDestroyAbility::validEntities),
+            EntityPredicate.CODEC.optionalFieldOf("invalid_entities").forGetter(ApplyEffectsOrDestroyAbility::invalidEntities),
             ResourceKey.codec(Registries.DAMAGE_TYPE).optionalFieldOf("damage_type").forGetter(ApplyEffectsOrDestroyAbility::damageType),
             Codec.BOOL.optionalFieldOf("override_kill_credit", false).forGetter(ApplyEffectsOrDestroyAbility::overrideKillCredit),
             Codec.BOOL.optionalFieldOf("allow_blocking", true).forGetter(ApplyEffectsOrDestroyAbility::allowBlocking),
@@ -59,9 +63,9 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
     @Override
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context instanceof EntityAbilityContext(Entity target)) {
+            if (!isValidEntity(level, performer, target))
+                return State.CANCEL;
             AbilityReversionEntityData.get(level).putRevertible(performer.getUUID(), target);
-            DamageSource source = damageType.map(key -> performer.damageSources().source(key, performer)).orElseGet(() -> performer.damageSources().indirectMagic(performer, performer));
-            target.hurt(source, 1);
             if (target instanceof LivingEntity livingEntity) {
                 if (allowBlocking && livingEntity.isBlocking()) {
                     ItemStack stack = livingEntity.getUseItem();
@@ -76,7 +80,12 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
                     }
                 } else {
                     for (Holder<MobEffect> mobEffect : effects) {
-                        MobEffectInstance effect = new MobEffectInstance(mobEffect, effectSettings.duration(), (data.powerLevel() / 10), effectSettings.ambient(), effectSettings.showParticles(), effectSettings.showIcon());
+                        int amplifier = data.powerLevel() / 10;
+                        MobEffectInstance existing = livingEntity.getEffect(mobEffect);
+                        if (additive && existing != null) {
+                            amplifier += existing.getAmplifier() + 1;
+                        }
+                        MobEffectInstance effect = new MobEffectInstance(mobEffect, effectSettings.duration(), amplifier, effectSettings.ambient(), effectSettings.showParticles(), effectSettings.showIcon());
                         livingEntity.addEffect(effect);
                     }
                 }
@@ -90,27 +99,25 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
                     vehicle.spawnAtLocation(stack);
                 }
             } else {
-                target.hurt(source, 1024);
+                target.hurt(damageType.map(key -> performer.damageSources().source(key, performer)).orElseGet(() -> performer.damageSources().indirectMagic(performer, performer)), 1024);
             }
             performer.setLastHurtMob(target);
             if (overrideKillCredit) {
-                target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withKillCredit(Optional.of(performer.getUUID())).save(target, true);
+                target.getData(MineraculousAttachmentTypes.PERSISTENT_ABILITY_EFFECTS).withKillCreditOverride(Optional.of(performer.getUUID())).save(target);
             }
             Ability.playSound(level, performer, applySound);
-            return State.SUCCESS;
+            return State.CONSUME;
         }
-        return State.FAIL;
+        return State.PASS;
+    }
+
+    public boolean isValidEntity(ServerLevel level, LivingEntity performer, Entity target) {
+        return performer != target && validEntities.map(predicate -> predicate.matches(level, performer.position(), target)).orElse(true) && invalidEntities.map(predicate -> !predicate.matches(level, performer.position(), target)).orElse(true);
     }
 
     @Override
     public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
-        AbilityReversionEntityData.get(level).revert(performer.getUUID(), level, entity -> {
-            if (entity instanceof LivingEntity livingEntity) {
-                for (Holder<MobEffect> effect : effects) {
-                    livingEntity.removeEffect(effect);
-                }
-            }
-        });
+        AbilityReversionEntityData.get(level).revert(performer.getUUID(), level);
         AbilityReversionItemData.get(level).markReverted(performer.getUUID());
     }
 

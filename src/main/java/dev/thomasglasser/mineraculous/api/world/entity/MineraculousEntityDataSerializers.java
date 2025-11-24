@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.api.world.entity;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
@@ -17,11 +17,11 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousEntityDataSerializers {
-    private static final DeferredRegister<EntityDataSerializer<?>> ENTITY_DATA_SERIALIZERS = DeferredRegister.create(NeoForgeRegistries.ENTITY_DATA_SERIALIZERS, Mineraculous.MOD_ID);
+    private static final DeferredRegister<EntityDataSerializer<?>> ENTITY_DATA_SERIALIZERS = DeferredRegister.create(NeoForgeRegistries.ENTITY_DATA_SERIALIZERS, MineraculousConstants.MOD_ID);
 
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<UUID>> UUID = ENTITY_DATA_SERIALIZERS.register("uuid", () -> EntityDataSerializer.forValueType(UUIDUtil.STREAM_CODEC));
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Holder<Miraculous>>> MIRACULOUS = ENTITY_DATA_SERIALIZERS.register("miraculous", () -> EntityDataSerializer.forValueType(Miraculous.STREAM_CODEC));
-    public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Optional<LadybugYoyoItem.Ability>>> OPTIONAL_LADYBUG_YOYO_ABILITY = ENTITY_DATA_SERIALIZERS.register("optional_ladybug_yoyo_ability", () -> EntityDataSerializer.forValueType(ByteBufCodecs.optional(LadybugYoyoItem.Ability.STREAM_CODEC)));
+    public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Optional<LadybugYoyoItem.Mode>>> OPTIONAL_LADYBUG_YOYO_MODE = ENTITY_DATA_SERIALIZERS.register("optional_ladybug_yoyo_mode", () -> EntityDataSerializer.forValueType(ByteBufCodecs.optional(LadybugYoyoItem.Mode.STREAM_CODEC)));
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Optional<ResourceLocation>>> OPTIONAL_RESOURCE_LOCATION = ENTITY_DATA_SERIALIZERS.register("optional_resource_location", () -> EntityDataSerializer.forValueType(TommyLibExtraStreamCodecs.OPTIONAL_RESOURCE_LOCATION));
 
     @ApiStatus.Internal

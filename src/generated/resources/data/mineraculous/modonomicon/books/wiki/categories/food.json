@@ -4,11 +4,11 @@
   "background_parallax_layers": [],
   "background_texture_zoom_multiplier": 1.0,
   "background_width": 512,
-  "description": "",
+  "description": "book.mineraculous.wiki.food.description",
   "display_mode": "index",
   "entry_textures": "modonomicon:textures/gui/entry_textures.png",
   "icon": {
-    "item": "mineraculous:fresh_cheese_wedge"
+    "item": "mineraculous:time_honored_cheese_wedge"
   },
   "max_scroll_x": 512,
   "max_scroll_y": 512,

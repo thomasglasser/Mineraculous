@@ -1,11 +1,11 @@
 package dev.thomasglasser.mineraculous.api.world.miraculous;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.data.curios.MineraculousCuriosProvider;
 import java.util.Optional;
 import net.minecraft.core.HolderGetter;
@@ -24,7 +24,7 @@ public class Miraculouses {
     public static final ResourceKey<Miraculous> LADYBUG = create("ladybug");
 
     private static ResourceKey<Miraculous> create(String name) {
-        return ResourceKey.create(MineraculousRegistries.MIRACULOUS, Mineraculous.modLoc(name));
+        return ResourceKey.create(MineraculousRegistries.MIRACULOUS, MineraculousConstants.modLoc(name));
     }
 
     @ApiStatus.Internal

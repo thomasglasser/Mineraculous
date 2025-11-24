@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
@@ -15,7 +15,7 @@ import net.minecraft.world.entity.player.Player;
 
 public record ServerboundOpenPerformerKamikotizationChatScreenPayload(String performerName, String targetName, Optional<ResourceLocation> faceMaskTexture, UUID targetId) implements ExtendedPacketPayload {
 
-    public static final Type<ServerboundOpenPerformerKamikotizationChatScreenPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_open_performer_kamikotization_chat_screen"));
+    public static final Type<ServerboundOpenPerformerKamikotizationChatScreenPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_open_performer_kamikotization_chat_screen"));
     public static final StreamCodec<ByteBuf, ServerboundOpenPerformerKamikotizationChatScreenPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8, ServerboundOpenPerformerKamikotizationChatScreenPayload::performerName,
             ByteBufCodecs.STRING_UTF8, ServerboundOpenPerformerKamikotizationChatScreenPayload::targetName,
@@ -26,7 +26,7 @@ public record ServerboundOpenPerformerKamikotizationChatScreenPayload(String per
     // ON SERVER
     @Override
     public void handle(Player player) {
-        player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.of(targetId), faceMaskTexture).save(player, true);
+        player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).withPrivateChat(Optional.of(targetId), faceMaskTexture).save(player);
         TommyLibServices.NETWORK.sendToClient(new ClientboundOpenPerformerKamikotizationChatScreenPayload(performerName, targetName, faceMaskTexture, targetId), (ServerPlayer) player);
     }
 

@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 public class YoyoRopeRenderer {
-    public static final ResourceLocation ROPE_TEXTURE = Mineraculous.modLoc("textures/item/ladybug_yoyo_rope.png");
+    public static final ResourceLocation ROPE_TEXTURE = MineraculousConstants.modLoc("textures/item/ladybug_yoyo_rope.png");
 
     private static final int POINTS = 100;
     private static final double CATENARY_CURVE_FACTOR = 2048.0;
@@ -28,7 +28,7 @@ public class YoyoRopeRenderer {
         poseStack.pushPose();
         Vec3 playerHandPos;
         if (ropeOwner == Minecraft.getInstance().player && Minecraft.getInstance().getEntityRenderDispatcher().options.getCameraType().isFirstPerson()) {
-            playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(false, false, partialTick, RIGHT_SCALE, UP_SCALE);
+            playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(false, true, partialTick, RIGHT_SCALE, UP_SCALE);
         } else {
             playerHandPos = MineraculousClientUtils.getHumanoidEntityHandPos(ropeOwner, false, partialTick, 0.15f, -0.75, 0.35f);
         }
@@ -53,7 +53,7 @@ public class YoyoRopeRenderer {
         Vec3 ropeThickness = getSegmentThickness(projectilePos, playerHandPos);
 
         double length = fromProjectileToHand.length();
-        if (length >= maxLength || maxLength > 50) { // If it's bigger than 50 it starts looking weird.
+        if (length >= maxLength) {
             vertex(vertexConsumer, pose, (float) -ropeThickness.x, (float) -ropeThickness.y, (float) -ropeThickness.z, 0f, 1f);
             vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x - ropeThickness.x), (float) (fromProjectileToHand.y - ropeThickness.y), (float) (fromProjectileToHand.z - ropeThickness.z), 1f, 1f);
             vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x + ropeThickness.x), (float) (fromProjectileToHand.y + ropeThickness.y), (float) (fromProjectileToHand.z + ropeThickness.z), 1f, 0f);
@@ -104,10 +104,6 @@ public class YoyoRopeRenderer {
                         - (2 * i * (maxLength - i * maxLength / (POINTS + 1)) / CATENARY_CURVE_FACTOR);
                 points.add(new RopePoint(x, y, fromProjectileToHandOnXZ));
             }
-
-            lastProjectilePos = projectilePos;
-            lastPlayerHandPos = playerHandPos;
-            lastMaxLength = maxLength;
         }
 
         return points;
@@ -148,8 +144,7 @@ public class YoyoRopeRenderer {
         Vec3 fromPOVToRope = new Vec3(projectionX - fromProjectileToPOV.x, projectionY - fromProjectileToPOV.y, projectionZ - fromProjectileToPOV.z);
 
         Vec3 segmentThinkness = fromPOVToRope.cross(fromProjectileToPOV);
-        segmentThinkness = segmentThinkness.scale(1 / segmentThinkness.length());
-        segmentThinkness = segmentThinkness.scale(0.02d); //0.02 is the thickness
+        segmentThinkness = segmentThinkness.normalize().scale(0.025);//0.025 thickness
         return segmentThinkness;
     }
 }

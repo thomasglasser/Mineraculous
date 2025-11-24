@@ -1,0 +1,168 @@
+{
+  "background_u_index": 0,
+  "background_v_index": 0,
+  "category": "miraculouses",
+  "description": "book.mineraculous.wiki.miraculouses.butterfly.description",
+  "hide_while_locked": false,
+  "icon": {
+    "components": {
+      "mineraculous:miraculous": "mineraculous:butterfly"
+    },
+    "item": "mineraculous:miraculous"
+  },
+  "name": "book.mineraculous.wiki.miraculouses.butterfly.name",
+  "pages": [
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/charging.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculouses.butterfly.charging.text",
+      "title": "book.mineraculous.wiki.miraculouses.butterfly.charging.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.miraculouses.butterfly.abilities.text",
+      "title": "book.mineraculous.wiki.miraculouses.butterfly.abilities.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/abilities/kamikotization.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculouses.butterfly.kamikotization.text",
+      "title": "book.mineraculous.wiki.miraculouses.butterfly.kamikotization.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/abilities/kamiko_control.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculouses.butterfly.kamiko_control.text",
+      "title": "book.mineraculous.wiki.miraculouses.butterfly.kamiko_control.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/abilities/kamikotized_communication.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculouses.butterfly.kamikotized_communication.text",
+      "title": "book.mineraculous.wiki.miraculouses.butterfly.kamikotized_communication.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/cane/abilities.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculouses.butterfly.cane_abilities.text",
+      "title": "book.mineraculous.wiki.miraculouses.butterfly.cane_abilities.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/cane/blade.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculouses.butterfly.blade.text",
+      "title": "book.mineraculous.wiki.miraculouses.butterfly.blade.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.miraculouses.butterfly.block.text",
+      "title": "book.mineraculous.wiki.miraculouses.butterfly.block.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/cane/kamiko_store.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculouses.butterfly.kamiko_store.text",
+      "title": "book.mineraculous.wiki.miraculouses.butterfly.kamiko_store.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/cane/spyglass.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculouses.butterfly.spyglass.text",
+      "title": "book.mineraculous.wiki.miraculouses.butterfly.spyglass.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculouses/butterfly/cane/throw.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculouses.butterfly.throw.text",
+      "title": "book.mineraculous.wiki.miraculouses.butterfly.throw.title",
+      "use_legacy_rendering": false
+    }
+  ],
+  "show_when_any_parent_unlocked": false,
+  "sort_number": 5,
+  "x": 0,
+  "y": 0
+}

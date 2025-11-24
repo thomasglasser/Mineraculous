@@ -32,24 +32,24 @@ public class ContextDependentCurioRenderer implements ICurioRenderer {
             // TODO: Convert to event to get context for identifier
             ItemDisplayContext displayContext = switch (slotContext.identifier()) {
                 case MineraculousCuriosProvider.SLOT_RING -> MineraculousItemDisplayContexts.CURIOS_RIGHT_ARM.getValue();
-                case MineraculousCuriosProvider.SLOT_EARRINGS -> MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue();
+                case MineraculousCuriosProvider.SLOT_EARRINGS -> MineraculousItemDisplayContexts.CURIOS_LEFT_EARRING.getValue();
                 default -> MineraculousItemDisplayContexts.CURIOS_BODY.getValue();
             };
             getPart(displayContext, humanoidModel).translateAndRotate(poseStack);
             if (renderer == null)
                 renderer = new ItemInHandRenderer(Minecraft.getInstance(), Minecraft.getInstance().getEntityRenderDispatcher(), Minecraft.getInstance().getItemRenderer());
             renderer.renderItem(slotContext.entity(), stack, displayContext, false, poseStack, renderTypeBuffer, light);
-            if (displayContext == MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue()) {
+            if (displayContext == MineraculousItemDisplayContexts.CURIOS_LEFT_EARRING.getValue()) {
                 poseStack.mulPose(Axis.YP.rotationDegrees(180));
                 poseStack.translate(0, 0, 1 / 16f);
-                renderer.renderItem(slotContext.entity(), stack, displayContext, false, poseStack, renderTypeBuffer, light);
+                renderer.renderItem(slotContext.entity(), stack, MineraculousItemDisplayContexts.CURIOS_RIGHT_EARRING.getValue(), false, poseStack, renderTypeBuffer, light);
             }
             poseStack.popPose();
         }
     }
 
     private static ModelPart getPart(ItemDisplayContext context, HumanoidModel<?> model) {
-        if (context == MineraculousItemDisplayContexts.CURIOS_HEAD.getValue() || context == MineraculousItemDisplayContexts.CURIOS_EARRINGS.getValue()) {
+        if (context == MineraculousItemDisplayContexts.CURIOS_HEAD.getValue() || context == MineraculousItemDisplayContexts.CURIOS_LEFT_EARRING.getValue()) {
             return model.head;
         } else if (context == MineraculousItemDisplayContexts.CURIOS_RIGHT_ARM.getValue()) {
             return model.rightArm;

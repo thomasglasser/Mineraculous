@@ -6,28 +6,35 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import net.minecraft.client.GraphicsStatus;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
 
-public class MineraculousParticleRenderTypes { //i want to add more for mlb thats why i made this class.
-    public static final ParticleRenderType ADDITIVE_PARTICLE = new ParticleRenderType() {
+public class MineraculousParticleRenderTypes {
+    public static final ParticleRenderType PARTICLE_SHEET_ADDITIVE_TRANSLUCENT = new ParticleRenderType() {
         @Override
-        public BufferBuilder begin(Tesselator tesselator, TextureManager textureManager) {
-            RenderSystem.depthMask(true);
-            RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
+        public BufferBuilder begin(Tesselator buffer, TextureManager textureManager) {
+            Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
+            boolean fabulous = Minecraft.getInstance().options.graphicsMode().get() == GraphicsStatus.FABULOUS;
             RenderSystem.enableBlend();
-            RenderSystem.blendFunc(
-                    GlStateManager.SourceFactor.SRC_ALPHA,
-                    GlStateManager.DestFactor.ONE); // additive blending
+            if (fabulous)
+                RenderSystem.blendFunc(
+                        GlStateManager.SourceFactor.SRC_ALPHA.value,
+                        GlStateManager.DestFactor.ONE.value);
             RenderSystem.depthMask(false);
-            return tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
+            RenderSystem.enableCull();
+            RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
+            RenderSystem.enableDepthTest();
+
+            return buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
         }
 
         @Override
         public String toString() {
-            return Mineraculous.modLoc("additive_particle").toString();
+            return MineraculousConstants.MOD_ID + ":PARTICLE_SHEET_ADDITIVE_TRANSLUCENT";
         }
     };
 }

@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.SpecialPlayerData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 public record ClientboundUpdateSpecialPlayerDataPayload(UUID uuid, SpecialPlayerData specialPlayerData) implements ExtendedPacketPayload {
-    public static final Type<ClientboundUpdateSpecialPlayerDataPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_update_special_player_data"));
+    public static final Type<ClientboundUpdateSpecialPlayerDataPayload> TYPE = new Type<>(MineraculousConstants.modLoc("clientbound_update_special_player_data"));
     public static final StreamCodec<FriendlyByteBuf, ClientboundUpdateSpecialPlayerDataPayload> CODEC = StreamCodec.composite(
             UUIDUtil.STREAM_CODEC, ClientboundUpdateSpecialPlayerDataPayload::uuid,
             SpecialPlayerData.STREAM_CODEC, ClientboundUpdateSpecialPlayerDataPayload::specialPlayerData,

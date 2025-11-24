@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.item.armor;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.KamikotizationArmorItem;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.MiraculousArmorItem;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
@@ -13,7 +13,7 @@ import net.minecraft.world.item.Rarity;
 import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousArmors {
-    private static final DeferredRegister.Items ARMORS = DeferredRegister.createItems(Mineraculous.MOD_ID);
+    private static final DeferredRegister.Items ARMORS = DeferredRegister.createItems(MineraculousConstants.MOD_ID);
 
     public static final ArmorSet MIRACULOUS = createMiraculousSet();
     public static final ArmorSet KAMIKOTIZATION = createKamikotizationSet();

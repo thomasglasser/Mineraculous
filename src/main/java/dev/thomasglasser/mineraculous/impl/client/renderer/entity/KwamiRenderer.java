@@ -3,14 +3,15 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.MiniHolidayHatGeoLayer;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -27,6 +28,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -46,7 +48,7 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
     private final Map<Holder<Miraculous>, GeoModel<T>> models = new Reference2ReferenceOpenHashMap<>();
 
     public KwamiRenderer(EntityRendererProvider.Context renderManager) {
-        super(renderManager, new DefaultedEntityGeoModel<>(Mineraculous.modLoc("summoning_cube")) {
+        super(renderManager, new DefaultedEntityGeoModel<>(MineraculousConstants.modLoc("summoning_cube")) {
             @Override
             public @Nullable Animation getAnimation(T animatable, String name) {
                 return null;
@@ -60,9 +62,8 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
         }, (bone, character) -> null) {
             @Override
             protected void renderStackForBone(PoseStack poseStack, GeoBone bone, ItemStack stack, T animatable, MultiBufferSource bufferSource, float partialTick, int packedLight, int packedOverlay) {
-                poseStack.translate(-0.1, 0, 0);
-                poseStack.mulPose(Axis.XP.rotationDegrees(180.0F));
-                poseStack.mulPose(Axis.ZN.rotationDegrees(30));
+                poseStack.translate(0, 0, -0.05);
+                poseStack.mulPose(Axis.ZN.rotationDegrees(180));
                 super.renderStackForBone(poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);
             }
 
@@ -81,7 +82,7 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
 
     @Override
     public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
-        if (isInCubeForm(animatable)) {
+        if (animatable.isInCubeForm()) {
             int summonTicks = animatable.getSummonTicks();
             float progress = summonTicks > 0 ? (float) summonTicks / (SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt()) : 0.5F;
             int color = animatable.getMiraculous().value().color().getValue();
@@ -138,18 +139,18 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
     @Override
     public GeoModel<T> getGeoModel() {
         T animatable = getAnimatable();
-        if (animatable != null && !isInCubeForm(animatable)) {
+        if (animatable != null && !animatable.isInCubeForm()) {
             Holder<Miraculous> miraculous = animatable.getMiraculous();
             if (miraculous != null) {
                 if (!models.containsKey(miraculous))
-                    models.put(miraculous, createGeoModel(miraculous));
+                    models.put(miraculous, createGeoModel(miraculous, Kwami::isCharged));
                 return models.get(miraculous);
             }
         }
         return super.getGeoModel();
     }
 
-    private GeoModel<T> createGeoModel(Holder<Miraculous> miraculous) {
+    public static <T extends GeoAnimatable> GeoModel<T> createGeoModel(Holder<Miraculous> miraculous, Predicate<T> chargedPredicate) {
         return new DefaultedEntityGeoModel<>(miraculous.getKey().location().withPrefix("miraculous/")) {
             private ResourceLocation hungryTexture;
 
@@ -158,7 +159,7 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
                 if (hungryTexture == null) {
                     hungryTexture = super.getTextureResource(animatable).withPath(path -> path.replace(".png", "_hungry.png"));
                 }
-                if (!animatable.isCharged())
+                if (!chargedPredicate.test(animatable))
                     return hungryTexture;
                 return super.getTextureResource(animatable);
             }
@@ -167,13 +168,9 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
 
     @Override
     public Color getRenderColor(T animatable, float partialTick, int packedLight) {
-        if (isInCubeForm(animatable)) {
+        if (animatable.isInCubeForm()) {
             return COLORS.computeIfAbsent(animatable.getMiraculous().value().color().getValue(), Color::new);
         }
         return super.getRenderColor(animatable, partialTick, packedLight);
-    }
-
-    private boolean isInCubeForm(T animatable) {
-        return animatable.getSummonTicks() > 0 || animatable.isTransforming();
     }
 }

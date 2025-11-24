@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Player;
 
 public record ServerboundMiraculousTransformPayload(Holder<Miraculous> miraculous, MiraculousData data, boolean transform) implements ExtendedPacketPayload {
 
-    public static final Type<ServerboundMiraculousTransformPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_miraculous_transform"));
+    public static final Type<ServerboundMiraculousTransformPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_miraculous_transform"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundMiraculousTransformPayload> CODEC = StreamCodec.composite(
             Miraculous.STREAM_CODEC, ServerboundMiraculousTransformPayload::miraculous,
             MiraculousData.STREAM_CODEC, ServerboundMiraculousTransformPayload::data,

@@ -5,7 +5,7 @@
   "description": "book.mineraculous.wiki.apis.tags.description",
   "hide_while_locked": false,
   "icon": {
-    "item": "mineraculous:fresh_camembert_wedge"
+    "item": "mineraculous:fresh_cheese_wedge"
   },
   "name": "book.mineraculous.wiki.apis.tags.name",
   "pages": [
@@ -16,8 +16,8 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.apis.tags.generator.text",
-      "title": "book.mineraculous.wiki.apis.tags.generator.title",
+      "text": "book.mineraculous.wiki.apis.tags.generators.text",
+      "title": "book.mineraculous.wiki.apis.tags.generators.title",
       "use_markdown_in_title": false
     },
     {
@@ -38,6 +38,28 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.tags.damage_type.text",
+      "title": "book.mineraculous.wiki.apis.tags.damage_type.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.tags.entity_type.text",
+      "title": "book.mineraculous.wiki.apis.tags.entity_type.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
       "text": "book.mineraculous.wiki.apis.tags.item.text",
       "title": "book.mineraculous.wiki.apis.tags.item.title",
       "use_markdown_in_title": false
@@ -49,8 +71,8 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.apis.tags.damage_type.text",
-      "title": "book.mineraculous.wiki.apis.tags.damage_type.title",
+      "text": "book.mineraculous.wiki.apis.tags.miraculous.text",
+      "title": "book.mineraculous.wiki.apis.tags.miraculous.title",
       "use_markdown_in_title": false
     }
   ],

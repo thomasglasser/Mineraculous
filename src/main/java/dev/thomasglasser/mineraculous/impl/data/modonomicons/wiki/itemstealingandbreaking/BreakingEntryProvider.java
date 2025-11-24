@@ -3,8 +3,9 @@ package dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.itemstealinga
 import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
-import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
-import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.WikiBookSubProvider;
+import com.klikli_dev.modonomicon.api.datagen.book.page.BookSpotlightPageModel;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
 public class BreakingEntryProvider extends IndexModeEntryProvider {
@@ -16,17 +17,21 @@ public class BreakingEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected void generatePages() {
-        page("breaking", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("item_stealing_and_breaking/breaking.png"))
+        ItemStack broken = Items.OBSIDIAN.getDefaultInstance();
+        broken.set(DataComponents.MAX_DAMAGE, 2);
+        broken.setDamageValue(1);
+        page("breaking", () -> BookSpotlightPageModel.create()
+                .withItem(broken)
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Breaking");
         pageText("""
-                You can break items by pressing the Take/Break Item key (default: I).
-                The item will be damaged based on its max damage, block durability, or toughness.
+                You can break items by pressing the Take/Break Item key (default: B).
+                The item will be damaged based on its durability, block break time, or toughness.
                 Some items cannot be broken, such as miraculous or unbreakable blocks and items.
-                Tough items are defined with the 'tough' [tag](entry://apis/tags).
+                Tough items are defined with the "mineraculous:tough" [tag](entry://apis/tags).
+                Unbreakable items have the "minecraft:unbreakable" data component.
                 """);
     }
 
@@ -37,12 +42,14 @@ public class BreakingEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "Destroying items";
+        return "Destroying items to release anything inside.";
     }
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(Items.COAL);
+        ItemStack broken = Items.ELYTRA.getDefaultInstance();
+        broken.setDamageValue(broken.getMaxDamage() - 1);
+        return BookIconModel.create(broken);
     }
 
     @Override

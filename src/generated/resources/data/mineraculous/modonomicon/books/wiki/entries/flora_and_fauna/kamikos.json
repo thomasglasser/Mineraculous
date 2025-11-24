@@ -6,7 +6,7 @@
   "hide_while_locked": false,
   "icon": {
     "height": 16,
-    "texture": "mineraculous:textures/modonomicon/wiki/flora_and_fauna/kamikos/powered.png",
+    "texture": "mineraculous:textures/modonomicon/wiki/expansions/akumatization/icon.png",
     "width": 16
   },
   "name": "book.mineraculous.wiki.flora_and_fauna.kamikos.name",
@@ -30,24 +30,10 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/flora_and_fauna/kamikos/unpowered.png"
+        "mineraculous:textures/modonomicon/wiki/flora_and_fauna/kamikos/kamiko.png"
       ],
-      "text": "book.mineraculous.wiki.flora_and_fauna.kamikos.unpowered.text",
-      "title": "book.mineraculous.wiki.flora_and_fauna.kamikos.unpowered.title",
-      "use_legacy_rendering": false
-    },
-    {
-      "type": "modonomicon:image",
-      "anchor": "",
-      "border": true,
-      "condition": {
-        "type": "modonomicon:none"
-      },
-      "images": [
-        "mineraculous:textures/modonomicon/wiki/flora_and_fauna/kamikos/powered.png"
-      ],
-      "text": "book.mineraculous.wiki.flora_and_fauna.kamikos.powered.text",
-      "title": "book.mineraculous.wiki.flora_and_fauna.kamikos.powered.title",
+      "text": "book.mineraculous.wiki.flora_and_fauna.kamikos.behavior.text",
+      "title": "book.mineraculous.wiki.flora_and_fauna.kamikos.behavior.title",
       "use_legacy_rendering": false
     }
   ],

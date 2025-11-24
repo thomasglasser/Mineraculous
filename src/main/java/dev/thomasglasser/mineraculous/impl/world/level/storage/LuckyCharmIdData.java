@@ -32,21 +32,9 @@ public class LuckyCharmIdData extends SavedData {
             LuckyCharm luckyCharm = stack.get(MineraculousDataComponents.LUCKY_CHARM);
             if (luckyCharm != null) {
                 int charmId = luckyCharm.id();
-                UUID stackId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
-                if (stackId != null) {
-                    int currentId = getLuckyCharmId(stackId);
-                    if (currentId != charmId) {
-                        stack.setCount(0);
-                    }
-                } else if (stack.has(MineraculousDataComponents.KAMIKOTIZATION)) {
-                    UUID owner = stack.get(MineraculousDataComponents.OWNER);
-                    if (owner != null) {
-                        int currentId = getLuckyCharmId(owner);
-                        if (currentId != charmId) {
-                            stack.setCount(0);
-                        }
-                    }
-                }
+                int currentId = getLuckyCharmId(luckyCharm.owner());
+                if (charmId != currentId)
+                    stack.setCount(0);
             }
         }
     }

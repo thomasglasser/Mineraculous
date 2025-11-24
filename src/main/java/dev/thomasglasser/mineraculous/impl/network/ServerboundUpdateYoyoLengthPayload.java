@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 public record ServerboundUpdateYoyoLengthPayload(boolean increase) implements ExtendedPacketPayload {
-    public static final Type<ServerboundUpdateYoyoLengthPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_update_yoyo_length"));
+    public static final Type<ServerboundUpdateYoyoLengthPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_update_yoyo_length"));
     public static final StreamCodec<ByteBuf, ServerboundUpdateYoyoLengthPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL, ServerboundUpdateYoyoLengthPayload::increase,
             ServerboundUpdateYoyoLengthPayload::new);
@@ -37,7 +37,7 @@ public record ServerboundUpdateYoyoLengthPayload(boolean increase) implements Ex
                 TommyLibServices.NETWORK.sendToAllClients(new ClientboundCalculateYoyoRenderLengthPayload(thrownYoyo.getId(), player.getId()), player.getServer());
             }
         } else {
-            player.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).ifPresent(leashingData -> leashingData.withMaxRopeLength(leashingData.maxRopeLength() + (increase ? 0.5f : -0.5f)).save(player, true));
+            player.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).ifPresent(leashingData -> leashingData.withMaxRopeLength(leashingData.maxRopeLength() + (increase ? 0.5f : -0.5f)).save(player));
         }
     }
 

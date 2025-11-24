@@ -1,0 +1,86 @@
+{
+  "base": {
+    "parent": "minecraft:builtin/entity",
+    "display": {
+      "firstperson_lefthand": {
+        "translation": [
+          0,
+          -24,
+          0
+        ]
+      },
+      "firstperson_righthand": {
+        "translation": [
+          0,
+          -24,
+          0
+        ]
+      },
+      "head": {
+        "scale": [
+          1.6,
+          1.6,
+          1.6
+        ],
+        "translation": [
+          0,
+          -47,
+          -10.75
+        ]
+      },
+      "mineraculous:curios_body": {
+        "rotation": [
+          180,
+          0,
+          45
+        ],
+        "scale": [
+          0.8,
+          0.8,
+          0.8
+        ],
+        "translation": [
+          8.67,
+          12.5,
+          2.3
+        ]
+      },
+      "thirdperson_lefthand": {
+        "translation": [
+          0,
+          -18,
+          2
+        ]
+      },
+      "thirdperson_righthand": {
+        "translation": [
+          0,
+          -18,
+          2
+        ]
+      }
+    }
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "fixed": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/butterfly_cane_spyglass"
+      }
+    },
+    "ground": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/butterfly_cane_spyglass"
+      }
+    },
+    "gui": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/butterfly_cane_spyglass"
+      }
+    }
+  }
+}

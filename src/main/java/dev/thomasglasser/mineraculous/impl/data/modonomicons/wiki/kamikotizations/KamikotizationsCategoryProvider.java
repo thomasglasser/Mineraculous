@@ -15,7 +15,6 @@ public class KamikotizationsCategoryProvider extends IndexModeCategoryProvider {
     @Override
     protected void generateEntries() {
         add(new GeneralEntryProvider(this).generate());
-        add(new CustomizationEntryProvider(this).generate());
     }
 
     @Override
@@ -25,7 +24,7 @@ public class KamikotizationsCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected String categoryDescription() {
-        return "Powers given by the Butterfly Miraculous to normal players. Addons can add entries to this category describing their kamikotizations (see the Modonomicon Wiki for more info).";
+        return "Powers given by the Butterfly Miraculous to normal players. Addons can inject entries to this category describing their kamikotizations (see the Modonomicon Wiki for more info).";
     }
 
     @Override

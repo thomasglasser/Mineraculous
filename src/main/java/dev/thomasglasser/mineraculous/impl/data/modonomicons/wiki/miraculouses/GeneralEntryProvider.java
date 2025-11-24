@@ -1,0 +1,104 @@
+package dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.miraculouses;
+
+import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
+import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
+import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
+import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
+import com.klikli_dev.modonomicon.api.datagen.book.page.BookTextPageModel;
+import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
+import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.WikiBookSubProvider;
+
+public class GeneralEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "general";
+
+    public GeneralEntryProvider(CategoryProviderBase parent) {
+        super(parent);
+    }
+
+    @Override
+    protected void generatePages() {
+        page("obtaining", () -> BookImagePageModel.create()
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/general/obtaining.png"))
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        pageTitle("Obtaining");
+        pageText("""
+                The only way to obtain a miraculous currently is via the creative menu in the Miraculous tab.
+                """);
+
+        page("activating", () -> BookTextPageModel.create()
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        pageTitle("Activating");
+        pageText("""
+                To activate a miraculous, simply place it in the correct Curios slot. This can be done by right-clicking with the Miraculous in your hand.
+                """);
+
+        page("transforming", () -> BookTextPageModel.create()
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        pageTitle("Transforming");
+        pageText("""
+                To transform with a miraculous equipped, press the Transform button (default: M).
+                """);
+
+        page("using_abilities", () -> BookTextPageModel.create()
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        pageTitle("Using Abilities");
+        pageText("""
+                To use an ability with a miraculous equipped, press the Activate Power button (default: O).
+                """);
+
+        page("timer", () -> BookImagePageModel.create()
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/general/timer.png"))
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        pageTitle("Timer");
+        pageText("""
+                Once you perform your main ability, a five minute timer will start.
+                When the timer runs out, you will be automatically detransformed.
+                You can track the remaining time by looking at the miraculous or listening to the frequency of the beeps.
+                This timer will no longer apply when you reach Power Level 100.
+                """);
+
+        page("using_tool", () -> BookTextPageModel.create()
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        pageTitle("Using the Tool");
+        pageText("""
+                When you transform, the tool will be automatically equipped in a curios slot or added to your inventory.
+                You can take and return the tool to this slot when not activated by pressing the Open Item Radial Menu button (default: R).
+                You can also activate the tool by pressing the De/Activate Item button (default: I).
+                When activated, you can hold the Open Item Radial Menu button (default: R) to open the tool's radial menu and select a tool ability.
+                """);
+    }
+
+    @Override
+    protected String entryName() {
+        return "General";
+    }
+
+    @Override
+    protected String entryDescription() {
+        return "Features of all miraculous";
+    }
+
+    @Override
+    protected BookIconModel entryIcon() {
+        return BookIconModel.create(Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.head(), registries().holderOrThrow(Miraculouses.LADYBUG)));
+    }
+
+    @Override
+    protected String entryId() {
+        return ID;
+    }
+}

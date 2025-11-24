@@ -17,39 +17,68 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/item/aged_wedge_of_cheese.png"
+        "mineraculous:textures/modonomicon/wiki/food/cheese/ageing.png"
       ],
-      "text": "book.mineraculous.wiki.food.cheese.cheese.text",
-      "title": "book.mineraculous.wiki.food.cheese.cheese.title",
+      "text": "book.mineraculous.wiki.food.cheese.ageing.text",
+      "title": "book.mineraculous.wiki.food.cheese.ageing.title",
       "use_legacy_rendering": false
     },
     {
-      "type": "modonomicon:image",
+      "type": "modonomicon:spotlight",
       "anchor": "",
-      "border": true,
       "condition": {
         "type": "modonomicon:none"
       },
-      "images": [
-        "mineraculous:textures/item/aged_wedge_of_camembert.png"
-      ],
-      "text": "book.mineraculous.wiki.food.cheese.camembert.text",
-      "title": "book.mineraculous.wiki.food.cheese.camembert.title",
-      "use_legacy_rendering": false
+      "item": {
+        "components": {
+          "minecraft:block_state": {
+            "missing_pieces": "1"
+          }
+        },
+        "count": 1,
+        "item": "mineraculous:aged_camembert_block"
+      },
+      "text": "book.mineraculous.wiki.food.cheese.eating.text",
+      "title": "book.mineraculous.wiki.food.cheese.eating.title"
     },
     {
-      "type": "modonomicon:image",
+      "type": "modonomicon:spotlight",
       "anchor": "",
-      "border": true,
       "condition": {
         "type": "modonomicon:none"
       },
-      "images": [
-        "mineraculous:textures/item/cheese_pot.png"
-      ],
+      "item": {
+        "count": 1,
+        "item": "mineraculous:cheese_pot"
+      },
       "text": "book.mineraculous.wiki.food.cheese.finding.text",
-      "title": "book.mineraculous.wiki.food.cheese.finding.title",
-      "use_legacy_rendering": false
+      "title": "book.mineraculous.wiki.food.cheese.finding.title"
+    },
+    {
+      "type": "modonomicon:spotlight",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "item": {
+        "count": 1,
+        "item": "mineraculous:aged_cheese_block"
+      },
+      "text": "book.mineraculous.wiki.food.cheese.cheese.text",
+      "title": "book.mineraculous.wiki.food.cheese.cheese.title"
+    },
+    {
+      "type": "modonomicon:spotlight",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "item": {
+        "count": 1,
+        "item": "mineraculous:aged_camembert_wedge"
+      },
+      "text": "book.mineraculous.wiki.food.cheese.camembert.text",
+      "title": "book.mineraculous.wiki.food.cheese.camembert.title"
     }
   ],
   "show_when_any_parent_unlocked": false,

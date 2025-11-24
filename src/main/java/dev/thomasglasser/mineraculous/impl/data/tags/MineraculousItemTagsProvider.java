@@ -1,11 +1,11 @@
 package dev.thomasglasser.mineraculous.impl.data.tags;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousBlockTags;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.tommylib.api.data.tags.ExtendedItemTagsProvider;
 import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;
@@ -23,19 +23,25 @@ import org.jetbrains.annotations.Nullable;
 
 public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
     public MineraculousItemTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, CompletableFuture<TagLookup<Block>> blockLookup, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, lookupProvider, blockLookup, Mineraculous.MOD_ID, existingFileHelper);
+        super(output, lookupProvider, blockLookup, MineraculousConstants.MOD_ID, existingFileHelper);
     }
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         addKwamiFoods();
-        addCheeses();
+        addFoods();
         addArmors();
         addArmorTrims();
         addCurios();
         addAbilities();
 
         // Misc
+        tag(ItemTags.SMALL_FLOWERS)
+                .add(MineraculousBlocks.HIBISCUS_BUSH.asItem());
+
+        tag(MineraculousItemTags.KAMIKOTIZATION_IMMUNE)
+                .add(MineraculousItems.KWAMI);
+
         tag(MineraculousItemTags.TOUGH)
                 .add(Items.NETHER_STAR)
                 .add(Items.TOTEM_OF_UNDYING)
@@ -55,7 +61,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
     }
 
     protected void curios(String slot, Item... items) {
-        IntrinsicTagAppender<Item> curios = tag(TagKey.create(Registries.ITEM, Mineraculous.Dependencies.CURIOS.modLoc(slot)));
+        IntrinsicTagAppender<Item> curios = tag(TagKey.create(Registries.ITEM, MineraculousConstants.Dependencies.CURIOS.modLoc(slot)));
 
         for (Item item : items) {
             curios.add(item);
@@ -64,43 +70,50 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
 
     protected void curios(Item item, String... slots) {
         for (String slot : slots) {
-            IntrinsicTagAppender<Item> curios = tag(TagKey.create(Registries.ITEM, Mineraculous.Dependencies.CURIOS.modLoc(slot)));
+            IntrinsicTagAppender<Item> curios = tag(TagKey.create(Registries.ITEM, MineraculousConstants.Dependencies.CURIOS.modLoc(slot)));
             curios.add(item);
         }
     }
 
     private void addKwamiFoods() {
         // Ladybug
-        tag(MineraculousItemTags.LADYBUG_KWAMI_FOODS)
+        tag(MineraculousItemTags.LADYBUG_KWAMI_PREFERRED_FOODS)
                 .add(Items.BREAD);
 
         tag(MineraculousItemTags.LADYBUG_KWAMI_TREATS)
+                .add(MineraculousItems.MACARON)
                 .add(Items.COOKIE)
                 .add(Items.CAKE);
 
         // Cat
-        tag(MineraculousItemTags.CAT_KWAMI_FOODS)
-                .addTag(MineraculousItemTags.CHEESES_FOODS);
+        tag(MineraculousItemTags.CAT_KWAMI_PREFERRED_FOODS)
+                .addTag(MineraculousItemTags.CHEESES_FOODS)
+                .addTag(MineraculousItemTags.CHEESE_BLOCKS_FOODS);
 
         tag(MineraculousItemTags.CAT_KWAMI_TREATS)
                 .addTag(MineraculousItemTags.CAMEMBERT)
-                .addTag(MineraculousItemTags.CHEESE_BLOCKS_FOODS);
+                .addTag(MineraculousItemTags.CAMEMBERT_BLOCKS);
 
         // Butterfly
-        tag(MineraculousItemTags.BUTTERFLY_KWAMI_FOODS)
-                .addTag(ItemTags.FLOWERS);
+        tag(MineraculousItemTags.BUTTERFLY_KWAMI_PREFERRED_FOODS)
+                .addTag(ItemTags.SMALL_FLOWERS);
 
         tag(MineraculousItemTags.BUTTERFLY_KWAMI_TREATS)
                 .add(MineraculousBlocks.HIBISCUS_BUSH.asItem());
     }
 
-    private void addCheeses() {
+    private void addFoods() {
+        tag(ConventionalItemTags.FOODS)
+                .add(MineraculousItems.RAW_MACARON)
+                .add(MineraculousItems.MACARON)
+                .addTag(MineraculousItemTags.CHEESES_FOODS);
+
+        tag(ItemTags.DYEABLE)
+                .add(MineraculousItems.RAW_MACARON);
+
         tag(MineraculousItemTags.CHEESES_FOODS)
                 .addTag(MineraculousItemTags.CHEESE)
                 .addTag(MineraculousItemTags.CAMEMBERT);
-
-        tag(ConventionalItemTags.FOODS)
-                .addTag(MineraculousItemTags.CHEESES_FOODS);
 
         ItemLikeTagAppender cheese = tag(MineraculousItemTags.CHEESE);
         MineraculousItems.CHEESE.values().forEach(cheese::add);
@@ -146,6 +159,12 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         // Lucky Charm
         tag(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE)
                 .add(MineraculousItems.GREAT_SWORD);
+
+        tag(MineraculousItemTags.SHOOTING_PROJECTILES)
+                .add(MineraculousItems.BUTTERFLY_CANE)
+                .add(MineraculousItems.CAT_STAFF)
+                .add(Items.TRIDENT)
+                .addTag(ItemTags.ARROWS);
 
         tag(MineraculousItemTags.GENERIC_LUCKY_CHARMS)
                 .add(Items.APPLE)

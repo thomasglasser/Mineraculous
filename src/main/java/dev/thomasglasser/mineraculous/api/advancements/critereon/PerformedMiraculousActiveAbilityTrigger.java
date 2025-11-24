@@ -30,31 +30,27 @@ public class PerformedMiraculousActiveAbilityTrigger extends SimpleCriterionTrig
         this.trigger(player, instance -> instance.matches(miraculous, context));
     }
 
-    public record TriggerInstance(Optional<ContextAwarePredicate> player, ResourceKey<Miraculous> miraculous, Optional<List<String>> contexts) implements SimpleInstance {
+    public record TriggerInstance(Optional<ContextAwarePredicate> player, Optional<ResourceKey<Miraculous>> miraculous, Optional<List<String>> contexts) implements SimpleInstance {
 
         static final Codec<TriggerInstance> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 EntityPredicate.ADVANCEMENT_CODEC.optionalFieldOf("player").forGetter(TriggerInstance::player),
-                ResourceKey.codec(MineraculousRegistries.MIRACULOUS).fieldOf("miraculous").forGetter(TriggerInstance::miraculous),
+                ResourceKey.codec(MineraculousRegistries.MIRACULOUS).optionalFieldOf("miraculous").forGetter(TriggerInstance::miraculous),
                 Codec.STRING.listOf().optionalFieldOf("contexts").forGetter(TriggerInstance::contexts))
                 .apply(instance, TriggerInstance::new));
-        public static Criterion<TriggerInstance> performedActiveAbility(ResourceKey<Miraculous> miraculous) {
-            return performedActiveAbility(miraculous, Optional.empty());
+        public static Criterion<TriggerInstance> performedActiveAbility() {
+            return performedActiveAbility(Optional.empty(), Optional.empty(), Optional.empty());
         }
 
         public static Criterion<TriggerInstance> performedActiveAbility(ResourceKey<Miraculous> miraculous, String... contexts) {
-            return performedActiveAbility(miraculous, Optional.of(ReferenceArrayList.of(contexts)));
+            return performedActiveAbility(Optional.empty(), Optional.of(miraculous), contexts.length == 0 ? Optional.empty() : Optional.of(ReferenceArrayList.of(contexts)));
         }
 
-        public static Criterion<TriggerInstance> performedActiveAbility(ResourceKey<Miraculous> miraculous, Optional<List<String>> contexts) {
-            return performedActiveAbility(Optional.empty(), miraculous, contexts);
-        }
-
-        public static Criterion<TriggerInstance> performedActiveAbility(Optional<ContextAwarePredicate> player, ResourceKey<Miraculous> miraculous, Optional<List<String>> contexts) {
+        public static Criterion<TriggerInstance> performedActiveAbility(Optional<ContextAwarePredicate> player, Optional<ResourceKey<Miraculous>> miraculous, Optional<List<String>> contexts) {
             return MineraculousCriteriaTriggers.PERFORMED_MIRACULOUS_ACTIVE_ABILITY.get().createCriterion(new TriggerInstance(player, miraculous, contexts));
         }
 
         public boolean matches(ResourceKey<Miraculous> miraculous, String context) {
-            return this.miraculous == miraculous && this.contexts.map(contexts -> contexts.contains(context)).orElse(true);
+            return this.miraculous.map(key -> key == miraculous).orElse(true) && this.contexts.map(contexts -> contexts.contains(context)).orElse(true);
         }
     }
 }

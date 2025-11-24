@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownLadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
@@ -15,7 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 public record ClientboundCalculateYoyoRenderLengthPayload(int yoyoId, int holderId) implements ExtendedPacketPayload {
-    public static final Type<ClientboundCalculateYoyoRenderLengthPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_calculate_yoyo_render_length"));
+    public static final Type<ClientboundCalculateYoyoRenderLengthPayload> TYPE = new Type<>(MineraculousConstants.modLoc("clientbound_calculate_yoyo_render_length"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundCalculateYoyoRenderLengthPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.INT, ClientboundCalculateYoyoRenderLengthPayload::yoyoId,
             ByteBufCodecs.INT, ClientboundCalculateYoyoRenderLengthPayload::holderId,

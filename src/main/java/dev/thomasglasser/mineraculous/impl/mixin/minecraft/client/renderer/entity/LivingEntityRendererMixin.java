@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.renderer.texture.HttpTexture;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -40,12 +41,13 @@ public class LivingEntityRendererMixin {
                 mineraculous$lastHealth = livingEntity.getHealth();
                 try (AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(original)) {
                     NativeImage image;
-                    if (texture instanceof SimpleTexture simpleTexture) {
-                        image = simpleTexture.getTextureImage(Minecraft.getInstance().getResourceManager()).getImage();
-                    } else if (texture instanceof DynamicTexture dynamicTexture) {
-                        image = dynamicTexture.getPixels();
-                    } else {
-                        return original;
+                    switch (texture) {
+                        case HttpTexture httpTexture -> image = MineraculousClientUtils.getNativeImage(httpTexture);
+                        case SimpleTexture simpleTexture -> image = simpleTexture.getTextureImage(Minecraft.getInstance().getResourceManager()).getImage();
+                        case DynamicTexture dynamicTexture -> image = dynamicTexture.getPixels();
+                        default -> {
+                            return original;
+                        }
                     }
                     if (image != null) {
                         NON_EMPTY_PIXELS.clear();

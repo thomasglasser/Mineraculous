@@ -42,8 +42,11 @@ public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakO
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null) {
             ItemStack stack = performer.getMainHandItem();
-            if (stack.isEmpty() || validItems.map(predicate -> !predicate.test(stack)).orElse(false) || invalidItems.map(predicate -> predicate.test(stack)).orElse(false)) {
-                return State.FAIL;
+            if (stack.isEmpty()) {
+                return State.PASS;
+            }
+            if (!isValidItem(stack)) {
+                return State.CANCEL;
             }
             ItemStack replacement = this.replacement.copy();
             UUID id = UUID.randomUUID();
@@ -58,9 +61,13 @@ public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakO
             }
             performer.setItemInHand(InteractionHand.MAIN_HAND, replacement);
             Ability.playSound(level, performer, replaceSound);
-            return State.SUCCESS;
+            return State.CONSUME;
         }
-        return State.FAIL;
+        return State.PASS;
+    }
+
+    public boolean isValidItem(ItemStack stack) {
+        return validItems.map(predicate -> predicate.test(stack)).orElse(true) && invalidItems.map(predicate -> !predicate.test(stack)).orElse(true);
     }
 
     @Override

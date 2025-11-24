@@ -1,10 +1,10 @@
 package dev.thomasglasser.mineraculous.impl.data.tags;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.data.tags.ExtendedTagsProvider;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class MiraculousTagsProvider extends ExtendedTagsProvider<Miraculous> {
     public MiraculousTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
-        this(output, lookupProvider, Mineraculous.MOD_ID, existingFileHelper);
+        this(output, lookupProvider, MineraculousConstants.MOD_ID, existingFileHelper);
     }
 
     protected MiraculousTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, String modId, @Nullable ExistingFileHelper existingFileHelper) {

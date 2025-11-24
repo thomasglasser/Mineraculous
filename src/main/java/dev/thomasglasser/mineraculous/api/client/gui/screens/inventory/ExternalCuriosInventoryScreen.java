@@ -1,9 +1,9 @@
 package dev.thomasglasser.mineraculous.api.client.gui.screens.inventory;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.ExternalMenuScreen;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import java.util.List;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.CrafterScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -28,7 +28,7 @@ import top.theillusivec4.curios.common.inventory.container.CuriosContainer;
  * including the Curios slots,
  * performing logic provided by the pickup and close handlers when triggered.
  */
-public class ExternalCuriosInventoryScreen extends CuriosScreen {
+public abstract class ExternalCuriosInventoryScreen extends CuriosScreen implements ExternalMenuScreen {
     public static final ResourceLocation CURIO_INVENTORY_LOCATION = ResourceLocation.fromNamespaceAndPath(CuriosConstants.MOD_ID,
             "textures/gui/curios/inventory.png");
 
@@ -36,24 +36,20 @@ public class ExternalCuriosInventoryScreen extends CuriosScreen {
 
     protected final Player target;
     protected final boolean requireLooking;
-    protected final ExternalInventoryScreen.ItemPickupHandler pickupHandler;
-    protected final ExternalInventoryScreen.CloseHandler closeHandler;
 
     protected PageButton nextPage;
     protected PageButton prevPage;
 
-    public ExternalCuriosInventoryScreen(Player target, boolean requireLooking, ExternalInventoryScreen.ItemPickupHandler pickupHandler, ExternalInventoryScreen.CloseHandler closeHandler) {
+    public ExternalCuriosInventoryScreen(Player target, boolean requireLooking) {
         super(new CuriosContainer(-1, target.getInventory()), target.getInventory(), Component.empty());
         this.target = target;
         this.requireLooking = requireLooking;
-        this.pickupHandler = pickupHandler;
-        this.closeHandler = closeHandler;
     }
 
     @Override
     public void containerTick() {
-        if (requireLooking && MineraculousClientUtils.getLookEntity() != target) {
-            Minecraft.getInstance().setScreen(null);
+        if ((!target.isAlive() || target.isRemoved()) || requireLooking && MineraculousClientUtils.getLookEntity() != target) {
+            onClose();
         }
     }
 
@@ -204,7 +200,7 @@ public class ExternalCuriosInventoryScreen extends CuriosScreen {
     @Override
     protected void renderSlot(GuiGraphics guiGraphics, Slot slot) {
         if (!(slot.container instanceof CraftingContainer || slot.container instanceof ResultContainer)) {
-            if (!pickupHandler.canPickUp(slot, target, menu))
+            if (!canPickUp(slot, target, menu))
                 renderDisabledSlot(guiGraphics, slot);
             else
                 super.renderSlot(guiGraphics, slot);
@@ -217,25 +213,25 @@ public class ExternalCuriosInventoryScreen extends CuriosScreen {
 
     @Override
     protected void renderSlotHighlight(GuiGraphics guiGraphics, Slot slot, int mouseX, int mouseY, float partialTick) {
-        if (pickupHandler.canPickUp(slot, target, menu))
+        if (canPickUp(slot, target, menu))
             super.renderSlotHighlight(guiGraphics, slot, mouseX, mouseY, partialTick);
     }
 
     @Override
     protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
-        if (slot != null && slot.hasItem() && type == ClickType.PICKUP && pickupHandler.canPickUp(slot, target, menu)) {
-            pickupHandler.pickUp(slot, target, menu);
-            onClose(false);
+        if (slot != null && slot.hasItem() && type == ClickType.PICKUP && canPickUp(slot, target, menu)) {
+            pickUp(slot, target, menu);
+            doOnClose(false);
         }
     }
 
-    public void onClose(boolean cancel) {
+    public final void doOnClose(boolean cancel) {
         super.onClose();
-        closeHandler.onClose(cancel);
+        onClose(cancel);
     }
 
     @Override
-    public void onClose() {
-        onClose(true);
+    public final void onClose() {
+        doOnClose(true);
     }
 }

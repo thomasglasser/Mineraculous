@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.data.tags;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.tommylib.api.data.tags.ExtendedTagsProvider;
 import java.util.concurrent.CompletableFuture;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class MineraculousPaintingVariantTagsProvider extends ExtendedTagsProvider<PaintingVariant> {
     public MineraculousPaintingVariantTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> provider, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, Registries.PAINTING_VARIANT, provider, Mineraculous.MOD_ID, existingFileHelper);
+        super(output, Registries.PAINTING_VARIANT, provider, MineraculousConstants.MOD_ID, existingFileHelper);
     }
 
     @Override

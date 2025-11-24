@@ -4,11 +4,11 @@ import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
-import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.WikiBookSubProvider;
 
 public class AkumatizationEntryProvider extends IndexModeEntryProvider {
     public static final String ID = "akumatization";
+    public static final BookIconModel ICON = BookIconModel.create(WikiBookSubProvider.wikiTexture("expansions/akumatization/icon.png"));
 
     public AkumatizationEntryProvider(CategoryProviderBase parent) {
         super(parent);
@@ -17,7 +17,7 @@ public class AkumatizationEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("description", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("akumatization/description.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("expansions/akumatization/description.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -39,7 +39,7 @@ public class AkumatizationEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(MineraculousItems.KAMIKO_SPAWN_EGG);
+        return ICON;
     }
 
     @Override

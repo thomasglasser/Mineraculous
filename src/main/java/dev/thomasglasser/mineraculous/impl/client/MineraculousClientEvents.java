@@ -1,24 +1,34 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
+import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.vertex.PoseStack;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.client.MineraculousRecipeBookCategories;
 import dev.thomasglasser.mineraculous.api.client.gui.MineraculousGuiLayers;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.ExternalMenuScreen;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.tooltip.ClientLabeledItemTagsTooltip;
 import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.KamikotizationParticle;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.api.client.renderer.item.MineraculousItemProperties;
 import dev.thomasglasser.mineraculous.api.client.renderer.item.curio.ContextDependentCurioRenderer;
-import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.api.world.inventory.MineraculousMenuTypes;
+import dev.thomasglasser.mineraculous.api.world.inventory.tooltip.LabeledItemTagsTooltip;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.api.world.item.crafting.MineraculousRecipeTypes;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.SyncedTransientAbilityEffectData;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousHeartTypes;
+import dev.thomasglasser.mineraculous.impl.client.gui.screens.inventory.OvenScreen;
 import dev.thomasglasser.mineraculous.impl.client.model.BeardModel;
 import dev.thomasglasser.mineraculous.impl.client.model.DerbyHatModel;
 import dev.thomasglasser.mineraculous.impl.client.model.FaceMaskModel;
@@ -29,47 +39,53 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.LuckyCharmItem
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownButterflyCaneRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownCatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownLadybugYoyoRenderer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.entity.YoyoRopeRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.FaceMaskLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.LegacyDevTeamLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.ButterflyCaneRenderer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundJumpMidSwingingPayload;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundSwingOffhandPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundRemoteDamagePayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
-import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
+import dev.thomasglasser.mineraculous.impl.world.inventory.MineraculousRecipeBookTypes;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUtils;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.FlyStraightTowardsParticle;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.FastColor;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Leashable;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
@@ -80,13 +96,19 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterEntitySpectatorShadersEvent;
 import net.neoforged.neoforge.client.event.RegisterGuiLayersEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.client.event.RegisterRecipeBookCategoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderPlayerEvent;
+import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
@@ -119,6 +141,8 @@ public class MineraculousClientEvents {
             event.insertAfter(Items.COBWEB.getDefaultInstance(), MineraculousBlocks.CATACLYSM_BLOCK.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         } else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
             event.insertAfter(Items.LOOM.getDefaultInstance(), MineraculousBlocks.CHEESE_POT.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+
+            event.insertAfter(Items.BLAST_FURNACE.getDefaultInstance(), MineraculousBlocks.OVEN.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         } else if (event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS) {
 
         } else if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
@@ -129,6 +153,9 @@ public class MineraculousClientEvents {
             event.insertAfter(MineraculousItems.CAT_STAFF.toStack(), MineraculousItems.BUTTERFLY_CANE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             event.insertAfter(MineraculousItems.BUTTERFLY_CANE.toStack(), MineraculousItems.GREAT_SWORD.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         } else if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
+            event.insertAfter(Items.COOKIE.getDefaultInstance(), MineraculousItems.RAW_MACARON.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.RAW_MACARON.toStack(), MineraculousItems.MACARON.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+
             addCheeses(event, Items.PUMPKIN_PIE.getDefaultInstance(), MineraculousItems.CHEESE);
             addCheeses(event, MineraculousItems.CHEESE.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousBlocks.CHEESE);
             addCheeses(event, MineraculousBlocks.CHEESE.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousItems.CAMEMBERT);
@@ -146,7 +173,6 @@ public class MineraculousClientEvents {
             event.insertAfter(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         } else if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
             // Must be in alphabetical order
-            event.insertAfter(Items.IRON_GOLEM_SPAWN_EGG.getDefaultInstance(), MineraculousItems.KAMIKO_SPAWN_EGG.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         } else if (event.getTabKey() == CreativeModeTabs.OP_BLOCKS) {
 
         }
@@ -173,7 +199,7 @@ public class MineraculousClientEvents {
 
     static void onRegisterRenderer(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(MineraculousEntityTypes.KWAMI.get(), KwamiRenderer::new);
-        event.registerEntityRenderer(MineraculousEntityTypes.KAMIKO.get(), context -> new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(Mineraculous.modLoc("kamiko"))));
+        event.registerEntityRenderer(MineraculousEntityTypes.KAMIKO.get(), context -> new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(MineraculousConstants.modLoc("kamiko"))));
         event.registerEntityRenderer(MineraculousEntityTypes.LUCKY_CHARM_ITEM_SPAWNER.get(), LuckyCharmItemSpawnerRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), ThrownCatStaffRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), ThrownButterflyCaneRenderer::new);
@@ -214,14 +240,11 @@ public class MineraculousClientEvents {
         }
     }
 
+    private static final int DEFAULT_MACARON_COLOR = 0xFFf9d7a4;
+
     static void onRegisterItemColorHandlers(RegisterColorHandlersEvent.Item event) {
-        event.register((stack, index) -> {
-            Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-            if (miraculous != null) {
-                return FastColor.ARGB32.opaque(miraculous.value().color().getValue());
-            }
-            return -1;
-        }, MineraculousArmors.MIRACULOUS.getAllAsItems().toArray(new Item[0]));
+        event.register((stack, index) -> index == 0 ? FastColor.ARGB32.opaque(MiraculousItemRenderer.getMiraculousOrDefault(stack).value().color().getValue()) : -1, MineraculousArmors.MIRACULOUS.getAllAsItems().toArray(new Item[0]));
+        event.register((stack, index) -> index == 0 ? DyedItemColor.getOrDefault(stack, DEFAULT_MACARON_COLOR) : -1, MineraculousItems.RAW_MACARON, MineraculousItems.MACARON);
     }
 
     static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
@@ -229,10 +252,11 @@ public class MineraculousClientEvents {
         event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
             MineraculousClientUtils.syncSpecialPlayerChoices();
             MineraculousArmorUtils.clearAnimationData();
-            MiraculousItemRenderer.clearModels();
-            MiraculousArmorItemRenderer.clearModels();
+            MiraculousItemRenderer.clearAssets();
+            MiraculousArmorItemRenderer.clearAssets();
             KamikotizationArmorItemRenderer.clearModels();
             MineraculousClientUtils.refreshCataclysmPixels();
+            ConditionalAutoGlowingGeoLayer.clearGlowmasks();
         });
     }
 
@@ -241,6 +265,10 @@ public class MineraculousClientEvents {
         event.registerRenderBuffer(MineraculousRenderTypes.armorLuckyCharm());
         event.registerRenderBuffer(MineraculousRenderTypes.entityLuckyCharm());
         event.registerRenderBuffer(MineraculousRenderTypes.shieldLuckyCharm());
+        event.registerRenderBuffer(MineraculousRenderTypes.itemKamikotizing());
+        event.registerRenderBuffer(MineraculousRenderTypes.armorKamikotizing());
+        event.registerRenderBuffer(MineraculousRenderTypes.entityKamikotizing());
+        event.registerRenderBuffer(MineraculousRenderTypes.shieldKamikotizing());
     }
 
     static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
@@ -264,6 +292,20 @@ public class MineraculousClientEvents {
 
             @Override
             public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                if (renderer == null) renderer = new CatStaffRenderer();
+                return renderer;
+            }
+
+            @Override
+            public ResourceLocation getScopeOverlayTexture(ItemStack stack) {
+                return CatStaffRenderer.SPYGLASS_SCOPE_LOCATION;
+            }
+        }, MineraculousItems.CAT_STAFF);
+        event.registerItem(new IClientItemExtensions() {
+            private BlockEntityWithoutLevelRenderer renderer;
+
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
                 if (renderer == null) renderer = new ButterflyCaneRenderer();
                 return renderer;
             }
@@ -275,12 +317,26 @@ public class MineraculousClientEvents {
         }, MineraculousItems.BUTTERFLY_CANE);
     }
 
+    static void onRegisterClientTooltipComponentFactories(RegisterClientTooltipComponentFactoriesEvent event) {
+        event.register(LabeledItemTagsTooltip.class, ClientLabeledItemTagsTooltip::new);
+    }
+
     // GUI
     static void onRegisterGuiLayers(RegisterGuiLayersEvent event) {
         event.registerAboveAll(MineraculousGuiLayers.STEALING_PROGRESS_BAR, MineraculousGuis::renderStealingProgressBar);
         event.registerAboveAll(MineraculousGuiLayers.REVOKE_BUTTON, MineraculousGuis::renderRevokeButton);
         event.registerAboveAll(MineraculousGuiLayers.KAMIKO_HOTBAR, MineraculousGuis.getKamikoGui()::renderHotbar);
         event.registerAboveAll(MineraculousGuiLayers.KAMIKO_TOOLTIP, MineraculousGuis.getKamikoGui()::renderTooltip);
+    }
+
+    static void onRegisterMenuScreens(RegisterMenuScreensEvent event) {
+        event.register(MineraculousMenuTypes.OVEN.get(), OvenScreen::new);
+    }
+
+    static void onRegisterRecipeBookCategories(RegisterRecipeBookCategoriesEvent event) {
+        event.registerAggregateCategory(MineraculousRecipeBookCategories.OVEN_SEARCH.getValue(), ImmutableList.of(MineraculousRecipeBookCategories.OVEN_FOOD.getValue()));
+        event.registerBookCategories(MineraculousRecipeBookTypes.OVEN.getValue(), ImmutableList.of(MineraculousRecipeBookCategories.OVEN_SEARCH.getValue(), MineraculousRecipeBookCategories.OVEN_FOOD.getValue()));
+        event.registerRecipeCategoryFinder(MineraculousRecipeTypes.OVEN_COOKING.get(), recipe -> MineraculousRecipeBookCategories.OVEN_FOOD.getValue());
     }
 
     // Tick
@@ -291,25 +347,18 @@ public class MineraculousClientEvents {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             checkYoyoInput(player);
+            if (Minecraft.getInstance().player.level() != null)
+                for (Player otherPlayer : Minecraft.getInstance().player.level().players()) {
+                    playerPerchRendererMap.computeIfAbsent(otherPlayer.getUUID(), k -> new CatStaffRenderer.PerchRenderer()).tick(otherPlayer);
+                }
         }
     }
 
     private static void checkYoyoInput(LocalPlayer player) {
-        ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
-        ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
-        if (thrownYoyo != null) {
-            if (player.input.jumping) {
-                TommyLibServices.NETWORK.sendToServer(ServerboundJumpMidSwingingPayload.INSTANCE);
-            } else {
-                boolean front = player.input.up;
-                boolean back = player.input.down;
-                boolean left = player.input.left;
-                boolean right = player.input.right;
-                boolean hasInput = front || back || left || right;
-                if (hasInput) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoInputPayload(front, back, left, right));
-                }
-            }
+        MineraculousClientUtils.InputState input = MineraculousClientUtils.captureInput();
+        if (player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).id().isPresent() && input.hasInput()) {
+            int packedInput = input.packInputs();
+            TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateYoyoInputPayload(packedInput));
         }
     }
 
@@ -348,11 +397,16 @@ public class MineraculousClientEvents {
     }
 
     static void onInteractionKeyMappingTriggered(InputEvent.InteractionKeyMappingTriggered event) {
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (event.isAttack() && event.getHand() == InteractionHand.MAIN_HAND && player != null && player.getOffhandItem().is(MineraculousItems.LADYBUG_YOYO)) {
-            TommyLibServices.NETWORK.sendToServer(ServerboundSwingOffhandPayload.INSTANCE);
-            if (player.getOffhandItem().onEntitySwing(player, InteractionHand.OFF_HAND)) {
+        Player player = ClientUtils.getLocalPlayer();
+        if (player != null) {
+            SyncedTransientAbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS);
+            if (abilityEffectData.spectatingId().isPresent()) {
                 event.setCanceled(true);
+                if (event.isAttack() && abilityEffectData.allowRemoteDamage()) {
+                    TommyLibServices.NETWORK.sendToServer(ServerboundRemoteDamagePayload.INSTANCE);
+                } else {
+                    event.setSwingHand(false);
+                }
             }
         }
     }
@@ -364,12 +418,61 @@ public class MineraculousClientEvents {
         }
     }
 
+    private static final HashMap<UUID, CatStaffRenderer.PerchRenderer> playerPerchRendererMap = new HashMap<>();
+
+    public static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
+        Player player = event.getEntity();
+        PoseStack poseStack = event.getPoseStack();
+        MultiBufferSource bufferSource = event.getMultiBufferSource();
+        int light = event.getPackedLight();
+        float partialTick = event.getPartialTick();
+
+        player.noCulling = true;
+        if (playerPerchRendererMap.containsKey(player.getUUID()))
+            playerPerchRendererMap.get(player.getUUID()).renderPerch(player, poseStack, bufferSource, light, partialTick);
+        CatStaffRenderer.renderTravel(player, poseStack, bufferSource, light, partialTick);
+        player.noCulling = false;
+    }
+
+    public static void onRenderLevelStage(RenderLevelStageEvent event) {
+        AbstractClientPlayer player = Minecraft.getInstance().player;
+        RenderLevelStageEvent.Stage stage = event.getStage();
+        EntityRenderDispatcher renderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+        PoseStack poseStack = event.getPoseStack();
+        MultiBufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+        float partialTick = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPartialTickTime();
+        int light = renderDispatcher.getPackedLightCoords(player, partialTick);
+
+        if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson()) {
+            poseStack.pushPose();
+            poseStack.translate(0, -1.6d, 0);
+            if (playerPerchRendererMap.containsKey(player.getUUID()))
+                playerPerchRendererMap.get(player.getUUID()).renderPerch(player, poseStack, bufferSource, light, partialTick);
+            CatStaffRenderer.renderTravel(player, poseStack, bufferSource, light, partialTick);
+            poseStack.popPose();
+
+            if (MineraculousClientUtils.getCameraEntity() instanceof Leashable leashable && leashable.getLeashHolder() instanceof Player holder) {
+                holder.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).map(LeashingLadybugYoyoData::maxRopeLength).ifPresent(maxLength -> {
+                    double y = (leashable instanceof LivingEntity livingLeashed && livingLeashed.isCrouching()) ? -1.2d : -1.6d;
+                    poseStack.translate(0, y, 0);
+                    YoyoRopeRenderer.render((Entity) leashable, holder, maxLength + 1.3d, poseStack, bufferSource, partialTick);
+                });
+            }
+        }
+    }
+
     static void onPreRenderGuiLayer(RenderGuiLayerEvent.Pre event) {
         Player player = ClientUtils.getLocalPlayer();
-        if (player != null && player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).spectatingId().isPresent()) {
+        if (player != null && player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).spectatingId().isPresent()) {
             if (!MineraculousGuiLayers.isAllowedSpectatingGuiLayer(event.getName())) {
                 event.setCanceled(true);
             }
+        }
+    }
+
+    static void onRenderInventoryMobEffects(ScreenEvent.RenderInventoryMobEffects event) {
+        if (Minecraft.getInstance().screen instanceof ExternalMenuScreen) {
+            event.setCanceled(true);
         }
     }
 
@@ -389,16 +492,9 @@ public class MineraculousClientEvents {
     }
 
     static void onClientChatReceived(ClientChatReceivedEvent.Player event) {
-        ClientLevel level = Minecraft.getInstance().level;
-        Player receiver = Minecraft.getInstance().player;
-        UUID senderId = event.getSender();
-        if (level != null && receiver != null) {
-            Player sender = level.getPlayerByUUID(event.getSender());
-            if (receiver != sender &&
-                    (receiver.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().map(chatter -> !chatter.equals(senderId)).orElse(false) ||
-                            (sender != null && sender.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().map(chatter -> !chatter.equals(receiver.getUUID())).orElse(false)))) {
-                event.setCanceled(true);
-            }
+        Player player = ClientUtils.getLocalPlayer();
+        if (player != null && !AbilityEffectUtils.isMessageAllowed(player, event.getSender())) {
+            event.setCanceled(true);
         }
     }
 }

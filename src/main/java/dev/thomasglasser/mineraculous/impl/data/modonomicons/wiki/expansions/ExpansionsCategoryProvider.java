@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.expansions;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeCategoryProvider;
 import com.klikli_dev.modonomicon.api.datagen.ModonomiconProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
-import net.minecraft.world.item.Items;
 
 public class ExpansionsCategoryProvider extends IndexModeCategoryProvider {
     public static final String ID = "expansions";
@@ -15,7 +14,6 @@ public class ExpansionsCategoryProvider extends IndexModeCategoryProvider {
     @Override
     protected void generateEntries() {
         add(new AkumatizationEntryProvider(this).generate());
-        add(new KamikotizationsEntryProvider(this).generate());
     }
 
     @Override
@@ -30,7 +28,7 @@ public class ExpansionsCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected BookIconModel categoryIcon() {
-        return BookIconModel.create(Items.NETHER_STAR);
+        return AkumatizationEntryProvider.ICON;
     }
 
     @Override

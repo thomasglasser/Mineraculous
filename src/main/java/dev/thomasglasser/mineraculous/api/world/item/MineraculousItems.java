@@ -1,18 +1,19 @@
 package dev.thomasglasser.mineraculous.api.world.item;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.food.MineraculousFoods;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
+import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
@@ -37,25 +38,27 @@ import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.armortrim.TrimPattern;
 import net.minecraft.world.item.component.BlockItemStateProperties;
+import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousItems {
     @ApiStatus.Internal
-    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Mineraculous.MOD_ID);
+    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MineraculousConstants.MOD_ID);
 
     // Miraculous Tools
     /// Default properties for Miraculous tools
     public static final UnaryOperator<Item.Properties> MIRACULOUS_TOOL_PROPERTIES = properties -> properties.fireResistant().stacksTo(1).rarity(Rarity.EPIC);
     /// Default properties for Miraculous tools with the {@link MineraculousDataComponents#ACTIVE} component
-    public static final UnaryOperator<Item.Properties> MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE = properties -> MIRACULOUS_TOOL_PROPERTIES.apply(properties).component(MineraculousDataComponents.ACTIVE, false);
+    public static final UnaryOperator<Item.Properties> MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE = properties -> MIRACULOUS_TOOL_PROPERTIES.apply(properties).component(MineraculousDataComponents.ACTIVE, Active.DEFAULT);
     public static final DeferredItem<LadybugYoyoItem> LADYBUG_YOYO = register("ladybug_yoyo", () -> new LadybugYoyoItem(MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE.apply(new Item.Properties())));
     public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE.apply(new Item.Properties()).component(MineraculousDataComponents.ACTIVE_SETTINGS, CatStaffItem.ACTIVE_SETTINGS)));
     public static final DeferredItem<ButterflyCaneItem> BUTTERFLY_CANE = register("butterfly_cane", () -> new ButterflyCaneItem(MIRACULOUS_TOOL_PROPERTIES.apply(new Item.Properties())));
 
     // Miraculous
     public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", () -> new MiraculousItem(new Item.Properties().component(MineraculousDataComponents.CHARGED, true)));
+    public static final DeferredItem<KwamiItem> KWAMI = register("kwami", () -> new KwamiItem(new Item.Properties().component(DataComponents.UNBREAKABLE, new Unbreakable(false))));
 
     public static final DeferredItem<SwordItem> GREAT_SWORD = register("great_sword", () -> new SwordItem(MineraculousTiers.MIRACULOUS, new Item.Properties().attributes(SwordItem.createAttributes(Tiers.DIAMOND, 6, -3))));
     /// Inventory filler used for ability reversion
@@ -66,14 +69,14 @@ public class MineraculousItems {
     public static final DeferredItem<SmithingTemplateItem> CAT_ARMOR_TRIM_SMITHING_TEMPLATE = registerSmithingTemplate(MineraculousTrimPatterns.CAT);
     public static final DeferredItem<SmithingTemplateItem> BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE = registerSmithingTemplate(MineraculousTrimPatterns.BUTTERFLY);
 
-    // Spawn Eggs
-    public static final DeferredItem<SpawnEggItem> KAMIKO_SPAWN_EGG = registerSpawnEgg(MineraculousEntityTypes.KAMIKO, 0xc8e5ea, 0x140325);
-
     // Cheese Wedges
     public static final SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> CHEESE = wedges("cheese", MineraculousFoods.CHEESE, MineraculousBlocks.CHEESE);
     public static final SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> WAXED_CHEESE = waxedWedges("cheese", MineraculousBlocks.WAXED_CHEESE);
     public static final SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> CAMEMBERT = wedges("camembert", MineraculousFoods.CAMEMBERT, MineraculousBlocks.CAMEMBERT);
     public static final SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> WAXED_CAMEMBERT = waxedWedges("camembert", MineraculousBlocks.WAXED_CAMEMBERT);
+
+    public static final DeferredItem<Item> RAW_MACARON = register("raw_macaron", () -> new Item(new Item.Properties().stacksTo(16).food(MineraculousFoods.RAW_MACARON)));
+    public static final DeferredItem<Item> MACARON = register("macaron", () -> new Item(new Item.Properties().stacksTo(16).food(MineraculousFoods.MACARON)));
 
     private static SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> wedges(String name, FoodProperties foodProperties, SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> blocks) {
         SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> cheeses = new Reference2ObjectLinkedOpenHashMap<>(AgeingCheese.Age.values().length);

@@ -9,7 +9,6 @@ displayName="${mod_name}"
 updateJSONURL = "https://api.modrinth.com/updates/${mod_id}/forge_updates.json?neoforge=include"
 displayURL="https://github.com/thomasglasser/${github_name}/wiki"
 logoFile="${icon}"
-credits="${contributors}"
 authors="${mod_author}"
 description='''
 ${description}
@@ -81,5 +80,11 @@ side="BOTH"
 modId="modonomicon"
 type="optional"
 versionRange="[${modonomicon_version},)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.${mod_id}]]
+modId="voicechat"
+mandatory=false
+versionRange="[${minecraft_version}-${voicechat_api_version},)"
 ordering="NONE"
 side="BOTH"

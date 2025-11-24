@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.data.tags;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.world.entity.ai.village.poi.MineraculousPoiTypes;
 import dev.thomasglasser.tommylib.api.data.tags.ExtendedTagsProvider;
 import java.util.concurrent.CompletableFuture;
@@ -14,12 +14,13 @@ import org.jetbrains.annotations.Nullable;
 
 public class MineraculousPoiTypeTagsProvider extends ExtendedTagsProvider<PoiType> {
     public MineraculousPoiTypeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, Registries.POINT_OF_INTEREST_TYPE, lookupProvider, Mineraculous.MOD_ID, existingFileHelper);
+        super(output, Registries.POINT_OF_INTEREST_TYPE, lookupProvider, MineraculousConstants.MOD_ID, existingFileHelper);
     }
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         tag(PoiTypeTags.ACQUIRABLE_JOB_SITE)
-                .add(MineraculousPoiTypes.FROMAGER);
+                .add(MineraculousPoiTypes.FROMAGER)
+                .add(MineraculousPoiTypes.BAKER);
     }
 }

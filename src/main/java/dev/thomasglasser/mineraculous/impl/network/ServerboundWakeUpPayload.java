@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Player;
 public record ServerboundWakeUpPayload(UUID targetId, boolean showStealingWarning) implements ExtendedPacketPayload {
     public static final Component STEALING_WARNING = Component.translatable("mineraculous.stealing_warning");
 
-    public static final Type<ServerboundWakeUpPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_wake_up"));
+    public static final Type<ServerboundWakeUpPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_wake_up"));
     public static final StreamCodec<ByteBuf, ServerboundWakeUpPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), ServerboundWakeUpPayload::targetId,
             ByteBufCodecs.BOOL, ServerboundWakeUpPayload::showStealingWarning,

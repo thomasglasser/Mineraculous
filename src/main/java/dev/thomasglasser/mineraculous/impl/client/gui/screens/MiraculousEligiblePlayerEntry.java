@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.client.gui.screens;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundTransferMiraculousPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -28,11 +28,11 @@ public class MiraculousEligiblePlayerEntry extends ContainerObjectSelectionList.
     public static final Component RENOUNCE = Component.translatable("gui.miraculous_transfer.renounce");
     public static final Component TRANSFER = Component.translatable("gui.miraculous_transfer.transfer");
     public static final WidgetSprites RENOUNCE_BUTTON_SPRITES = new WidgetSprites(
-            Mineraculous.modLoc("miraculous_transfer/renounce_button"),
-            Mineraculous.modLoc("miraculous_transfer/renounce_button_highlighted"));
+            MineraculousConstants.modLoc("miraculous_transfer/renounce_button"),
+            MineraculousConstants.modLoc("miraculous_transfer/renounce_button_highlighted"));
     public static final WidgetSprites TRANSFER_BUTTON_SPRITES = new WidgetSprites(
-            Mineraculous.modLoc("miraculous_transfer/transfer_button"),
-            Mineraculous.modLoc("miraculous_transfer/transfer_button_highlighted"));
+            MineraculousConstants.modLoc("miraculous_transfer/transfer_button"),
+            MineraculousConstants.modLoc("miraculous_transfer/transfer_button_highlighted"));
     protected final Minecraft minecraft;
     protected final UUID id;
     protected final String playerName;

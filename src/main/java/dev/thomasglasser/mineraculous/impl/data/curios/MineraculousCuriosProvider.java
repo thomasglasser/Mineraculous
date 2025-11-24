@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.data.curios;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -17,7 +17,7 @@ public class MineraculousCuriosProvider extends CuriosDataProvider {
     public static final String SLOT_BELT = "belt";
 
     public MineraculousCuriosProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries, @Nullable ExistingFileHelper fileHelper) {
-        super(Mineraculous.MOD_ID, output, fileHelper, registries);
+        super(MineraculousConstants.MOD_ID, output, fileHelper, registries);
     }
 
     @Override
@@ -42,6 +42,6 @@ public class MineraculousCuriosProvider extends CuriosDataProvider {
     }
 
     private ResourceLocation slotIcon(String name) {
-        return Mineraculous.modLoc("slot/empty_" + name + "_slot");
+        return MineraculousConstants.modLoc("slot/empty_" + name + "_slot");
     }
 }

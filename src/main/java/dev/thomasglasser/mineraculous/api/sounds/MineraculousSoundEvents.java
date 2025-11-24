@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.sounds;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import net.minecraft.core.registries.Registries;
@@ -8,7 +8,7 @@ import net.minecraft.sounds.SoundEvent;
 import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousSoundEvents {
-    private static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(Registries.SOUND_EVENT, Mineraculous.MOD_ID);
+    private static final DeferredRegister<SoundEvent> SOUND_EVENTS = DeferredRegister.create(Registries.SOUND_EVENT, MineraculousConstants.MOD_ID);
 
     // Abilities
     public static final DeferredHolder<SoundEvent, SoundEvent> CATACLYSM_ACTIVATE = register("cataclysm", "ability", "activate");
@@ -46,11 +46,11 @@ public class MineraculousSoundEvents {
     public static final DeferredHolder<SoundEvent, SoundEvent> KWAMI_SUMMON = register("kwami", "entity", "summon");
 
     private static DeferredHolder<SoundEvent, SoundEvent> register(String subject, String type, String name) {
-        return SOUND_EVENTS.register(subject + "_" + name, () -> SoundEvent.createVariableRangeEvent(Mineraculous.modLoc(type + "." + subject + "." + name)));
+        return SOUND_EVENTS.register(subject + "_" + name, () -> SoundEvent.createVariableRangeEvent(MineraculousConstants.modLoc(type + "." + subject + "." + name)));
     }
 
     private static DeferredHolder<SoundEvent, SoundEvent> register(String subject, String name) {
-        return SOUND_EVENTS.register(subject + "_" + name, () -> SoundEvent.createVariableRangeEvent(Mineraculous.modLoc(subject + "." + name)));
+        return SOUND_EVENTS.register(subject + "_" + name, () -> SoundEvent.createVariableRangeEvent(MineraculousConstants.modLoc(subject + "." + name)));
     }
 
     @ApiStatus.Internal

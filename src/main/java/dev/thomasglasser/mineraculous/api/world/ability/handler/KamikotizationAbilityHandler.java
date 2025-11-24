@@ -4,12 +4,11 @@ import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTrigg
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import java.util.UUID;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * An {@link AbilityHandler} for {@link Kamikotization} abilities.
@@ -23,21 +22,7 @@ public record KamikotizationAbilityHandler(Holder<Kamikotization> kamikotization
     }
 
     @Override
-    public UUID getAndAssignBlame(ItemStack stack, LivingEntity performer) {
-        stack.set(MineraculousDataComponents.KAMIKOTIZATION, kamikotization);
-        return performer.getUUID();
-    }
-
-    @Override
-    public @Nullable UUID getMatchingBlame(ItemStack stack, LivingEntity performer) {
-        if (kamikotization == stack.get(MineraculousDataComponents.KAMIKOTIZATION)) {
-            return performer.getUUID();
-        }
-        return null;
-    }
-
-    @Override
     public boolean isActiveTool(ItemStack stack, LivingEntity performer) {
-        return kamikotization == stack.get(MineraculousDataComponents.KAMIKOTIZATION) && stack.getOrDefault(MineraculousDataComponents.ACTIVE, true);
+        return kamikotization == stack.get(MineraculousDataComponents.KAMIKOTIZATION) && Active.isActive(stack, true);
     }
 }

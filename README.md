@@ -1,5 +1,5 @@
 # Mineraculous
-A new generation of miraculous gameplay, feature entirely data-driven miraculous, powers, kamikotizations, and more!
+A new generation of miraculous gameplay, feature entirely data-driven miraculous, abilities, kamikotizations, and more!
 
 ![CurseForge Version](https://img.shields.io/curseforge/v/1171110?label=latest)
 ![Modrinth Game Versions](https://img.shields.io/modrinth/game-versions/mineraculous)
@@ -11,7 +11,6 @@ A new generation of miraculous gameplay, feature entirely data-driven miraculous
 [![Supported on NeoForge](https://rawcdn.githack.com/thomasglasser/thomasglasser/1f85027a20670b89b94462ddd345af897b47ac17/files/badges/cozy/supported/neoforge_vector.svg)](https://modrinth.com/mod/mineraculous/versions?l=neoforge)
 
 [![Read the Documentation](https://rawcdn.githack.com/intergrav/devins-badges/1aec26abb75544baec37249f42008b2fcc0e731f/assets/cozy/documentation/ghpages_vector.svg)](https://mineraculous.wiki.thomasglasser.dev/)
-[![Buy Me a Coffee](https://rawcdn.githack.com/intergrav/devins-badges/1aec26abb75544baec37249f42008b2fcc0e731f/assets/cozy/donate/buymeacoffee-singular_vector.svg)](https://buymeacoffee.com/Mineraculous)
 [![Discord](https://rawcdn.githack.com/intergrav/devins-badges/1aec26abb75544baec37249f42008b2fcc0e731f/assets/cozy/social/discord-singular_vector.svg)](https://discord.gg/Vd6yX2ngWX)
 
 [![Hosted By: Cloudsmith](https://img.shields.io/badge/OSS%20hosting%20by-cloudsmith-blue?logo=cloudsmith&style=for-the-badge)](https://cloudsmith.com)

@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.data.tags;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousDamageTypeTags;
 import dev.thomasglasser.mineraculous.api.world.damagesource.MineraculousDamageTypes;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.data.tags.ExtendedTagsProvider;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
@@ -16,11 +16,17 @@ import org.jetbrains.annotations.Nullable;
 
 public class MineraculousDamageTypeTagsProvider extends ExtendedTagsProvider<DamageType> {
     public MineraculousDamageTypeTagsProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider, @Nullable ExistingFileHelper existingFileHelper) {
-        super(output, Registries.DAMAGE_TYPE, lookupProvider, Mineraculous.MOD_ID, existingFileHelper);
+        super(output, Registries.DAMAGE_TYPE, lookupProvider, MineraculousConstants.MOD_ID, existingFileHelper);
     }
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
+        tag(MineraculousDamageTypeTags.HURTS_KAMIKOS)
+                .addTag(MineraculousDamageTypeTags.IS_CATACLYSM);
+
+        tag(MineraculousDamageTypeTags.IS_CATACLYSM)
+                .add(MineraculousDamageTypes.CATACLYSM);
+
         tag(DamageTypeTags.ALWAYS_HURTS_ENDER_DRAGONS)
                 .add(MineraculousDamageTypes.CATACLYSM);
 
@@ -43,9 +49,6 @@ public class MineraculousDamageTypeTagsProvider extends ExtendedTagsProvider<Dam
                 .add(MineraculousDamageTypes.CATACLYSM);
 
         tag(Tags.DamageTypes.IS_MAGIC)
-                .add(MineraculousDamageTypes.CATACLYSM);
-
-        tag(MineraculousDamageTypeTags.IS_CATACLYSM)
                 .add(MineraculousDamageTypes.CATACLYSM);
     }
 }

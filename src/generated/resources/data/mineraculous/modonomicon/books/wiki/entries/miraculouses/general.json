@@ -1,0 +1,92 @@
+{
+  "background_u_index": 0,
+  "background_v_index": 0,
+  "category": "miraculouses",
+  "description": "book.mineraculous.wiki.miraculouses.general.description",
+  "hide_while_locked": false,
+  "icon": {
+    "components": {
+      "mineraculous:miraculous": "mineraculous:ladybug"
+    },
+    "item": "mineraculous:miraculous_mask"
+  },
+  "name": "book.mineraculous.wiki.miraculouses.general.name",
+  "pages": [
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculouses/general/obtaining.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculouses.general.obtaining.text",
+      "title": "book.mineraculous.wiki.miraculouses.general.obtaining.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.miraculouses.general.activating.text",
+      "title": "book.mineraculous.wiki.miraculouses.general.activating.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.miraculouses.general.transforming.text",
+      "title": "book.mineraculous.wiki.miraculouses.general.transforming.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.miraculouses.general.using_abilities.text",
+      "title": "book.mineraculous.wiki.miraculouses.general.using_abilities.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculouses/general/timer.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculouses.general.timer.text",
+      "title": "book.mineraculous.wiki.miraculouses.general.timer.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.miraculouses.general.using_tool.text",
+      "title": "book.mineraculous.wiki.miraculouses.general.using_tool.title",
+      "use_markdown_in_title": false
+    }
+  ],
+  "show_when_any_parent_unlocked": false,
+  "sort_number": 0,
+  "x": 0,
+  "y": 0
+}

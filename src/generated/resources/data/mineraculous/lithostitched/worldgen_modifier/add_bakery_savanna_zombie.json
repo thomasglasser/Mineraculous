@@ -1,0 +1,15 @@
+{
+  "type": "lithostitched:add_template_pool_elements",
+  "elements": [
+    {
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "mineraculous:village/savanna/houses/bakery",
+        "processors": "minecraft:zombie_savanna",
+        "projection": "rigid"
+      },
+      "weight": 3
+    }
+  ],
+  "template_pools": "minecraft:village/savanna/zombie/houses"
+}

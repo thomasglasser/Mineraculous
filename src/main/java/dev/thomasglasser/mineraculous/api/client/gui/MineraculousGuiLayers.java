@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.client.gui;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Set;
 import net.minecraft.resources.ResourceLocation;
@@ -8,10 +8,10 @@ import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
 import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousGuiLayers {
-    public static final ResourceLocation STEALING_PROGRESS_BAR = Mineraculous.modLoc("stealing_progress_bar");
-    public static final ResourceLocation REVOKE_BUTTON = Mineraculous.modLoc("revoke_button");
-    public static final ResourceLocation KAMIKO_HOTBAR = Mineraculous.modLoc("kamiko_hotbar");
-    public static final ResourceLocation KAMIKO_TOOLTIP = Mineraculous.modLoc("kamiko_tooltip");
+    public static final ResourceLocation STEALING_PROGRESS_BAR = MineraculousConstants.modLoc("stealing_progress_bar");
+    public static final ResourceLocation REVOKE_BUTTON = MineraculousConstants.modLoc("revoke_button");
+    public static final ResourceLocation KAMIKO_HOTBAR = MineraculousConstants.modLoc("kamiko_hotbar");
+    public static final ResourceLocation KAMIKO_TOOLTIP = MineraculousConstants.modLoc("kamiko_tooltip");
 
     private static final Set<ResourceLocation> ALLOWED_SPECTATING_GUI_LAYERS = ReferenceOpenHashSet.of(
             MineraculousGuiLayers.REVOKE_BUTTON,

@@ -11,7 +11,7 @@ import net.neoforged.neoforge.event.level.BlockDropsEvent;
 public class MineraculousBlockEvents {
     public static void onBlockDrops(BlockDropsEvent event) {
         if (event.getLevel() instanceof ServerLevel level) {
-            UUID recoverer = AbilityReversionBlockData.get(level).getCause(event.getPos());
+            UUID recoverer = AbilityReversionBlockData.get(level).getCause(level.dimension(), event.getPos());
             if (recoverer != null) {
                 for (ItemEntity item : event.getDrops()) {
                     UUID id = UUID.randomUUID();

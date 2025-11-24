@@ -1,4 +1,4 @@
 {
-  "type": "mineraculous:automatic_night_vision",
+  "type": "mineraculous:toggleable_night_vision",
   "shader": "mineraculous:shaders/post/cat_vision.json"
 }

@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.damagesource;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import java.util.function.Function;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -13,7 +13,7 @@ public class MineraculousDamageTypes {
     public static final ResourceKey<DamageType> CATACLYSM = create("cataclysm");
 
     private static ResourceKey<DamageType> create(String name) {
-        return ResourceKey.create(Registries.DAMAGE_TYPE, Mineraculous.modLoc(name));
+        return ResourceKey.create(Registries.DAMAGE_TYPE, MineraculousConstants.modLoc(name));
     }
 
     private static void register(BootstrapContext<DamageType> context, ResourceKey<DamageType> key, Function<String, DamageType> damageTypeFunction) {

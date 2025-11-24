@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage.loot.providers.number;
 
 import com.mojang.serialization.MapCodec;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.level.storage.loot.providers.number.PowerLevelMultiplierGenerator;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import net.minecraft.core.registries.Registries;
@@ -10,7 +10,7 @@ import net.minecraft.world.level.storage.loot.providers.number.LootNumberProvide
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 
 public class MineraculousNumberProviders {
-    private static final DeferredRegister<LootNumberProviderType> NUMBER_PROVIDERS = DeferredRegister.create(Registries.LOOT_NUMBER_PROVIDER_TYPE, Mineraculous.MOD_ID);
+    private static final DeferredRegister<LootNumberProviderType> NUMBER_PROVIDERS = DeferredRegister.create(Registries.LOOT_NUMBER_PROVIDER_TYPE, MineraculousConstants.MOD_ID);
 
     public static final DeferredHolder<LootNumberProviderType, LootNumberProviderType> POWER_LEVEL_MULTIPLIER = register("power_level_multiplier", PowerLevelMultiplierGenerator.CODEC);
 

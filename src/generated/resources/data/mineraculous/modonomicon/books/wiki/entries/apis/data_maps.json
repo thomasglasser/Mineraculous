@@ -30,6 +30,28 @@
       "text": "book.mineraculous.wiki.apis.data_maps.lucky_charms.text",
       "title": "book.mineraculous.wiki.apis.data_maps.lucky_charms.title",
       "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.data_maps.miraculous_buffs.text",
+      "title": "book.mineraculous.wiki.apis.data_maps.miraculous_buffs.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.data_maps.ageables.text",
+      "title": "book.mineraculous.wiki.apis.data_maps.ageables.title",
+      "use_markdown_in_title": false
     }
   ],
   "show_when_any_parent_unlocked": false,

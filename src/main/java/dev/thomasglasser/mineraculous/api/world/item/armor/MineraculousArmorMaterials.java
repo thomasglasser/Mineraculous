@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.item.armor;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import java.util.EnumMap;
@@ -17,7 +17,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousArmorMaterials {
-    private static final DeferredRegister<ArmorMaterial> ARMOR_MATERIALS = DeferredRegister.create(Registries.ARMOR_MATERIAL, Mineraculous.MOD_ID);
+    private static final DeferredRegister<ArmorMaterial> ARMOR_MATERIALS = DeferredRegister.create(Registries.ARMOR_MATERIAL, MineraculousConstants.MOD_ID);
 
     /// Magical armor, strongest level but unenchantable and unrepairable
     public static final DeferredHolder<ArmorMaterial, ArmorMaterial> MIRACULOUS = register("miraculous", Util.make(new EnumMap<>(ArmorItem.Type.class), map -> {
@@ -36,7 +36,7 @@ public class MineraculousArmorMaterials {
             float toughness,
             float knockbackResistance,
             Supplier<Ingredient> repairIngredient) {
-        List<ArmorMaterial.Layer> list = List.of(new ArmorMaterial.Layer(Mineraculous.modLoc(name)));
+        List<ArmorMaterial.Layer> list = List.of(new ArmorMaterial.Layer(MineraculousConstants.modLoc(name)));
 
         return ARMOR_MATERIALS.register(name, () -> new ArmorMaterial(defense, enchantmentValue, equipSound, repairIngredient, list, toughness, knockbackResistance));
     }

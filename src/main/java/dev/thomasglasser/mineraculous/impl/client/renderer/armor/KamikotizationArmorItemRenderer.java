@@ -1,41 +1,41 @@
 package dev.thomasglasser.mineraculous.impl.client.renderer.armor;
 
+import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.KamikotizationArmorItem;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.Map;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animation.Animation;
-import software.bernie.geckolib.cache.texture.AutoGlowingTexture;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
-import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
 public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<KamikotizationArmorItem> {
     private static final Map<Holder<Kamikotization>, GeoModel<KamikotizationArmorItem>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
 
     public KamikotizationArmorItemRenderer() {
-        super(null);
-        addRenderLayer(new AutoGlowingGeoLayer<>(this) {
-            @Override
-            protected @Nullable RenderType getRenderType(KamikotizationArmorItem animatable, @Nullable MultiBufferSource bufferSource) {
-                ResourceLocation texture = getTextureLocation(animatable);
-                ResourceLocation glowmaskTexture = AutoGlowingTexture.appendToPath(texture, "_glowmask");
-                if (Minecraft.getInstance().getResourceManager().getResource(glowmaskTexture).isPresent() || Minecraft.getInstance().getTextureManager().getTexture(glowmaskTexture, MissingTextureAtlasSprite.getTexture()) != MissingTextureAtlasSprite.getTexture()) {
-                    return super.getRenderType(animatable, bufferSource);
-                } else {
-                    return null;
-                }
-            }
-        });
+        super((GeoModel<KamikotizationArmorItem>) null);
+        addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
+    }
+
+    public static Holder<Kamikotization> getKamikotizationOrDefault(ItemStack stack) {
+        Holder<Kamikotization> kamikotization = stack.get(MineraculousDataComponents.KAMIKOTIZATION);
+        Level level = ClientUtils.getLevel();
+        if (kamikotization == null && level != null) {
+            kamikotization = level.registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).getAny().orElse(null);
+        }
+        if (kamikotization == null) {
+            throw new IllegalStateException("Tried to render a Kamikotization related item without any registered kamikotizations");
+        }
+        return kamikotization;
     }
 
     public static void clearModels() {
@@ -44,20 +44,12 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
 
     @Override
     public GeoModel<KamikotizationArmorItem> getGeoModel() {
-        if (getCurrentStack() != null) {
-            Holder<Kamikotization> kamikotization = getCurrentStack().get(MineraculousDataComponents.KAMIKOTIZATION);
-            if (kamikotization != null) {
-                if (!DEFAULT_MODELS.containsKey(kamikotization))
-                    DEFAULT_MODELS.put(kamikotization, createDefaultGeoModel(kamikotization));
-                return DEFAULT_MODELS.get(kamikotization);
-            }
-        }
-        return super.getGeoModel();
+        return DEFAULT_MODELS.computeIfAbsent(getKamikotizationOrDefault(getCurrentStack()), this::createDefaultGeoModel);
     }
 
     private GeoModel<KamikotizationArmorItem> createDefaultGeoModel(Holder<Kamikotization> kamikotization) {
-        return new DefaultedItemGeoModel<>(ResourceLocation.fromNamespaceAndPath(kamikotization.getKey().location().getNamespace(), "armor/kamikotization/" + kamikotization.getKey().location().getPath())) {
-            private final ResourceLocation texture = ResourceLocation.fromNamespaceAndPath(kamikotization.getKey().location().getNamespace(), "textures/entity/equipment/humanoid/kamikotization/" + kamikotization.getKey().location().getPath() + ".png");
+        return new DefaultedItemGeoModel<>(kamikotization.getKey().location().withPrefix("armor/kamikotization/")) {
+            private final ResourceLocation texture = kamikotization.getKey().location().withPath(path -> "textures/entity/equipment/humanoid/kamikotization/" + path + ".png");
 
             @Override
             public ResourceLocation getTextureResource(KamikotizationArmorItem animatable) {

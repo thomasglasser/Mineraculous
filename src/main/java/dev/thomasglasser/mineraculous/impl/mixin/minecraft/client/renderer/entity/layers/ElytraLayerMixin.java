@@ -14,6 +14,6 @@ import org.spongepowered.asm.mixin.injection.At;
 public class ElytraLayerMixin {
     @ModifyExpressionValue(method = "render(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/LivingEntity;FFFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/ItemRenderer;getArmorFoilBuffer(Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/renderer/RenderType;Z)Lcom/mojang/blaze3d/vertex/VertexConsumer;"))
     private VertexConsumer checkLuckyCharm(VertexConsumer original, @Local(argsOnly = true) MultiBufferSource bufferSource, @Local ItemStack itemStack) {
-        return MineraculousClientUtils.checkLuckyCharm(original, bufferSource, itemStack, true, false);
+        return MineraculousClientUtils.checkItemShaders(original, bufferSource, itemStack, true, false);
     }
 }

@@ -21,7 +21,7 @@ public class KamikotizationsEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Generator");
         add(context().pageText(), """
-                A generator for kamikotizations can be found online [here](https://beta-jsons.thomasglasser.dev/mineraculous/kamikotization/).
+                A generator for kamikotizations can be found [here](https://beta-jsons.thomasglasser.dev/mineraculous/kamikotization/).
                 """);
 
         page("guide", () -> BookTextPageModel.create()
@@ -30,7 +30,7 @@ public class KamikotizationsEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "Guide");
         add(context().pageText(), """
-                A guide for creating miraculous can be found [here](https://beta-jsons.thomasglasser.dev/guides/miraculous/).
+                A guide for creating kamikotizations can be found [here](https://beta-jsons.thomasglasser.dev/guides/kamikotization/).
                 """);
     }
 
@@ -41,7 +41,7 @@ public class KamikotizationsEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "Transformations that the Butterfly Miraculous can give to players";
+        return "Transformations that the Butterfly Miraculous can give to entities";
     }
 
     @Override

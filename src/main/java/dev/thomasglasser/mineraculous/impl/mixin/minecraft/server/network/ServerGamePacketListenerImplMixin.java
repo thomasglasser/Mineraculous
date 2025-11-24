@@ -19,7 +19,7 @@ public class ServerGamePacketListenerImplMixin {
     public ServerPlayer player;
 
     @Inject(method = "handleSetCarriedItem", at = @At("TAIL"))
-    private void updateInventoryOnSetCarriedItem(ServerboundSetCarriedItemPacket packet, CallbackInfo ci) {
+    private void syncInventoryOnSetCarriedItem(ServerboundSetCarriedItemPacket packet, CallbackInfo ci) {
         for (UUID uuid : player.getData(MineraculousAttachmentTypes.INVENTORY_TRACKERS)) {
             if (player.level().getPlayerByUUID(uuid) instanceof ServerPlayer tracker) {
                 TommyLibServices.NETWORK.sendToClient(new ClientboundSyncInventoryPayload(player), tracker);

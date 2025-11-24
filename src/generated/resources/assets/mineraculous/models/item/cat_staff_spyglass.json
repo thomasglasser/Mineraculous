@@ -1,0 +1,131 @@
+{
+  "base": {
+    "parent": "minecraft:builtin/entity",
+    "display": {
+      "firstperson_lefthand": {
+        "rotation": [
+          0,
+          165,
+          0
+        ],
+        "scale": [
+          0.7,
+          0.7,
+          0.7
+        ],
+        "translation": [
+          0,
+          1.5,
+          1.25
+        ]
+      },
+      "firstperson_righthand": {
+        "rotation": [
+          0,
+          165,
+          0
+        ],
+        "scale": [
+          0.7,
+          0.7,
+          0.7
+        ],
+        "translation": [
+          0,
+          1.5,
+          1.25
+        ]
+      },
+      "head": {
+        "rotation": [
+          0,
+          180,
+          0
+        ],
+        "scale": [
+          1.6,
+          1.6,
+          1.6
+        ],
+        "translation": [
+          0,
+          -15,
+          -8
+        ]
+      },
+      "mineraculous:curios_body": {
+        "rotation": [
+          0,
+          180,
+          90
+        ],
+        "scale": [
+          0.7,
+          0.7,
+          0.7
+        ],
+        "translation": [
+          -4.2,
+          8,
+          2.7
+        ]
+      },
+      "thirdperson_lefthand": {
+        "rotation": [
+          0,
+          -180,
+          0
+        ],
+        "scale": [
+          0.7,
+          0.7,
+          0.7
+        ],
+        "translation": [
+          0,
+          -3.5,
+          1.25
+        ]
+      },
+      "thirdperson_righthand": {
+        "rotation": [
+          0,
+          -180,
+          0
+        ],
+        "scale": [
+          0.7,
+          0.7,
+          0.7
+        ],
+        "translation": [
+          0,
+          -3.5,
+          1.25
+        ]
+      }
+    }
+  },
+  "gui_light": "front",
+  "loader": "neoforge:separate_transforms",
+  "perspectives": {
+    "fixed": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/cat_staff_spyglass"
+      }
+    },
+    "ground": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/cat_staff_spyglass"
+      }
+    },
+    "gui": {
+      "parent": "minecraft:item/generated",
+      "textures": {
+        "layer0": "mineraculous:item/cat_staff_spyglass"
+      }
+    }
+  }
+}

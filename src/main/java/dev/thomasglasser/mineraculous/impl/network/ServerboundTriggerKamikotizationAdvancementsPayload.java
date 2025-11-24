@@ -1,9 +1,9 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
@@ -16,7 +16,7 @@ import net.minecraft.world.entity.player.Player;
 
 public record ServerboundTriggerKamikotizationAdvancementsPayload(UUID performerId, UUID victimId, ResourceKey<Kamikotization> kamikotization) implements ExtendedPacketPayload {
 
-    public static final Type<ServerboundTriggerKamikotizationAdvancementsPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_trigger_kamikotization_advancements"));
+    public static final Type<ServerboundTriggerKamikotizationAdvancementsPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_trigger_kamikotization_advancements"));
     public static final StreamCodec<ByteBuf, ServerboundTriggerKamikotizationAdvancementsPayload> CODEC = StreamCodec.composite(
             UUIDUtil.STREAM_CODEC, ServerboundTriggerKamikotizationAdvancementsPayload::performerId,
             UUIDUtil.STREAM_CODEC, ServerboundTriggerKamikotizationAdvancementsPayload::victimId,

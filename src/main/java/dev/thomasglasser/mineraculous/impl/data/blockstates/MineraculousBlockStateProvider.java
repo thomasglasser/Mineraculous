@@ -2,16 +2,18 @@ package dev.thomasglasser.mineraculous.impl.data.blockstates;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.tommylib.api.data.blockstates.ExtendedBlockStateProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import java.util.Objects;
 import java.util.SortedMap;
 import net.minecraft.data.PackOutput;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.FurnaceBlock;
 import net.minecraft.world.level.block.SweetBerryBushBlock;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
@@ -20,7 +22,7 @@ import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class MineraculousBlockStateProvider extends ExtendedBlockStateProvider {
     public MineraculousBlockStateProvider(PackOutput output, ExistingFileHelper exFileHelper) {
-        super(output, Mineraculous.MOD_ID, exFileHelper);
+        super(output, MineraculousConstants.MOD_ID, exFileHelper);
     }
 
     @Override
@@ -31,6 +33,16 @@ public class MineraculousBlockStateProvider extends ExtendedBlockStateProvider {
         cheese(MineraculousBlocks.CAMEMBERT, MineraculousBlocks.WAXED_CAMEMBERT, "camembert");
 
         simpleBlock(MineraculousBlocks.CHEESE_POT.get(), models().getExistingFile(blockLoc(MineraculousBlocks.CHEESE_POT)));
+        ResourceLocation ovenSide = modBlockLoc("oven_side");
+        ResourceLocation ovenBottom = modBlockLoc("oven_bottom");
+        ResourceLocation ovenTop = modBlockLoc("oven_top");
+        getVariantBuilder(MineraculousBlocks.OVEN.get()).forAllStates(state -> {
+            boolean lit = state.getValue(FurnaceBlock.LIT);
+            return ConfiguredModel.builder()
+                    .modelFile(lit ? models().orientableWithBottom(MineraculousBlocks.OVEN.getId().getPath() + "_on", ovenSide, modBlockLoc("oven_front_on"), ovenBottom, ovenTop) : models().orientableWithBottom(MineraculousBlocks.OVEN.getId().getPath(), ovenSide, modBlockLoc("oven_front"), ovenBottom, ovenTop))
+                    .rotationY((int) state.getValue(FurnaceBlock.FACING).getOpposite().toYRot())
+                    .build();
+        });
 
         getVariantBuilder(MineraculousBlocks.HIBISCUS_BUSH.get()).forAllStates(state -> {
             int stage = state.getValue(SweetBerryBushBlock.AGE);
@@ -57,14 +69,12 @@ public class MineraculousBlockStateProvider extends ExtendedBlockStateProvider {
                     .texture("particle", modBlockLoc("cheese/" + ageName + "_" + name + "_side"));
             models.put(age, bites, model);
             return ConfiguredModel.builder()
-                    .rotationY((int) (blockState.getValue(PieceBlock.FACING).getOpposite()).toYRot())
                     .modelFile(model)
                     .build();
         })));
         waxed.forEach(((age, block) -> getVariantBuilder(block.get()).forAllStates(blockState -> {
             int bites = blockState.getValue(block.get().getMissingPiecesProperty());
             return ConfiguredModel.builder()
-                    .rotationY((int) (blockState.getValue(PieceBlock.FACING).getOpposite()).toYRot())
                     .modelFile(Objects.requireNonNull(models.get(age, bites)))
                     .build();
         })));

@@ -246,16 +246,16 @@ public interface Ability {
     }
 
     enum State {
-        SUCCESS,
-        CONTINUE,
-        FAIL;
+        CONSUME,
+        PASS,
+        CANCEL;
 
-        public boolean shouldConsume() {
-            return this == FAIL || this == SUCCESS;
+        public boolean shouldStop() {
+            return this == CANCEL || this == CONSUME;
         }
 
         public boolean isSuccess() {
-            return this == SUCCESS;
+            return this == CONSUME;
         }
     }
 }

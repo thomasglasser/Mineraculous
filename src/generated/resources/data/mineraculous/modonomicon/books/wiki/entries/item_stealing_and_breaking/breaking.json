@@ -5,23 +5,29 @@
   "description": "book.mineraculous.wiki.item_stealing_and_breaking.breaking.description",
   "hide_while_locked": false,
   "icon": {
-    "item": "minecraft:coal"
+    "components": {
+      "minecraft:damage": 431
+    },
+    "item": "minecraft:elytra"
   },
   "name": "book.mineraculous.wiki.item_stealing_and_breaking.breaking.name",
   "pages": [
     {
-      "type": "modonomicon:image",
+      "type": "modonomicon:spotlight",
       "anchor": "",
-      "border": true,
       "condition": {
         "type": "modonomicon:none"
       },
-      "images": [
-        "mineraculous:textures/modonomicon/wiki/item_stealing_and_breaking/breaking.png"
-      ],
+      "item": {
+        "components": {
+          "minecraft:damage": 1,
+          "minecraft:max_damage": 2
+        },
+        "count": 1,
+        "item": "minecraft:obsidian"
+      },
       "text": "book.mineraculous.wiki.item_stealing_and_breaking.breaking.breaking.text",
-      "title": "book.mineraculous.wiki.item_stealing_and_breaking.breaking.breaking.title",
-      "use_legacy_rendering": false
+      "title": "book.mineraculous.wiki.item_stealing_and_breaking.breaking.breaking.title"
     }
   ],
   "show_when_any_parent_unlocked": false,

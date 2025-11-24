@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
@@ -16,7 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 public record ClientboundAddRightHandParticlesPayload(Optional<Integer> targetId, ParticleOptions particle) implements ExtendedPacketPayload {
-    public static final Type<ClientboundAddRightHandParticlesPayload> TYPE = new Type<>(Mineraculous.modLoc("clientbound_add_right_hand_particles"));
+    public static final Type<ClientboundAddRightHandParticlesPayload> TYPE = new Type<>(MineraculousConstants.modLoc("clientbound_add_right_hand_particles"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundAddRightHandParticlesPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.optional(ByteBufCodecs.INT), ClientboundAddRightHandParticlesPayload::targetId,
             ParticleTypes.STREAM_CODEC, ClientboundAddRightHandParticlesPayload::particle,
@@ -34,8 +34,9 @@ public record ClientboundAddRightHandParticlesPayload(Optional<Integer> targetId
                 handPos = MineraculousClientUtils.getHumanoidEntityHandPos(target, false, 0, -0.9, 0.35);
             }
             Level level = player.level();
-            particles(level, handPos);
-            particles(level, handPos);
+            for (int i = 0; i < 3; i++) {
+                particles(level, handPos);
+            }
         }
     }
 

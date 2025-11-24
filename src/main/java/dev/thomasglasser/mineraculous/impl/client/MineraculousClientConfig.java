@@ -8,10 +8,15 @@ public class MineraculousClientConfig {
 
     // Cosmetics
     public static final String COSMETICS = "cosmetics";
-    public final ModConfigSpec.BooleanValue displayBetaTesterCosmetic;
-    public final ModConfigSpec.EnumValue<BetaTesterCosmeticOptions> betaTesterCosmeticChoice;
-    public final ModConfigSpec.BooleanValue displayDevTeamCosmetic;
-    public final ModConfigSpec.BooleanValue displayLegacyDevTeamCosmetic;
+    public static final String SELF = "self";
+    public final ModConfigSpec.BooleanValue displaySelfBetaTesterCosmetic;
+    public final ModConfigSpec.EnumValue<BetaTesterCosmeticOptions> selfBetaTesterCosmeticChoice;
+    public final ModConfigSpec.BooleanValue displaySelfDevTeamCosmetic;
+    public final ModConfigSpec.BooleanValue displaySelfLegacyDevTeamCosmetic;
+    public static final String OTHERS = "others";
+    public final ModConfigSpec.BooleanValue displayOthersBetaTesterCosmetic;
+    public final ModConfigSpec.BooleanValue displayOthersDevTeamCosmetic;
+    public final ModConfigSpec.BooleanValue displayOthersLegacyDevTeamCosmetic;
 
     // Radial Menu
     public static final String RADIAL_MENU = "radial_menu";
@@ -23,14 +28,24 @@ public class MineraculousClientConfig {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
         builder.push(COSMETICS);
-        displayBetaTesterCosmetic = builder
-                .define("display_beta_tester_cosmetic", true);
-        betaTesterCosmeticChoice = builder
-                .defineEnum("beta_tester_cosmetic_choice", BetaTesterCosmeticOptions.DERBY_HAT);
-        displayDevTeamCosmetic = builder
-                .define("display_dev_team_cosmetic", true);
-        displayLegacyDevTeamCosmetic = builder
-                .define("display_legacy_dev_team_cosmetic", true);
+        builder.push(SELF);
+        displaySelfBetaTesterCosmetic = builder
+                .define("display_self_beta_tester_cosmetic", true);
+        selfBetaTesterCosmeticChoice = builder
+                .defineEnum("self_beta_tester_cosmetic_choice", BetaTesterCosmeticOptions.DERBY_HAT);
+        displaySelfDevTeamCosmetic = builder
+                .define("display_self_dev_team_cosmetic", true);
+        displaySelfLegacyDevTeamCosmetic = builder
+                .define("display_self_legacy_dev_team_cosmetic", true);
+        builder.pop();
+        builder.push(OTHERS);
+        displayOthersBetaTesterCosmetic = builder
+                .define("display_others_beta_tester_cosmetic", true);
+        displayOthersDevTeamCosmetic = builder
+                .define("display_others_dev_team_cosmetic", true);
+        displayOthersLegacyDevTeamCosmetic = builder
+                .define("display_others_legacy_dev_team_cosmetic", true);
+        builder.pop();
         builder.pop();
 
         builder.push(RADIAL_MENU);

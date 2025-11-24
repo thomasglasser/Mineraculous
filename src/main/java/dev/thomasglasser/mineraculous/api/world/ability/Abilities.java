@@ -1,17 +1,18 @@
 package dev.thomasglasser.mineraculous.api.world.ability;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.KamikotizationPredicate;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousBlockTags;
+import dev.thomasglasser.mineraculous.api.tags.MineraculousEntityTypeTags;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.damagesource.MineraculousDamageTypes;
 import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import java.util.Optional;
 import net.minecraft.advancements.critereon.BlockPredicate;
@@ -27,7 +28,7 @@ import org.jetbrains.annotations.ApiStatus;
 
 public class Abilities {
     // Butterfly
-    /// Converts an entity in {@link MineraculousEntityTypeTags#BUTTERFLIES} to a tamed {@link Kamiko} on right click.
+    /// Converts an entity in {@link dev.thomasglasser.mineraculous.api.tags.MineraculousEntityTypeTags#BUTTERFLIES} to a tamed {@link Kamiko} on right click.
     public static final ResourceKey<Ability> KAMIKOTIZATION = create("kamikotization");
     /// Toggles spectation of a nearby {@link Kamiko}.
     public static final ResourceKey<Ability> KAMIKO_CONTROL = create("kamiko_control");
@@ -56,10 +57,10 @@ public class Abilities {
     /// Passively applies {@link MobEffects#LUCK}.
     public static final ResourceKey<Ability> PASSIVE_LUCK = create("passive_luck");
 
-    private static final ResourceLocation KAMIKO_FACE_MASK_TEXTURE = Mineraculous.modLoc("textures/entity/player/face_mask/kamiko.png");
+    private static final ResourceLocation KAMIKO_FACE_MASK_TEXTURE = MineraculousConstants.modLoc("textures/entity/player/face_mask/kamiko.png");
 
     private static ResourceKey<Ability> create(String name) {
-        return ResourceKey.create(MineraculousRegistries.ABILITY, Mineraculous.modLoc(name));
+        return ResourceKey.create(MineraculousRegistries.ABILITY, MineraculousConstants.modLoc(name));
     }
 
     @ApiStatus.Internal
@@ -68,6 +69,7 @@ public class Abilities {
                 Optional.empty(),
                 Optional.of(Holder.direct(new ConvertAndTameAbility(
                         MineraculousEntityTypes.KAMIKO.get(),
+                        true,
                         Optional.of(EntityPredicate.Builder.entity()/*.of(MineraculousEntityTypeTags.BUTTERFLIES)*/.build()),
                         Optional.empty(),
                         Optional.of(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE)))),
@@ -77,6 +79,7 @@ public class Abilities {
                 Optional.empty(),
                 false,
                 false,
+                true,
                 true,
                 Optional.of(Kamiko.SPECTATOR_SHADER),
                 Optional.of(KAMIKO_FACE_MASK_TEXTURE),
@@ -88,6 +91,7 @@ public class Abilities {
                 true,
                 true,
                 true,
+                false,
                 Optional.of(Kamiko.SPECTATOR_SHADER),
                 Optional.of(KAMIKO_FACE_MASK_TEXTURE),
                 Optional.of(MineraculousSoundEvents.KAMIKOTIZED_COMMUNICATION_ACTIVATE),
@@ -97,6 +101,7 @@ public class Abilities {
         context.register(CATACLYSM, new ContinuousAbility(Holder.direct(new ContextDependentAbility(
                 Optional.of(Holder.direct(new ReplaceAdjacentBlocksAbility(
                         MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(),
+                        false,
                         true,
                         Optional.empty(),
                         Optional.of(BlockPredicate.Builder.block().of(MineraculousBlockTags.CATACLYSM_IMMUNE).build()),
@@ -104,6 +109,9 @@ public class Abilities {
                 Optional.of(Holder.direct(new ApplyEffectsOrDestroyAbility(
                         HolderSet.direct(MineraculousMobEffects.CATACLYSM),
                         new ApplyEffectsOrDestroyAbility.EffectSettings(-1, false, false),
+                        true,
+                        Optional.empty(),
+                        Optional.of(EntityPredicate.Builder.entity().of(MineraculousEntityTypeTags.CATACLYSM_IMMUNE).build()),
                         Optional.of(MineraculousDamageTypes.CATACLYSM),
                         true,
                         true,
@@ -120,7 +128,7 @@ public class Abilities {
                 Optional.of(MineraculousSoundEvents.CATACLYSM_ACTIVATE),
                 Optional.empty(),
                 Optional.empty()));
-        context.register(CAT_VISION, new AutomaticNightVisionAbility(Optional.of(Mineraculous.modLoc("shaders/post/cat_vision.json")), Optional.empty(), Optional.empty()));
+        context.register(CAT_VISION, new ToggleableNightVisionAbility(Optional.of(MineraculousConstants.modLoc("shaders/post/cat_vision.json")), Optional.empty(), Optional.empty()));
         context.register(PASSIVE_UNLUCK, new PassiveEffectsAbility(HolderSet.direct(MobEffects.UNLUCK), 0));
 
         // Ladybug

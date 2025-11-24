@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.data.worldgen;
 
 import com.mojang.datafixers.util.Pair;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.worldgen.lithostitched.registry.LithostitchedRegistryKeys;
 import dev.worldgen.lithostitched.worldgen.modifier.AddTemplatePoolElementsModifier;
 import dev.worldgen.lithostitched.worldgen.modifier.Modifier;
@@ -29,6 +29,14 @@ public class MineraculousWorldgenModifiers {
         Holder<StructureProcessorList> zombieSnowy = processors.getOrThrow(ProcessorLists.ZOMBIE_SNOWY);
         Holder<StructureProcessorList> zombieTaiga = processors.getOrThrow(ProcessorLists.ZOMBIE_TAIGA);
 
+        // Bakery
+        addStructureToVillage(context, "desert", "bakery", 4, null, zombieDesert);
+        addStructureToVillage(context, "plains", "bakery", 4, mossify10, zombiePlains);
+        addStructureToVillage(context, "savanna", "bakery", 3, null, zombieSavanna);
+        addStructureToVillage(context, "snowy", "bakery_1", 2, null, zombieSnowy);
+        addStructureToVillage(context, "snowy", "bakery_2", 2, null, zombieSnowy);
+        addStructureToVillage(context, "taiga", "bakery", 4, mossify10, zombieTaiga);
+
         // Creamery
         addStructureToVillage(context, "desert", "creamery", 8, null, zombieDesert);
         addStructureToVillage(context, "plains", "creamery", 10, mossify10, zombiePlains);
@@ -39,12 +47,12 @@ public class MineraculousWorldgenModifiers {
 
     private static void addStructureToVillage(BootstrapContext<Modifier> context, String type, String structure, int weight, @Nullable Holder<StructureProcessorList> processor, Holder<StructureProcessorList> zombieProcessor) {
         HolderGetter<StructureTemplatePool> templatePools = context.lookup(Registries.TEMPLATE_POOL);
-        context.register(create("add_" + structure + "_" + type), new AddTemplatePoolElementsModifier(HolderSet.direct(templatePools.getOrThrow(mcPoolKey("village/" + type + "/houses"))), List.of(Pair.of((processor == null ? SinglePoolElement.legacy(Mineraculous.modLoc("village/" + type + "/houses/" + structure).toString()) : SinglePoolElement.legacy(Mineraculous.modLoc("village/" + type + "/houses/" + structure).toString(), processor)).apply(StructureTemplatePool.Projection.RIGID), weight))));
-        context.register(create("add_" + structure + "_" + type + "_zombie"), new AddTemplatePoolElementsModifier(HolderSet.direct(templatePools.getOrThrow(mcPoolKey("village/" + type + "/zombie/houses"))), List.of(Pair.of(SinglePoolElement.legacy(Mineraculous.modLoc("village/" + type + "/houses/" + structure).toString(), zombieProcessor).apply(StructureTemplatePool.Projection.RIGID), weight))));
+        context.register(create("add_" + structure + "_" + type), new AddTemplatePoolElementsModifier(1000, HolderSet.direct(templatePools.getOrThrow(mcPoolKey("village/" + type + "/houses"))), List.of(Pair.of((processor == null ? SinglePoolElement.legacy(MineraculousConstants.modLoc("village/" + type + "/houses/" + structure).toString()) : SinglePoolElement.legacy(MineraculousConstants.modLoc("village/" + type + "/houses/" + structure).toString(), processor)).apply(StructureTemplatePool.Projection.RIGID), weight))));
+        context.register(create("add_" + structure + "_" + type + "_zombie"), new AddTemplatePoolElementsModifier(1000, HolderSet.direct(templatePools.getOrThrow(mcPoolKey("village/" + type + "/zombie/houses"))), List.of(Pair.of(SinglePoolElement.legacy(MineraculousConstants.modLoc("village/" + type + "/houses/" + structure).toString(), zombieProcessor).apply(StructureTemplatePool.Projection.RIGID), weight))));
     }
 
     private static ResourceKey<Modifier> create(String name) {
-        return ResourceKey.create(LithostitchedRegistryKeys.WORLDGEN_MODIFIER, Mineraculous.modLoc(name));
+        return ResourceKey.create(LithostitchedRegistryKeys.WORLDGEN_MODIFIER, MineraculousConstants.modLoc(name));
     }
 
     private static ResourceKey<StructureTemplatePool> poolKey(ResourceLocation path) {

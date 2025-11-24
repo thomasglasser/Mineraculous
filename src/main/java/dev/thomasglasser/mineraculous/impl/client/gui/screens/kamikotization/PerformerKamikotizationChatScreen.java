@@ -14,12 +14,10 @@ public class PerformerKamikotizationChatScreen extends AbstractKamikotizationCha
     public static final String INTRO_NAME = "gui.kamikotization.chat.intro.name";
     public static final String INTRO_NAMELESS = "gui.kamikotization.chat.intro.nameless";
 
-    private final UUID other;
     private final BlockPos otherPos;
 
     public PerformerKamikotizationChatScreen(String performerName, String targetName, Optional<ResourceLocation> faceMaskTexture, UUID other, BlockPos otherPos) {
-        super(performerName.isEmpty() ? Component.translatable(INTRO_NAMELESS, targetName).getString() : Component.translatable(INTRO_NAME, targetName, performerName).getString(), faceMaskTexture);
-        this.other = other;
+        super(performerName.isEmpty() ? Component.translatable(INTRO_NAMELESS, targetName).getString() : Component.translatable(INTRO_NAME, targetName, performerName).getString(), other, faceMaskTexture);
         this.otherPos = otherPos;
     }
 
@@ -29,6 +27,7 @@ public class PerformerKamikotizationChatScreen extends AbstractKamikotizationCha
 
     @Override
     public void onClose(boolean cancel, boolean initiated) {
+        UUID other = this.other.getUUID();
         if (cancel) {
             TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(this.minecraft.player.getUUID(), otherPos.above()));
             if (initiated)

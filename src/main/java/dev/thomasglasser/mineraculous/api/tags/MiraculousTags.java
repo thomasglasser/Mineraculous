@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.api.tags;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import net.minecraft.tags.TagKey;
 
 public class MiraculousTags {
@@ -14,6 +14,6 @@ public class MiraculousTags {
     public static final TagKey<Miraculous> CAN_USE_LADYBUG_YOYO = create("can_use_ladybug_yoyo");
 
     private static TagKey<Miraculous> create(String name) {
-        return TagKey.create(MineraculousRegistries.MIRACULOUS, Mineraculous.modLoc(name));
+        return TagKey.create(MineraculousRegistries.MIRACULOUS, MineraculousConstants.modLoc(name));
     }
 }

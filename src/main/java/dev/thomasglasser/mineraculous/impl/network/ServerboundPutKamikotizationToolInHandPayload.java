@@ -1,9 +1,9 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import java.util.UUID;
@@ -14,10 +14,12 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
-public record ServerboundPutKamikotizationToolInHandPayload() implements ExtendedPacketPayload {
+public class ServerboundPutKamikotizationToolInHandPayload implements ExtendedPacketPayload {
     public static final ServerboundPutKamikotizationToolInHandPayload INSTANCE = new ServerboundPutKamikotizationToolInHandPayload();
-    public static final Type<ServerboundPutKamikotizationToolInHandPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_put_kamikotization_tool_in_hand"));
+    public static final Type<ServerboundPutKamikotizationToolInHandPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_put_kamikotization_tool_in_hand"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundPutKamikotizationToolInHandPayload> CODEC = StreamCodec.unit(INSTANCE);
+
+    private ServerboundPutKamikotizationToolInHandPayload() {}
 
     // ON SERVER
     @Override

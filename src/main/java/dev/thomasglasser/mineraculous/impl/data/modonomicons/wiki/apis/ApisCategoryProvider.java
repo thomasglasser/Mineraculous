@@ -29,7 +29,7 @@ public class ApisCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected String categoryDescription() {
-        return "APIs in Mineraculous that allow for datapack and mod customization.";
+        return "APIs that allow for addon mod and datapack customization.";
     }
 
     @Override

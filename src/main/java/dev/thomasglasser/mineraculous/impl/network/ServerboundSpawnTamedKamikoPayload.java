@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
@@ -15,7 +15,7 @@ import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.player.Player;
 
 public record ServerboundSpawnTamedKamikoPayload(UUID ownerId, BlockPos spawnPos) implements ExtendedPacketPayload {
-    public static final Type<ServerboundSpawnTamedKamikoPayload> TYPE = new Type<>(Mineraculous.modLoc("serverbound_spawn_tamed_kamiko"));
+    public static final Type<ServerboundSpawnTamedKamikoPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_spawn_tamed_kamiko"));
     public static final StreamCodec<ByteBuf, ServerboundSpawnTamedKamikoPayload> CODEC = StreamCodec.composite(
             UUIDUtil.STREAM_CODEC, ServerboundSpawnTamedKamikoPayload::ownerId,
             BlockPos.STREAM_CODEC, ServerboundSpawnTamedKamikoPayload::spawnPos,

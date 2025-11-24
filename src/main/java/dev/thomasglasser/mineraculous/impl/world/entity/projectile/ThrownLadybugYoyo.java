@@ -14,9 +14,9 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundCalculateYoyoRenderLengthPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
-import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
 import java.util.Optional;
@@ -58,7 +58,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     public static final float MIN_MAX_ROPE_LENGTH = 1.5f;
 
-    private static final EntityDataAccessor<Optional<LadybugYoyoItem.Ability>> DATA_ABILITY = SynchedEntityData.defineId(ThrownLadybugYoyo.class, MineraculousEntityDataSerializers.OPTIONAL_LADYBUG_YOYO_ABILITY.get());
+    private static final EntityDataAccessor<Optional<LadybugYoyoItem.Mode>> DATA_MODE = SynchedEntityData.defineId(ThrownLadybugYoyo.class, MineraculousEntityDataSerializers.OPTIONAL_LADYBUG_YOYO_MODE.get());
     private static final EntityDataAccessor<Boolean> DATA_IS_RECALLING = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Float> DATA_MAX_ROPE_LENGTH = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Direction> DATA_INITIAL_DIRECTION = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.DIRECTION);
@@ -78,23 +78,29 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         setBaseDamage(8);
     }
 
-    public ThrownLadybugYoyo(LivingEntity owner, Level level, ItemStack pickupItemStack, @Nullable LadybugYoyoItem.Ability ability) {
+    public ThrownLadybugYoyo(LivingEntity owner, Level level, ItemStack pickupItemStack, @Nullable LadybugYoyoItem.Mode mode) {
         super(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), owner, level, pickupItemStack, pickupItemStack);
         this.noCulling = true;
         setBaseDamage(8);
         setPos(owner.getX(), owner.getEyeY() - 0.2, owner.getZ());
-        setAbility(ability);
-        new ThrownLadybugYoyoData(this.getId()).save(owner, !level.isClientSide);
+        setMode(mode);
+        new ThrownLadybugYoyoData(this.getId()).save(owner);
     }
 
     public static float clampMaxRopeLength(float maxRopeLength) {
-        return Math.min(Math.max(maxRopeLength, MIN_MAX_ROPE_LENGTH), MineraculousServerConfig.get().maxToolLength.getAsInt());
+        return clampMaxRopeLength(maxRopeLength, false);
+    }
+
+    public static float clampMaxRopeLength(float maxRopeLength, boolean leash) {
+        float maxConfig = MineraculousServerConfig.get().maxToolLength.getAsInt();
+        if (leash) maxConfig = (float) (Math.pow(2f, 15 / 4f) * Math.pow(maxConfig, 1 / 4f));
+        return Math.min(Math.max(maxRopeLength, MIN_MAX_ROPE_LENGTH), maxConfig);
     }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(DATA_ABILITY, Optional.empty());
+        builder.define(DATA_MODE, Optional.empty());
         builder.define(DATA_IS_RECALLING, false);
         builder.define(DATA_RECALLING_TICKS, 0);
         builder.define(DATA_MAX_ROPE_LENGTH, 0f);
@@ -102,12 +108,12 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         builder.define(DATA_HAND, 0);
     }
 
-    public @Nullable LadybugYoyoItem.Ability getAbility() {
-        return this.entityData.get(DATA_ABILITY).orElse(null);
+    public @Nullable LadybugYoyoItem.Mode getMode() {
+        return this.entityData.get(DATA_MODE).orElse(null);
     }
 
-    public void setAbility(@Nullable LadybugYoyoItem.Ability ability) {
-        this.entityData.set(DATA_ABILITY, Optional.ofNullable(ability));
+    public void setMode(@Nullable LadybugYoyoItem.Mode mode) {
+        this.entityData.set(DATA_MODE, Optional.ofNullable(mode));
     }
 
     public boolean isRecalling() {
@@ -176,12 +182,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
             this.dealtDamage = true;
         }
 
-        Entity entity = getOwner();
-        if (entity == null) {
-            discard();
-            return;
-        }
-        if (entity instanceof LivingEntity owner) {
+        if (getOwner() instanceof LivingEntity owner) {
             checkInstantRecall(owner);
             if (this.freshlyHitGround && !this.isRecalling()) {
                 Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
@@ -221,12 +222,19 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     if (this.getY() > owner.getY()) {
                         owner.setDeltaMovement(newVelocity);
                     }
+
+                    applyCollisionDamage(owner);
                 }
             } else {
+                ThrownLadybugYoyoData yoyoData = owner.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
+                if (yoyoData.summonedLuckyCharm() &&
+                        this.getDeltaMovement().y < -0.3)
+                    this.recall();
+
                 if (this.tickCount < 50) {
                     if (owner.onGround()) {
                         this.setDeltaMovement(this.getDeltaMovement().normalize().scale(3));
-                    } else {
+                    } else if (!yoyoData.summonedLuckyCharm()) {
                         Vec3 motion = owner.getLookAngle().scale(4); //this makes it follow the cursor
                         this.setDeltaMovement(motion);
                     }
@@ -234,9 +242,28 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     this.setNoGravity(false);
                 }
             }
+        } else {
+            discard();
+            return;
         }
 
         super.tick();
+    }
+
+    private static void applyCollisionDamage(LivingEntity entity) {
+        Vec3 velocity = entity.getDeltaMovement();
+        double horizontalSpeedBefore = velocity.horizontalDistance();
+
+        entity.move(MoverType.SELF, velocity);
+
+        if (entity.horizontalCollision || entity.minorHorizontalCollision) {
+            double horizontalSpeedAfter = entity.getDeltaMovement().horizontalDistance();
+            double lostSpeed = horizontalSpeedBefore - horizontalSpeedAfter;
+            float damage = (float) (lostSpeed * 10.0 - 3.0);
+
+            if (damage > 0.0F)
+                entity.hurt(entity.damageSources().flyIntoWall(), damage);
+        }
     }
 
     public void recall() {
@@ -251,12 +278,13 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
         double distance = fromProjectileToPlayer.length();
         ItemStack stack = owner.getItemInHand(getHand());
-        boolean flag = distance <= MineraculousServerConfig.get().maxToolLength.getAsInt() + 1
+        boolean remain = !owner.isRemoved()
+                && distance <= MineraculousServerConfig.get().maxToolLength.getAsInt() + 1
                 && this.level().dimension() == owner.level().dimension()
                 && stack.is(MineraculousItems.LADYBUG_YOYO)
-                && stack.getOrDefault(MineraculousDataComponents.ACTIVE, false)
-                && (getAbility() == null || getAbility() == stack.get(MineraculousDataComponents.LADYBUG_YOYO_ABILITY));
-        if (owner.isRemoved() || !flag) {
+                && Active.isActive(stack)
+                && (getMode() == null || getMode() == stack.get(MineraculousDataComponents.LADYBUG_YOYO_MODE));
+        if (!remain) {
             this.discard();
         }
     }
@@ -264,15 +292,15 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     @Nullable
     @Override
     protected EntityHitResult findHitEntity(Vec3 startVec, Vec3 endVec) {
-        return this.getAbility() == LadybugYoyoItem.Ability.TRAVEL || this.dealtDamage ? null : super.findHitEntity(startVec, endVec);
+        return this.getMode() == LadybugYoyoItem.Mode.TRAVEL || this.dealtDamage ? null : super.findHitEntity(startVec, endVec);
     }
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
         Entity entity = result.getEntity();
         Entity owner = this.getOwner();
-        LadybugYoyoItem.Ability ability = this.getAbility();
-        if (ability == null) {
+        LadybugYoyoItem.Mode mode = this.getMode();
+        if (mode == null) {
             float damage = (float) getBaseDamage();
             DamageSource damagesource = this.damageSources().arrow(this, owner == null ? this : owner);
             if (this.level() instanceof ServerLevel serverLevel) {
@@ -298,7 +326,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
             }
             recall();
         } else if (level() instanceof ServerLevel level) {
-            if (ability == LadybugYoyoItem.Ability.PURIFY) {
+            if (mode == LadybugYoyoItem.Mode.PURIFY) {
                 AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
                 if (entityData.isConverted(entity.getUUID())) {
                     UUID ownerId = getPickupItemStackOrigin().get(MineraculousDataComponents.OWNER);
@@ -318,15 +346,14 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                         }
                     }
                 }
-            } else if (ability == LadybugYoyoItem.Ability.LASSO && owner != null && entity instanceof Leashable leashable) {
+            } else if (mode == LadybugYoyoItem.Mode.LASSO && owner != null && entity instanceof Leashable leashable) {
                 if (leashable.getLeashHolder() != owner && !entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE)) {
                     if (leashable.isLeashed()) {
                         leashable.dropLeash(true, true);
                     }
                     leashable.setLeashedTo(owner, true);
                     entity.setData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE, true);
-                    TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE, true), owner.getServer());
-                    new LeashingLadybugYoyoData(entity.getId()).save(owner, true);
+                    new LeashingLadybugYoyoData(entity.getId()).save(owner);
                 }
                 recall();
             }
@@ -336,7 +363,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
 
     @Override
     protected boolean canHitEntity(Entity target) {
-        if (getAbility() == null && !target.canBeHitByProjectile() && !(target instanceof ItemEntity)) {
+        if (getMode() == null && !target.canBeHitByProjectile() && !(target instanceof ItemEntity)) {
             return false;
         } else {
             Entity entity = this.getOwner();
@@ -348,7 +375,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     protected void onHitBlock(BlockHitResult result) {
         super.onHitBlock(result);
         if (!level().isClientSide) {
-            if (getAbility() == LadybugYoyoItem.Ability.TRAVEL) {
+            if (getMode() == LadybugYoyoItem.Mode.TRAVEL) {
                 Entity owner = this.getOwner();
                 if (owner != null && this.inGround() && !this.isRecalling()) {
                     if (owner instanceof Player player) {
@@ -387,16 +414,16 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
-        if (compound.contains("Ability"))
-            setAbility(LadybugYoyoItem.Ability.valueOf(compound.getString("Ability")));
+        if (compound.contains("Mode"))
+            setMode(LadybugYoyoItem.Mode.valueOf(compound.getString("Mode")));
         this.dealtDamage = compound.getBoolean("DealtDamage");
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
-        if (getAbility() != null)
-            compound.putString("Ability", this.getAbility().name());
+        if (getMode() != null)
+            compound.putString("Mode", this.getMode().name());
         compound.putBoolean("DealtDamage", this.dealtDamage);
     }
 
@@ -408,7 +435,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, "controller", 0, state -> {
-            if (getAbility() == LadybugYoyoItem.Ability.PURIFY)
+            if (getMode() == LadybugYoyoItem.Mode.PURIFY)
                 return state.setAndContinue(DefaultAnimations.IDLE);
             return PlayState.STOP;
         }));
@@ -419,12 +446,16 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         return cache;
     }
 
+    public void clearOwnerData() {
+        Entity owner = getOwner();
+        if (owner != null && !level().isClientSide) {
+            owner.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).clearId().save(owner);
+        }
+    }
+
     @Override
     public void remove(RemovalReason reason) {
-        if (getOwner() != null) {
-            if (!level().isClientSide)
-                getOwner().getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).clearId().save(getOwner(), true);
-        }
+        clearOwnerData();
         super.remove(reason);
     }
 }

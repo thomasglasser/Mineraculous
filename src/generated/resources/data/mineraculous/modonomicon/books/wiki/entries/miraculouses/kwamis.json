@@ -1,0 +1,76 @@
+{
+  "background_u_index": 0,
+  "background_v_index": 0,
+  "category": "miraculouses",
+  "description": "book.mineraculous.wiki.miraculouses.kwamis.description",
+  "hide_while_locked": false,
+  "icon": {
+    "components": {
+      "mineraculous:miraculous": "mineraculous:cat"
+    },
+    "item": "mineraculous:kwami"
+  },
+  "name": "book.mineraculous.wiki.miraculouses.kwamis.name",
+  "pages": [
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculouses/kwamis/summoning.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculouses.kwamis.summoning.text",
+      "title": "book.mineraculous.wiki.miraculouses.kwamis.summoning.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculouses/kwamis/transforming.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculouses.kwamis.transforming.text",
+      "title": "book.mineraculous.wiki.miraculouses.kwamis.transforming.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculouses/kwamis/charging.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculouses.kwamis.charging.text",
+      "title": "book.mineraculous.wiki.miraculouses.kwamis.charging.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/miraculouses/kwamis/transferring_and_renouncing.png"
+      ],
+      "text": "book.mineraculous.wiki.miraculouses.kwamis.transferring_and_renouncing.text",
+      "title": "book.mineraculous.wiki.miraculouses.kwamis.transferring_and_renouncing.title",
+      "use_legacy_rendering": false
+    }
+  ],
+  "show_when_any_parent_unlocked": false,
+  "sort_number": 1,
+  "x": 0,
+  "y": 0
+}

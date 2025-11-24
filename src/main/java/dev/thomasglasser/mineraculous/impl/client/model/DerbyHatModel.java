@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.impl.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
@@ -16,8 +16,8 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 
 public class DerbyHatModel extends Model {
-    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(Mineraculous.modLoc("derby_hat"), "main");
-    public static final ResourceLocation TEXTURE = Mineraculous.modLoc("textures/entity/player/derby_hat.png");
+    public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(MineraculousConstants.modLoc("derby_hat"), "main");
+    public static final ResourceLocation TEXTURE = MineraculousConstants.modLoc("textures/entity/player/derby_hat.png");
 
     private final ModelPart hat;
 
@@ -26,22 +26,20 @@ public class DerbyHatModel extends Model {
         this.hat = root.getChild("hat");
     }
 
-    // TODO: Replace with proper model
     public static LayerDefinition createBodyLayer() {
         MeshDefinition meshdefinition = new MeshDefinition();
         PartDefinition partdefinition = meshdefinition.getRoot();
 
-        PartDefinition hat = partdefinition.addOrReplaceChild("hat", CubeListBuilder.create().texOffs(2, 14).addBox(-0.5F, -5.25F, -0.5F, 1.0F, 1.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -7.0F, 0.0F));
+        PartDefinition hat = partdefinition.addOrReplaceChild("hat", CubeListBuilder.create().texOffs(0, 13).addBox(-5.0F, -38.0F, -5.0F, 10.0F, 6.0F, 10.0F, new CubeDeformation(0.0F))
+                .texOffs(0, 0).addBox(-6.0F, -32.0F, -6.0F, 12.0F, 1.0F, 12.0F, new CubeDeformation(0.0F))
+                .texOffs(40, 0).addBox(-6.0F, -33.0F, -6.0F, 12.0F, 1.0F, 0.0F, new CubeDeformation(0.0F))
+                .texOffs(40, 1).addBox(-6.0F, -33.0F, 6.0F, 12.0F, 1.0F, 0.0F, new CubeDeformation(0.0F))
+                .texOffs(0, 17).addBox(6.0F, -33.0F, -6.0F, 0.0F, 1.0F, 12.0F, new CubeDeformation(0.0F))
+                .texOffs(24, 17).addBox(-6.0F, -33.0F, -6.0F, 0.0F, 1.0F, 12.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 26.0F, 0.0F));
 
-        PartDefinition cube_r1 = hat.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(0, 0).addBox(-6.0F, -5.0F, -4.0F, 12.0F, 12.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -1.0908F, 0.0F, 0.0F));
+        PartDefinition cube_r1 = hat.addOrReplaceChild("cube_r1", CubeListBuilder.create().texOffs(40, 15).addBox(0.0F, -9.0F, -2.0F, 0.0F, 10.0F, 4.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(5.0F, -33.2F, 0.0F, -0.7854F, 0.1745F, 0.1745F));
 
-        PartDefinition cube_r2 = hat.addOrReplaceChild("cube_r2", CubeListBuilder.create().texOffs(0, 0).addBox(-6.0F, -5.0F, -4.0F, 12.0F, 12.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -1.0908F, -1.5708F, 0.0F));
-
-        PartDefinition cube_r3 = hat.addOrReplaceChild("cube_r3", CubeListBuilder.create().texOffs(0, 0).addBox(-6.0F, -5.0F, -4.0F, 12.0F, 12.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -1.0908F, 3.1416F, 0.0F));
-
-        PartDefinition cube_r4 = hat.addOrReplaceChild("cube_r4", CubeListBuilder.create().texOffs(0, 0).addBox(-6.0F, -5.0F, -4.0F, 12.0F, 12.0F, 0.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, 0.0F, 0.0F, -1.0908F, 1.5708F, 0.0F));
-
-        return LayerDefinition.create(meshdefinition, 32, 32);
+        return LayerDefinition.create(meshdefinition, 64, 32);
     }
 
     @Override

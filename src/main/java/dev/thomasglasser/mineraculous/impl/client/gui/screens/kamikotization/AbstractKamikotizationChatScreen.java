@@ -1,9 +1,11 @@
 package dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization;
 
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import net.minecraft.client.GuiMessage;
 import net.minecraft.client.GuiMessageTag;
 import net.minecraft.client.Minecraft;
@@ -22,10 +24,12 @@ import net.minecraft.world.entity.player.Player;
 import org.lwjgl.glfw.GLFW;
 
 public abstract class AbstractKamikotizationChatScreen extends ChatScreen {
+    protected final Player other;
     protected final Optional<ResourceLocation> faceMaskTexture;
 
-    protected AbstractKamikotizationChatScreen(String initialText, Optional<ResourceLocation> faceMaskTexture) {
+    protected AbstractKamikotizationChatScreen(String initialText, UUID other, Optional<ResourceLocation> faceMaskTexture) {
         super(initialText);
+        this.other = ClientUtils.getLevel().getPlayerByUUID(other);
         this.faceMaskTexture = faceMaskTexture;
     }
 
@@ -34,6 +38,14 @@ public abstract class AbstractKamikotizationChatScreen extends ChatScreen {
         super.init();
         this.minecraft.gui.getChat().clearMessages(true);
         this.commandSuggestions = null;
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (!other.isAlive() || other.isRemoved()) {
+            onClose();
+        }
     }
 
     @Override
@@ -184,7 +196,7 @@ public abstract class AbstractKamikotizationChatScreen extends ChatScreen {
         this.minecraft.gui.getChat().clearMessages(true);
         Player player = Minecraft.getInstance().player;
         if (player != null) {
-            AbilityEffectData.removeFaceMaskTexture(player, faceMaskTexture);
+            AbilityEffectUtils.removeFaceMaskTexture(player, faceMaskTexture);
         }
     }
 

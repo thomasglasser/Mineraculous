@@ -36,7 +36,7 @@ public class ModPagesEntryProvider extends IndexModeEntryProvider {
         add(context().pageTitle(), "GitHub");
         add(context().pageText(), """
                 The source code for the mod can be found on [GitHub](https://github.com/thomasglasser/Mineraculous).
-                This is also the place to report issues and suggest features.
+                This is also the place to report issues and bugs.
                 """);
 
         page("curseforge", () -> BookImagePageModel.create()
@@ -47,8 +47,7 @@ public class ModPagesEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "CurseForge");
         add(context().pageText(), """
-                Though not recommended,
-                the mod can also be found on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/mineraculous).
+                The mod can also be found on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/mineraculous).
                 """);
     }
 
@@ -64,7 +63,7 @@ public class ModPagesEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(MODRINTH_TEXTURE);
+        return BookIconModel.create(MODRINTH_TEXTURE, 200, 200);
     }
 
     @Override

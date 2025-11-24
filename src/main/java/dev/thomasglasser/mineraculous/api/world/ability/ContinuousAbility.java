@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.PersistentAbilityEffectData;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -42,34 +42,33 @@ public record ContinuousAbility(Holder<Ability> ability, int ticks, Optional<Hol
 
     @Override
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
-        boolean success = ability.value().perform(data, level, performer, handler, context).isSuccess();
-        AbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
+        State state = ability.value().perform(data, level, performer, handler, context);
+        PersistentAbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.PERSISTENT_ABILITY_EFFECTS);
         if (context == null && abilityEffectData.continuousTicks().isPresent()) {
             int continuousTicks = abilityEffectData.continuousTicks().get();
             continuousTicks--;
             if (continuousTicks <= 0) {
-                abilityEffectData.stopContinuousAbility().save(performer, true);
+                abilityEffectData.stopContinuousAbility().save(performer);
                 Ability.playSound(level, performer, finishSound);
-                return State.SUCCESS;
+                return State.CONSUME;
             } else {
-                abilityEffectData.withContinuousTicks(Optional.of(continuousTicks)).save(performer, true);
+                abilityEffectData.withContinuousTicks(Optional.of(continuousTicks)).save(performer);
             }
         }
-        if (success) {
-            if (performer instanceof ServerPlayer player && context != null) {
+        if (state.shouldStop()) {
+            if (state.isSuccess() && performer instanceof ServerPlayer player && context != null) {
                 handler.triggerPerformAdvancement(player, context);
             }
             if (abilityEffectData.continuousTicks().isEmpty()) {
-                abilityEffectData.withContinuousTicks(Optional.of(ticks)).save(performer, true);
+                abilityEffectData.withContinuousTicks(Optional.of(ticks)).save(performer);
                 Ability.playSound(level, performer, activeStartSound);
-                return State.CONTINUE;
             }
         }
         if (!abilityEffectData.playedContinuousAbilityStartSound()) {
-            abilityEffectData.withPlayedContinuousAbilityStartSound(true).save(performer, true);
+            abilityEffectData.withPlayedContinuousAbilityStartSound(true).save(performer);
             Ability.playSound(level, performer, passiveStartSound);
         }
-        return State.CONTINUE;
+        return State.PASS;
     }
 
     @Override
@@ -82,10 +81,7 @@ public record ContinuousAbility(Holder<Ability> ability, int ticks, Optional<Hol
 
     @Override
     public List<Ability> getMatching(Predicate<Ability> predicate) {
-        List<Ability> abilities = new ReferenceArrayList<>();
-        abilities.add(this);
-        abilities.addAll(Ability.getMatching(predicate, ability.value()));
-        return abilities;
+        return Ability.getMatching(predicate, ability.value());
     }
 
     @Override

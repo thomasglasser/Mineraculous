@@ -109,6 +109,27 @@
       "predicate": {
         "mineraculous:active": 1.0
       }
+    },
+    {
+      "model": "mineraculous:item/cat_staff_phone",
+      "predicate": {
+        "mineraculous:active": 1.0,
+        "mineraculous:mode": 3.0
+      }
+    },
+    {
+      "model": "mineraculous:item/cat_staff_spyglass",
+      "predicate": {
+        "mineraculous:active": 1.0,
+        "mineraculous:mode": 4.0
+      }
+    },
+    {
+      "model": "mineraculous:item/cat_staff_active",
+      "predicate": {
+        "mineraculous:active": 1.0,
+        "mineraculous:mode": 5.0
+      }
     }
   ],
   "perspectives": {

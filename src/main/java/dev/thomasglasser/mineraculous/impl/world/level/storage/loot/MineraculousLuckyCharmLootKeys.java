@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage.loot;
 
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -33,6 +33,6 @@ public class MineraculousLuckyCharmLootKeys {
     }
 
     private static ResourceKey<LootTable> create(String name) {
-        return ResourceKey.create(Registries.LOOT_TABLE, Mineraculous.modLoc("gameplay/lucky_charm/" + name));
+        return ResourceKey.create(Registries.LOOT_TABLE, MineraculousConstants.modLoc("gameplay/lucky_charm/" + name));
     }
 }

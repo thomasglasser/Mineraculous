@@ -1,13 +1,14 @@
 package dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization;
 
-import com.mojang.datafixers.util.Either;
-import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundCloseKamikotizationChatScreenPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundSetItemKamikotizingPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStartKamikotizationTransformationPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundTriggerKamikotizationAdvancementsPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -15,15 +16,13 @@ import net.minecraft.network.chat.Component;
 public class ReceiverKamikotizationChatScreen extends AbstractKamikotizationChatScreen {
     public static final Component ACCEPT = Component.translatable("gui.kamikotization.chat.accept");
 
-    private final UUID other;
     private final KamikotizationData kamikotizationData;
-    private final Either<Integer, CuriosData> slotInfo;
+    private final SlotInfo slotInfo;
 
     protected Button accept;
 
-    public ReceiverKamikotizationChatScreen(UUID other, KamikotizationData kamikotizationData, Either<Integer, CuriosData> slotInfo) {
-        super("", kamikotizationData.kamikoData().faceMaskTexture());
-        this.other = other;
+    public ReceiverKamikotizationChatScreen(UUID other, KamikotizationData kamikotizationData, SlotInfo slotInfo) {
+        super("", other, kamikotizationData.kamikoData().faceMaskTexture());
         this.kamikotizationData = kamikotizationData;
         this.slotInfo = slotInfo;
     }
@@ -39,6 +38,7 @@ public class ReceiverKamikotizationChatScreen extends AbstractKamikotizationChat
 
     @Override
     public void onClose(boolean cancel, boolean initiated) {
+        UUID other = this.other.getUUID();
         if (cancel) {
             if (initiated) {
                 if (!MineraculousServerConfig.get().enableKamikotizationRejection.get()) {
@@ -46,6 +46,7 @@ public class ReceiverKamikotizationChatScreen extends AbstractKamikotizationChat
                 }
                 TommyLibServices.NETWORK.sendToServer(new ServerboundCloseKamikotizationChatScreenPayload(other, true));
             }
+            TommyLibServices.NETWORK.sendToServer(new ServerboundSetItemKamikotizingPayload(Optional.empty(), false, slotInfo));
         } else {
             TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationTransformationPayload(kamikotizationData, slotInfo));
             TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(other, minecraft.player.getUUID(), kamikotizationData.kamikotization().getKey()));

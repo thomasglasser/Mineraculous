@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable_with_bottom",
+  "textures": {
+    "bottom": "mineraculous:block/oven_bottom",
+    "front": "mineraculous:block/oven_front",
+    "side": "mineraculous:block/oven_side",
+    "top": "mineraculous:block/oven_top"
+  }
+}

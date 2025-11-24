@@ -35,7 +35,7 @@ public abstract class MinecraftMixin {
     private void checkPostEffectOnKeyPress(CallbackInfo ci) {
         Player player = this.player;
         if (player != null) {
-            player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).shader().ifPresentOrElse(MineraculousClientUtils::setShader, () -> this.gameRenderer.checkEntityPostEffect(getCameraEntity()));
+            player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).shader().ifPresentOrElse(MineraculousClientUtils::setShader, () -> this.gameRenderer.checkEntityPostEffect(getCameraEntity()));
         }
     }
 

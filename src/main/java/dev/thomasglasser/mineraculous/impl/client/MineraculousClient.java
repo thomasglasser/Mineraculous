@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderStateShards;
-import dev.thomasglasser.mineraculous.impl.Mineraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.SpecialPlayerData;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
 import net.minecraft.client.Minecraft;
@@ -15,7 +15,7 @@ import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 
-@Mod(value = Mineraculous.MOD_ID, dist = Dist.CLIENT)
+@Mod(value = MineraculousConstants.MOD_ID, dist = Dist.CLIENT)
 public class MineraculousClient {
     public MineraculousClient(IEventBus modBus, ModContainer modContainer) {
         if (FMLEnvironment.production && !modContainer.getModInfo().getVersion().getQualifier().isEmpty() && !SpecialPlayerUtils.getSpecialTypes(SpecialPlayerData.GIST, Minecraft.getInstance().getUser().getProfileId()).contains(SpecialPlayerUtils.BETA_TESTER_KEY)) {
@@ -44,7 +44,10 @@ public class MineraculousClient {
         modBus.addListener(MineraculousClientEvents::onRegisterClientReloadListeners);
         modBus.addListener(MineraculousClientEvents::onRegisterRenderBuffers);
         modBus.addListener(MineraculousClientEvents::onRegisterClientExtensions);
+        modBus.addListener(MineraculousClientEvents::onRegisterClientTooltipComponentFactories);
         modBus.addListener(MineraculousClientEvents::onRegisterGuiLayers);
+        modBus.addListener(MineraculousClientEvents::onRegisterMenuScreens);
+        modBus.addListener(MineraculousClientEvents::onRegisterRecipeBookCategories);
         modBus.addListener(MineraculousClientEvents::onConfigChanged);
 
         modBus.addListener(MineraculousRenderStateShards::onRegisterShaders);
@@ -57,8 +60,11 @@ public class MineraculousClient {
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onInteractionKeyMappingTriggered);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderHand);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onPreRenderGuiLayer);
+        NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderInventoryMobEffects);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientPlayerLoggingIn);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onPlayerHeartType);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientChatReceived);
+        NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onPlayerRendererPost);
+        NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderLevelStage);
     }
 }

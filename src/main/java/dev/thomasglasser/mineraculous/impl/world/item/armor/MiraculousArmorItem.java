@@ -1,5 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.world.item.armor;
 
+import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmorMaterials;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.armor.MiraculousArmorItemRenderer;
@@ -8,12 +10,14 @@ import java.util.function.Consumer;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Unbreakable;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.client.GeoRenderProvider;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -28,6 +32,14 @@ public class MiraculousArmorItem extends ArmorItem implements GeoArmorItem {
         super(MineraculousArmorMaterials.MIRACULOUS, type, pProperties
                 .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, false)
                 .component(DataComponents.UNBREAKABLE, new Unbreakable(false)));
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
+        if (!level.isClientSide() && !stack.has(MineraculousDataComponents.MIRACULOUS)) {
+            stack.set(MineraculousDataComponents.MIRACULOUS, level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getAny().orElse(null));
+        }
     }
 
     @Override

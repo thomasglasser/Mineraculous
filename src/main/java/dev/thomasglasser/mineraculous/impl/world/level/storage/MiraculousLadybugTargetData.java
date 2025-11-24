@@ -10,15 +10,15 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTarget;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public record MiraculousLadybugTargetData(List<Vec3> controlPoints, Multimap<Integer, MiraculousLadybugTarget<?>> targets) {
     private static final int PREPEND_POINTS = 25;
@@ -81,8 +81,15 @@ public record MiraculousLadybugTargetData(List<Vec3> controlPoints, Multimap<Int
     private static void mapTargets(List<MiraculousLadybugTarget<?>> targets, Multimap<Integer, MiraculousLadybugTarget<?>> targetMap, ArrayList<Vec3> controlPoints) {
         for (MiraculousLadybugTarget<?> target : targets) {
             List<Vec3> targetControlPoints = target.getControlPoints();
-            int middleIndex = targetControlPoints.size() / 2 + PREPEND_POINTS;
-            targetMap.put(middleIndex, target);
+            int middleIndex = targetControlPoints.size() / 2;
+            Vec3 representativePoint = targetControlPoints.get(middleIndex);
+            int globalIndex = controlPoints.indexOf(representativePoint);
+            if (globalIndex == -1) {
+                int mappedIndex = controlPoints.size() + middleIndex + PREPEND_POINTS;
+                targetMap.put(mappedIndex, target);
+            } else {
+                targetMap.put(globalIndex, target);
+            }
             controlPoints.addAll(targetControlPoints);
         }
     }

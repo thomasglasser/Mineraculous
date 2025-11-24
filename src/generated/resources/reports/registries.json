@@ -179,7 +179,7 @@
   ],
   "minecraft:memory_module_type": [
     "mineraculous:has_replicated",
-    "mineraculous:replicates_made",
+    "mineraculous:replicas_made",
     "mineraculous:replication_status",
     "mineraculous:replication_wait_ticks"
   ],
@@ -300,7 +300,6 @@
     "mineraculous:ability_effects",
     "mineraculous:inventory_trackers",
     "mineraculous:kamikotization",
-    "mineraculous:kill_credit_override",
     "mineraculous:leashing_ladybug_yoyo",
     "mineraculous:miraculouses",
     "mineraculous:old_kamikotization",
@@ -312,6 +311,7 @@
   ],
   "neoforge:entity_data_serializers": [
     "mineraculous:miraculous",
+    "mineraculous:optional_kamikotization",
     "mineraculous:optional_ladybug_yoyo_mode",
     "mineraculous:optional_resource_location",
     "mineraculous:uuid"

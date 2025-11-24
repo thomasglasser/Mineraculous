@@ -15,9 +15,9 @@ import net.tslat.smartbrainlib.object.MemoryTest;
 import net.tslat.smartbrainlib.util.BrainUtils;
 
 public class Replicate<E extends Mob> extends ExtendedBehaviour<E> {
-    private static final MemoryTest MEMORY_REQUIREMENTS = MemoryTest.builder(3).usesMemories(MineraculousMemoryModuleTypes.REPLICATION_STATUS.get(), MineraculousMemoryModuleTypes.REPLICATES_MADE.get(), MineraculousMemoryModuleTypes.REPLICATION_WAIT_TICKS.get());
+    private static final MemoryTest MEMORY_REQUIREMENTS = MemoryTest.builder(3).usesMemories(MineraculousMemoryModuleTypes.REPLICATION_STATUS.get(), MineraculousMemoryModuleTypes.REPLICAS_MADE.get(), MineraculousMemoryModuleTypes.REPLICATION_WAIT_TICKS.get());
 
-    private BiConsumer<E, E> onReplication = (duplicate, original) -> {};
+    private BiConsumer<E, E> onReplication = (replica, original) -> {};
 
     public Replicate<E> onReplication(BiConsumer<E, E> onReplication) {
         this.onReplication = onReplication;
@@ -34,7 +34,7 @@ public class Replicate<E extends Mob> extends ExtendedBehaviour<E> {
     protected void start(E entity) {
         super.start(entity);
         int waitTicks = BrainUtils.memoryOrDefault(entity, MineraculousMemoryModuleTypes.REPLICATION_WAIT_TICKS.get(), () -> 0);
-        int replicatesMade = BrainUtils.memoryOrDefault(entity, MineraculousMemoryModuleTypes.REPLICATES_MADE.get(), () -> 0);
+        int replicasMade = BrainUtils.memoryOrDefault(entity, MineraculousMemoryModuleTypes.REPLICAS_MADE.get(), () -> 0);
         if (waitTicks > 0) {
             waitTicks--;
             if (waitTicks <= 0) {
@@ -42,20 +42,20 @@ public class Replicate<E extends Mob> extends ExtendedBehaviour<E> {
             } else {
                 BrainUtils.setMemory(entity, MineraculousMemoryModuleTypes.REPLICATION_WAIT_TICKS.get(), waitTicks);
             }
-        } else if (replicatesMade < MineraculousServerConfig.get().maxKamikoReplicates.getAsInt()) {
-            replicate(entity, replicatesMade);
+        } else if (replicasMade < MineraculousServerConfig.get().maxKamikoReplicas.getAsInt()) {
+            replicate(entity, replicasMade);
         } else {
             stop(entity);
         }
     }
 
-    protected void replicate(E entity, int replicatesMade) {
-        E replicate = (E) entity.getType().create(entity.level());
-        if (replicate != null) {
-            replicate.copyPosition(entity);
-            onReplication.accept(replicate, entity);
-            entity.level().addFreshEntity(replicate);
-            BrainUtils.setMemory(entity, MineraculousMemoryModuleTypes.REPLICATES_MADE.get(), replicatesMade + 1);
+    protected void replicate(E entity, int replicasMade) {
+        E replica = (E) entity.getType().create(entity.level());
+        if (replica != null) {
+            replica.copyPosition(entity);
+            onReplication.accept(replica, entity);
+            entity.level().addFreshEntity(replica);
+            BrainUtils.setMemory(entity, MineraculousMemoryModuleTypes.REPLICAS_MADE.get(), replicasMade + 1);
         } else {
             MineraculousConstants.LOGGER.error("Failed to replicate entity {}", entity);
         }
@@ -64,10 +64,10 @@ public class Replicate<E extends Mob> extends ExtendedBehaviour<E> {
     @Override
     protected void stop(E entity) {
         super.stop(entity);
-        int replicatesMade = BrainUtils.memoryOrDefault(entity, MineraculousMemoryModuleTypes.REPLICATES_MADE.get(), () -> 0);
-        if (replicatesMade >= MineraculousServerConfig.get().maxKamikoReplicates.getAsInt()) {
+        int replicasMade = BrainUtils.memoryOrDefault(entity, MineraculousMemoryModuleTypes.REPLICAS_MADE.get(), () -> 0);
+        if (replicasMade >= MineraculousServerConfig.get().maxKamikoReplicas.getAsInt()) {
             BrainUtils.setMemory(entity, MineraculousMemoryModuleTypes.HAS_REPLICATED.get(), Unit.INSTANCE);
-            BrainUtils.clearMemories(entity, MineraculousMemoryModuleTypes.REPLICATION_STATUS.get(), MineraculousMemoryModuleTypes.REPLICATES_MADE.get(), MineraculousMemoryModuleTypes.REPLICATION_WAIT_TICKS.get());
+            BrainUtils.clearMemories(entity, MineraculousMemoryModuleTypes.REPLICATION_STATUS.get(), MineraculousMemoryModuleTypes.REPLICAS_MADE.get(), MineraculousMemoryModuleTypes.REPLICATION_WAIT_TICKS.get());
         }
     }
 }

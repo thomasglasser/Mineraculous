@@ -12,6 +12,7 @@ import dev.thomasglasser.mineraculous.api.world.entity.ai.behavior.Replicate;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.memory.MineraculousMemoryModuleTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.memory.ReplicationState;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.sensing.PlayerItemTemptingSensor;
+import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
@@ -34,6 +35,7 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -74,8 +76,11 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomHoverTarg
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.InvalidateAttackTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.target.TargetOrRetaliate;
 import net.tslat.smartbrainlib.api.core.navigation.SmoothFlyingPathNavigation;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.HurtBySensor;
+import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
 import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -93,7 +98,9 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     private static final EntityDataAccessor<Integer> DATA_POWER_LEVEL = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_NAME_COLOR = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Optional<ResourceLocation>> DATA_FACE_MASK_TEXTURE = SynchedEntityData.defineId(Kamiko.class, MineraculousEntityDataSerializers.OPTIONAL_RESOURCE_LOCATION.get());
+    private static final EntityDataAccessor<Optional<Holder<Kamikotization>>> DATA_KAMIKOTIZATION = SynchedEntityData.defineId(Kamiko.class, MineraculousEntityDataSerializers.OPTIONAL_KAMIKOTIZATION.get());
     private static final EntityDataAccessor<Boolean> DATA_IS_RESTING = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> DATA_IS_REPLICA = SynchedEntityData.defineId(Kamiko.class, EntityDataSerializers.BOOLEAN);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -109,7 +116,9 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         builder.define(DATA_POWER_LEVEL, 0);
         builder.define(DATA_NAME_COLOR, -1);
         builder.define(DATA_FACE_MASK_TEXTURE, Optional.empty());
+        builder.define(DATA_KAMIKOTIZATION, Optional.empty());
         builder.define(DATA_IS_RESTING, false);
+        builder.define(DATA_IS_REPLICA, false);
     }
 
     public int getPowerLevel() {
@@ -136,12 +145,28 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         entityData.set(DATA_FACE_MASK_TEXTURE, texture);
     }
 
+    public Optional<Holder<Kamikotization>> getKamikotization() {
+        return entityData.get(DATA_KAMIKOTIZATION);
+    }
+
+    public void setKamikotization(Optional<Holder<Kamikotization>> kamikotization) {
+        entityData.set(DATA_KAMIKOTIZATION, kamikotization);
+    }
+
     public boolean isResting() {
         return entityData.get(DATA_IS_RESTING);
     }
 
     public void setResting(boolean resting) {
         entityData.set(DATA_IS_RESTING, resting);
+    }
+
+    public boolean isReplica() {
+        return entityData.get(DATA_IS_REPLICA);
+    }
+
+    public void setReplica(boolean replica) {
+        entityData.set(DATA_IS_REPLICA, replica);
     }
 
     @Override
@@ -229,18 +254,22 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                         return stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE) == ButterflyCaneItem.Mode.KAMIKO_STORE && storingData != null && storingData.storedEntities().isEmpty();
                     }
                     return false;
-                }));
+                }),
+                new HurtBySensor<>(),
+                new NearbyLivingEntitySensor<Kamiko>().setPredicate((target, kamiko) -> target != kamiko && target.isAlive() && target instanceof Player));
     }
 
     @Override
     public BrainActivityGroup<? extends Kamiko> getCoreTasks() {
         return BrainActivityGroup.coreTasks(
-                new InvalidateAttackTarget<>() {
+                new InvalidateAttackTarget<Kamiko>() {
                     @Override
-                    protected boolean canAttack(LivingEntity entity, LivingEntity target) {
-                        return entity.canBeSeenByAnyone();
+                    protected boolean canAttack(Kamiko kamiko, LivingEntity target) {
+                        if (kamiko.isReplica() && target.getUUID().equals(kamiko.getOwnerUUID()))
+                            return false;
+                        return kamiko.canBeSeenByAnyone();
                     }
-                }.invalidateIf(EntityUtils.TARGET_TOO_FAR_PREDICATE),
+                }.invalidateIf((EntityUtils.TARGET_TOO_FAR_PREDICATE::test)),
                 new SetWalkTargetToAttackTarget<Kamiko>().startCondition(kamiko -> {
                     LivingEntity target = kamiko.getTarget();
                     if (target == null)
@@ -273,14 +302,15 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     public BrainActivityGroup<? extends Kamiko> getIdleTasks() {
         return BrainActivityGroup.idleTasks(
                 new FirstApplicableBehaviour<>(
-                        new FollowOwner<Kamiko>().startCondition(this::shouldFollowOwner),
+                        new TargetOrRetaliate<Kamiko>().startCondition(Kamiko::isReplica),
+                        new FollowOwner<Kamiko>().startCondition(Kamiko::shouldFollowOwner),
                         new FollowTemptation<>(),
                         new SetRandomFlyingTarget<>()));
     }
 
-    protected boolean shouldFollowOwner(Kamiko kamiko) {
+    protected boolean shouldFollowOwner() {
         LivingEntity owner = getOwner();
-        LivingEntity target = BrainUtils.getMemory(kamiko.getBrain(), MemoryModuleType.ATTACK_TARGET);
+        LivingEntity target = getTarget();
         return owner != null && (target == null || target == owner) && (owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent());
     }
 
@@ -292,7 +322,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                                 .startCondition(kamiko -> BrainUtils.getMemory(kamiko, MineraculousMemoryModuleTypes.REPLICATION_STATUS.get()) == ReplicationState.REPLICATING)
                                 .whenStarting(kamiko -> kamiko.setResting(true))
                                 .whenStopping(kamiko -> {
-                                    if (BrainUtils.memoryOrDefault(kamiko, MineraculousMemoryModuleTypes.REPLICATES_MADE.get(), () -> 0) >= MineraculousServerConfig.get().maxKamikoReplicates.getAsInt()) {
+                                    if (BrainUtils.memoryOrDefault(kamiko, MineraculousMemoryModuleTypes.REPLICAS_MADE.get(), () -> 0) >= MineraculousServerConfig.get().maxKamikoReplicas.getAsInt()) {
                                         kamiko.setResting(false);
                                     }
                                 }),
@@ -303,9 +333,11 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                 .onlyStartWithMemoryStatus(MineraculousMemoryModuleTypes.REPLICATION_STATUS.get(), MemoryStatus.VALUE_PRESENT);
     }
 
-    protected void onReplication(Kamiko replicate, Kamiko original) {
-        replicate.setOwnerUUID(original.getOwnerUUID());
-        AbilityReversionEntityData.get((ServerLevel) replicate.level()).putCopied(original, replicate);
+    protected void onReplication(Kamiko replica, Kamiko original) {
+        replica.setReplica(true);
+        replica.setKamikotization(original.getKamikotization());
+        replica.setOwnerUUID(original.getOwnerUUID());
+        AbilityReversionEntityData.get((ServerLevel) replica.level()).putCopied(original, replica);
     }
 
     @Override
@@ -347,20 +379,33 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     }
 
     @Override
+    protected void playStepSound(BlockPos pos, BlockState state) {}
+
+    @Override
     public void playerTouch(Player player) {
-        if (getTarget() == player && getOwner() instanceof ServerPlayer owner && checkTargetAndAlertTransformedOwner(player)) {
-            if (player.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
-                owner.displayClientMessage(CANT_KAMIKOTIZE_TRANSFORMED, true);
-                setTarget(null);
-                return;
+        if (getTarget() == player && getOwner() instanceof ServerPlayer owner) {
+            if (isReplica()) {
+                getKamikotization().ifPresentOrElse(kamikotization -> {
+                    // TODO: Force transform and put under control
+                    player.displayClientMessage(Component.literal("You are getting sleepy..."), true);
+                }, () -> {
+                    MineraculousConstants.LOGGER.error("Kamiko replica {} has no kamikotization, discarding...", getUUID());
+                    discard();
+                });
+            } else if (checkTargetAndAlertTransformedOwner(player)) {
+                if (player.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
+                    owner.displayClientMessage(CANT_KAMIKOTIZE_TRANSFORMED, true);
+                    setTarget(null);
+                    return;
+                }
+                if (player != owner) {
+                    TommyLibServices.NETWORK.sendToClient(new ClientboundSyncInventoryPayload(player), owner);
+                    player.getData(MineraculousAttachmentTypes.INVENTORY_TRACKERS).add(owner.getUUID());
+                }
+                owner.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withSpectationInterrupted().save(owner, true);
+                remove(RemovalReason.DISCARDED);
+                TommyLibServices.NETWORK.sendToClient(new ClientboundBeginKamikotizationSelectionPayload(player.getUUID(), new KamikoData(getUUID(), getOwnerUUID(), getPowerLevel(), getNameColor(), getFaceMaskTexture())), owner);
             }
-            if (player != owner) {
-                TommyLibServices.NETWORK.sendToClient(new ClientboundSyncInventoryPayload(player), owner);
-                player.getData(MineraculousAttachmentTypes.INVENTORY_TRACKERS).add(owner.getUUID());
-            }
-            owner.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withSpectationInterrupted().save(owner, true);
-            remove(RemovalReason.DISCARDED);
-            TommyLibServices.NETWORK.sendToClient(new ClientboundBeginKamikotizationSelectionPayload(player.getUUID(), new KamikoData(getUUID(), getOwnerUUID(), getPowerLevel(), getNameColor(), getFaceMaskTexture())), owner);
         }
     }
 
@@ -394,13 +439,16 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        getKamikotization().ifPresent(kamikotization -> Kamikotization.CODEC.encodeStart(NbtOps.INSTANCE, kamikotization).getOrThrow());
+        compound.putBoolean("IsResting", isResting());
+        compound.putBoolean("IsReplica", isReplica());
         ReplicationState replicationState = BrainUtils.getMemory(this, MineraculousMemoryModuleTypes.REPLICATION_STATUS.get());
         if (replicationState != null) {
             compound.putString("ReplicationStatus", replicationState.name());
         }
-        Integer replicatesMade = BrainUtils.getMemory(this, MineraculousMemoryModuleTypes.REPLICATES_MADE.get());
-        if (replicatesMade != null) {
-            compound.putInt("ReplicatesMade", replicatesMade);
+        Integer replicasMade = BrainUtils.getMemory(this, MineraculousMemoryModuleTypes.REPLICAS_MADE.get());
+        if (replicasMade != null) {
+            compound.putInt("ReplicasMade", replicasMade);
         }
         Integer replicationWaitTicks = BrainUtils.getMemory(this, MineraculousMemoryModuleTypes.REPLICATION_WAIT_TICKS.get());
         if (replicationWaitTicks != null) {
@@ -411,11 +459,14 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        setKamikotization(Kamikotization.CODEC.parse(NbtOps.INSTANCE, compound.get("Kamikotization")).result());
+        setResting(compound.getBoolean("IsResting"));
+        setReplica(compound.getBoolean("IsReplica"));
         if (compound.contains("ReplicationStatus")) {
             BrainUtils.setMemory(this, MineraculousMemoryModuleTypes.REPLICATION_STATUS.get(), ReplicationState.valueOf(compound.getString("ReplicationStatus")));
         }
-        if (compound.contains("ReplicatesMade")) {
-            BrainUtils.setMemory(this, MineraculousMemoryModuleTypes.REPLICATES_MADE.get(), compound.getInt("ReplicatesMade"));
+        if (compound.contains("ReplicasMade")) {
+            BrainUtils.setMemory(this, MineraculousMemoryModuleTypes.REPLICAS_MADE.get(), compound.getInt("ReplicasMade"));
         }
         if (compound.contains("ReplicationWaitTicks")) {
             BrainUtils.setMemory(this, MineraculousMemoryModuleTypes.REPLICATION_WAIT_TICKS.get(), compound.getInt("ReplicationWaitTicks"));

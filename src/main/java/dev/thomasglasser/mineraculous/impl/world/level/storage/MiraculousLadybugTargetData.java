@@ -8,17 +8,18 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTarget;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public record MiraculousLadybugTargetData(List<Vec3> controlPoints, Multimap<Integer, MiraculousLadybugTarget<?>> targets) {
     private static final int PREPEND_POINTS = 25;
@@ -51,7 +52,13 @@ public record MiraculousLadybugTargetData(List<Vec3> controlPoints, Multimap<Int
     public static MiraculousLadybugTargetData create(List<MiraculousLadybugTarget<?>> targets, Vec3 spawnPosition, Vec3 circlePosition) {
         Multimap<Integer, MiraculousLadybugTarget<?>> targetMap = LinkedHashMultimap.create(); // maps control points to targets
         ArrayList<Vec3> controlPoints = new ArrayList<>();
-        mapTargets(targets, targetMap, controlPoints);
+        if (MineraculousServerConfig.get().miraculousLadybugReversionMode.get() != MineraculousServerConfig.MiraculousLadybugReversionMode.VISUAL) {
+            mapTargets(targets, targetMap, controlPoints);
+        } else {
+            for (MiraculousLadybugTarget<?> target : targets) {
+                targetMap.put(PREPEND_POINTS, target);
+            }
+        }
         prependPoints(spawnPosition, circlePosition, controlPoints);
         extendLastControlPoint(controlPoints);
         return new MiraculousLadybugTargetData(controlPoints, targetMap);

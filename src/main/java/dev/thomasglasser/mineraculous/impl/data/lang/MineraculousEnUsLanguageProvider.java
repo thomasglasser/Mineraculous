@@ -416,7 +416,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfig(MineraculousServerConfig.get().enableKamikotizationRejection, "Enable Kamikotization Rejection", "Enable rejection of kamikotization by the victim");
         addConfig(MineraculousServerConfig.get().luckyCharmSummonTimeMin, "Minimum Lucky Charm Summon Time", "The minimum amount of time (in seconds) that it takes for a lucky charm to be summoned");
         addConfig(MineraculousServerConfig.get().luckyCharmSummonTimeMax, "Maximum Lucky Charm Summon Time", "The maximum amount of time (in seconds) that it takes for a lucky charm to be summoned");
-        addConfig(MineraculousServerConfig.get().enableMiraculousLadybugClumpDetection, "Enable Miraculous Ladybug Block Clump Detection", "Makes Miraculous Ladybug affect connected blocks as one target instead of individually");
+        addConfig(MineraculousServerConfig.get().miraculousLadybugReversionMode, "Miraculous Ladybug Reversion Mode", "Controls how the Miraculous Ladybug ability restores damaged areas.\n Visual: Instant restoration without ladybugs flying to locations. (High performance)\n Cluster: Ladybugs repair connected block groups by spinning around them. (Average performance)\n Individual: Ladybugs repair each damaged block one by one, even if blocks are adjacent. (Low performance)");
         addConfig(MineraculousServerConfig.get().miraculousLadybugSpeed, "Miraculous Ladybug Speed", "How fast will Miraculous Ladybug clumps will fly around");
 
         addConfigSection(MineraculousServerConfig.KWAMIS, "Kwamis", "Settings for kwamis");

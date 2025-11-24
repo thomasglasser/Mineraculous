@@ -6,6 +6,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundToggleNightVisionShaderPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
@@ -51,7 +52,7 @@ public record ToggleableNightVisionAbility(Optional<ResourceLocation> shader, Op
 
     public void checkNightVision(int powerLevel, ServerLevel level, LivingEntity performer) {
         boolean hasNightVision = performer.hasEffect(MobEffects.NIGHT_VISION);
-        if (performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).toggleNightVision()) {
+        if (performer.getData(MineraculousAttachmentTypes.TRANSIENT_ABILITY_EFFECTS).shouldToggleNightVision()) {
             updateNightVision(powerLevel, level, performer, !hasNightVision);
         }
     }
@@ -67,7 +68,7 @@ public record ToggleableNightVisionAbility(Optional<ResourceLocation> shader, Op
         } else {
             performer.removeEffect(MobEffects.NIGHT_VISION);
         }
-        performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).updateNightVision(giveNightVision ? shader : Optional.empty()).save(performer);
+        AbilityEffectUtils.updateNightVision(performer, giveNightVision ? shader : Optional.empty());
         Ability.playSound(level, performer, giveNightVision ? applySound : removeSound);
     }
 

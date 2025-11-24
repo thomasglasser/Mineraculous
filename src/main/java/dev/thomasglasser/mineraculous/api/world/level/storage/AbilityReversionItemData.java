@@ -167,14 +167,14 @@ public class AbilityReversionItemData extends SavedData {
         for (UUID ownerId : this.revertibleItems.rowKeySet()) {
             CompoundTag entries = new CompoundTag();
             for (Map.Entry<UUID, ItemStack> entry : this.revertibleItems.row(ownerId).entrySet()) {
-                entries.put(entry.getKey().toString(), ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, entry.getValue()).getOrThrow());
+                entries.put(entry.getKey().toString(), ItemStack.OPTIONAL_CODEC.encodeStart(NbtOps.INSTANCE, entry.getValue()).getOrThrow());
             }
             revertible.put(ownerId.toString(), entries);
         }
         tag.put("Revertible", revertible);
         CompoundTag revertMarked = new CompoundTag();
         for (Map.Entry<UUID, ItemStack> entry : this.revertMarkedItems.entrySet()) {
-            revertMarked.put(entry.getKey().toString(), ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, entry.getValue()).getOrThrow());
+            revertMarked.put(entry.getKey().toString(), ItemStack.OPTIONAL_CODEC.encodeStart(NbtOps.INSTANCE, entry.getValue()).getOrThrow());
         }
         tag.put("RevertMarked", revertMarked);
         ListTag reverted = new ListTag();
@@ -198,13 +198,13 @@ public class AbilityReversionItemData extends SavedData {
             CompoundTag entries = revertible.getCompound(ownerString);
             for (String itemString : entries.getAllKeys()) {
                 UUID itemId = UUID.fromString(itemString);
-                data.revertibleItems.put(ownerId, itemId, ItemStack.CODEC.parse(NbtOps.INSTANCE, entries.get(itemString)).getOrThrow());
+                data.revertibleItems.put(ownerId, itemId, ItemStack.OPTIONAL_CODEC.parse(NbtOps.INSTANCE, entries.get(itemString)).getOrThrow());
             }
         }
         CompoundTag revertMarked = tag.getCompound("RevertMarked");
         for (String itemString : revertMarked.getAllKeys()) {
             UUID itemId = UUID.fromString(itemString);
-            data.revertMarkedItems.put(itemId, ItemStack.CODEC.parse(NbtOps.INSTANCE, revertMarked.get(itemString)).getOrThrow());
+            data.revertMarkedItems.put(itemId, ItemStack.OPTIONAL_CODEC.parse(NbtOps.INSTANCE, revertMarked.get(itemString)).getOrThrow());
         }
         ListTag reverted = tag.getList("Reverted", ListTag.TAG_INT_ARRAY);
         for (Tag revertedId : reverted) {

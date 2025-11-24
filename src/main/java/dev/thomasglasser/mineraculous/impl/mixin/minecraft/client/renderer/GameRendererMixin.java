@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.impl.mixin.minecraft.client.renderer;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -25,8 +24,7 @@ public abstract class GameRendererMixin {
     private void resetPostEffectToggleIfSpecial(CallbackInfo ci) {
         Player player = this.minecraft.player;
         if (player != null) {
-            AbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
-            abilityEffectData.shader().ifPresent(MineraculousClientUtils::setShader);
+            player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).shader().ifPresent(MineraculousClientUtils::setShader);
         }
     }
 

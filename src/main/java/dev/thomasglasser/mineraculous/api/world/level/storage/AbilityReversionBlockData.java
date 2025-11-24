@@ -2,8 +2,6 @@ package dev.thomasglasser.mineraculous.api.world.level.storage;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.Map;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -90,11 +88,5 @@ public class AbilityReversionBlockData extends SavedData {
             }
         }
         return data;
-    }
-
-    private record BlockLocation(ResourceKey<Level> dimension, BlockPos pos) {
-        private static final Codec<BlockLocation> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Level.RESOURCE_KEY_CODEC.fieldOf("dimension").forGetter(BlockLocation::dimension),
-                BlockPos.CODEC.fieldOf("pos").forGetter(BlockLocation::pos)).apply(instance, BlockLocation::new));
     }
 }

@@ -23,7 +23,7 @@ public record ServerboundSetFaceMaskTexturePayload(int targetID, Optional<Resour
     public void handle(Player player) {
         Entity target = player.level().getEntity(targetID);
         if (target != null) {
-            target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withFaceMaskTexture(texture).save(target);
+            target.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).withFaceMaskTexture(texture).save(target);
         }
     }
 

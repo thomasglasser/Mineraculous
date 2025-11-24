@@ -48,11 +48,11 @@ public record ContinuousAbility(Holder<Ability> ability, int ticks, Optional<Hol
             int continuousTicks = abilityEffectData.continuousTicks().get();
             continuousTicks--;
             if (continuousTicks <= 0) {
-                abilityEffectData.stopContinuousAbility().save(performer, true);
+                abilityEffectData.stopContinuousAbility().save(performer);
                 Ability.playSound(level, performer, finishSound);
                 return State.CONSUME;
             } else {
-                abilityEffectData.withContinuousTicks(Optional.of(continuousTicks)).save(performer, true);
+                abilityEffectData.withContinuousTicks(Optional.of(continuousTicks)).save(performer);
             }
         }
         if (state.shouldStop()) {
@@ -60,12 +60,12 @@ public record ContinuousAbility(Holder<Ability> ability, int ticks, Optional<Hol
                 handler.triggerPerformAdvancement(player, context);
             }
             if (abilityEffectData.continuousTicks().isEmpty()) {
-                abilityEffectData.withContinuousTicks(Optional.of(ticks)).save(performer, true);
+                abilityEffectData.withContinuousTicks(Optional.of(ticks)).save(performer);
                 Ability.playSound(level, performer, activeStartSound);
             }
         }
         if (!abilityEffectData.playedContinuousAbilityStartSound()) {
-            abilityEffectData.withPlayedContinuousAbilityStartSound(true).save(performer, true);
+            abilityEffectData.withPlayedContinuousAbilityStartSound(true).save(performer);
             Ability.playSound(level, performer, passiveStartSound);
         }
         return State.PASS;

@@ -341,7 +341,7 @@ public class MineraculousClientEvents {
     static void onRegisterRecipeBookCategories(RegisterRecipeBookCategoriesEvent event) {
         event.registerAggregateCategory(MineraculousRecipeBookCategories.OVEN_SEARCH.getValue(), ImmutableList.of(MineraculousRecipeBookCategories.OVEN_FOOD.getValue()));
         event.registerBookCategories(MineraculousRecipeBookTypes.OVEN.getValue(), ImmutableList.of(MineraculousRecipeBookCategories.OVEN_SEARCH.getValue(), MineraculousRecipeBookCategories.OVEN_FOOD.getValue()));
-        event.registerRecipeCategoryFinder(MineraculousRecipeTypes.OVEN.get(), recipe -> MineraculousRecipeBookCategories.OVEN_FOOD.getValue());
+        event.registerRecipeCategoryFinder(MineraculousRecipeTypes.OVEN_COOKING.get(), recipe -> MineraculousRecipeBookCategories.OVEN_FOOD.getValue());
     }
 
     // Tick

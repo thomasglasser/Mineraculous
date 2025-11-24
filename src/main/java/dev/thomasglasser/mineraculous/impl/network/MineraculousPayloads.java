@@ -2,20 +2,10 @@ package dev.thomasglasser.mineraculous.impl.network;
 
 import com.google.common.collect.ImmutableList;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
-import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTriggerData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.network.NeoForgeNetworkUtils;
 import dev.thomasglasser.tommylib.api.network.PayloadInfo;
 import java.util.List;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -78,17 +68,5 @@ public class MineraculousPayloads {
     public static void onRegisterPackets(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(MineraculousConstants.MOD_ID);
         PAYLOADS.forEach((info) -> NeoForgeNetworkUtils.register(registrar, info));
-
-        // Attachment Syncing Registration
-        NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.ABILITY_EFFECTS.get(), AbilityEffectData.STREAM_CODEC);
-        NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO.get(), ThrownLadybugYoyoData.STREAM_CODEC);
-        NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.MIRACULOUSES.get(), MiraculousesData.STREAM_CODEC);
-        //NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TARGET.get(), MiraculousLadybugTargetData.STREAM_CODEC);
-        NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TRIGGER.get(), ByteBufCodecs.optional(MiraculousLadybugTriggerData.STREAM_CODEC));
-        NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.KAMIKOTIZATION.get(), ByteBufCodecs.optional(KamikotizationData.STREAM_CODEC));
-        NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE.get(), ByteBufCodecs.BOOL);
-        NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO.get(), ByteBufCodecs.optional(LeashingLadybugYoyoData.STREAM_CODEC));
-        NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.PERCHING_CAT_STAFF.get(), PerchingCatStaffData.STREAM_CODEC);
-        NeoForgeNetworkUtils.registerSyncedAttachment(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF.get(), TravelingCatStaffData.STREAM_CODEC);
     }
 }

@@ -80,7 +80,7 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
             stack.setCount(0);
             luckyCharmEntity.setDeltaMovement(0, 1.3, 0);
             luckyCharmEntity.hurtMarked = true;
-            new MiraculousLadybugTriggerData(targets, Optional.of(performer.getId()), revertSound).save(luckyCharmEntity, true);
+            new MiraculousLadybugTriggerData(targets, Optional.of(performer.getId()), revertSound).save(luckyCharmEntity);
             return State.CONSUME;
         }
         return State.PASS;

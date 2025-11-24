@@ -2,8 +2,6 @@ package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler;
-import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -44,16 +42,12 @@ public record PerchingCatStaffData(
         this(0f, 0, false, 0, false, new Vector3f(0f, 0f, 0f), false, 0f, new Vector3f(0f, 0f, 0f), false);
     }
 
-    public void save(Entity entity, boolean syncToClient) {
+    public void save(Entity entity) {
         entity.setData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF, this);
-        if (syncToClient)
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.PERCHING_CAT_STAFF, this), entity.getServer());
     }
 
-    public static void remove(Entity entity, boolean syncToClient) {
-        entity.setData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF, DEFAULT);
-        if (syncToClient)
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.PERCHING_CAT_STAFF, DEFAULT), entity.getServer());
+    public static void remove(Entity entity) {
+        entity.removeData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
     }
 
     public static Vector4f initialize(Entity entity) {

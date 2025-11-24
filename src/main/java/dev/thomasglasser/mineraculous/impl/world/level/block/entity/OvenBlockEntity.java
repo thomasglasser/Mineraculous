@@ -39,7 +39,7 @@ public class OvenBlockEntity extends AbstractFurnaceBlockEntity {
     public static Component NAME = Component.translatable("container.mineraculous.oven");
 
     public OvenBlockEntity(BlockPos pos, BlockState blockState) {
-        super(MineraculousBlockEntityTypes.OVEN.get(), pos, blockState, MineraculousRecipeTypes.OVEN.get());
+        super(MineraculousBlockEntityTypes.OVEN.get(), pos, blockState, MineraculousRecipeTypes.OVEN_COOKING.get());
         this.items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
     }
 

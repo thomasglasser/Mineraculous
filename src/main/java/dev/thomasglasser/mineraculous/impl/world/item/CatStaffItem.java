@@ -165,19 +165,19 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
                             case TRAVEL -> CatStaffTravelHandler.tick(stack, level, livingEntity);
                             default -> {
                                 if (!level.isClientSide) {
-                                    if (perchingData != PerchingCatStaffData.DEFAULT)
-                                        PerchingCatStaffData.remove(livingEntity, true);
-                                    if (travelingData != TravelingCatStaffData.DEFAULT)
-                                        TravelingCatStaffData.remove(livingEntity, true);
+                                    if (!perchingData.equals(PerchingCatStaffData.DEFAULT))
+                                        PerchingCatStaffData.remove(livingEntity);
+                                    if (!travelingData.equals(TravelingCatStaffData.DEFAULT))
+                                        TravelingCatStaffData.remove(livingEntity);
                                 }
                             }
                         }
                     } else {
                         if (!level.isClientSide) {
                             if (perchingData != PerchingCatStaffData.DEFAULT)
-                                PerchingCatStaffData.remove(livingEntity, true);
+                                PerchingCatStaffData.remove(livingEntity);
                             if (travelingData != TravelingCatStaffData.DEFAULT)
-                                TravelingCatStaffData.remove(livingEntity, true);
+                                TravelingCatStaffData.remove(livingEntity);
                         }
                     }
                 }

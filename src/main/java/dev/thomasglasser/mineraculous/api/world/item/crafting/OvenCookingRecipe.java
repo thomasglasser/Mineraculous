@@ -8,9 +8,9 @@ import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
-public class OvenRecipe extends AbstractCookingRecipe {
-    public OvenRecipe(String group, CookingBookCategory category, Ingredient ingredient, ItemStack result, float experience, int cookingTime) {
-        super(MineraculousRecipeTypes.OVEN.get(), group, category, ingredient, result, experience, cookingTime);
+public class OvenCookingRecipe extends AbstractCookingRecipe {
+    public OvenCookingRecipe(String group, CookingBookCategory category, Ingredient ingredient, ItemStack result, float experience, int cookingTime) {
+        super(MineraculousRecipeTypes.OVEN_COOKING.get(), group, category, ingredient, result, experience, cookingTime);
     }
 
     @Override
@@ -20,6 +20,6 @@ public class OvenRecipe extends AbstractCookingRecipe {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return MineraculousRecipeSerializers.OVEN.get();
+        return MineraculousRecipeSerializers.OVEN_COOKING.get();
     }
 }

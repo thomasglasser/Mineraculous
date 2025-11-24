@@ -71,7 +71,7 @@ public record ServerboundUpdateYoyoInputPayload(int input) implements ExtendedPa
                                 new Vec3(player.getDeltaMovement().x, 1.2d,
                                         player.getDeltaMovement().z));
                         player.hurtMarked = true;
-                        data.startSafeFall().save(player, true);
+                        data.startSafeFall().save(player);
                         thrownYoyo.recall();
                     }
                 } else if (up() || down() || left() || right()) { //WASD

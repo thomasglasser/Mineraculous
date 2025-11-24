@@ -31,7 +31,7 @@ public class ServerboundActivatePowerPayload implements ExtendedPacketPayload {
         } else {
             player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {
                 if (!data.powerActive()) {
-                    data.withPowerActive(true).save(player, true);
+                    data.withPowerActive(true).save(player);
                 }
             });
         }

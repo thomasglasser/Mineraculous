@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.item.crafting.transmute;
 
-import dev.thomasglasser.mineraculous.api.world.item.crafting.OvenRecipe;
+import dev.thomasglasser.mineraculous.api.world.item.crafting.OvenCookingRecipe;
 import dev.thomasglasser.mineraculous.impl.world.item.crafting.MineraculousRecipeSerializers;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.ItemStack;
@@ -10,10 +10,10 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.ItemLike;
 
-public class TransmuteOvenRecipe extends OvenRecipe {
+public class TransmuteOvenCookingRecipe extends OvenCookingRecipe {
     private final ItemLike result;
 
-    public TransmuteOvenRecipe(String group, CookingBookCategory category, Ingredient ingredient, ItemLike result, float experience, int cookingTime) {
+    public TransmuteOvenCookingRecipe(String group, CookingBookCategory category, Ingredient ingredient, ItemLike result, float experience, int cookingTime) {
         super(group, category, ingredient, result.asItem().getDefaultInstance(), experience, cookingTime);
         this.result = result;
     }
@@ -25,6 +25,6 @@ public class TransmuteOvenRecipe extends OvenRecipe {
 
     @Override
     public RecipeSerializer<?> getSerializer() {
-        return MineraculousRecipeSerializers.OVEN_TRANSMUTE.get();
+        return MineraculousRecipeSerializers.OVEN_COOKING_TRANSMUTE.get();
     }
 }

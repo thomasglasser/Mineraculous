@@ -1,4 +1,5 @@
 [
+  "minecraft:almond_from_oven",
   "minecraft:baked_potato_from_oven",
   "mineraculous:butterfly_armor_trim_smithing_template",
   "mineraculous:butterfly_armor_trim_smithing_template_smithing_trim",
@@ -21,6 +22,9 @@
   "mineraculous:macaron_from_oven",
   "mineraculous:macaron_from_smoking",
   "mineraculous:oven",
+  "minecraft:roasted_almond_from_campfire",
+  "minecraft:roasted_almond_from_smelting",
+  "minecraft:roasted_almond_from_smoking",
   "mineraculous:waxed_aged_camembert_block_from_honeycomb",
   "mineraculous:waxed_aged_cheese_block_from_honeycomb",
   "mineraculous:waxed_exquisite_camembert_block_from_honeycomb",

@@ -1,6 +1,7 @@
 [
   "mineraculous:recipes/decorations/cheese_pot",
   "mineraculous:recipes/decorations/oven",
+  "minecraft:recipes/food/almond_from_oven",
   "minecraft:recipes/food/baked_potato_from_oven",
   "minecraft:recipes/food/cooked_beef_from_oven",
   "minecraft:recipes/food/cooked_chicken_from_oven",
@@ -14,6 +15,9 @@
   "mineraculous:recipes/food/macaron_from_campfire_cooking",
   "mineraculous:recipes/food/macaron_from_oven",
   "mineraculous:recipes/food/macaron_from_smoking",
+  "minecraft:recipes/food/roasted_almond_from_campfire",
+  "minecraft:recipes/food/roasted_almond_from_smelting",
+  "minecraft:recipes/food/roasted_almond_from_smoking",
   "mineraculous:recipes/food/waxed_aged_camembert_block_from_honeycomb",
   "mineraculous:recipes/food/waxed_aged_cheese_block_from_honeycomb",
   "mineraculous:recipes/food/waxed_exquisite_camembert_block_from_honeycomb",

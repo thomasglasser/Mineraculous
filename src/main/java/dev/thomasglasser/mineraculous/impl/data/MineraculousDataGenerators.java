@@ -29,7 +29,10 @@ import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousPaintingVariant
 import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousPoiTypeTagsProvider;
 import dev.thomasglasser.mineraculous.impl.data.tags.MiraculousTagsProvider;
 import dev.thomasglasser.mineraculous.impl.data.tags.client.MineraculousResourceLocationClientTagsProvider;
+import dev.thomasglasser.mineraculous.impl.data.worldgen.MineraculousBiomeModifiers;
 import dev.thomasglasser.mineraculous.impl.data.worldgen.MineraculousWorldgenModifiers;
+import dev.thomasglasser.mineraculous.impl.data.worldgen.features.MineraculousTreeFeatures;
+import dev.thomasglasser.mineraculous.impl.data.worldgen.placement.MineraculousPlacedFeatures;
 import dev.thomasglasser.mineraculous.impl.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.tommylib.api.data.DataGenerationUtils;
@@ -48,6 +51,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public class MineraculousDataGenerators {
     public static final ResourceKey<Kamikotization> CAT_KAMIKOTIZATION = ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, MineraculousConstants.modLoc("cat"));
@@ -57,6 +61,9 @@ public class MineraculousDataGenerators {
             .add(Registries.DAMAGE_TYPE, MineraculousDamageTypes::bootstrap)
             .add(Registries.PAINTING_VARIANT, MineraculousPaintingVariants::bootstrap)
             .add(Registries.TRIM_PATTERN, MineraculousTrimPatterns::bootstrap)
+            .add(Registries.CONFIGURED_FEATURE, MineraculousTreeFeatures::bootstrap)
+            .add(Registries.PLACED_FEATURE, MineraculousPlacedFeatures::bootstrap)
+            .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, MineraculousBiomeModifiers::bootstrap)
             .add(LithostitchedRegistryKeys.WORLDGEN_MODIFIER, MineraculousWorldgenModifiers::bootstrap)
             .add(MineraculousRegistries.ABILITY, Abilities::bootstrap)
             .add(MineraculousRegistries.MIRACULOUS, Miraculouses::bootstrap)

@@ -27,6 +27,7 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
@@ -85,6 +86,23 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
     }
 
     protected void buildCooking(RecipeOutput recipeOutput) {
+        //Almonds
+        SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(MineraculousItems.ALMOND), RecipeCategory.FOOD, MineraculousItems.ROASTED_ALMOND, 2.0F, 600)
+                .unlockedBy("has_almonds", has(MineraculousItems.ALMOND))
+                .save(recipeOutput, getCampfireRecipeName(MineraculousItems.ROASTED_ALMOND));
+
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(MineraculousItems.ALMOND), RecipeCategory.FOOD, MineraculousItems.ROASTED_ALMOND, 2.0F, 200)
+                .unlockedBy("has_almonds", has(MineraculousItems.ALMOND))
+                .save(recipeOutput, getSmeltingRecipeName(MineraculousItems.ROASTED_ALMOND));
+
+        SimpleCookingRecipeBuilder.smoking(Ingredient.of(MineraculousItems.ALMOND), RecipeCategory.FOOD, MineraculousItems.ROASTED_ALMOND, 2.0F, 100)
+                .unlockedBy("has_almonds", has(MineraculousItems.ALMOND))
+                .save(recipeOutput, getSmokingRecipeName(MineraculousItems.ROASTED_ALMOND));
+
+        oven(Ingredient.of(MineraculousItems.ALMOND), RecipeCategory.FOOD, MineraculousItems.ROASTED_ALMOND, 0.35f, 400)
+                .unlockedBy("has_almonds", has(MineraculousItems.ALMOND))
+                .save(recipeOutput, getOvenRecipeName(MineraculousItems.ALMOND));
+
         cookRecipes(recipeOutput, "oven", MineraculousRecipeSerializers.OVEN.get(), OvenRecipe::new, 400);
 
         simpleTransmuteSmeltingRecipe(recipeOutput, MineraculousItems.RAW_MACARON, MineraculousItems.MACARON, 0.35f);
@@ -154,5 +172,21 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
     private void trimWithCopy(RecipeOutput recipeOutput, ItemLike template, ItemLike copyMaterial) {
         trimSmithing(recipeOutput, template.asItem(), MineraculousConstants.modLoc(getItemName(template) + "_smithing_trim"));
         copySmithingTemplate(recipeOutput, template, copyMaterial);
+    }
+
+    protected static String getCampfireRecipeName(ItemLike itemLike) {
+        return getItemName(itemLike) + "_from_campfire";
+    }
+
+    protected static String getSmokingRecipeName(ItemLike itemLike) {
+        return getItemName(itemLike) + "_from_smoking";
+    }
+
+    protected static String getOvenRecipeName(ItemLike itemLike) {
+        return getItemName(itemLike) + "_from_oven";
+    }
+
+    public static SimpleCookingRecipeBuilder oven(Ingredient ingredient, RecipeCategory category, ItemLike result, float experience, int cookingTime) {
+        return SimpleCookingRecipeBuilder.generic(ingredient, category, result, experience, cookingTime, MineraculousRecipeSerializers.OVEN.get(), OvenRecipe::new);
     }
 }

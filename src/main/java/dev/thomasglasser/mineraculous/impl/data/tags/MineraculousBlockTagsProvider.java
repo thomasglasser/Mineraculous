@@ -23,6 +23,7 @@ public class MineraculousBlockTagsProvider extends ExtendedBlockTagsProvider {
     protected void addTags(HolderLookup.Provider provider) {
         addCheeses();
         addAbilities();
+        addTrees();
     }
 
     private void addCheeses() {
@@ -45,5 +46,11 @@ public class MineraculousBlockTagsProvider extends ExtendedBlockTagsProvider {
                 .add(Blocks.SOUL_FIRE)
                 .add(MineraculousBlocks.CATACLYSM_BLOCK.get())
                 .addOptionalTag(ConventionalBlockTags.UNBREAKABLE_BLOCKS);
+    }
+
+    private void addTrees() {
+        //Almond
+        woodSet(MineraculousBlocks.ALMOND_WOOD_SET);
+        leavesSet(MineraculousBlocks.ALMOND_LEAVES_SET);
     }
 }

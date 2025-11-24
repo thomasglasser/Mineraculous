@@ -46,6 +46,9 @@ import org.jetbrains.annotations.ApiStatus;
 public class MineraculousItems {
     @ApiStatus.Internal
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MineraculousConstants.MOD_ID);
+    //Almonds
+    public static final DeferredItem<Item> ALMOND = register("almond", () -> new Item(new Item.Properties().food(MineraculousFoods.ALMOND)));
+    public static final DeferredItem<Item> ROASTED_ALMOND = register("roasted_almond", () -> new Item(new Item.Properties().food(MineraculousFoods.ROASTED_ALMOND)));
 
     // Miraculous Tools
     /// Default properties for Miraculous tools

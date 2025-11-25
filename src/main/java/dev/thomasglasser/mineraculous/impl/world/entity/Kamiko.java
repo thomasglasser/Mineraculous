@@ -302,7 +302,16 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     public BrainActivityGroup<? extends Kamiko> getIdleTasks() {
         return BrainActivityGroup.idleTasks(
                 new FirstApplicableBehaviour<>(
-                        new TargetOrRetaliate<Kamiko>().startCondition(Kamiko::isReplica),
+                        new TargetOrRetaliate<Kamiko>() {
+                            @Override
+                            protected boolean checkExtraStartConditions(ServerLevel level, Kamiko entity) {
+                                if (!super.checkExtraStartConditions(level, entity)) {
+                                    MineraculousConstants.LOGGER.info("Couldn't find target for Kamiko replica {}, discarding...", entity.getUUID());
+                                    entity.discard();
+                                }
+                                return true;
+                            }
+                        }.startCondition(Kamiko::isReplica),
                         new FollowOwner<Kamiko>().startCondition(Kamiko::shouldFollowOwner),
                         new FollowTemptation<>(),
                         new SetRandomFlyingTarget<>()));
@@ -354,12 +363,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 0, state -> {
-            if (this.isResting()) {
-                return state.setAndContinue(DefaultAnimations.IDLE);
-            }
-            return state.setAndContinue(DefaultAnimations.FLY);
-        }));
+        controllers.add(new AnimationController<>(this, "controller", 0, state -> state.setAndContinue(DefaultAnimations.FLY)));
     }
 
     @Override

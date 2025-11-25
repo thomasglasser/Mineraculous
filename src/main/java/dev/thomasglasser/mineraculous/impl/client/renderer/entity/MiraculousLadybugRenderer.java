@@ -22,8 +22,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
 public class MiraculousLadybugRenderer extends EntityRenderer<MiraculousLadybug> {
-    private ArrayList<TexturedOutlinedQuad> texturedOutlinedQuads = new ArrayList<>();
-    private ArrayList<TailPoint> tailPoints = new ArrayList<>();
+    private final ArrayList<TexturedOutlinedQuad> texturedOutlinedQuads = new ArrayList<>();
+    private final ArrayList<TailPoint> tailPoints = new ArrayList<>();
 
     public MiraculousLadybugRenderer(EntityRendererProvider.Context context) {
         super(context);

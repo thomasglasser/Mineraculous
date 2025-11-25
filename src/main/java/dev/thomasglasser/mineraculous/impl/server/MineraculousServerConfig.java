@@ -23,7 +23,7 @@ public class MineraculousServerConfig {
     public final ModConfigSpec.BooleanValue enableKamikotizationRejection;
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMin;
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMax;
-    public final ModConfigSpec.EnumValue miraculousLadybugReversionMode;
+    public final ModConfigSpec.EnumValue<MiraculousLadybugReversionMode> miraculousLadybugReversionMode;
     public final ModConfigSpec.IntValue miraculousLadybugSpeed;
 
     public static final String KWAMIS = "kwamis";

@@ -26,7 +26,7 @@ public record MiraculousLadybugTargetData(List<Vec3> controlPoints, Multimap<Int
 
     public static final Codec<MiraculousLadybugTargetData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Vec3.CODEC.listOf().fieldOf("control_points").forGetter(MiraculousLadybugTargetData::controlPoints),
-            Codec.unboundedMap(Codec.STRING, MiraculousLadybugTarget.CODEC.listOf()).fieldOf("targets").forGetter(MiraculousLadybugTargetData::targetsMap))
+            Codec.unboundedMap(Codec.STRING, MiraculousLadybugTarget.CODEC.listOf()).fieldOf("targets").forGetter(MiraculousLadybugTargetData::writeTargetsMap))
             .apply(instance, MiraculousLadybugTargetData::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousLadybugTargetData> STREAM_CODEC = StreamCodec.composite(
             TommyLibExtraStreamCodecs.VEC_3.apply(ByteBufCodecs.list()), MiraculousLadybugTargetData::controlPoints,
@@ -34,7 +34,7 @@ public record MiraculousLadybugTargetData(List<Vec3> controlPoints, Multimap<Int
                     Maps::newHashMapWithExpectedSize,
                     ByteBufCodecs.STRING_UTF8,
                     MiraculousLadybugTarget.STREAM_CODEC.apply(ByteBufCodecs.list())),
-            MiraculousLadybugTargetData::targetsMap,
+            MiraculousLadybugTargetData::writeTargetsMap,
             MiraculousLadybugTargetData::new);
 
     public MiraculousLadybugTargetData() {
@@ -46,7 +46,7 @@ public record MiraculousLadybugTargetData(List<Vec3> controlPoints, Multimap<Int
     }
 
     public MiraculousLadybugTargetData(List<Vec3> vec3s, Map<String, List<MiraculousLadybugTarget<?>>> targets) {
-        this(vec3s, convertTargets(targets));
+        this(vec3s, readTargetsMap(targets));
     }
 
     public static MiraculousLadybugTargetData create(List<MiraculousLadybugTarget<?>> targets, Vec3 spawnPosition, Vec3 circlePosition) {
@@ -73,13 +73,13 @@ public record MiraculousLadybugTargetData(List<Vec3> controlPoints, Multimap<Int
         return this.withTargets(newTargets);
     }
 
-    private static Multimap<Integer, MiraculousLadybugTarget<?>> convertTargets(Map<String, List<MiraculousLadybugTarget<?>>> map) {
+    private static Multimap<Integer, MiraculousLadybugTarget<?>> readTargetsMap(Map<String, List<MiraculousLadybugTarget<?>>> map) {
         Multimap<Integer, MiraculousLadybugTarget<?>> multimap = HashMultimap.create();
         map.forEach((index, targets) -> multimap.putAll(Integer.parseInt(index), targets));
         return multimap;
     }
 
-    private Map<String, List<MiraculousLadybugTarget<?>>> targetsMap() {
+    private Map<String, List<MiraculousLadybugTarget<?>>> writeTargetsMap() {
         Map<String, List<MiraculousLadybugTarget<?>>> targetsMap = new HashMap<>();
         targets.asMap().forEach((index, targets) -> targetsMap.put(String.valueOf(index), ImmutableList.copyOf(targets)));
         return targetsMap;

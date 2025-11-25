@@ -96,6 +96,7 @@
   ],
   "minecraft:entity_type": [
     "mineraculous:kamiko",
+    "mineraculous:kamikotized_minion",
     "mineraculous:kwami",
     "mineraculous:lucky_charm_item_spawner",
     "mineraculous:thrown_butterfly_cane",

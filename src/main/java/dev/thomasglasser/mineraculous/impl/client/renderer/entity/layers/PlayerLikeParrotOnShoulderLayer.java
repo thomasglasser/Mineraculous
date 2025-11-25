@@ -1,0 +1,44 @@
+package dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.thomasglasser.mineraculous.impl.world.entity.PlayerLike;
+import net.minecraft.client.model.ParrotModel;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.model.geom.EntityModelSet;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.ParrotRenderer;
+import net.minecraft.client.renderer.entity.RenderLayerParent;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.Parrot;
+
+public class PlayerLikeParrotOnShoulderLayer<T extends LivingEntity & PlayerLike> extends RenderLayer<T, PlayerModel<T>> {
+    private final ParrotModel model;
+
+    public PlayerLikeParrotOnShoulderLayer(RenderLayerParent<T, PlayerModel<T>> renderer, EntityModelSet modelSet) {
+        super(renderer);
+        this.model = new ParrotModel(modelSet.bakeLayer(ModelLayers.PARROT));
+    }
+
+    public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, T livingEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+        this.render(poseStack, buffer, packedLight, livingEntity, limbSwing, limbSwingAmount, netHeadYaw, headPitch, true);
+        this.render(poseStack, buffer, packedLight, livingEntity, limbSwing, limbSwingAmount, netHeadYaw, headPitch, false);
+    }
+
+    private void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, T livingEntity, float limbSwing, float limbSwingAmount, float netHeadYaw, float headPitch, boolean leftShoulder) {
+        CompoundTag compoundtag = leftShoulder ? livingEntity.getShoulderEntityLeft() : livingEntity.getShoulderEntityRight();
+        EntityType.byString(compoundtag.getString("id")).filter((p_117294_) -> p_117294_ == EntityType.PARROT).ifPresent((p_262538_) -> {
+            poseStack.pushPose();
+            poseStack.translate(leftShoulder ? 0.4F : -0.4F, livingEntity.isCrouching() ? -1.3F : -1.5F, 0.0F);
+            Parrot.Variant parrot$variant = Parrot.Variant.byId(compoundtag.getInt("Variant"));
+            VertexConsumer vertexconsumer = buffer.getBuffer(this.model.renderType(ParrotRenderer.getVariantTexture(parrot$variant)));
+            this.model.renderOnShoulder(poseStack, vertexconsumer, packedLight, OverlayTexture.NO_OVERLAY, limbSwing, limbSwingAmount, netHeadYaw, headPitch, livingEntity.tickCount);
+            poseStack.popPose();
+        });
+    }
+}

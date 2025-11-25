@@ -40,6 +40,7 @@
     "minecraft.client.renderer.BlockEntityWithoutLevelRendererMixin",
     "minecraft.client.renderer.GameRendererMixin",
     "minecraft.client.renderer.entity.ArrowRendererMixin",
+    "minecraft.client.renderer.entity.EntityRenderDispatcherMixin",
     "minecraft.client.renderer.entity.EntityRendererMixin",
     "minecraft.client.renderer.entity.ItemRendererMixin",
     "minecraft.client.renderer.entity.LivingEntityRendererMixin",

@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.api.world.entity;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
+import dev.thomasglasser.mineraculous.impl.world.entity.KamikotizedMinion;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.entity.LuckyCharmItemSpawner;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownButterflyCane;
@@ -12,6 +13,7 @@ import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousEntityTypes {
@@ -24,6 +26,10 @@ public class MineraculousEntityTypes {
             .sized(0.25F, 0.25F));
     public static final DeferredHolder<EntityType<?>, EntityType<LuckyCharmItemSpawner>> LUCKY_CHARM_ITEM_SPAWNER = ENTITY_TYPES.register("lucky_charm_item_spawner", LuckyCharmItemSpawner::new, MobCategory.MISC, builder -> builder
             .sized(0.25F, 0.25F));
+    public static final DeferredHolder<EntityType<?>, EntityType<KamikotizedMinion>> KAMIKOTIZED_MINION = ENTITY_TYPES.register("kamikotized_minion", KamikotizedMinion::new, MobCategory.MISC, builder -> builder
+            .sized(0.6F, 1.8F)
+            .eyeHeight(1.62F)
+            .vehicleAttachment(Player.DEFAULT_VEHICLE_ATTACHMENT));
 
     // Projectiles
     public static final DeferredHolder<EntityType<?>, EntityType<ThrownLadybugYoyo>> THROWN_LADYBUG_YOYO = registerThrown("thrown_ladybug_yoyo", ThrownLadybugYoyo::new);

@@ -68,6 +68,7 @@ public class MineraculousEntityEvents {
     public static void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
         event.put(MineraculousEntityTypes.KWAMI.get(), Kwami.createAttributes().build());
         event.put(MineraculousEntityTypes.KAMIKO.get(), Kamiko.createAttributes().build());
+        event.put(MineraculousEntityTypes.KAMIKOTIZED_MINION.get(), PlayerLike.createDefaultAttributes().build());
     }
 
     /// Entrance

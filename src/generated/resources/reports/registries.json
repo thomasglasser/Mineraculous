@@ -299,17 +299,18 @@
     "mineraculous:entity"
   ],
   "neoforge:attachment_types": [
-    "mineraculous:ability_effects",
     "mineraculous:inventory_trackers",
     "mineraculous:kamikotization",
-    "mineraculous:kill_credit_override",
     "mineraculous:leashing_ladybug_yoyo",
     "mineraculous:miraculous_ladybug_trigger",
     "mineraculous:miraculouses",
     "mineraculous:old_kamikotization",
     "mineraculous:perching_cat_staff",
+    "mineraculous:persistent_ability_effects",
     "mineraculous:stored_armor",
+    "mineraculous:synced_transient_ability_effects",
     "mineraculous:thrown_ladybug_yoyo",
+    "mineraculous:transient_ability_effects",
     "mineraculous:traveling_cat_staff",
     "mineraculous:yoyo_leash_override"
   ],
@@ -321,12 +322,12 @@
     "mineraculous:uuid"
   ],
   "neoforge:synced_attachment_types": [
-    "mineraculous:ability_effects",
     "mineraculous:kamikotization",
     "mineraculous:leashing_ladybug_yoyo",
     "mineraculous:miraculous_ladybug_trigger",
     "mineraculous:miraculouses",
     "mineraculous:perching_cat_staff",
+    "mineraculous:synced_transient_ability_effects",
     "mineraculous:thrown_ladybug_yoyo",
     "mineraculous:traveling_cat_staff",
     "mineraculous:yoyo_leash_override"

@@ -10,7 +10,7 @@ import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRequestInventorySyncPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetItemKamikotizingPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSpawnTamedKamikoPayload;
@@ -103,7 +103,7 @@ public class KamikotizationItemSelectionScreen extends ExternalCuriosInventorySc
     public void onClose(boolean exit) {
         if (exit) {
             TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(minecraft.player.getUUID(), target.blockPosition().above()));
-            AbilityEffectData.removeFaceMaskTexture(target, kamikoData.faceMaskTexture());
+            AbilityEffectUtils.removeFaceMaskTexture(target, kamikoData.faceMaskTexture());
         } else if (slotInfo != null) {
             Minecraft.getInstance().setScreen(new KamikotizationSelectionScreen(target, kamikoData, new ReferenceArrayList<>(kamikotizations.get(slotStack)), slotInfo, slotStack.getCount()));
             TommyLibServices.NETWORK.sendToServer(new ServerboundSetItemKamikotizingPayload(Optional.of(target.getUUID()), true, slotInfo));

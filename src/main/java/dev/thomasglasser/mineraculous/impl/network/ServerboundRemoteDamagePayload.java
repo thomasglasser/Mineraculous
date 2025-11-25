@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.SyncedTransientAbilityEffectData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -21,7 +21,7 @@ public class ServerboundRemoteDamagePayload implements ExtendedPacketPayload {
 
     @Override
     public void handle(Player player) {
-        AbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
+        SyncedTransientAbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS);
         if (abilityEffectData.spectatingId().isPresent() && abilityEffectData.allowRemoteDamage()) {
             ServerLevel level = (ServerLevel) player.level();
             Entity target = level.getEntity(abilityEffectData.spectatingId().get());

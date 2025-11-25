@@ -26,7 +26,7 @@ public record ServerboundOpenPerformerKamikotizationChatScreenPayload(String per
     // ON SERVER
     @Override
     public void handle(Player player) {
-        player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.of(targetId), faceMaskTexture).save(player);
+        player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).withPrivateChat(Optional.of(targetId), faceMaskTexture).save(player);
         TommyLibServices.NETWORK.sendToClient(new ClientboundOpenPerformerKamikotizationChatScreenPayload(performerName, targetName, faceMaskTexture, targetId), (ServerPlayer) player);
     }
 

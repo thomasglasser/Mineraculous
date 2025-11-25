@@ -5,7 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.PersistentAbilityEffectData;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +43,7 @@ public record ContinuousAbility(Holder<Ability> ability, int ticks, Optional<Hol
     @Override
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         State state = ability.value().perform(data, level, performer, handler, context);
-        AbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
+        PersistentAbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.PERSISTENT_ABILITY_EFFECTS);
         if (context == null && abilityEffectData.continuousTicks().isPresent()) {
             int continuousTicks = abilityEffectData.continuousTicks().get();
             continuousTicks--;

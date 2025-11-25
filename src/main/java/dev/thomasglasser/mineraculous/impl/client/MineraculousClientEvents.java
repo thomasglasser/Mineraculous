@@ -26,7 +26,8 @@ import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.item.crafting.MineraculousRecipeTypes;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.SyncedTransientAbilityEffectData;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.inventory.OvenScreen;
@@ -404,7 +405,7 @@ public class MineraculousClientEvents {
     static void onInteractionKeyMappingTriggered(InputEvent.InteractionKeyMappingTriggered event) {
         Player player = ClientUtils.getLocalPlayer();
         if (player != null) {
-            AbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
+            SyncedTransientAbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS);
             if (abilityEffectData.spectatingId().isPresent()) {
                 event.setCanceled(true);
                 if (event.isAttack() && abilityEffectData.allowRemoteDamage()) {
@@ -468,7 +469,7 @@ public class MineraculousClientEvents {
 
     static void onPreRenderGuiLayer(RenderGuiLayerEvent.Pre event) {
         Player player = ClientUtils.getLocalPlayer();
-        if (player != null && player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).spectatingId().isPresent()) {
+        if (player != null && player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).spectatingId().isPresent()) {
             if (!MineraculousGuiLayers.isAllowedSpectatingGuiLayer(event.getName())) {
                 event.setCanceled(true);
             }
@@ -497,7 +498,8 @@ public class MineraculousClientEvents {
     }
 
     static void onClientChatReceived(ClientChatReceivedEvent.Player event) {
-        if (!AbilityEffectData.isMessageAllowed(ClientUtils.getLocalPlayer(), event.getSender())) {
+        Player player = ClientUtils.getLocalPlayer();
+        if (player != null && !AbilityEffectUtils.isMessageAllowed(player, event.getSender())) {
             event.setCanceled(true);
         }
     }

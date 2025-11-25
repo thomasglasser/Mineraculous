@@ -3,8 +3,10 @@ package dev.thomasglasser.mineraculous.api.world.attachment;
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.PersistentAbilityEffectData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.SyncedTransientAbilityEffectData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.TransientAbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTriggerData;
@@ -17,7 +19,6 @@ import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.Optional;
 import java.util.UUID;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.neoforged.neoforge.attachment.AttachmentType;
@@ -29,9 +30,9 @@ public class MineraculousAttachmentTypes {
 
     // Shared
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<ArmorData>>> STORED_ARMOR = ATTACHMENT_TYPES.register("stored_armor", () -> AttachmentType.builder(Optional::<ArmorData>empty).serialize(optionalCodec(ArmorData.CODEC)).build());
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<AbilityEffectData>> ABILITY_EFFECTS = ATTACHMENT_TYPES.register("ability_effects", () -> AttachmentType.builder(AbilityEffectData::new).sync(AbilityEffectData.STREAM_CODEC).build());
-    /// The overridden kill credit for the entity if present
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Optional<UUID>>> KILL_CREDIT_OVERRIDE = ATTACHMENT_TYPES.register("kill_credit_override", () -> AttachmentType.builder(Optional::<UUID>empty).serialize(optionalCodec(UUIDUtil.CODEC)).build());
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<TransientAbilityEffectData>> TRANSIENT_ABILITY_EFFECTS = ATTACHMENT_TYPES.register("transient_ability_effects", () -> AttachmentType.builder(TransientAbilityEffectData::new).build());
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<SyncedTransientAbilityEffectData>> SYNCED_TRANSIENT_ABILITY_EFFECTS = ATTACHMENT_TYPES.register("synced_transient_ability_effects", () -> AttachmentType.builder(SyncedTransientAbilityEffectData::new).sync(SyncedTransientAbilityEffectData.STREAM_CODEC).build());
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<PersistentAbilityEffectData>> PERSISTENT_ABILITY_EFFECTS = ATTACHMENT_TYPES.register("persistent_ability_effects", () -> AttachmentType.builder(PersistentAbilityEffectData::new).serialize(PersistentAbilityEffectData.CODEC).build());
     /// Stores a list of clients to sync the holder's inventory to
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<ReferenceArrayList<UUID>>> INVENTORY_TRACKERS = ATTACHMENT_TYPES.register("inventory_trackers", () -> AttachmentType.builder(() -> new ReferenceArrayList<UUID>()).build());
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<ThrownLadybugYoyoData>> THROWN_LADYBUG_YOYO = ATTACHMENT_TYPES.register("thrown_ladybug_yoyo", () -> AttachmentType.builder(() -> new ThrownLadybugYoyoData()).sync(ThrownLadybugYoyoData.STREAM_CODEC).build());

@@ -4,6 +4,7 @@
     "type": "mineraculous:context_dependent",
     "block": {
       "type": "mineraculous:replace_adjacent_blocks",
+      "instant": false,
       "invalid_blocks": {
         "blocks": "#mineraculous:cataclysm_immune"
       },

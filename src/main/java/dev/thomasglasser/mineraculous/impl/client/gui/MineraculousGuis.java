@@ -7,7 +7,7 @@ import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.client.gui.kamiko.categories.KamikoTargetPlayerMenuCategory;
@@ -61,7 +61,7 @@ public class MineraculousGuis {
                 if (cameraEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
                     KamikotizationData kamikotizationData = cameraEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
                     TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationDetransformationPayload(Optional.of(cameraEntity.getUUID()), false));
-                    AbilityEffectData.removeFaceMaskTexture(cameraEntity, kamikotizationData.kamikoData().faceMaskTexture());
+                    AbilityEffectUtils.removeFaceMaskTexture(cameraEntity, kamikotizationData.kamikoData().faceMaskTexture());
                 } else if (player != null) {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundRevertConvertedEntityPayload(cameraEntity.getUUID()));
                 }
@@ -97,7 +97,7 @@ public class MineraculousGuis {
 
     public static boolean checkRevokeButtonActive() {
         Player player = Minecraft.getInstance().player;
-        boolean playerCanRevoke = player != null && player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).allowKamikotizationRevocation();
+        boolean playerCanRevoke = player != null && player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).allowKamikotizationRevocation();
         Entity cameraEntity = MineraculousClientUtils.getCameraEntity();
         boolean entityCanHaveRevoked = cameraEntity != null && cameraEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || MineraculousClientUtils.isInKamikoView();
         return !kamikoGui.isMenuActive() && playerCanRevoke && entityCanHaveRevoked;

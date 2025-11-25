@@ -58,21 +58,23 @@ public class MineraculousEntityUtils {
      */
     public static Component formatDisplayName(Entity entity, Component original) {
         if (original != null) {
-            Style style = original.getStyle();
-            MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-            List<Holder<Miraculous>> transformed = miraculousesData.getTransformed();
-            if (!transformed.isEmpty()) {
-                Holder<Miraculous> miraculous = transformed.getFirst();
-                MiraculousData data = miraculousesData.get(miraculous);
-                Style newStyle = style.withColor(miraculous.value().color());
-                // TODO: Fix name
-                if (/*!data.name().isEmpty()*/false)
-                    return Component.literal(/*data.name()*/"").setStyle(newStyle);
-                return Entity.removeAction(original.copy().setStyle(newStyle.withObfuscated(true).withHoverEvent(null)));
-            } else if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
-                KamikotizationData data = entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
-                Style newStyle = style.withColor(data.kamikoData().nameColor());
-                return Entity.removeAction(Component.literal(data.name()).setStyle(newStyle.withHoverEvent(null)));
+            MiraculousesData miraculousesData = entity.getExistingDataOrNull(MineraculousAttachmentTypes.MIRACULOUSES);
+            if (miraculousesData != null) {
+                Style style = original.getStyle();
+                List<Holder<Miraculous>> transformed = miraculousesData.getTransformed();
+                if (!transformed.isEmpty()) {
+                    Holder<Miraculous> miraculous = transformed.getFirst();
+                    MiraculousData data = miraculousesData.get(miraculous);
+                    Style newStyle = style.withColor(miraculous.value().color());
+                    // TODO: Fix name
+                    if (/*!data.name().isEmpty()*/false)
+                        return Component.literal(/*data.name()*/"").setStyle(newStyle);
+                    return Entity.removeAction(original.copy().setStyle(newStyle.withObfuscated(true).withHoverEvent(null)));
+                } else if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
+                    KamikotizationData data = entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
+                    Style newStyle = style.withColor(data.kamikoData().nameColor());
+                    return Entity.removeAction(Component.literal(data.name()).setStyle(newStyle.withHoverEvent(null)));
+                }
             }
         }
         return original;

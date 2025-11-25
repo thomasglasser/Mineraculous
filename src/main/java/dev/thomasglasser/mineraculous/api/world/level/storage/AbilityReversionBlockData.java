@@ -4,8 +4,6 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.nbt.MineraculousNbtUtils;
 import java.util.UUID;
 import net.minecraft.core.BlockPos;
@@ -76,11 +74,5 @@ public class AbilityReversionBlockData extends SavedData {
         AbilityReversionBlockData data = new AbilityReversionBlockData();
         data.revertibleBlocks.putAll(MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Revertible"), UUID::fromString, MineraculousNbtUtils.codecDecoder(BlockLocation.CODEC), MineraculousNbtUtils.codecDecoder(BlockState.CODEC)));
         return data;
-    }
-
-    private record BlockLocation(ResourceKey<Level> dimension, BlockPos pos) {
-        private static final Codec<BlockLocation> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Level.RESOURCE_KEY_CODEC.fieldOf("dimension").forGetter(BlockLocation::dimension),
-                BlockPos.CODEC.fieldOf("pos").forGetter(BlockLocation::pos)).apply(instance, BlockLocation::new));
     }
 }

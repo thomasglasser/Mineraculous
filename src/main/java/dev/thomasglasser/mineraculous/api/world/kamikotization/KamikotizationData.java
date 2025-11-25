@@ -149,8 +149,8 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         }
 
         LivingEntity owner = level.getEntity(kamikoData.owner()) instanceof LivingEntity l ? l : null;
-        if (owner != null && owner.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS.get()).spectatingId().map(id -> id.equals(entity.getUUID())).orElse(false)) {
-            owner.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS.get()).withSpectationInterrupted().save(owner);
+        if (owner != null && owner.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).spectatingId().map(id -> id.equals(entity.getUUID())).orElse(false)) {
+            owner.getData(MineraculousAttachmentTypes.TRANSIENT_ABILITY_EFFECTS).withSpectationInterrupted(true).save(owner);
         }
 
         level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM, entity.getSoundSource(), 1, 1);

@@ -35,7 +35,7 @@ public class MineraculousBlockLoot extends ExtendedBlockLootSubProvider {
         dropSelf(MineraculousBlocks.CHEESE_POT.get());
         dropSelf(MineraculousBlocks.OVEN.get());
 
-        dropOther(MineraculousBlocks.CATACLYSM_BLOCK.get(), MineraculousItems.CATACLYSM_DUST.get());
+        add(MineraculousBlocks.CATACLYSM_BLOCK.get(), createSilkTouchOnlyTable(MineraculousItems.CATACLYSM_DUST));
 
         MineraculousBlocks.CHEESE.values().forEach(block -> cheese(block.get(), block.get().getPiece().value()));
         MineraculousBlocks.CAMEMBERT.values().forEach(block -> cheese(block.get(), block.get().getPiece().value()));

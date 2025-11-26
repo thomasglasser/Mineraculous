@@ -125,7 +125,7 @@ public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Ei
                     if (data.remainingStackCount() <= 1) {
                         data.detransform(owner, level, kamikoPos != null ? kamikoPos : owner.position().add(0, 1, 0), false, stack);
                     } else {
-                        data.decrementRemainingStackCount().save(owner, true);
+                        data.decrementRemainingStackCount().save(owner);
                     }
                 }, () -> stack.setCount(0));
             }

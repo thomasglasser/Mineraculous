@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_porkchop": {
+    "has_raw_macaron": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:porkchop"
+            "items": "mineraculous:raw_macaron"
           }
         ]
       },
@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "minecraft:cooked_porkchop_from_oven"
+        "recipe": "mineraculous:macaron_from_oven_cooking"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -21,12 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_porkchop"
+      "has_raw_macaron"
     ]
   ],
   "rewards": {
     "recipes": [
-      "minecraft:cooked_porkchop_from_oven"
+      "mineraculous:macaron_from_oven_cooking"
     ]
   }
 }

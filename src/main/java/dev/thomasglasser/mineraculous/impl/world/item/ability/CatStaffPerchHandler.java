@@ -58,7 +58,7 @@ public class CatStaffPerchHandler {
                     double yawRad = Math.toRadians(livingEntity.getYRot());
                     Vector3f lookAngle = new Vec3(-Math.sin(yawRad), 0, Math.cos(yawRad)).normalize().toVector3f();
                     PerchingCatStaffData newPerchData = new PerchingCatStaffData(length, groundRY, perching, t, nRender, initPos, true, yBeforeFalling, lookAngle, false);
-                    newPerchData.save(livingEntity, true);
+                    newPerchData.save(livingEntity);
                 }
             }
         }
@@ -83,7 +83,7 @@ public class CatStaffPerchHandler {
                             length, groundRY, perching, t, canRender,
                             initPos, false, yB, new Vector3f(0, 0, 0),
                             true);
-                    newPerchData.save(livingEntity, true);
+                    newPerchData.save(livingEntity);
                 }
             } else {
                 Vector4f init = PerchingCatStaffData.initialize(livingEntity);
@@ -98,7 +98,7 @@ public class CatStaffPerchHandler {
                         length, 0, perching, 0, false,
                         initPos, isFalling, 0, new Vector3f(0, 0, 0),
                         false);
-                newPerchData.save(livingEntity, true);
+                newPerchData.save(livingEntity);
             }
         }
     }
@@ -153,7 +153,7 @@ public class CatStaffPerchHandler {
                     length, catStaffPerchGroundRY, perching, t, shouldRender,
                     initPos, isFalling, yBeforeFalling, perchData.initialFallDirection(),
                     fastDescending);
-            newPerchData.save(livingEntity, true);
+            newPerchData.save(livingEntity);
         }
 
         if (fastDescending) {
@@ -162,7 +162,7 @@ public class CatStaffPerchHandler {
             livingEntity.hurtMarked = true;
             livingEntity.setDeltaMovement(livingEntity.getDeltaMovement().x, yMovement, livingEntity.getDeltaMovement().z);
             if (Math.abs(catStaffPerchGroundRY) < 1) {
-                PerchingCatStaffData.remove(livingEntity, true);
+                PerchingCatStaffData.remove(livingEntity);
             }
         }
     }
@@ -200,7 +200,7 @@ public class CatStaffPerchHandler {
         livingEntity.resetFallDistance();
 
         if (distance > -length + 2 || staffOrigin.y + 0.2 > livingEntity.getY() || (livingEntity.getDeltaMovement().y > -0.2 && livingEntity.getY() + 2 < perchData.yBeforeFalling())) {
-            PerchingCatStaffData.remove(livingEntity, true);
+            PerchingCatStaffData.remove(livingEntity);
             if (livingEntity instanceof Player player) {
                 player.getCooldowns().addCooldown(MineraculousItems.CAT_STAFF.get(), 10);
             }
@@ -219,7 +219,7 @@ public class CatStaffPerchHandler {
             float damage = (float) (lostSpeed * 10.0 - 3.0);
 
             if (damage > 0.0F) {
-                PerchingCatStaffData.remove(entity, true);
+                PerchingCatStaffData.remove(entity);
                 entity.hurt(entity.damageSources().flyIntoWall(), damage);
             }
         }

@@ -21,6 +21,6 @@ public class ServerPlayerMixin {
 
     @Unique
     private static boolean mineraculous$shouldForceSyncSpectator(ServerPlayer player) {
-        return player.isSpectator() && player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).spectatingId().isPresent();
+        return player.isSpectator() && player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).spectatingId().isPresent();
     }
 }

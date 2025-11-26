@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization;
 
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
@@ -196,7 +196,7 @@ public abstract class AbstractKamikotizationChatScreen extends ChatScreen {
         this.minecraft.gui.getChat().clearMessages(true);
         Player player = Minecraft.getInstance().player;
         if (player != null) {
-            AbilityEffectData.removeFaceMaskTexture(player, faceMaskTexture);
+            AbilityEffectUtils.removeFaceMaskTexture(player, faceMaskTexture);
         }
     }
 

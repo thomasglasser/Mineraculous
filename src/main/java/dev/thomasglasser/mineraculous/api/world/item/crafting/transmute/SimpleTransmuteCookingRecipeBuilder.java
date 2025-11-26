@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.api.world.item.crafting.transmute;
 
-import dev.thomasglasser.mineraculous.impl.world.item.crafting.MineraculousRecipeSerializers;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -63,10 +62,6 @@ public class SimpleTransmuteCookingRecipeBuilder implements RecipeBuilder {
         return new SimpleTransmuteCookingRecipeBuilder(category, determineRecipeCategory(cookingSerializer, result), result, ingredient, experience, cookingTime, factory);
     }
 
-    public static SimpleTransmuteCookingRecipeBuilder campfireCooking(Ingredient ingredient, RecipeCategory category, ItemLike result, float experience, int cookingTime) {
-        return new SimpleTransmuteCookingRecipeBuilder(category, CookingBookCategory.FOOD, result, ingredient, experience, cookingTime, TransmuteCampfireCookingRecipe::new);
-    }
-
     public static SimpleTransmuteCookingRecipeBuilder smelting(Ingredient ingredient, RecipeCategory category, ItemLike result, float experience, int cookingTime) {
         return new SimpleTransmuteCookingRecipeBuilder(
                 category, determineSmeltingRecipeCategory(result), result, ingredient, experience, cookingTime, TransmuteSmeltingRecipe::new);
@@ -74,6 +69,14 @@ public class SimpleTransmuteCookingRecipeBuilder implements RecipeBuilder {
 
     public static SimpleTransmuteCookingRecipeBuilder smoking(Ingredient ingredient, RecipeCategory category, ItemLike result, float experience, int cookingTime) {
         return new SimpleTransmuteCookingRecipeBuilder(category, CookingBookCategory.FOOD, result, ingredient, experience, cookingTime, TransmuteSmeltingRecipe::new);
+    }
+
+    public static SimpleTransmuteCookingRecipeBuilder campfireCooking(Ingredient ingredient, RecipeCategory category, ItemLike result, float experience, int cookingTime) {
+        return new SimpleTransmuteCookingRecipeBuilder(category, CookingBookCategory.FOOD, result, ingredient, experience, cookingTime, TransmuteCampfireCookingRecipe::new);
+    }
+
+    public static SimpleTransmuteCookingRecipeBuilder ovenCooking(Ingredient ingredient, RecipeCategory category, ItemLike result, float experience, int cookingTime) {
+        return new SimpleTransmuteCookingRecipeBuilder(category, CookingBookCategory.FOOD, result, ingredient, experience, cookingTime, TransmuteOvenCookingRecipe::new);
     }
 
     public SimpleTransmuteCookingRecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
@@ -122,8 +125,6 @@ public class SimpleTransmuteCookingRecipeBuilder implements RecipeBuilder {
             return determineSmeltingRecipeCategory(result);
         } else if (serializer == RecipeSerializer.BLASTING_RECIPE) {
             return determineBlastingRecipeCategory(result);
-        } else if (serializer != RecipeSerializer.SMOKING_RECIPE && serializer != RecipeSerializer.CAMPFIRE_COOKING_RECIPE && serializer != MineraculousRecipeSerializers.OVEN.get()) {
-            throw new IllegalStateException("Unknown cooking recipe type");
         } else {
             return CookingBookCategory.FOOD;
         }

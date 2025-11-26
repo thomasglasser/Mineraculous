@@ -7,7 +7,7 @@ import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.VoiceDistanceEvent;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import net.minecraft.world.entity.player.Player;
 
@@ -21,12 +21,13 @@ public class MineraculousVoiceChatPlugin implements VoicechatPlugin {
     @Override
     public void registerEvents(EventRegistration registration) {
         registration.registerEvent(ClientReceiveSoundEvent.EntitySound.class, event -> {
-            if (!AbilityEffectData.isMessageAllowed(ClientUtils.getLocalPlayer(), event.getEntityId())) {
+            Player player = ClientUtils.getLocalPlayer();
+            if (player != null && !AbilityEffectUtils.isMessageAllowed(player, event.getEntityId())) {
                 event.setRawAudio(new short[] {});
             }
         });
         registration.registerEvent(VoiceDistanceEvent.class, event -> {
-            if (event.getSenderConnection().getPlayer().getPlayer() instanceof Player player && player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).privateChat().isPresent()) {
+            if (event.getSenderConnection().getPlayer().getPlayer() instanceof Player player && player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).privateChat().isPresent()) {
                 event.setDistance(Float.MAX_VALUE);
             }
         });

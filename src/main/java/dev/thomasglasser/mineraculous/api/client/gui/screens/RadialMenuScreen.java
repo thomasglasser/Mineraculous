@@ -93,7 +93,7 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
 
     @Override
     public boolean shouldCloseOnEsc() {
-        return false;
+        return true;
     }
 
     @Override
@@ -103,6 +103,15 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
             return true;
         }
         return super.keyReleased(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == heldKey) {
+            onClose();
+            return true;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
     }
 
     @Override

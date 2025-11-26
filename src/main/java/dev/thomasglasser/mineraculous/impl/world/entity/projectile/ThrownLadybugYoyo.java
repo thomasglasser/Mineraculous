@@ -18,7 +18,6 @@ import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
-import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
 import java.util.Optional;
@@ -87,7 +86,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         setBaseDamage(8);
         setPos(owner.getX(), owner.getEyeY() - 0.2, owner.getZ());
         setMode(mode);
-        new ThrownLadybugYoyoData(this.getId()).save(owner, !level.isClientSide);
+        new ThrownLadybugYoyoData(this.getId()).save(owner);
     }
 
     public static float clampMaxRopeLength(float maxRopeLength) {
@@ -363,8 +362,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     }
                     leashable.setLeashedTo(owner, true);
                     entity.setData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE, true);
-                    TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE, true), owner.getServer());
-                    new LeashingLadybugYoyoData(entity.getId()).save(owner, true);
+                    new LeashingLadybugYoyoData(entity.getId()).save(owner);
                 }
                 recall();
             }
@@ -464,7 +462,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     public void clearOwnerData() {
         Entity owner = getOwner();
         if (owner != null && !level().isClientSide) {
-            owner.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).clearId().save(owner, true);
+            owner.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO).clearId().save(owner);
         }
     }
 

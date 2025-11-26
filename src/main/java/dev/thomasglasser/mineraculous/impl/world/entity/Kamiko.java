@@ -413,7 +413,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                     TommyLibServices.NETWORK.sendToClient(new ClientboundSyncInventoryPayload(player), owner);
                     player.getData(MineraculousAttachmentTypes.INVENTORY_TRACKERS).add(owner.getUUID());
                 }
-                owner.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withSpectationInterrupted().save(owner, true);
+                owner.getData(MineraculousAttachmentTypes.TRANSIENT_ABILITY_EFFECTS).withSpectationInterrupted(true).save(owner);
                 remove(RemovalReason.DISCARDED);
                 TommyLibServices.NETWORK.sendToClient(new ClientboundBeginKamikotizationSelectionPayload(player.getUUID(), new KamikoData(getUUID(), getOwnerUUID(), getPowerLevel(), getNameColor(), getFaceMaskTexture())), owner);
             }

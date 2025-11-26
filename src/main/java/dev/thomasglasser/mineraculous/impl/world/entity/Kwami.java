@@ -145,6 +145,14 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         builder.define(DATA_TRANSFORMING, false);
     }
 
+    public boolean isInCubeForm() {
+        return isSummoning() || isTransforming();
+    }
+
+    public boolean isSummoning() {
+        return getSummonTicks() > 0;
+    }
+
     public int getSummonTicks() {
         return entityData.get(DATA_SUMMON_TICKS);
     }
@@ -253,7 +261,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
 
     @Override
     protected void customServerAiStep() {
-        if (getSummonTicks() > 0) {
+        if (isSummoning()) {
             tickSummon();
             return;
         } else if (isTransforming()) {
@@ -347,7 +355,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        if (player.getUUID().equals(getOwnerUUID())) {
+        if (player.getUUID().equals(getOwnerUUID()) && !isInCubeForm()) {
             if (player instanceof ServerPlayer serverPlayer) {
                 ItemStack stack = player.getItemInHand(hand);
                 if (stack.isEmpty()) {

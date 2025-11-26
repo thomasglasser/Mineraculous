@@ -24,7 +24,6 @@ import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybug
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
-import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
@@ -133,7 +132,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                 ThrownLadybugYoyoData data = livingEntity.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
                 if (data.safeFallTicks() > 0) {
                     livingEntity.resetFallDistance();
-                    data.decrementSafeFallTicks().save(livingEntity, true);
+                    data.decrementSafeFallTicks().save(livingEntity);
                 }
             }
         }
@@ -164,7 +163,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                                 recallYoyo(player);
                             }
                         } else {
-                            data.clearId().save(player, true);
+                            data.clearId().save(player);
                         }
                     } else if (mode == Mode.BLOCK) {
                         player.startUsingItem(usedHand);
@@ -242,8 +241,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
             leashable.dropLeash(true, false);
         }
         leashed.setData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE, false);
-        TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(leashed.getId(), MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE, false), leashed.getServer());
-        LeashingLadybugYoyoData.remove(holder, true);
+        LeashingLadybugYoyoData.remove(holder);
     }
 
     @Override
@@ -267,7 +265,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                                 Vec3 fromPlayerToYoyo = new Vec3(thrownYoyo.getX() - player.getX(), thrownYoyo.getY() - player.getY() + 1, thrownYoyo.getZ() - player.getZ());
                                 player.setDeltaMovement(fromPlayerToYoyo.scale(0.2).add(player.getDeltaMovement()));
                                 player.hurtMarked = true;
-                                data.startSafeFall().save(player, true);
+                                data.startSafeFall().save(player);
                             }
                         }
                         recallYoyo(player);
@@ -302,7 +300,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                 ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(level);
                 if (thrownYoyo != null) {
                     thrownYoyo.recall();
-                    data.startSafeFall().save(player, true);
+                    data.startSafeFall().save(player);
                 }
             }
             level.playSound(null, player, SoundEvents.FISHING_BOBBER_RETRIEVE, SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -473,7 +471,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                     performer.getXRot() > -70)
                 return null; // returns null so the ability gets cancelled!
             yoyo.setDeltaMovement(Vec3.ZERO);
-            yoyoData.setSummonedLuckyCharm(true).save(performer, true);
+            yoyoData.setSummonedLuckyCharm(true).save(performer);
             return Optional.of(yoyo.position());
         }
         return Optional.empty();

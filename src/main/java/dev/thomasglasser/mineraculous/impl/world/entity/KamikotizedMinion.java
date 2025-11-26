@@ -1,9 +1,9 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -76,7 +76,7 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         PlayerLike.adjustPlayerAttributes(this);
         previousGameMode = source.gameMode.getGameModeForPlayer();
         source.setGameMode(GameType.SPECTATOR);
-        source.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withSpectation(Optional.of(getUUID()), Optional.empty(), Optional.empty(), Optional.empty(), false, false).save(source, true);
+        AbilityEffectUtils.beginSpectation(source, Optional.of(getUUID()), Optional.empty(), Optional.empty(), Optional.empty(), false, false);
     }
 
     @Override

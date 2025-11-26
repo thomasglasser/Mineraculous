@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.mixin.minecraft.world.entity.player;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -36,6 +37,13 @@ public abstract class PlayerMixin extends LivingEntity implements Leashable {
     @ModifyReturnValue(method = "decorateDisplayNameComponent", at = @At(value = "RETURN"))
     private MutableComponent formatMiraculousDisplayName(MutableComponent original) {
         return MineraculousEntityUtils.formatDisplayName(mineraculous$instance, original).copy();
+    }
+
+    @ModifyReturnValue(method = "wantsToStopRiding", at = @At("RETURN"))
+    private boolean disallowDismountWhenSpectating(boolean original) {
+        if (original && mineraculous$instance.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).spectatingId().isPresent())
+            return false;
+        return original;
     }
 
     @Nullable

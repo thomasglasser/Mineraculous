@@ -13,18 +13,15 @@ import org.jetbrains.annotations.Nullable;
 
 public interface PlayerLike {
     float BASE_MOVEMENT_SPEED = 0.3f;
-    float BASE_SCALE = 1f;
 
     static AttributeSupplier.Builder createDefaultAttributes() {
         return Player.createAttributes()
                 .add(Attributes.MOVEMENT_SPEED, BASE_MOVEMENT_SPEED)
-                .add(Attributes.SCALE, BASE_SCALE)
                 .add(Attributes.FOLLOW_RANGE);
     }
 
     static <T extends LivingEntity & PlayerLike> void adjustPlayerAttributes(T entity) {
         entity.getAttributes().getInstance(Attributes.MOVEMENT_SPEED).setBaseValue(BASE_MOVEMENT_SPEED);
-        entity.getAttributes().getInstance(Attributes.SCALE).setBaseValue(BASE_SCALE);
     }
 
     AttributeMap getAttributes();

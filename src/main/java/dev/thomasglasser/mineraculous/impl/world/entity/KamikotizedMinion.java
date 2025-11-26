@@ -72,6 +72,8 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         this(MineraculousEntityTypes.KAMIKOTIZED_MINION.get(), source.level());
         setSourceId(source.getUUID());
         moveTo(source.position(), source.getYRot(), source.getXRot());
+        setYBodyRot(source.yBodyRot);
+        setYHeadRot(source.yHeadRot);
         this.getAttributes().assignAllValues(source.getAttributes());
         PlayerLike.adjustPlayerAttributes(this);
         previousGameMode = source.gameMode.getGameModeForPlayer();
@@ -111,7 +113,7 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         return this.getEntityData().get(DATA_OWNER_UUID).orElse(null);
     }
 
-    protected void setOwnerUUID(@Nullable UUID uuid) {
+    public void setOwnerUUID(@Nullable UUID uuid) {
         this.getEntityData().set(DATA_OWNER_UUID, Optional.ofNullable(uuid));
     }
 
@@ -255,6 +257,23 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
                 new SetWalkTargetToAttackTarget<>(),
                 // TODO: Support ranged and powers
                 new AnimatableMeleeAttack<>(0));
+    }
+
+    @Override
+    public void remove(RemovalReason reason) {
+        super.remove(reason);
+        unbindSource();
+    }
+
+    public void unbindSource() {
+        if (!level().isClientSide()) {
+            ServerPlayer source = (ServerPlayer) getSource();
+            if (source != null) {
+                AbilityEffectUtils.endSpectation(source);
+                source.setGameMode(previousGameMode);
+            }
+            setSourceId(Util.NIL_UUID);
+        }
     }
 
     @Override

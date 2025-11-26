@@ -12,6 +12,7 @@
     "minecraft.server.level.ServerLevelMixin",
     "minecraft.server.level.ServerPlayer$1Mixin",
     "minecraft.server.level.ServerPlayer$2Mixin",
+    "minecraft.server.level.ServerPlayerMixin",
     "minecraft.server.network.ServerGamePacketListenerImplMixin",
     "minecraft.server.packs.repository.PackMetadataMixin",
     "minecraft.server.packs.repository.PackMixin",

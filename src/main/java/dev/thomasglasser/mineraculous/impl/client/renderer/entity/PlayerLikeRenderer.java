@@ -235,7 +235,7 @@ public class PlayerLikeRenderer<T extends LivingEntity & PlayerLike> extends Liv
             }
 
             Vec3 vec3 = entity.getViewVector(partialTick);
-            Vec3 vec31 = entity.getDeltaMovementLerped(partialTick);
+            Vec3 vec31 = entity.getDeltaMovement();
             double d0 = vec31.horizontalDistanceSqr();
             double d1 = vec3.horizontalDistanceSqr();
             if (d0 > (double) 0.0F && d1 > (double) 0.0F) {

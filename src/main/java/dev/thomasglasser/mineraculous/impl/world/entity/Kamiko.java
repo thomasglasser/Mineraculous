@@ -68,6 +68,7 @@ import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
 import net.tslat.smartbrainlib.api.core.behaviour.FirstApplicableBehaviour;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowOwner;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowTemptation;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
@@ -262,20 +263,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     @Override
     public BrainActivityGroup<? extends Kamiko> getCoreTasks() {
         return BrainActivityGroup.coreTasks(
-                new InvalidateAttackTarget<Kamiko>() {
-                    @Override
-                    protected boolean canAttack(Kamiko kamiko, LivingEntity target) {
-                        if (kamiko.isReplica() && target.getUUID().equals(kamiko.getOwnerUUID()))
-                            return false;
-                        return kamiko.canBeSeenByAnyone();
-                    }
-                }.invalidateIf((EntityUtils.TARGET_TOO_FAR_PREDICATE::test)),
-                new SetWalkTargetToAttackTarget<Kamiko>().startCondition(kamiko -> {
-                    LivingEntity target = kamiko.getTarget();
-                    if (target == null)
-                        return false;
-                    return checkTargetAndAlertTransformedOwner(target);
-                }),
+                new LookAtTarget<>(),
                 new MoveToWalkTarget<Kamiko>().whenStopping(this::onMoveToWalkTargetStopping));
     }
 
@@ -288,14 +276,6 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
 
     protected boolean hasReachedTarget(Kamiko entity, WalkTarget target) {
         return target != null && target.getTarget().currentBlockPosition().distManhattan(entity.blockPosition()) <= target.getCloseEnoughDist();
-    }
-
-    public boolean checkTargetAndAlertTransformedOwner(LivingEntity target) {
-        boolean delay = target != null && target.getUUID().equals(getOwnerUUID()) && target.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed();
-        if (delay && target instanceof Player player) {
-            player.displayClientMessage(DETRANSFORM_TO_TRANSFORM, true);
-        }
-        return !delay;
     }
 
     @Override
@@ -321,6 +301,33 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         LivingEntity owner = getOwner();
         LivingEntity target = getTarget();
         return owner != null && (target == null || target == owner) && (owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent());
+    }
+
+    @Override
+    public BrainActivityGroup<? extends Kamiko> getFightTasks() {
+        return BrainActivityGroup.fightTasks(
+                new InvalidateAttackTarget<Kamiko>() {
+                    @Override
+                    protected boolean canAttack(Kamiko kamiko, LivingEntity target) {
+                        if (kamiko.isReplica() && target.getUUID().equals(kamiko.getOwnerUUID()))
+                            return false;
+                        return kamiko.canBeSeenByAnyone();
+                    }
+                }.invalidateIf((EntityUtils.TARGET_TOO_FAR_PREDICATE::test)),
+                new SetWalkTargetToAttackTarget<Kamiko>().startCondition(kamiko -> {
+                    LivingEntity target = kamiko.getTarget();
+                    if (target == null)
+                        return false;
+                    return checkTargetAndAlertTransformedOwner(target);
+                }));
+    }
+
+    public boolean checkTargetAndAlertTransformedOwner(LivingEntity target) {
+        boolean delay = target != null && target.getUUID().equals(getOwnerUUID()) && target.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed();
+        if (delay && target instanceof Player player) {
+            player.displayClientMessage(DETRANSFORM_TO_TRANSFORM, true);
+        }
+        return !delay;
     }
 
     public BrainActivityGroup<? extends Kamiko> getRestTasks() {

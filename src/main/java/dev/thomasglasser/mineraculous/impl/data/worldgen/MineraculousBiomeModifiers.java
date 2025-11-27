@@ -22,7 +22,7 @@ public class MineraculousBiomeModifiers {
         var biomes = context.lookup(Registries.BIOME);
 
         context.register(ADD_TREE_ALMOND, new BiomeModifiers.AddFeaturesBiomeModifier(
-                HolderSet.direct(biomes.getOrThrow(Biomes.SAVANNA)),
+                HolderSet.direct(biomes.getOrThrow(Biomes.SAVANNA), biomes.getOrThrow(Biomes.WOODED_BADLANDS)),
                 HolderSet.direct(placedFeatures.getOrThrow(MineraculousPlacedFeatures.ALMOND_PLACED_KEY)),
                 GenerationStep.Decoration.VEGETAL_DECORATION));
     }

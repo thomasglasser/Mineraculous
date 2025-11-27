@@ -4,7 +4,7 @@ import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.inventory.MineraculousMenuTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.crafting.MineraculousRecipeTypes;
-import dev.thomasglasser.mineraculous.api.world.item.crafting.OvenRecipe;
+import dev.thomasglasser.mineraculous.api.world.item.crafting.OvenCookingRecipe;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.impl.world.inventory.OvenMenu;
 import dev.thomasglasser.mineraculous.impl.world.level.block.entity.OvenBlockEntity;
@@ -25,8 +25,8 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 
 @JeiPlugin
 public class MineraculousJeiPlugin implements IModPlugin {
-    private static final Supplier<RecipeType<RecipeHolder<OvenRecipe>>> OVEN_RECIPE_TYPE = RecipeType.createFromDeferredVanilla(MineraculousRecipeTypes.OVEN);
-    public static final String OVEN_CATEGORY = "gui.jei.category.mineraculous.oven";
+    private static final Supplier<RecipeType<RecipeHolder<OvenCookingRecipe>>> OVEN_COOKING_RECIPE_TYPE = RecipeType.createFromDeferredVanilla(MineraculousRecipeTypes.OVEN_COOKING);
+    public static final String OVEN_COOKING_CATEGORY = "gui.jei.category.mineraculous.oven_cooking";
 
     @Override
     public void registerItemSubtypes(ISubtypeRegistration registration) {
@@ -36,22 +36,22 @@ public class MineraculousJeiPlugin implements IModPlugin {
 
     @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
-        registration.addRecipeCategories(new AbstractCookingCategory<>(registration.getJeiHelpers().getGuiHelper(), OVEN_RECIPE_TYPE.get(), MineraculousBlocks.OVEN.get(), OVEN_CATEGORY, OvenBlockEntity.BURN_TIME_STANDARD) {});
+        registration.addRecipeCategories(new AbstractCookingCategory<>(registration.getJeiHelpers().getGuiHelper(), OVEN_COOKING_RECIPE_TYPE.get(), MineraculousBlocks.OVEN.get(), OVEN_COOKING_CATEGORY, OvenBlockEntity.BURN_TIME_STANDARD) {});
     }
 
     @Override
     public void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(OVEN_RECIPE_TYPE.get(), ClientUtils.getLevel().getRecipeManager().getAllRecipesFor(MineraculousRecipeTypes.OVEN.get()));
+        registration.addRecipes(OVEN_COOKING_RECIPE_TYPE.get(), ClientUtils.getLevel().getRecipeManager().getAllRecipesFor(MineraculousRecipeTypes.OVEN_COOKING.get()));
     }
 
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
-        registration.addRecipeTransferHandler(OvenMenu.class, MineraculousMenuTypes.OVEN.get(), OVEN_RECIPE_TYPE.get(), OvenMenu.INGREDIENT_SLOT, OvenMenu.INGREDIENT_SLOTS.length, OvenMenu.INV_SLOT_START, OvenMenu.USE_ROW_SLOT_END - OvenMenu.INV_SLOT_START);
+        registration.addRecipeTransferHandler(OvenMenu.class, MineraculousMenuTypes.OVEN.get(), OVEN_COOKING_RECIPE_TYPE.get(), OvenMenu.INGREDIENT_SLOT, OvenMenu.INGREDIENT_SLOTS.length, OvenMenu.INV_SLOT_START, OvenMenu.USE_ROW_SLOT_END - OvenMenu.INV_SLOT_START);
     }
 
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(MineraculousBlocks.OVEN.toStack(), OVEN_RECIPE_TYPE.get());
+        registration.addRecipeCatalyst(MineraculousBlocks.OVEN.toStack(), OVEN_COOKING_RECIPE_TYPE.get());
     }
 
     @Override

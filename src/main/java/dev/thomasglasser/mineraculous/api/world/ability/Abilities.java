@@ -101,6 +101,7 @@ public class Abilities {
         context.register(CATACLYSM, new ContinuousAbility(Holder.direct(new ContextDependentAbility(
                 Optional.of(Holder.direct(new ReplaceAdjacentBlocksAbility(
                         MineraculousBlocks.CATACLYSM_BLOCK.get().defaultBlockState(),
+                        false,
                         true,
                         Optional.empty(),
                         Optional.of(BlockPredicate.Builder.block().of(MineraculousBlockTags.CATACLYSM_IMMUNE).build()),

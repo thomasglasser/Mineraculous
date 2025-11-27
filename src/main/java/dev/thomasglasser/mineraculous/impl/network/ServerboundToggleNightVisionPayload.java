@@ -17,7 +17,7 @@ public class ServerboundToggleNightVisionPayload implements ExtendedPacketPayloa
 
     @Override
     public void handle(Player player) {
-        player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withToggleNightVision().save(player, true);
+        player.getData(MineraculousAttachmentTypes.TRANSIENT_ABILITY_EFFECTS).withShouldToggleNightVision(true).save(player);
     }
 
     @Override

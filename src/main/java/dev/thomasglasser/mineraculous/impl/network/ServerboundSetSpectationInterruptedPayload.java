@@ -21,7 +21,7 @@ public record ServerboundSetSpectationInterruptedPayload(Optional<Integer> targe
     public void handle(Player player) {
         Entity target = targetId.isPresent() ? player.level().getEntity(targetId.get()) : player;
         if (target != null) {
-            target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withSpectationInterrupted().save(target, true);
+            target.getData(MineraculousAttachmentTypes.TRANSIENT_ABILITY_EFFECTS).withSpectationInterrupted(true).save(target);
         }
     }
 

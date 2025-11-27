@@ -1,8 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.tommylib.api.network.ClientboundSyncDataAttachmentPayload;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
@@ -27,16 +25,11 @@ public record TravelingCatStaffData(float length, BlockPos blockPos, boolean tra
         this(0f, new BlockPos(0, 0, 0), false, new Vector3f(0, 0, 0), 0, 0, false);
     }
 
-    public void save(Entity entity, boolean syncToClient) {
+    public void save(Entity entity) {
         entity.setData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF, this);
-        if (syncToClient)
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.TRAVELING_CAT_STAFF, this), entity.getServer());
     }
 
-    public static void remove(Entity entity, boolean syncToClient) {
-        TravelingCatStaffData data = new TravelingCatStaffData();
-        entity.setData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF, data);
-        if (syncToClient)
-            TommyLibServices.NETWORK.sendToAllClients(new ClientboundSyncDataAttachmentPayload<>(entity.getId(), MineraculousAttachmentTypes.TRAVELING_CAT_STAFF, data), entity.getServer());
+    public static void remove(Entity entity) {
+        entity.removeData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
     }
 }

@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_almonds": {
+    "has_cod": {
       "conditions": {
         "items": [
           {
-            "items": "mineraculous:almond"
+            "items": "minecraft:cod"
           }
         ]
       },
@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "minecraft:roasted_almond_from_campfire"
+        "recipe": "minecraft:cooked_cod_from_oven_cooking"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -21,12 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_almonds"
+      "has_cod"
     ]
   ],
   "rewards": {
     "recipes": [
-      "minecraft:roasted_almond_from_campfire"
+      "minecraft:cooked_cod_from_oven_cooking"
     ]
   }
 }

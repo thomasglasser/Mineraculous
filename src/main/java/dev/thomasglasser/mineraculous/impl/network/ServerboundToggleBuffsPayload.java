@@ -45,7 +45,7 @@ public class ServerboundToggleBuffsPayload implements ExtendedPacketPayload {
                         player.removeEffect(player.level().holderOrThrow(effect));
                     }
                 });
-                data.get().toggleBuffsActive().save(player, true);
+                data.get().toggleBuffsActive().save(player);
             }
         }
     }

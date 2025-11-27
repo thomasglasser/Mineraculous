@@ -14,6 +14,6 @@ public class SimpleCookingRecipeBuilderMixin {
     @Expression("? != ?")
     @ModifyExpressionValue(method = "determineRecipeCategory", at = @At("MIXINEXTRAS:EXPRESSION"))
     private static boolean overrideAllowedFoodRecipes(boolean original, @Local(argsOnly = true) RecipeSerializer<?> serializer) {
-        return original && serializer != MineraculousRecipeSerializers.OVEN.get();
+        return original && serializer != MineraculousRecipeSerializers.OVEN_COOKING.get();
     }
 }

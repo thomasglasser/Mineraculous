@@ -24,7 +24,8 @@ import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.item.crafting.MineraculousRecipeTypes;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.SyncedTransientAbilityEffectData;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.inventory.OvenScreen;
@@ -54,6 +55,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUti
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import dev.thomasglasser.tommylib.api.world.item.CreativeModeTabInserter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -118,6 +120,7 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 public class MineraculousClientEvents {
+
     // Setup
     static void onFMLClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
@@ -130,9 +133,11 @@ public class MineraculousClientEvents {
     }
 
     static void onBuildCreativeModeTabContents(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {} else if (event.getTabKey() == CreativeModeTabs.COLORED_BLOCKS) {
-        } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
-        } else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
+        CreativeModeTabInserter inserter = (ignored, stack, visibility) -> event.accept(stack, visibility);
+        MineraculousBlocks.ALMOND_WOOD_SET.addToCreativeModeTab(event.getTabKey(), inserter, MineraculousBlocks.ALMOND_WOOD_SET);
+        MineraculousBlocks.ALMOND_LEAVES_SET.addToCreativeModeTab(event.getTabKey(), inserter, MineraculousBlocks.ALMOND_LEAVES_SET.leaves().toStack(), MineraculousBlocks.ALMOND_LEAVES_SET.sapling().toStack());
+
+        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {} else if (event.getTabKey() == CreativeModeTabs.COLORED_BLOCKS) {} else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {} else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
             event.insertAfter(Items.LOOM.getDefaultInstance(), MineraculousBlocks.CHEESE_POT.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             event.insertAfter(Items.BLAST_FURNACE.getDefaultInstance(), MineraculousBlocks.OVEN.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         } else if (event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS) {
@@ -330,7 +335,7 @@ public class MineraculousClientEvents {
     static void onRegisterRecipeBookCategories(RegisterRecipeBookCategoriesEvent event) {
         event.registerAggregateCategory(MineraculousRecipeBookCategories.OVEN_SEARCH.getValue(), ImmutableList.of(MineraculousRecipeBookCategories.OVEN_FOOD.getValue()));
         event.registerBookCategories(MineraculousRecipeBookTypes.OVEN.getValue(), ImmutableList.of(MineraculousRecipeBookCategories.OVEN_SEARCH.getValue(), MineraculousRecipeBookCategories.OVEN_FOOD.getValue()));
-        event.registerRecipeCategoryFinder(MineraculousRecipeTypes.OVEN.get(), recipe -> MineraculousRecipeBookCategories.OVEN_FOOD.getValue());
+        event.registerRecipeCategoryFinder(MineraculousRecipeTypes.OVEN_COOKING.get(), recipe -> MineraculousRecipeBookCategories.OVEN_FOOD.getValue());
     }
 
     // Tick
@@ -393,7 +398,7 @@ public class MineraculousClientEvents {
     static void onInteractionKeyMappingTriggered(InputEvent.InteractionKeyMappingTriggered event) {
         Player player = ClientUtils.getLocalPlayer();
         if (player != null) {
-            AbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
+            SyncedTransientAbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS);
             if (abilityEffectData.spectatingId().isPresent()) {
                 event.setCanceled(true);
                 if (event.isAttack() && abilityEffectData.allowRemoteDamage()) {
@@ -457,7 +462,7 @@ public class MineraculousClientEvents {
 
     static void onPreRenderGuiLayer(RenderGuiLayerEvent.Pre event) {
         Player player = ClientUtils.getLocalPlayer();
-        if (player != null && player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).spectatingId().isPresent()) {
+        if (player != null && player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).spectatingId().isPresent()) {
             if (!MineraculousGuiLayers.isAllowedSpectatingGuiLayer(event.getName())) {
                 event.setCanceled(true);
             }
@@ -486,7 +491,8 @@ public class MineraculousClientEvents {
     }
 
     static void onClientChatReceived(ClientChatReceivedEvent.Player event) {
-        if (!AbilityEffectData.isMessageAllowed(ClientUtils.getLocalPlayer(), event.getSender())) {
+        Player player = ClientUtils.getLocalPlayer();
+        if (player != null && !AbilityEffectUtils.isMessageAllowed(player, event.getSender())) {
             event.setCanceled(true);
         }
     }

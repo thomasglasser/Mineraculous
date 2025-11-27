@@ -58,7 +58,7 @@ public record ServerboundUpdateStaffInputPayload(int input, PerchingCatStaffData
             Vec3 movement = Vec3.ZERO;
             if (isFalling) {
                 if (jump()) {
-                    PerchingCatStaffData.remove(player, true);
+                    PerchingCatStaffData.remove(player);
                     movement = new Vec3(player.getDeltaMovement().x, 1.5, player.getDeltaMovement().z);
                 }
             } else {

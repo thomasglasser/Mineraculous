@@ -11,9 +11,10 @@ import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionItemData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.SyncedTransientAbilityEffectData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.TransientAbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
@@ -127,6 +128,7 @@ public class MineraculousEntityEvents {
             if (entity instanceof LivingEntity livingEntity) {
                 entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).tick(livingEntity, level);
                 entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.tick(livingEntity, level));
+                entity.getData(MineraculousAttachmentTypes.PERSISTENT_ABILITY_EFFECTS).tick(livingEntity, level);
             }
 
             ItemStack weaponItem = entity.getWeaponItem();
@@ -165,7 +167,7 @@ public class MineraculousEntityEvents {
         if (event.getEntity().getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF).fastDescending()) {
             event.setDamageMultiplier(0);
             if (!event.getEntity().level().isClientSide)
-                PerchingCatStaffData.remove(event.getEntity(), true);
+                PerchingCatStaffData.remove(event.getEntity());
         }
     }
 
@@ -179,7 +181,7 @@ public class MineraculousEntityEvents {
 
     public static void onAttackEntity(AttackEntityEvent event) {
         Player player = event.getEntity();
-        AbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
+        SyncedTransientAbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS);
         if (abilityEffectData.spectatingId().isPresent()) {
             event.setCanceled(true);
             return;
@@ -191,11 +193,12 @@ public class MineraculousEntityEvents {
     }
 
     public static void onPostLivingDamage(LivingDamageEvent.Post event) {
-        if (event.getEntity().level() instanceof ServerLevel level) {
+        if (!event.getEntity().level().isClientSide()) {
             LivingEntity target = event.getEntity();
-            AbilityEffectData abilityEffectData = target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
-            if (abilityEffectData.spectatingId().isPresent()) {
-                abilityEffectData.withSpectationInterrupted().save(target, true);
+            SyncedTransientAbilityEffectData syncedTransientAbilityEffectData = target.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS);
+            TransientAbilityEffectData transientAbilityEffectData = target.getData(MineraculousAttachmentTypes.TRANSIENT_ABILITY_EFFECTS);
+            if (syncedTransientAbilityEffectData.spectatingId().isPresent()) {
+                transientAbilityEffectData.withSpectationInterrupted(true).save(target);
             }
         }
     }
@@ -208,7 +211,7 @@ public class MineraculousEntityEvents {
 
     public static void onBlockLeftClick(PlayerInteractEvent.LeftClickBlock event) {
         Player player = event.getEntity();
-        AbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
+        SyncedTransientAbilityEffectData abilityEffectData = player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS);
         if (abilityEffectData.spectatingId().isPresent()) {
             event.setCanceled(true);
             return;
@@ -304,7 +307,7 @@ public class MineraculousEntityEvents {
                     }
                 });
             }
-            entity.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).killCredit().ifPresent(killCredit -> {
+            entity.getData(MineraculousAttachmentTypes.PERSISTENT_ABILITY_EFFECTS).killCreditOverride().ifPresent(killCredit -> {
                 Entity killer = level.getEntity(killCredit);
                 if (killer instanceof Player player) {
                     entity.setLastHurtByPlayer(player);
@@ -348,13 +351,13 @@ public class MineraculousEntityEvents {
                 Entity yoyo = event.getLevel().getEntity(id);
                 if (yoyo != null)
                     yoyo.discard();
-                new ThrownLadybugYoyoData().save(entity, true);
+                new ThrownLadybugYoyoData().save(entity);
             });
-            AbilityEffectData abilityEffectData = entity.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
+            SyncedTransientAbilityEffectData abilityEffectData = entity.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS);
             abilityEffectData.privateChat().ifPresent(id -> {
                 Entity target = level.getEntity(id);
                 if (target != null) {
-                    target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(target, true);
+                    target.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(target);
                 }
             });
             if (entity instanceof LivingEntity livingEntity) {
@@ -386,7 +389,7 @@ public class MineraculousEntityEvents {
             Entity yoyo = serverPlayer.level().getEntity(id);
             if (yoyo != null)
                 yoyo.discard();
-            new ThrownLadybugYoyoData().save(serverPlayer, true);
+            new ThrownLadybugYoyoData().save(serverPlayer);
         });
     }
 }

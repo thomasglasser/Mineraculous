@@ -51,7 +51,7 @@ public record ServerboundStealItemPayload(UUID target, int slot) implements Exte
                         .map(armorData -> {
                             ItemStack original = armorData.removeFrom(data.kamikotizedSlot().get(), target);
                             giveOrDropItem(player, original);
-                            data.clearKamikotizedSlot().save(target, true);
+                            data.clearKamikotizedSlot().save(target);
                             return true;
                         }))
                 .orElse(false);

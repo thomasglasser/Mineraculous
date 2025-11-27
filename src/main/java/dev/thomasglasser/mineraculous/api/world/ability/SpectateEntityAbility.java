@@ -6,7 +6,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityEffectData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.SyncedTransientAbilityEffectData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.TransientAbilityEffectData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSetCameraEntityPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.List;
@@ -53,21 +55,22 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
     @Override
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         if (context == null) {
-            AbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
-            if (abilityEffectData.spectationInterrupted()) {
+            TransientAbilityEffectData transientAbilityEffectData = performer.getData(MineraculousAttachmentTypes.TRANSIENT_ABILITY_EFFECTS);
+            SyncedTransientAbilityEffectData syncedTransientAbilityEffectData = performer.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS);
+            if (transientAbilityEffectData.spectationInterrupted()) {
                 stopSpectation(level, performer);
                 return State.CONSUME;
             } else if (data.powerActive()) {
-                if (abilityEffectData.spectatingId().isPresent()) {
+                if (syncedTransientAbilityEffectData.spectatingId().isPresent()) {
                     stopSpectation(level, performer);
                     return State.CONSUME;
                 } else {
                     List<? extends Entity> entities = level.getEntities(EntityTypeTest.forClass(Entity.class), entity -> isValidEntity(level, performer, entity));
                     if (!entities.isEmpty()) {
                         Entity target = entities.getFirst();
-                        abilityEffectData.withSpectation(Optional.of(target.getUUID()), shader, faceMaskTexture, privateChat ? Optional.of(target.getUUID()) : Optional.empty(), allowRemoteDamage, allowKamikotizationRevocation).save(performer, true);
+                        AbilityEffectUtils.beginSpectation(performer, Optional.of(target.getUUID()), shader, faceMaskTexture, privateChat ? Optional.of(target.getUUID()) : Optional.empty(), allowRemoteDamage, allowKamikotizationRevocation);
                         if (privateChat) {
-                            target.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.of(performer.getUUID()), faceMaskTexture).save(target, true);
+                            target.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).withPrivateChat(Optional.of(performer.getUUID()), faceMaskTexture).save(target);
                         }
                         if (overrideOwner && target instanceof TamableAnimal tamable) {
                             tamable.setOwnerUUID(performer.getUUID());
@@ -89,9 +92,8 @@ public record SpectateEntityAbility(Optional<EntityPredicate> validEntities, Opt
     }
 
     private void stopSpectation(ServerLevel level, LivingEntity performer) {
-        AbilityEffectData data = performer.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS);
-        data.spectatingId().map(level::getEntity).ifPresent(spectating -> spectating.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(spectating, true));
-        data.withSpectation(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), false, false).save(performer, true);
+        performer.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).spectatingId().map(level::getEntity).ifPresent(spectating -> spectating.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(spectating));
+        AbilityEffectUtils.endSpectation(performer);
         if (performer instanceof ServerPlayer player) {
             TommyLibServices.NETWORK.sendToClient(new ClientboundSetCameraEntityPayload(Optional.empty()), player);
         }

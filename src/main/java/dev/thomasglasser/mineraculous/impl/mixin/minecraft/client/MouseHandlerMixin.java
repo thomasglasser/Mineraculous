@@ -14,7 +14,7 @@ public class MouseHandlerMixin {
     @Inject(method = "turnPlayer", at = @At("HEAD"), cancellable = true)
     private void cancelTurnWhenSpectating(double movementTime, CallbackInfo ci) {
         Player player = ClientUtils.getLocalPlayer();
-        if (player != null && player.getData(MineraculousAttachmentTypes.ABILITY_EFFECTS.get()).spectatingId().isPresent()) {
+        if (player != null && player.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).spectatingId().isPresent()) {
             ci.cancel();
         }
     }

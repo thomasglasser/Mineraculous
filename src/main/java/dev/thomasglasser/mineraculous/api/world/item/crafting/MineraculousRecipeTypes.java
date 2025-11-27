@@ -11,7 +11,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 public class MineraculousRecipeTypes {
     public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(Registries.RECIPE_TYPE, MineraculousConstants.MOD_ID);
 
-    public static final DeferredHolder<RecipeType<?>, RecipeType<OvenRecipe>> OVEN = register("oven");
+    public static final DeferredHolder<RecipeType<?>, RecipeType<OvenCookingRecipe>> OVEN_COOKING = register("oven_cooking");
 
     private static <T extends Recipe<?>> DeferredHolder<RecipeType<?>, RecipeType<T>> register(String name) {
         ResourceLocation id = MineraculousConstants.modLoc(name);

@@ -1,6 +1,9 @@
 {
   "type": "neoforge:add_features",
-  "biomes": "minecraft:savanna",
+  "biomes": [
+    "minecraft:savanna",
+    "minecraft:wooded_badlands"
+  ],
   "features": "mineraculous:almond_placed",
   "step": "vegetal_decoration"
 }

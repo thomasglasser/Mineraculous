@@ -35,7 +35,7 @@ public class OvenMenu extends AbstractFurnaceMenu {
     }
 
     public OvenMenu(int containerId, Inventory playerInventory, Container container, ContainerData data) {
-        super(MineraculousMenuTypes.OVEN.get(), MineraculousRecipeTypes.OVEN.get(), MineraculousRecipeBookTypes.OVEN.getValue(), containerId, playerInventory, container, data);
+        super(MineraculousMenuTypes.OVEN.get(), MineraculousRecipeTypes.OVEN_COOKING.get(), MineraculousRecipeBookTypes.OVEN.getValue(), containerId, playerInventory, container, data);
         checkContainerSize(container, SLOT_COUNT);
         checkContainerDataCount(data, DATA_COUNT);
         this.slots.clear();

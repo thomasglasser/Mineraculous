@@ -1,5 +1,5 @@
 {
-  "type": "mineraculous:oven_transmute",
+  "type": "mineraculous:oven_cooking_transmute",
   "category": "food",
   "cookingtime": 400,
   "experience": 0.35,

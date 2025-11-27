@@ -1,5 +1,5 @@
 {
-  "type": "mineraculous:oven",
+  "type": "mineraculous:oven_cooking",
   "category": "food",
   "cookingtime": 400,
   "experience": 0.1,

@@ -1,16 +1,24 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
+import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
+import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -18,7 +26,9 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.OldUsersConverter;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.OwnableEntity;
@@ -27,6 +37,8 @@ import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.scores.Scoreboard;
@@ -52,6 +64,7 @@ import org.jetbrains.annotations.Nullable;
 public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<KamikotizedMinion>, PlayerLike, OwnableEntity {
     private static final EntityDataAccessor<UUID> DATA_SOURCE_ID = SynchedEntityData.defineId(KamikotizedMinion.class, MineraculousEntityDataSerializers.UUID.get());
     private static final EntityDataAccessor<Optional<UUID>> DATA_OWNER_UUID = SynchedEntityData.defineId(KamikotizedMinion.class, EntityDataSerializers.OPTIONAL_UUID);
+    private static final EntityDataAccessor<Optional<Holder<Kamikotization>>> DATA_KAMIKOTIZATION = SynchedEntityData.defineId(KamikotizedMinion.class, MineraculousEntityDataSerializers.OPTIONAL_KAMIKOTIZATION.get());
 
     protected double xCloakO, yCloakO, zCloakO;
     protected double xCloak, yCloak, zCloak;
@@ -68,9 +81,16 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         super(entityType, level);
     }
 
-    public KamikotizedMinion(ServerPlayer source) {
+    public KamikotizedMinion(ServerPlayer source, Holder<Kamikotization> kamikotization) {
         this(MineraculousEntityTypes.KAMIKOTIZED_MINION.get(), source.level());
         setSourceId(source.getUUID());
+        setKamikotization(kamikotization);
+        for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
+            ItemStack stack = Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.getForSlot(slot), kamikotization);
+            stack.enchant(level().holderOrThrow(Enchantments.BINDING_CURSE), 1);
+            stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS, Unit.INSTANCE);
+            setItemSlot(slot, stack);
+        }
         moveTo(source.position(), source.getYRot(), source.getXRot());
         setYBodyRot(source.yBodyRot);
         setYHeadRot(source.yHeadRot);
@@ -86,6 +106,7 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         super.defineSynchedData(builder);
         builder.define(DATA_SOURCE_ID, Util.NIL_UUID);
         builder.define(DATA_OWNER_UUID, Optional.empty());
+        builder.define(DATA_KAMIKOTIZATION, Optional.empty());
     }
 
     public UUID getSourceId() {
@@ -125,6 +146,14 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         return storedOwner;
     }
 
+    public Optional<Holder<Kamikotization>> getKamikotization() {
+        return this.getEntityData().get(DATA_KAMIKOTIZATION);
+    }
+
+    public void setKamikotization(Holder<Kamikotization> kamikotization) {
+        this.getEntityData().set(DATA_KAMIKOTIZATION, Optional.of(kamikotization));
+    }
+
     @Override
     protected Brain.Provider<?> brainProvider() {
         return new SmartBrainProvider<>(this);
@@ -140,6 +169,8 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
     public void aiStep() {
         this.oBob = this.bob;
         super.aiStep();
+        Player owner = getOwner();
+        setNoAi(owner == null || !owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization).equals(getKamikotization()));
         float f;
         if (this.onGround() && !this.isDeadOrDying() && !this.isSwimming()) {
             f = Math.min(0.1F, (float) this.getDeltaMovement().horizontalDistance());
@@ -153,11 +184,11 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
     public void tick() {
         if (!level().isClientSide()) {
             ServerPlayer source = (ServerPlayer) getSource();
-            if (source == null || !source.isAlive() || source.isRemoved()) {
+            if (tickCount > SharedConstants.TICKS_PER_SECOND && (source == null || !source.isAlive() || source.isRemoved())) {
                 MineraculousConstants.LOGGER.warn("KamikotizedMinion {} has no source, discarding...", getUUID());
                 discard();
                 return;
-            } else if (source.getCamera() != this) {
+            } else if (source != null && source.tickCount > SharedConstants.TICKS_PER_SECOND && source.getCamera() != this) {
                 source.setCamera(this);
             }
         }
@@ -304,11 +335,14 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         return getOptionalSource().orElseThrow().getShoulderEntityRight();
     }
 
+    // TODO: Fix, cache on server...?
     @Override
     public PlayerSkin getSkin() {
-        if (getOptionalSource().orElseThrow() instanceof AbstractClientPlayer player)
+        if (getOwner() instanceof AbstractClientPlayer player)
             return player.getSkin();
-        throw new IllegalStateException("KamikotizedMinion#getSkin() called on non-client player!");
+        else if (getSource() instanceof AbstractClientPlayer player)
+            return player.getSkin();
+        return new PlayerSkin(DefaultPlayerSkin.getDefaultTexture(), null, null, null, PlayerSkin.Model.SLIM, true);
     }
 
     @Override

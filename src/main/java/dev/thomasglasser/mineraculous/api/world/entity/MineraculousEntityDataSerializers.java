@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.entity;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
@@ -25,7 +24,7 @@ public class MineraculousEntityDataSerializers {
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Holder<Miraculous>>> MIRACULOUS = ENTITY_DATA_SERIALIZERS.register("miraculous", () -> EntityDataSerializer.forValueType(Miraculous.STREAM_CODEC));
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Optional<LadybugYoyoItem.Mode>>> OPTIONAL_LADYBUG_YOYO_MODE = ENTITY_DATA_SERIALIZERS.register("optional_ladybug_yoyo_mode", () -> EntityDataSerializer.forValueType(ByteBufCodecs.optional(LadybugYoyoItem.Mode.STREAM_CODEC)));
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Optional<ResourceLocation>>> OPTIONAL_RESOURCE_LOCATION = ENTITY_DATA_SERIALIZERS.register("optional_resource_location", () -> EntityDataSerializer.forValueType(TommyLibExtraStreamCodecs.OPTIONAL_RESOURCE_LOCATION));
-    public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Optional<Holder<Kamikotization>>>> OPTIONAL_KAMIKOTIZATION = ENTITY_DATA_SERIALIZERS.register("optional_kamikotization", () -> EntityDataSerializer.forValueType(ByteBufCodecs.optional(ByteBufCodecs.holder(MineraculousRegistries.KAMIKOTIZATION, Kamikotization.DIRECT_STREAM_CODEC))));
+    public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Optional<Holder<Kamikotization>>>> OPTIONAL_KAMIKOTIZATION = ENTITY_DATA_SERIALIZERS.register("optional_kamikotization", () -> EntityDataSerializer.forValueType(ByteBufCodecs.optional(Kamikotization.STREAM_CODEC)));
 
     @ApiStatus.Internal
     public static void init() {}

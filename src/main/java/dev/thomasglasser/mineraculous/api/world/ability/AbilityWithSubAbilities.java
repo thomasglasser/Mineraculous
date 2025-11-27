@@ -33,10 +33,10 @@ public interface AbilityWithSubAbilities extends Ability {
 
     @Override
     @OverridingMethodsMustInvokeSuper
-    default <T> void revert(AbilityData data, ServerLevel level, LivingEntity performer, T target) {
+    default void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
         for (Ability ability : getAll()) {
             if (ability != this) {
-                ability.revert(data, level, performer, target);
+                ability.revert(data, level, performer);
             }
         }
     }

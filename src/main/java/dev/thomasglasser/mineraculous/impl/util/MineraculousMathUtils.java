@@ -205,7 +205,7 @@ public class MineraculousMathUtils {
 
     public static class CatmullRom {
         private final List<Vec3> points;
-        private final List<Double> T;
+        private final List<Double> tParameters;
         private final List<Vec3> tangents;
 
         public CatmullRom(List<Vec3> targets) {
@@ -227,24 +227,24 @@ public class MineraculousMathUtils {
                 double dist = points.get(i).distanceTo(points.get(i - 1));
                 tValues.add(tValues.get(i - 1) + Math.sqrt(Math.max(dist, 1e-9)));
             }
-            this.T = Collections.unmodifiableList(tValues);
+            this.tParameters = Collections.unmodifiableList(tValues);
 
             // Tangents
             ArrayList<Vec3> tans = new ArrayList<>(points.size() - 2);
             for (int i = 1; i < points.size() - 1; i++) {
                 Vec3 mi = points.get(i + 1).subtract(points.get(i - 1))
-                        .scale(1.0 / (T.get(i + 1) - T.get(i - 1)));
+                        .scale(1.0 / (tParameters.get(i + 1) - tParameters.get(i - 1)));
                 tans.add(mi);
             }
             this.tangents = Collections.unmodifiableList(tans);
         }
 
         public double getFirstParameter() {
-            return T.get(1); // skip ghost point
+            return tParameters.get(1); // skip ghost point
         }
 
         public double getLastParameter() {
-            return T.get(T.size() - 2); // skip ghost point
+            return tParameters.get(tParameters.size() - 2); // skip ghost point
         }
 
         // Hermite blend
@@ -269,12 +269,12 @@ public class MineraculousMathUtils {
         public int findSegment(double t) {
             // clamp t to valid range
             t = Math.max(getFirstParameter(), Math.min(t, getLastParameter() - 1e-9));
-            for (int i = 1; i < T.size(); i++) {
-                if (T.get(i) > t) {
+            for (int i = 1; i < tParameters.size(); i++) {
+                if (tParameters.get(i) > t) {
                     return i;
                 }
             }
-            return T.size() - 2; // fallback to last segment
+            return tParameters.size() - 2; // fallback to last segment
         }
 
         // Evaluate point
@@ -284,7 +284,7 @@ public class MineraculousMathUtils {
             Vec3 v0 = tangents.get(index - 2);
             Vec3 P1 = points.get(index);
             Vec3 v1 = tangents.get(index - 1);
-            double u = (t - T.get(index - 1)) / (T.get(index) - T.get(index - 1));
+            double u = (t - tParameters.get(index - 1)) / (tParameters.get(index) - tParameters.get(index - 1));
             return hermite(u, P0, v0, P1, v1);
         }
 
@@ -295,13 +295,13 @@ public class MineraculousMathUtils {
             Vec3 v0 = tangents.get(index - 2);
             Vec3 P1 = points.get(index);
             Vec3 v1 = tangents.get(index - 1);
-            double u = (t - T.get(index - 1)) / (T.get(index) - T.get(index - 1));
+            double u = (t - tParameters.get(index - 1)) / (tParameters.get(index) - tParameters.get(index - 1));
 
             // derivative returned by hermiteDerivative is dP/du
             Vec3 dPdu = hermiteDerivative(u, P0, v0, P1, v1);
 
             // convert to dP/dt using chain rule: dP/dt = dP/du * du/dt
-            double du_dt = 1.0 / (T.get(index) - T.get(index - 1));
+            double du_dt = 1.0 / (tParameters.get(index) - tParameters.get(index - 1));
             return dPdu.scale(du_dt);
         }
 

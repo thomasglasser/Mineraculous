@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTarget;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
+import java.util.Objects;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -39,8 +40,9 @@ public class MiraculousLadybug extends Entity {
     }
 
     public void setTargetData(MiraculousLadybugTargetData targetData) {
-        if (targetData != getTargetData())
+        if (!Objects.equals(targetData, getTargetData())) {
             entityData.set(DATA_TARGET, targetData);
+        }
     }
 
     public MiraculousLadybugTargetData getTargetData() {
@@ -67,8 +69,8 @@ public class MiraculousLadybug extends Entity {
         return distanceNearestBlockTarget;
     }
 
-    public void setOldSplinePosition(float f) {
-        oldSplinePosition = f;
+    public void setOldSplinePosition(float position) {
+        oldSplinePosition = position;
     }
 
     public boolean shouldRender() {

@@ -82,9 +82,8 @@ public interface Ability {
      * @param data      The relevant {@link AbilityData} of the performer
      * @param level     The level the ability is being performed in
      * @param performer The performer of the ability
-     * @param target    The target of the reversion
      */
-    default <T> void revert(AbilityData data, ServerLevel level, LivingEntity performer, T target) {}
+    default void revert(AbilityData data, ServerLevel level, LivingEntity performer) {}
 
     /**
      * Called when the performer joins a new {@link Level}.

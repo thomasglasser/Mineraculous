@@ -14,7 +14,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
@@ -28,7 +27,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class MiraculousArmorItem extends ArmorItem implements GeoArmorItem {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    public MiraculousArmorItem(Type type, Item.Properties pProperties) {
+    public MiraculousArmorItem(Type type, Properties pProperties) {
         super(MineraculousArmorMaterials.MIRACULOUS, type, pProperties
                 .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, false)
                 .component(DataComponents.UNBREAKABLE, new Unbreakable(false)));

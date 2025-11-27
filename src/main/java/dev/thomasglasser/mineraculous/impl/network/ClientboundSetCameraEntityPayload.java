@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.impl.network;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
 import java.util.Optional;
@@ -32,6 +33,8 @@ public record ClientboundSetCameraEntityPayload(Optional<Integer> entityId, Opti
             MineraculousClientUtils.setCameraEntity(entity);
             if (entity != null) {
                 MineraculousClientUtils.setShader(shader.orElse(null));
+            } else {
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSetSpectationInterruptedPayload(Optional.empty()));
             }
         }, () -> MineraculousClientUtils.setCameraEntity(null));
     }

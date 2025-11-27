@@ -1,46 +1,6 @@
 {
 	"format_version": "1.8.0",
 	"animations": {
-		"misc.idle": {
-			"loop": true,
-			"animation_length": 1.5,
-			"bones": {
-				"rightwings": {
-					"rotation": {
-						"0.0": {
-							"vector": [0, 0, 30]
-						},
-						"0.75": {
-							"vector": [0, 0, 45]
-						},
-						"1.5": {
-							"vector": [0, 0, 30]
-						}
-					}
-				},
-				"leftwings": {
-					"rotation": {
-						"0.0": {
-							"vector": [0, 0, -30]
-						},
-						"0.75": {
-							"vector": [0, 0, -45]
-						},
-						"1.5": {
-							"vector": [0, 0, -30]
-						}
-					}
-				},
-				"butterfly": {
-					"rotation": {
-						"vector": [15, 0, 0]
-					},
-					"position": {
-						"vector": [0, -2, 0]
-					}
-				}
-			}
-		},
 		"move.fly": {
 			"loop": true,
 			"animation_length": 0.3564,
@@ -145,6 +105,21 @@
 						"0.375": {
 							"vector": [0, 0, 0]
 						}
+					}
+				}
+			}
+		},
+		"misc.idle": {
+			"loop": true,
+			"bones": {
+				"bone2": {
+					"rotation": {
+						"vector": [0, 0, -35]
+					}
+				},
+				"bone3": {
+					"rotation": {
+						"vector": [0, 0, 35]
 					}
 				}
 			}

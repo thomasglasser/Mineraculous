@@ -12,6 +12,7 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.ai.memory.MineraculousMemoryModuleTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.sensing.MineraculousSensorTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.npc.MineraculousVillagerProfessions;
 import dev.thomasglasser.mineraculous.api.world.inventory.MineraculousMenuTypes;
@@ -84,6 +85,7 @@ public class Mineraculous {
         MineraculousLootItemConditions.init();
         MineraculousLootContextParamSets.init();
         MineraculousLootItemFunctionTypes.init();
+        MineraculousMemoryModuleTypes.init();
     }
 
     private void addEventListeners(IEventBus modBus) {

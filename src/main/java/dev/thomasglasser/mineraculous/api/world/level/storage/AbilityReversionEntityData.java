@@ -37,13 +37,14 @@ public class AbilityReversionEntityData extends SavedData {
     private final SetMultimap<UUID, RevertibleEntity> revertibleEntities = HashMultimap.create();
     private final SetMultimap<UUID, UUID> removableEntities = HashMultimap.create();
     private final SetMultimap<UUID, RevertibleEntity> convertedEntities = HashMultimap.create();
+    private final SetMultimap<UUID, UUID> copiedEntities = HashMultimap.create();
 
     public static AbilityReversionEntityData get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(AbilityReversionEntityData.factory(), AbilityReversionEntityData.FILE_ID);
     }
 
-    public static SavedData.Factory<AbilityReversionEntityData> factory() {
-        return new SavedData.Factory<>(AbilityReversionEntityData::new, (p_294039_, p_324123_) -> load(p_294039_), DataFixTypes.LEVEL);
+    public static Factory<AbilityReversionEntityData> factory() {
+        return new Factory<>(AbilityReversionEntityData::new, (p_294039_, p_324123_) -> load(p_294039_), DataFixTypes.LEVEL);
     }
 
     public void tick(Entity entity) {
@@ -154,43 +155,75 @@ public class AbilityReversionEntityData extends SavedData {
     }
 
     public void putConverted(UUID performer, Entity entity) {
-        if (!isConverted(entity.getUUID())) {
+        if (!isConvertedOrCopied(entity.getUUID())) {
             convertedEntities.put(performer, RevertibleEntity.of(entity));
             setDirty();
         }
     }
 
-    public boolean isConverted(UUID entity) {
+    public void putCopied(Entity original, Entity copy) {
+        UUID converter = getConverter(original.getUUID());
+        if (converter != null) {
+            copiedEntities.put(converter, copy.getUUID());
+        }
+    }
+
+    public @Nullable UUID getConverter(UUID entity) {
+        for (Map.Entry<UUID, RevertibleEntity> entry : convertedEntities.entries()) {
+            if (entry.getValue().uuid().equals(entity))
+                return entry.getKey();
+        }
+        return null;
+    }
+
+    public boolean isConvertedOrCopied(UUID entity) {
         for (RevertibleEntity revertible : convertedEntities.values()) {
             if (revertible.uuid().equals(entity))
+                return true;
+        }
+        for (UUID copied : copiedEntities.values()) {
+            if (copied.equals(entity))
                 return true;
         }
         return false;
     }
 
-    public void revertConversions(UUID performer, ServerLevel level) {
+    public void revertConversionsAndCopies(UUID performer, ServerLevel level) {
         for (RevertibleEntity revertible : convertedEntities.removeAll(performer)) {
             revertConversion(revertible, level);
+        }
+        for (UUID id : copiedEntities.removeAll(performer)) {
+            Entity entity = MineraculousEntityUtils.findEntity(level, id);
+            if (entity != null) {
+                entity.discard();
+            }
         }
         setDirty();
     }
 
-    public @Nullable Entity revertConversion(UUID entity, ServerLevel level) {
-        UUID foundPerformer = null;
-        RevertibleEntity found = null;
-        for (UUID performer : convertedEntities.keySet()) {
-            for (RevertibleEntity revertible : convertedEntities.get(performer)) {
-                if (revertible.uuid().equals(entity)) {
-                    foundPerformer = performer;
-                    found = revertible;
-                    break;
-                }
+    public @Nullable Entity revertConversionOrCopy(UUID entity, ServerLevel level) {
+        Map.Entry<UUID, RevertibleEntity> found = null;
+        for (Map.Entry<UUID, RevertibleEntity> entry : revertibleEntities.entries()) {
+            if (entry.getValue().uuid().equals(entity)) {
+                found = entry;
+                break;
             }
         }
         if (found != null) {
-            convertedEntities.remove(foundPerformer, found);
+            RevertibleEntity revertible = found.getValue();
+            convertedEntities.remove(found.getKey(), revertible);
             setDirty();
-            return revertConversion(found, level);
+            return revertConversion(revertible, level);
+        }
+        for (UUID performer : copiedEntities.keySet()) {
+            if (copiedEntities.containsEntry(performer, entity)) {
+                copiedEntities.remove(performer, entity);
+                setDirty();
+                Entity copy = MineraculousEntityUtils.findEntity(level, entity);
+                if (copy != null) {
+                    copy.discard();
+                }
+            }
         }
         return null;
     }
@@ -264,6 +297,15 @@ public class AbilityReversionEntityData extends SavedData {
             converted.put(ownerId.toString(), entries);
         }
         tag.put("Converted", converted);
+        CompoundTag copied = new CompoundTag();
+        for (UUID ownerId : copiedEntities.keySet()) {
+            ListTag entries = new ListTag();
+            for (UUID copiedId : copiedEntities.get(ownerId)) {
+                entries.add(NbtUtils.createUUID(copiedId));
+            }
+            copied.put(ownerId.toString(), entries);
+        }
+        tag.put("Copied", copied);
         return tag;
     }
 
@@ -299,6 +341,14 @@ public class AbilityReversionEntityData extends SavedData {
             ListTag entries = converted.getList(ownerString, ListTag.TAG_COMPOUND);
             for (Tag convertedEntity : entries) {
                 data.convertedEntities.put(ownerId, RevertibleEntity.CODEC.parse(NbtOps.INSTANCE, convertedEntity).getOrThrow());
+            }
+        }
+        CompoundTag copied = tag.getCompound("Copied");
+        for (String ownerString : copied.getAllKeys()) {
+            UUID ownerId = UUID.fromString(ownerString);
+            ListTag entries = copied.getList(ownerString, ListTag.TAG_INT_ARRAY);
+            for (Tag copiedId : entries) {
+                data.copiedEntities.put(ownerId, NbtUtils.loadUUID(copiedId));
             }
         }
         return data;

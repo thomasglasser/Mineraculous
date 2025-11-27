@@ -18,7 +18,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
@@ -34,7 +33,7 @@ public class AgeingCheeseEdibleFullBlock extends SmallFourPieceBlock implements 
     protected final Age age;
     protected final FoodProperties foodProperties;
 
-    public AgeingCheeseEdibleFullBlock(Age age, FoodProperties foodProperties, Holder<Item> wedge, BlockBehaviour.Properties properties) {
+    public AgeingCheeseEdibleFullBlock(Age age, FoodProperties foodProperties, Holder<Item> wedge, Properties properties) {
         super(wedge, properties);
         this.age = age;
         this.foodProperties = foodProperties;

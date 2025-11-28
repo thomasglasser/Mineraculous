@@ -8,8 +8,8 @@ import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.context.BlockAbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBlockData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.BlockLocation;
+import dev.thomasglasser.mineraculous.api.world.level.storage.BlockReversionData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.PersistentAbilityEffectData;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
@@ -53,7 +53,7 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean insta
     public static void replace(BlockLocation affected, BlockState replacement, UUID cause, ServerLevel level) {
         level = level.getServer().getLevel(affected.dimension());
         if (level != null) {
-            AbilityReversionBlockData.get(level).putRevertible(cause, affected.dimension(), affected.pos(), level.getBlockState(affected.pos()));
+            BlockReversionData.get(level).putRevertible(cause, affected.dimension(), affected.pos(), level.getBlockState(affected.pos()));
             level.setBlock(affected.pos(), replacement, Block.UPDATE_ALL);
         } else {
             MineraculousConstants.LOGGER.error("Could not replace block at {} in dimension {} because the level does not exist", affected.pos(), affected.dimension());
@@ -115,11 +115,6 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean insta
             }
         }
         return adjacent;
-    }
-
-    @Override
-    public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
-        AbilityReversionBlockData.get(level).revert(performer.getUUID(), level);
     }
 
     @Override

@@ -6,7 +6,7 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
@@ -185,7 +185,7 @@ public class MineraculousEntityUtils {
     }
 
     /**
-     * Adds an entity caused by a lucky charm to the provided {@link AbilityReversionEntityData} for tracking.
+     * Adds an entity caused by a lucky charm to the provided {@link EntityReversionData} for tracking.
      *
      * @param player The {@link Player} spawning the entity
      * @param entity The {@link Entity} to track
@@ -194,7 +194,7 @@ public class MineraculousEntityUtils {
      */
     public static void checkAndTrackLuckyCharmEntity(@Nullable Player player, @Nullable Entity entity, ServerLevel level, ItemStack stack) {
         if (player != null && entity != null && stack.has(MineraculousDataComponents.LUCKY_CHARM)) {
-            AbilityReversionEntityData.get(level).putRemovable(player.getUUID(), entity);
+            EntityReversionData.get(level).putRemovable(player.getUUID(), entity);
         }
     }
 

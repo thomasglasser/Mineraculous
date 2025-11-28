@@ -1,0 +1,13 @@
+{
+  "type": "mineraculous:oven_cooking",
+  "category": "food",
+  "cookingtime": 400,
+  "experience": 1.0,
+  "ingredient": {
+    "item": "mineraculous:almond"
+  },
+  "result": {
+    "count": 1,
+    "id": "mineraculous:roasted_almond"
+  }
+}

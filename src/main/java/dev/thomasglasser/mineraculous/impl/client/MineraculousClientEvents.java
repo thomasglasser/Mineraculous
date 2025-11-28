@@ -55,7 +55,6 @@ import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUti
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import dev.thomasglasser.tommylib.api.world.item.CreativeModeTabInserter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
@@ -133,9 +132,8 @@ public class MineraculousClientEvents {
     }
 
     static void onBuildCreativeModeTabContents(BuildCreativeModeTabContentsEvent event) {
-
-        MineraculousBlocks.ALMOND_WOOD_SET.addToCreativeModeTab(event.getTabKey(), event::accept, MineraculousBlocks.ALMOND_WOOD_SET);
-        MineraculousBlocks.ALMOND_LEAVES_SET.addToCreativeModeTab(event.getTabKey(), inserter, MineraculousBlocks.ALMOND_LEAVES_SET.leaves().toStack(), MineraculousBlocks.ALMOND_LEAVES_SET.sapling().toStack());
+        MineraculousBlocks.ALMOND_WOOD_SET.addToCreativeModeTab(event.getTabKey(), event::insertAfter, Items.CHERRY_BUTTON.getDefaultInstance(), Items.CHERRY_LOG.getDefaultInstance(), Items.CHERRY_HANGING_SIGN.getDefaultInstance(), Items.CHERRY_CHEST_BOAT.getDefaultInstance());
+        MineraculousBlocks.ALMOND_LEAVES_SET.addToCreativeModeTab(event.getTabKey(), event::insertAfter, Items.CHERRY_LEAVES.getDefaultInstance(), Items.CHERRY_SAPLING.getDefaultInstance());
 
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {} else if (event.getTabKey() == CreativeModeTabs.COLORED_BLOCKS) {} else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {} else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
             event.insertAfter(Items.LOOM.getDefaultInstance(), MineraculousBlocks.CHEESE_POT.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);

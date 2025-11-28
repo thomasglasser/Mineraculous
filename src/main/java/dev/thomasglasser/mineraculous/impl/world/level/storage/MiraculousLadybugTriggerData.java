@@ -246,6 +246,7 @@ public record MiraculousLadybugTriggerData(UUID performerId, UUID targetId, Opti
             EntityReversionData entityData,
             ItemReversionData itemData) {
         itemData.markReverted(relatedId);
+        entityData.revertRemovable(relatedId, level);
         for (Map.Entry<ResourceKey<Level>, BlockPos> location : blockData.getReversionPositions(relatedId).entries()) {
             targetCollector.putClusterable(location.getKey(), new MiraculousLadybugBlockTarget(location.getValue(), relatedId));
         }

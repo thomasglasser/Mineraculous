@@ -203,7 +203,6 @@ public class EntityReversionData extends SavedData {
         return false;
     }
 
-    // TODO: Do this with item reverting in the beginning
     public void revertRemovable(UUID owner, ServerLevel level) {
         Set<UUID> removables = removableEntities.removeAll(owner);
         if (!removables.isEmpty()) {

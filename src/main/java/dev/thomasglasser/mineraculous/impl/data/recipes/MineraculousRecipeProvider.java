@@ -28,6 +28,7 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
+import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
@@ -51,6 +52,8 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
     }
 
     private void buildCrafting(RecipeOutput recipeOutput) {
+        simpleCookingRecipes(recipeOutput, MineraculousItems.ALMOND, MineraculousItems.ROASTED_ALMOND, 1f);
+
         ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, MineraculousBlocks.CHEESE_POT)
                 .pattern("I I")
                 .pattern("ICI")
@@ -136,6 +139,22 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
         simpleTransmuteSmokingRecipe(recipeOutput, input, output, experience);
         simpleTransmuteCampfireCookingRecipe(recipeOutput, input, output, experience);
         simpleTransmuteOvenCookingRecipe(recipeOutput, input, output, experience);
+    }
+
+    protected static String getSmeltingRecipeName(ItemLike itemLike) {
+        return getItemName(itemLike) + "_from_smelting";
+    }
+
+    protected static String getOvenCookingRecipeName(ItemLike itemLike) {
+        return getItemName(itemLike) + "_from_oven_cooking";
+    }
+
+    public static SimpleCookingRecipeBuilder oven(Ingredient ingredient, RecipeCategory category, ItemLike result, float experience, int cookingTime) {
+        return SimpleCookingRecipeBuilder.generic(ingredient, category, result, experience, cookingTime, MineraculousRecipeSerializers.OVEN_COOKING.get(), OvenCookingRecipe::new);
+    }
+
+    protected static String getCampfireRecipeName(ItemLike itemLike) {
+        return getItemName(itemLike) + "_from_blasting";
     }
 
     protected static void cheeseWaxRecipes(RecipeOutput recipeOutput, SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> waxables, SortedMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> waxedBlocks) {

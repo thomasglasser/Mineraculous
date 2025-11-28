@@ -2,16 +2,8 @@
   "feature": "mineraculous:almond",
   "placement": [
     {
-      "type": "minecraft:height_range",
-      "height": {
-        "type": "minecraft:uniform",
-        "max_inclusive": {
-          "below_top": 0
-        },
-        "min_inclusive": {
-          "above_bottom": 0
-        }
-      }
+      "type": "minecraft:rarity_filter",
+      "chance": 501
     },
     {
       "type": "minecraft:in_square"

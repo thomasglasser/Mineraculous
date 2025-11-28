@@ -133,8 +133,8 @@ public class MineraculousClientEvents {
     }
 
     static void onBuildCreativeModeTabContents(BuildCreativeModeTabContentsEvent event) {
-        CreativeModeTabInserter inserter = (ignored, stack, visibility) -> event.accept(stack, visibility);
-        MineraculousBlocks.ALMOND_WOOD_SET.addToCreativeModeTab(event.getTabKey(), inserter, MineraculousBlocks.ALMOND_WOOD_SET);
+
+        MineraculousBlocks.ALMOND_WOOD_SET.addToCreativeModeTab(event.getTabKey(), event::accept, MineraculousBlocks.ALMOND_WOOD_SET);
         MineraculousBlocks.ALMOND_LEAVES_SET.addToCreativeModeTab(event.getTabKey(), inserter, MineraculousBlocks.ALMOND_LEAVES_SET.leaves().toStack(), MineraculousBlocks.ALMOND_LEAVES_SET.sapling().toStack());
 
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {} else if (event.getTabKey() == CreativeModeTabs.COLORED_BLOCKS) {} else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {} else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {

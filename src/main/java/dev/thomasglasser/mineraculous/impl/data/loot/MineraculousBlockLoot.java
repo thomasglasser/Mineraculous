@@ -37,6 +37,8 @@ public class MineraculousBlockLoot extends ExtendedBlockLootSubProvider {
 
         woodSet(MineraculousBlocks.ALMOND_WOOD_SET);
         leavesSet(MineraculousBlocks.ALMOND_LEAVES_SET);
+        createLeavesDrops(MineraculousBlocks.ALMOND_LEAVES_SET.leaves().get(), MineraculousBlocks.ALMOND_LEAVES_SET.sapling().get(), NORMAL_LEAVES_FRUIT_CHANCES);
+        createFruitfulLeavesDrops(MineraculousBlocks.ALMOND_LEAVES_SET.leaves().get(), MineraculousBlocks.ALMOND_LEAVES_SET.sapling().get(), MineraculousItems.ALMOND);
 
         add(MineraculousBlocks.CATACLYSM_BLOCK.get(), createSilkTouchOnlyTable(MineraculousItems.CATACLYSM_DUST));
 

@@ -44,19 +44,19 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /// Data for reverting trackable item changes
-public class AbilityReversionItemData extends SavedData {
-    public static final String FILE_ID = "ability_reversion_item";
+public class ItemReversionData extends SavedData {
+    public static final String FILE_ID = "item_reversion";
     private final Table<UUID, UUID, ItemStack> revertibleItems = HashBasedTable.create();
     private final Map<UUID, ItemStack> revertMarkedItems = new Object2ObjectOpenHashMap<>();
     private final Set<UUID> revertedItems = new ObjectOpenHashSet<>();
     private final Map<UUID, ItemStack> kamikotizedItems = new Object2ObjectOpenHashMap<>();
 
-    public static AbilityReversionItemData get(ServerLevel level) {
-        return level.getServer().overworld().getDataStorage().computeIfAbsent(AbilityReversionItemData.factory(), AbilityReversionItemData.FILE_ID);
+    public static ItemReversionData get(ServerLevel level) {
+        return level.getServer().overworld().getDataStorage().computeIfAbsent(ItemReversionData.factory(), ItemReversionData.FILE_ID);
     }
 
-    public static Factory<AbilityReversionItemData> factory() {
-        return new Factory<>(AbilityReversionItemData::new, AbilityReversionItemData::load, DataFixTypes.LEVEL);
+    public static Factory<ItemReversionData> factory() {
+        return new Factory<>(ItemReversionData::new, ItemReversionData::load, DataFixTypes.LEVEL);
     }
 
     public void tick(Entity entity) {
@@ -212,9 +212,9 @@ public class AbilityReversionItemData extends SavedData {
         return tag;
     }
 
-    public static AbilityReversionItemData load(CompoundTag tag, HolderLookup.Provider registries) {
+    public static ItemReversionData load(CompoundTag tag, HolderLookup.Provider registries) {
         Function<Tag, ItemStack> itemDecoder = MineraculousNbtUtils.codecDecoder(ItemStack.OPTIONAL_CODEC);
-        AbilityReversionItemData data = new AbilityReversionItemData();
+        ItemReversionData data = new ItemReversionData();
         data.revertibleItems.putAll(MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Revertible"), UUID::fromString, NbtUtils::loadUUID, itemDecoder));
         data.revertMarkedItems.putAll(MineraculousNbtUtils.readStringKeyedMap(Reference2ReferenceOpenHashMap::new, tag.getCompound("RevertMarked"), UUID::fromString, itemDecoder));
         data.revertedItems.addAll(MineraculousNbtUtils.readCollection(ReferenceOpenHashSet::new, tag.getList("Reverted", Tag.TAG_INT_ARRAY), NbtUtils::loadUUID));

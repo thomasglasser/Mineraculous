@@ -4,7 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
@@ -38,7 +38,7 @@ public record MiraculousLadybugEntityTarget(Vec3 position, UUID cause, double wi
 
     @Override
     public @Nullable MiraculousLadybugTarget<MiraculousLadybugEntityTarget> revert(ServerLevel level, boolean instant) {
-        AbilityReversionEntityData.get(level).revertRevertibleAndConverted(cause, level, position);
+        EntityReversionData.get(level).revertRevertibleAndConverted(cause, level, position);
         if (instant)
             spawnParticles(level);
         return null;

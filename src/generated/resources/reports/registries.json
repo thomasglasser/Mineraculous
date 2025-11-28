@@ -295,7 +295,7 @@
   ],
   "mineraculous:miraculous_ladybug_target_type": [
     "mineraculous:block",
-    "mineraculous:block_cluster",
+    "mineraculous:cluster",
     "mineraculous:entity"
   ],
   "neoforge:attachment_types": [

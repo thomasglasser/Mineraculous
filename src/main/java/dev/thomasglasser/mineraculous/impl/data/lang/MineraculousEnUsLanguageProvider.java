@@ -416,8 +416,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfig(MineraculousServerConfig.get().enableKamikotizationRejection, "Enable Kamikotization Rejection", "Enable rejection of kamikotization by the victim");
         addConfig(MineraculousServerConfig.get().luckyCharmSummonTimeMin, "Minimum Lucky Charm Summon Time", "The minimum amount of time (in seconds) that it takes for a lucky charm to be summoned");
         addConfig(MineraculousServerConfig.get().luckyCharmSummonTimeMax, "Maximum Lucky Charm Summon Time", "The maximum amount of time (in seconds) that it takes for a lucky charm to be summoned");
-        addConfig(MineraculousServerConfig.get().miraculousLadybugReversionMode, "Miraculous Ladybug Reversion Mode", "Controls how the Miraculous Ladybug ability restores damaged areas.\n Visual: Instant restoration without ladybugs flying to locations. (High performance)\n Cluster: Ladybugs repair connected block groups by spinning around them. (Average performance)\n Individual: Ladybugs repair each damaged block one by one, even if blocks are adjacent. (Low performance)");
-        addConfig(MineraculousServerConfig.get().miraculousLadybugSpeed, "Miraculous Ladybug Speed", "How fast will Miraculous Ladybug clumps will fly around");
+        addConfig(MineraculousServerConfig.get().miraculousLadybugReversionMode, "Miraculous Ladybug Reversion Mode", "Controls how the Miraculous Ladybug ability reverts altered areas.\n Instant: Instant reversion without magic ladybugs flying to locations. (Lower Performance Cost)\n Clustered: Magic ladybugs revert connected location groups by spinning around them. (Medium Performance Cost)\n Individual: Magic ladybugs repair each altered location one by one, even if adjacent. (Higher Performance Cost)");
+        addConfig(MineraculousServerConfig.get().miraculousLadybugSpeed, "Miraculous Ladybug Speed", "How fast magic ladybugs will fly around");
 
         addConfigSection(MineraculousServerConfig.KWAMIS, "Kwamis", "Settings for kwamis");
         addConfig(MineraculousServerConfig.get().kwamiSummonTime, "Kwami Summon Time", "The amount of time (in seconds) that it takes for a kwami to summon");
@@ -448,8 +448,8 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfig(MineraculousClientConfig.get().animationSpeed, "Animation Speed", "The speed at which the tool wheel opens");
 
         addConfigSection(MineraculousClientConfig.MIRACULOUS_LADYBUG, "Miraculous Ladybug Ability", "Settings for miraculous ladybug ability visuals");
-        addConfig(MineraculousClientConfig.get().miraculousLadybugShakeStrength, "Magic Ladybugs' Shaking Strength", "The power of the shaking effect magic ladybugs have.");
-        addConfig(MineraculousClientConfig.get().miraculousLadybugLifetime, "Magic Ladybugs Lifetime", "How much a single tiny miraculous ladybug lives. (lower value -> bigger performance)");
-        addConfig(MineraculousClientConfig.get().miraculousLadybugSize, "Reverting Ladybug Particle Size", "The scale for Reverting Ladybug particle");
+        addConfig(MineraculousClientConfig.get().miraculousLadybugShakeStrength, "Miraculous Ladybug Shaking Strength", "The power of the shaking effect magic ladybugs have.");
+        addConfig(MineraculousClientConfig.get().miraculousLadybugLifetime, "Miraculous Ladybug Lifetime", "How much a single tiny miraculous ladybug lives. (lower value -> bigger performance)");
+        addConfig(MineraculousClientConfig.get().revertingLadybugSize, "Reverting Ladybug Size", "The scale for the Reverting Ladybug particle");
     }
 }

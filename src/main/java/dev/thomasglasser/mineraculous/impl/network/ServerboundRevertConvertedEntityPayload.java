@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import java.util.UUID;
@@ -21,7 +21,7 @@ public record ServerboundRevertConvertedEntityPayload(UUID entityId) implements 
     @Override
     public void handle(Player player) {
         ServerLevel level = (ServerLevel) player.level();
-        AbilityReversionEntityData.get(level).revertConversion(entityId, level);
+        EntityReversionData.get(level).revertConversion(entityId, level);
     }
 
     @Override

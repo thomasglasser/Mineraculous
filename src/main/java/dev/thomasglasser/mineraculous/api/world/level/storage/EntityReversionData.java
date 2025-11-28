@@ -39,19 +39,19 @@ import net.neoforged.neoforge.entity.PartEntity;
 import org.jetbrains.annotations.Nullable;
 
 /// Data for reverting trackable entity changes
-public class AbilityReversionEntityData extends SavedData {
-    public static final String FILE_ID = "ability_reversion_entity";
+public class EntityReversionData extends SavedData {
+    public static final String FILE_ID = "entity_reversion";
     private final SetMultimap<UUID, UUID> trackedAndRelatedEntities = HashMultimap.create();
     private final Table<UUID, EntityLocation, Set<RevertibleEntity>> revertibleEntities = HashBasedTable.create();
     private final SetMultimap<UUID, UUID> removableEntities = HashMultimap.create();
     private final Table<UUID, EntityLocation, Set<RevertibleEntity>> convertedEntities = HashBasedTable.create();
 
-    public static AbilityReversionEntityData get(ServerLevel level) {
-        return level.getServer().overworld().getDataStorage().computeIfAbsent(AbilityReversionEntityData.factory(), AbilityReversionEntityData.FILE_ID);
+    public static EntityReversionData get(ServerLevel level) {
+        return level.getServer().overworld().getDataStorage().computeIfAbsent(EntityReversionData.factory(), EntityReversionData.FILE_ID);
     }
 
-    public static Factory<AbilityReversionEntityData> factory() {
-        return new Factory<>(AbilityReversionEntityData::new, (p_294039_, p_324123_) -> load(p_294039_), DataFixTypes.LEVEL);
+    public static Factory<EntityReversionData> factory() {
+        return new Factory<>(EntityReversionData::new, (p_294039_, p_324123_) -> load(p_294039_), DataFixTypes.LEVEL);
     }
 
     public void tick(Entity entity) {
@@ -304,10 +304,10 @@ public class AbilityReversionEntityData extends SavedData {
         return tag;
     }
 
-    public static AbilityReversionEntityData load(CompoundTag tag) {
+    public static EntityReversionData load(CompoundTag tag) {
         Function<Tag, EntityLocation> locationDecoder = MineraculousNbtUtils.codecDecoder(EntityLocation.CODEC);
         Function<Tag, RevertibleEntity> revertibleDecoder = MineraculousNbtUtils.codecDecoder(RevertibleEntity.CODEC);
-        AbilityReversionEntityData data = new AbilityReversionEntityData();
+        EntityReversionData data = new EntityReversionData();
         data.trackedAndRelatedEntities.putAll(MineraculousNbtUtils.readStringKeyedMultimap(HashMultimap::create, tag.getCompound("TrackedAndRelated"), UUID::fromString, NbtUtils::loadUUID));
         // Java gets weird about the generics in the set here, requires a more generic declaration
         Table<UUID, EntityLocation, Set<RevertibleEntity>> table = MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Revertible"), UUID::fromString, locationDecoder, t -> MineraculousNbtUtils.readCollection(ReferenceOpenHashSet::new, (ListTag) t, revertibleDecoder));

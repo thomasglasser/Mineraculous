@@ -18,16 +18,16 @@ import net.minecraft.world.level.saveddata.SavedData;
 import org.jetbrains.annotations.Nullable;
 
 /// Data for reverting trackable block changes
-public class AbilityReversionBlockData extends SavedData {
-    public static final String FILE_ID = "ability_reversion_block";
+public class BlockReversionData extends SavedData {
+    public static final String FILE_ID = "block_reversion";
     private final Table<UUID, BlockLocation, BlockState> revertibleBlocks = HashBasedTable.create();
 
-    public static AbilityReversionBlockData get(ServerLevel level) {
-        return level.getServer().overworld().getDataStorage().computeIfAbsent(AbilityReversionBlockData.factory(), AbilityReversionBlockData.FILE_ID);
+    public static BlockReversionData get(ServerLevel level) {
+        return level.getServer().overworld().getDataStorage().computeIfAbsent(BlockReversionData.factory(), BlockReversionData.FILE_ID);
     }
 
-    public static Factory<AbilityReversionBlockData> factory() {
-        return new Factory<>(AbilityReversionBlockData::new, AbilityReversionBlockData::load, DataFixTypes.LEVEL);
+    public static Factory<BlockReversionData> factory() {
+        return new Factory<>(BlockReversionData::new, BlockReversionData::load, DataFixTypes.LEVEL);
     }
 
     public Multimap<ResourceKey<Level>, BlockPos> getReversionPositions(UUID uuid) {
@@ -70,8 +70,8 @@ public class AbilityReversionBlockData extends SavedData {
         return tag;
     }
 
-    public static AbilityReversionBlockData load(CompoundTag tag, HolderLookup.Provider registries) {
-        AbilityReversionBlockData data = new AbilityReversionBlockData();
+    public static BlockReversionData load(CompoundTag tag, HolderLookup.Provider registries) {
+        BlockReversionData data = new BlockReversionData();
         data.revertibleBlocks.putAll(MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Revertible"), UUID::fromString, MineraculousNbtUtils.codecDecoder(BlockLocation.CODEC), MineraculousNbtUtils.codecDecoder(BlockState.CODEC)));
         return data;
     }

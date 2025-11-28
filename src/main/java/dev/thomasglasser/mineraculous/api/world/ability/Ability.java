@@ -8,6 +8,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTargetCollector;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -79,11 +80,12 @@ public interface Ability {
     /**
      * Called by {@link dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug} to revert this ability's trackable effects for the provided target not covered by the existing implementation.
      *
-     * @param data      The relevant {@link AbilityData} of the performer
-     * @param level     The level the ability is being performed in
-     * @param performer The performer of the ability
+     * @param data            The relevant {@link AbilityData} of the performer
+     * @param level           The level the ability is being performed in
+     * @param performer       The performer of the ability
+     * @param targetCollector The target collector to add {@link dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTarget}s
      */
-    default void revert(AbilityData data, ServerLevel level, LivingEntity performer) {}
+    default void revert(AbilityData data, ServerLevel level, LivingEntity performer, MiraculousLadybugTargetCollector targetCollector) {}
 
     /**
      * Called when the performer joins a new {@link Level}.

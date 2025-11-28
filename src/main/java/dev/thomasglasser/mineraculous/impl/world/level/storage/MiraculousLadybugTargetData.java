@@ -52,7 +52,7 @@ public record MiraculousLadybugTargetData(List<Vec3> controlPoints, Multimap<Int
     public static MiraculousLadybugTargetData create(List<MiraculousLadybugTarget<?>> targets, Vec3 spawnPosition, Vec3 circlePosition) {
         Multimap<Integer, MiraculousLadybugTarget<?>> targetMap = LinkedHashMultimap.create(); // maps control points to targets
         ArrayList<Vec3> controlPoints = new ArrayList<>();
-        if (MineraculousServerConfig.get().miraculousLadybugReversionMode.get() != MineraculousServerConfig.MiraculousLadybugReversionMode.VISUAL) {
+        if (MineraculousServerConfig.get().miraculousLadybugReversionMode.get() != MineraculousServerConfig.MiraculousLadybugReversionMode.INSTANT) {
             mapTargets(targets, targetMap, controlPoints);
         } else {
             for (MiraculousLadybugTarget<?> target : targets) {

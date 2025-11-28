@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.api.world.ability;
 
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
+import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTargetCollector;
 import java.util.List;
 import java.util.function.Predicate;
 import net.minecraft.server.level.ServerLevel;
@@ -33,10 +34,10 @@ public interface AbilityWithSubAbilities extends Ability {
 
     @Override
     @OverridingMethodsMustInvokeSuper
-    default void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
+    default void revert(AbilityData data, ServerLevel level, LivingEntity performer, MiraculousLadybugTargetCollector targetCollector) {
         for (Ability ability : getAll()) {
             if (ability != this) {
-                ability.revert(data, level, performer);
+                ability.revert(data, level, performer, targetCollector);
             }
         }
     }

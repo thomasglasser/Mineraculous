@@ -15,7 +15,7 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.api.world.item.LuckyCharmSummoningItem;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.loot.parameters.MineraculousLootContextParamSets;
 import dev.thomasglasser.mineraculous.api.world.level.storage.loot.parameters.MineraculousLootContextParams;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
@@ -66,7 +66,7 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
                 spawnPos = toolItem.getSummonPosition(level, performer, tool);
                 if (spawnPos == null) return State.CANCEL;
             }
-            AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
+            EntityReversionData entityData = EntityReversionData.get(level);
             Entity target = determineTarget(level, performer);
             if (target != null) {
                 entityData.putRelatedEntity(performer.getUUID(), target.getUUID());

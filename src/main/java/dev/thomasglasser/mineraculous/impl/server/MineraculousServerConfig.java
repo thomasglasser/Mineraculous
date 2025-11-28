@@ -68,7 +68,7 @@ public class MineraculousServerConfig {
         luckyCharmSummonTimeMax = builder
                 .defineInRange("lucky_charm_summon_time_max", 6, 0, Integer.MAX_VALUE);
         miraculousLadybugReversionMode = builder
-                .defineEnum("miraculous_ladybug_reversion_mode", MiraculousLadybugReversionMode.CLUSTER);
+                .defineEnum("miraculous_ladybug_reversion_mode", MiraculousLadybugReversionMode.CLUSTERED);
         miraculousLadybugSpeed = builder
                 .defineInRange("miraculous_ladybug_speed", 70, 60, 100);
         builder.pop();
@@ -114,8 +114,8 @@ public class MineraculousServerConfig {
     }
 
     public enum MiraculousLadybugReversionMode {
-        CLUSTER,
-        INDIVIDUAL,
-        VISUAL
+        INSTANT,
+        CLUSTERED,
+        INDIVIDUAL
     }
 }

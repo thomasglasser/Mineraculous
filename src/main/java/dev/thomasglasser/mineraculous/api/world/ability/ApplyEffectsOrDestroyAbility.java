@@ -8,8 +8,8 @@ import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.context.EntityAbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionItemData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.ItemReversionData;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.advancements.critereon.EntityPredicate;
@@ -65,7 +65,7 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
         if (context instanceof EntityAbilityContext(Entity target)) {
             if (!isValidEntity(level, performer, target))
                 return State.CANCEL;
-            AbilityReversionEntityData.get(level).putRevertible(performer.getUUID(), target);
+            EntityReversionData.get(level).putRevertible(performer.getUUID(), target);
             if (target instanceof LivingEntity livingEntity) {
                 if (allowBlocking && livingEntity.isBlocking()) {
                     ItemStack stack = livingEntity.getUseItem();
@@ -73,7 +73,7 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
                         ItemStack replacement = new ItemStack(dropItem.get());
                         UUID id = UUID.randomUUID();
                         replacement.set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, id);
-                        AbilityReversionItemData.get(level).putRevertible(performer.getUUID(), id, stack);
+                        ItemReversionData.get(level).putRevertible(performer.getUUID(), id, stack);
                         livingEntity.setItemInHand(livingEntity.getUsedItemHand(), replacement);
                     } else {
                         livingEntity.setItemInHand(livingEntity.getUsedItemHand(), ItemStack.EMPTY);
@@ -95,7 +95,7 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
                     ItemStack stack = new ItemStack(dropItem.get());
                     UUID id = UUID.randomUUID();
                     stack.set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, id);
-                    AbilityReversionItemData.get(level).putRemovable(performer.getUUID(), id);
+                    ItemReversionData.get(level).putRemovable(performer.getUUID(), id);
                     vehicle.spawnAtLocation(stack);
                 }
             } else {

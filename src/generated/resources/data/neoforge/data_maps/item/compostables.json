@@ -1,5 +1,14 @@
 {
   "values": {
+    "mineraculous:almond": {
+      "chance": 0.65
+    },
+    "mineraculous:almond_leaves": {
+      "chance": 0.3
+    },
+    "mineraculous:almond_sapling": {
+      "chance": 0.3
+    },
     "mineraculous:hibiscus": {
       "chance": 0.65
     }

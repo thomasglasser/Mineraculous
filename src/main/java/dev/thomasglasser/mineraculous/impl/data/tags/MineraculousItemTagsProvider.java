@@ -41,6 +41,12 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
 
         tag(MineraculousItemTags.KAMIKOTIZATION_IMMUNE)
                 .add(MineraculousItems.KWAMI);
+        tag(ItemTags.SAPLINGS)
+                .add(MineraculousBlocks.ALMOND_LEAVES_SET.sapling().asItem());
+        tag(ItemTags.CHICKEN_FOOD)
+                .add(MineraculousItems.ALMOND);
+        tag(ItemTags.PARROT_FOOD)
+                .add(MineraculousItems.ALMOND);
 
         tag(MineraculousItemTags.TOUGH)
                 .add(Items.NETHER_STAR)
@@ -106,6 +112,8 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         tag(ConventionalItemTags.FOODS)
                 .add(MineraculousItems.RAW_MACARON)
                 .add(MineraculousItems.MACARON)
+                .add(MineraculousItems.ALMOND)
+                .add(MineraculousItems.ROASTED_ALMOND)
                 .addTag(MineraculousItemTags.CHEESES_FOODS);
 
         tag(ItemTags.DYEABLE)

@@ -142,7 +142,7 @@ public class MineraculousRenderTypes {
 
     public static RenderType miraculousLadybugOutline() {
         return RenderType.create(
-                "ladybug_outline",
+                "miraculous_ladybug_outline",
                 DefaultVertexFormat.NEW_ENTITY,
                 VertexFormat.Mode.QUADS,
                 256,
@@ -160,7 +160,7 @@ public class MineraculousRenderTypes {
 
     public static RenderType miraculousLadybugBody() {
         return RenderType.create(
-                "ladybug_main",
+                "miraculous_ladybug_main",
                 DefaultVertexFormat.NEW_ENTITY,
                 VertexFormat.Mode.QUADS,
                 256,

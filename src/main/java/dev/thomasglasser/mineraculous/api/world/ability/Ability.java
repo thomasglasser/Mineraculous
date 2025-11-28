@@ -78,7 +78,7 @@ public interface Ability {
     default void detransform(AbilityData data, ServerLevel level, LivingEntity performer) {}
 
     /**
-     * Called by {@link dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug} to revert this ability's trackable effects for the provided target not covered by the existing implementation.
+     * Reverts trackable effects for the provided performer not covered by the existing implementation.
      *
      * @param data            The relevant {@link AbilityData} of the performer
      * @param level           The level the ability is being performed in

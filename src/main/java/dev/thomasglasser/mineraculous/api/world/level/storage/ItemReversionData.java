@@ -159,7 +159,6 @@ public class ItemReversionData extends SavedData {
         return null;
     }
 
-    // TODO: Still never called
     public void markReverted(UUID owner) {
         if (revertibleItems.containsRow(owner)) {
             revertMarkedItems.putAll(revertibleItems.row(owner));

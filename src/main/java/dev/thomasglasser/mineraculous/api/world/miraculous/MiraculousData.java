@@ -19,8 +19,8 @@ import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
@@ -166,7 +166,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                         AbilityData data = AbilityData.of(this);
                         value.activeAbility().value().transform(data, level, entity);
                         value.passiveAbilities().forEach(ability -> ability.value().transform(data, level, entity));
-                        AbilityReversionEntityData.get(level).startTracking(entity.getUUID());
+                        EntityReversionData.get(level).startTracking(entity.getUUID());
 
                         transformationFrames.ifPresentOrElse(frames -> {
                             startTransformation(frames).save(miraculous, entity, true);

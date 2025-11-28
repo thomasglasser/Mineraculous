@@ -14,7 +14,7 @@ import dev.thomasglasser.mineraculous.api.world.item.LuckyCharmSummoningItem;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
@@ -187,12 +187,13 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                                         });
                                         if (entity != null) {
                                             serverLevel.addFreshEntity(entity);
-                                            Entity reverted = AbilityReversionEntityData.get(serverLevel).revertConversion(entity.getUUID(), serverLevel);
-                                            if (reverted != null) {
+                                            EntityReversionData.get(serverLevel).revertConversion(entity.getUUID(), serverLevel, reverted -> {
+                                                reverted.moveTo(player.position().add(0, 1, 0));
                                                 reverted.addDeltaMovement(new Vec3(0, 1, 0));
                                                 reverted.hurtMarked = true;
                                                 entities.add(reverted);
-                                            }
+                                                return reverted;
+                                            });
                                         }
                                     }
                                     MineraculousCriteriaTriggers.RELEASED_PURIFIED_ENTITIES.get().trigger((ServerPlayer) player, entities);

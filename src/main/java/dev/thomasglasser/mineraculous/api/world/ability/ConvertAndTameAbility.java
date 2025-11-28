@@ -6,7 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.context.EntityAbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -43,7 +43,7 @@ public record ConvertAndTameAbility(EntityType<?> newType, boolean requireNoneSt
         if (context instanceof EntityAbilityContext(Entity target)) {
             if (!isValidEntity(level, performer, target))
                 return State.CANCEL;
-            AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
+            EntityReversionData entityData = EntityReversionData.get(level);
             boolean hasStored = false;
             if (requireNoneStored) {
                 List<CompoundTag> stored = data.storedEntities();
@@ -81,11 +81,6 @@ public record ConvertAndTameAbility(EntityType<?> newType, boolean requireNoneSt
 
     public boolean isValidEntity(ServerLevel level, LivingEntity performer, Entity target) {
         return performer != target && validEntities.map(predicate -> predicate.matches(level, performer.position(), target)).orElse(true) && invalidEntities.map(predicate -> !predicate.matches(level, performer.position(), target)).orElse(true);
-    }
-
-    @Override
-    public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
-        AbilityReversionEntityData.get(level).revertConversions(performer.getUUID(), level);
     }
 
     @Override

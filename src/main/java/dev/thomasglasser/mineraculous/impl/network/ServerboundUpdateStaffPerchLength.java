@@ -14,7 +14,7 @@ import net.minecraft.world.phys.Vec3;
 
 public record ServerboundUpdateStaffPerchLength(PerchingCatStaffData perchingData, boolean ascend, boolean descend) implements ExtendedPacketPayload {
 
-    public static final CustomPacketPayload.Type<ServerboundUpdateStaffPerchLength> TYPE = new CustomPacketPayload.Type<>(MineraculousConstants.modLoc("staff_perch_update_length"));
+    public static final Type<ServerboundUpdateStaffPerchLength> TYPE = new Type<>(MineraculousConstants.modLoc("staff_perch_update_length"));
     public static final StreamCodec<ByteBuf, ServerboundUpdateStaffPerchLength> CODEC = StreamCodec.composite(
             PerchingCatStaffData.STREAM_CODEC, ServerboundUpdateStaffPerchLength::perchingData,
             ByteBufCodecs.BOOL, ServerboundUpdateStaffPerchLength::ascend,

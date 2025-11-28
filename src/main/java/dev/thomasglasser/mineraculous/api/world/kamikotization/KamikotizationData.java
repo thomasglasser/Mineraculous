@@ -16,9 +16,9 @@ import dev.thomasglasser.mineraculous.api.world.ability.handler.KamikotizationAb
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionItemData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.ItemReversionData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
@@ -112,7 +112,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         kamikotizationStack.set(MineraculousDataComponents.OWNER, entity.getUUID());
 
         UUID revertibleId = UUID.randomUUID();
-        AbilityReversionItemData.get(level).putKamikotized(revertibleId, originalStack);
+        ItemReversionData.get(level).putKamikotized(revertibleId, originalStack);
         kamikotizationStack.set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, revertibleId);
 
         level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), MineraculousSoundEvents.KAMIKOTIZATION_TRANSFORM, entity.getSoundSource(), 1, 1);
@@ -122,7 +122,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         AbilityData data = AbilityData.of(this);
         value.powerSource().right().ifPresent(ability -> ability.value().transform(data, level, entity));
         value.passiveAbilities().forEach(ability -> ability.value().transform(data, level, entity));
-        AbilityReversionEntityData.get(level).startTracking(entity.getUUID());
+        EntityReversionData.get(level).startTracking(entity.getUUID());
 
         Optional<EquipmentSlot> kamikotizedSlot = Optional.empty();
         for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
@@ -243,7 +243,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
     private void finishDetransformation(LivingEntity entity, @Nullable ItemStack kamikotizedStack) {
         ArmorData.restoreOrClear(entity);
         if (entity.level() instanceof ServerLevel level) {
-            AbilityReversionItemData.get(level).revertKamikotized(entity, revertibleId, kamikotizedStack);
+            ItemReversionData.get(level).revertKamikotized(entity, revertibleId, kamikotizedStack);
         }
         remove(entity);
     }

@@ -2,8 +2,6 @@ package dev.thomasglasser.mineraculous.impl.world.level.block;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionBlockData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionItemData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.BlockReversionData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.ItemReversionData;
 import java.util.UUID;

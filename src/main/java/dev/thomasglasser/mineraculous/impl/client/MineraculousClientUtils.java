@@ -1,8 +1,10 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
+import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
@@ -60,6 +62,7 @@ import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.texture.HttpTexture;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.SimpleTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -453,5 +456,35 @@ public class MineraculousClientUtils {
 
     public static boolean isValidTexture(ResourceLocation texture) {
         return texture != null && (Minecraft.getInstance().getResourceManager().getResource(texture).isPresent() || Minecraft.getInstance().getTextureManager().getTexture(texture, MissingTextureAtlasSprite.getTexture()) != MissingTextureAtlasSprite.getTexture());
+    }
+
+    public static void rotateFacingCamera(PoseStack poseStack, Vec3 pos, double zDegrees) {
+        rotateFacingCamera(poseStack, pos.toVector3f(), (float) zDegrees);
+    }
+
+    public static void rotateFacingCamera(PoseStack poseStack, Vector3f pos, float zDegrees) {
+        var camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        poseStack.pushPose();
+        poseStack.rotateAround(Axis.YP.rotationDegrees(-camera.getYRot()), pos.x, pos.y, pos.z);
+        poseStack.rotateAround(Axis.XP.rotationDegrees(camera.getXRot()), pos.x, pos.y, pos.z);
+        poseStack.rotateAround(Axis.ZP.rotationDegrees(zDegrees), pos.x, pos.y, pos.z);
+    }
+
+    public static void vertex(VertexConsumer vertexConsumer, PoseStack.Pose pose, float x, float y, float z, float u, float v, int light) {
+        vertexConsumer.addVertex(pose, x, y, z)
+                .setColor(-1)
+                .setUv(u, v)
+                .setOverlay(OverlayTexture.NO_OVERLAY)
+                .setLight(light)
+                .setNormal(0, 1, 0);
+    }
+
+    public static void vertex(VertexConsumer vertexConsumer, PoseStack.Pose pose, Vector3f pos, float u, float v, int light) {
+        vertex(vertexConsumer, pose, pos.x, pos.y, pos.z, u, v, light);
+    }
+
+    public static void vertex(VertexConsumer vertexConsumer, PoseStack.Pose pose, Vec3 position, float u, float v, int light) {
+        Vector3f pos = position.toVector3f();
+        vertex(vertexConsumer, pose, pos, u, v, light);
     }
 }

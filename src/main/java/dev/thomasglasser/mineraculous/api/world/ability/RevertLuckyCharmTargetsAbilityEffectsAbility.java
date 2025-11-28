@@ -5,21 +5,15 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
-import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.item.EffectRevertingItem;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
-import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTriggerData;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,40 +28,33 @@ public record RevertLuckyCharmTargetsAbilityEffectsAbility(Optional<Holder<Sound
 
     @Override
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
+        boolean validUsage = isValidLuckyCharmUse(data, context, performer, handler);
+        if (validUsage) {
+            ItemStack stack = performer.getMainHandItem();
+            LuckyCharm luckyCharm = stack.get(MineraculousDataComponents.LUCKY_CHARM);
+            UUID target = luckyCharm.target().orElse(luckyCharm.owner());
+            ItemEntity luckyCharmEntity = new ItemEntity(level, performer.getX(), performer.getY() + 2, performer.getZ(), stack.copy());
+            luckyCharmEntity.setNeverPickUp();
+            luckyCharmEntity.setUnlimitedLifetime();
+            level.addFreshEntity(luckyCharmEntity);
+            stack.setCount(0);
+            luckyCharmEntity.setDeltaMovement(0, 1.3, 0);
+            luckyCharmEntity.hurtMarked = true;
+            new MiraculousLadybugTriggerData(performer.getUUID(), target, revertSound).save(luckyCharmEntity);
+            return State.CONSUME;
+        }
+        return State.PASS;
+    }
+
+    private static boolean isValidLuckyCharmUse(AbilityData data, @Nullable AbilityContext context, LivingEntity performer, AbilityHandler handler) {
         if (context == null && data.powerActive()) {
             ItemStack stack = performer.getMainHandItem();
             LuckyCharm luckyCharm = stack.get(MineraculousDataComponents.LUCKY_CHARM);
-            if (luckyCharm != null && luckyCharm.owner().equals(performer.getUUID())) {
-                UUID targetId = luckyCharm.target().orElse(performer.getUUID());
-                AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
-                for (UUID relatedId : entityData.getAndClearTrackedAndRelatedEntities(targetId)) {
-                    Entity r = level.getEntity(relatedId);
-                    if (r instanceof LivingEntity related) {
-                        related.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).or(() -> related.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION)).ifPresent(kamikotizationData -> {
-                            Kamikotization value = kamikotizationData.kamikotization().value();
-                            AbilityData abilityData = AbilityData.of(kamikotizationData);
-                            value.powerSource().ifLeft(tool -> {
-                                if (tool.getItem() instanceof EffectRevertingItem item) {
-                                    item.revert(related);
-                                }
-                            }).ifRight(ability -> ability.value().revert(abilityData, level, related));
-                            value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related));
-                        });
-                        MiraculousesData miraculousesData = related.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                        for (Holder<Miraculous> miraculous : miraculousesData.keySet()) {
-                            Miraculous value = miraculous.value();
-                            AbilityData abilityData = AbilityData.of(miraculousesData.get(miraculous));
-                            value.activeAbility().value().revert(abilityData, level, related);
-                            value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related));
-                        }
-                    }
-                }
-                LuckyCharmIdData.get(level).incrementLuckyCharmId(performer.getUUID());
-                Ability.playSound(level, performer, revertSound);
-                return State.CONSUME;
+            if (luckyCharm != null) {
+                return luckyCharm.owner().equals(performer.getUUID());
             }
         }
-        return State.PASS;
+        return false;
     }
 
     @Override

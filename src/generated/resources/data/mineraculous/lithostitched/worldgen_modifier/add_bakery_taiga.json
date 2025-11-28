@@ -8,7 +8,7 @@
         "processors": "minecraft:mossify_10_percent",
         "projection": "rigid"
       },
-      "weight": 5
+      "weight": 4
     }
   ],
   "template_pools": "minecraft:village/taiga/houses"

@@ -98,6 +98,7 @@
     "mineraculous:kamiko",
     "mineraculous:kwami",
     "mineraculous:lucky_charm_item_spawner",
+    "mineraculous:miraculous_ladybug",
     "mineraculous:thrown_butterfly_cane",
     "mineraculous:thrown_cat_staff",
     "mineraculous:thrown_ladybug_yoyo"
@@ -194,6 +195,8 @@
   "minecraft:particle_type": [
     "mineraculous:black_orb",
     "mineraculous:kamikotization",
+    "mineraculous:reverting_ladybug",
+    "mineraculous:sparkle",
     "mineraculous:summoning_ladybug"
   ],
   "minecraft:point_of_interest_type": [
@@ -290,10 +293,16 @@
     "mineraculous:cat",
     "mineraculous:ladybug"
   ],
+  "mineraculous:miraculous_ladybug_target_type": [
+    "mineraculous:block",
+    "mineraculous:cluster",
+    "mineraculous:entity"
+  ],
   "neoforge:attachment_types": [
     "mineraculous:inventory_trackers",
     "mineraculous:kamikotization",
     "mineraculous:leashing_ladybug_yoyo",
+    "mineraculous:miraculous_ladybug_trigger",
     "mineraculous:miraculouses",
     "mineraculous:old_kamikotization",
     "mineraculous:perching_cat_staff",
@@ -307,6 +316,7 @@
   ],
   "neoforge:entity_data_serializers": [
     "mineraculous:miraculous",
+    "mineraculous:miraculous_ladybug_target_data",
     "mineraculous:optional_ladybug_yoyo_mode",
     "mineraculous:optional_resource_location",
     "mineraculous:uuid"
@@ -314,6 +324,7 @@
   "neoforge:synced_attachment_types": [
     "mineraculous:kamikotization",
     "mineraculous:leashing_ladybug_yoyo",
+    "mineraculous:miraculous_ladybug_trigger",
     "mineraculous:miraculouses",
     "mineraculous:perching_cat_staff",
     "mineraculous:synced_transient_ability_effects",

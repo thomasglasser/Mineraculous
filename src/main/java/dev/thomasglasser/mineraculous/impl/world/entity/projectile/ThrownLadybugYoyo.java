@@ -7,7 +7,7 @@ import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSer
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
@@ -327,7 +327,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
             recall();
         } else if (level() instanceof ServerLevel level) {
             if (mode == LadybugYoyoItem.Mode.PURIFY) {
-                AbilityReversionEntityData entityData = AbilityReversionEntityData.get(level);
+                EntityReversionData entityData = EntityReversionData.get(level);
                 if (entityData.isConverted(entity.getUUID())) {
                     UUID ownerId = getPickupItemStackOrigin().get(MineraculousDataComponents.OWNER);
                     Entity yoyoOwner = ownerId != null ? level.getEntities().get(ownerId) : null;

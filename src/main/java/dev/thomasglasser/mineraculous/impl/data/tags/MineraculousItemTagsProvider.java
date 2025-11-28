@@ -32,6 +32,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         addFoods();
         addArmors();
         addArmorTrims();
+        addTrees();
         addCurios();
         addAbilities();
 
@@ -79,6 +80,12 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
             IntrinsicTagAppender<Item> curios = tag(TagKey.create(Registries.ITEM, MineraculousConstants.Dependencies.CURIOS.modLoc(slot)));
             curios.add(item);
         }
+    }
+
+    private void addTrees() {
+        // Almond
+        woodSet(MineraculousBlocks.ALMOND_WOOD_SET);
+        leavesSet(MineraculousBlocks.ALMOND_LEAVES_SET);
     }
 
     private void addKwamiFoods() {

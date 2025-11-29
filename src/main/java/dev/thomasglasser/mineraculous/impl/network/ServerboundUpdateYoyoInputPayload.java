@@ -95,7 +95,7 @@ public record ServerboundUpdateYoyoInputPayload(int input) implements ExtendedPa
                         Vec3 correctiveForce = radialForce.scale((distance - thrownYoyo.getMaxRopeLength()) * 0.005);
                         Vec3 newVelocity = dampedVelocity.add(correctiveForce);
 
-                        player.addDeltaMovement(newVelocity.scale(inertiaBoost).scale(0.7d));
+                        player.addDeltaMovement(newVelocity.scale(inertiaBoost));
                         player.hurtMarked = true;
                     }
                 }

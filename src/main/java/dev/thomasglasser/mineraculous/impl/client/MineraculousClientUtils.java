@@ -29,6 +29,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundStealCurioPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateSpecialPlayerDataPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
+import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
@@ -38,16 +39,6 @@ import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -84,6 +75,16 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import top.theillusivec4.curios.common.inventory.CurioSlot;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MineraculousClientUtils {
     public static final Component GUI_CHOOSE = Component.translatable("gui.choose");
@@ -381,10 +382,6 @@ public class MineraculousClientUtils {
         return getFirstPersonHandPosition(offHand, swing, partialTicks, rightScale, upScale);
     }
 
-    public static Vec3 oldHandPosition = Vec3.ZERO;  // hand position at the **previous tick**
-    public static Vec3 handPosition = Vec3.ZERO;  // hand position at the **current tick**
-    public static Vec3 frameHandPosition = Vec3.ZERO;
-
     @SuppressWarnings("ConstantValue")
     public static Vec3 getFirstPersonHandPosition(boolean offHand, boolean swing, float partialTick, float rightScale, float upScale) { //meant to be used only when the local player is in 1st POV
         Player player = Minecraft.getInstance().player;
@@ -398,9 +395,29 @@ public class MineraculousClientUtils {
 
             EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
             if (entityRenderDispatcher.camera != null) {
-                double fovScale = 960.0 / (double) entityRenderDispatcher.options.fov().get();
-                Vec3 handOffset = entityRenderDispatcher.camera.getNearPlane().getPointOnPlane((float) armMultiplier * rightScale, upScale).scale(fovScale).yRot(swingAngle * 0.5F).xRot(-swingAngle * 0.7F);
-                return player.getEyePosition(partialTick).add(handOffset);
+                double fovScale = entityRenderDispatcher.options.fov().get() / 110.0D;
+                ///  0.38 --- 0.7
+                ///  0.55 --- 0.3
+                ///  0.35 --- 1.1
+                Vec3 hand_offset = new Vec3(
+                        (double) armMultiplier * -0.45D * fovScale,
+                        -0.23D * fovScale,
+                        fovScale <= 0.7
+                            ? 0.55 - 0.50625 * (fovScale - 0.3) - 0.03125 * Math.pow(fovScale - 0.3, 3)
+                            : 0.38 - 0.1375 * (fovScale - 0.7) - 0.05625 * Math.pow(fovScale - 0.7, 3)
+                );
+                double pitch = -swingAngle * 0.7F;
+                double yaw = -swingAngle * 0.5F;
+
+                // apply swing
+                hand_offset = MineraculousMathUtils.rotatePitch(hand_offset, pitch);
+                hand_offset = MineraculousMathUtils.rotateYaw(hand_offset, yaw);
+
+                // apply looking direction
+                hand_offset = MineraculousMathUtils.rotatePitch(hand_offset, -Mth.lerp(partialTick, player.xRotO, player.getXRot()) * (Mth.PI / 180F));
+                hand_offset = MineraculousMathUtils.rotateYaw(hand_offset, Mth.lerp(partialTick, player.yRotO, player.getYRot()) * (Mth.PI / 180F));
+
+                return hand_offset.add(entityRenderDispatcher.camera.getPosition());
             }
             return Vec3.ZERO;
         }

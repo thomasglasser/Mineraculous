@@ -32,11 +32,11 @@ public class YoyoRopeRenderer {
                 Minecraft.getInstance().options.getCameraType().isFirstPerson();
 
         if (isFirstPerson) {
-            playerHandPos = MineraculousClientUtils.oldHandPosition.lerp(MineraculousClientUtils.handPosition, partialTick);
-
+            playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(false, true, partialTick, RIGHT_SCALE, UP_SCALE);
         } else {
             playerHandPos = MineraculousClientUtils.getHumanoidEntityHandPos(ropeOwner, false, partialTick, 0.15f, -0.75, 0.35f);
         }
+
         Vec3 entityPos = entity.getPosition(partialTick);
         double offset = entity.getBbHeight() / 2;
         entityPos = entityPos.add(0, offset, 0);

@@ -358,9 +358,6 @@ public class MineraculousClientEvents {
                     playerPerchRendererMap.computeIfAbsent(otherPlayer.getUUID(), k -> new CatStaffRenderer.PerchRenderer()).tick(otherPlayer);
                 }
         }
-
-        MineraculousClientUtils.oldHandPosition = MineraculousClientUtils.handPosition;
-        MineraculousClientUtils.handPosition = MineraculousClientUtils.frameHandPosition;
     }
 
     private static void checkYoyoInput(LocalPlayer player) {

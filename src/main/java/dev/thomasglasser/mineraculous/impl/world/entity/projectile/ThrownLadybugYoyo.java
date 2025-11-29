@@ -11,13 +11,14 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionDat
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
-import dev.thomasglasser.mineraculous.impl.network.ClientboundCalculateYoyoRenderLengthPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -52,9 +53,6 @@ import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     public static final float MIN_MAX_ROPE_LENGTH = 1.5f;
@@ -65,13 +63,12 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     private static final EntityDataAccessor<Direction> DATA_INITIAL_DIRECTION = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.DIRECTION);
     private static final EntityDataAccessor<Integer> DATA_RECALLING_TICKS = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_HAND = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_TICKS = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     private boolean dealtDamage;
     private boolean freshlyHitGround = false;
-    public float renderMaxRopeLength = 0;
-    public float firstPovRenderMaxRopeLength = 0;
 
     public ThrownLadybugYoyo(EntityType<? extends ThrownLadybugYoyo> entityType, Level level) {
         super(entityType, level);
@@ -107,6 +104,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         builder.define(DATA_MAX_ROPE_LENGTH, 0f);
         builder.define(DATA_INITIAL_DIRECTION, Direction.UP);
         builder.define(DATA_HAND, 0);
+        builder.define(DATA_TICKS, 0);
     }
 
     public @Nullable LadybugYoyoItem.Mode getMode() {
@@ -137,16 +135,12 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         this.entityData.set(DATA_MAX_ROPE_LENGTH, clampMaxRopeLength(maxRopeLength));
     }
 
-    public float getRenderMaxRopeLength(boolean isFirstPov) {
-        return isFirstPov ? this.firstPovRenderMaxRopeLength : this.renderMaxRopeLength;
+    private void incrementTicks() {
+        this.entityData.set(DATA_TICKS, this.entityData.get(DATA_TICKS) + 1);
     }
 
-    public void setRenderMaxRopeLength(float f) {
-        this.renderMaxRopeLength = f;
-    }
-
-    public void setFirstPovRenderMaxRopeLength(float f) {
-        this.firstPovRenderMaxRopeLength = f;
+    public boolean isOldEnough() {
+        return this.entityData.get(DATA_TICKS) >= 10;
     }
 
     public Direction getInitialDirection() {
@@ -179,6 +173,10 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
 
     @Override
     public void tick() {
+        if (entityData.get(DATA_TICKS) < 10) {
+            incrementTicks();
+        }
+
         if (this.inGroundTime > 4) {
             this.dealtDamage = true;
         }
@@ -385,7 +383,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 Entity owner = this.getOwner();
                 if (owner != null && this.inGround() && !this.isRecalling()) {
                     if (owner instanceof Player player) {
-                        TommyLibServices.NETWORK.sendToAllClients(new ClientboundCalculateYoyoRenderLengthPayload(this.getId(), player.getId()), player.getServer());
+                        this.setMaxRopeLength((float) this.position().distanceTo(player.position()));
                     }
                     this.freshlyHitGround = true;
                 }

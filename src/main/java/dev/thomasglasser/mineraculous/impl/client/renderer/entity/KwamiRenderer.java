@@ -39,6 +39,10 @@ import software.bernie.geckolib.renderer.specialty.DynamicGeoEntityRenderer;
 import software.bernie.geckolib.util.Color;
 
 public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> {
+    private static final ResourceLocation[] KWAMI_FALLBACK = new ResourceLocation[] {
+            MineraculousConstants.modLoc("animations/entity/kwami.animation.json")
+    };
+
     private static final String HEAD = "head";
     private static final String LEFT_HAND = "left_hand";
     private static final String RIGHT_HAND = "right_hand";
@@ -151,8 +155,13 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
     }
 
     public static <T extends GeoAnimatable> GeoModel<T> createGeoModel(Holder<Miraculous> miraculous, Predicate<T> chargedPredicate) {
-        return new DefaultedEntityGeoModel<>(miraculous.getKey().location().withPrefix("miraculous/")) {
+        return new DefaultedEntityGeoModel<>(miraculous.getKey().location().withPrefix("miraculous/"), true) {
             private ResourceLocation hungryTexture;
+
+            @Override
+            public ResourceLocation[] getAnimationResourceFallbacks(T animatable) {
+                return KWAMI_FALLBACK;
+            }
 
             @Override
             public ResourceLocation getTextureResource(T animatable) {

@@ -25,8 +25,7 @@ public class MineraculousBlockEvents {
         }
     }
 
-    public static void onBlockEntityTypeAddBlocksEvent(BlockEntityTypeAddBlocksEvent event) {
-        event.modify(BlockEntityType.SIGN, MineraculousBlocks.ALMOND_WOOD_SET.sign().get(), MineraculousBlocks.ALMOND_WOOD_SET.wallSign().get());
-        event.modify(BlockEntityType.HANGING_SIGN, MineraculousBlocks.ALMOND_WOOD_SET.hangingSign().get(), MineraculousBlocks.ALMOND_WOOD_SET.wallHangingSign().get());
+    public static void onBlockEntityTypeAddBlocks(BlockEntityTypeAddBlocksEvent event) {
+        event.modify(BlockEntityType.SIGN, MineraculousBlocks.ALMOND_WOOD_SET.signs());
     }
 }

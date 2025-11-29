@@ -1,9 +1,6 @@
 {
   "type": "neoforge:add_features",
-  "biomes": [
-    "minecraft:savanna",
-    "minecraft:wooded_badlands"
-  ],
+  "biomes": "#mineraculous:has_almond_trees",
   "features": "mineraculous:almond_placed",
   "step": "vegetal_decoration"
 }

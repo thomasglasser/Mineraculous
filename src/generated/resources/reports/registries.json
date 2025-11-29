@@ -370,7 +370,7 @@
     "mineraculous:yoyo_leash_override"
   ],
   "neoforge:biome_modifier": [
-    "mineraculous:add_tree_almond"
+    "mineraculous:add_almond_trees"
   ],
   "neoforge:entity_data_serializers": [
     "mineraculous:miraculous",

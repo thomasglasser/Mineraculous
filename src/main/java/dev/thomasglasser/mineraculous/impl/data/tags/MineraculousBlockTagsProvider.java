@@ -49,7 +49,7 @@ public class MineraculousBlockTagsProvider extends ExtendedBlockTagsProvider {
     }
 
     private void addTrees() {
-        //Almond
+        // Almond WoodSet & LeavesSet
         woodSet(MineraculousBlocks.ALMOND_WOOD_SET);
         leavesSet(MineraculousBlocks.ALMOND_LEAVES_SET);
     }

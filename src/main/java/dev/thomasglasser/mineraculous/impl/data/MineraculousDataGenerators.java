@@ -21,6 +21,7 @@ import dev.thomasglasser.mineraculous.impl.data.modonomicons.MineraculousBookPro
 import dev.thomasglasser.mineraculous.impl.data.particles.MineraculousParticleDescriptionProvider;
 import dev.thomasglasser.mineraculous.impl.data.recipes.MineraculousRecipeProvider;
 import dev.thomasglasser.mineraculous.impl.data.sounds.MineraculousSoundDefinitionsProvider;
+import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousBiomeTagsProvider;
 import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousBlockTagsProvider;
 import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousDamageTypeTagsProvider;
 import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousEntityTypeTagsProvider;
@@ -32,7 +33,7 @@ import dev.thomasglasser.mineraculous.impl.data.tags.client.MineraculousResource
 import dev.thomasglasser.mineraculous.impl.data.worldgen.MineraculousBiomeModifiers;
 import dev.thomasglasser.mineraculous.impl.data.worldgen.MineraculousWorldgenModifiers;
 import dev.thomasglasser.mineraculous.impl.data.worldgen.features.MineraculousTreeFeatures;
-import dev.thomasglasser.mineraculous.impl.data.worldgen.placement.MineraculousPlacedFeatures;
+import dev.thomasglasser.mineraculous.impl.data.worldgen.placement.MineraculousTreePlacements;
 import dev.thomasglasser.mineraculous.impl.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.tommylib.api.data.DataGenerationUtils;
@@ -62,7 +63,7 @@ public class MineraculousDataGenerators {
             .add(Registries.PAINTING_VARIANT, MineraculousPaintingVariants::bootstrap)
             .add(Registries.TRIM_PATTERN, MineraculousTrimPatterns::bootstrap)
             .add(Registries.CONFIGURED_FEATURE, MineraculousTreeFeatures::bootstrap)
-            .add(Registries.PLACED_FEATURE, MineraculousPlacedFeatures::bootstrap)
+            .add(Registries.PLACED_FEATURE, MineraculousTreePlacements::bootstrap)
             .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, MineraculousBiomeModifiers::bootstrap)
             .add(LithostitchedRegistryKeys.WORLDGEN_MODIFIER, MineraculousWorldgenModifiers::bootstrap)
             .add(MineraculousRegistries.ABILITY, Abilities::bootstrap)
@@ -104,6 +105,7 @@ public class MineraculousDataGenerators {
         event.createProvider(MineraculousRecipeProvider::new);
         DataGenerationUtils.createBlockAndItemTags(event, MineraculousBlockTagsProvider::new, MineraculousItemTagsProvider::new);
         DataGenerationUtils.createProvider(event, MineraculousPoiTypeTagsProvider::new);
+        DataGenerationUtils.createProvider(event, MineraculousBiomeTagsProvider::new);
         DataGenerationUtils.createProvider(event, MineraculousDamageTypeTagsProvider::new);
         DataGenerationUtils.createProvider(event, MineraculousPaintingVariantTagsProvider::new);
         DataGenerationUtils.createProvider(event, MineraculousEntityTypeTagsProvider::new);

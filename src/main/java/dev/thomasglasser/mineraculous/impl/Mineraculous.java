@@ -102,7 +102,7 @@ public class Mineraculous {
 
         modBus.addListener(MineraculousEntityEvents::onEntityAttributeCreation);
 
-        modBus.addListener(MineraculousBlockEvents::onBlockEntityTypeAddBlocksEvent);
+        modBus.addListener(MineraculousBlockEvents::onBlockEntityTypeAddBlocks);
 
         // Neo Bus
         NeoForge.EVENT_BUS.addListener(MineraculousVillagerTrades::onRegisterVillagerTrades);

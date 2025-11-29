@@ -4,9 +4,10 @@ import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
 import dev.thomasglasser.mineraculous.api.world.food.MineraculousFoods;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.impl.data.worldgen.features.MineraculousTreeFeatures;
 import dev.thomasglasser.mineraculous.impl.world.entity.vehicle.MineraculousBoatType;
 import dev.thomasglasser.mineraculous.impl.world.level.block.OvenBlock;
+import dev.thomasglasser.mineraculous.impl.world.level.block.grower.MineraculousTreeGrowers;
+import dev.thomasglasser.mineraculous.impl.world.level.block.state.properties.MineraculousWoodTypes;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
@@ -14,7 +15,6 @@ import dev.thomasglasser.tommylib.api.world.level.block.BlockUtils;
 import dev.thomasglasser.tommylib.api.world.level.block.LeavesSet;
 import dev.thomasglasser.tommylib.api.world.level.block.WoodSet;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap;
-import java.util.Optional;
 import java.util.SortedMap;
 import java.util.function.Supplier;
 import net.minecraft.world.entity.vehicle.Boat;
@@ -26,7 +26,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.properties.BlockSetType;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.MapColor;
@@ -50,21 +49,11 @@ public class MineraculousBlocks {
     public static final DeferredBlock<SelfDroppingBerryBushBlock> HIBISCUS_BUSH = registerWithSeparatelyNamedItem("hibiscus_bush", "hibiscus", () -> new SelfDroppingBerryBushBlock(BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).randomTicks().noCollission().sound(SoundType.SWEET_BERRY_BUSH).pushReaction(PushReaction.DESTROY)));
 
     // Almond
-    static BlockSetType almondSetType = new BlockSetType("almond_set_type");
-    static WoodType almondWoodType = registerWoodType(new WoodType(MineraculousConstants.modLoc("almond").toString(), almondSetType));
-    static Supplier<WoodType> almondWoodSupplier = () -> almondWoodType;
+    static Supplier<WoodType> almondWoodSupplier = () -> MineraculousWoodTypes.almondWoodType;
 
-    public static final WoodSet ALMOND_WOOD_SET = registerWoodSet(BLOCKS, "almond", MapColor.COLOR_BROWN, MapColor.COLOR_BLACK, almondWoodSupplier, MineraculousBoatType.ALMOND.getValue(), MineraculousItems.ITEMS);
+    public static final WoodSet ALMOND_WOOD_SET = registerWoodSet("almond", MapColor.COLOR_BROWN, MapColor.COLOR_BLACK, almondWoodSupplier, MineraculousBoatType.ALMOND.getValue());
 
-    public static final TreeGrower almondTreeGrower = new TreeGrower("almond", 0.1F,
-            Optional.empty(),
-            Optional.empty(),
-            Optional.of(MineraculousTreeFeatures.ALMOND),
-            Optional.of(MineraculousTreeFeatures.FANCY_ALMOND),
-            Optional.of(MineraculousTreeFeatures.ALMOND_BEES_005),
-            Optional.of(MineraculousTreeFeatures.FANCY_ALMOND_BEES_005));
-
-    public static final LeavesSet ALMOND_LEAVES_SET = registerLeavesSet(BLOCKS, "almond", almondTreeGrower, MineraculousItems.ITEMS);
+    public static final LeavesSet ALMOND_LEAVES_SET = registerLeavesSet("almond", MineraculousTreeGrowers.almondTreeGrower);
 
     // Cheese
     public static final SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> CHEESE = cheeses("cheese", MineraculousFoods.CHEESE, MapColor.GOLD, () -> MineraculousItems.CHEESE);
@@ -105,16 +94,12 @@ public class MineraculousBlocks {
         return BlockUtils.registerBlockAndItemAndWrap(BLOCKS, name, block, MineraculousItems.ITEMS, properties);
     }
 
-    private static WoodSet registerWoodSet(DeferredRegister.Blocks provider, String name, MapColor mapColor, MapColor logMapColor, Supplier<WoodType> woodType, Boat.Type boatType, DeferredRegister.Items itemProvider) {
+    private static WoodSet registerWoodSet(String name, MapColor mapColor, MapColor logMapColor, Supplier<WoodType> woodType, Boat.Type boatType) {
         return BlockUtils.registerWoodSet(BLOCKS, name, mapColor, logMapColor, woodType, boatType, MineraculousItems.ITEMS);
     }
 
-    public static WoodType registerWoodType(WoodType woodType) {
-        return WoodType.register(woodType);
-    }
-
-    public static LeavesSet registerLeavesSet(DeferredRegister.Blocks provider, String name, TreeGrower treeGrower, DeferredRegister.Items itemProvider) {
-        return BlockUtils.registerLeavesSet(BLOCKS, name, treeGrower, itemProvider);
+    public static LeavesSet registerLeavesSet(String name, TreeGrower treeGrower) {
+        return BlockUtils.registerLeavesSet(BLOCKS, name, treeGrower, MineraculousItems.ITEMS);
     }
 
     private static <T extends Block> DeferredBlock<T> registerWithSeparatelyNamedItem(String blockName, String itemName, Supplier<T> block) {

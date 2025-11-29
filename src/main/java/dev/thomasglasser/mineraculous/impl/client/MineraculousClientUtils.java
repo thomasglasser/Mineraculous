@@ -92,6 +92,7 @@ public class MineraculousClientUtils {
 
     private static final Map<Player, SpecialPlayerData> SPECIAL_PLAYER_DATA = new Reference2ReferenceOpenHashMap<>();
     private static final IntList CATACLYSM_PIXELS = new IntArrayList();
+    private static boolean wasJumping = false;
 
     // Special Player Handling
     public static void setSpecialPlayerData(Player player, SpecialPlayerData data) {
@@ -497,7 +498,9 @@ public class MineraculousClientUtils {
 
     public static InputState captureInput() {
         var input = Minecraft.getInstance().player.input;
-        return new InputState(input.up, input.down, input.left, input.right, input.jumping);
+        boolean jump = input.jumping && !wasJumping;
+        wasJumping = input.jumping;
+        return new InputState(input.up, input.down, input.left, input.right, jump);
     }
 
     public static boolean isValidTexture(ResourceLocation texture) {

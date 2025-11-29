@@ -16,9 +16,6 @@ import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -53,6 +50,9 @@ import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     public static final float MIN_MAX_ROPE_LENGTH = 1.5f;
@@ -68,21 +68,20 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     private boolean dealtDamage;
-    private boolean freshlyHitGround = false;
 
     public ThrownLadybugYoyo(EntityType<? extends ThrownLadybugYoyo> entityType, Level level) {
         super(entityType, level);
-        this.noCulling = true;
+        noCulling = true;
         setBaseDamage(8);
     }
 
     public ThrownLadybugYoyo(LivingEntity owner, Level level, ItemStack pickupItemStack, @Nullable LadybugYoyoItem.Mode mode) {
         super(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), owner, level, pickupItemStack, pickupItemStack);
-        this.noCulling = true;
+        noCulling = true;
         setBaseDamage(8);
         setPos(owner.getX(), owner.getEyeY() - 0.2, owner.getZ());
         setMode(mode);
-        new ThrownLadybugYoyoData(this.getId()).save(owner);
+        new ThrownLadybugYoyoData(getId()).save(owner);
     }
 
     public static float clampMaxRopeLength(float maxRopeLength) {
@@ -108,39 +107,39 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     }
 
     public @Nullable LadybugYoyoItem.Mode getMode() {
-        return this.entityData.get(DATA_MODE).orElse(null);
+        return entityData.get(DATA_MODE).orElse(null);
     }
 
     public void setMode(@Nullable LadybugYoyoItem.Mode mode) {
-        this.entityData.set(DATA_MODE, Optional.ofNullable(mode));
+        entityData.set(DATA_MODE, Optional.ofNullable(mode));
     }
 
     public boolean isRecalling() {
-        return this.entityData.get(DATA_IS_RECALLING);
+        return entityData.get(DATA_IS_RECALLING);
     }
 
     private int getRecallingTicks() {
-        return this.entityData.get(DATA_RECALLING_TICKS);
+        return entityData.get(DATA_RECALLING_TICKS);
     }
 
     private void updateRecallingTicks() {
-        this.entityData.set(DATA_RECALLING_TICKS, this.getRecallingTicks() + 1);
+        entityData.set(DATA_RECALLING_TICKS, this.getRecallingTicks() + 1);
     }
 
     public float getMaxRopeLength() {
-        return this.entityData.get(DATA_MAX_ROPE_LENGTH);
+        return entityData.get(DATA_MAX_ROPE_LENGTH);
     }
 
     public void setMaxRopeLength(float maxRopeLength) {
-        this.entityData.set(DATA_MAX_ROPE_LENGTH, clampMaxRopeLength(maxRopeLength));
+        entityData.set(DATA_MAX_ROPE_LENGTH, clampMaxRopeLength(maxRopeLength));
     }
 
     private void incrementTicks() {
-        this.entityData.set(DATA_TICKS, this.entityData.get(DATA_TICKS) + 1);
+        this.entityData.set(DATA_TICKS, entityData.get(DATA_TICKS) + 1);
     }
 
     public boolean isOldEnough() {
-        return this.entityData.get(DATA_TICKS) >= 10;
+        return entityData.get(DATA_TICKS) >= 10;
     }
 
     public Direction getInitialDirection() {
@@ -166,8 +165,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     }
 
     public boolean inGround() {
-        if (!isRecalling())
-            return this.inGround;
+        if (!isRecalling()) return inGround;
         else return false;
     }
 
@@ -177,37 +175,36 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
             incrementTicks();
         }
 
-        if (this.inGroundTime > 4) {
-            this.dealtDamage = true;
+        if (inGroundTime > 4) {
+            dealtDamage = true;
         }
 
         if (getOwner() instanceof LivingEntity owner) {
             checkInstantRecall(owner);
-            if (this.freshlyHitGround && !this.isRecalling()) {
-                Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
-                this.setMaxRopeLength((float) fromProjectileToPlayer.length());
-                this.freshlyHitGround = false;
+            if (inGroundTime == 1 && !isRecalling()) {
+                Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - getX(), owner.getY() - getY(), owner.getZ() - getZ());
+                setMaxRopeLength((float) fromProjectileToPlayer.length() + 0.5f);
             }
-            if (this.isRecalling()) {
-                this.setNoPhysics(true);
-                Vec3 vec3 = owner.position().subtract(this.position());
+            if (isRecalling()) {
+                setNoPhysics(true);
+                Vec3 vec3 = owner.position().subtract(position());
                 double distance = vec3.length();
                 vec3.normalize();
-                this.setDeltaMovement(vec3.scale(Math.min(Math.max(distance * 0.01 * 2.5, 0.3), 0.5)));
-                if (distance <= 2 || distance > this.getMaxRopeLength() + 1 || this.getRecallingTicks() >= 15) {
-                    this.discard();
+                setDeltaMovement(vec3.scale(Math.min(Math.max(distance * 0.01 * 2.5, 0.3), 0.5)));
+                if (distance <= 2 || distance > getMaxRopeLength() + 1 || getRecallingTicks() >= 15) {
+                    discard();
                 }
                 this.updateRecallingTicks();
-            } else if (this.inGround()) {
+            } else if (inGround()) {
                 // TOMMY idk if this is okay but it wont access instance if it is server level, right? this is kinda risky
                 // it breaks if this isnt ran on the client side of the owner
                 if (!owner.level().isClientSide() || Minecraft.getInstance().player == owner) {
-                    Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
+                    Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - getX(), owner.getY() - getY(), owner.getZ() - getZ());
                     float distance = (float) fromProjectileToPlayer.length();
-                    if (distance > this.getMaxRopeLength() && this.getMaxRopeLength() > 0 && distance <= 99) {
+                    if (distance > getMaxRopeLength() && getMaxRopeLength() > 0 && distance <= 99) {
                         owner.resetFallDistance();
 
-                        Vec3 constrainedMovement = fromProjectileToPlayer.normalize().scale(this.getMaxRopeLength() - distance);
+                        Vec3 constrainedMovement = fromProjectileToPlayer.normalize().scale(getMaxRopeLength() - distance);
                         owner.move(MoverType.SELF, constrainedMovement);
                         owner.hurtMarked = true;
 
@@ -216,13 +213,13 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                         Vec3 tangentialVelocity = owner.getDeltaMovement().subtract(
                                 radialForce.scale(owner.getDeltaMovement().dot(radialForce)));
 
-                        double dampingFactor = Math.max(1.06, 1 - Math.abs(distance - this.getMaxRopeLength()) * 0.02); // Less damping near center
+                        double dampingFactor = Math.max(1.06, 1 - Math.abs(distance - getMaxRopeLength()) * 0.02); // Less damping near center
                         Vec3 dampedVelocity = tangentialVelocity.scale(dampingFactor);
 
-                        Vec3 correctiveForce = radialForce.scale((distance - this.getMaxRopeLength()) * 0.005);
+                        Vec3 correctiveForce = radialForce.scale((distance - getMaxRopeLength()) * 0.005);
                         Vec3 newVelocity = dampedVelocity.add(correctiveForce);
 
-                        if (this.getY() > owner.getY()) {
+                        if (getY() > owner.getY()) {
                             owner.setDeltaMovement(newVelocity);
                         }
 
@@ -231,19 +228,19 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 }
             } else {
                 ThrownLadybugYoyoData yoyoData = owner.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
-                if (yoyoData.summonedLuckyCharm() &&
-                        this.getDeltaMovement().y < -0.3)
-                    this.recall();
+                if (yoyoData.summonedLuckyCharm() && getDeltaMovement().y < -0.3) {
+                    recall();
+                }
 
                 if (this.tickCount < 50) {
                     if (owner.onGround()) {
-                        this.setDeltaMovement(this.getDeltaMovement().normalize().scale(3));
+                        setDeltaMovement(getDeltaMovement().normalize().scale(3));
                     } else if (!yoyoData.summonedLuckyCharm()) {
                         Vec3 motion = owner.getLookAngle().scale(4); //this makes it follow the cursor
-                        this.setDeltaMovement(motion);
+                        setDeltaMovement(motion);
                     }
                 } else {
-                    this.setNoGravity(false);
+                    setNoGravity(false);
                 }
             }
         } else {
@@ -279,35 +276,35 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     protected void tickDespawn() {}
 
     private void checkInstantRecall(LivingEntity owner) {
-        Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
+        Vec3 fromProjectileToPlayer = owner.position().subtract(position());
         double distance = fromProjectileToPlayer.length();
         ItemStack stack = owner.getItemInHand(getHand());
         boolean remain = !owner.isRemoved()
                 && distance <= MineraculousServerConfig.get().maxToolLength.getAsInt() + 1
-                && this.level().dimension() == owner.level().dimension()
+                && level().dimension() == owner.level().dimension()
                 && stack.is(MineraculousItems.LADYBUG_YOYO)
                 && Active.isActive(stack)
                 && (getMode() == null || getMode() == stack.get(MineraculousDataComponents.LADYBUG_YOYO_MODE));
         if (!remain) {
-            this.discard();
+            discard();
         }
     }
 
     @Nullable
     @Override
     protected EntityHitResult findHitEntity(Vec3 startVec, Vec3 endVec) {
-        return this.getMode() == LadybugYoyoItem.Mode.TRAVEL || this.dealtDamage ? null : super.findHitEntity(startVec, endVec);
+        return getMode() == LadybugYoyoItem.Mode.TRAVEL || dealtDamage ? null : super.findHitEntity(startVec, endVec);
     }
 
     @Override
     protected void onHitEntity(EntityHitResult result) {
         Entity entity = result.getEntity();
-        Entity owner = this.getOwner();
-        LadybugYoyoItem.Mode mode = this.getMode();
+        Entity owner = getOwner();
+        LadybugYoyoItem.Mode mode = getMode();
         if (mode == null) {
             float damage = (float) getBaseDamage();
-            DamageSource damagesource = this.damageSources().arrow(this, owner == null ? this : owner);
-            if (this.level() instanceof ServerLevel serverLevel) {
+            DamageSource damagesource = damageSources().arrow(this, owner == null ? this : owner);
+            if (level() instanceof ServerLevel serverLevel) {
                 damage = EnchantmentHelper.modifyDamage(serverLevel, getPickupItem(), entity, damagesource, damage);
             }
 
@@ -319,8 +316,8 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                     return;
                 }
 
-                if (this.level() instanceof ServerLevel serverLevel) {
-                    EnchantmentHelper.doPostAttackEffectsWithItemSource(serverLevel, entity, damagesource, this.getWeaponItem());
+                if (level() instanceof ServerLevel serverLevel) {
+                    EnchantmentHelper.doPostAttackEffectsWithItemSource(serverLevel, entity, damagesource, getWeaponItem());
                 }
 
                 if (entity instanceof LivingEntity livingentity) {
@@ -379,15 +376,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     protected void onHitBlock(BlockHitResult result) {
         super.onHitBlock(result);
         if (!level().isClientSide) {
-            if (getMode() == LadybugYoyoItem.Mode.TRAVEL) {
-                Entity owner = this.getOwner();
-                if (owner != null && this.inGround() && !this.isRecalling()) {
-                    if (owner instanceof Player player) {
-                        this.setMaxRopeLength((float) this.position().distanceTo(player.position()));
-                    }
-                    this.freshlyHitGround = true;
-                }
-            } else {
+            if (getMode() != LadybugYoyoItem.Mode.TRAVEL) {
                 recall();
             }
         }

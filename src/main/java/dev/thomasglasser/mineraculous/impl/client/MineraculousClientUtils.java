@@ -381,6 +381,10 @@ public class MineraculousClientUtils {
         return getFirstPersonHandPosition(offHand, swing, partialTicks, rightScale, upScale);
     }
 
+    public static Vec3 oldHandPosition = Vec3.ZERO;  // hand position at the **previous tick**
+    public static Vec3 handPosition = Vec3.ZERO;  // hand position at the **current tick**
+    public static Vec3 frameHandPosition = Vec3.ZERO;
+
     @SuppressWarnings("ConstantValue")
     public static Vec3 getFirstPersonHandPosition(boolean offHand, boolean swing, float partialTick, float rightScale, float upScale) { //meant to be used only when the local player is in 1st POV
         Player player = Minecraft.getInstance().player;

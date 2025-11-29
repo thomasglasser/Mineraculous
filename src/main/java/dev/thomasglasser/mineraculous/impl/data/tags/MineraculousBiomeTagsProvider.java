@@ -6,7 +6,7 @@ import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.BiomeTagsProvider;
-import net.minecraft.world.level.biome.Biomes;
+import net.minecraft.tags.BiomeTags;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,8 +18,8 @@ public class MineraculousBiomeTagsProvider extends BiomeTagsProvider {
     @Override
     protected void addTags(HolderLookup.Provider provider) {
         tag(MineraculousBiomeTags.HAS_COMMON_ALMOND_TREES)
-                .add(Biomes.WOODED_BADLANDS);
+                .addTags(BiomeTags.IS_BADLANDS);
         tag(MineraculousBiomeTags.HAS_RARE_ALMOND_TREES)
-                .add(Biomes.SAVANNA);
+                .addTags(BiomeTags.IS_SAVANNA);
     }
 }

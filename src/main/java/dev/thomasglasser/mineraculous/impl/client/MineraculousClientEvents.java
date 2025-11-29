@@ -140,7 +140,12 @@ public class MineraculousClientEvents {
 
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
 
-        } else if (event.getTabKey() == CreativeModeTabs.COLORED_BLOCKS) {} else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {} else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
+        } else if (event.getTabKey() == CreativeModeTabs.COLORED_BLOCKS) {
+
+        } else if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) {
+            event.insertAfter(Items.PINK_PETALS.getDefaultInstance(), MineraculousBlocks.HIBISCUS_BUSH.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(Items.COBWEB.getDefaultInstance(), MineraculousBlocks.CATACLYSM_BLOCK.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+        } else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
             event.insertAfter(Items.LOOM.getDefaultInstance(), MineraculousBlocks.CHEESE_POT.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             event.insertAfter(Items.BLAST_FURNACE.getDefaultInstance(), MineraculousBlocks.OVEN.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         } else if (event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS) {

@@ -311,7 +311,8 @@
     "mineraculous:fancy_almond_bees_005"
   ],
   "minecraft:worldgen/placed_feature": [
-    "mineraculous:almond_placed"
+    "mineraculous:almond_checked",
+    "mineraculous:almond_checked_002"
   ],
   "mineraculous:ability": [
     "mineraculous:cat_vision",
@@ -370,7 +371,8 @@
     "mineraculous:yoyo_leash_override"
   ],
   "neoforge:biome_modifier": [
-    "mineraculous:add_almond_trees"
+    "mineraculous:add_common_almond_trees",
+    "mineraculous:add_rare_almond_trees"
   ],
   "neoforge:entity_data_serializers": [
     "mineraculous:miraculous",

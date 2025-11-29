@@ -4,6 +4,7 @@ import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
 import dev.thomasglasser.mineraculous.api.world.food.MineraculousFoods;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.impl.world.entity.ai.village.poi.MineraculousPoiTypes;
 import dev.thomasglasser.mineraculous.impl.world.entity.vehicle.MineraculousBoatType;
 import dev.thomasglasser.mineraculous.impl.world.level.block.OvenBlock;
 import dev.thomasglasser.mineraculous.impl.world.level.block.grower.MineraculousTreeGrowers;
@@ -48,10 +49,7 @@ public class MineraculousBlocks {
 
     public static final DeferredBlock<SelfDroppingBerryBushBlock> HIBISCUS_BUSH = registerWithSeparatelyNamedItem("hibiscus_bush", "hibiscus", () -> new SelfDroppingBerryBushBlock(BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).randomTicks().noCollission().sound(SoundType.SWEET_BERRY_BUSH).pushReaction(PushReaction.DESTROY)));
 
-    // Almond
-    static Supplier<WoodType> almondWoodSupplier = () -> MineraculousWoodTypes.almondWoodType;
-
-    public static final WoodSet ALMOND_WOOD_SET = registerWoodSet("almond", MapColor.COLOR_BROWN, MapColor.COLOR_BLACK, almondWoodSupplier, MineraculousBoatType.ALMOND.getValue());
+    public static final WoodSet ALMOND_WOOD_SET = registerWoodSet("almond", MapColor.COLOR_BROWN, MapColor.COLOR_BLACK, () -> MineraculousWoodTypes.ALMOND, MineraculousBoatType.ALMOND.getValue());
 
     public static final LeavesSet ALMOND_LEAVES_SET = registerLeavesSet("almond", MineraculousTreeGrowers.almondTreeGrower);
 

@@ -49,7 +49,7 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
             Vec3 playerHandPos;
             boolean offHand = !(animatable.getHand() == InteractionHand.MAIN_HAND);
             if (projectilePlayer == Minecraft.getInstance().player && Minecraft.getInstance().getEntityRenderDispatcher().options.getCameraType().isFirstPerson()) {
-                playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(offHand, false, partialTick, RIGHT_SCALE, UP_SCALE);
+                playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(offHand, partialTick);
                 maxLength = animatable.getRenderMaxRopeLength(true);
             } else {
                 playerHandPos = MineraculousClientUtils.getHumanoidEntityHandPos(projectilePlayer, offHand, partialTick, 0.15f, -0.75, 0.35f);

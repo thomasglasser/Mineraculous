@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
-import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownLadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
@@ -27,7 +26,7 @@ public record ClientboundCalculateYoyoRenderLengthPayload(int yoyoId, int holder
             Entity holder = player.level().getEntity(holderId);
             Vec3 vec3;
             if (holder == ClientUtils.getLocalPlayer()) {
-                vec3 = MineraculousClientUtils.getFirstPersonHandPosition(true, false, ThrownLadybugYoyoRenderer.RIGHT_SCALE, ThrownLadybugYoyoRenderer.UP_SCALE);
+                vec3 = MineraculousClientUtils.getFirstPersonHandPosition(true);
                 Vec3 fromProjectileToHand = new Vec3(vec3.x - yoyo.getX(), vec3.y - yoyo.getY(), vec3.z - yoyo.getZ());
                 yoyo.setFirstPovRenderMaxRopeLength((float) fromProjectileToHand.length());
             }

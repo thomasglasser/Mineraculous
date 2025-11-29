@@ -72,13 +72,13 @@ public class LadybugYoyoRenderer extends BlockingDefaultedGeoItemRenderer<Ladybu
                             case RIGHT -> this.renderPerspective == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
                         };
                         if (initialHand == currentHand) {
-                            renderHand(player, this.renderPerspective, poseStack, bufferSource, packedLight, partialTick);
+                            renderHand(player, this.renderPerspective, poseStack, bufferSource, packedLight);
                         }
                     }
                     return;
                 } else if (carrier.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent()) {
                     if (MineraculousClientUtils.isFirstPerson() && MineraculousClientUtils.getCameraEntity() == carrier && carrier instanceof AbstractClientPlayer player) {
-                        renderHand(player, this.renderPerspective, poseStack, bufferSource, packedLight, partialTick);
+                        renderHand(player, this.renderPerspective, poseStack, bufferSource, packedLight);
                     }
                     return;
                 }
@@ -87,7 +87,7 @@ public class LadybugYoyoRenderer extends BlockingDefaultedGeoItemRenderer<Ladybu
         super.defaultRender(poseStack, animatable, bufferSource, renderType, buffer, yaw, partialTick, packedLight);
     }
 
-    private static void renderHand(AbstractClientPlayer player, ItemDisplayContext context, PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight, float partialTick) {
+    private static void renderHand(AbstractClientPlayer player, ItemDisplayContext context, PoseStack poseStack, MultiBufferSource multiBufferSource, int packedLight) {
         PlayerRenderer playerRenderer = (PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().getRenderer(player);
         poseStack.scale(2, 2, 2);
         if (context == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND) {

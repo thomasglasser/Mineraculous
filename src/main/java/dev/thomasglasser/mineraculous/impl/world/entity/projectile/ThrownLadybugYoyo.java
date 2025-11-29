@@ -18,9 +18,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -54,6 +52,9 @@ import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     public static final float MIN_MAX_ROPE_LENGTH = 1.5f;
@@ -200,30 +201,35 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 }
                 this.updateRecallingTicks();
             } else if (this.inGround()) {
-                Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
-                float distance = (float) fromProjectileToPlayer.length();
-                if (distance > this.getMaxRopeLength() && this.getMaxRopeLength() > 0 && distance <= 99) {
-                    owner.resetFallDistance();
+                // TOMMY idk if this is okay but it wont access instance if it is server level, right? this is kinda risky
+                // it breaks if this isnt ran on the client side of the owner
+                if (!owner.level().isClientSide() || Minecraft.getInstance().player == owner) {
+                    Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - this.getX(), owner.getY() - this.getY(), owner.getZ() - this.getZ());
+                    float distance = (float) fromProjectileToPlayer.length();
+                    if (distance > this.getMaxRopeLength() && this.getMaxRopeLength() > 0 && distance <= 99) {
+                        owner.resetFallDistance();
 
-                    Vec3 constrainedMovement = fromProjectileToPlayer.normalize().scale(this.getMaxRopeLength() - distance);
-                    owner.move(MoverType.SELF, constrainedMovement);
+                        Vec3 constrainedMovement = fromProjectileToPlayer.normalize().scale(this.getMaxRopeLength() - distance);
+                        owner.move(MoverType.SELF, constrainedMovement);
+                        owner.hurtMarked = true;
 
-                    Vec3 radialForce = fromProjectileToPlayer.normalize();
+                        Vec3 radialForce = fromProjectileToPlayer.normalize();
 
-                    Vec3 tangentialVelocity = owner.getDeltaMovement().subtract(
-                            radialForce.scale(owner.getDeltaMovement().dot(radialForce)));
+                        Vec3 tangentialVelocity = owner.getDeltaMovement().subtract(
+                                radialForce.scale(owner.getDeltaMovement().dot(radialForce)));
 
-                    double dampingFactor = Math.max(1.06, 1 - Math.abs(distance - this.getMaxRopeLength()) * 0.02); // Less damping near center
-                    Vec3 dampedVelocity = tangentialVelocity.scale(dampingFactor);
+                        double dampingFactor = Math.max(1.06, 1 - Math.abs(distance - this.getMaxRopeLength()) * 0.02); // Less damping near center
+                        Vec3 dampedVelocity = tangentialVelocity.scale(dampingFactor);
 
-                    Vec3 correctiveForce = radialForce.scale((distance - this.getMaxRopeLength()) * 0.005);
-                    Vec3 newVelocity = dampedVelocity.add(correctiveForce);
+                        Vec3 correctiveForce = radialForce.scale((distance - this.getMaxRopeLength()) * 0.005);
+                        Vec3 newVelocity = dampedVelocity.add(correctiveForce);
 
-                    if (this.getY() > owner.getY()) {
-                        owner.setDeltaMovement(newVelocity);
+                        if (this.getY() > owner.getY()) {
+                            owner.setDeltaMovement(newVelocity);
+                        }
+
+                        applyCollisionDamage(owner);
                     }
-
-                    applyCollisionDamage(owner);
                 }
             } else {
                 ThrownLadybugYoyoData yoyoData = owner.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);

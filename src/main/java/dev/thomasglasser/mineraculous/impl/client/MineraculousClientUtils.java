@@ -376,14 +376,14 @@ public class MineraculousClientUtils {
     }
 
     @SuppressWarnings("ConstantValue")
-    public static Vec3 getFirstPersonHandPosition(boolean offHand, boolean swing, float rightScale, float upScale) {
+    public static Vec3 getFirstPersonHandPositionNearPlane(boolean offHand, boolean swing, float rightScale, float upScale) {
         Camera camera = Minecraft.getInstance().getEntityRenderDispatcher().camera;
         float partialTicks = camera == null ? 0 : camera.getPartialTickTime();
-        return getFirstPersonHandPosition(offHand, swing, partialTicks, rightScale, upScale);
+        return getFirstPersonHandPositionNearPlane(offHand, swing, partialTicks, rightScale, upScale);
     }
 
     @SuppressWarnings("ConstantValue")
-    public static Vec3 getFirstPersonHandPosition(boolean offHand, boolean swing, float partialTick, float rightScale, float upScale) { //meant to be used only when the local player is in 1st POV
+    public static Vec3 getFirstPersonHandPositionNearPlane(boolean offHand, boolean swing, float partialTick, float rightScale, float upScale) { //meant to be used only when the local player is in 1st POV
         Player player = Minecraft.getInstance().player;
         if (player != null) {
             float attackAnim = player.getAttackAnim(partialTick);
@@ -395,19 +395,44 @@ public class MineraculousClientUtils {
 
             EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
             if (entityRenderDispatcher.camera != null) {
-                double fovScale = entityRenderDispatcher.options.fov().get() / 110.0D;
-                ///  0.38 --- 0.7
-                ///  0.55 --- 0.3
-                ///  0.35 --- 1.1
+                double fovScale = 960.0 / (double) entityRenderDispatcher.options.fov().get();
+                Vec3 handOffset = entityRenderDispatcher.camera.getNearPlane().getPointOnPlane((float) armMultiplier * rightScale, upScale).scale(fovScale).yRot(swingAngle * 0.5F).xRot(-swingAngle * 0.7F);
+                return player.getEyePosition(partialTick).add(handOffset);
+            }
+            return Vec3.ZERO;
+        }
+        return Vec3.ZERO;
+    }
+
+    @SuppressWarnings("ConstantValue")
+    public static Vec3 getFirstPersonHandPosition(boolean offHand) {
+        Camera camera = Minecraft.getInstance().getEntityRenderDispatcher().camera;
+        float partialTicks = camera == null ? 0 : camera.getPartialTickTime();
+        return getFirstPersonHandPosition(offHand, partialTicks);
+    }
+
+    @SuppressWarnings("ConstantValue")
+    public static Vec3 getFirstPersonHandPosition(boolean offHand, float partialTick) { //meant to be used only when the local player is in 1st POV
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
+            float attackAnim = player.getAttackAnim(partialTick);
+            float swingAngle = Mth.sin(Mth.sqrt(attackAnim) * Mth.PI);
+            int armMultiplier = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
+            if (offHand) {
+                armMultiplier = -armMultiplier;
+            }
+
+            EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+            if (entityRenderDispatcher.camera != null) {
+                double fovScale = entityRenderDispatcher.options.fov().get() / 110.0d;
                 Vec3 hand_offset = new Vec3(
-                        (double) armMultiplier * -0.45D * fovScale,
-                        -0.23D * fovScale,
+                        (double) armMultiplier * -0.45d * fovScale,
+                        -0.23d * fovScale,
                         fovScale <= 0.7
-                            ? 0.55 - 0.50625 * (fovScale - 0.3) - 0.03125 * Math.pow(fovScale - 0.3, 3)
-                            : 0.38 - 0.1375 * (fovScale - 0.7) - 0.05625 * Math.pow(fovScale - 0.7, 3)
-                );
-                double pitch = -swingAngle * 0.7F;
-                double yaw = -swingAngle * 0.5F;
+                                ? 0.55 - 0.50625 * (fovScale - 0.3) - 0.03125 * Math.pow(fovScale - 0.3, 3)
+                                : 0.38 - 0.1375 * (fovScale - 0.7) - 0.05625 * Math.pow(fovScale - 0.7, 3));
+                double pitch = -swingAngle * 0.7f;
+                double yaw = -swingAngle * 0.5f;
 
                 // apply swing
                 hand_offset = MineraculousMathUtils.rotatePitch(hand_offset, pitch);
@@ -438,13 +463,13 @@ public class MineraculousClientUtils {
                 armMultiplier = -armMultiplier;
             }
 
-            float bodyRotRad = Mth.lerp(partialTick, livingEntity.yBodyRotO, livingEntity.yBodyRot) * (Mth.PI / 180F);
+            float bodyRotRad = Mth.lerp(partialTick, livingEntity.yBodyRotO, livingEntity.yBodyRot) * (Mth.PI / 180f);
             double sinRot = Mth.sin(bodyRotRad);
             double cosRot = Mth.cos(bodyRotRad);
             float scale = livingEntity.getScale();
             double armOffset = (double) armMultiplier * sideOffset * (double) scale;
             double frontOffsetScaled = frontOffset * (double) scale;
-            float crouchOffset = livingEntity.isCrouching() ? -0.1875F : 0;
+            float crouchOffset = livingEntity.isCrouching() ? -0.1875f : 0;
             return livingEntity.getEyePosition(partialTick).add(-cosRot * armOffset - sinRot * frontOffsetScaled, (double) crouchOffset + heightOffset * (double) scale, -sinRot * armOffset + cosRot * frontOffsetScaled);
         }
         return Vec3.ZERO;

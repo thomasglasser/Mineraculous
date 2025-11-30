@@ -32,6 +32,7 @@
     "minecraft.client.MinecraftMixin",
     "minecraft.client.MouseHandlerMixin",
     "minecraft.client.gui.GuiMixin",
+    "minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreenMixin",
     "minecraft.client.gui.screens.packs.PackSelectionModelEntryBaseMixin",
     "minecraft.client.gui.screens.packs.PackSelectionModelEntryMixin",
     "minecraft.client.gui.screens.packs.TransferableSelectionListPackEntryMixin",

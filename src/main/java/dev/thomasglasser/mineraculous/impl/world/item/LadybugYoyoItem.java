@@ -161,6 +161,9 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                                 player.getCooldowns().addCooldown(this, 5);
                             } else {
                                 recallYoyo(player);
+                                Vec3 inertia = player.getDeltaMovement();
+                                if (inertia.length() > 1) inertia = inertia.add(0, 0.5, 0);
+                                player.setDeltaMovement(inertia.scale(2.5));
                             }
                         } else {
                             data.clearId().save(player);

@@ -29,7 +29,7 @@ public record ClientboundAddRightHandParticlesPayload(Optional<Integer> targetId
         if (target != null) {
             Vec3 handPos;
             if (target == ClientUtils.getLocalPlayer() && MineraculousClientUtils.isFirstPerson()) {
-                handPos = MineraculousClientUtils.getFirstPersonHandPosition(false, true, 0.575f, -0.75f);
+                handPos = MineraculousClientUtils.getFirstPersonHandPositionNearPlane(false, true, 0.575f, -0.75f);
             } else {
                 handPos = MineraculousClientUtils.getHumanoidEntityHandPos(target, false, 0, -0.9, 0.35);
             }

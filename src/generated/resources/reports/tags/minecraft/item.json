@@ -1,4 +1,5 @@
 [
+  "mineraculous:almond_logs",
   "curios:back",
   "curios:belt",
   "curios:brooch",
@@ -23,6 +24,8 @@
   "mineraculous:lucky_charms/generic",
   "curios:ring",
   "mineraculous:shooting_projectiles",
+  "c:stripped_logs",
+  "c:stripped_woods",
   "mineraculous:tough",
   "mineraculous:warden_distractors"
 ]

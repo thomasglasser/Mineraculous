@@ -32,6 +32,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         addFoods();
         addArmors();
         addArmorTrims();
+        addTrees();
         addCurios();
         addAbilities();
 
@@ -75,6 +76,12 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         }
     }
 
+    private void addTrees() {
+        // Almond
+        woodSet(MineraculousBlocks.ALMOND_WOOD_SET);
+        leavesSet(MineraculousBlocks.ALMOND_LEAVES_SET);
+    }
+
     private void addKwamiFoods() {
         // Ladybug
         tag(MineraculousItemTags.LADYBUG_KWAMI_PREFERRED_FOODS)
@@ -106,10 +113,17 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         tag(ConventionalItemTags.FOODS)
                 .add(MineraculousItems.RAW_MACARON)
                 .add(MineraculousItems.MACARON)
+                .add(MineraculousItems.ALMOND)
+                .add(MineraculousItems.ROASTED_ALMOND)
                 .addTag(MineraculousItemTags.CHEESES_FOODS);
 
         tag(ItemTags.DYEABLE)
                 .add(MineraculousItems.RAW_MACARON);
+
+        tag(ItemTags.CHICKEN_FOOD)
+                .add(MineraculousItems.ALMOND);
+        tag(ItemTags.PARROT_FOOD)
+                .add(MineraculousItems.ALMOND);
 
         tag(MineraculousItemTags.CHEESES_FOODS)
                 .addTag(MineraculousItemTags.CHEESE)

@@ -21,7 +21,7 @@ public record ServerboundUpdateYoyoLengthPayload(boolean increase) implements Ex
     public void handle(Player player) {
         ThrownLadybugYoyoData data = player.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
         ThrownLadybugYoyo thrownYoyo = data.getThrownYoyo(player.level());
-        if (thrownYoyo != null && thrownYoyo.isOldEnough()) {
+        if (thrownYoyo != null && thrownYoyo.canHandleInput()) {
             if (increase) {
                 thrownYoyo.setMaxRopeLength(thrownYoyo.getMaxRopeLength() + 0.3f);
             } else {

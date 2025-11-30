@@ -16,7 +16,10 @@ import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
-import net.minecraft.client.Minecraft;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
@@ -50,9 +53,6 @@ import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     public static final float MIN_MAX_ROPE_LENGTH = 1.5f;
@@ -63,7 +63,6 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     private static final EntityDataAccessor<Direction> DATA_INITIAL_DIRECTION = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.DIRECTION);
     private static final EntityDataAccessor<Integer> DATA_RECALLING_TICKS = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_HAND = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> DATA_TICKS = SynchedEntityData.defineId(ThrownLadybugYoyo.class, EntityDataSerializers.INT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -103,7 +102,6 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         builder.define(DATA_MAX_ROPE_LENGTH, 0f);
         builder.define(DATA_INITIAL_DIRECTION, Direction.UP);
         builder.define(DATA_HAND, 0);
-        builder.define(DATA_TICKS, 0);
     }
 
     public @Nullable LadybugYoyoItem.Mode getMode() {
@@ -134,12 +132,8 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         entityData.set(DATA_MAX_ROPE_LENGTH, clampMaxRopeLength(maxRopeLength));
     }
 
-    private void incrementTicks() {
-        this.entityData.set(DATA_TICKS, entityData.get(DATA_TICKS) + 1);
-    }
-
-    public boolean isOldEnough() {
-        return entityData.get(DATA_TICKS) >= 10;
+    public boolean canHandleInput() {
+        return inGroundTime >= 10;
     }
 
     public Direction getInitialDirection() {
@@ -171,10 +165,6 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
 
     @Override
     public void tick() {
-        if (entityData.get(DATA_TICKS) < 10) {
-            incrementTicks();
-        }
-
         if (inGroundTime > 4) {
             dealtDamage = true;
         }
@@ -196,9 +186,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                 }
                 this.updateRecallingTicks();
             } else if (inGround()) {
-                // TOMMY idk if this is okay but it wont access instance if it is server level, right? this is kinda risky
-                // it breaks if this isnt ran on the client side of the owner
-                if (!owner.level().isClientSide() || Minecraft.getInstance().player == owner) {
+                if (!owner.level().isClientSide() || ClientUtils.getLocalPlayer() == owner) {
                     Vec3 fromProjectileToPlayer = new Vec3(owner.getX() - getX(), owner.getY() - getY(), owner.getZ() - getZ());
                     float distance = (float) fromProjectileToPlayer.length();
                     if (distance > getMaxRopeLength() && getMaxRopeLength() > 0 && distance <= 99) {

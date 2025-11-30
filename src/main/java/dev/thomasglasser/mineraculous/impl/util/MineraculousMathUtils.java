@@ -16,8 +16,8 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2d;
 
 public class MineraculousMathUtils {
-    public static Vec3 rotateYaw(Vec3 vec3, double a) {
-        return new Vec3(vec3.x * Math.cos(a) - vec3.z * Math.sin(a), vec3.y, vec3.x * Math.sin(a) + vec3.z * Math.cos(a));
+    public static Vec3 rotateYaw(Vec3 vec3, double yaw) {
+        return new Vec3(vec3.x * Math.cos(yaw) - vec3.z * Math.sin(yaw), vec3.y, vec3.x * Math.sin(yaw) + vec3.z * Math.cos(yaw));
     }
 
     public static Vec3 rotatePitch(Vec3 vec3, double pitch) {

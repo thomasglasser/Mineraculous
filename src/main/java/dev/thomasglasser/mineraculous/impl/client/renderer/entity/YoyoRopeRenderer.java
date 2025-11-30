@@ -20,7 +20,7 @@ public class YoyoRopeRenderer {
 
     private static final int POINTS = 100;
     private static final double CATENARY_CURVE_FACTOR = 2048.0;
-    private static final double ROPE_THICKNESS = 0.025d;
+    private static final double ROPE_THICKNESS = 0.025;
 
     public static void render(Entity entity, Player ropeOwner, double maxLength, PoseStack poseStack, MultiBufferSource bufferSource, float partialTick) {
         poseStack.pushPose();
@@ -57,7 +57,7 @@ public class YoyoRopeRenderer {
         Vec3 ropeThickness = getSegmentThickness(projectilePos, playerHandPos);
 
         double length = fromProjectileToHand.length();
-        if (length >= maxLength - 1.5d) {
+        if (length >= maxLength - 1.5) {
             MineraculousClientUtils.vertex(vertexConsumer, pose, (float) -ropeThickness.x, (float) -ropeThickness.y, (float) -ropeThickness.z, 0f, 1f, LightTexture.FULL_BRIGHT);
             MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x - ropeThickness.x), (float) (fromProjectileToHand.y - ropeThickness.y), (float) (fromProjectileToHand.z - ropeThickness.z), 1f, 1f, LightTexture.FULL_BRIGHT);
             MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x + ropeThickness.x), (float) (fromProjectileToHand.y + ropeThickness.y), (float) (fromProjectileToHand.z + ropeThickness.z), 1f, 0f, LightTexture.FULL_BRIGHT);

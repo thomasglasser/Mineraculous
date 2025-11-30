@@ -29,6 +29,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundStealCurioPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateSpecialPlayerDataPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
+import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
@@ -91,6 +92,7 @@ public class MineraculousClientUtils {
 
     private static final Map<Player, SpecialPlayerData> SPECIAL_PLAYER_DATA = new Reference2ReferenceOpenHashMap<>();
     private static final IntList CATACLYSM_PIXELS = new IntArrayList();
+    private static boolean wasJumping = false;
 
     // Special Player Handling
     public static void setSpecialPlayerData(Player player, SpecialPlayerData data) {
@@ -375,14 +377,14 @@ public class MineraculousClientUtils {
     }
 
     @SuppressWarnings("ConstantValue")
-    public static Vec3 getFirstPersonHandPosition(boolean offHand, boolean swing, float rightScale, float upScale) {
+    public static Vec3 getFirstPersonHandPositionNearPlane(boolean offHand, boolean swing, float rightScale, float upScale) {
         Camera camera = Minecraft.getInstance().getEntityRenderDispatcher().camera;
         float partialTicks = camera == null ? 0 : camera.getPartialTickTime();
-        return getFirstPersonHandPosition(offHand, swing, partialTicks, rightScale, upScale);
+        return getFirstPersonHandPositionNearPlane(offHand, swing, partialTicks, rightScale, upScale);
     }
 
     @SuppressWarnings("ConstantValue")
-    public static Vec3 getFirstPersonHandPosition(boolean offHand, boolean swing, float partialTick, float rightScale, float upScale) { //meant to be used only when the local player is in 1st POV
+    public static Vec3 getFirstPersonHandPositionNearPlane(boolean offHand, boolean swing, float partialTick, float rightScale, float upScale) { //meant to be used only when the local player is in 1st POV
         Player player = Minecraft.getInstance().player;
         if (player != null) {
             float attackAnim = player.getAttackAnim(partialTick);
@@ -404,6 +406,51 @@ public class MineraculousClientUtils {
     }
 
     @SuppressWarnings("ConstantValue")
+    public static Vec3 getFirstPersonHandPosition(boolean offHand) {
+        Camera camera = Minecraft.getInstance().getEntityRenderDispatcher().camera;
+        float partialTicks = camera == null ? 0 : camera.getPartialTickTime();
+        return getFirstPersonHandPosition(offHand, partialTicks);
+    }
+
+    @SuppressWarnings("ConstantValue")
+    public static Vec3 getFirstPersonHandPosition(boolean offHand, float partialTick) { //meant to be used only when the local player is in 1st POV
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
+            float attackAnim = player.getAttackAnim(partialTick);
+            float swingAngle = Mth.sin(Mth.sqrt(attackAnim) * Mth.PI);
+            int armMultiplier = player.getMainArm() == HumanoidArm.RIGHT ? 1 : -1;
+            if (offHand) {
+                armMultiplier = -armMultiplier;
+            }
+
+            EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
+            if (entityRenderDispatcher.camera != null) {
+                double fovScale = entityRenderDispatcher.options.fov().get() / 110.0d;
+                Vec3 hand_offset = new Vec3(
+                        (double) armMultiplier * -0.45d * fovScale,
+                        -0.23d * fovScale,
+                        fovScale <= 0.7
+                                ? 0.55 - 0.50625 * (fovScale - 0.3) - 0.03125 * Math.pow(fovScale - 0.3, 3)
+                                : 0.38 - 0.1375 * (fovScale - 0.7) - 0.05625 * Math.pow(fovScale - 0.7, 3));
+                double pitch = -swingAngle * 0.7f;
+                double yaw = -swingAngle * 0.5f;
+
+                // apply swing
+                hand_offset = MineraculousMathUtils.rotatePitch(hand_offset, pitch);
+                hand_offset = MineraculousMathUtils.rotateYaw(hand_offset, yaw);
+
+                // apply looking direction
+                hand_offset = MineraculousMathUtils.rotatePitch(hand_offset, -Mth.lerp(partialTick, player.xRotO, player.getXRot()) * (Mth.PI / 180F));
+                hand_offset = MineraculousMathUtils.rotateYaw(hand_offset, Mth.lerp(partialTick, player.yRotO, player.getYRot()) * (Mth.PI / 180F));
+
+                return hand_offset.add(entityRenderDispatcher.camera.getPosition());
+            }
+            return Vec3.ZERO;
+        }
+        return Vec3.ZERO;
+    }
+
+    @SuppressWarnings("ConstantValue")
     public static Vec3 getHumanoidEntityHandPos(Entity entity, boolean offHand, double frontOffset, double heightOffset, double sideOffset) {
         Camera camera = Minecraft.getInstance().getEntityRenderDispatcher().camera;
         float partialTicks = camera == null ? 0 : camera.getPartialTickTime();
@@ -417,13 +464,13 @@ public class MineraculousClientUtils {
                 armMultiplier = -armMultiplier;
             }
 
-            float bodyRotRad = Mth.lerp(partialTick, livingEntity.yBodyRotO, livingEntity.yBodyRot) * (Mth.PI / 180F);
+            float bodyRotRad = Mth.lerp(partialTick, livingEntity.yBodyRotO, livingEntity.yBodyRot) * (Mth.PI / 180f);
             double sinRot = Mth.sin(bodyRotRad);
             double cosRot = Mth.cos(bodyRotRad);
             float scale = livingEntity.getScale();
             double armOffset = (double) armMultiplier * sideOffset * (double) scale;
             double frontOffsetScaled = frontOffset * (double) scale;
-            float crouchOffset = livingEntity.isCrouching() ? -0.1875F : 0;
+            float crouchOffset = livingEntity.isCrouching() ? -0.1875f : 0;
             return livingEntity.getEyePosition(partialTick).add(-cosRot * armOffset - sinRot * frontOffsetScaled, (double) crouchOffset + heightOffset * (double) scale, -sinRot * armOffset + cosRot * frontOffsetScaled);
         }
         return Vec3.ZERO;
@@ -451,7 +498,9 @@ public class MineraculousClientUtils {
 
     public static InputState captureInput() {
         var input = Minecraft.getInstance().player.input;
-        return new InputState(input.up, input.down, input.left, input.right, input.jumping);
+        boolean jump = input.jumping && !wasJumping;
+        wasJumping = input.jumping;
+        return new InputState(input.up, input.down, input.left, input.right, jump);
     }
 
     public static boolean isValidTexture(ResourceLocation texture) {

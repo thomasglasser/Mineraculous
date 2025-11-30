@@ -63,7 +63,7 @@ public record ServerboundUpdateYoyoInputPayload(int input) implements ExtendedPa
             double distance = fromProjectileToPlayer.length();
             float maxRopeLn = thrownYoyo.getMaxRopeLength();
             if (inTension(thrownYoyo, player, distance, maxRopeLn)) {
-                if (jump()) { //JUMP
+                if (jump() && thrownYoyo.inGround()) { //JUMP
                     Vec3 projection = new Vec3(fromProjectileToPlayer.x, 0, fromProjectileToPlayer.z);
                     double cosAngle = fromProjectileToPlayer.normalize().dot(projection.normalize());
                     if (fromProjectileToPlayer.y < 0 || (fromProjectileToPlayer.y > 0 && cosAngle > 0.8d)) {
@@ -108,12 +108,12 @@ public record ServerboundUpdateYoyoInputPayload(int input) implements ExtendedPa
         boolean playerAffected = !player.isNoGravity() && !player.getAbilities().flying;
         boolean ropeTensioned = distance > maxRopeLn && maxRopeLn > 3;
         boolean playerAirborne = !player.onGround();
-        boolean noBlockBelow = !player.level().getBlockState(
+        boolean noBlockBelow = player.level().getBlockState(
                 new BlockPos(
                         (int) player.getX(),
                         (int) player.getY() - 1,
                         (int) player.getZ()))
-                .isSolid();
+                .isAir();
 
         return yoyoAnchored &&
                 playerAffected &&

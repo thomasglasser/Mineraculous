@@ -4,7 +4,6 @@ import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
 import dev.thomasglasser.mineraculous.api.world.food.MineraculousFoods;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.impl.world.entity.ai.village.poi.MineraculousPoiTypes;
 import dev.thomasglasser.mineraculous.impl.world.entity.vehicle.MineraculousBoatType;
 import dev.thomasglasser.mineraculous.impl.world.level.block.OvenBlock;
 import dev.thomasglasser.mineraculous.impl.world.level.block.grower.MineraculousTreeGrowers;
@@ -51,7 +50,7 @@ public class MineraculousBlocks {
 
     public static final WoodSet ALMOND_WOOD_SET = registerWoodSet("almond", MapColor.COLOR_BROWN, MapColor.COLOR_BLACK, () -> MineraculousWoodTypes.ALMOND, MineraculousBoatType.ALMOND.getValue());
 
-    public static final LeavesSet ALMOND_LEAVES_SET = registerLeavesSet("almond", MineraculousTreeGrowers.almondTreeGrower);
+    public static final LeavesSet ALMOND_LEAVES_SET = registerLeavesSet("almond", MineraculousTreeGrowers.ALMOND);
 
     // Cheese
     public static final SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> CHEESE = cheeses("cheese", MineraculousFoods.CHEESE, MapColor.GOLD, () -> MineraculousItems.CHEESE);

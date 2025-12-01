@@ -16,8 +16,8 @@ import net.neoforged.neoforge.common.world.BiomeModifiers;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public class MineraculousBiomeModifiers {
-    public static final ResourceKey<BiomeModifier> ADD_COMMON_ALMOND_TREES = register("add_common_almond_trees");
-    public static final ResourceKey<BiomeModifier> ADD_RARE_ALMOND_TREES = register("add_rare_almond_trees");
+    public static final ResourceKey<BiomeModifier> ADD_COMMON_ALMOND_TREES = create("add_common_almond_trees");
+    public static final ResourceKey<BiomeModifier> ADD_RARE_ALMOND_TREES = create("add_rare_almond_trees");
 
     public static void bootstrap(BootstrapContext<BiomeModifier> context) {
         // CF -> PF -> BM
@@ -30,11 +30,11 @@ public class MineraculousBiomeModifiers {
 
         context.register(ADD_RARE_ALMOND_TREES, new BiomeModifiers.AddFeaturesBiomeModifier(
                 biomes.getOrThrow(MineraculousBiomeTags.HAS_RARE_ALMOND_TREES),
-                HolderSet.direct(placedFeatures.getOrThrow(MineraculousTreePlacements.ALMOND_CHECKED)),
+                HolderSet.direct(placedFeatures.getOrThrow(MineraculousTreePlacements.ALMOND_CHECKED_002)),
                 GenerationStep.Decoration.VEGETAL_DECORATION));
     }
 
-    private static ResourceKey<BiomeModifier> register(String name) {
+    private static ResourceKey<BiomeModifier> create(String name) {
         return ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, MineraculousConstants.modLoc(name));
     }
 }

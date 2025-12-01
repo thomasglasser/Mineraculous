@@ -300,15 +300,7 @@
     "mineraculous:fromager"
   ],
   "minecraft:worldgen/configured_feature": [
-    "mineraculous:almond",
-    "mineraculous:almond_bees_0002",
-    "mineraculous:almond_bees_002",
-    "mineraculous:almond_bees_005",
-    "mineraculous:fancy_almond",
-    "mineraculous:fancy_almond_bees",
-    "mineraculous:fancy_almond_bees_0002",
-    "mineraculous:fancy_almond_bees_002",
-    "mineraculous:fancy_almond_bees_005"
+    "mineraculous:almond"
   ],
   "minecraft:worldgen/placed_feature": [
     "mineraculous:almond_checked",

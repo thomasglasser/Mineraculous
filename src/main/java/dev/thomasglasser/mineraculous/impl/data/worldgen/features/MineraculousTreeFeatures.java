@@ -17,19 +17,19 @@ import net.minecraft.world.level.levelgen.feature.foliageplacers.FancyFoliagePla
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.trunkplacers.FancyTrunkPlacer;
 
-public class MineraculousTreeFeatures extends TreeFeatures {
+public class MineraculousTreeFeatures {
     public static final ResourceKey<ConfiguredFeature<?, ?>> ALMOND = create("almond");
     public static final ResourceKey<ConfiguredFeature<?, ?>> FANCY_ALMOND = create("fancy_almond");
 
     private static TreeConfiguration.TreeConfigurationBuilder createAlmond() {
-        return createStraightBlobTree(MineraculousBlocks.ALMOND_WOOD_SET.log().get(), MineraculousBlocks.ALMOND_LEAVES_SET.leaves().get(), 4, 2, 0, 2).ignoreVines();
+        return TreeFeatures.createStraightBlobTree(MineraculousBlocks.ALMOND_WOOD_SET.log().get(), MineraculousBlocks.ALMOND_LEAVES_SET.leaves().get(), 4, 2, 0, 2).ignoreVines();
     }
 
     private static TreeConfiguration.TreeConfigurationBuilder createFancyAlmond() {
         return (new TreeConfiguration.TreeConfigurationBuilder(BlockStateProvider.simple(MineraculousBlocks.ALMOND_WOOD_SET.log().get()), new FancyTrunkPlacer(3, 11, 0), BlockStateProvider.simple(MineraculousBlocks.ALMOND_LEAVES_SET.leaves().get()), new FancyFoliagePlacer(ConstantInt.of(2), ConstantInt.of(4), 4), new TwoLayersFeatureSize(0, 0, 0, OptionalInt.of(4)))).ignoreVines();
     }
 
-    public static ResourceKey<ConfiguredFeature<?, ?>> create(String name) {
+    private static ResourceKey<ConfiguredFeature<?, ?>> create(String name) {
         return ResourceKey.create(Registries.CONFIGURED_FEATURE, MineraculousConstants.modLoc(name));
     }
 

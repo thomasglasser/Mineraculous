@@ -16,7 +16,7 @@ public class MineraculousVegetationPlacements {
     public static final ResourceKey<PlacedFeature> COMMON_TREES_ALMONDS = create("common_trees_almonds");
     public static final ResourceKey<PlacedFeature> RARE_TREES_ALMONDS = create("rare_trees_almonds");
 
-    public static ResourceKey<PlacedFeature> create(String key) {
+    private static ResourceKey<PlacedFeature> create(String key) {
         return ResourceKey.create(Registries.PLACED_FEATURE, MineraculousConstants.modLoc(key));
     }
 

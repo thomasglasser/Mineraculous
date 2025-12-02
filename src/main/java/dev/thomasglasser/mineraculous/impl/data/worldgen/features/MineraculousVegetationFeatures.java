@@ -19,7 +19,7 @@ public class MineraculousVegetationFeatures {
     public static final ResourceKey<ConfiguredFeature<?, ?>> TREES_ALMONDS = create("trees_almonds");
     public static final ResourceKey<ConfiguredFeature<?, ?>> TREES_ALMONDS_002 = create("trees_almonds_002");
 
-    public static ResourceKey<ConfiguredFeature<?, ?>> create(String name) {
+    private static ResourceKey<ConfiguredFeature<?, ?>> create(String name) {
         return ResourceKey.create(Registries.CONFIGURED_FEATURE, MineraculousConstants.modLoc(name));
     }
 

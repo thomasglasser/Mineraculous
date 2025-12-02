@@ -1,6 +1,6 @@
 {
   "type": "neoforge:add_features",
   "biomes": "#mineraculous:has_rare_almond_trees",
-  "features": "mineraculous:almond_checked_002",
+  "features": "mineraculous:rare_trees_almonds",
   "step": "vegetal_decoration"
 }

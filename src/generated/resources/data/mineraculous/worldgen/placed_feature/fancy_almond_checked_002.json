@@ -1,5 +1,5 @@
 {
-  "feature": "mineraculous:almond",
+  "feature": "mineraculous:fancy_almond",
   "placement": [
     {
       "type": "minecraft:block_predicate_filter",

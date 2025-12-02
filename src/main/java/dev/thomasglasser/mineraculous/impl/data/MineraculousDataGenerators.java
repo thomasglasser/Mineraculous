@@ -33,7 +33,9 @@ import dev.thomasglasser.mineraculous.impl.data.tags.client.MineraculousResource
 import dev.thomasglasser.mineraculous.impl.data.worldgen.MineraculousBiomeModifiers;
 import dev.thomasglasser.mineraculous.impl.data.worldgen.MineraculousWorldgenModifiers;
 import dev.thomasglasser.mineraculous.impl.data.worldgen.features.MineraculousTreeFeatures;
+import dev.thomasglasser.mineraculous.impl.data.worldgen.features.MineraculousVegetationFeatures;
 import dev.thomasglasser.mineraculous.impl.data.worldgen.placement.MineraculousTreePlacements;
+import dev.thomasglasser.mineraculous.impl.data.worldgen.placement.MineraculousVegetationPlacement;
 import dev.thomasglasser.mineraculous.impl.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.tommylib.api.data.DataGenerationUtils;
@@ -62,8 +64,14 @@ public class MineraculousDataGenerators {
             .add(Registries.DAMAGE_TYPE, MineraculousDamageTypes::bootstrap)
             .add(Registries.PAINTING_VARIANT, MineraculousPaintingVariants::bootstrap)
             .add(Registries.TRIM_PATTERN, MineraculousTrimPatterns::bootstrap)
-            .add(Registries.CONFIGURED_FEATURE, MineraculousTreeFeatures::bootstrap)
-            .add(Registries.PLACED_FEATURE, MineraculousTreePlacements::bootstrap)
+            .add(Registries.CONFIGURED_FEATURE, context -> {
+                MineraculousTreeFeatures.bootstrap(context);
+                MineraculousVegetationFeatures.bootstrap(context);
+            })
+            .add(Registries.PLACED_FEATURE, context -> {
+                MineraculousTreePlacements.bootstrap(context);
+                MineraculousVegetationPlacement.bootstrap(context);
+            })
             .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, MineraculousBiomeModifiers::bootstrap)
             .add(LithostitchedRegistryKeys.WORLDGEN_MODIFIER, MineraculousWorldgenModifiers::bootstrap)
             .add(MineraculousRegistries.ABILITY, Abilities::bootstrap)

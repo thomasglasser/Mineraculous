@@ -300,11 +300,18 @@
     "mineraculous:fromager"
   ],
   "minecraft:worldgen/configured_feature": [
-    "mineraculous:almond"
+    "mineraculous:almond",
+    "mineraculous:fancy_almond",
+    "mineraculous:trees_almonds",
+    "mineraculous:trees_almonds_002"
   ],
   "minecraft:worldgen/placed_feature": [
     "mineraculous:almond_checked",
-    "mineraculous:almond_checked_002"
+    "mineraculous:almond_checked_002",
+    "mineraculous:common_trees_almonds",
+    "mineraculous:fancy_almond_checked",
+    "mineraculous:fancy_almond_checked_002",
+    "mineraculous:rare_trees_almonds"
   ],
   "mineraculous:ability": [
     "mineraculous:cat_vision",

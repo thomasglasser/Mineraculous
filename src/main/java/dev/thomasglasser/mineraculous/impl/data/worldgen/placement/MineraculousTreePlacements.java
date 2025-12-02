@@ -13,12 +13,12 @@ import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
 public class MineraculousTreePlacements {
-    public static final ResourceKey<PlacedFeature> ALMOND_CHECKED = register("almond_checked");
-    public static final ResourceKey<PlacedFeature> ALMOND_CHECKED_002 = register("almond_checked_002");
-    public static final ResourceKey<PlacedFeature> FANCY_ALMOND_CHECKED = register("fancy_almond_checked");
-    public static final ResourceKey<PlacedFeature> FANCY_ALMOND_CHECKED_002 = register("fancy_almond_checked_002");
+    public static final ResourceKey<PlacedFeature> ALMOND_CHECKED = create("almond_checked");
+    public static final ResourceKey<PlacedFeature> ALMOND_CHECKED_002 = create("almond_checked_002");
+    public static final ResourceKey<PlacedFeature> FANCY_ALMOND_CHECKED = create("fancy_almond_checked");
+    public static final ResourceKey<PlacedFeature> FANCY_ALMOND_CHECKED_002 = create("fancy_almond_checked_002");
 
-    private static ResourceKey<PlacedFeature> register(String name) {
+    private static ResourceKey<PlacedFeature> create(String name) {
         return ResourceKey.create(Registries.PLACED_FEATURE, MineraculousConstants.modLoc(name));
     }
 

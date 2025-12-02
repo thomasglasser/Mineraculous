@@ -25,14 +25,14 @@ public class MineraculousVegetationFeatures {
 
     public static void bootstrap(BootstrapContext<ConfiguredFeature<?, ?>> context) {
         HolderGetter<PlacedFeature> placedFeatures = context.lookup(Registries.PLACED_FEATURE);
-        Holder<PlacedFeature> holder1 = placedFeatures.getOrThrow(MineraculousTreePlacements.ALMOND_CHECKED);
-        Holder<PlacedFeature> holder2 = placedFeatures.getOrThrow(MineraculousTreePlacements.FANCY_ALMOND_CHECKED);
-        Holder<PlacedFeature> holder3 = placedFeatures.getOrThrow(MineraculousTreePlacements.ALMOND_CHECKED_002);
-        Holder<PlacedFeature> holder4 = placedFeatures.getOrThrow(MineraculousTreePlacements.FANCY_ALMOND_CHECKED_002);
+        Holder<PlacedFeature> almond = placedFeatures.getOrThrow(MineraculousTreePlacements.ALMOND_CHECKED);
+        Holder<PlacedFeature> fancyAlmond = placedFeatures.getOrThrow(MineraculousTreePlacements.FANCY_ALMOND_CHECKED);
+        Holder<PlacedFeature> almondRare = placedFeatures.getOrThrow(MineraculousTreePlacements.ALMOND_CHECKED_002);
+        Holder<PlacedFeature> fancyAlmondRare = placedFeatures.getOrThrow(MineraculousTreePlacements.FANCY_ALMOND_CHECKED_002);
 
         FeatureUtils.register(
-                context, TREES_ALMONDS, Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(List.of(new WeightedPlacedFeature(holder1, 0.8F)), holder2));
+                context, TREES_ALMONDS, Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(List.of(new WeightedPlacedFeature(almond, 0.8F)), fancyAlmond));
         FeatureUtils.register(
-                context, TREES_ALMONDS_002, Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(List.of(new WeightedPlacedFeature(holder3, 0.8F)), holder4));
+                context, TREES_ALMONDS_002, Feature.RANDOM_SELECTOR, new RandomFeatureConfiguration(List.of(new WeightedPlacedFeature(almondRare, 0.8F)), fancyAlmondRare));
     }
 }

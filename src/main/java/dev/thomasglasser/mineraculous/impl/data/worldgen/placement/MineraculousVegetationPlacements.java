@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 import net.minecraft.world.level.levelgen.placement.PlacedFeature;
 
-public class MineraculousVegetationPlacement {
+public class MineraculousVegetationPlacements {
     public static final ResourceKey<PlacedFeature> COMMON_TREES_ALMONDS = create("common_trees_almonds");
     public static final ResourceKey<PlacedFeature> RARE_TREES_ALMONDS = create("rare_trees_almonds");
 
@@ -22,9 +22,9 @@ public class MineraculousVegetationPlacement {
 
     public static void bootstrap(BootstrapContext<PlacedFeature> context) {
         HolderGetter<ConfiguredFeature<?, ?>> configuredFeatures = context.lookup(Registries.CONFIGURED_FEATURE);
-        Holder<ConfiguredFeature<?, ?>> holder1 = configuredFeatures.getOrThrow(MineraculousVegetationFeatures.TREES_ALMONDS);
-        Holder<ConfiguredFeature<?, ?>> holder2 = configuredFeatures.getOrThrow(MineraculousVegetationFeatures.TREES_ALMONDS_002);
-        PlacementUtils.register(context, RARE_TREES_ALMONDS, holder1, VegetationPlacements.treePlacement(PlacementUtils.countExtra(0, 0.1F, 1)));
-        PlacementUtils.register(context, COMMON_TREES_ALMONDS, holder2, VegetationPlacements.treePlacement(PlacementUtils.countExtra(1, 0.1F, 1)));
+        Holder<ConfiguredFeature<?, ?>> rareAlmondTrees = configuredFeatures.getOrThrow(MineraculousVegetationFeatures.TREES_ALMONDS);
+        Holder<ConfiguredFeature<?, ?>> almondTrees = configuredFeatures.getOrThrow(MineraculousVegetationFeatures.TREES_ALMONDS_002);
+        PlacementUtils.register(context, RARE_TREES_ALMONDS, rareAlmondTrees, VegetationPlacements.treePlacement(PlacementUtils.countExtra(0, 0.1F, 1)));
+        PlacementUtils.register(context, COMMON_TREES_ALMONDS, almondTrees, VegetationPlacements.treePlacement(PlacementUtils.countExtra(1, 0.1F, 1)));
     }
 }

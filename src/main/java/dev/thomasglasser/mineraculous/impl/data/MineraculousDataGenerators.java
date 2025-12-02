@@ -35,7 +35,7 @@ import dev.thomasglasser.mineraculous.impl.data.worldgen.MineraculousWorldgenMod
 import dev.thomasglasser.mineraculous.impl.data.worldgen.features.MineraculousTreeFeatures;
 import dev.thomasglasser.mineraculous.impl.data.worldgen.features.MineraculousVegetationFeatures;
 import dev.thomasglasser.mineraculous.impl.data.worldgen.placement.MineraculousTreePlacements;
-import dev.thomasglasser.mineraculous.impl.data.worldgen.placement.MineraculousVegetationPlacement;
+import dev.thomasglasser.mineraculous.impl.data.worldgen.placement.MineraculousVegetationPlacements;
 import dev.thomasglasser.mineraculous.impl.world.entity.decoration.MineraculousPaintingVariants;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.tommylib.api.data.DataGenerationUtils;
@@ -70,7 +70,7 @@ public class MineraculousDataGenerators {
             })
             .add(Registries.PLACED_FEATURE, context -> {
                 MineraculousTreePlacements.bootstrap(context);
-                MineraculousVegetationPlacement.bootstrap(context);
+                MineraculousVegetationPlacements.bootstrap(context);
             })
             .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, MineraculousBiomeModifiers::bootstrap)
             .add(LithostitchedRegistryKeys.WORLDGEN_MODIFIER, MineraculousWorldgenModifiers::bootstrap)

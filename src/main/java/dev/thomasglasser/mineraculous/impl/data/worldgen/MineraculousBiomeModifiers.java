@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.impl.data.worldgen;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousBiomeTags;
-import dev.thomasglasser.mineraculous.impl.data.worldgen.placement.MineraculousVegetationPlacement;
+import dev.thomasglasser.mineraculous.impl.data.worldgen.placement.MineraculousVegetationPlacements;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
@@ -25,12 +25,12 @@ public class MineraculousBiomeModifiers {
         HolderGetter<Biome> biomes = context.lookup(Registries.BIOME);
         context.register(ADD_COMMON_ALMOND_TREES, new BiomeModifiers.AddFeaturesBiomeModifier(
                 biomes.getOrThrow(MineraculousBiomeTags.HAS_COMMON_ALMOND_TREES),
-                HolderSet.direct(placedFeatures.getOrThrow(MineraculousVegetationPlacement.COMMON_TREES_ALMONDS)),
+                HolderSet.direct(placedFeatures.getOrThrow(MineraculousVegetationPlacements.COMMON_TREES_ALMONDS)),
                 GenerationStep.Decoration.VEGETAL_DECORATION));
 
         context.register(ADD_RARE_ALMOND_TREES, new BiomeModifiers.AddFeaturesBiomeModifier(
                 biomes.getOrThrow(MineraculousBiomeTags.HAS_RARE_ALMOND_TREES),
-                HolderSet.direct(placedFeatures.getOrThrow(MineraculousVegetationPlacement.RARE_TREES_ALMONDS)),
+                HolderSet.direct(placedFeatures.getOrThrow(MineraculousVegetationPlacements.RARE_TREES_ALMONDS)),
                 GenerationStep.Decoration.VEGETAL_DECORATION));
     }
 

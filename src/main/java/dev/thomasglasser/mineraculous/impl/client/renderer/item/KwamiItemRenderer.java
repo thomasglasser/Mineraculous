@@ -39,7 +39,7 @@ public class KwamiItemRenderer extends GeoItemRenderer<KwamiItem> {
     public GeoModel<KwamiItem> getGeoModel() {
         Holder<Miraculous> miraculous = MiraculousItemRenderer.getMiraculousOrDefault(getCurrentItemStack());
         if (!models.containsKey(miraculous))
-            models.put(miraculous, KwamiRenderer.createGeoModel(miraculous, item -> getCurrentItemStack().getOrDefault(MineraculousDataComponents.CHARGED, true)));
+            models.put(miraculous, KwamiRenderer.createGeoModel(miraculous, false, item -> getCurrentItemStack().getOrDefault(MineraculousDataComponents.CHARGED, true)));
         return models.get(miraculous);
     }
 }

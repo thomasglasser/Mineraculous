@@ -147,15 +147,15 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
             Holder<Miraculous> miraculous = animatable.getMiraculous();
             if (miraculous != null) {
                 if (!models.containsKey(miraculous))
-                    models.put(miraculous, createGeoModel(miraculous, Kwami::isCharged));
+                    models.put(miraculous, createGeoModel(miraculous, true, Kwami::isCharged));
                 return models.get(miraculous);
             }
         }
         return super.getGeoModel();
     }
 
-    public static <T extends GeoAnimatable> GeoModel<T> createGeoModel(Holder<Miraculous> miraculous, Predicate<T> chargedPredicate) {
-        return new DefaultedEntityGeoModel<>(miraculous.getKey().location().withPrefix("miraculous/"), true) {
+    public static <T extends GeoAnimatable> GeoModel<T> createGeoModel(Holder<Miraculous> miraculous, boolean turnsHead, Predicate<T> chargedPredicate) {
+        return new DefaultedEntityGeoModel<>(miraculous.getKey().location().withPrefix("miraculous/"), turnsHead) {
             private ResourceLocation hungryTexture;
 
             @Override

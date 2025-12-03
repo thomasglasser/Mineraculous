@@ -6,8 +6,8 @@ import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoG
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemDisplayContexts;
+import dev.thomasglasser.mineraculous.api.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
@@ -28,15 +28,15 @@ import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 
-public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
-    private static final Map<Holder<Miraculous>, GeoModel<MiraculousItem>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
+public class MiraculousItemRenderer<T extends MiraculousItem> extends GeoItemRenderer<T> {
+    private static final Map<Holder<Miraculous>, GeoModel<?>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
     private static final Map<ResourceKey<Miraculous>, ModelResourceLocation> MODEL_LOCATIONS = new Reference2ReferenceOpenHashMap<>();
     private static final Map<ResourceLocation, EnumMap<MiraculousItem.TextureState, ResourceLocation>> POWERED_FRAME_TEXTURES = new Object2ReferenceOpenHashMap<>();
     private static final Map<ResourceLocation, ResourceLocation> POWERED_TEXTURES = new Object2ReferenceOpenHashMap<>();
     private static final Map<ResourceLocation, ResourceLocation> HIDDEN_TEXTURES = new Object2ReferenceOpenHashMap<>();
 
     public MiraculousItemRenderer() {
-        super((GeoModel<MiraculousItem>) null);
+        super((GeoModel<T>) null);
         addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
     }
 
@@ -61,7 +61,7 @@ public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
     }
 
     @Override
-    public void preRender(PoseStack poseStack, MiraculousItem animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
+    public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
         if (!isReRender) {
             BakedModel miraculousModel = Minecraft.getInstance().getModelManager().getModel(MODEL_LOCATIONS.computeIfAbsent(getMiraculousOrDefault(getCurrentItemStack()).getKey(), key -> ModelResourceLocation.standalone(key.location().withPrefix("item/miraculous/"))));
@@ -75,7 +75,7 @@ public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(MiraculousItem animatable) {
+    public ResourceLocation getTextureLocation(T animatable) {
         MiraculousItem.TextureState state = getCurrentItemStack().get(MineraculousDataComponents.TEXTURE_STATE);
         ResourceLocation base = super.getTextureLocation(animatable);
         if (state == null || state == MiraculousItem.TextureState.POWERED) {
@@ -91,16 +91,16 @@ public class MiraculousItemRenderer extends GeoItemRenderer<MiraculousItem> {
     }
 
     @Override
-    public GeoModel<MiraculousItem> getGeoModel() {
-        return DEFAULT_MODELS.computeIfAbsent(getMiraculousOrDefault(getCurrentItemStack()), this::createDefaultGeoModel);
+    public GeoModel<T> getGeoModel() {
+        return (GeoModel<T>) DEFAULT_MODELS.computeIfAbsent(getMiraculousOrDefault(getCurrentItemStack()), this::createDefaultGeoModel);
     }
 
-    private GeoModel<MiraculousItem> createDefaultGeoModel(Holder<Miraculous> miraculous) {
+    private GeoModel<T> createDefaultGeoModel(Holder<Miraculous> miraculous) {
         return new DefaultedItemGeoModel<>(miraculous.getKey().location().withPrefix("miraculous/")) {
             private final ResourceLocation texture = miraculous.getKey().location().withPath(path -> "textures/item/miraculous/" + path + "/active.png");
 
             @Override
-            public ResourceLocation getTextureResource(MiraculousItem animatable) {
+            public ResourceLocation getTextureResource(T animatable) {
                 return texture;
             }
         };

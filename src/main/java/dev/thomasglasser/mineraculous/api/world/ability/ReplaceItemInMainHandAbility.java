@@ -8,7 +8,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionItemData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.ItemReversionData;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -51,7 +51,7 @@ public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakO
             ItemStack replacement = this.replacement.copy();
             UUID id = UUID.randomUUID();
             replacement.set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, id);
-            AbilityReversionItemData.get(level).putRevertible(performer.getUUID(), id, stack);
+            ItemReversionData.get(level).putRevertible(performer.getUUID(), id, stack);
             if (breakOriginal) {
                 if (stack.isDamageableItem()) {
                     MineraculousItemUtils.hurtAndBreak(stack, stack.getMaxDamage(), level, performer, EquipmentSlot.MAINHAND);
@@ -68,11 +68,6 @@ public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakO
 
     public boolean isValidItem(ItemStack stack) {
         return validItems.map(predicate -> predicate.test(stack)).orElse(true) && invalidItems.map(predicate -> !predicate.test(stack)).orElse(true);
-    }
-
-    @Override
-    public void revert(AbilityData data, ServerLevel level, LivingEntity performer) {
-        AbilityReversionItemData.get(level).markReverted(performer.getUUID());
     }
 
     @Override

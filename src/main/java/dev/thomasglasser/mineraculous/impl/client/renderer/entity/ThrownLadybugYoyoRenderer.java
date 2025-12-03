@@ -25,9 +25,6 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYoyo> {
     private static final ResourceLocation TEXTURE = DefaultedGeoItemRenderer.makeTextureLocation(MineraculousItems.LADYBUG_YOYO.getId());
 
-    public static final float RIGHT_SCALE = 0.55f;
-    public static final float UP_SCALE = -0.6f;
-
     public ThrownLadybugYoyoRenderer(EntityRendererProvider.Context context) {
         super(context, new DefaultedItemGeoModel<>(MineraculousConstants.modLoc("ladybug_yoyo")));
         addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
@@ -49,12 +46,11 @@ public class ThrownLadybugYoyoRenderer extends GeoEntityRenderer<ThrownLadybugYo
             Vec3 playerHandPos;
             boolean offHand = !(animatable.getHand() == InteractionHand.MAIN_HAND);
             if (projectilePlayer == Minecraft.getInstance().player && Minecraft.getInstance().getEntityRenderDispatcher().options.getCameraType().isFirstPerson()) {
-                playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(offHand, false, partialTick, RIGHT_SCALE, UP_SCALE);
-                maxLength = animatable.getRenderMaxRopeLength(true);
+                playerHandPos = MineraculousClientUtils.getFirstPersonHandPosition(offHand, partialTick);
             } else {
                 playerHandPos = MineraculousClientUtils.getHumanoidEntityHandPos(projectilePlayer, offHand, partialTick, 0.15f, -0.75, 0.35f);
-                maxLength = animatable.getRenderMaxRopeLength(false);
             }
+            maxLength = animatable.getMaxRopeLength();
             Vec3 projectilePos = animatable.getPosition(partialTick);
 
             YoyoRopeRenderer.renderRope(playerHandPos, projectilePos, maxLength, poseStack, bufferSource);

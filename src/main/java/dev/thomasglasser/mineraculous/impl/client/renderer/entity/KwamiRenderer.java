@@ -39,6 +39,10 @@ import software.bernie.geckolib.renderer.specialty.DynamicGeoEntityRenderer;
 import software.bernie.geckolib.util.Color;
 
 public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> {
+    private static final ResourceLocation[] KWAMI_FALLBACK = new ResourceLocation[] {
+            MineraculousConstants.modLoc("animations/entity/kwami.animation.json")
+    };
+
     private static final String HEAD = "head";
     private static final String LEFT_HAND = "left_hand";
     private static final String RIGHT_HAND = "right_hand";
@@ -143,16 +147,21 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
             Holder<Miraculous> miraculous = animatable.getMiraculous();
             if (miraculous != null) {
                 if (!models.containsKey(miraculous))
-                    models.put(miraculous, createGeoModel(miraculous, Kwami::isCharged));
+                    models.put(miraculous, createGeoModel(miraculous, true, Kwami::isCharged));
                 return models.get(miraculous);
             }
         }
         return super.getGeoModel();
     }
 
-    public static <T extends GeoAnimatable> GeoModel<T> createGeoModel(Holder<Miraculous> miraculous, Predicate<T> chargedPredicate) {
-        return new DefaultedEntityGeoModel<>(miraculous.getKey().location().withPrefix("miraculous/")) {
+    public static <T extends GeoAnimatable> GeoModel<T> createGeoModel(Holder<Miraculous> miraculous, boolean turnsHead, Predicate<T> chargedPredicate) {
+        return new DefaultedEntityGeoModel<>(miraculous.getKey().location().withPrefix("miraculous/"), turnsHead) {
             private ResourceLocation hungryTexture;
+
+            @Override
+            public ResourceLocation[] getAnimationResourceFallbacks(T animatable) {
+                return KWAMI_FALLBACK;
+            }
 
             @Override
             public ResourceLocation getTextureResource(T animatable) {

@@ -31,6 +31,7 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
         addKwamiFoods();
         addFoods();
         addArmors();
+        addPotterySherds();
         addArmorTrims();
         addCurios();
         addAbilities();
@@ -132,6 +133,11 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
     private void addArmors() {
         armorSet(MineraculousArmors.MIRACULOUS);
         armorSet(MineraculousArmors.KAMIKOTIZATION);
+    }
+
+    private void addPotterySherds() {
+        tag(ItemTags.DECORATED_POT_SHERDS)
+                .add(MineraculousItems.LADYBUG_POTTERY_SHERD);
     }
 
     private void addArmorTrims() {

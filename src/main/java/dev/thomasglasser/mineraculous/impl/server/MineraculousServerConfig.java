@@ -25,6 +25,8 @@ public class MineraculousServerConfig {
     public final ModConfigSpec.IntValue maxKamikoReplicas;
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMin;
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMax;
+    public final ModConfigSpec.EnumValue<MiraculousLadybugReversionMode> miraculousLadybugReversionMode;
+    public final ModConfigSpec.IntValue miraculousLadybugSpeed;
 
     public static final String KWAMIS = "kwamis";
     public final ModConfigSpec.IntValue kwamiSummonTime;
@@ -71,6 +73,10 @@ public class MineraculousServerConfig {
                 .defineInRange("lucky_charm_summon_time_min", 3, 0, Integer.MAX_VALUE);
         luckyCharmSummonTimeMax = builder
                 .defineInRange("lucky_charm_summon_time_max", 6, 0, Integer.MAX_VALUE);
+        miraculousLadybugReversionMode = builder
+                .defineEnum("miraculous_ladybug_reversion_mode", MiraculousLadybugReversionMode.CLUSTERED);
+        miraculousLadybugSpeed = builder
+                .defineInRange("miraculous_ladybug_speed", 70, 60, 100);
         builder.pop();
         builder.push(KWAMIS);
         kwamiSummonTime = builder
@@ -111,5 +117,11 @@ public class MineraculousServerConfig {
     public enum PermissionMode {
         WHITELIST,
         BLACKLIST
+    }
+
+    public enum MiraculousLadybugReversionMode {
+        INSTANT,
+        CLUSTERED,
+        INDIVIDUAL
     }
 }

@@ -11,8 +11,8 @@ import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionItemData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.ItemReversionData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.SyncedTransientAbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.TransientAbilityEffectData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
@@ -121,8 +121,8 @@ public class MineraculousEntityEvents {
         }
 
         if (entity.level() instanceof ServerLevel level) {
-            AbilityReversionEntityData.get(level).tick(entity);
-            AbilityReversionItemData.get(level).tick(entity);
+            EntityReversionData.get(level).tick(entity);
+            ItemReversionData.get(level).tick(entity);
             ToolIdData.get(level).tick(entity);
             LuckyCharmIdData.get(level).tick(entity);
 
@@ -131,6 +131,8 @@ public class MineraculousEntityEvents {
                 entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.tick(livingEntity, level));
                 entity.getData(MineraculousAttachmentTypes.PERSISTENT_ABILITY_EFFECTS).tick(livingEntity, level);
             }
+
+            entity.getData(MineraculousAttachmentTypes.MIRACULOUS_LADYBUG_TRIGGER).ifPresent(data -> data.tick(entity, level));
 
             ItemStack weaponItem = entity.getWeaponItem();
             if (entity.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).isPresent() && (weaponItem == null || !weaponItem.is(MineraculousItems.LADYBUG_YOYO))) {
@@ -276,6 +278,7 @@ public class MineraculousEntityEvents {
                 }
             }
         }
+        if (entity instanceof MiraculousLadybug) event.setCanceled(true);
     }
 
     public static void onLivingSwapHands(LivingSwapItemsEvent.Hands event) {
@@ -326,7 +329,7 @@ public class MineraculousEntityEvents {
     public static void onLivingDrops(LivingDropsEvent event) {
         LivingEntity entity = event.getEntity();
         if (entity.level() instanceof ServerLevel level) {
-            UUID recoverer = AbilityReversionEntityData.get(level).getCause(entity, level);
+            UUID recoverer = EntityReversionData.get(level).getCause(entity);
             for (ItemEntity item : event.getDrops()) {
                 ItemStack stack = item.getItem();
                 if (entity.hasEffect(MineraculousMobEffects.CATACLYSM) && !stack.is(MineraculousItemTags.CATACLYSM_IMMUNE)) {
@@ -334,7 +337,7 @@ public class MineraculousEntityEvents {
                 }
                 if (recoverer != null) {
                     UUID id = UUID.randomUUID();
-                    AbilityReversionItemData.get(level).putRemovable(recoverer, id);
+                    ItemReversionData.get(level).putRemovable(recoverer, id);
                     item.getItem().set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, id);
                 }
                 if (stack.has(MineraculousDataComponents.KAMIKOTIZING)) {
@@ -361,6 +364,9 @@ public class MineraculousEntityEvents {
                     target.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).withPrivateChat(Optional.empty(), Optional.empty()).save(target);
                 }
             });
+            if (entity instanceof MiraculousLadybug miraculousLadybug) {
+                miraculousLadybug.revertAllTargets(level);
+            }
             if (entity instanceof LivingEntity livingEntity) {
                 MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
                 miraculousesData.getTransformed().forEach(miraculous -> {

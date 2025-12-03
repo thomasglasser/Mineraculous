@@ -13,7 +13,7 @@ import dev.thomasglasser.mineraculous.api.world.entity.ai.memory.MineraculousMem
 import dev.thomasglasser.mineraculous.api.world.entity.ai.memory.ReplicationState;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.sensing.PlayerItemTemptingSensor;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.level.storage.AbilityReversionEntityData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
@@ -365,7 +365,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         replica.setReplicaSource(original.getReplicaSource());
         replica.setKamikotization(original.getKamikotization());
         replica.setOwnerUUID(original.getOwnerUUID());
-        AbilityReversionEntityData.get((ServerLevel) replica.level()).putCopied(original, replica);
+        EntityReversionData.get((ServerLevel) replica.level()).putCopied(original, replica);
     }
 
     @Override

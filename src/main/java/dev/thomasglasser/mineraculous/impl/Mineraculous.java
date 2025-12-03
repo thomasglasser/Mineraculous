@@ -36,6 +36,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTa
 import dev.thomasglasser.mineraculous.impl.world.item.MineraculousItemEvents;
 import dev.thomasglasser.mineraculous.impl.world.item.crafting.MineraculousRecipeSerializers;
 import dev.thomasglasser.mineraculous.impl.world.level.block.MineraculousBlockEvents;
+import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTargetTypes;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.loot.predicates.MineraculousLootItemConditions;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.loot.providers.number.MineraculousNumberProviders;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -86,6 +87,7 @@ public class Mineraculous {
         MineraculousLootContextParamSets.init();
         MineraculousLootItemFunctionTypes.init();
         MineraculousMemoryModuleTypes.init();
+        MiraculousLadybugTargetTypes.init();
     }
 
     private void addEventListeners(IEventBus modBus) {

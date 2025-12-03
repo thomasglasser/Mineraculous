@@ -1,10 +1,10 @@
-package dev.thomasglasser.mineraculous.api.world.item.armor;
+package dev.thomasglasser.mineraculous.impl.world.item.armor;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmorMaterials;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.armor.MiraculousArmorItemRenderer;
-import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUtils;
 import dev.thomasglasser.tommylib.api.world.item.armor.GeoArmorItem;
 import java.util.function.Consumer;
 import net.minecraft.client.model.HumanoidModel;

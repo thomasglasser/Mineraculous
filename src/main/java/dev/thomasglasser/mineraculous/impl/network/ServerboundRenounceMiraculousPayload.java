@@ -3,8 +3,8 @@ package dev.thomasglasser.mineraculous.impl.network;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
+import dev.thomasglasser.mineraculous.api.world.item.PowerfulMiraculousItem;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Holder;
@@ -26,9 +26,9 @@ public class ServerboundRenounceMiraculousPayload implements ExtendedPacketPaylo
     public void handle(Player player) {
         ItemStack mainHandItem = player.getMainHandItem();
         ItemStack offhandItem = player.getOffhandItem();
-        if (mainHandItem.getItem() instanceof MiraculousItem && !mainHandItem.has(MineraculousDataComponents.POWERED)) {
+        if (mainHandItem.getItem() instanceof PowerfulMiraculousItem && !mainHandItem.has(MineraculousDataComponents.POWERED)) {
             renounceMiraculous(mainHandItem, player);
-        } else if (offhandItem.getItem() instanceof MiraculousItem && !offhandItem.has(MineraculousDataComponents.POWERED)) {
+        } else if (offhandItem.getItem() instanceof PowerfulMiraculousItem && !offhandItem.has(MineraculousDataComponents.POWERED)) {
             renounceMiraculous(offhandItem, player);
         }
     }

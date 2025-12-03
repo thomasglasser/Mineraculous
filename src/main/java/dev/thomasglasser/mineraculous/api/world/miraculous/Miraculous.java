@@ -8,7 +8,6 @@ import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import java.util.Optional;
 import net.minecraft.core.Holder;
@@ -29,10 +28,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 /**
- * Data-driven entity transformation provided by a {@link MiraculousItem}.
+ * Data-driven entity transformation provided by a {@link dev.thomasglasser.mineraculous.api.world.item.MiraculousItem}.
  *
  * @param color                The color of the Miraculous and holder name
- * @param acceptableSlot       The Curios slot the {@link MiraculousItem} can be placed in to transform
+ * @param acceptableSlot       The Curios slot a {@link dev.thomasglasser.mineraculous.api.world.item.MiraculousItem} can be placed in to transform
  * @param transformationFrames The number of frames it takes to transform
  * @param tool                 The tool to give when transformed
  * @param toolSlot             The Curios slot to place the tool when given

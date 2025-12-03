@@ -2,10 +2,10 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.armor;
 
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.world.item.armor.MiraculousArmorItem;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
-import dev.thomasglasser.mineraculous.impl.world.item.armor.MiraculousArmorItem;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -21,12 +21,12 @@ import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
-public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmorItem> {
-    private static final Map<Holder<Miraculous>, GeoModel<MiraculousArmorItem>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
+public class MiraculousArmorItemRenderer<T extends MiraculousArmorItem> extends GeoArmorRenderer<T> {
+    private static final Map<Holder<Miraculous>, GeoModel<?>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
     private static final Map<ResourceLocation, Int2ObjectMap<ResourceLocation>> FRAME_TEXTURES = new Object2ReferenceOpenHashMap<>();
 
     public MiraculousArmorItemRenderer() {
-        super((GeoModel<MiraculousArmorItem>) null);
+        super((GeoModel<T>) null);
         addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
     }
 
@@ -36,7 +36,7 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
     }
 
     @Override
-    public ResourceLocation getTextureLocation(MiraculousArmorItem animatable) {
+    public ResourceLocation getTextureLocation(T animatable) {
         ResourceLocation base = super.getTextureLocation(animatable);
         ItemStack stack = getCurrentStack();
         Holder<Miraculous> miraculous = MiraculousItemRenderer.getMiraculousOrDefault(stack);
@@ -55,21 +55,21 @@ public class MiraculousArmorItemRenderer extends GeoArmorRenderer<MiraculousArmo
     }
 
     @Override
-    public GeoModel<MiraculousArmorItem> getGeoModel() {
-        return DEFAULT_MODELS.computeIfAbsent(MiraculousItemRenderer.getMiraculousOrDefault(getCurrentStack()), this::createDefaultGeoModel);
+    public GeoModel<T> getGeoModel() {
+        return (GeoModel<T>) DEFAULT_MODELS.computeIfAbsent(MiraculousItemRenderer.getMiraculousOrDefault(getCurrentStack()), this::createDefaultGeoModel);
     }
 
-    private GeoModel<MiraculousArmorItem> createDefaultGeoModel(Holder<Miraculous> miraculous) {
+    private GeoModel<T> createDefaultGeoModel(Holder<Miraculous> miraculous) {
         return new DefaultedItemGeoModel<>(miraculous.getKey().location().withPrefix("armor/miraculous/")) {
             private final ResourceLocation texture = miraculous.getKey().location().withPath(path -> "textures/entity/equipment/humanoid/miraculous/" + path + ".png");
 
             @Override
-            public ResourceLocation getTextureResource(MiraculousArmorItem animatable) {
+            public ResourceLocation getTextureResource(T animatable) {
                 return texture;
             }
 
             @Override
-            public @Nullable Animation getAnimation(MiraculousArmorItem animatable, String name) {
+            public @Nullable Animation getAnimation(T animatable, String name) {
                 try {
                     return super.getAnimation(animatable, name);
                 } catch (RuntimeException e) {

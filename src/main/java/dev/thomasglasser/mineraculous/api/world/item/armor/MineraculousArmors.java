@@ -2,7 +2,6 @@ package dev.thomasglasser.mineraculous.api.world.item.armor;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.KamikotizationArmorItem;
-import dev.thomasglasser.mineraculous.impl.world.item.armor.MiraculousArmorItem;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;

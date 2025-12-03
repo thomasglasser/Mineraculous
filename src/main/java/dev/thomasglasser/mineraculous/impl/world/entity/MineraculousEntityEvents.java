@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
+import dev.thomasglasser.mineraculous.api.world.item.PowerfulMiraculousItem;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
@@ -21,7 +22,6 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerChoicesPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItemPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
-import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
@@ -292,7 +292,7 @@ public class MineraculousEntityEvents {
             MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
             for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
                 Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-                if (stack.getItem() instanceof MiraculousItem && miraculous != null) {
+                if (stack.getItem() instanceof PowerfulMiraculousItem && miraculous != null) {
                     MiraculousData data = miraculousesData.get(miraculous);
                     if (data.transformed()) {
                         data.detransform(entity, level, miraculous, stack, true);

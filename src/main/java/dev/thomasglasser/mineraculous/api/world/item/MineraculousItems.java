@@ -11,6 +11,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
+import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.item.armortrim.MineraculousTrimPatterns;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
@@ -56,7 +57,7 @@ public class MineraculousItems {
     public static final DeferredItem<ButterflyCaneItem> BUTTERFLY_CANE = register("butterfly_cane", () -> new ButterflyCaneItem(MIRACULOUS_TOOL_PROPERTIES.apply(new Item.Properties())));
 
     // Miraculous
-    public static final DeferredItem<PowerfulMiraculousItem> MIRACULOUS = register("miraculous", () -> new PowerfulMiraculousItem(new Item.Properties().component(MineraculousDataComponents.CHARGED, true)));
+    public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", () -> new MiraculousItem(new Item.Properties().component(MineraculousDataComponents.CHARGED, true)));
     public static final DeferredItem<KwamiItem> KWAMI = register("kwami", () -> new KwamiItem(new Item.Properties().component(DataComponents.UNBREAKABLE, new Unbreakable(false))));
 
     public static final DeferredItem<SwordItem> GREAT_SWORD = register("great_sword", () -> new SwordItem(MineraculousTiers.MIRACULOUS, new Item.Properties().attributes(SwordItem.createAttributes(Tiers.DIAMOND, 6, -3))));

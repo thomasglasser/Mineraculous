@@ -102,6 +102,7 @@ public class MineraculousCoreEvents {
             addLootToTable(table, LootItem.lootTableItem(MineraculousBlocks.HIBISCUS_BUSH.asItem()));
         } else if (name.equals(BuiltInLootTables.DESERT_PYRAMID_ARCHAEOLOGY.location())) {
             addLootToTable(table,
+                    LootItem.lootTableItem(MineraculousItems.LADYBUG_POTTERY_SHERD),
                     LootItem.lootTableItem(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE),
                     LootItem.lootTableItem(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE),
                     LootItem.lootTableItem(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE));

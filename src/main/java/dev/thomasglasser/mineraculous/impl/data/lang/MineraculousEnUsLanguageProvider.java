@@ -89,6 +89,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addCuriosSlots();
         addSoundEvents();
         addPaintingVariants();
+        addPotterySherds();
         addArmorTrims();
         addTags();
         addPacks();
@@ -363,6 +364,10 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addPaintingVariant(MineraculousPaintingVariants.MINI_CAT, "Mini Cat", "NastiaGalaxy");
         addPaintingVariant(MineraculousPaintingVariants.BUTTERFLY, "Butterfly", "NastiaGalaxy");
         addPaintingVariant(MineraculousPaintingVariants.MINI_BUTTERFLY, "Mini Butterfly", "NastiaGalaxy");
+    }
+
+    private void addPotterySherds() {
+        addSherd(MineraculousItems.LADYBUG_POTTERY_SHERD);
     }
 
     private void addArmorTrims() {

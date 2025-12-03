@@ -64,6 +64,9 @@ public class MineraculousItems {
     /// Inventory filler used for ability reversion
     public static final DeferredItem<Item> CATACLYSM_DUST = register("cataclysm_dust", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
 
+    // Pottery Sherds
+    public static final DeferredItem<Item> LADYBUG_POTTERY_SHERD = registerSherd("ladybug", new Item.Properties());
+
     // Smithing Templates
     public static final DeferredItem<SmithingTemplateItem> LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE = registerSmithingTemplate(MineraculousTrimPatterns.LADYBUG);
     public static final DeferredItem<SmithingTemplateItem> CAT_ARMOR_TRIM_SMITHING_TEMPLATE = registerSmithingTemplate(MineraculousTrimPatterns.CAT);
@@ -109,6 +112,10 @@ public class MineraculousItems {
 
     private static <T extends Mob> DeferredItem<SpawnEggItem> registerSpawnEgg(DeferredHolder<EntityType<?>, EntityType<T>> entityType, int primaryColor, int secondaryColor) {
         return register(entityType.getKey().location().getPath() + "_spawn_egg", () -> new DeferredSpawnEggItem(entityType, primaryColor, secondaryColor, new Item.Properties()));
+    }
+
+    private static DeferredItem<Item> registerSherd(String name, Item.Properties properties) {
+        return ItemUtils.registerSherd(ITEMS, name, properties);
     }
 
     private static DeferredItem<SmithingTemplateItem> registerSmithingTemplate(ResourceKey<TrimPattern> pattern) {

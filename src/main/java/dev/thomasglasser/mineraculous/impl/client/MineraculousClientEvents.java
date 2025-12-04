@@ -39,6 +39,7 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.armor.MiraculousArmor
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.LuckyCharmItemSpawnerRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.MiraculousLadybugRenderer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.entity.PlayerLikeRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownButterflyCaneRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownCatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownLadybugYoyoRenderer;
@@ -247,6 +248,8 @@ public class MineraculousClientEvents {
                 player.addLayer(new LegacyDevTeamLayer<>(player, models));
             }
         }
+
+        PlayerLikeRenderer.refreshModels(event.getContext());
     }
 
     private static final int DEFAULT_MACARON_COLOR = 0xFFf9d7a4;

@@ -177,6 +177,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousEntityTypes.KAMIKO.get(), "Kamiko");
         add(MineraculousEntityTypes.KWAMI.get(), "Kwami");
         add(MineraculousEntityTypes.LUCKY_CHARM_ITEM_SPAWNER.get(), "Lucky Charm Item Spawner");
+        add(MineraculousEntityTypes.KAMIKOTIZED_MINION.get(), "Kamikotized Minion");
         add(MineraculousEntityTypes.THROWN_LADYBUG_YOYO.get(), "Ladybug Yoyo");
         add(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), "Cat Staff");
         add(MineraculousEntityTypes.THROWN_BUTTERFLY_CANE.get(), "Butterfly Cane");
@@ -419,6 +420,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfig(MineraculousServerConfig.get().miraculousTimerDuration, "Miraculous Timer Duration", "The amount of time (in seconds) between a miraculous holder using their power and detransforming");
         addConfig(MineraculousServerConfig.get().enableLimitedPower, "Enable Limited Power", "Enable limited power for miraculous holders before they reach adulthood");
         addConfig(MineraculousServerConfig.get().enableKamikotizationRejection, "Enable Kamikotization Rejection", "Enable rejection of kamikotization by the victim");
+        addConfig(MineraculousServerConfig.get().enableKamikoReplication, "Enable Kamiko Replication", "Enable replication of kamikos when left uncaptured");
+        addConfig(MineraculousServerConfig.get().maxKamikoReplicas, "Maximum Kamiko Replicas", "Maximum number of kamiko replicas made by a kamiko in one sitting");
+        addConfig(MineraculousServerConfig.get().forceKamikotizeCreativePlayers, "Force Kamikotize Creative Players", "Force kamikotize players even in creative mode");
         addConfig(MineraculousServerConfig.get().luckyCharmSummonTimeMin, "Minimum Lucky Charm Summon Time", "The minimum amount of time (in seconds) that it takes for a lucky charm to be summoned");
         addConfig(MineraculousServerConfig.get().luckyCharmSummonTimeMax, "Maximum Lucky Charm Summon Time", "The maximum amount of time (in seconds) that it takes for a lucky charm to be summoned");
         addConfig(MineraculousServerConfig.get().miraculousLadybugReversionMode, "Miraculous Ladybug Reversion Mode", "Controls how the Miraculous Ladybug ability reverts altered areas.\n Instant: Instant reversion without magic ladybugs flying to locations. (Lower Performance Cost)\n Clustered: Magic ladybugs revert connected location groups by spinning around them. (Medium Performance Cost)\n Individual: Magic ladybugs repair each altered location one by one, even if adjacent. (Higher Performance Cost)");

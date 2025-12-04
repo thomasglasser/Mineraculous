@@ -25,8 +25,10 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -45,13 +47,14 @@ public class EntityReversionData extends SavedData {
     private final Table<UUID, EntityLocation, Set<RevertibleEntity>> revertibleEntities = HashBasedTable.create();
     private final SetMultimap<UUID, UUID> removableEntities = HashMultimap.create();
     private final Table<UUID, EntityLocation, Set<RevertibleEntity>> convertedEntities = HashBasedTable.create();
+    private final SetMultimap<UUID, UUID> copiedEntities = HashMultimap.create();
 
     public static EntityReversionData get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(EntityReversionData.factory(), EntityReversionData.FILE_ID);
     }
 
     public static Factory<EntityReversionData> factory() {
-        return new Factory<>(EntityReversionData::new, (p_294039_, p_324123_) -> load(p_294039_), DataFixTypes.LEVEL);
+        return new Factory<>(EntityReversionData::new, EntityReversionData::load, DataFixTypes.LEVEL);
     }
 
     public void tick(Entity entity) {
@@ -203,7 +206,7 @@ public class EntityReversionData extends SavedData {
         return false;
     }
 
-    public void revertRemovable(UUID owner, ServerLevel level) {
+    public void revertRemovableAndCopied(UUID owner, ServerLevel level) {
         Set<UUID> removables = removableEntities.removeAll(owner);
         if (!removables.isEmpty()) {
             for (UUID removableId : removables) {
@@ -212,8 +215,14 @@ public class EntityReversionData extends SavedData {
                     removable.discard();
                 }
             }
-            setDirty();
         }
+        for (UUID id : copiedEntities.removeAll(owner)) {
+            Entity entity = MineraculousEntityUtils.findEntity(level, id);
+            if (entity != null) {
+                entity.discard();
+            }
+        }
+        setDirty();
     }
 
     public void putRemovable(UUID owner, Entity entity) {
@@ -246,7 +255,7 @@ public class EntityReversionData extends SavedData {
         return null;
     }
 
-    public void revertConversion(UUID entity, ServerLevel level, UnaryOperator<Entity> onLoaded) {
+    public void revertConversionOrCopy(UUID entity, ServerLevel level, UnaryOperator<Entity> onLoaded) {
         for (Table.Cell<UUID, EntityLocation, Set<RevertibleEntity>> cell : convertedEntities.cellSet()) {
             Iterator<RevertibleEntity> it = cell.getValue().iterator();
             while (it.hasNext()) {
@@ -255,14 +264,28 @@ public class EntityReversionData extends SavedData {
                     revert(revertible, cell.getColumnKey().dimension(), level, onLoaded);
                     it.remove();
                     setDirty();
-                    return;
+                    break;
+                }
+            }
+        }
+        for (UUID owner : copiedEntities.keySet()) {
+            Iterator<UUID> it = copiedEntities.get(owner).iterator();
+            while (it.hasNext()) {
+                if (it.next().equals(entity)) {
+                    Entity copy = MineraculousEntityUtils.findEntity(level, entity);
+                    if (copy != null) {
+                        copy.discard();
+                    }
+                    it.remove();
+                    setDirty();
+                    break;
                 }
             }
         }
     }
 
-    public void revertConversion(UUID entity, ServerLevel level) {
-        revertConversion(entity, level, UnaryOperator.identity());
+    public void revertConversionOrCopy(UUID entity, ServerLevel level) {
+        revertConversionOrCopy(entity, level, UnaryOperator.identity());
     }
 
     private Set<RevertibleEntity> getOrCreateConverted(UUID owner, EntityLocation location) {
@@ -270,10 +293,27 @@ public class EntityReversionData extends SavedData {
     }
 
     public void putConverted(UUID performer, Entity entity) {
-        if (!isConverted(entity.getUUID())) {
+        if (!isConvertedOrCopied(entity.getUUID())) {
             getOrCreateConverted(performer, EntityLocation.of(entity)).add(RevertibleEntity.of(entity));
             setDirty();
         }
+    }
+
+    public void putCopied(Entity original, Entity copy) {
+        UUID converter = getConverter(original.getUUID());
+        if (converter != null) {
+            copiedEntities.put(converter, copy.getUUID());
+        }
+    }
+
+    public @Nullable UUID getConverter(UUID entity) {
+        for (Table.Cell<UUID, EntityLocation, Set<RevertibleEntity>> cell : convertedEntities.cellSet()) {
+            for (RevertibleEntity revertible : cell.getValue()) {
+                if (revertible.uuid().equals(entity))
+                    return cell.getRowKey();
+            }
+        }
+        return null;
     }
 
     private Set<RevertibleEntity> getAllConverted() {
@@ -284,9 +324,13 @@ public class EntityReversionData extends SavedData {
         return converted;
     }
 
-    public boolean isConverted(UUID entity) {
+    public boolean isConvertedOrCopied(UUID entity) {
         for (RevertibleEntity revertible : getAllConverted()) {
             if (revertible.uuid().equals(entity))
+                return true;
+        }
+        for (UUID copied : copiedEntities.values()) {
+            if (copied.equals(entity))
                 return true;
         }
         return false;
@@ -294,18 +338,21 @@ public class EntityReversionData extends SavedData {
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        Function<EntityLocation, Tag> locationEncoder = MineraculousNbtUtils.codecEncoder(EntityLocation.CODEC);
-        Function<RevertibleEntity, Tag> revertibleEncoder = MineraculousNbtUtils.codecEncoder(RevertibleEntity.CODEC);
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        Function<EntityLocation, Tag> locationEncoder = MineraculousNbtUtils.codecEncoder(EntityLocation.CODEC, ops);
+        Function<RevertibleEntity, Tag> revertibleEncoder = MineraculousNbtUtils.codecEncoder(RevertibleEntity.CODEC, ops);
         tag.put("TrackedAndRelated", MineraculousNbtUtils.writeStringKeyedMultimap(trackedAndRelatedEntities, UUID::toString, NbtUtils::createUUID));
         tag.put("Revertible", MineraculousNbtUtils.writeStringRowKeyedTable(revertibleEntities, UUID::toString, locationEncoder, values -> MineraculousNbtUtils.writeCollection(values, revertibleEncoder)));
         tag.put("Removable", MineraculousNbtUtils.writeStringKeyedMultimap(removableEntities, UUID::toString, NbtUtils::createUUID));
         tag.put("Converted", MineraculousNbtUtils.writeStringRowKeyedTable(convertedEntities, UUID::toString, locationEncoder, values -> MineraculousNbtUtils.writeCollection(values, revertibleEncoder)));
+        tag.put("Copied", MineraculousNbtUtils.writeStringKeyedMultimap(copiedEntities, UUID::toString, NbtUtils::createUUID));
         return tag;
     }
 
-    public static EntityReversionData load(CompoundTag tag) {
-        Function<Tag, EntityLocation> locationDecoder = MineraculousNbtUtils.codecDecoder(EntityLocation.CODEC);
-        Function<Tag, RevertibleEntity> revertibleDecoder = MineraculousNbtUtils.codecDecoder(RevertibleEntity.CODEC);
+    public static EntityReversionData load(CompoundTag tag, HolderLookup.Provider registries) {
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        Function<Tag, EntityLocation> locationDecoder = MineraculousNbtUtils.codecDecoder(EntityLocation.CODEC, ops);
+        Function<Tag, RevertibleEntity> revertibleDecoder = MineraculousNbtUtils.codecDecoder(RevertibleEntity.CODEC, ops);
         EntityReversionData data = new EntityReversionData();
         data.trackedAndRelatedEntities.putAll(MineraculousNbtUtils.readStringKeyedMultimap(HashMultimap::create, tag.getCompound("TrackedAndRelated"), UUID::fromString, NbtUtils::loadUUID));
         // Java gets weird about the generics in the set here, requires a more generic declaration
@@ -314,6 +361,7 @@ public class EntityReversionData extends SavedData {
         data.removableEntities.putAll(MineraculousNbtUtils.readStringKeyedMultimap(HashMultimap::create, tag.getCompound("Removable"), UUID::fromString, NbtUtils::loadUUID));
         table = MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Converted"), UUID::fromString, locationDecoder, t -> MineraculousNbtUtils.readCollection(ReferenceOpenHashSet::new, (ListTag) t, revertibleDecoder));
         data.convertedEntities.putAll(table);
+        data.copiedEntities.putAll(MineraculousNbtUtils.readStringKeyedMultimap(HashMultimap::create, tag.getCompound("Copied"), UUID::fromString, NbtUtils::loadUUID));
         return data;
     }
 

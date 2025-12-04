@@ -19,6 +19,7 @@ public class PlayerLikeDeadmau5EarsLayer<T extends LivingEntity & PlayerLike> ex
         super(renderer);
     }
 
+    @Override
     public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, T livingEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         if ("deadmau5".equals(livingEntity.getName().getString()) && !livingEntity.isInvisible() && livingEntity.getVisualSource() instanceof AbstractClientPlayer player) {
             VertexConsumer vertexconsumer = buffer.getBuffer(RenderType.entitySolid(player.getSkin().texture()));
@@ -35,8 +36,8 @@ public class PlayerLikeDeadmau5EarsLayer<T extends LivingEntity & PlayerLike> ex
                 poseStack.mulPose(Axis.XP.rotationDegrees(-f1));
                 poseStack.mulPose(Axis.YP.rotationDegrees(-f));
                 float f2 = 1.3333334F;
-                poseStack.scale(1.3333334F, 1.3333334F, 1.3333334F);
-                ((PlayerModel) this.getParentModel()).renderEars(poseStack, vertexconsumer, packedLight, i);
+                poseStack.scale(f2, f2, f2);
+                this.getParentModel().renderEars(poseStack, vertexconsumer, packedLight, i);
                 poseStack.popPose();
             }
         }

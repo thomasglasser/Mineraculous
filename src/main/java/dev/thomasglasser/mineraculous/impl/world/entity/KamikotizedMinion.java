@@ -135,6 +135,7 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         this.getEntityData().set(DATA_OWNER_UUID, Optional.ofNullable(uuid));
     }
 
+    @Override
     public @Nullable Player getOwner() {
         UUID owner = getOwnerUUID();
         if (storedOwner == null || !storedOwner.getUUID().equals(owner)) {

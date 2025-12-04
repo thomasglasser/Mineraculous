@@ -490,8 +490,8 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         super.addAdditionalSaveData(compound);
         getReplicaSource().ifPresent(uuid -> compound.putUUID("ReplicaSource", uuid));
         RegistryOps<Tag> ops = level().registryAccess().createSerializationContext(NbtOps.INSTANCE);
-        getKamikotization().ifPresent(kamikotization -> Kamikotization.CODEC.encodeStart(ops, kamikotization).getOrThrow());
-        getReplicaName().ifPresent(replicaName -> ComponentSerialization.CODEC.encodeStart(ops, replicaName).getOrThrow());
+        getKamikotization().ifPresent(kamikotization -> compound.put("Kamikotization", Kamikotization.CODEC.encodeStart(ops, kamikotization).getOrThrow()));
+        getReplicaName().ifPresent(replicaName -> compound.put("ReplicaName", ComponentSerialization.CODEC.encodeStart(ops, replicaName).getOrThrow()));
         compound.putBoolean("IsReplica", isReplica());
         compound.putBoolean("IsResting", isResting());
         ReplicationState replicationState = BrainUtils.getMemory(this, MineraculousMemoryModuleTypes.REPLICATION_STATUS.get());

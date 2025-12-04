@@ -84,6 +84,7 @@ public class PlayerLikeRenderer<T extends LivingEntity & PlayerLike> extends Liv
         return RENDERERS.get(model);
     }
 
+    @Override
     public void render(T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         this.setModelProperties(entity);
         // TODO: Similar events
@@ -93,6 +94,7 @@ public class PlayerLikeRenderer<T extends LivingEntity & PlayerLike> extends Liv
         }
     }
 
+    @Override
     public Vec3 getRenderOffset(T entity, float partialTicks) {
         return entity.isCrouching() ? new Vec3(0.0F, (double) (entity.getScale() * -2.0F) / (double) 16.0F, 0.0F) : super.getRenderOffset(entity, partialTicks);
     }
@@ -181,6 +183,7 @@ public class PlayerLikeRenderer<T extends LivingEntity & PlayerLike> extends Liv
         }
     }
 
+    @Override
     public ResourceLocation getTextureLocation(T entity) {
         if (entity.getVisualSource() instanceof AbstractClientPlayer player) {
             return player.getSkin().texture();
@@ -188,11 +191,13 @@ public class PlayerLikeRenderer<T extends LivingEntity & PlayerLike> extends Liv
         return null;
     }
 
+    @Override
     protected void scale(T entity, PoseStack poseStack, float partialTickTime) {
         float scale = 0.9375F;
         poseStack.scale(scale, scale, scale);
     }
 
+    @Override
     protected void renderNameTag(T entity, Component displayName, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, float partialTick) {
         double d0 = this.entityRenderDispatcher.distanceToSqr(entity);
         poseStack.pushPose();
@@ -241,6 +246,7 @@ public class PlayerLikeRenderer<T extends LivingEntity & PlayerLike> extends Liv
         }
     }
 
+    @Override
     protected void setupRotations(T entity, PoseStack poseStack, float bob, float yBodyRot, float partialTick, float scale) {
         float f = entity.getSwimAmount(partialTick);
         float f1 = entity.getViewXRot(partialTick);

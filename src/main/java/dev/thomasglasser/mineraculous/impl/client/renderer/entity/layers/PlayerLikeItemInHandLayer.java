@@ -27,6 +27,7 @@ public class PlayerLikeItemInHandLayer<T extends LivingEntity, M extends EntityM
         this.itemInHandRenderer = itemInHandRenderer;
     }
 
+    @Override
     protected void renderArmWithItem(LivingEntity livingEntity, ItemStack itemStack, ItemDisplayContext displayContext, HumanoidArm arm, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         if (itemStack.canPerformAction(ItemAbilities.SPYGLASS_SCOPE) && livingEntity.getUseItem() == itemStack && livingEntity.swingTime == 0) {
             this.renderArmWithSpyglass(livingEntity, itemStack, arm, poseStack, buffer, packedLight);

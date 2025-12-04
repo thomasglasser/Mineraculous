@@ -25,6 +25,7 @@ public class PlayerLikeParrotOnShoulderLayer<T extends LivingEntity & PlayerLike
         this.model = new ParrotModel(modelSet.bakeLayer(ModelLayers.PARROT));
     }
 
+    @Override
     public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, T livingEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         this.render(poseStack, buffer, packedLight, livingEntity, limbSwing, limbSwingAmount, netHeadYaw, headPitch, true);
         this.render(poseStack, buffer, packedLight, livingEntity, limbSwing, limbSwingAmount, netHeadYaw, headPitch, false);

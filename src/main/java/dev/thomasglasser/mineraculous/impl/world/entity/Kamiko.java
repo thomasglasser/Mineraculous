@@ -79,7 +79,7 @@ import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomFlyingTar
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.InvalidateAttackTarget;
-import net.tslat.smartbrainlib.api.core.behaviour.custom.target.TargetOrRetaliate;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetAttackTarget;
 import net.tslat.smartbrainlib.api.core.navigation.SmoothFlyingPathNavigation;
 import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.HurtBySensor;
@@ -304,17 +304,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     public BrainActivityGroup<? extends Kamiko> getIdleTasks() {
         return BrainActivityGroup.idleTasks(
                 new FirstApplicableBehaviour<>(
-                        new TargetOrRetaliate<Kamiko>() {
-                            @Override
-                            protected boolean checkExtraStartConditions(ServerLevel level, Kamiko entity) {
-                                if (tickCount > SharedConstants.TICKS_PER_SECOND && !super.checkExtraStartConditions(level, entity)) {
-                                    MineraculousConstants.LOGGER.info("Couldn't find target for Kamiko replica {}, discarding...", entity.getUUID());
-                                    entity.discard();
-                                    return false;
-                                }
-                                return true;
-                            }
-                        }.attackablePredicate(this::canForceKamikotize).startCondition(Kamiko::isReplica),
+                        new SetAttackTarget<Kamiko>(false).targetFinder(Kamiko::findNearestForceKamikotizeTarget).startCondition(Kamiko::isReplica),
                         new FollowOwner<Kamiko>().startCondition(Kamiko::shouldFollowOwner),
                         new FollowTemptation<>(),
                         new SetRandomFlyingTarget<>()));
@@ -354,8 +344,25 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     public boolean canForceKamikotize(LivingEntity target) {
         UUID targetId = target.getUUID();
         if (targetId.equals(getOwnerUUID()) || getReplicaSource().map(targetId::equals).orElse(false)) return false;
+        if (target.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).spectatingId().isPresent()) return false;
         // TODO: Convert to event
-        return target.isAlive() && (!(target instanceof Player player) || (!player.getAbilities().invulnerable || MineraculousServerConfig.get().forceKamikotizeCreativePlayers.getAsBoolean()));
+        if (target instanceof Player player && player.getAbilities().instabuild && !MineraculousServerConfig.get().forceKamikotizeCreativePlayers.getAsBoolean())
+            return false;
+        return target.isAlive();
+    }
+
+    protected @Nullable LivingEntity findNearestForceKamikotizeTarget() {
+        List<LivingEntity> nearbyEntities = BrainUtils.getMemory(this, MemoryModuleType.NEAREST_LIVING_ENTITIES);
+        if (nearbyEntities != null) {
+            for (LivingEntity target : nearbyEntities) {
+                if (canForceKamikotize(target)) {
+                    return target;
+                }
+            }
+        }
+        MineraculousConstants.LOGGER.info("Couldn't find target for Kamiko replica {}, discarding...", getUUID());
+        discard();
+        return null;
     }
 
     public BrainActivityGroup<? extends Kamiko> getRestTasks() {

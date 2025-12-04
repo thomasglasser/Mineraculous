@@ -24,8 +24,10 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.Container;
@@ -212,7 +214,8 @@ public class ItemReversionData extends SavedData {
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        Function<ItemStack, Tag> itemEncoder = MineraculousNbtUtils.codecEncoder(ItemStack.OPTIONAL_CODEC);
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        Function<ItemStack, Tag> itemEncoder = MineraculousNbtUtils.codecEncoder(ItemStack.OPTIONAL_CODEC, ops);
         tag.put("Revertible", MineraculousNbtUtils.writeStringRowKeyedTable(revertibleItems, UUID::toString, NbtUtils::createUUID, itemEncoder));
         tag.put("RevertMarked", MineraculousNbtUtils.writeStringKeyedMap(revertMarkedItems, UUID::toString, itemEncoder));
         tag.put("Reverted", MineraculousNbtUtils.writeCollection(revertedItems, NbtUtils::createUUID));
@@ -222,7 +225,8 @@ public class ItemReversionData extends SavedData {
     }
 
     public static ItemReversionData load(CompoundTag tag, HolderLookup.Provider registries) {
-        Function<Tag, ItemStack> itemDecoder = MineraculousNbtUtils.codecDecoder(ItemStack.OPTIONAL_CODEC);
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        Function<Tag, ItemStack> itemDecoder = MineraculousNbtUtils.codecDecoder(ItemStack.OPTIONAL_CODEC, ops);
         ItemReversionData data = new ItemReversionData();
         data.revertibleItems.putAll(MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Revertible"), UUID::fromString, NbtUtils::loadUUID, itemDecoder));
         data.revertMarkedItems.putAll(MineraculousNbtUtils.readStringKeyedMap(Reference2ReferenceOpenHashMap::new, tag.getCompound("RevertMarked"), UUID::fromString, itemDecoder));

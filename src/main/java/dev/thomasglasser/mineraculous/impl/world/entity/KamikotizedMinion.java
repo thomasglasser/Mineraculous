@@ -237,6 +237,11 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
     }
 
     @Override
+    public boolean canAttack(LivingEntity target) {
+        return !target.getUUID().equals(getOwnerUUID()) && super.canAttack(target);
+    }
+
+    @Override
     public List<? extends ExtendedSensor<? extends KamikotizedMinion>> getSensors() {
         return ObjectArrayList.of(
                 new NearbyLivingEntitySensor<KamikotizedMinion>().setPredicate((target, entity) -> {

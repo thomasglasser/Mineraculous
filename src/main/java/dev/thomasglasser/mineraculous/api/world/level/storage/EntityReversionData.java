@@ -25,8 +25,10 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -52,7 +54,7 @@ public class EntityReversionData extends SavedData {
     }
 
     public static Factory<EntityReversionData> factory() {
-        return new Factory<>(EntityReversionData::new, (p_294039_, p_324123_) -> load(p_294039_), DataFixTypes.LEVEL);
+        return new Factory<>(EntityReversionData::new, EntityReversionData::load, DataFixTypes.LEVEL);
     }
 
     public void tick(Entity entity) {
@@ -336,8 +338,9 @@ public class EntityReversionData extends SavedData {
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        Function<EntityLocation, Tag> locationEncoder = MineraculousNbtUtils.codecEncoder(EntityLocation.CODEC);
-        Function<RevertibleEntity, Tag> revertibleEncoder = MineraculousNbtUtils.codecEncoder(RevertibleEntity.CODEC);
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        Function<EntityLocation, Tag> locationEncoder = MineraculousNbtUtils.codecEncoder(EntityLocation.CODEC, ops);
+        Function<RevertibleEntity, Tag> revertibleEncoder = MineraculousNbtUtils.codecEncoder(RevertibleEntity.CODEC, ops);
         tag.put("TrackedAndRelated", MineraculousNbtUtils.writeStringKeyedMultimap(trackedAndRelatedEntities, UUID::toString, NbtUtils::createUUID));
         tag.put("Revertible", MineraculousNbtUtils.writeStringRowKeyedTable(revertibleEntities, UUID::toString, locationEncoder, values -> MineraculousNbtUtils.writeCollection(values, revertibleEncoder)));
         tag.put("Removable", MineraculousNbtUtils.writeStringKeyedMultimap(removableEntities, UUID::toString, NbtUtils::createUUID));
@@ -346,9 +349,10 @@ public class EntityReversionData extends SavedData {
         return tag;
     }
 
-    public static EntityReversionData load(CompoundTag tag) {
-        Function<Tag, EntityLocation> locationDecoder = MineraculousNbtUtils.codecDecoder(EntityLocation.CODEC);
-        Function<Tag, RevertibleEntity> revertibleDecoder = MineraculousNbtUtils.codecDecoder(RevertibleEntity.CODEC);
+    public static EntityReversionData load(CompoundTag tag, HolderLookup.Provider registries) {
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        Function<Tag, EntityLocation> locationDecoder = MineraculousNbtUtils.codecDecoder(EntityLocation.CODEC, ops);
+        Function<Tag, RevertibleEntity> revertibleDecoder = MineraculousNbtUtils.codecDecoder(RevertibleEntity.CODEC, ops);
         EntityReversionData data = new EntityReversionData();
         data.trackedAndRelatedEntities.putAll(MineraculousNbtUtils.readStringKeyedMultimap(HashMultimap::create, tag.getCompound("TrackedAndRelated"), UUID::fromString, NbtUtils::loadUUID));
         // Java gets weird about the generics in the set here, requires a more generic declaration

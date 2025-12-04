@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.world.entity.projectile;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.tags.MineraculousEntityTypeTags;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
@@ -39,6 +40,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
@@ -281,7 +283,14 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
     @Nullable
     @Override
     protected EntityHitResult findHitEntity(Vec3 startVec, Vec3 endVec) {
-        return getMode() == LadybugYoyoItem.Mode.TRAVEL || dealtDamage ? null : super.findHitEntity(startVec, endVec);
+        if (getMode() == LadybugYoyoItem.Mode.TRAVEL || dealtDamage)
+            return null;
+        EntityHitResult result = super.findHitEntity(startVec, endVec);
+        if (result == null) {
+            return ProjectileUtil.getEntityHitResult(
+                    level(), this, startVec, endVec, getBoundingBox().expandTowards(getDeltaMovement()).inflate(4.0), this::canHitEntityFromFurtherAway, 1);
+        }
+        return result;
     }
 
     @Override
@@ -317,7 +326,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
         } else if (level() instanceof ServerLevel level) {
             if (mode == LadybugYoyoItem.Mode.PURIFY) {
                 EntityReversionData entityData = EntityReversionData.get(level);
-                if (entityData.isConverted(entity.getUUID())) {
+                if (entityData.isConvertedOrCopied(entity.getUUID())) {
                     UUID ownerId = getPickupItemStackOrigin().get(MineraculousDataComponents.OWNER);
                     Entity yoyoOwner = ownerId != null ? level.getEntities().get(ownerId) : null;
                     if (yoyoOwner != null) {
@@ -358,6 +367,10 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
             Entity entity = this.getOwner();
             return entity == null || this.leftOwner || !entity.isPassengerOfSameVehicle(target);
         }
+    }
+
+    protected boolean canHitEntityFromFurtherAway(Entity target) {
+        return this.canHitEntity(target) && target.getType().is(MineraculousEntityTypeTags.LADYBUG_YOYO_EXTENDED_RANGE);
     }
 
     @Override

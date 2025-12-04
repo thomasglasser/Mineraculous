@@ -3,22 +3,22 @@ package dev.thomasglasser.mineraculous.api.nbt;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DynamicOps;
 import java.util.Collection;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 
 public class MineraculousNbtUtils {
-    public static <T> Function<T, Tag> codecEncoder(Codec<T> codec) {
-        return t -> codec.encodeStart(NbtOps.INSTANCE, t).getOrThrow();
+    public static <T> Function<T, Tag> codecEncoder(Codec<T> codec, DynamicOps<Tag> ops) {
+        return t -> codec.encodeStart(ops, t).getOrThrow();
     }
 
-    public static <T> Function<Tag, T> codecDecoder(Codec<T> codec) {
-        return tag -> codec.parse(NbtOps.INSTANCE, tag).getOrThrow();
+    public static <T> Function<Tag, T> codecDecoder(Codec<T> codec, DynamicOps<Tag> ops) {
+        return tag -> codec.parse(ops, tag).getOrThrow();
     }
 
     public static <T> ListTag writeCollection(Collection<T> collection, Function<T, Tag> encoder) {

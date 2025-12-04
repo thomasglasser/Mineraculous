@@ -143,7 +143,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
     }
 
     public void detransform(LivingEntity entity, ServerLevel level, Vec3 kamikoSpawnPos, boolean instant, @Nullable ItemStack kamikotizedStack) {
-        Kamiko kamiko = kamikoData.summon(level, kamikoSpawnPos);
+        Kamiko kamiko = kamikoData.summon(level, kamikoSpawnPos, kamikotization, entity);
         if (kamiko == null) {
             MineraculousConstants.LOGGER.error("Kamiko could not be created for player {}", entity.getName().plainCopy().getString());
         }

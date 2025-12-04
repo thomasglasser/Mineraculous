@@ -10,6 +10,9 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import java.util.UUID;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.Entity;
@@ -52,13 +55,15 @@ public class LuckyCharmIdData extends SavedData {
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.put("LuckyCharmIds", MineraculousNbtUtils.writeStringKeyedMap(luckyCharmIds, UUID::toString, MineraculousNbtUtils.codecEncoder(Codec.INT)));
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        tag.put("LuckyCharmIds", MineraculousNbtUtils.writeStringKeyedMap(luckyCharmIds, UUID::toString, MineraculousNbtUtils.codecEncoder(Codec.INT, ops)));
         return tag;
     }
 
     public static LuckyCharmIdData load(CompoundTag tag, HolderLookup.Provider registries) {
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
         LuckyCharmIdData data = new LuckyCharmIdData();
-        data.luckyCharmIds.putAll(MineraculousNbtUtils.readStringKeyedMap(Object2IntOpenHashMap::new, tag.getCompound("LuckyCharmIds"), UUID::fromString, MineraculousNbtUtils.codecDecoder(Codec.INT)));
+        data.luckyCharmIds.putAll(MineraculousNbtUtils.readStringKeyedMap(Object2IntOpenHashMap::new, tag.getCompound("LuckyCharmIds"), UUID::fromString, MineraculousNbtUtils.codecDecoder(Codec.INT, ops)));
         return data;
     }
 }

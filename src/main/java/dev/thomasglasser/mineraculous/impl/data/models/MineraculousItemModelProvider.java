@@ -70,6 +70,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         withEntityModel(MineraculousItems.KWAMI).guiLight(BlockModel.GuiLight.FRONT);
 
         basicItem(MineraculousItems.CATACLYSM_DUST);
+        basicItem(MineraculousItems.LADYBUG_POTTERY_SHERD);
         basicItem(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE);
         basicItem(MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE);
         basicItem(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE);

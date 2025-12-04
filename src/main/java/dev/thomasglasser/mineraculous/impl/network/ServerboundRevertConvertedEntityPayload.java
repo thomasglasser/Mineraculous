@@ -21,7 +21,7 @@ public record ServerboundRevertConvertedEntityPayload(UUID entityId) implements 
     @Override
     public void handle(Player player) {
         ServerLevel level = (ServerLevel) player.level();
-        EntityReversionData.get(level).revertConversion(entityId, level);
+        EntityReversionData.get(level).revertConversionOrCopy(entityId, level);
     }
 
     @Override

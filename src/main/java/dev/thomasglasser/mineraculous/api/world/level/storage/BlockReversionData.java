@@ -9,6 +9,9 @@ import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.datafix.DataFixTypes;
@@ -66,13 +69,15 @@ public class BlockReversionData extends SavedData {
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        tag.put("Revertible", MineraculousNbtUtils.writeStringRowKeyedTable(revertibleBlocks, UUID::toString, MineraculousNbtUtils.codecEncoder(BlockLocation.CODEC), MineraculousNbtUtils.codecEncoder(BlockState.CODEC)));
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
+        tag.put("Revertible", MineraculousNbtUtils.writeStringRowKeyedTable(revertibleBlocks, UUID::toString, MineraculousNbtUtils.codecEncoder(BlockLocation.CODEC, ops), MineraculousNbtUtils.codecEncoder(BlockState.CODEC, ops)));
         return tag;
     }
 
     public static BlockReversionData load(CompoundTag tag, HolderLookup.Provider registries) {
+        RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
         BlockReversionData data = new BlockReversionData();
-        data.revertibleBlocks.putAll(MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Revertible"), UUID::fromString, MineraculousNbtUtils.codecDecoder(BlockLocation.CODEC), MineraculousNbtUtils.codecDecoder(BlockState.CODEC)));
+        data.revertibleBlocks.putAll(MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Revertible"), UUID::fromString, MineraculousNbtUtils.codecDecoder(BlockLocation.CODEC, ops), MineraculousNbtUtils.codecDecoder(BlockState.CODEC, ops)));
         return data;
     }
 }

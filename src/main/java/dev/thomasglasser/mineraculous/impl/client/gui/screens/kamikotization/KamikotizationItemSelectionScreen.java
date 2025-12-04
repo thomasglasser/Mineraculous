@@ -64,6 +64,7 @@ public class KamikotizationItemSelectionScreen extends ExternalCuriosInventorySc
         }
         if (kamikotizations.isEmpty()) {
             ClientUtils.getLocalPlayer().displayClientMessage(Component.translatable(NO_KAMIKOTIZATIONS, target.getDisplayName()), true);
+            this.minecraft = Minecraft.getInstance();
             onClose();
         }
     }
@@ -100,8 +101,8 @@ public class KamikotizationItemSelectionScreen extends ExternalCuriosInventorySc
     }
 
     @Override
-    public void onClose(boolean exit) {
-        if (exit) {
+    public void onClose(boolean cancel) {
+        if (cancel) {
             TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(minecraft.player.getUUID(), target.blockPosition().above()));
             AbilityEffectUtils.removeFaceMaskTexture(target, kamikoData.faceMaskTexture());
         } else if (slotInfo != null) {

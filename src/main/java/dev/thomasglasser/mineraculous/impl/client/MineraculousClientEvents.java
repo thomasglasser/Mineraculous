@@ -39,6 +39,7 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.armor.MiraculousArmor
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.LuckyCharmItemSpawnerRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.MiraculousLadybugRenderer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.entity.PlayerLikeRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownButterflyCaneRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownCatStaffRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ThrownLadybugYoyoRenderer;
@@ -170,6 +171,9 @@ public class MineraculousClientEvents {
         } else if (event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
             event.insertAfter(Items.BLAZE_POWDER.getDefaultInstance(), MineraculousItems.CATACLYSM_DUST.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
 
+            // Pottery Sherds
+            event.insertAfter(Items.HOWL_POTTERY_SHERD.getDefaultInstance(), MineraculousItems.LADYBUG_POTTERY_SHERD.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+
             // Armor Trims
             event.insertAfter(Items.BOLT_ARMOR_TRIM_SMITHING_TEMPLATE.getDefaultInstance(), MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             event.insertAfter(MineraculousItems.LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), MineraculousItems.CAT_ARMOR_TRIM_SMITHING_TEMPLATE.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
@@ -244,6 +248,8 @@ public class MineraculousClientEvents {
                 player.addLayer(new LegacyDevTeamLayer<>(player, models));
             }
         }
+
+        PlayerLikeRenderer.refreshModels(event.getContext());
     }
 
     private static final int DEFAULT_MACARON_COLOR = 0xFFf9d7a4;

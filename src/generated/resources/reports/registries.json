@@ -96,6 +96,7 @@
   ],
   "minecraft:entity_type": [
     "mineraculous:kamiko",
+    "mineraculous:kamikotized_minion",
     "mineraculous:kwami",
     "mineraculous:lucky_charm_item_spawner",
     "mineraculous:miraculous_ladybug",
@@ -131,6 +132,7 @@
     "mineraculous:kamikotization_mask",
     "mineraculous:kwami",
     "mineraculous:ladybug_armor_trim_smithing_template",
+    "mineraculous:ladybug_pottery_sherd",
     "mineraculous:ladybug_yoyo",
     "mineraculous:macaron",
     "mineraculous:miraculous",
@@ -177,6 +179,12 @@
   ],
   "minecraft:loot_number_provider_type": [
     "mineraculous:power_level_multiplier"
+  ],
+  "minecraft:memory_module_type": [
+    "mineraculous:has_replicated",
+    "mineraculous:replicas_made",
+    "mineraculous:replication_status",
+    "mineraculous:replication_wait_ticks"
   ],
   "minecraft:menu": [
     "mineraculous:oven"
@@ -317,6 +325,7 @@
   "neoforge:entity_data_serializers": [
     "mineraculous:miraculous",
     "mineraculous:miraculous_ladybug_target_data",
+    "mineraculous:optional_kamikotization",
     "mineraculous:optional_ladybug_yoyo_mode",
     "mineraculous:optional_resource_location",
     "mineraculous:uuid"

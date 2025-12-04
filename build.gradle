@@ -91,6 +91,15 @@ repositories {
         }
         filter { includeGroupAndSubgroups "de.maxhenkel.voicechat" }
     }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Sherds API'
+                url = 'https://dl.cloudsmith.io/public/thomasglasser/sherdsapi/maven/'
+            }
+        }
+        filter { includeGroupAndSubgroups "dev.thomasglasser.sherdsapi" }
+    }
 	maven {
 		name = 'TommyLib'
 		url = 'https://dl.cloudsmith.io/public/thomasglasser/tommylib/maven/'
@@ -177,6 +186,7 @@ dependencies {
 	implementation "net.tslat.smartbrainlib:SmartBrainLib-neoforge-${minecraft_version}:${smartbrainlib_version}"
 	implementation "top.theillusivec4.curios:curios-neoforge:${curios_version}"
 	implementation "maven.modrinth:lithostitched:${lithostitched_version}-neoforge-${minecraft_version}"
+    implementation "dev.thomasglasser.sherdsapi:sherdsapi-neoforge-${minecraft_version}:${sherdsapi_version}"
 
 	implementation "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
     implementation "maven.modrinth:jade:${jade_version}+neoforge"

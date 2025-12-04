@@ -22,6 +22,7 @@ public interface PlayerLike {
         entity.getAttributes().getInstance(Attributes.MOVEMENT_SPEED).setBaseValue(BASE_MOVEMENT_SPEED);
     }
 
+    @Nullable
     Player getVisualSource();
 
     AttributeMap getAttributes();

@@ -315,7 +315,7 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
     }
 
     @Override
-    public Player getVisualSource() {
+    public @Nullable Player getVisualSource() {
         return getOwner();
     }
 

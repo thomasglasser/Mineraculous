@@ -50,6 +50,7 @@ public class ItemReversionData extends SavedData {
     private final Map<UUID, ItemStack> revertMarkedItems = new Object2ObjectOpenHashMap<>();
     private final Set<UUID> revertedItems = new ObjectOpenHashSet<>();
     private final Map<UUID, ItemStack> kamikotizedItems = new Object2ObjectOpenHashMap<>();
+    private final Set<UUID> revertedKamikotizedItems = new ObjectOpenHashSet<>();
 
     public static ItemReversionData get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(ItemReversionData.factory(), ItemReversionData.FILE_ID);
@@ -61,7 +62,7 @@ public class ItemReversionData extends SavedData {
 
     public void tick(Entity entity) {
         if (entity.tickCount % 10 == 0) {
-            if (checkReverted(entity)) {
+            if (checkReverted(entity, this::checkReverted)) {
                 Level level = entity.level();
                 if (level instanceof ServerLevel serverLevel) {
                     List<Vec3> spiral = MineraculousMathUtils.spinAround(
@@ -84,38 +85,39 @@ public class ItemReversionData extends SavedData {
                     }
                 }
             }
+            checkReverted(entity, stack -> checkRevertedKamikotized(stack) ? ItemStack.EMPTY : null);
         }
     }
 
-    public boolean checkReverted(Entity entity) {
+    private boolean checkReverted(Entity entity, Function<ItemStack, @Nullable ItemStack> recoveredGetter) {
         boolean reverted = false;
         if (entity instanceof LivingEntity livingEntity) {
             if (livingEntity instanceof Player player) {
                 Inventory inventory = player.getInventory();
-                if (checkReverted(inventory.items, inventory))
+                if (checkReverted(recoveredGetter, inventory.items, inventory))
                     reverted = true;
             } else if (livingEntity instanceof InventoryCarrier carrier) {
                 SimpleContainer inventory = carrier.getInventory();
-                if (checkReverted(inventory.getItems(), inventory))
+                if (checkReverted(recoveredGetter, inventory.getItems(), inventory))
                     reverted = true;
             }
             for (EquipmentSlot slot : EquipmentSlot.values()) {
                 ItemStack stack = livingEntity.getItemBySlot(slot);
-                ItemStack recovered = checkReverted(stack);
+                ItemStack recovered = recoveredGetter.apply(stack);
                 if (recovered != null) {
                     livingEntity.setItemSlot(slot, recovered);
                     reverted = true;
                 }
             }
             List<Map.Entry<CuriosData, ItemStack>> curios = new ReferenceArrayList<>(CuriosUtils.getAllItems(livingEntity).entrySet());
-            if (checkReverted(curios.size(), i -> curios.get(i).getValue(), (i, stack) -> {
+            if (checkReverted(recoveredGetter, curios.size(), i -> curios.get(i).getValue(), (i, stack) -> {
                 CuriosData curiosData = curios.get(i).getKey();
                 CuriosUtils.setStackInSlot(livingEntity, curiosData, stack);
             }))
                 reverted = true;
         } else if (entity instanceof ItemEntity itemEntity) {
             ItemStack stack = itemEntity.getItem();
-            ItemStack recovered = checkReverted(stack);
+            ItemStack recovered = recoveredGetter.apply(stack);
             if (recovered != null) {
                 itemEntity.setItem(recovered);
                 reverted = true;
@@ -124,11 +126,11 @@ public class ItemReversionData extends SavedData {
         return reverted;
     }
 
-    private boolean checkReverted(int size, Function<Integer, ItemStack> getter, BiConsumer<Integer, ItemStack> setter) {
+    private boolean checkReverted(Function<ItemStack, @Nullable ItemStack> recoveredGetter, int size, Function<Integer, ItemStack> getter, BiConsumer<Integer, ItemStack> setter) {
         boolean reverted = false;
         for (int i = 0; i < size; i++) {
             ItemStack stack = getter.apply(i);
-            ItemStack recovered = checkReverted(stack);
+            ItemStack recovered = recoveredGetter.apply(stack);
             if (recovered != null) {
                 setter.accept(i, recovered);
                 reverted = true;
@@ -137,11 +139,11 @@ public class ItemReversionData extends SavedData {
         return reverted;
     }
 
-    private boolean checkReverted(NonNullList<ItemStack> items, Container container) {
-        return checkReverted(items.size(), container::getItem, container::setItem);
+    private boolean checkReverted(Function<ItemStack, @Nullable ItemStack> recoveredGetter, NonNullList<ItemStack> items, Container container) {
+        return checkReverted(recoveredGetter, items.size(), container::getItem, container::setItem);
     }
 
-    public ItemStack checkReverted(ItemStack stack) {
+    private @Nullable ItemStack checkReverted(ItemStack stack) {
         if (stack.has(MineraculousDataComponents.REVERTIBLE_ITEM_ID)) {
             UUID id = stack.get(MineraculousDataComponents.REVERTIBLE_ITEM_ID);
             if (revertMarkedItems.containsKey(id) || revertedItems.contains(id)) {
@@ -157,6 +159,13 @@ public class ItemReversionData extends SavedData {
             }
         }
         return null;
+    }
+
+    private boolean checkRevertedKamikotized(ItemStack stack) {
+        UUID id = stack.get(MineraculousDataComponents.REVERTIBLE_ITEM_ID);
+        if (id != null)
+            return revertedKamikotizedItems.contains(id);
+        return false;
     }
 
     public void markReverted(UUID owner) {
@@ -190,7 +199,7 @@ public class ItemReversionData extends SavedData {
             } else {
                 reverted = original.copy();
             }
-            revertedItems.add(item);
+            revertedKamikotizedItems.add(item);
             setDirty();
             EntityUtils.addToInventoryOrDrop(owner, reverted);
         }
@@ -208,6 +217,7 @@ public class ItemReversionData extends SavedData {
         tag.put("RevertMarked", MineraculousNbtUtils.writeStringKeyedMap(revertMarkedItems, UUID::toString, itemEncoder));
         tag.put("Reverted", MineraculousNbtUtils.writeCollection(revertedItems, NbtUtils::createUUID));
         tag.put("Kamikotized", MineraculousNbtUtils.writeStringKeyedMap(kamikotizedItems, UUID::toString, itemEncoder));
+        tag.put("RevertedKamikotized", MineraculousNbtUtils.writeCollection(revertedKamikotizedItems, NbtUtils::createUUID));
         return tag;
     }
 
@@ -218,6 +228,7 @@ public class ItemReversionData extends SavedData {
         data.revertMarkedItems.putAll(MineraculousNbtUtils.readStringKeyedMap(Reference2ReferenceOpenHashMap::new, tag.getCompound("RevertMarked"), UUID::fromString, itemDecoder));
         data.revertedItems.addAll(MineraculousNbtUtils.readCollection(ReferenceOpenHashSet::new, tag.getList("Reverted", Tag.TAG_INT_ARRAY), NbtUtils::loadUUID));
         data.kamikotizedItems.putAll(MineraculousNbtUtils.readStringKeyedMap(Reference2ReferenceOpenHashMap::new, tag.getCompound("Kamikotized"), UUID::fromString, itemDecoder));
+        data.revertedKamikotizedItems.addAll(MineraculousNbtUtils.readCollection(ReferenceOpenHashSet::new, tag.getList("RevertedKamikotized", Tag.TAG_INT_ARRAY), NbtUtils::loadUUID));
         return data;
     }
 }

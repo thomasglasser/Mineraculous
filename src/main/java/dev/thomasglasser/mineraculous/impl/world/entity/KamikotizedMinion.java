@@ -15,9 +15,6 @@ import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
-import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -36,7 +33,6 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.GameType;
@@ -81,10 +77,11 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         super(entityType, level);
     }
 
-    public KamikotizedMinion(ServerPlayer source, Holder<Kamikotization> kamikotization) {
+    public KamikotizedMinion(ServerPlayer source, Holder<Kamikotization> kamikotization, Optional<Component> name) {
         this(MineraculousEntityTypes.KAMIKOTIZED_MINION.get(), source.level());
         setSourceId(source.getUUID());
         setKamikotization(kamikotization);
+        name.ifPresent(this::setCustomName);
         for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
             ItemStack stack = Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.getForSlot(slot), kamikotization);
             stack.enchant(level().holderOrThrow(Enchantments.BINDING_CURSE), 1);
@@ -318,11 +315,8 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
     }
 
     @Override
-    public Component getDisplayName() {
-        if (!hasCustomName()) {
-            return this.getOptionalSource().orElseThrow().getDisplayName();
-        }
-        return super.getDisplayName();
+    public Player getVisualSource() {
+        return getOwner();
     }
 
     @Override
@@ -335,24 +329,9 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         return getOptionalSource().orElseThrow().getShoulderEntityRight();
     }
 
-    // TODO: Fix, cache on server...?
-    @Override
-    public PlayerSkin getSkin() {
-        if (getOwner() instanceof AbstractClientPlayer player)
-            return player.getSkin();
-        else if (getSource() instanceof AbstractClientPlayer player)
-            return player.getSkin();
-        return new PlayerSkin(DefaultPlayerSkin.getDefaultTexture(), null, null, null, PlayerSkin.Model.SLIM, true);
-    }
-
-    @Override
-    public boolean isModelPartShown(PlayerModelPart part) {
-        return getOptionalSource().orElseThrow().isModelPartShown(part);
-    }
-
     @Override
     public Scoreboard getScoreboard() {
-        return getOptionalSource().orElseThrow().getScoreboard();
+        return getOwner().getScoreboard();
     }
 
     @Override

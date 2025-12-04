@@ -8,12 +8,14 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.PlayerL
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.PlayerLikeItemInHandLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.PlayerLikeParrotOnShoulderLayer;
 import dev.thomasglasser.mineraculous.impl.world.entity.PlayerLike;
+import dev.thomasglasser.tommylib.impl.GeckoLibUtils;
 import java.util.Map;
 import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -32,6 +34,7 @@ import net.minecraft.network.chat.numbers.StyledFormat;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.PlayerModelPart;
@@ -102,12 +105,15 @@ public class PlayerLikeRenderer<T extends LivingEntity & PlayerLike> extends Liv
             playermodel.hat.visible = true;
         } else {
             playermodel.setAllVisible(true);
-            playermodel.hat.visible = entity.isModelPartShown(PlayerModelPart.HAT);
-            playermodel.jacket.visible = entity.isModelPartShown(PlayerModelPart.JACKET);
-            playermodel.leftPants.visible = entity.isModelPartShown(PlayerModelPart.LEFT_PANTS_LEG);
-            playermodel.rightPants.visible = entity.isModelPartShown(PlayerModelPart.RIGHT_PANTS_LEG);
-            playermodel.leftSleeve.visible = entity.isModelPartShown(PlayerModelPart.LEFT_SLEEVE);
-            playermodel.rightSleeve.visible = entity.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE);
+            boolean isHeadSkintight = GeckoLibUtils.isSkintight(entity.getItemBySlot(EquipmentSlot.HEAD).getItem());
+            playermodel.hat.visible = !isHeadSkintight && isModelPartShown(entity, PlayerModelPart.HAT);
+            boolean isChestSkintight = GeckoLibUtils.isSkintight(entity.getItemBySlot(EquipmentSlot.CHEST).getItem());
+            playermodel.jacket.visible = !isChestSkintight && isModelPartShown(entity, PlayerModelPart.JACKET);
+            playermodel.leftSleeve.visible = !isChestSkintight && isModelPartShown(entity, PlayerModelPart.LEFT_SLEEVE);
+            playermodel.rightSleeve.visible = !isChestSkintight && isModelPartShown(entity, PlayerModelPart.RIGHT_SLEEVE);
+            boolean isLowerBodySkintight = GeckoLibUtils.isSkintight(entity.getItemBySlot(EquipmentSlot.LEGS).getItem()) || GeckoLibUtils.isSkintight(entity.getItemBySlot(EquipmentSlot.FEET).getItem());
+            playermodel.leftPants.visible = !isLowerBodySkintight && isModelPartShown(entity, PlayerModelPart.LEFT_PANTS_LEG);
+            playermodel.rightPants.visible = !isLowerBodySkintight && isModelPartShown(entity, PlayerModelPart.RIGHT_PANTS_LEG);
             playermodel.crouching = entity.isCrouching();
             HumanoidModel.ArmPose humanoidmodel$armpose = getArmPose(entity, InteractionHand.MAIN_HAND);
             HumanoidModel.ArmPose humanoidmodel$armpose1 = getArmPose(entity, InteractionHand.OFF_HAND);
@@ -123,6 +129,13 @@ public class PlayerLikeRenderer<T extends LivingEntity & PlayerLike> extends Liv
                 playermodel.leftArmPose = humanoidmodel$armpose;
             }
         }
+    }
+
+    public static <T extends LivingEntity & PlayerLike> boolean isModelPartShown(T entity, PlayerModelPart part) {
+        if (entity.getVisualSource() instanceof AbstractClientPlayer player) {
+            return player.isModelPartShown(part);
+        }
+        return true;
     }
 
     private static HumanoidModel.ArmPose getArmPose(LivingEntity entity, InteractionHand hand) {
@@ -169,10 +182,13 @@ public class PlayerLikeRenderer<T extends LivingEntity & PlayerLike> extends Liv
     }
 
     public ResourceLocation getTextureLocation(T entity) {
-        return entity.getSkin().texture();
+        if (entity.getVisualSource() instanceof AbstractClientPlayer player) {
+            return player.getSkin().texture();
+        }
+        return null;
     }
 
-    protected void scale(T livingEntity, PoseStack poseStack, float partialTickTime) {
+    protected void scale(T entity, PoseStack poseStack, float partialTickTime) {
         float scale = 0.9375F;
         poseStack.scale(scale, scale, scale);
     }
@@ -195,32 +211,34 @@ public class PlayerLikeRenderer<T extends LivingEntity & PlayerLike> extends Liv
         poseStack.popPose();
     }
 
-    public void renderRightHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, T player) {
+    public void renderRightHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, T entity) {
         // TODO: Similar event
         if (true/*!ClientHooks.renderSpecificFirstPersonArm(poseStack, buffer, combinedLight, player, HumanoidArm.RIGHT)*/) {
-            this.renderHand(poseStack, buffer, combinedLight, player, this.model.rightArm, this.model.rightSleeve);
+            this.renderHand(poseStack, buffer, combinedLight, entity, this.model.rightArm, this.model.rightSleeve);
         }
     }
 
-    public void renderLeftHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, T player) {
+    public void renderLeftHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, T entity) {
         // TODO: Similar event
         if (true/*!ClientHooks.renderSpecificFirstPersonArm(poseStack, buffer, combinedLight, player, HumanoidArm.LEFT)*/) {
-            this.renderHand(poseStack, buffer, combinedLight, player, this.model.leftArm, this.model.leftSleeve);
+            this.renderHand(poseStack, buffer, combinedLight, entity, this.model.leftArm, this.model.leftSleeve);
         }
     }
 
-    private void renderHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, T player, ModelPart rendererArm, ModelPart rendererArmwear) {
+    private void renderHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, T entity, ModelPart rendererArm, ModelPart rendererArmwear) {
         PlayerModel<T> playermodel = this.getModel();
-        this.setModelProperties(player);
+        this.setModelProperties(entity);
         playermodel.attackTime = 0.0F;
         playermodel.crouching = false;
         playermodel.swimAmount = 0.0F;
-        playermodel.setupAnim(player, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+        playermodel.setupAnim(entity, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
         rendererArm.xRot = 0.0F;
-        ResourceLocation resourcelocation = player.getSkin().texture();
-        rendererArm.render(poseStack, buffer.getBuffer(RenderType.entitySolid(resourcelocation)), combinedLight, OverlayTexture.NO_OVERLAY);
-        rendererArmwear.xRot = 0.0F;
-        rendererArmwear.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(resourcelocation)), combinedLight, OverlayTexture.NO_OVERLAY);
+        if (entity.getVisualSource() instanceof AbstractClientPlayer player) {
+            ResourceLocation resourcelocation = player.getSkin().texture();
+            rendererArm.render(poseStack, buffer.getBuffer(RenderType.entitySolid(resourcelocation)), combinedLight, OverlayTexture.NO_OVERLAY);
+            rendererArmwear.xRot = 0.0F;
+            rendererArmwear.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(resourcelocation)), combinedLight, OverlayTexture.NO_OVERLAY);
+        }
     }
 
     protected void setupRotations(T entity, PoseStack poseStack, float bob, float yBodyRot, float partialTick, float scale) {

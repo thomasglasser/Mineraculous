@@ -17,8 +17,10 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.util.BrainUtils;
+import org.jetbrains.annotations.Nullable;
 
 public record KamikoData(UUID uuid, UUID owner, int powerLevel, int nameColor, Optional<ResourceLocation> faceMaskTexture) {
 
@@ -43,14 +45,16 @@ public record KamikoData(UUID uuid, UUID owner, int powerLevel, int nameColor, O
         this.faceMaskTexture = faceMaskTexture;
     }
 
-    public Kamiko summon(ServerLevel level, Vec3 spawnPos, Holder<Kamikotization> kamikotization, boolean shouldReplicate) {
+    public Kamiko summon(ServerLevel level, Vec3 spawnPos, Holder<Kamikotization> kamikotization, @Nullable LivingEntity replicaSource) {
         Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(level);
         if (kamiko != null) {
             kamiko.setPos(spawnPos);
             kamiko.setUUID(uuid);
             kamiko.setOwnerUUID(owner);
             kamiko.setKamikotization(Optional.of(kamikotization));
-            if (shouldReplicate && MineraculousServerConfig.get().enableKamikoReplication.getAsBoolean()) {
+            if (replicaSource != null && MineraculousServerConfig.get().enableKamikoReplication.getAsBoolean()) {
+                kamiko.setReplicaSource(Optional.of(replicaSource.getUUID()));
+                kamiko.setReplicaName(Optional.of(replicaSource.getDisplayName()));
                 BrainUtils.setMemory(kamiko, MineraculousMemoryModuleTypes.REPLICATION_STATUS.get(), ReplicationState.LOOKING_FOR_RESTING_LOCATION);
             }
             level.addFreshEntity(kamiko);

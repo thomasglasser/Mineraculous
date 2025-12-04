@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.impl.world.entity.PlayerLike;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
@@ -19,8 +20,8 @@ public class PlayerLikeDeadmau5EarsLayer<T extends LivingEntity & PlayerLike> ex
     }
 
     public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, T livingEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        if ("deadmau5".equals(livingEntity.getName().getString()) && !livingEntity.isInvisible()) {
-            VertexConsumer vertexconsumer = buffer.getBuffer(RenderType.entitySolid(livingEntity.getSkin().texture()));
+        if ("deadmau5".equals(livingEntity.getName().getString()) && !livingEntity.isInvisible() && livingEntity.getVisualSource() instanceof AbstractClientPlayer player) {
+            VertexConsumer vertexconsumer = buffer.getBuffer(RenderType.entitySolid(player.getSkin().texture()));
             int i = LivingEntityRenderer.getOverlayCoords(livingEntity, 0.0F);
 
             for (int j = 0; j < 2; ++j) {

@@ -1,13 +1,11 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
-import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeMap;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.scores.Scoreboard;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,6 +22,8 @@ public interface PlayerLike {
         entity.getAttributes().getInstance(Attributes.MOVEMENT_SPEED).setBaseValue(BASE_MOVEMENT_SPEED);
     }
 
+    Player getVisualSource();
+
     AttributeMap getAttributes();
 
     @Nullable
@@ -31,10 +31,6 @@ public interface PlayerLike {
 
     @Nullable
     CompoundTag getShoulderEntityRight();
-
-    PlayerSkin getSkin();
-
-    boolean isModelPartShown(PlayerModelPart part);
 
     Scoreboard getScoreboard();
 

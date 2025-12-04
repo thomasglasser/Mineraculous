@@ -3,8 +3,12 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.impl.client.renderer.entity.PlayerLikeRenderer;
+import dev.thomasglasser.mineraculous.impl.world.entity.KamikotizedMinion;
 import dev.thomasglasser.mineraculous.impl.world.entity.PlayerLike;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -25,8 +29,8 @@ public class PlayerLikeCapeLayer<T extends LivingEntity & PlayerLike> extends Re
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource buffer, int packedLight, T livingEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
-        if (!livingEntity.isInvisible() && livingEntity.isModelPartShown(PlayerModelPart.CAPE)) {
-            PlayerSkin playerskin = livingEntity.getSkin();
+        if (!livingEntity.isInvisible() && PlayerLikeRenderer.isModelPartShown(livingEntity, PlayerModelPart.CAPE) && livingEntity.getVisualSource() instanceof AbstractClientPlayer player && shouldRenderCape(livingEntity)) {
+            PlayerSkin playerskin = player.getSkin();
             if (playerskin.capeTexture() != null) {
                 ItemStack itemstack = livingEntity.getItemBySlot(EquipmentSlot.CHEST);
                 if (!itemstack.is(Items.ELYTRA)) {
@@ -63,5 +67,12 @@ public class PlayerLikeCapeLayer<T extends LivingEntity & PlayerLike> extends Re
                 }
             }
         }
+    }
+
+    // TODO: Move to event
+    public static boolean shouldRenderCape(LivingEntity entity) {
+        if (entity instanceof KamikotizedMinion)
+            return false;
+        return !(entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent());
     }
 }

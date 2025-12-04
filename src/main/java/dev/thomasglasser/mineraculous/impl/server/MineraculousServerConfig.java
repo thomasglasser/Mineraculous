@@ -23,6 +23,7 @@ public class MineraculousServerConfig {
     public final ModConfigSpec.BooleanValue enableKamikotizationRejection;
     public final ModConfigSpec.BooleanValue enableKamikoReplication;
     public final ModConfigSpec.IntValue maxKamikoReplicas;
+    public final ModConfigSpec.BooleanValue forceKamikotizeCreativePlayers;
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMin;
     public final ModConfigSpec.IntValue luckyCharmSummonTimeMax;
     public final ModConfigSpec.EnumValue<MiraculousLadybugReversionMode> miraculousLadybugReversionMode;
@@ -69,6 +70,8 @@ public class MineraculousServerConfig {
                 .define("enable_kamiko_replication", true);
         maxKamikoReplicas = builder
                 .defineInRange("max_kamiko_replicas", 32, 0, 128);
+        forceKamikotizeCreativePlayers = builder
+                .define("force_kamikotize_creative_players", false);
         luckyCharmSummonTimeMin = builder
                 .defineInRange("lucky_charm_summon_time_min", 3, 0, Integer.MAX_VALUE);
         luckyCharmSummonTimeMax = builder

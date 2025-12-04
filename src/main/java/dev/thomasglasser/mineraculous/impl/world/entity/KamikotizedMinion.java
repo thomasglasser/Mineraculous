@@ -87,6 +87,7 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
             stack.enchant(level().holderOrThrow(Enchantments.BINDING_CURSE), 1);
             stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS, Unit.INSTANCE);
             setItemSlot(slot, stack);
+            setDropChance(slot, 0);
         }
         moveTo(source.position(), source.getYRot(), source.getXRot());
         setYBodyRot(source.yBodyRot);

@@ -255,6 +255,14 @@
 					]
 				},
 				{
+					"name": "right_hand",
+					"parent": "right_arm",
+					"pivot": [-2, 4.5, 0.25],
+					"cubes": [
+						{"origin": [-2, 4.5, 0.25], "size": [0, 0, 0], "uv": [4, 2]}
+					]
+				},
+				{
 					"name": "left_arm",
 					"parent": "body",
 					"pivot": [1.03803, 5.69341, 0.349],
@@ -273,6 +281,14 @@
 								"down": {"uv": [4.5, 11.25], "uv_size": [0.75, -0.75]}
 							}
 						}
+					]
+				},
+				{
+					"name": "left_hand",
+					"parent": "left_arm",
+					"pivot": [2, 4.5, 0.25],
+					"cubes": [
+						{"origin": [2, 4.5, 0.25], "size": [0, 0, 0], "uv": [4, 2]}
 					]
 				},
 				{

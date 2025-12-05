@@ -75,7 +75,7 @@ public class ThrownButterflyCane extends ItemBreakingQuicklyReturningThrownSword
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", state -> {
+        controllers.add(new AnimationController<>(this, state -> {
             if (shouldShowBlade())
                 return state.setAndContinue(ButterflyCaneItem.BLADE_IDLE);
             return PlayState.STOP;

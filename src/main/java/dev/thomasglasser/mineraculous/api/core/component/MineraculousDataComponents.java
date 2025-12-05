@@ -10,6 +10,7 @@ import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
+import dev.thomasglasser.mineraculous.impl.world.item.component.EatingItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Kamikotizing;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiFoods;
@@ -55,8 +56,8 @@ public class MineraculousDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> POWERED = DATA_COMPONENTS.registerUnit("powered", true, true);
     /// If present, whether the item is charged.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> CHARGED = DATA_COMPONENTS.registerBoolean("charged", true, true);
-    /// The {@link KwamiData} holding information about the {@link Kwami} associated with the stack.
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> KWAMI_ID = DATA_COMPONENTS.register("kwami_data", UUIDUtil.STREAM_CODEC, UUIDUtil.CODEC, false);
+    /// The {@link UUID} of the {@link dev.thomasglasser.mineraculous.impl.world.entity.Kwami} associated with the stack.
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> KWAMI_ID = DATA_COMPONENTS.register("kwami_id", UUIDUtil.STREAM_CODEC, UUIDUtil.CODEC, false);
     /// If present, the remaining transformation frames in an ongoing transformation.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TRANSFORMATION_FRAMES = DATA_COMPONENTS.registerInteger("transformation_frames", true, true);
     /// If present, the remaining detransformation frames in an ongoing detransformation.
@@ -68,6 +69,7 @@ public class MineraculousDataComponents {
 
     // Kwami Item
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<KwamiFoods>> KWAMI_FOODS = DATA_COMPONENTS.register("kwami_foods", KwamiFoods.STREAM_CODEC, KwamiFoods.CODEC, false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<EatingItem>> EATING_ITEM = DATA_COMPONENTS.register("eating_item", EatingItem.STREAM_CODEC, EatingItem.CODEC, true);
 
     // Miraculous Tools
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<LadybugYoyoItem.Mode>> LADYBUG_YOYO_MODE = DATA_COMPONENTS.register("ladybug_yoyo_mode", LadybugYoyoItem.Mode.STREAM_CODEC, LadybugYoyoItem.Mode.CODEC, true);
@@ -75,7 +77,7 @@ public class MineraculousDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ButterflyCaneItem.Mode>> BUTTERFLY_CANE_MODE = DATA_COMPONENTS.register("butterfly_cane_mode", ButterflyCaneItem.Mode.STREAM_CODEC, ButterflyCaneItem.Mode.CODEC, true);
 
     // Abilities
-    /// A {@link UUID} registered to {@link AbilityReversionItemData} for ability reversion.
+    /// A {@link UUID} registered to {@link dev.thomasglasser.mineraculous.api.world.level.storage.ItemReversionData} for ability reversion.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> REVERTIBLE_ITEM_ID = DATA_COMPONENTS.register("revertible_item_id", UUIDUtil.STREAM_CODEC, UUIDUtil.CODEC, false);
     /// The {@link LuckyCharm} data associated with the summoned stack.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<LuckyCharm>> LUCKY_CHARM = DATA_COMPONENTS.register("lucky_charm", LuckyCharm.STREAM_CODEC, LuckyCharm.CODEC, false);
@@ -84,12 +86,12 @@ public class MineraculousDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Holder<Miraculous>>> MIRACULOUS = DATA_COMPONENTS.register("miraculous", Miraculous.STREAM_CODEC, Miraculous.CODEC, false);
     /// If present, the unique ID for the related miraculous.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> MIRACULOUS_ID = DATA_COMPONENTS.register("miraculous_id", UUIDUtil.STREAM_CODEC, UUIDUtil.CODEC, false);
-    /// The {@link Integer} id of used for tool recalling via {@link ToolIdData}.
+    /// The {@link Integer} id of used for tool recalling via {@link dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData}.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TOOL_ID = DATA_COMPONENTS.registerInteger("tool_id", true, false);
 
     // Kamikotization
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Holder<Kamikotization>>> KAMIKOTIZATION = DATA_COMPONENTS.register("kamikotization", Kamikotization.STREAM_CODEC, Kamikotization.CODEC, false);
-    /// The {@link KamikoData} holding information about the {@link Kamiko} associated with the stack.
+    /// The {@link KamikoData} holding information about the {@link dev.thomasglasser.mineraculous.impl.world.entity.Kamiko} associated with the stack.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<KamikoData>> KAMIKO_DATA = DATA_COMPONENTS.register("kamiko_data", KamikoData.STREAM_CODEC, KamikoData.CODEC, true);
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Kamikotizing>> KAMIKOTIZING = DATA_COMPONENTS.register("kamikotizing", Kamikotizing.STREAM_CODEC, false);
 

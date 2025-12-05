@@ -10,8 +10,8 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.KwamiItemRenderer;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
+import dev.thomasglasser.mineraculous.impl.world.item.component.EatingItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiFoods;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,6 +35,9 @@ import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.client.GeoRenderProvider;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class KwamiItem extends Item implements GeoItem {
@@ -110,17 +113,33 @@ public class KwamiItem extends Item implements GeoItem {
         }
 
         // Try to eat and charge from inventory
-        if (!level.isClientSide() && entity.tickCount % SharedConstants.TICKS_PER_SECOND == 0 && MineraculousServerConfig.get().enableKwamiItemCharging.getAsBoolean() && !stack.getOrDefault(MineraculousDataComponents.CHARGED, true)) {
+        if (!level.isClientSide()) {
             KwamiFoods kwamiFoods = stack.get(MineraculousDataComponents.KWAMI_FOODS);
-            if (kwamiFoods != null && level.random.nextBoolean()) {
-                for (ItemStack s : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
-                    boolean isTreat = s.is(kwamiFoods.treats());
-                    if (isTreat || s.is(kwamiFoods.preferredFoods())) {
-                        if (isTreat || level.random.nextInt(3) == 0) {
+            if (kwamiFoods != null) {
+                EatingItem eatingItem = stack.get(MineraculousDataComponents.EATING_ITEM);
+                if (eatingItem != null) {
+                    if (eatingItem.remainingTicks() - 1 <= 0) {
+                        stack.remove(MineraculousDataComponents.EATING_ITEM);
+                        ItemStack item = eatingItem.item();
+                        if (item.is(kwamiFoods.treats()) || (item.is(kwamiFoods.preferredFoods()) && level.random.nextInt(3) == 0)) {
                             stack.set(MineraculousDataComponents.CHARGED, true);
                         }
-                        s.shrink(1);
-                        break;
+                    } else {
+                        stack.set(MineraculousDataComponents.EATING_ITEM, eatingItem.tick());
+                    }
+                } else if (entity.tickCount % SharedConstants.TICKS_PER_SECOND == 0 && MineraculousServerConfig.get().enableKwamiItemCharging.getAsBoolean() && !stack.getOrDefault(MineraculousDataComponents.CHARGED, true)) {
+                    if (level.random.nextInt(10) == 0) {
+                        for (ItemStack s : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
+                            boolean isTreat = s.is(kwamiFoods.treats());
+                            if (isTreat || s.is(kwamiFoods.preferredFoods())) {
+                                int eatTicks = Kwami.getMaxEatTicks(s);
+                                if (eatTicks <= 0)
+                                    eatTicks = kwamiFoods.defaultEatTicks();
+                                stack.set(MineraculousDataComponents.EATING_ITEM, new EatingItem(s.copy(), eatTicks));
+                                s.shrink(1);
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -148,10 +167,26 @@ public class KwamiItem extends Item implements GeoItem {
     }
 
     @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {}
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, state -> {
+            ItemStack stack = state.getData(DataTickets.ITEMSTACK);
+            if (stack != null && stack.has(MineraculousDataComponents.EATING_ITEM)) {
+                return state.setAndContinue(Kwami.SIT_EAT);
+            }
+            return state.setAndContinue(DefaultAnimations.SIT);
+        }));
+    }
 
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;
+    }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        if (oldStack.getItem() == newStack.getItem() && oldStack.get(MineraculousDataComponents.MIRACULOUS) == newStack.get(MineraculousDataComponents.MIRACULOUS)) {
+            return false;
+        }
+        return super.shouldCauseReequipAnimation(oldStack, newStack, slotChanged);
     }
 }

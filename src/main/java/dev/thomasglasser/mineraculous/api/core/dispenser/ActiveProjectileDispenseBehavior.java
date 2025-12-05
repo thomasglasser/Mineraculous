@@ -7,6 +7,10 @@ import net.minecraft.core.dispenser.ProjectileDispenseBehavior;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+/**
+ * Fires as a projectile only if {@link dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents#ACTIVE} is present and true,
+ * otherwise fires with the default behavior.
+ */
 public class ActiveProjectileDispenseBehavior extends ProjectileDispenseBehavior {
     private final DefaultDispenseItemBehavior defaultDispenseItemBehavior = new DefaultDispenseItemBehavior();
 

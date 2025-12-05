@@ -1,6 +1,7 @@
 {
   "values": [
     "mineraculous:cataclysm_dust",
+    "mineraculous:kwami",
     {
       "id": "#c:unbreakable_blocks",
       "required": false

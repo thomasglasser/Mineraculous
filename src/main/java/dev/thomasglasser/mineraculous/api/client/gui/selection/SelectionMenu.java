@@ -12,7 +12,7 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-/// A menu similar to the {@link SpectatorMenu} that allows going through and selecting {@link SpectatorMenuItem}s.
+/// A menu similar to the {@link SpectatorMenu} that allows viewing and selecting {@link SelectionMenuItem}s.
 public class SelectionMenu {
     protected static final SelectionMenuItem CLOSE_ITEM = new CloseSelectionItem();
     protected static final SelectionMenuItem SCROLL_LEFT = new ScrollMenuItem(-1, true);

@@ -8,7 +8,7 @@ import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
-import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.InventorySyncTracker;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.InventorySyncListener;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
@@ -194,7 +194,7 @@ public class MineraculousClientUtils {
             }
 
             @Override
-            public void onClose(boolean exit) {
+            public void onClose(boolean cancel) {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), false));
             }
         });
@@ -221,8 +221,8 @@ public class MineraculousClientUtils {
         Minecraft.getInstance().setScreen(new MiraculousTransferScreen(kwamiId));
     }
 
-    public static void triggerInventorySyncTracker(Player player) {
-        if (Minecraft.getInstance().screen instanceof InventorySyncTracker tracker) {
+    public static void triggerInventorySyncListener(Player player) {
+        if (Minecraft.getInstance().screen instanceof InventorySyncListener tracker) {
             tracker.onInventorySynced(player);
         }
     }

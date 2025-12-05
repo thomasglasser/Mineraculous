@@ -7,7 +7,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 
 public class MineraculousBlockTags {
-    /// Blocks that are unable to be replaced by {@link Abilities#CATACLYSM}.
+    /// Blocks that are unable to be replaced by {@link dev.thomasglasser.mineraculous.api.world.ability.Abilities#CATACLYSM}.
     public static final TagKey<Block> CATACLYSM_IMMUNE = create("cataclysm_immune");
 
     // Cheeses

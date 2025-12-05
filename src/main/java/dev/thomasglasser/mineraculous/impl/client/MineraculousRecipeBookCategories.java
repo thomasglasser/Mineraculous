@@ -1,4 +1,4 @@
-package dev.thomasglasser.mineraculous.api.client;
+package dev.thomasglasser.mineraculous.impl.client;
 
 import com.google.common.collect.ImmutableList;
 import java.util.function.Supplier;

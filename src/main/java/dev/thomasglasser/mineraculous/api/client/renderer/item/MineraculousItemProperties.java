@@ -16,7 +16,6 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.component.BlockItemStateProperties;
@@ -24,14 +23,11 @@ import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousItemProperties {
     // Vanilla
-    /**
-     * Whether the stack is being used for blocking
-     * based on {@link LivingEntity#isBlocking()} and {@link LivingEntity#getUseItem()}.
-     */
+    /// Whether the stack is being used for blocking based on {@link net.minecraft.world.entity.LivingEntity#isBlocking()} and {@link net.minecraft.world.entity.LivingEntity#getUseItem()}.
     public static final ResourceLocation BLOCKING = ResourceLocation.withDefaultNamespace("blocking");
 
     // Generic
-    /// Whether {@link MineraculousDataComponents#ACTIVE} is present and {@code true}.
+    /// Whether {@link MineraculousDataComponents#ACTIVE} is present and true.
     public static final ResourceLocation ACTIVE = MineraculousConstants.modLoc("active");
     /// The value of a {@link PieceBlock} {@link BlockItem} corresponding to {@link PieceBlock#getMissingPiecesProperty()}.
     public static final ResourceLocation MISSING_PIECES = MineraculousConstants.modLoc(PieceBlock.MISSING_PIECES);
@@ -39,9 +35,9 @@ public class MineraculousItemProperties {
     // Specific
     /// {@link Enum#ordinal()} {@code + 1} of a Miraculous tool mode.
     public static final ResourceLocation MODE = MineraculousConstants.modLoc("mode");
-    /// Thrown state of a {@link LadybugYoyoItem}.
+    /// Thrown state of a {@link dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem}.
     public static final ResourceLocation THROWN = MineraculousConstants.modLoc("thrown");
-    /// Whether a {@link ButterflyCaneItem} owner is currently storing a kamiko
+    /// Whether a {@link dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem} owner is currently storing a kamiko
     public static final ResourceLocation STORING = MineraculousConstants.modLoc("storing");
 
     /**

@@ -14,10 +14,7 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.ResultContainer;
 import net.minecraft.world.inventory.Slot;
 
-/**
- * Shows the inventory of another player,
- * performing logic provided by the pickup and close handlers when triggered.
- */
+/// Shows the inventory of another player with special close handling and implementing {@link ExternalMenuScreen}.
 public abstract class ExternalInventoryScreen extends InventoryScreen implements ExternalMenuScreen {
     public static final Component ITEM_BOUND_KEY = Component.translatable("mineraculous.item_bound");
 

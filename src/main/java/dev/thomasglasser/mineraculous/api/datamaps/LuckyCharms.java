@@ -12,9 +12,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootTable;
 
 /**
- * Specifies a pool of items to summon
- * for a related lucky charm target
- * in {@link SummonTargetDependentLuckyCharmAbility}.
+ * Specifies a pool of items to summon for a related lucky charm target in {@link SummonTargetDependentLuckyCharmAbility}.
  * 
  * @param items The pool of items
  */

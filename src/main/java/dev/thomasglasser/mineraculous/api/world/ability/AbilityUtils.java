@@ -27,7 +27,7 @@ public class AbilityUtils {
      * @param handler          The relevant {@link AbilityHandler}
      * @param context          The context of the abilities
      * @param passiveAbilities The abilities to perform
-     * @return Whether the passive abilities consumed (i.e., they overrode the active ability)
+     * @return The resulting {@link Ability.State} of the performed abilities
      */
     public static Ability.State performPassiveAbilities(ServerLevel level, LivingEntity performer, AbilityData data, AbilityHandler handler, @Nullable AbilityContext context, HolderSet<Ability> passiveAbilities) {
         for (Holder<Ability> ability : passiveAbilities) {
@@ -48,7 +48,8 @@ public class AbilityUtils {
      * @param handler       The relevant {@link AbilityHandler}
      * @param context       The context of the ability
      * @param activeAbility The ability to perform
-     * @return Whether the active ability consumed (i.e., was used up)
+     * @return The resulting {@link Ability.State} of the performed ability,
+     *         or {@link Ability.State#CANCEL} if power is inactive.
      */
     public static Ability.State performActiveAbility(ServerLevel level, LivingEntity performer, AbilityData abilityData, AbilityHandler handler, @Nullable AbilityContext context, Optional<Holder<Ability>> activeAbility) {
         if (abilityData.powerActive()) {
@@ -69,11 +70,11 @@ public class AbilityUtils {
     }
 
     /**
-     * Performs {@link Miraculous} and {@link Kamikotization} abilities with a {@link BlockAbilityContext} of the provided {@link BlockPos}.
+     * Performs {@link Miraculous} and {@link Kamikotization} abilities with a {@link BlockAbilityContext} of the provided position.
      *
      * @param level     The level to perform the abilities in
      * @param performer The performer of the abilities
-     * @param pos       The {@link BlockPos} to make the context for
+     * @param pos       The position to make the context for
      */
     public static void performBlockAbilities(ServerLevel level, LivingEntity performer, BlockPos pos) {
         performAbilitiesInternal(level, performer, new BlockAbilityContext(pos));

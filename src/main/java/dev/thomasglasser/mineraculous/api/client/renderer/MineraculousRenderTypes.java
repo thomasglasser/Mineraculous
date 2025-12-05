@@ -23,8 +23,8 @@ public class MineraculousRenderTypes {
     private static final RenderType ENTITY_KAMIKOTIZING = createKamikotizing("entity", ENTITY_KAMIKOTIZING_TEXTURE, MineraculousRenderStateShards.ENTITY_KAMIKOTIZING_TEXTURING, false);
     private static final RenderType SHIELD_KAMIKOTIZING = createKamikotizing("shield", ENTITY_KAMIKOTIZING_TEXTURE, MineraculousRenderStateShards.SHIELD_KAMIKOTIZING_TEXTURING, false);
 
-    public static final RenderType MIRACULOUS_LADYBUG_BODY = miraculousLadybugBody();
-    public static final RenderType MIRACULOUS_LADYBUG_OUTLINE = miraculousLadybugOutline();
+    private static final RenderType MIRACULOUS_LADYBUG_BODY = createMiraculousLadybugBody();
+    private static final RenderType MIRACULOUS_LADYBUG_OUTLINE = createMiraculousLadybugOutline();
 
     public static RenderType itemLuckyCharm() {
         return ITEM_LUCKY_CHARM;
@@ -58,6 +58,14 @@ public class MineraculousRenderTypes {
         return SHIELD_KAMIKOTIZING;
     }
 
+    public static RenderType miraculousLadybugBody() {
+        return MIRACULOUS_LADYBUG_BODY;
+    }
+
+    public static RenderType miraculousLadybugOutline() {
+        return MIRACULOUS_LADYBUG_OUTLINE;
+    }
+
     /**
      * Returns the default lucky charm texture location based on the provided name.
      * 
@@ -68,6 +76,12 @@ public class MineraculousRenderTypes {
         return name.withPath(path -> "textures/misc/lucky_charm_" + path + ".png");
     }
 
+    /**
+     * Returns the default kamikotizing texture location based on the provided name.
+     *
+     * @param name The name to create the texture location for
+     * @return The kamikotizing texture location
+     */
     public static ResourceLocation createKamikotizingTexture(ResourceLocation name) {
         return name.withPath(path -> "textures/misc/kamikotizing_" + path + ".png");
     }
@@ -112,6 +126,14 @@ public class MineraculousRenderTypes {
         return createItemShader(name.withSuffix("_lucky_charm"), createLuckyCharmTexture(name), texturingStateShard, offsetZLayering);
     }
 
+    /**
+     * Creates a kamikotizing {@link RenderType} with the given name and a default texture derived from the name.
+     *
+     * @param name                The name of the render type
+     * @param texturingStateShard The texturing state shard of the render type
+     * @param offsetZLayering     Whether to enable offset z layering
+     * @return The kamikotizing {@link RenderType}
+     */
     public static RenderType createKamikotizing(ResourceLocation name, RenderStateShard.TexturingStateShard texturingStateShard, boolean offsetZLayering) {
         return createItemShader(name.withSuffix("_kamikotizing"), createKamikotizingTexture(name), texturingStateShard, offsetZLayering);
     }
@@ -140,25 +162,7 @@ public class MineraculousRenderTypes {
         return createItemShader(MineraculousConstants.modLoc(name + "_kamikotizing"), texture, texturingStateShard, offsetZLayering);
     }
 
-    public static RenderType miraculousLadybugOutline() {
-        return RenderType.create(
-                "miraculous_ladybug_outline",
-                DefaultVertexFormat.NEW_ENTITY,
-                VertexFormat.Mode.QUADS,
-                256,
-                false,
-                true,
-                RenderType.CompositeState.builder()
-                        .setShaderState(MineraculousRenderStateShards.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_NO_LIGHTMAP_SHADER)
-                        .setTextureState(new RenderStateShard.TextureStateShard(LADYBUG_OUTLINE_TEXTURE, false, true))
-                        .setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
-                        .setOverlayState(RenderStateShard.OVERLAY)
-                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
-                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-                        .createCompositeState(false));
-    }
-
-    public static RenderType miraculousLadybugBody() {
+    private static RenderType createMiraculousLadybugBody() {
         return RenderType.create(
                 "miraculous_ladybug_main",
                 DefaultVertexFormat.NEW_ENTITY,
@@ -173,6 +177,24 @@ public class MineraculousRenderTypes {
                         .setCullState(RenderStateShard.CULL)
                         .setOverlayState(RenderStateShard.OVERLAY)
                         .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
+                        .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
+                        .createCompositeState(false));
+    }
+
+    private static RenderType createMiraculousLadybugOutline() {
+        return RenderType.create(
+                "miraculous_ladybug_outline",
+                DefaultVertexFormat.NEW_ENTITY,
+                VertexFormat.Mode.QUADS,
+                256,
+                false,
+                true,
+                RenderType.CompositeState.builder()
+                        .setShaderState(MineraculousRenderStateShards.RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_NO_LIGHTMAP_SHADER)
+                        .setTextureState(new RenderStateShard.TextureStateShard(LADYBUG_OUTLINE_TEXTURE, false, true))
+                        .setTransparencyState(RenderStateShard.LIGHTNING_TRANSPARENCY)
+                        .setOverlayState(RenderStateShard.OVERLAY)
+                        .setWriteMaskState(RenderStateShard.COLOR_WRITE)
                         .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
                         .createCompositeState(false));
     }

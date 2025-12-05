@@ -185,7 +185,8 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
 
         // Cataclysm
         tag(MineraculousItemTags.CATACLYSM_IMMUNE)
-                .add(MineraculousItems.CATACLYSM_DUST.get())
+                .add(MineraculousItems.CATACLYSM_DUST)
+                .add(MineraculousItems.KWAMI)
                 .addOptionalTag(ConventionalItemTags.UNBREAKABLE_BLOCKS);
 
         tag(ItemTags.SWORDS)

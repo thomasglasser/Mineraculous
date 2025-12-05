@@ -14,7 +14,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 
 /**
- * Advancement trigger for when an entity transforms via {@link Miraculous},
+ * Advancement trigger for when an entity transforms via {@link dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData},
  * with an optional field for {@link Miraculous} key.
  */
 public class TransformedMiraculousTrigger extends SimpleCriterionTrigger<TransformedMiraculousTrigger.TriggerInstance> {

@@ -12,6 +12,7 @@ import software.bernie.geckolib.cache.texture.AutoGlowingTexture;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
+/// An {@link AutoGlowingGeoLayer} that only renders the layer if the glowmask texture is present.
 public class ConditionalAutoGlowingGeoLayer<T extends GeoAnimatable> extends AutoGlowingGeoLayer<T> {
     private static final Object2BooleanMap<ResourceLocation> PRESENT_GLOWMASKS = new Object2BooleanOpenHashMap<>();
 

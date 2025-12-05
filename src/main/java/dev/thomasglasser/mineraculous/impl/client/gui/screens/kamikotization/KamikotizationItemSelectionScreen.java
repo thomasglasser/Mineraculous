@@ -4,7 +4,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.MultimapBuilder;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
-import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.InventorySyncTracker;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.InventorySyncListener;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
@@ -34,7 +34,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import top.theillusivec4.curios.common.inventory.CurioSlot;
 
-public class KamikotizationItemSelectionScreen extends ExternalCuriosInventoryScreen implements InventorySyncTracker {
+public class KamikotizationItemSelectionScreen extends ExternalCuriosInventoryScreen implements InventorySyncListener {
     public static final String NO_KAMIKOTIZATIONS = "gui.kamikotization_item_selection.no_kamikotizations";
     public static final Component APPLIES_TO = Component.translatable("gui.kamikotization_item_selection.applies_to").withStyle(ChatFormatting.GRAY);
 

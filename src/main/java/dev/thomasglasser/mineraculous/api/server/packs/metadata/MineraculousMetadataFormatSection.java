@@ -7,6 +7,12 @@ import java.util.Optional;
 import net.minecraft.server.packs.metadata.MetadataSectionType;
 import net.minecraft.util.InclusiveRange;
 
+/**
+ * Defines a build version and supported versions for the Mineraculous API (based on {@link MineraculousConstants#API_VERSION}).
+ *
+ * @param apiFormat           The API version that the addon was built on
+ * @param supportedApiFormats The API version range that the addon supports
+ */
 public record MineraculousMetadataFormatSection(int apiFormat, Optional<InclusiveRange<Integer>> supportedApiFormats) {
     public static final Codec<MineraculousMetadataFormatSection> CODEC = RecordCodecBuilder.create(
             p_337567_ -> p_337567_.group(
@@ -15,6 +21,7 @@ public record MineraculousMetadataFormatSection(int apiFormat, Optional<Inclusiv
                     .apply(p_337567_, MineraculousMetadataFormatSection::new));
     public static final MetadataSectionType<MineraculousMetadataFormatSection> TYPE = MetadataSectionType.fromCodec("mineraculous", CODEC);
 
+    /// Creates a {@link MineraculousMetadataFormatSection} with the current API version and no other supported versions.
     public static MineraculousMetadataFormatSection createBuiltIn() {
         return new MineraculousMetadataFormatSection(MineraculousConstants.API_VERSION, Optional.empty());
     }

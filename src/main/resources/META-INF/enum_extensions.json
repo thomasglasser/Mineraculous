@@ -95,7 +95,7 @@
       "name": "MINERACULOUS_OVEN_SEARCH",
       "constructor": "(Ljava/util/function/Supplier;)V",
       "parameters": {
-        "class": "dev/thomasglasser/mineraculous/api/client/MineraculousRecipeBookCategories",
+        "class": "dev/thomasglasser/mineraculous/impl/client/MineraculousRecipeBookCategories",
         "field": "OVEN_SEARCH"
       }
     },
@@ -104,7 +104,7 @@
       "name": "MINERACULOUS_OVEN_FOOD",
       "constructor": "(Ljava/util/function/Supplier;)V",
       "parameters": {
-        "class": "dev/thomasglasser/mineraculous/api/client/MineraculousRecipeBookCategories",
+        "class": "dev/thomasglasser/mineraculous/impl/client/MineraculousRecipeBookCategories",
         "field": "OVEN_FOOD"
       }
     }

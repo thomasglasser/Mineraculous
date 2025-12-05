@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Predicate for current entity {@link Kamikotization} according to their {@link KamikotizationData}.
  * 
- * @param kamikotizations Matching {@link Kamikotization}
+ * @param kamikotizations Matching {@link Kamikotization}s
  */
 public record KamikotizationPredicate(HolderSet<Kamikotization> kamikotizations) implements EntitySubPredicate {
     public static final KamikotizationPredicate ANY = new KamikotizationPredicate(HolderSet.empty());

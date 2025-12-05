@@ -66,6 +66,12 @@ public record ReplaceItemInMainHandAbility(ItemStack replacement, boolean breakO
         return State.PASS;
     }
 
+    /**
+     * Checks if the provided stack is valid for the ability.
+     *
+     * @param stack The stack to check for validity
+     * @return Whether the stack is valid for the ability
+     */
     public boolean isValidItem(ItemStack stack) {
         return validItems.map(predicate -> predicate.test(stack)).orElse(true) && invalidItems.map(predicate -> !predicate.test(stack)).orElse(true);
     }

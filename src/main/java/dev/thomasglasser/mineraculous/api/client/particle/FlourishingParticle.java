@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.api.client.particle;
 
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousParticleRenderTypes;
+import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
@@ -10,11 +11,12 @@ import net.minecraft.client.particle.TextureSheetParticle;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.core.particles.SimpleParticleType;
 
-public class SparkleParticle extends TextureSheetParticle {
-    public SparkleParticle(ClientLevel level, double x, double y, double z) {
+/// Flourishes and rises slightly over time
+public class FlourishingParticle extends TextureSheetParticle {
+    public FlourishingParticle(ClientLevel level, double x, double y, double z) {
         super(level, x, y, z);
-        scale(level.random.nextInt(1, 7) / 5f);
-        this.lifetime = 60;
+        scale(level.random.nextInt(1, MineraculousClientConfig.get().revertingLadybugSize.getAsInt()) / 6f);
+        this.lifetime = level.random.nextInt(30, 60);
         float r = (float) Math.random();
         this.oRoll = r;
         this.roll = r;
@@ -22,9 +24,8 @@ public class SparkleParticle extends TextureSheetParticle {
 
     @Override
     public void tick() {
-        this.alpha = ((float) (this.lifetime - this.age)) / (float) this.lifetime * 0.5f;
+        scale((this.lifetime - this.age) / (float) this.lifetime * 1.2f);
         this.move(0, 0.003, 0);
-
         super.tick();
     }
 
@@ -47,7 +48,7 @@ public class SparkleParticle extends TextureSheetParticle {
 
         @Override
         public Particle createParticle(SimpleParticleType type, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-            SparkleParticle particle = new SparkleParticle(level, x, y, z);
+            FlourishingParticle particle = new FlourishingParticle(level, x, y, z);
             particle.pickSprite(sprites);
             return particle;
         }

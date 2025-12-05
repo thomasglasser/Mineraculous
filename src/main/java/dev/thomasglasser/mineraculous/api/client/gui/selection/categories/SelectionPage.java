@@ -6,8 +6,8 @@ import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenuItem
 import java.util.List;
 
 /**
- * Represents a single page of a {@link SelectionMenu}, which includes a list of
- * {@link SelectionMenuItem}s to display and the currently selected slot.
+ * Represents a single page of a {@link SelectionMenu},
+ * which includes a list of {@link SelectionMenuItem}s to display and the currently selected slot.
  */
 public class SelectionPage {
     private final List<SelectionMenuItem> items;

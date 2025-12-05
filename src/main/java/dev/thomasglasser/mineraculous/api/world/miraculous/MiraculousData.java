@@ -151,7 +151,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                             ItemStack stack = Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.getForSlot(slot), miraculous);
                             stack.enchant(entity.level().holderOrThrow(Enchantments.BINDING_CURSE), 1);
                             stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS, Unit.INSTANCE);
-                            transformationFrames.ifPresent(frames -> stack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, frames));
+                            transformationFrames.ifPresent(frames -> stack.set(MineraculousDataComponents.TRANSFORMATION_STATE, new TransformationState(true, frames)));
                             entity.setItemSlot(slot, stack);
                         }
 
@@ -222,7 +222,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
 
         detransformationFrames.ifPresent(frames -> {
             for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
-                entity.getItemBySlot(slot).set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, frames);
+                entity.getItemBySlot(slot).set(MineraculousDataComponents.TRANSFORMATION_STATE, new TransformationState(false, frames));
             }
         });
 
@@ -279,17 +279,17 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
             if (state.transforming()) {
                 if (frames > 0) {
                     if (entity.tickCount % 2 == 0) {
-                        entity.getArmorSlots().forEach(stack -> stack.set(MineraculousDataComponents.TRANSFORMATION_FRAMES, frames - 1));
+                        entity.getArmorSlots().forEach(stack -> stack.set(MineraculousDataComponents.TRANSFORMATION_STATE, new TransformationState(true, frames - 1)));
                         decrementFrames().save(miraculous, entity, true);
                     }
                 } else {
                     finishTransformation(entity, level, miraculous);
-                    entity.getArmorSlots().forEach(stack -> stack.remove(MineraculousDataComponents.TRANSFORMATION_FRAMES));
+                    entity.getArmorSlots().forEach(stack -> stack.remove(MineraculousDataComponents.TRANSFORMATION_STATE));
                 }
             } else {
                 if (frames > 0) {
                     if (entity.tickCount % 2 == 0) {
-                        entity.getArmorSlots().forEach(stack -> stack.set(MineraculousDataComponents.DETRANSFORMATION_FRAMES, frames - 1));
+                        entity.getArmorSlots().forEach(stack -> stack.set(MineraculousDataComponents.TRANSFORMATION_STATE, new TransformationState(false, frames - 1)));
                         decrementFrames().save(miraculous, entity, true);
                     }
                 } else {
@@ -425,7 +425,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
             MineraculousCriteriaTriggers.TRANSFORMED_MIRACULOUS.get().trigger(player, miraculous.getKey());
         }
         for (ItemStack stack : entity.getArmorSlots()) {
-            stack.remove(MineraculousDataComponents.TRANSFORMATION_FRAMES);
+            stack.remove(MineraculousDataComponents.TRANSFORMATION_STATE);
         }
         int id = createAndEquipTool(entity, level, miraculous);
         if (id > -1) {

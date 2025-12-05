@@ -43,7 +43,7 @@ public record ClientboundSyncInventoryPayload(UUID uuid, NonNullList<ItemStack> 
             for (int i = 0; i < inventory.size(); i++) {
                 target.getInventory().setItem(i, inventory.get(i));
             }
-            MineraculousClientUtils.triggerInventorySyncTracker(target);
+            MineraculousClientUtils.triggerInventorySyncListener(target);
         }
     }
 

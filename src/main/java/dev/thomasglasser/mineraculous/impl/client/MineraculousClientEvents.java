@@ -3,14 +3,13 @@ package dev.thomasglasser.mineraculous.impl.client;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.client.MineraculousRecipeBookCategories;
 import dev.thomasglasser.mineraculous.api.client.gui.MineraculousGuiLayers;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.ExternalMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.tooltip.ClientLabeledItemTagsTooltip;
+import dev.thomasglasser.mineraculous.api.client.particle.FadingParticle;
+import dev.thomasglasser.mineraculous.api.client.particle.FlourishingParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
-import dev.thomasglasser.mineraculous.api.client.particle.KamikotizationParticle;
-import dev.thomasglasser.mineraculous.api.client.particle.RevertingLadybugParticle;
-import dev.thomasglasser.mineraculous.api.client.particle.SparkleParticle;
+import dev.thomasglasser.mineraculous.api.client.particle.StaticParticle;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.api.client.renderer.item.MineraculousItemProperties;
 import dev.thomasglasser.mineraculous.api.client.renderer.item.curio.ContextDependentCurioRenderer;
@@ -216,9 +215,9 @@ public class MineraculousClientEvents {
 
     static void onRegisterParticleProviders(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(MineraculousParticleTypes.BLACK_ORB.get(), HoveringOrbParticle.Provider::new);
-        event.registerSpriteSet(MineraculousParticleTypes.KAMIKOTIZATION.get(), KamikotizationParticle.Provider::new);
-        event.registerSpriteSet(MineraculousParticleTypes.REVERTING_LADYBUG.get(), RevertingLadybugParticle.Provider::new);
-        event.registerSpriteSet(MineraculousParticleTypes.SPARKLE.get(), SparkleParticle.Provider::new);
+        event.registerSpriteSet(MineraculousParticleTypes.KAMIKOTIZATION.get(), StaticParticle.Provider::new);
+        event.registerSpriteSet(MineraculousParticleTypes.REVERTING_LADYBUG.get(), FlourishingParticle.Provider::new);
+        event.registerSpriteSet(MineraculousParticleTypes.SPARKLE.get(), FadingParticle.Provider::new);
         event.registerSpriteSet(MineraculousParticleTypes.SUMMONING_LADYBUG.get(), sprites -> (type, level, x, y, z, xSpeed, ySpeed, zSpeed) -> {
             FlyStraightTowardsParticle flystraighttowardsparticle = new FlyStraightTowardsParticle(level, x, y, z, xSpeed, ySpeed, zSpeed, -1, -1);
             flystraighttowardsparticle.pickSprite(sprites);

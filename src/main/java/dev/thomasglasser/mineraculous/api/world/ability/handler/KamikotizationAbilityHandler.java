@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 /**
  * An {@link AbilityHandler} for {@link Kamikotization} abilities.
  *
- * @param kamikotization The kamikotization of the performer
+ * @param kamikotization The {@link Kamikotization} of the performer
  */
 public record KamikotizationAbilityHandler(Holder<Kamikotization> kamikotization) implements AbilityHandler {
     @Override

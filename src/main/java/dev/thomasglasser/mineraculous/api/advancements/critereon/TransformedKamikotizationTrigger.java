@@ -14,8 +14,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerPlayer;
 
 /**
- * Advancement trigger for when an entity transforms via {@link Kamikotization},
- * with optional fields for the {@link Kamikotization} key and whether the kamikotizer is the kamikotized.
+ * Advancement trigger for when an entity transforms via {@link dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData},
+ * with optional fields for the {@link Kamikotization} key and whether the player kamikotized themself.
  */
 public class TransformedKamikotizationTrigger extends SimpleCriterionTrigger<TransformedKamikotizationTrigger.TriggerInstance> {
     @Override

@@ -18,9 +18,9 @@ public class MineraculousDataMaps {
     public static final DataMapType<EntityType<?>, LuckyCharms> ENTITY_LUCKY_CHARMS = DataMapType.builder(MineraculousConstants.modLoc("lucky_charms"), Registries.ENTITY_TYPE, LuckyCharms.CODEC).build();
 
     // Miraculous Buffs
-    /// Multiplied by {@link MiraculousData#powerLevel()} when applied to a miraculous holder.
+    /// Multiplied by {@link dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData#powerLevel()} when applied to a miraculous holder.
     public static final DataMapType<MobEffect, MiraculousEffect> MIRACULOUS_EFFECTS = DataMapType.builder(MineraculousConstants.modLoc("miraculous_effects"), Registries.MOB_EFFECT, MiraculousEffect.CODEC).build();
-    /// Multiplied by {@link MiraculousData#powerLevel()} when applied to a miraculous holder.
+    /// Multiplied by {@link dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData#powerLevel()} when applied to a miraculous holder.
     public static final DataMapType<Attribute, ModifierSettings> MIRACULOUS_ATTRIBUTE_MODIFIERS = DataMapType.builder(MineraculousConstants.modLoc("miraculous_attribute_modifiers"), Registries.ATTRIBUTE, ModifierSettings.CODEC).build();
 
     // Cheese

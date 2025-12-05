@@ -19,6 +19,7 @@ public class MineraculousEntityTypeTagsProvider extends EntityTypeTagsProvider {
     protected void addTags(HolderLookup.Provider provider) {
         tag(MineraculousEntityTypeTags.CATACLYSM_IMMUNE)
                 .add(MineraculousEntityTypes.KWAMI.get());
+
         tag(MineraculousEntityTypeTags.LADYBUG_YOYO_EXTENDED_RANGE)
                 .add(MineraculousEntityTypes.KAMIKO.get());
     }

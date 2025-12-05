@@ -5,7 +5,11 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.KwamiRenderer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.KwamiBlockAndItemGeoLayer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.MiniHolidayHatGeoLayer;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
+import dev.thomasglasser.mineraculous.impl.world.item.component.EatingItem;
+import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiFoods;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.Map;
 import net.minecraft.client.renderer.LightTexture;
@@ -13,6 +17,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.NeoForgeRenderTypes;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.model.GeoModel;
@@ -23,6 +28,22 @@ public class KwamiItemRenderer extends GeoItemRenderer<KwamiItem> {
 
     public KwamiItemRenderer() {
         super((GeoModel<KwamiItem>) null);
+        addRenderLayer(new KwamiBlockAndItemGeoLayer<>(this, KwamiRenderer.HEAD, KwamiRenderer.LEFT_HAND, KwamiRenderer.RIGHT_HAND, (bone, item) -> {
+            ItemStack stack = getCurrentItemStack();
+            KwamiFoods kwamiFoods = stack.get(MineraculousDataComponents.KWAMI_FOODS);
+            if (kwamiFoods == null) return null;
+            EatingItem eatingItem = stack.get(MineraculousDataComponents.EATING_ITEM);
+            if (eatingItem == null) return null;
+            if (kwamiFoods.isLeftHanded()) {
+                if (bone.getName().equals(KwamiRenderer.LEFT_HAND)) {
+                    return eatingItem.item();
+                }
+            } else if (bone.getName().equals(KwamiRenderer.RIGHT_HAND)) {
+                return eatingItem.item();
+            }
+            return null;
+        }));
+        addRenderLayer(new MiniHolidayHatGeoLayer<>(this, KwamiRenderer.HEAD));
     }
 
     @Override

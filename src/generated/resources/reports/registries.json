@@ -72,13 +72,13 @@
     "mineraculous:carrier",
     "mineraculous:cat_staff_mode",
     "mineraculous:charged",
-    "mineraculous:detransformation_frames",
+    "mineraculous:eating_item",
     "mineraculous:hide_enchantments",
     "mineraculous:kamiko_data",
     "mineraculous:kamikotization",
     "mineraculous:kamikotizing",
-    "mineraculous:kwami_data",
     "mineraculous:kwami_foods",
+    "mineraculous:kwami_id",
     "mineraculous:ladybug_yoyo_mode",
     "mineraculous:lucky_charm",
     "mineraculous:miraculous",
@@ -89,7 +89,7 @@
     "mineraculous:revertible_item_id",
     "mineraculous:texture_state",
     "mineraculous:tool_id",
-    "mineraculous:transformation_frames"
+    "mineraculous:transformation_state"
   ],
   "minecraft:entity_sub_predicate_type": [
     "mineraculous:kamikotization"

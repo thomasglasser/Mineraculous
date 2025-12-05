@@ -430,10 +430,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         addConfigSection(MineraculousServerConfig.KWAMIS, "Kwamis", "Settings for kwamis");
         addConfig(MineraculousServerConfig.get().kwamiSummonTime, "Kwami Summon Time", "The amount of time (in seconds) that it takes for a kwami to summon");
-        addConfig(MineraculousServerConfig.get().kwamiItemInventoryInteractionChance, "Kwami Item Inventory Interaction Chance", "The chance (out of 100) that a kwami item interacts with the player's inventory. Set to 0 to disable.");
         addConfig(MineraculousServerConfig.get().enableKwamiItemCharging, "Enable Kwami Item Charging", "Enable kwami items eating food out of the player's inventory to charge.");
-        addConfig(MineraculousServerConfig.get().enableKwamiItemMoving, "Enable Kwami Item Moving", "Enable kwami items moving around the player's empty inventory spaces.");
-        addConfig(MineraculousServerConfig.get().enableKwamiItemSwapping, "Enable Kwami Item Swapping", "Enable kwami items swapping with other items in the player's inventory.");
 
         addConfigSection(MineraculousServerConfig.STEALING, "Stealing", "Settings for item stealing");
         addConfig(MineraculousServerConfig.get().stealingDuration, "Stealing Duration", "Duration in seconds that the key must be held to steal an item");

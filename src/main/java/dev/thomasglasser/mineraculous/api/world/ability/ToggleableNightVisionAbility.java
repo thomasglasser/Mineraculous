@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.TransientAbilityEffectData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundToggleNightVisionShaderPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
@@ -20,7 +21,7 @@ import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Applies and removes night vision on key press.
+ * Applies and removes night vision on {@link dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings#TOGGLE_NIGHT_VISION} key press.
  *
  * @param shader      The shader to apply when night vision is applied
  * @param applySound  The sound to play when night vision is applied
@@ -50,14 +51,22 @@ public record ToggleableNightVisionAbility(Optional<ResourceLocation> shader, Op
         updateNightVision(data.powerLevel(), level, performer, false);
     }
 
-    public void checkNightVision(int powerLevel, ServerLevel level, LivingEntity performer) {
+    private void checkNightVision(int powerLevel, ServerLevel level, LivingEntity performer) {
         boolean hasNightVision = performer.hasEffect(MobEffects.NIGHT_VISION);
         if (performer.getData(MineraculousAttachmentTypes.TRANSIENT_ABILITY_EFFECTS).shouldToggleNightVision()) {
             updateNightVision(powerLevel, level, performer, !hasNightVision);
         }
     }
 
-    private void updateNightVision(int powerLevel, ServerLevel level, LivingEntity performer, boolean giveNightVision) {
+    /**
+     * Sets the night vision of the performer and sets {@link TransientAbilityEffectData#shouldToggleNightVision()} to false.
+     *
+     * @param powerLevel      The power level of the performer
+     * @param level           The level to play the sounds in
+     * @param performer       The performer to set the night vision for
+     * @param giveNightVision Whether the performer should be given night vision or have it removed
+     */
+    public void updateNightVision(int powerLevel, ServerLevel level, LivingEntity performer, boolean giveNightVision) {
         shader.ifPresent(shader -> {
             if (performer instanceof ServerPlayer player) {
                 TommyLibServices.NETWORK.sendToClient(new ClientboundToggleNightVisionShaderPayload(giveNightVision, shader), player);

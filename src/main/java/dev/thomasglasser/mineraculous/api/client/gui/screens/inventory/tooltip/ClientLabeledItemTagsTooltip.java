@@ -16,6 +16,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import org.joml.Matrix4f;
 
+/// Client component of {@link LabeledItemTagsTooltip}.
 public class ClientLabeledItemTagsTooltip implements ClientTooltipComponent {
     private final Map<Component, TagKey<Item>> tagKeys;
     private Font font;

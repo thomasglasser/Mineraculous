@@ -7,12 +7,16 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Represents an option in the {@link RadialMenuScreen},
- * defining translation key and optional color override.
+ * Represents an option in the {@link RadialMenuScreen}.
  */
 public interface RadialMenuOption {
+    /// The name to display in the {@link RadialMenuScreen}.
     Component displayName();
 
+    /**
+     * The optional color to display in the {@link RadialMenuScreen},
+     * overriding the default color.
+     */
     default @Nullable Integer colorOverride() {
         return null;
     }

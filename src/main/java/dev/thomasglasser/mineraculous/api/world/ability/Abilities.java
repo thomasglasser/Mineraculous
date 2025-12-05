@@ -24,6 +24,7 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
 import org.jetbrains.annotations.ApiStatus;
 
 public class Abilities {
@@ -38,13 +39,12 @@ public class Abilities {
     // Cat
     /**
      * Replaces a block with a {@link MineraculousBlocks#CATACLYSM_BLOCK} on right click,
-     * applies {@link MineraculousMobEffects#CATACLYSM} to
-     * (or destroys if not applicable) an entity on right click,
+     * applies {@link MineraculousMobEffects#CATACLYSM} to (or destroys if not applicable) an entity on right click,
      * or replaces an item with {@link MineraculousItems#CATACLYSM_DUST} when held.
      * Continuous for 1 second.
      */
     public static final ResourceKey<Ability> CATACLYSM = create("cataclysm");
-    /// Automatic Night Vision with a green tint.
+    /// Toggleable Night Vision with a green tint.
     public static final ResourceKey<Ability> CAT_VISION = create("cat_vision");
     /// Passively applies {@link MobEffects#UNLUCK}.
     public static final ResourceKey<Ability> PASSIVE_UNLUCK = create("passive_unluck");
@@ -70,8 +70,11 @@ public class Abilities {
                 Optional.of(Holder.direct(new ConvertAndTameAbility(
                         MineraculousEntityTypes.KAMIKO.get(),
                         true,
-                        Optional.of(EntityPredicate.Builder.entity()/*.of(MineraculousEntityTypeTags.BUTTERFLIES)*/.build()),
+                        // TODO: Replace when butterflies
+//                        Optional.of(EntityPredicate.Builder.entity().of(MineraculousEntityTypeTags.BUTTERFLIES).build()),
+//                        Optional.empty(),
                         Optional.empty(),
+                        Optional.of(EntityPredicate.Builder.entity().of(EntityType.PLAYER).build()),
                         Optional.of(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE)))),
                 HolderSet.direct(Holder.direct(new RightHandParticlesAbility(MineraculousParticleTypes.BLACK_ORB.get())))));
         context.register(KAMIKO_CONTROL, new SpectateEntityAbility(

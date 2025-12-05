@@ -16,7 +16,7 @@ import net.minecraft.world.item.ItemStack;
 /**
  * An {@link AbilityHandler} for {@link Miraculous} abilities.
  *
- * @param miraculous The miraculous of the performer
+ * @param miraculous The {@link Miraculous} of the performer
  */
 public record MiraculousAbilityHandler(Holder<Miraculous> miraculous) implements AbilityHandler {
     @Override

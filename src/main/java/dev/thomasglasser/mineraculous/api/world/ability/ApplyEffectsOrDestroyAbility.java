@@ -111,6 +111,14 @@ public record ApplyEffectsOrDestroyAbility(HolderSet<MobEffect> effects, EffectS
         return State.PASS;
     }
 
+    /**
+     * Determines if the provided target is valid for the ability.
+     *
+     * @param level     The level the target is in
+     * @param performer The performer of the ability
+     * @param target    The target to check validity
+     * @return Whether the target is valid for the ability
+     */
     public boolean isValidEntity(ServerLevel level, LivingEntity performer, Entity target) {
         return performer != target && validEntities.map(predicate -> predicate.matches(level, performer.position(), target)).orElse(true) && invalidEntities.map(predicate -> !predicate.matches(level, performer.position(), target)).orElse(true);
     }

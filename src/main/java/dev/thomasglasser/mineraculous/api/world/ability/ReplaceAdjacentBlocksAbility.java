@@ -50,6 +50,14 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean insta
             BlockPredicate.CODEC.optionalFieldOf("valid_blocks").forGetter(ReplaceAdjacentBlocksAbility::validBlocks),
             BlockPredicate.CODEC.optionalFieldOf("invalid_blocks").forGetter(ReplaceAdjacentBlocksAbility::invalidBlocks),
             SoundEvent.CODEC.optionalFieldOf("replace_sound").forGetter(ReplaceAdjacentBlocksAbility::replaceSound)).apply(instance, ReplaceAdjacentBlocksAbility::new));
+    /**
+     * Replaces the block at the specified {@link BlockLocation} with the specified replacement.
+     *
+     * @param affected    The location to replace
+     * @param replacement The replacement block
+     * @param cause       The cause ID of the replacement
+     * @param level       The level to fetch the server from
+     */
     public static void replace(BlockLocation affected, BlockState replacement, UUID cause, ServerLevel level) {
         level = level.getServer().getLevel(affected.dimension());
         if (level != null) {
@@ -84,6 +92,13 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean insta
         return State.PASS;
     }
 
+    /**
+     * Checks if the provided position is valid for the ability.
+     *
+     * @param level The level the position is in
+     * @param pos   The position of the block
+     * @return Whether the block is valid for the ability
+     */
     public boolean isValidBlock(ServerLevel level, BlockPos pos) {
         return !level.getBlockState(pos).isAir() && validBlocks.map(predicate -> predicate.matches(level, pos)).orElse(true) && invalidBlocks.map(predicate -> !predicate.matches(level, pos)).orElse(true);
     }

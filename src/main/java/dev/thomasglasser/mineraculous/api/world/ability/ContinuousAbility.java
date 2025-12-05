@@ -6,9 +6,9 @@ import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.PersistentAbilityEffectData;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import java.util.Optional;
+import java.util.SortedSet;
 import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Holder;
@@ -72,15 +72,15 @@ public record ContinuousAbility(Holder<Ability> ability, int ticks, Optional<Hol
     }
 
     @Override
-    public List<Ability> getAll() {
-        List<Ability> abilities = new ReferenceArrayList<>();
+    public SortedSet<Ability> getAll() {
+        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
         abilities.add(this);
         abilities.addAll(Ability.getAll(ability.value()));
         return abilities;
     }
 
     @Override
-    public List<Ability> getMatching(Predicate<Ability> predicate) {
+    public SortedSet<Ability> getMatching(Predicate<Ability> predicate) {
         return Ability.getMatching(predicate, ability.value());
     }
 

@@ -26,7 +26,7 @@ import top.theillusivec4.curios.common.inventory.container.CuriosContainer;
 /**
  * Shows the inventory of another player,
  * including the Curios slots,
- * performing logic provided by the pickup and close handlers when triggered.
+ * with special close handling and implementing {@link ExternalMenuScreen}.
  */
 public abstract class ExternalCuriosInventoryScreen extends CuriosScreen implements ExternalMenuScreen {
     public static final ResourceLocation CURIO_INVENTORY_LOCATION = ResourceLocation.fromNamespaceAndPath(CuriosConstants.MOD_ID,

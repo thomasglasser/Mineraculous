@@ -67,7 +67,17 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         MineraculousArmors.KAMIKOTIZATION.getAll().forEach(item -> singleTexture(item.getId().getPath(), mcItemLoc("generated"), "layer0", modItemLoc("kamikotization_armor")));
 
         withEntityModel(MineraculousItems.MIRACULOUS).guiLight(BlockModel.GuiLight.FRONT);
-        withEntityModel(MineraculousItems.KWAMI).guiLight(BlockModel.GuiLight.FRONT);
+        withEntityModel(MineraculousItems.KWAMI).guiLight(BlockModel.GuiLight.FRONT)
+                .transforms()
+                .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(0, 150, 0).scale(0.5F).end()
+                .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND).rotation(0, 150, 0).scale(0.5F).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).rotation(0, 150, 0).scale(0.5F).end()
+                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND).rotation(0, 150, 0).scale(0.5F).end()
+                .transform(ItemDisplayContext.HEAD).translation(0, 5.5F, 0).end()
+                .transform(ItemDisplayContext.GROUND).translation(0, -1, 0).scale(0.5F).end()
+                .transform(ItemDisplayContext.FIXED).translation(0, -4, 0).end()
+                .transform(ItemDisplayContext.GUI).rotation(0, 180, 0).translation(0, -6, 0).end()
+                .end();
 
         basicItem(MineraculousItems.CATACLYSM_DUST);
         basicItem(MineraculousItems.LADYBUG_POTTERY_SHERD);

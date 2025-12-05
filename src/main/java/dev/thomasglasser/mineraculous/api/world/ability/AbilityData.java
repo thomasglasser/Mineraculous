@@ -9,8 +9,9 @@ import net.minecraft.nbt.CompoundTag;
 /**
  * Holds relevant {@link Ability} information.
  *
- * @param powerLevel  The power level of the performer
- * @param powerActive Whether the performer's power is active
+ * @param powerLevel     The power level of the performer
+ * @param powerActive    Whether the performer's power is active
+ * @param storedEntities Entities stored in the ability performer's data
  */
 public record AbilityData(int powerLevel, boolean powerActive, List<CompoundTag> storedEntities) {
     public static AbilityData of(MiraculousData data) {

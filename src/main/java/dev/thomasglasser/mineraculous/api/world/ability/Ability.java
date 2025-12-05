@@ -9,9 +9,9 @@ import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTargetCollector;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import java.util.List;
+import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import java.util.Optional;
+import java.util.SortedSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import net.minecraft.core.Holder;
@@ -56,7 +56,7 @@ public interface Ability {
     /**
      * Called when the performer transforms.
      * This can mean different things depending on how it's used.
-     * It is simply a starting point where the ability becomes relevant and,
+     * It is simply a starting point immediately before the ability becomes relevant and,
      * if passive, starts being performed.
      * 
      * @param data      The relevant {@link AbilityData} of the performer
@@ -68,7 +68,7 @@ public interface Ability {
     /**
      * Called when the performer detransforms.
      * This can mean different things depending on how its used.
-     * It is simply a stopping point where the ability is no longer relevant and,
+     * It is simply a stopping point immediately before the ability is no longer relevant and,
      * if passive, stops being performed.
      * 
      * @param data      The relevant {@link AbilityData} of the performer
@@ -130,10 +130,10 @@ public interface Ability {
      * Collects all abilities in an ability, including sub abilities.
      * 
      * @param ability The ability to collect sub abilities from
-     * @return A list with the passed ability and all contained sub abilities
+     * @return A sorted set with the passed ability and all contained sub abilities
      */
-    static List<Ability> getAll(Ability ability) {
-        List<Ability> abilities = new ReferenceArrayList<>();
+    static SortedSet<Ability> getAll(Ability ability) {
+        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
         abilities.add(ability);
         if (ability instanceof AbilityWithSubAbilities abilityWithSubAbilities) {
             abilities.addAll(abilityWithSubAbilities.getAll());
@@ -146,10 +146,10 @@ public interface Ability {
      * 
      * @param predicate The predicate to filter abilities with
      * @param ability   The ability to test and collect matching sub abilities from
-     * @return A list with any matching of the passed ability and all contained sub abilities
+     * @return A sorted set with any matching of the passed ability and all contained sub abilities
      */
-    static List<Ability> getMatching(Predicate<Ability> predicate, Ability ability) {
-        List<Ability> abilities = new ReferenceArrayList<>();
+    static SortedSet<Ability> getMatching(Predicate<Ability> predicate, Ability ability) {
+        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
         if (predicate.test(ability))
             abilities.add(ability);
         if (ability instanceof AbilityWithSubAbilities abilityWithSubAbilities)
@@ -165,7 +165,7 @@ public interface Ability {
      * @return The matching ability or first sub ability matching the provided predicate
      */
     static @Nullable Ability getFirstMatching(Predicate<Ability> predicate, Ability ability) {
-        List<Ability> abilities = getMatching(predicate, ability);
+        SortedSet<Ability> abilities = getMatching(predicate, ability);
         return abilities.isEmpty() ? null : abilities.getFirst();
     }
 
@@ -181,8 +181,8 @@ public interface Ability {
     }
 
     // Overloads for active and passive abilities
-    static List<Ability> getAll(Optional<Holder<Ability>> activeAbility, HolderSet<Ability> passiveAbilities) {
-        List<Ability> abilities = new ReferenceArrayList<>();
+    static SortedSet<Ability> getAll(Optional<Holder<Ability>> activeAbility, HolderSet<Ability> passiveAbilities) {
+        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
         activeAbility.ifPresent(ability -> abilities.addAll(getAll(ability.value())));
         for (Holder<Ability> ability : passiveAbilities) {
             abilities.addAll(getAll(ability.value()));
@@ -190,8 +190,8 @@ public interface Ability {
         return abilities;
     }
 
-    static List<Ability> getMatching(Predicate<Ability> predicate, Optional<Holder<Ability>> activeAbility, HolderSet<Ability> passiveAbilities) {
-        List<Ability> abilities = new ReferenceArrayList<>();
+    static SortedSet<Ability> getMatching(Predicate<Ability> predicate, Optional<Holder<Ability>> activeAbility, HolderSet<Ability> passiveAbilities) {
+        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
         activeAbility.ifPresent(ability -> abilities.addAll(getMatching(predicate, ability.value())));
         for (Holder<Ability> ability : passiveAbilities) {
             abilities.addAll(getMatching(predicate, ability.value()));
@@ -200,7 +200,7 @@ public interface Ability {
     }
 
     static @Nullable Ability getFirstMatching(Predicate<Ability> predicate, Optional<Holder<Ability>> activeAbility, HolderSet<Ability> passiveAbilities) {
-        List<Ability> abilities = getMatching(predicate, activeAbility, passiveAbilities);
+        SortedSet<Ability> abilities = getMatching(predicate, activeAbility, passiveAbilities);
         return abilities.isEmpty() ? null : abilities.getFirst();
     }
 
@@ -209,11 +209,11 @@ public interface Ability {
     }
 
     // Overloads for Miraculous abilities
-    static List<Ability> getAll(Miraculous miraculous, boolean includeActive) {
+    static SortedSet<Ability> getAll(Miraculous miraculous, boolean includeActive) {
         return getAll(Optional.ofNullable(includeActive ? miraculous.activeAbility() : null), miraculous.passiveAbilities());
     }
 
-    static List<Ability> getMatching(Predicate<Ability> predicate, Miraculous miraculous, boolean includeActive) {
+    static SortedSet<Ability> getMatching(Predicate<Ability> predicate, Miraculous miraculous, boolean includeActive) {
         return getMatching(predicate, Optional.ofNullable(includeActive ? miraculous.activeAbility() : null), miraculous.passiveAbilities());
     }
 
@@ -226,11 +226,11 @@ public interface Ability {
     }
 
     // Overloads for Kamikotization abilities
-    static List<Ability> getAll(Kamikotization kamikotization, boolean includeActive) {
+    static SortedSet<Ability> getAll(Kamikotization kamikotization, boolean includeActive) {
         return getAll(kamikotization.powerSource().right().filter(a -> includeActive), kamikotization.passiveAbilities());
     }
 
-    static List<Ability> getMatching(Predicate<Ability> predicate, Kamikotization kamikotization, boolean includeActive) {
+    static SortedSet<Ability> getMatching(Predicate<Ability> predicate, Kamikotization kamikotization, boolean includeActive) {
         return getMatching(predicate, kamikotization.powerSource().right().filter(a -> includeActive), kamikotization.passiveAbilities());
     }
 

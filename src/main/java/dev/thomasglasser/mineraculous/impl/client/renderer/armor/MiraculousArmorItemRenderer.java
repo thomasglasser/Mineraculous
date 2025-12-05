@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.armor;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -43,13 +44,15 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
         Holder<Miraculous> miraculous = MiraculousItemRenderer.getMiraculousOrDefault(stack);
         Optional<Integer> transformationFrames = miraculous.value().transformationFrames();
         if (transformationFrames.isPresent()) {
-            Integer transformationTicks = stack.get(MineraculousDataComponents.TRANSFORMATION_FRAMES);
-            Integer detransformationTicks = stack.get(MineraculousDataComponents.DETRANSFORMATION_FRAMES);
-            int frame = transformationTicks == null ? detransformationTicks == null ? -1 : detransformationTicks : transformationFrames.get() - transformationTicks;
-            if (frame >= 0) {
-                ResourceLocation texture = FRAME_TEXTURES.computeIfAbsent(base, loc -> new Int2ObjectOpenHashMap<>()).computeIfAbsent(frame, i -> base.withPath(path -> path.replace(".png", "_" + i + ".png")));
-                if (MineraculousClientUtils.isValidTexture(texture))
-                    return texture;
+            MiraculousData.TransformationState transformationState = stack.get(MineraculousDataComponents.TRANSFORMATION_STATE);
+            if (transformationState != null) {
+                int remainingFrames = transformationState.remainingFrames();
+                int frame = transformationState.transforming() ? transformationFrames.get() - remainingFrames : remainingFrames;
+                if (frame >= 0) {
+                    ResourceLocation texture = FRAME_TEXTURES.computeIfAbsent(base, loc -> new Int2ObjectOpenHashMap<>()).computeIfAbsent(frame, i -> base.withPath(path -> path.replace(".png", "_" + i + ".png")));
+                    if (MineraculousClientUtils.isValidTexture(texture))
+                        return texture;
+                }
             }
         }
         return base;

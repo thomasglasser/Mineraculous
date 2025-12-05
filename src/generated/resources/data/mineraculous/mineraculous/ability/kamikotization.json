@@ -3,9 +3,11 @@
   "entity": {
     "type": "mineraculous:convert_and_tame",
     "convert_sound": "mineraculous:kamikotization_activate",
+    "invalid_entities": {
+      "type": "minecraft:player"
+    },
     "new_type": "mineraculous:kamiko",
-    "require_none_stored": true,
-    "valid_entities": {}
+    "require_none_stored": true
   },
   "passive": {
     "type": "mineraculous:right_hand_particles",

@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.api.world.ability;
 
 import com.google.errorprone.annotations.OverridingMethodsMustInvokeSuper;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTargetCollector;
-import java.util.List;
+import java.util.SortedSet;
 import java.util.function.Predicate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
@@ -67,7 +67,7 @@ public interface AbilityWithSubAbilities extends Ability {
      *
      * @return A list of itself and all sub abilities
      */
-    List<Ability> getAll();
+    SortedSet<Ability> getAll();
 
     /**
      * Collects a list of itself and all sub abilities filtered by the provided predicate.
@@ -75,5 +75,5 @@ public interface AbilityWithSubAbilities extends Ability {
      * @param predicate The predicate to test abilities against
      * @return A list of itself and all sub abilities filtered by the provided predicate
      */
-    List<Ability> getMatching(Predicate<Ability> predicate);
+    SortedSet<Ability> getMatching(Predicate<Ability> predicate);
 }

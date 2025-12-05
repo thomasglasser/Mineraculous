@@ -10,9 +10,8 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.KwamiItemRenderer;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
+import dev.thomasglasser.mineraculous.impl.world.item.component.EatingItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiFoods;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,7 +21,6 @@ import net.minecraft.SharedConstants;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
@@ -37,6 +35,9 @@ import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.client.GeoRenderProvider;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class KwamiItem extends Item implements GeoItem {
@@ -111,53 +112,33 @@ public class KwamiItem extends Item implements GeoItem {
             stack.set(MineraculousDataComponents.MIRACULOUS, level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getAny().orElse(null));
         }
 
-        // Inventory Interaction
-        if (entity.tickCount % SharedConstants.TICKS_PER_SECOND == 0 && entity instanceof ServerPlayer player) {
-            boolean interact = (MineraculousServerConfig.get().kwamiItemInventoryInteractionChance.getAsDouble() / 100.0) >= level.random.nextDouble();
-            if (interact) {
-                KwamiFoods kwamiFoods = stack.get(MineraculousDataComponents.KWAMI_FOODS);
-                if (MineraculousServerConfig.get().enableKwamiItemCharging.getAsBoolean() && !stack.getOrDefault(MineraculousDataComponents.CHARGED, true) && kwamiFoods != null) {
-                    // Eat and charge
-                    for (ItemStack s : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
-                        if (s.is(kwamiFoods.preferredFoods()) || s.is(kwamiFoods.treats())) {
-                            if (s.is(kwamiFoods.treats()) || (s.is(kwamiFoods.preferredFoods()) && level.random.nextInt(3) == 0)) {
-                                stack.set(MineraculousDataComponents.CHARGED, true);
-                            }
-                            s.shrink(1);
-                            break;
+        // Try to eat and charge from inventory
+        if (!level.isClientSide()) {
+            KwamiFoods kwamiFoods = stack.get(MineraculousDataComponents.KWAMI_FOODS);
+            if (kwamiFoods != null) {
+                EatingItem eatingItem = stack.get(MineraculousDataComponents.EATING_ITEM);
+                if (eatingItem != null) {
+                    if (eatingItem.remainingTicks() - 1 <= 0) {
+                        stack.remove(MineraculousDataComponents.EATING_ITEM);
+                        ItemStack item = eatingItem.item();
+                        if (item.is(kwamiFoods.treats()) || (item.is(kwamiFoods.preferredFoods()) && level.random.nextInt(3) == 0)) {
+                            stack.set(MineraculousDataComponents.CHARGED, true);
                         }
+                    } else {
+                        stack.set(MineraculousDataComponents.EATING_ITEM, eatingItem.tick());
                     }
-                } else {
-                    if (MineraculousServerConfig.get().enableKwamiItemMoving.getAsBoolean() && level.random.nextBoolean()) {
-                        // Move to random empty spot
-                        int current = player.getInventory().items.indexOf(stack);
-                        IntList emptySlots = new IntArrayList();
-                        for (int i = 0; i < player.getInventory().items.size(); i++) {
-                            if (i != current && player.getInventory().items.get(i).isEmpty()) {
-                                emptySlots.add(i);
+                } else if (entity.tickCount % SharedConstants.TICKS_PER_SECOND == 0 && MineraculousServerConfig.get().enableKwamiItemCharging.getAsBoolean() && !stack.getOrDefault(MineraculousDataComponents.CHARGED, true)) {
+                    if (level.random.nextInt(10) == 0) {
+                        for (ItemStack s : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
+                            boolean isTreat = s.is(kwamiFoods.treats());
+                            if (isTreat || s.is(kwamiFoods.preferredFoods())) {
+                                int eatTicks = Kwami.getMaxEatTicks(s);
+                                if (eatTicks <= 0)
+                                    eatTicks = kwamiFoods.defaultEatTicks();
+                                stack.set(MineraculousDataComponents.EATING_ITEM, new EatingItem(s.copy(), eatTicks));
+                                s.shrink(1);
+                                break;
                             }
-                        }
-                        if (!emptySlots.isEmpty()) {
-                            int slot = emptySlots.getInt(level.random.nextInt(emptySlots.size()));
-                            player.getInventory().items.set(slot, stack.copy());
-                            stack.setCount(0);
-                        }
-                    } else if (MineraculousServerConfig.get().enableKwamiItemSwapping.getAsBoolean() && level.random.nextBoolean()) {
-                        // Move to random filled spot and swap item
-                        int current = player.getInventory().items.indexOf(stack);
-                        IntList filledSlots = new IntArrayList();
-                        for (int i = 0; i < player.getInventory().items.size(); i++) {
-                            if (i != current && !player.getInventory().items.get(i).isEmpty()) {
-                                filledSlots.add(i);
-                            }
-                        }
-                        if (!filledSlots.isEmpty()) {
-                            int slot = filledSlots.getInt(level.random.nextInt(filledSlots.size()));
-                            ItemStack other = player.getInventory().items.get(slot);
-                            player.getInventory().items.set(slot, stack.copy());
-                            player.getInventory().items.set(current, other.copy());
-                            stack.setCount(0);
-                            other.setCount(0);
                         }
                     }
                 }
@@ -186,10 +167,26 @@ public class KwamiItem extends Item implements GeoItem {
     }
 
     @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {}
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, state -> {
+            ItemStack stack = state.getData(DataTickets.ITEMSTACK);
+            if (stack != null && stack.has(MineraculousDataComponents.EATING_ITEM)) {
+                return state.setAndContinue(Kwami.SIT_EAT);
+            }
+            return state.setAndContinue(DefaultAnimations.SIT);
+        }));
+    }
 
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
         return cache;
+    }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        if (oldStack.getItem() == newStack.getItem() && oldStack.get(MineraculousDataComponents.MIRACULOUS) == newStack.get(MineraculousDataComponents.MIRACULOUS)) {
+            return false;
+        }
+        return super.shouldCauseReequipAnimation(oldStack, newStack, slotChanged);
     }
 }

@@ -19,7 +19,7 @@ import net.minecraft.world.level.storage.loot.LootContext;
  * Advancement trigger for when an entity is kamikotized,
  * with optional fields for target predicates,
  * {@link Kamikotization} key,
- * and whether the kamikotizer is the kamikotized.
+ * and whether the player kamikotized themself.
  */
 public class KamikotizedEntityTrigger extends SimpleCriterionTrigger<KamikotizedEntityTrigger.TriggerInstance> {
     @Override

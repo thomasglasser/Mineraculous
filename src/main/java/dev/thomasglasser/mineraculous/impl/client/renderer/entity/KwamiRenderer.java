@@ -2,9 +2,9 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.KwamiBlockAndItemGeoLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.MiniHolidayHatGeoLayer;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
@@ -23,30 +23,26 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemDisplayContext;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.entity.EquipmentSlot;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.model.GeoModel;
-import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
-import software.bernie.geckolib.renderer.specialty.DynamicGeoEntityRenderer;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.util.Color;
 
-public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> {
+public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
+    public static final String HEAD = "head";
+    public static final String LEFT_HAND = "left_hand";
+    public static final String RIGHT_HAND = "right_hand";
+
     private static final ResourceLocation[] KWAMI_FALLBACK = new ResourceLocation[] {
             MineraculousConstants.modLoc("animations/entity/kwami.animation.json")
     };
-
-    private static final String HEAD = "head";
-    private static final String LEFT_HAND = "left_hand";
-    private static final String RIGHT_HAND = "right_hand";
-
     private static final Int2ObjectOpenHashMap<Color> COLORS = new Int2ObjectOpenHashMap<>();
 
     private final Map<Holder<Miraculous>, GeoModel<T>> models = new Reference2ReferenceOpenHashMap<>();
@@ -59,28 +55,12 @@ public class KwamiRenderer<T extends Kwami> extends DynamicGeoEntityRenderer<T> 
             }
         });
         withScale(0.5f);
-        addRenderLayer(new BlockAndItemGeoLayer<>(this, (bone, entity) -> switch (bone.getName()) {
+        addRenderLayer(new KwamiBlockAndItemGeoLayer<>(this, HEAD, LEFT_HAND, RIGHT_HAND, (bone, entity) -> switch (bone.getName()) {
+            case HEAD -> animatable.getItemBySlot(EquipmentSlot.HEAD);
             case LEFT_HAND -> animatable.isLeftHanded() ? animatable.getMainHandItem() : animatable.getOffhandItem();
             case RIGHT_HAND -> animatable.isLeftHanded() ? animatable.getOffhandItem() : animatable.getMainHandItem();
             default -> null;
-        }, (bone, character) -> null) {
-            @Override
-            protected void renderStackForBone(PoseStack poseStack, GeoBone bone, ItemStack stack, T animatable, MultiBufferSource bufferSource, float partialTick, int packedLight, int packedOverlay) {
-                poseStack.translate(0, 0, -0.05);
-                poseStack.mulPose(Axis.ZN.rotationDegrees(180));
-                super.renderStackForBone(poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);
-            }
-
-            @Override
-            protected ItemDisplayContext getTransformTypeForStack(GeoBone bone, ItemStack stack, T animatable) {
-                return switch (bone.getName()) {
-                    case LEFT_HAND -> ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
-                    case RIGHT_HAND -> ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
-                    case HEAD -> ItemDisplayContext.HEAD;
-                    default -> ItemDisplayContext.NONE;
-                };
-            }
-        });
+        }));
         addRenderLayer(new MiniHolidayHatGeoLayer<>(this, HEAD));
     }
 

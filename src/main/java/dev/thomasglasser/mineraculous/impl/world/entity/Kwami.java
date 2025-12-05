@@ -91,6 +91,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoEntity, FlyingAnimal {
     public static final RawAnimation EAT = RawAnimation.begin().thenPlay("misc.eat");
+    public static final RawAnimation SIT_EAT = RawAnimation.begin().thenPlay("misc.sit_eat");
     public static final RawAnimation HOLD = RawAnimation.begin().thenPlay("misc.hold");
 
     public static final BiPredicate<Kwami, Player> RENOUNCE_PREDICATE = (kwami, player) -> player != null && player.isAlive() && player != kwami.getOwner() && EntitySelector.NO_SPECTATORS.test(player) && !EntityUtils.TARGET_TOO_FAR_PREDICATE.test(kwami, player);
@@ -319,8 +320,18 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         return flag && remaining % 4 == 0;
     }
 
-    protected int getDefaultEatTicks() {
+    public int getDefaultEatTicks() {
         return SharedConstants.TICKS_PER_SECOND * 3;
+    }
+
+    public static int getMaxEatTicks(ItemStack stack) {
+        FoodProperties foodProperties = stack.get(DataComponents.FOOD);
+        if (foodProperties != null) {
+            int eatTicks = foodProperties.eatDurationTicks();
+            if (eatTicks > 0)
+                return eatTicks;
+        }
+        return -1;
     }
 
     @Override
@@ -376,14 +387,9 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                     } else if (!isCharged() && getMainHandItem().isEmpty()) {
                         if (isTreat(stack) || isPreferredFood(stack) || isFood(stack)) {
                             setItemInHand(InteractionHand.MAIN_HAND, stack.copyWithCount(1));
-                            FoodProperties foodProperties = stack.get(DataComponents.FOOD);
-                            if (foodProperties != null) {
-                                eatTicks = foodProperties.eatDurationTicks();
-                                if (eatTicks <= 0)
-                                    eatTicks = getDefaultEatTicks();
-                            } else {
+                            eatTicks = getMaxEatTicks(stack);
+                            if (eatTicks <= 0)
                                 eatTicks = getDefaultEatTicks();
-                            }
                             ItemUtils.safeShrink(1, stack, player);
                             startUsingItem(InteractionHand.MAIN_HAND);
                         }

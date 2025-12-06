@@ -1,6 +1,9 @@
 [
+  "mineraculous:almond_logs",
   "mineraculous:camembert_blocks",
   "mineraculous:cataclysm_immune",
   "mineraculous:cheese_blocks",
-  "c:foods/cheese_blocks"
+  "c:foods/cheese_blocks",
+  "c:stripped_logs",
+  "c:stripped_woods"
 ]

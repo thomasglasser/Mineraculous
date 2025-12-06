@@ -6,6 +6,7 @@ import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.mineraculous.api.datamaps.MiraculousEffect;
 import dev.thomasglasser.mineraculous.api.datamaps.ModifierSettings;
 import dev.thomasglasser.mineraculous.api.world.entity.npc.MineraculousVillagerProfessions;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
@@ -76,7 +77,10 @@ public class MineraculousDataMapProvider extends DataMapProvider {
         }
 
         builder(NeoForgeDataMaps.COMPOSTABLES)
-                .add(MineraculousBlocks.HIBISCUS_BUSH.asItem().builtInRegistryHolder().key().location(), new Compostable(0.65f), false);
+                .add(MineraculousBlocks.HIBISCUS_BUSH.asItem().builtInRegistryHolder().key().location(), new Compostable(0.65f), false)
+                .add(MineraculousItems.ALMOND.asItem().builtInRegistryHolder().key().location(), new Compostable(0.65f), false)
+                .add(MineraculousBlocks.ALMOND_LEAVES_SET.leaves().asItem().builtInRegistryHolder().key().location(), new Compostable(0.3f), false)
+                .add(MineraculousBlocks.ALMOND_LEAVES_SET.sapling().asItem().builtInRegistryHolder().key().location(), new Compostable(0.3f), false);
 
         builder(NeoForgeDataMaps.RAID_HERO_GIFTS)
                 .add(MineraculousVillagerProfessions.FROMAGER, new RaidHeroGift(MineraculousGiftLootKeys.FROMAGER_GIFT), false)

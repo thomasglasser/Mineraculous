@@ -20,7 +20,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -47,7 +47,7 @@ public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Ei
             ItemPredicate.CODEC.optionalFieldOf("item_predicate", ItemPredicate.Builder.item().build()).forGetter(Kamikotization::itemPredicate),
             new EitherCodec<>(ItemStack.CODEC, Ability.CODEC).fieldOf("power_source").forGetter(Kamikotization::powerSource),
             Ability.HOLDER_SET_CODEC.optionalFieldOf("passive_abilities", HolderSet.empty()).forGetter(Kamikotization::passiveAbilities)).apply(instance, Kamikotization::new));
-    public static final Codec<Holder<Kamikotization>> CODEC = RegistryFileCodec.create(MineraculousRegistries.KAMIKOTIZATION, DIRECT_CODEC);
+    public static final Codec<Holder<Kamikotization>> CODEC = RegistryFixedCodec.create(MineraculousRegistries.KAMIKOTIZATION);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, Kamikotization> DIRECT_STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8, Kamikotization::defaultName,

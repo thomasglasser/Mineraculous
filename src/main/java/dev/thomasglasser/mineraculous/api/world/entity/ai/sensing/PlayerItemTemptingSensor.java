@@ -25,11 +25,6 @@ public class PlayerItemTemptingSensor<E extends LivingEntity> extends ItemTempti
         });
     }
 
-    @Override
-    public SensorType<? extends ExtendedSensor<?>> type() {
-        return MineraculousSensorTypes.PLAYER_ITEM_TEMPTING.get();
-    }
-
     /**
      * Sets the predicate to tempt the entity with.
      *
@@ -40,5 +35,10 @@ public class PlayerItemTemptingSensor<E extends LivingEntity> extends ItemTempti
         this.temptPredicate = predicate;
 
         return this;
+    }
+
+    @Override
+    public SensorType<? extends ExtendedSensor<?>> type() {
+        return MineraculousSensorTypes.PLAYER_ITEM_TEMPTING.get();
     }
 }

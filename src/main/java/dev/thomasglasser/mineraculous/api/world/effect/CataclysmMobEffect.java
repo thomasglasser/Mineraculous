@@ -9,6 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 
+/// Applies heavy weakness in all attributes and deals damage per effect tick.
 public class CataclysmMobEffect extends MobEffect {
     private static final ResourceLocation MODIFIER_ID = MineraculousConstants.modLoc("effect.cataclysm");
 

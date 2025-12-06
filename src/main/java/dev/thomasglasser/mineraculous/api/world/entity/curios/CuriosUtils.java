@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.api.world.entity.curios;
 
+import com.google.common.collect.ImmutableSet;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Map;
 import java.util.Set;
 import net.minecraft.world.entity.LivingEntity;
@@ -40,7 +40,7 @@ public class CuriosUtils {
      * @return Whether the stack was successfully inserted
      */
     public static boolean setStackInFirstValidSlot(LivingEntity entity, ItemStack stack) {
-        Set<String> identifiers = CuriosApi.getCuriosInventory(entity).map(handler -> handler.getCurios().keySet()).orElseGet(ReferenceOpenHashSet::of);
+        Set<String> identifiers = CuriosApi.getCuriosInventory(entity).map(handler -> handler.getCurios().keySet()).orElseGet(ImmutableSet::of);
         for (String identifier : identifiers) {
             if (setStackInFirstValidSlot(entity, identifier, stack)) {
                 return true;

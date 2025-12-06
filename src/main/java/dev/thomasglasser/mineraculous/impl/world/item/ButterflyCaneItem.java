@@ -154,7 +154,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
                         CompoundTag kamikoTag = new CompoundTag();
                         kamiko.save(kamikoTag);
                         storingData.storedEntities().add(kamikoTag);
-                        miraculousesData.put(caneOwner, storingKey, storingData, true);
+                        storingData.save(storingKey, caneOwner);
                     }
                     kamiko.discard();
                     player.setItemInHand(usedHand, stack);
@@ -190,7 +190,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
                             serverLevel.addFreshEntity(kamiko);
                             triggerAnim(player, GeoItem.getOrAssignId(stack, serverLevel), CONTROLLER_USE, ANIMATION_OPEN);
                             storingData.storedEntities().removeFirst();
-                            storingData.save(storingKey, caneOwner, true);
+                            storingData.save(storingKey, caneOwner);
                         }
                     }
                 } else

@@ -50,13 +50,16 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Performs functions of a {@link Kamikotization}.
  *
- * @param kamikotization      The current Kamikotization
- * @param kamikoData          The current {@link KamikoData}
- * @param name                The name override of the kamikotized entity
- * @param revertibleId        The unique identifier for the kamikotized item
- * @param transformationState The remaining transformation frames for the current kamikotization if present
- * @param remainingStackCount The remaining number of stacks to be broken for the kamikotization to end
- * @param powerActive         Whether the kamikotized entity's power is active
+ * @param kamikotization         The current Kamikotization
+ * @param kamikoData             The current {@link KamikoData}
+ * @param name                   The name override of the kamikotized entity
+ * @param revertibleId           The unique identifier for the kamikotized item
+ * @param kamikotizedSlot        The equipment slot the kamikotized item is in if present
+ * @param transformationState    The remaining transformation frames for the current kamikotization if present
+ * @param remainingStackCount    The remaining number of stacks to be broken for the kamikotization to end
+ * @param powerActive            Whether the kamikotized entity's power is active
+ * @param buffsActive            Whether the kamikotized entity's buffs are active
+ * @param brokenKamikotizedStack The broken kamikotized item if present
  */
 public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoData kamikoData, String name, UUID revertibleId, Optional<EquipmentSlot> kamikotizedSlot, Optional<MiraculousData.TransformationState> transformationState, int remainingStackCount, boolean powerActive, boolean buffsActive, Optional<ItemStack> brokenKamikotizedStack) {
 
@@ -89,6 +92,15 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
 
     private static final int TRANSFORMATION_FRAMES = 10;
 
+    /**
+     * Transforms the provided entity with {@link Kamikotization},
+     * powered by the provided {@link ItemStack}.
+     *
+     * @param entity        The entity to transform
+     * @param level         The level to transform the entity in
+     * @param originalStack The initial {@link ItemStack} used for transformation
+     * @return The altered {@link ItemStack} used for transformation
+     */
     public ItemStack transform(LivingEntity entity, ServerLevel level, ItemStack originalStack) {
         originalStack.remove(MineraculousDataComponents.KAMIKOTIZING);
 
@@ -142,6 +154,16 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         return kamikotizationStack;
     }
 
+    /**
+     * Detransforms the provided entity,
+     * removing the present kamikotization.
+     *
+     * @param entity           The entity to detransform
+     * @param level            The level to detransform the entity in
+     * @param kamikoSpawnPos   The position to spawn the kamiko at
+     * @param instant          Whether to detransform instantly
+     * @param kamikotizedStack The {@link ItemStack} used for detransformation, if present
+     */
     public void detransform(LivingEntity entity, ServerLevel level, Vec3 kamikoSpawnPos, boolean instant, @Nullable ItemStack kamikotizedStack) {
         Kamiko kamiko = kamikoData.summon(level, kamikoSpawnPos, kamikotization, entity);
         if (kamiko == null) {
@@ -210,6 +232,13 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         });
     }
 
+    /**
+     * Performs all abilities provided by the {@link Kamikotization} associated with this {@link KamikotizationData} with the provided {@link AbilityContext}.
+     *
+     * @param level   The level to perform the abilities in
+     * @param entity  The entity performing the abilities
+     * @param context The {@link AbilityContext} to use for the abilities ({@code null} for passive)
+     */
     public void performAbilities(ServerLevel level, LivingEntity entity, @Nullable AbilityContext context) {
         AbilityData data = AbilityData.of(this);
         KamikotizationAbilityHandler handler = new KamikotizationAbilityHandler(kamikotization);
@@ -284,12 +313,24 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, transformationState, remainingStackCount, powerActive, !buffsActive, brokenKamikotizedStack);
     }
 
+    /**
+     * Saves this {@link KamikotizationData} to the provided {@link Entity} and syncs it,
+     * also removing the {@link MineraculousAttachmentTypes#OLD_KAMIKOTIZATION} if present.
+     *
+     * @param entity The entity to save this {@link KamikotizationData} to
+     */
     public void save(Entity entity) {
         entity.setData(MineraculousAttachmentTypes.KAMIKOTIZATION, Optional.of(this));
         if (entity.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION).isPresent())
             entity.setData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION, Optional.empty());
     }
 
+    /**
+     * Removes the provided entity's {@link KamikotizationData} and syncs it,
+     * also setting the {@link MineraculousAttachmentTypes#OLD_KAMIKOTIZATION} to the current one.
+     *
+     * @param entity The entity to remove the {@link KamikotizationData} from
+     */
     public static void remove(Entity entity) {
         entity.setData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION, entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION));
         entity.removeData(MineraculousAttachmentTypes.KAMIKOTIZATION);

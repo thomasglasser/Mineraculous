@@ -154,7 +154,7 @@ public class MiraculousCommand {
     private static int setPowerLevel(Entity entity, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
         int newLevel = Math.clamp(IntegerArgumentType.getInteger(context, "level"), 0, 100);
         Holder.Reference<Miraculous> miraculous = resolveMiraculous(context, "miraculous");
-        entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).withPowerLevel(newLevel).save(miraculous, entity, true);
+        entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).withPowerLevel(newLevel).save(miraculous, entity);
         context.getSource().sendSuccess(() -> self ? Component.translatable(POWER_LEVEL_SET_SUCCESS_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), newLevel) : Component.translatable(POWER_LEVEL_SET_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), newLevel), true);
         return 1;
     }

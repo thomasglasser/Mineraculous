@@ -9,7 +9,7 @@ import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.ActiveItem;
-import dev.thomasglasser.mineraculous.api.world.item.LeftClickTrackingItem;
+import dev.thomasglasser.mineraculous.api.world.item.LeftClickListener;
 import dev.thomasglasser.mineraculous.api.world.item.LuckyCharmSummoningItem;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
@@ -77,7 +77,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Mode>, ActiveItem, LeftClickTrackingItem, LuckyCharmSummoningItem {
+public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Mode>, ActiveItem, LeftClickListener, LuckyCharmSummoningItem {
     public static final String CONTROLLER_USE = "use_controller";
     public static final String CONTROLLER_OPEN = "open_controller";
     public static final String ANIMATION_OPEN_OUT = "open_out";
@@ -201,7 +201,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                                     }
                                     MineraculousCriteriaTriggers.RELEASED_PURIFIED_ENTITIES.get().trigger((ServerPlayer) player, entities);
                                     storingData.storedEntities().clear();
-                                    storingData.save(storingKey, owner, true);
+                                    storingData.save(storingKey, owner);
                                     player.getCooldowns().addCooldown(this, 10);
                                 } else {
                                     player.startUsingItem(usedHand);

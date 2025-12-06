@@ -369,6 +369,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
         return new BrainActivityGroup<Kamiko>(Activity.REST).priority(0).behaviours(
                 new FirstApplicableBehaviour<>(
                         new Replicate<Kamiko>()
+                                .maxReplicas(MineraculousServerConfig.get().maxKamikoReplicas)
                                 .onReplication(this::onReplication)
                                 .startCondition(kamiko -> BrainUtils.getMemory(kamiko, MineraculousMemoryModuleTypes.REPLICATION_STATUS.get()) == ReplicationState.REPLICATING)
                                 .whenStarting(kamiko -> kamiko.setResting(true))

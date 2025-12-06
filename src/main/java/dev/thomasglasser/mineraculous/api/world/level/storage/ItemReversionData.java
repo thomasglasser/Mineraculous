@@ -13,7 +13,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,25 +42,33 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /// Data for reverting trackable item changes
 public class ItemReversionData extends SavedData {
-    public static final String FILE_ID = "item_reversion";
+    private static final String FILE_ID = "item_reversion";
     private final Table<UUID, UUID, ItemStack> revertibleItems = HashBasedTable.create();
     private final Map<UUID, ItemStack> revertMarkedItems = new Object2ObjectOpenHashMap<>();
     private final Set<UUID> revertedItems = new ObjectOpenHashSet<>();
     private final Map<UUID, ItemStack> kamikotizedItems = new Object2ObjectOpenHashMap<>();
     private final Set<UUID> revertedKamikotizedItems = new ObjectOpenHashSet<>();
 
+    /**
+     * Gets the global {@link ItemReversionData} from the overworld.
+     *
+     * @param level The level to get the server from
+     * @return The global data
+     */
     public static ItemReversionData get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(ItemReversionData.factory(), ItemReversionData.FILE_ID);
     }
 
-    public static Factory<ItemReversionData> factory() {
+    private static Factory<ItemReversionData> factory() {
         return new Factory<>(ItemReversionData::new, ItemReversionData::load, DataFixTypes.LEVEL);
     }
 
+    @ApiStatus.Internal
     public void tick(Entity entity) {
         if (entity.tickCount % 10 == 0) {
             if (checkReverted(entity, this::checkReverted)) {
@@ -170,24 +177,51 @@ public class ItemReversionData extends SavedData {
         return false;
     }
 
-    public void markReverted(UUID owner) {
-        if (revertibleItems.containsRow(owner)) {
-            revertMarkedItems.putAll(revertibleItems.row(owner));
-            revertibleItems.row(owner).clear();
+    /**
+     * Marks all items assigned to the provided {@link UUID} as ready for reversion.
+     *
+     * @param cause The ID of the item change cause
+     */
+    public void markReverted(UUID cause) {
+        if (revertibleItems.containsRow(cause)) {
+            revertMarkedItems.putAll(revertibleItems.row(cause));
+            revertibleItems.row(cause).clear();
             setDirty();
         }
     }
 
-    public void putRevertible(UUID owner, UUID item, ItemStack stack) {
-        revertibleItems.put(owner, item, stack.copy());
+    /**
+     * Marks the provided item ID as revertible to the provided stack,
+     * caused by the provided entity ID.
+     *
+     * @param cause The cause of the item change
+     * @param item  The revertible item ID
+     * @param stack The stack to revert the item with the ID to
+     */
+    public void putRevertible(UUID cause, UUID item, ItemStack stack) {
+        revertibleItems.put(cause, item, stack.copy());
         setDirty();
     }
 
-    public void putRemovable(UUID owner, UUID item) {
-        putRevertible(owner, item, ItemStack.EMPTY);
+    /**
+     * Marks the provided item ID as revertible to an empty stack.
+     *
+     * @param cause The cause of the item change
+     * @param item  The revertible item ID
+     */
+    public void putRemovable(UUID cause, UUID item) {
+        putRevertible(cause, item, ItemStack.EMPTY);
     }
 
-    public void revertKamikotized(LivingEntity owner, UUID item, @Nullable ItemStack kamikotizedStack) {
+    /**
+     * Immediately reverts the provided item ID to the original stack with copied damage and adds it to the cause's inventory.
+     * Marks the reverted stack as revertible to the undamaged original.
+     *
+     * @param cause            The cause of the item change
+     * @param item             The revertible item ID
+     * @param kamikotizedStack The stack to revert the item with the ID from
+     */
+    public void revertKamikotized(LivingEntity cause, UUID item, @Nullable ItemStack kamikotizedStack) {
         ItemStack original = kamikotizedItems.remove(item);
         if (original != null) {
             ItemStack reverted;
@@ -197,16 +231,22 @@ public class ItemReversionData extends SavedData {
 
                 UUID revertibleId = UUID.randomUUID();
                 reverted.set(MineraculousDataComponents.REVERTIBLE_ITEM_ID, revertibleId);
-                putRevertible(owner.getUUID(), revertibleId, original);
+                putRevertible(cause.getUUID(), revertibleId, original);
             } else {
                 reverted = original.copy();
             }
             revertedKamikotizedItems.add(item);
             setDirty();
-            EntityUtils.addToInventoryOrDrop(owner, reverted);
+            EntityUtils.addToInventoryOrDrop(cause, reverted);
         }
     }
 
+    /**
+     * Marks the provided item ID as kamikotized.
+     *
+     * @param item  The revertible item ID
+     * @param stack The stack to revert the item with the ID to
+     */
     public void putKamikotized(UUID item, ItemStack stack) {
         kamikotizedItems.put(item, stack.copy());
         setDirty();
@@ -224,15 +264,15 @@ public class ItemReversionData extends SavedData {
         return tag;
     }
 
-    public static ItemReversionData load(CompoundTag tag, HolderLookup.Provider registries) {
+    private static ItemReversionData load(CompoundTag tag, HolderLookup.Provider registries) {
         RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
         Function<Tag, ItemStack> itemDecoder = MineraculousNbtUtils.codecDecoder(ItemStack.OPTIONAL_CODEC, ops);
         ItemReversionData data = new ItemReversionData();
         data.revertibleItems.putAll(MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Revertible"), UUID::fromString, NbtUtils::loadUUID, itemDecoder));
         data.revertMarkedItems.putAll(MineraculousNbtUtils.readStringKeyedMap(Reference2ReferenceOpenHashMap::new, tag.getCompound("RevertMarked"), UUID::fromString, itemDecoder));
-        data.revertedItems.addAll(MineraculousNbtUtils.readCollection(ReferenceOpenHashSet::new, tag.getList("Reverted", Tag.TAG_INT_ARRAY), NbtUtils::loadUUID));
+        data.revertedItems.addAll(MineraculousNbtUtils.readCollection(ObjectOpenHashSet::new, tag.getList("Reverted", Tag.TAG_INT_ARRAY), NbtUtils::loadUUID));
         data.kamikotizedItems.putAll(MineraculousNbtUtils.readStringKeyedMap(Reference2ReferenceOpenHashMap::new, tag.getCompound("Kamikotized"), UUID::fromString, itemDecoder));
-        data.revertedKamikotizedItems.addAll(MineraculousNbtUtils.readCollection(ReferenceOpenHashSet::new, tag.getList("RevertedKamikotized", Tag.TAG_INT_ARRAY), NbtUtils::loadUUID));
+        data.revertedKamikotizedItems.addAll(MineraculousNbtUtils.readCollection(ObjectOpenHashSet::new, tag.getList("RevertedKamikotized", Tag.TAG_INT_ARRAY), NbtUtils::loadUUID));
         return data;
     }
 }

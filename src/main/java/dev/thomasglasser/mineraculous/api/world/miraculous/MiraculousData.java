@@ -70,6 +70,7 @@ import org.jetbrains.annotations.Nullable;
  * @param powerActive         Whether the miraculous holder's power is active
  * @param countdownStarted    Whether the detransformation countdown has been started
  * @param storedEntities      Any entities currently stored in the miraculous
+ * @param buffsActive         Whether buffs are currently active
  */
 public record MiraculousData(Optional<CuriosData> curiosData, boolean transformed, Optional<TransformationState> transformationState, Optional<Integer> remainingTicks, int toolId, int powerLevel, boolean powerActive, boolean countdownStarted, List<CompoundTag> storedEntities, boolean buffsActive) {
 
@@ -119,6 +120,13 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         this(Optional.empty(), false, Optional.empty(), Optional.empty(), 0, 0, false, false, new ObjectArrayList<>(), false);
     }
 
+    /**
+     * Transforms the provided entity with the provided {@link Miraculous}.
+     *
+     * @param entity     The entity to transform
+     * @param level      The level to transform the entity in
+     * @param miraculous The miraculous to transform with
+     */
     public void transform(LivingEntity entity, ServerLevel level, Holder<Miraculous> miraculous) {
         if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
             MineraculousConstants.LOGGER.error("Tried to transform currently powered entity {}", entity.getName().plainCopy().getString());
@@ -169,7 +177,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                         EntityReversionData.get(level).startTracking(entity.getUUID());
 
                         transformationFrames.ifPresentOrElse(frames -> {
-                            startTransformation(frames).save(miraculous, entity, true);
+                            startTransformation(frames).save(miraculous, entity);
                         }, () -> finishTransformation(entity, level, miraculous));
 
                         if (entity instanceof ServerPlayer player) {
@@ -191,7 +199,16 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         }, () -> MineraculousConstants.LOGGER.error("Tried to transform entity {} with no curios data", entity.getName().plainCopy().getString()));
     }
 
-    public void detransform(LivingEntity entity, ServerLevel level, Holder<Miraculous> miraculous, ItemStack stack, boolean removed) {
+    /**
+     * Detransforms the provided entity with the provided {@link Miraculous}.
+     *
+     * @param entity     The entity to detransform
+     * @param level      The level to detransform the entity in
+     * @param miraculous The miraculous to detransform with
+     * @param stack      The miraculous stack to detransform with. If {@code null}, the stack will be fetched from the curios data of the entity, or fail if it's not present
+     * @param removed    Whether the miraculous stack was removed to cause the detransformation
+     */
+    public void detransform(LivingEntity entity, ServerLevel level, Holder<Miraculous> miraculous, @Nullable ItemStack stack, boolean removed) {
         Miraculous value = miraculous.value();
         Optional<Integer> detransformationFrames = value.transformationFrames();
         ItemStack miraculousStack;
@@ -257,7 +274,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
             if (detransformationFrames.isEmpty()) {
                 finishDetransformation(entity, miraculous);
             } else {
-                startDetransformation(detransformationFrames.get()).save(miraculous, entity, true);
+                startDetransformation(detransformationFrames.get()).save(miraculous, entity);
             }
         } else {
             finishRemovedDetransformation(entity, miraculous);
@@ -280,7 +297,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                 if (frames > 0) {
                     if (entity.tickCount % 2 == 0) {
                         entity.getArmorSlots().forEach(stack -> stack.set(MineraculousDataComponents.TRANSFORMATION_STATE, new TransformationState(true, frames - 1)));
-                        decrementFrames().save(miraculous, entity, true);
+                        decrementFrames().save(miraculous, entity);
                     }
                 } else {
                     finishTransformation(entity, level, miraculous);
@@ -290,7 +307,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                 if (frames > 0) {
                     if (entity.tickCount % 2 == 0) {
                         entity.getArmorSlots().forEach(stack -> stack.set(MineraculousDataComponents.TRANSFORMATION_STATE, new TransformationState(false, frames - 1)));
-                        decrementFrames().save(miraculous, entity, true);
+                        decrementFrames().save(miraculous, entity);
                     }
                 } else {
                     finishDetransformation(entity, miraculous);
@@ -382,7 +399,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                     }
                 }
 
-                tickTransformed(remainingTicks, powerActive, countdownStarted).save(miraculous, entity, true);
+                tickTransformed(remainingTicks, powerActive, countdownStarted).save(miraculous, entity);
             } else if (curiosData.isPresent()) {
                 ItemStack stack = CuriosUtils.getStackInSlot(entity, curiosData.get());
                 stack.set(MineraculousDataComponents.TEXTURE_STATE, entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() ? MiraculousItem.TextureState.ACTIVE : MiraculousItem.TextureState.HIDDEN);
@@ -395,22 +412,30 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         return powerLevel < MAX_POWER_LEVEL;
     }
 
+    /**
+     * Performs all abilities provided by the provided {@link Miraculous} with the provided {@link AbilityContext}.
+     *
+     * @param level      The level to perform the abilities in
+     * @param entity     The performer of the abilities
+     * @param miraculous The miraculous to fetch abilities from
+     * @param context    The context to perform the abilities with. If {@code null}, abilities will be performed passively
+     */
     public void performAbilities(ServerLevel level, LivingEntity entity, Holder<Miraculous> miraculous, @Nullable AbilityContext context) {
         AbilityData data = AbilityData.of(this);
         AbilityHandler handler = new MiraculousAbilityHandler(miraculous);
         Ability.State state = AbilityUtils.performPassiveAbilities(level, entity, data, handler, context, miraculous.value().passiveAbilities());
         if (powerActive) {
             if (state.shouldStop()) {
-                withPowerActive(false).save(miraculous, entity, true);
+                withPowerActive(false).save(miraculous, entity);
             } else if (canUseMainPower()) {
                 state = AbilityUtils.performActiveAbility(level, entity, data, handler, context, Optional.of(miraculous.value().activeAbility()));
                 if (state.isSuccess()) {
                     if (context != null && entity instanceof ServerPlayer player) {
                         MineraculousCriteriaTriggers.PERFORMED_MIRACULOUS_ACTIVE_ABILITY.get().trigger(player, miraculous.getKey(), context.advancementContext());
                     }
-                    usedMainPower().save(miraculous, entity, true);
+                    usedMainPower().save(miraculous, entity);
                 } else if (state.shouldStop()) {
-                    withPowerActive(false).save(miraculous, entity, true);
+                    withPowerActive(false).save(miraculous, entity);
                 }
             }
         }
@@ -429,7 +454,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         }
         int id = createAndEquipTool(entity, level, miraculous);
         if (id > -1) {
-            finishTransformation(id).save(miraculous, entity, true);
+            finishTransformation(id).save(miraculous, entity);
         } else {
             MineraculousConstants.LOGGER.error("Tool could not be created for entity {}", entity.getName().plainCopy().getString());
         }
@@ -437,14 +462,21 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
 
     private void finishRemovedDetransformation(LivingEntity entity, Holder<Miraculous> miraculous) {
         ArmorData.restoreOrClear(entity);
-        finishRemovedDetransformation().save(miraculous, entity, true);
+        finishRemovedDetransformation().save(miraculous, entity);
     }
 
     private void finishDetransformation(LivingEntity entity, Holder<Miraculous> miraculous) {
         ArmorData.restoreOrClear(entity);
-        finishDetransformation().save(miraculous, entity, true);
+        finishDetransformation().save(miraculous, entity);
     }
 
+    /**
+     * Collects all attribute modifiers provided by {@link MineraculousDataMaps#MIRACULOUS_ATTRIBUTE_MODIFIERS}.
+     *
+     * @param level      The level to fetch the data map from
+     * @param powerLevel The power level to apply to the attribute modifiers
+     * @return A multimap containing all attribute modifiers provided by {@link MineraculousDataMaps#MIRACULOUS_ATTRIBUTE_MODIFIERS}
+     */
     public static Multimap<Holder<Attribute>, AttributeModifier> getMiraculousAttributes(ServerLevel level, int powerLevel) {
         Multimap<Holder<Attribute>, AttributeModifier> attributeModifiers = HashMultimap.create();
         Registry<Attribute> attributes = level.registryAccess().registryOrThrow(Registries.ATTRIBUTE);
@@ -532,10 +564,21 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         return new MiraculousData(curiosData, transformed, transformationState, remainingTicks, toolId, powerLevel, powerActive, countdownStarted, storedEntities, !buffsActive);
     }
 
-    public void save(Holder<Miraculous> miraculous, Entity entity, boolean sync) {
-        MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-        miraculousesData.put(entity, miraculous, this, sync);
+    /**
+     * Saves this {@link MiraculousData} to the provided entity and syncs it.
+     *
+     * @param miraculous The miraculous to save this data for
+     * @param entity     The entity to save this data to
+     */
+    public void save(Holder<Miraculous> miraculous, Entity entity) {
+        entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).put(entity, miraculous, this);
     }
+    /**
+     * Represents an ongoing de/transformation and remaining frames for it.
+     *
+     * @param transforming    Whether this is a transformation or detransformation
+     * @param remainingFrames The remaining frames for this de/transformation
+     */
     public record TransformationState(boolean transforming, int remainingFrames) {
         public static final Codec<TransformationState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.BOOL.fieldOf("transforming").forGetter(TransformationState::transforming),

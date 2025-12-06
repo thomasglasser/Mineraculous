@@ -15,7 +15,7 @@ import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -80,6 +80,11 @@ public class MineraculousEntityUtils {
         return original;
     }
 
+    /**
+     * Refreshes and syncs the provided {@link ServerPlayer}'s display name.
+     * 
+     * @param player The player to refresh and sync the display name of
+     */
     public static void refreshAndSyncDisplayName(ServerPlayer player) {
         player.refreshDisplayName();
         TommyLibServices.NETWORK.sendToTrackingClientsAndSelf(new ClientboundRefreshDisplayNamePayload(player.getUUID()), player);
@@ -114,7 +119,7 @@ public class MineraculousEntityUtils {
      * @return The {@link Set} of any items the entity has
      */
     public static Set<ItemStack> getInventoryAndCurios(Entity entity) {
-        Set<ItemStack> inventory = new ReferenceOpenHashSet<>();
+        Set<ItemStack> inventory = new ObjectOpenHashSet<>();
         inventory.addAll(EntityUtils.getInventory(entity));
         if (entity instanceof LivingEntity livingEntity) {
             inventory.addAll(CuriosUtils.getAllItems(livingEntity).values());
@@ -123,13 +128,15 @@ public class MineraculousEntityUtils {
     }
 
     /**
-     * Summons a {@link Kwami} with the provided charge, miraculous ID, and miraculous for the provided owner.
+     * Summons a {@link Kwami} with the provided charge, miraculous ID, miraculous, and UUID for the provided owner,
+     * optionally playing a summoning animation.
      *
      * @param owner         The owner of the kwami
      * @param charged       Whether the kwami is charged
      * @param miraculousId  The related miraculous item {@link UUID}
      * @param miraculous    The miraculous of the kwami
      * @param playAnimation Whether to play the kwami summon animation
+     * @param uuidOverride  The {@link UUID} to use for the kwami, or null to use a random UUID
      * @return The summoned kwami
      */
     public static Kwami summonKwami(Entity owner, boolean charged, UUID miraculousId, Holder<Miraculous> miraculous, boolean playAnimation, @Nullable UUID uuidOverride) {

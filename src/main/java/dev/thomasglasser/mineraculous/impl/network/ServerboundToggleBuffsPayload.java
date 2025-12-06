@@ -35,7 +35,7 @@ public class ServerboundToggleBuffsPayload implements ExtendedPacketPayload {
                         player.removeEffect(player.level().holderOrThrow(effect));
                     }
                 });
-                data.toggleBuffsActive().save(miraculous, player, true);
+                data.toggleBuffsActive().save(miraculous, player);
             }
         } else {
             Optional<KamikotizationData> data = player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);

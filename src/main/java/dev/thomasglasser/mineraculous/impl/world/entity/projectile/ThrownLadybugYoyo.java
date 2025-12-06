@@ -339,7 +339,7 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                             List<CompoundTag> stored = storingData.storedEntities();
                             stored.add(tag);
                             entity.discard();
-                            storingData.save(storingKey, yoyoOwner, true);
+                            storingData.save(storingKey, yoyoOwner);
                             discard();
                         }
                     }

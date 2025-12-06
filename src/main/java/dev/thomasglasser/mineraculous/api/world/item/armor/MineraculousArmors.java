@@ -15,7 +15,9 @@ import org.jetbrains.annotations.ApiStatus;
 public class MineraculousArmors {
     private static final DeferredRegister.Items ARMORS = DeferredRegister.createItems(MineraculousConstants.MOD_ID);
 
+    /// A set of epic {@link MiraculousArmorItem}s.
     public static final ArmorSet MIRACULOUS = createMiraculousSet();
+    /// A set of epic {@link KamikotizationArmorItem}s.
     public static final ArmorSet KAMIKOTIZATION = createKamikotizationSet();
 
     private static ArmorSet createMiraculousSet() {

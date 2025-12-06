@@ -8,6 +8,7 @@ import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
+/// A cooking recipe for use in the {@link dev.thomasglasser.mineraculous.impl.world.level.block.OvenBlock}.
 public class OvenCookingRecipe extends AbstractCookingRecipe {
     public OvenCookingRecipe(String group, CookingBookCategory category, Ingredient ingredient, ItemStack result, float experience, int cookingTime) {
         super(MineraculousRecipeTypes.OVEN_COOKING.get(), group, category, ingredient, result, experience, cookingTime);

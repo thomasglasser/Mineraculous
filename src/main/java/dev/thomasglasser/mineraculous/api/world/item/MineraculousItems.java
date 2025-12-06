@@ -35,7 +35,6 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.armortrim.TrimPattern;
 import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.block.Block;
@@ -59,7 +58,8 @@ public class MineraculousItems {
     public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", () -> new MiraculousItem(new Item.Properties().component(MineraculousDataComponents.CHARGED, true)));
     public static final DeferredItem<KwamiItem> KWAMI = register("kwami", () -> new KwamiItem(new Item.Properties()));
 
-    public static final DeferredItem<SwordItem> GREAT_SWORD = register("great_sword", () -> new SwordItem(MineraculousTiers.MIRACULOUS, new Item.Properties().attributes(SwordItem.createAttributes(Tiers.DIAMOND, 6, -3))));
+    /// Dramatically large and powerful sword for lucky charm
+    public static final DeferredItem<SwordItem> GREAT_SWORD = register("great_sword", () -> new SwordItem(MineraculousTiers.MIRACULOUS, new Item.Properties().attributes(SwordItem.createAttributes(MineraculousTiers.MIRACULOUS, 6, -3))));
     /// Inventory filler used for ability reversion
     public static final DeferredItem<Item> CATACLYSM_DUST = register("cataclysm_dust", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
 
@@ -77,6 +77,7 @@ public class MineraculousItems {
     public static final SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> CAMEMBERT = wedges("camembert", MineraculousFoods.CAMEMBERT, MineraculousBlocks.CAMEMBERT);
     public static final SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> WAXED_CAMEMBERT = waxedWedges("camembert", MineraculousBlocks.WAXED_CAMEMBERT);
 
+    // Foods
     public static final DeferredItem<Item> RAW_MACARON = register("raw_macaron", () -> new Item(new Item.Properties().stacksTo(16).food(MineraculousFoods.RAW_MACARON)));
     public static final DeferredItem<Item> MACARON = register("macaron", () -> new Item(new Item.Properties().stacksTo(16).food(MineraculousFoods.MACARON)));
 

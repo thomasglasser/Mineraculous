@@ -20,6 +20,10 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProviders;
 
+/**
+ * Dyes the provided stack with the provided {@link #colorCount} of random colors,
+ * filtering out non-dyeable items if {@link #onlyDyeable} is set to false.
+ */
 public class DyeRandomlyFunction extends LootItemConditionalFunction {
     public static final MapCodec<DyeRandomlyFunction> CODEC = RecordCodecBuilder.mapCodec(instance -> commonFields(instance).and(
             instance.group(NumberProviders.CODEC.optionalFieldOf("color_count", ConstantValue.exactly(1)).forGetter(function -> function.colorCount),

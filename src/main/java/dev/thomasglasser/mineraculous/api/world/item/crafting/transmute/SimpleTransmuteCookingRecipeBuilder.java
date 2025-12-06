@@ -22,6 +22,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.Nullable;
 
+/// A {@link RecipeBuilder} for building a {@link AbstractCookingRecipe} for transmuting.
 public class SimpleTransmuteCookingRecipeBuilder implements RecipeBuilder {
     private final RecipeCategory category;
     private final CookingBookCategory bookCategory;

@@ -9,7 +9,7 @@ import net.minecraft.world.damagesource.DamageType;
 import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousDamageTypes {
-    /// Dealt by {@link MineraculousMobEffects#CATACLYSM} and {@link Abilities#CATACLYSM}
+    /// Dealt by {@link dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects#CATACLYSM} and {@link dev.thomasglasser.mineraculous.api.world.ability.Abilities#CATACLYSM}
     public static final ResourceKey<DamageType> CATACLYSM = create("cataclysm");
 
     private static ResourceKey<DamageType> create(String name) {

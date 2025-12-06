@@ -15,6 +15,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 
+/// A {@link RecipeSerializer} for building a {@link AbstractCookingRecipe} for transmuting.
 public class SimpleTransmuteCookingSerializer<T extends AbstractCookingRecipe> implements RecipeSerializer<T> {
     private final Factory<T> factory;
     private final MapCodec<T> codec;

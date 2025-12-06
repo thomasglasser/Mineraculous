@@ -11,7 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 /// Destroyed and dropped on touch or random tick.
 public class CrumblingBlock extends Block {
     public CrumblingBlock(Properties properties) {
-        super(properties.randomTicks());
+        super(properties.randomTicks().noCollission());
     }
 
     @Override

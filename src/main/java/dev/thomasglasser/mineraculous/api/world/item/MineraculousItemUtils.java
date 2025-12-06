@@ -101,7 +101,7 @@ public class MineraculousItemUtils {
                 if (breaker != null) {
                     MiraculousesData miraculousesData = breaker.getData(MineraculousAttachmentTypes.MIRACULOUSES);
                     if (miraculousesData.isTransformed()) {
-                        damage += 100 * miraculousesData.getPowerLevel();
+                        damage += 100 * miraculousesData.getMaxTransformedPowerLevel();
                     } else {
                         Optional<KamikotizationData> kamikotizationData = breaker.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
                         if (kamikotizationData.isPresent()) {
@@ -127,6 +127,12 @@ public class MineraculousItemUtils {
         }
     }
 
+    /**
+     * The result of trying to break an item.
+     *
+     * @param original  The original stack being broken
+     * @param remainder The remainder stack after breaking
+     */
     public record BreakResult(ItemStack original, ItemStack remainder) {
         public static BreakResult fail(ItemStack original) {
             return new BreakResult(original, ItemStack.EMPTY);
@@ -183,7 +189,9 @@ public class MineraculousItemUtils {
     }
 
     /**
-     * Slows fall and cancels damage for the entity blocking with the item pointed upwards.
+     * Checks if the entity is blocking with the item pointed upwards,
+     * applying slow fall if so.
+     * Must be called on both server and client.
      *
      * @param stack  The stack being used to block
      * @param entity The entity blocking
@@ -194,13 +202,26 @@ public class MineraculousItemUtils {
         }
     }
 
-    // to be used on both client and server
+    /**
+     * Slows fall and cancels damage for the entity blocking with the item pointed upwards.
+     * Must be called on both server and client.
+     *
+     * @param entity The entity blocking
+     */
     public static void applyHelicopterSlowFall(Entity entity) {
         double overrideDelta = Math.max(entity.getDeltaMovement().y, -0.1);
         entity.setDeltaMovement(entity.getDeltaMovement().x, overrideDelta, entity.getDeltaMovement().z);
         entity.resetFallDistance();
     }
 
+    /**
+     * Applies the provided dyes to the provided stack.
+     * Copy of {@link DyedItemColor#applyDyes(ItemStack, List)} without the {@link net.minecraft.tags.ItemTags#DYEABLE} check.
+     *
+     * @param stack The stack to apply the dyes to
+     * @param dyes  The dyes to apply
+     * @return The dyed stack
+     */
     public static ItemStack applyDyesToUndyeable(ItemStack stack, List<DyeItem> dyes) {
         ItemStack itemstack = stack.copyWithCount(1);
         int i = 0;

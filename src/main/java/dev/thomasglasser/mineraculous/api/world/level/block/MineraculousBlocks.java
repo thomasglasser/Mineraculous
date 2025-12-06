@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.level.block;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
 import dev.thomasglasser.mineraculous.api.world.food.MineraculousFoods;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.world.level.block.OvenBlock;
@@ -28,13 +27,10 @@ public class MineraculousBlocks {
     @ApiStatus.Internal
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MineraculousConstants.MOD_ID);
 
-    /**
-     * Sand-like.
-     * Used as a filler replacement block for {@link Abilities#CATACLYSM}.
-     */
-    public static final DeferredBlock<CrumblingBlock> CATACLYSM_BLOCK = registerWithItem("cataclysm_block", () -> new CrumblingBlock(Block.Properties.of().noCollission().mapColor(MapColor.COLOR_BLACK).instrument(NoteBlockInstrument.SNARE).sound(SoundType.SAND)));
+    /// Sand-like filler replacement block for {@link Abilities#CATACLYSM}.
+    public static final DeferredBlock<CrumblingBlock> CATACLYSM_BLOCK = registerWithItem("cataclysm_block", () -> new CrumblingBlock(Block.Properties.of().mapColor(MapColor.COLOR_BLACK).instrument(NoteBlockInstrument.SNARE).sound(SoundType.SAND)));
 
-    /// No function currently, only used in {@link MineraculousPoiTypes#FROMAGER}.
+    /// No function currently, only used in {@link dev.thomasglasser.mineraculous.impl.world.entity.ai.village.poi.MineraculousPoiTypes#FROMAGER}.
     public static final DeferredBlock<Block> CHEESE_POT = registerWithItem("cheese_pot", () -> new Block(BlockBehaviour.Properties.of().strength(0.5f).noOcclusion().sound(SoundType.METAL).mapColor(MapColor.GOLD)));
     public static final DeferredBlock<OvenBlock> OVEN = registerWithItem("oven", () -> new OvenBlock(BlockBehaviour.Properties.ofFullCopy(Blocks.SMOKER)));
 
@@ -43,7 +39,6 @@ public class MineraculousBlocks {
     // Cheese
     public static final SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> CHEESE = cheeses("cheese", MineraculousFoods.CHEESE, MapColor.GOLD, () -> MineraculousItems.CHEESE);
     public static final SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> CAMEMBERT = cheeses("camembert", MineraculousFoods.CAMEMBERT, MapColor.TERRACOTTA_WHITE, () -> MineraculousItems.CAMEMBERT);
-
     public static final SortedMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> WAXED_CHEESE = waxedCheeses("cheese", MapColor.GOLD, () -> MineraculousItems.WAXED_CHEESE);
     public static final SortedMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> WAXED_CAMEMBERT = waxedCheeses("camembert", MapColor.TERRACOTTA_WHITE, () -> MineraculousItems.WAXED_CAMEMBERT);
 

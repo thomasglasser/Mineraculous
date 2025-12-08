@@ -21,7 +21,7 @@ public record ServerboundStealItemPayload(UUID target, int slot) implements Exte
     public static final Type<ServerboundStealItemPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_steal_item"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundStealItemPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), ServerboundStealItemPayload::target,
-            ByteBufCodecs.INT, ServerboundStealItemPayload::slot,
+            ByteBufCodecs.VAR_INT, ServerboundStealItemPayload::slot,
             ServerboundStealItemPayload::new);
 
     // ON SERVER

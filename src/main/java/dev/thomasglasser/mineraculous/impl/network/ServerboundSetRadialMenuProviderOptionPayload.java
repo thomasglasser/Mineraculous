@@ -16,7 +16,7 @@ public record ServerboundSetRadialMenuProviderOptionPayload(InteractionHand hand
     public static final Type<ServerboundSetRadialMenuProviderOptionPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_set_radial_menu_provider_option"));
     public static final StreamCodec<FriendlyByteBuf, ServerboundSetRadialMenuProviderOptionPayload> CODEC = StreamCodec.composite(
             TommyLibExtraStreamCodecs.forEnum(InteractionHand.class), ServerboundSetRadialMenuProviderOptionPayload::hand,
-            ByteBufCodecs.INT, ServerboundSetRadialMenuProviderOptionPayload::index,
+            ByteBufCodecs.VAR_INT, ServerboundSetRadialMenuProviderOptionPayload::index,
             ServerboundSetRadialMenuProviderOptionPayload::new);
 
     @Override

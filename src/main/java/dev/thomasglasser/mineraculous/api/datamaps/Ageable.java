@@ -12,10 +12,10 @@ import net.minecraft.world.level.block.Block;
  * @param next The block to be replaced with
  */
 public record Ageable(Block next) {
-    public static final Codec<Ageable> AGEABLE_CODEC = BuiltInRegistries.BLOCK.byNameCodec()
+    public static final Codec<Ageable> SIMPLE_CODEC = BuiltInRegistries.BLOCK.byNameCodec()
             .xmap(Ageable::new, Ageable::next);
     public static final Codec<Ageable> CODEC = Codec.withAlternative(
             RecordCodecBuilder.create(instance -> instance.group(
                     BuiltInRegistries.BLOCK.byNameCodec().fieldOf("next").forGetter(Ageable::next)).apply(instance, Ageable::new)),
-            AGEABLE_CODEC);
+            SIMPLE_CODEC);
 }

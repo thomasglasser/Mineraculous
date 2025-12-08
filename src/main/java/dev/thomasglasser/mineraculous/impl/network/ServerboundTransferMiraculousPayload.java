@@ -23,7 +23,7 @@ public record ServerboundTransferMiraculousPayload(Optional<UUID> targetId, int 
     public static final Type<ServerboundTransferMiraculousPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_transfer_miraculous"));
     public static final StreamCodec<ByteBuf, ServerboundTransferMiraculousPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), ServerboundTransferMiraculousPayload::targetId,
-            ByteBufCodecs.INT, ServerboundTransferMiraculousPayload::kwamiId,
+            ByteBufCodecs.VAR_INT, ServerboundTransferMiraculousPayload::kwamiId,
             ServerboundTransferMiraculousPayload::new);
 
     // ON SERVER

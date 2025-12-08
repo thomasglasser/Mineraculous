@@ -19,6 +19,6 @@ public record LuckyCharm(Optional<UUID> target, UUID owner, int id) {
     public static final StreamCodec<ByteBuf, LuckyCharm> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), LuckyCharm::target,
             UUIDUtil.STREAM_CODEC, LuckyCharm::owner,
-            ByteBufCodecs.INT, LuckyCharm::id,
+            ByteBufCodecs.VAR_INT, LuckyCharm::id,
             LuckyCharm::new);
 }

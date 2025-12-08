@@ -19,7 +19,7 @@ public record CuriosData(String identifier, int index) {
             Codec.INT.fieldOf("index").forGetter(CuriosData::index)).apply(instance, CuriosData::new));
     public static final StreamCodec<ByteBuf, CuriosData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8, CuriosData::identifier,
-            ByteBufCodecs.INT, CuriosData::index,
+            ByteBufCodecs.VAR_INT, CuriosData::index,
             CuriosData::new);
 
     public CuriosData(SlotContext slotContext) {

@@ -45,6 +45,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
@@ -94,9 +95,9 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
             ByteBufCodecs.optional(CuriosData.STREAM_CODEC), MiraculousData::curiosData,
             ByteBufCodecs.BOOL, MiraculousData::transformed,
             ByteBufCodecs.optional(TransformationState.STREAM_CODEC), MiraculousData::transformationState,
-            ByteBufCodecs.optional(ByteBufCodecs.INT), MiraculousData::remainingTicks,
-            ByteBufCodecs.INT, MiraculousData::toolId,
-            ByteBufCodecs.INT, MiraculousData::powerLevel,
+            ByteBufCodecs.optional(ByteBufCodecs.VAR_INT), MiraculousData::remainingTicks,
+            ByteBufCodecs.VAR_INT, MiraculousData::toolId,
+            ByteBufCodecs.VAR_INT, MiraculousData::powerLevel,
             ByteBufCodecs.BOOL, MiraculousData::powerActive,
             ByteBufCodecs.BOOL, MiraculousData::countdownStarted,
             ByteBufCodecs.COMPOUND_TAG.apply(ByteBufCodecs.list()), MiraculousData::storedEntities,
@@ -582,10 +583,10 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
     public record TransformationState(boolean transforming, int remainingFrames) {
         public static final Codec<TransformationState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.BOOL.fieldOf("transforming").forGetter(TransformationState::transforming),
-                Codec.INT.fieldOf("remainingFrames").forGetter(TransformationState::remainingFrames)).apply(instance, TransformationState::new));
+                ExtraCodecs.NON_NEGATIVE_INT.fieldOf("remainingFrames").forGetter(TransformationState::remainingFrames)).apply(instance, TransformationState::new));
         public static final StreamCodec<ByteBuf, TransformationState> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.BOOL, TransformationState::transforming,
-                ByteBufCodecs.INT, TransformationState::remainingFrames,
+                ByteBufCodecs.VAR_INT, TransformationState::remainingFrames,
                 TransformationState::new);
 
         public TransformationState decrementFrames() {

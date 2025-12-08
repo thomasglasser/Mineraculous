@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.impl.world.item;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
-import dev.thomasglasser.mineraculous.impl.world.item.component.Kamikotizing;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import java.util.List;
 import java.util.function.Consumer;
 import net.minecraft.network.chat.Component;
@@ -26,10 +26,10 @@ public class MineraculousItemEvents {
 
     public static void onItemToss(ItemTossEvent event) {
         ItemStack stack = event.getEntity().getItem();
-        Kamikotizing kamikotizing = stack.get(MineraculousDataComponents.KAMIKOTIZING);
+        SlotInfo kamikotizing = stack.get(MineraculousDataComponents.KAMIKOTIZING);
         if (kamikotizing != null) {
             Player player = event.getPlayer();
-            kamikotizing.slotInfo().getSlot().ifLeft(i -> {
+            kamikotizing.getSlot().ifLeft(i -> {
                 ItemStack current = player.getInventory().getItem(i);
                 if (!current.isEmpty())
                     player.addItem(current);

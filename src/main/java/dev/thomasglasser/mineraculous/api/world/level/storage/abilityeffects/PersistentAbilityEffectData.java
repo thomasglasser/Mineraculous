@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,7 +35,7 @@ public record PersistentAbilityEffectData(boolean playedContinuousAbilityStartSo
 
     public static final Codec<PersistentAbilityEffectData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.fieldOf("played_continuous_ability_start_sound").forGetter(PersistentAbilityEffectData::playedContinuousAbilityStartSound),
-            Codec.INT.optionalFieldOf("continuous_ticks").forGetter(PersistentAbilityEffectData::continuousTicks),
+            ExtraCodecs.NON_NEGATIVE_INT.optionalFieldOf("continuous_ticks").forGetter(PersistentAbilityEffectData::continuousTicks),
             DelayedBlockReplacement.CODEC.listOf().listOf().xmap(PersistentAbilityEffectData::readDelayedBlockReplacements, PersistentAbilityEffectData::writeDelayedBlockReplacements).fieldOf("delayed_block_replacements").forGetter(PersistentAbilityEffectData::delayedBlockReplacements),
             UUIDUtil.CODEC.optionalFieldOf("kill_credit_override").forGetter(PersistentAbilityEffectData::killCreditOverride)).apply(instance, PersistentAbilityEffectData::new));
 

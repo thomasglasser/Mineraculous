@@ -47,6 +47,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -61,12 +62,12 @@ public record MiraculousLadybugTriggerData(UUID performerId, UUID targetId, Opti
             UUIDUtil.CODEC.fieldOf("performer_id").forGetter(MiraculousLadybugTriggerData::performerId),
             UUIDUtil.CODEC.fieldOf("target_id").forGetter(MiraculousLadybugTriggerData::targetId),
             SoundEvent.CODEC.optionalFieldOf("revert_sound").forGetter(MiraculousLadybugTriggerData::revertSound),
-            Codec.INT.fieldOf("tick_count").forGetter(MiraculousLadybugTriggerData::tickCount)).apply(instance, MiraculousLadybugTriggerData::new));
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("tick_count").forGetter(MiraculousLadybugTriggerData::tickCount)).apply(instance, MiraculousLadybugTriggerData::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousLadybugTriggerData> STREAM_CODEC = StreamCodec.composite(
             UUIDUtil.STREAM_CODEC, MiraculousLadybugTriggerData::performerId,
             UUIDUtil.STREAM_CODEC, MiraculousLadybugTriggerData::targetId,
             ByteBufCodecs.optional(SoundEvent.STREAM_CODEC), MiraculousLadybugTriggerData::revertSound,
-            ByteBufCodecs.INT, MiraculousLadybugTriggerData::tickCount,
+            ByteBufCodecs.VAR_INT, MiraculousLadybugTriggerData::tickCount,
             MiraculousLadybugTriggerData::new);
 
     public static final int MIRACULOUS_LADYBUGS_COUNT = 8;

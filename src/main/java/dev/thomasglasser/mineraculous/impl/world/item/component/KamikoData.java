@@ -13,10 +13,12 @@ import io.netty.buffer.ByteBuf;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.Holder;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.tslat.smartbrainlib.util.BrainUtils;
@@ -25,15 +27,15 @@ import org.jetbrains.annotations.Nullable;
 public record KamikoData(UUID uuid, UUID owner, int powerLevel, int nameColor, Optional<ResourceLocation> faceMaskTexture) {
 
     public static final Codec<KamikoData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.STRING.xmap(UUID::fromString, UUID::toString).fieldOf("uuid").forGetter(KamikoData::uuid),
-            Codec.STRING.xmap(UUID::fromString, UUID::toString).fieldOf("owner").forGetter(KamikoData::owner),
-            Codec.INT.fieldOf("power_level").forGetter(KamikoData::powerLevel),
+            UUIDUtil.CODEC.fieldOf("uuid").forGetter(KamikoData::uuid),
+            UUIDUtil.CODEC.fieldOf("owner").forGetter(KamikoData::owner),
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("power_level").forGetter(KamikoData::powerLevel),
             Codec.INT.fieldOf("name_color").forGetter(KamikoData::nameColor),
             ResourceLocation.CODEC.optionalFieldOf("face_mask_texture").forGetter(KamikoData::faceMaskTexture)).apply(instance, KamikoData::new));
     public static final StreamCodec<ByteBuf, KamikoData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), KamikoData::uuid,
             ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), KamikoData::owner,
-            ByteBufCodecs.INT, KamikoData::powerLevel,
+            ByteBufCodecs.VAR_INT, KamikoData::powerLevel,
             ByteBufCodecs.INT, KamikoData::nameColor,
             ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC), KamikoData::faceMaskTexture,
             KamikoData::new);

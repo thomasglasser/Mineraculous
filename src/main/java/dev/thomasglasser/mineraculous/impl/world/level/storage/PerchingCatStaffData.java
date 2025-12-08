@@ -28,7 +28,7 @@ public record PerchingCatStaffData(
             ByteBufCodecs.FLOAT, PerchingCatStaffData::length,
             ByteBufCodecs.FLOAT, PerchingCatStaffData::yGroundLevel,
             ByteBufCodecs.BOOL, PerchingCatStaffData::perching,
-            ByteBufCodecs.INT, PerchingCatStaffData::tick,
+            ByteBufCodecs.VAR_INT, PerchingCatStaffData::tick,
             ByteBufCodecs.BOOL, PerchingCatStaffData::canRender,
             ByteBufCodecs.VECTOR3F, PerchingCatStaffData::initPos, //y stores rotation
             ByteBufCodecs.BOOL, PerchingCatStaffData::isFalling,

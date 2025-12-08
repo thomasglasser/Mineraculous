@@ -36,6 +36,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Unit;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.Entity;
@@ -70,7 +71,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
             UUIDUtil.CODEC.fieldOf("revertible_id").forGetter(KamikotizationData::revertibleId),
             EquipmentSlot.CODEC.optionalFieldOf("kamikotized_slot").forGetter(KamikotizationData::kamikotizedSlot),
             MiraculousData.TransformationState.CODEC.optionalFieldOf("transformation_frames").forGetter(KamikotizationData::transformationState),
-            Codec.INT.fieldOf("remaining_stack_count").forGetter(KamikotizationData::remainingStackCount),
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("remaining_stack_count").forGetter(KamikotizationData::remainingStackCount),
             Codec.BOOL.fieldOf("power_active").forGetter(KamikotizationData::powerActive),
             Codec.BOOL.fieldOf("buffs_active").forGetter(KamikotizationData::buffsActive),
             ItemStack.CODEC.optionalFieldOf("broken_kamikotized_stack").forGetter(KamikotizationData::brokenKamikotizedStack)).apply(instance, KamikotizationData::new));
@@ -81,7 +82,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
             UUIDUtil.STREAM_CODEC, KamikotizationData::revertibleId,
             ByteBufCodecs.optional(TommyLibExtraStreamCodecs.forEnum(EquipmentSlot.class)), KamikotizationData::kamikotizedSlot,
             ByteBufCodecs.optional(MiraculousData.TransformationState.STREAM_CODEC), KamikotizationData::transformationState,
-            ByteBufCodecs.INT, KamikotizationData::remainingStackCount,
+            ByteBufCodecs.VAR_INT, KamikotizationData::remainingStackCount,
             ByteBufCodecs.BOOL, KamikotizationData::powerActive,
             ByteBufCodecs.BOOL, KamikotizationData::buffsActive,
             ByteBufCodecs.optional(ItemStack.STREAM_CODEC), KamikotizationData::brokenKamikotizedStack,

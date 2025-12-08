@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
-import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.nbt.MineraculousNbtUtils;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
@@ -13,6 +12,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
@@ -56,14 +56,14 @@ public class ToolIdData extends SavedData {
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
         RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
-        tag.put("ToolIds", MineraculousNbtUtils.writeStringKeyedMap(toolIds, UUID::toString, MineraculousNbtUtils.codecEncoder(Codec.INT, ops)));
+        tag.put("ToolIds", MineraculousNbtUtils.writeStringKeyedMap(toolIds, UUID::toString, MineraculousNbtUtils.codecEncoder(ExtraCodecs.NON_NEGATIVE_INT, ops)));
         return tag;
     }
 
     public static ToolIdData load(CompoundTag tag, HolderLookup.Provider registries) {
         RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
         ToolIdData data = new ToolIdData();
-        data.toolIds.putAll(MineraculousNbtUtils.readStringKeyedMap(Object2IntOpenHashMap::new, tag.getCompound("ToolIds"), UUID::fromString, MineraculousNbtUtils.codecDecoder(Codec.INT, ops)));
+        data.toolIds.putAll(MineraculousNbtUtils.readStringKeyedMap(Object2IntOpenHashMap::new, tag.getCompound("ToolIds"), UUID::fromString, MineraculousNbtUtils.codecDecoder(ExtraCodecs.NON_NEGATIVE_INT, ops)));
         return data;
     }
 }

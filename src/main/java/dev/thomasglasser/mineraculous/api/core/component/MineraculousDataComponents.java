@@ -12,9 +12,9 @@ import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.item.component.EatingItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
-import dev.thomasglasser.mineraculous.impl.world.item.component.Kamikotizing;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiFoods;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import java.util.UUID;
@@ -22,6 +22,8 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.Unit;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -38,7 +40,7 @@ public class MineraculousDataComponents {
     /// If present, {@link net.minecraft.core.component.DataComponents#ENCHANTMENTS} is excluded from the item tooltip.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> HIDE_ENCHANTMENTS = DATA_COMPONENTS.registerUnit("hide_enchantments", true, false);
     /// The automatically applied {@link net.minecraft.world.entity.Entity#getId()} of the last entity to carry the item in its inventory.
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> CARRIER = DATA_COMPONENTS.registerInteger("carrier", true, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> CARRIER = DATA_COMPONENTS.register("carrier", ByteBufCodecs.VAR_INT, ExtraCodecs.NON_NEGATIVE_INT, true);
     /// The {@link UUID} of the owner of the item, NOT ALWAYS the {@link MineraculousDataComponents#CARRIER}.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> OWNER = DATA_COMPONENTS.register("owner", UUIDUtil.STREAM_CODEC, UUIDUtil.CODEC, false);
 
@@ -52,7 +54,7 @@ public class MineraculousDataComponents {
     /// If present, the {@link dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData.TransformationState} of an ongoing transformation.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<MiraculousData.TransformationState>> TRANSFORMATION_STATE = DATA_COMPONENTS.register("transformation_state", MiraculousData.TransformationState.STREAM_CODEC, MiraculousData.TransformationState.CODEC, true);
     /// If present, the remaining ticks in an ongoing countdown.
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> REMAINING_TICKS = DATA_COMPONENTS.registerInteger("remaining_ticks", true, true);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> REMAINING_TICKS = DATA_COMPONENTS.register("remaining_ticks", ByteBufCodecs.VAR_INT, ExtraCodecs.NON_NEGATIVE_INT, true);
     /// Determines the texture to use for a {@link MiraculousItem}.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<MiraculousItem.TextureState>> TEXTURE_STATE = DATA_COMPONENTS.register("texture_state", MiraculousItem.TextureState.STREAM_CODEC, MiraculousItem.TextureState.CODEC, true);
 
@@ -78,14 +80,14 @@ public class MineraculousDataComponents {
     /// If present, the unique ID for the related miraculous item.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<UUID>> MIRACULOUS_ID = DATA_COMPONENTS.register("miraculous_id", UUIDUtil.STREAM_CODEC, UUIDUtil.CODEC, false);
     /// The {@link Integer} id of used for tool recalling via {@link dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData}.
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TOOL_ID = DATA_COMPONENTS.registerInteger("tool_id", true, false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> TOOL_ID = DATA_COMPONENTS.register("tool_id", ByteBufCodecs.VAR_INT, ExtraCodecs.NON_NEGATIVE_INT, false);
 
     // Kamikotization
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Holder<Kamikotization>>> KAMIKOTIZATION = DATA_COMPONENTS.register("kamikotization", Kamikotization.STREAM_CODEC, Kamikotization.CODEC, false);
     /// The {@link KamikoData} holding information about the {@link dev.thomasglasser.mineraculous.impl.world.entity.Kamiko} associated with the stack.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<KamikoData>> KAMIKO_DATA = DATA_COMPONENTS.register("kamiko_data", KamikoData.STREAM_CODEC, KamikoData.CODEC, true);
     /// If present, keeps the item in its assigned {@link dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo} and applies the kamikotizing shader.
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Kamikotizing>> KAMIKOTIZING = DATA_COMPONENTS.register("kamikotizing", Kamikotizing.STREAM_CODEC, false);
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<SlotInfo>> KAMIKOTIZING = DATA_COMPONENTS.register("kamikotizing", SlotInfo.STREAM_CODEC, false);
 
     @ApiStatus.Internal
     public static void init() {}

@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.impl.network;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
-import dev.thomasglasser.mineraculous.impl.world.item.component.Kamikotizing;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
@@ -29,7 +28,7 @@ public record ServerboundSetItemKamikotizingPayload(Optional<UUID> targetId, boo
         Player target = targetId.isPresent() ? player.level().getPlayerByUUID(targetId.get()) : player;
         if (target != null) {
             ItemStack stack = slotInfo.getSlot().map(slot -> target.getInventory().getItem(slot), curiosData -> CuriosUtils.getStackInSlot(target, curiosData));
-            stack.set(MineraculousDataComponents.KAMIKOTIZING, kamikotizing ? new Kamikotizing(slotInfo) : null);
+            stack.set(MineraculousDataComponents.KAMIKOTIZING, kamikotizing ? slotInfo : null);
             slotInfo.getSlot().ifLeft(slot -> target.getInventory().setItem(slot, stack)).ifRight(curiosData -> CuriosUtils.setStackInSlot(target, curiosData, stack));
         }
     }

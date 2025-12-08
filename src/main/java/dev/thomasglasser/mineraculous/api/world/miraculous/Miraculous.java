@@ -62,7 +62,7 @@ public record Miraculous(TextColor color, String acceptableSlot, Optional<Intege
     public static final StreamCodec<RegistryFriendlyByteBuf, Miraculous> DIRECT_STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
             ByteBufCodecs.fromCodec(TextColor.CODEC), Miraculous::color,
             ByteBufCodecs.STRING_UTF8, Miraculous::acceptableSlot,
-            ByteBufCodecs.optional(ByteBufCodecs.INT), Miraculous::transformationFrames,
+            ByteBufCodecs.optional(ByteBufCodecs.VAR_INT), Miraculous::transformationFrames,
             ItemStack.STREAM_CODEC, Miraculous::tool,
             ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), Miraculous::toolSlot,
             Ability.STREAM_CODEC, Miraculous::activeAbility,

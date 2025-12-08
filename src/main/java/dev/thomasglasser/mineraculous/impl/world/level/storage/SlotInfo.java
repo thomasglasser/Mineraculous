@@ -9,7 +9,7 @@ import net.minecraft.network.codec.StreamCodec;
 
 public class SlotInfo {
     public static final Codec<SlotInfo> CODEC = Codec.either(Codec.INT, CuriosData.CODEC).xmap(SlotInfo::new, SlotInfo::getSlot);
-    public static final StreamCodec<ByteBuf, SlotInfo> STREAM_CODEC = ByteBufCodecs.either(ByteBufCodecs.INT, CuriosData.STREAM_CODEC).map(SlotInfo::new, SlotInfo::getSlot);
+    public static final StreamCodec<ByteBuf, SlotInfo> STREAM_CODEC = ByteBufCodecs.either(ByteBufCodecs.VAR_INT, CuriosData.STREAM_CODEC).map(SlotInfo::new, SlotInfo::getSlot);
 
     private final Either<Integer, CuriosData> slot;
 

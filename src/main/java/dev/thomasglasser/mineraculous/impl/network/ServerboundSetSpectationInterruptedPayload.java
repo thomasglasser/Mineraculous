@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Player;
 public record ServerboundSetSpectationInterruptedPayload(Optional<Integer> targetId) implements ExtendedPacketPayload {
     public static final Type<ServerboundSetSpectationInterruptedPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_set_spectation_interrupted"));
     public static final StreamCodec<ByteBuf, ServerboundSetSpectationInterruptedPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.optional(ByteBufCodecs.INT), ServerboundSetSpectationInterruptedPayload::targetId,
+            ByteBufCodecs.optional(ByteBufCodecs.VAR_INT), ServerboundSetSpectationInterruptedPayload::targetId,
             ServerboundSetSpectationInterruptedPayload::new);
 
     @Override

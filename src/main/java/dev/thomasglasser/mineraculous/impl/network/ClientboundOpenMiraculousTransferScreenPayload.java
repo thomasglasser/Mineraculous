@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Player;
 public record ClientboundOpenMiraculousTransferScreenPayload(int kwamiId) implements ExtendedPacketPayload {
     public static final Type<ClientboundOpenMiraculousTransferScreenPayload> TYPE = new Type<>(MineraculousConstants.modLoc("clientbound_open_miraculous_transfer_screen"));
     public static final StreamCodec<ByteBuf, ClientboundOpenMiraculousTransferScreenPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT, ClientboundOpenMiraculousTransferScreenPayload::kwamiId,
+            ByteBufCodecs.VAR_INT, ClientboundOpenMiraculousTransferScreenPayload::kwamiId,
             ClientboundOpenMiraculousTransferScreenPayload::new);
 
     // ON CLIENT

@@ -13,8 +13,8 @@ import org.jetbrains.annotations.Nullable;
 public record ThrownLadybugYoyoData(Optional<Integer> id, int safeFallTicks, boolean summonedLuckyCharm) {
 
     public static final StreamCodec<ByteBuf, ThrownLadybugYoyoData> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.optional(ByteBufCodecs.INT), ThrownLadybugYoyoData::id,
-            ByteBufCodecs.INT, ThrownLadybugYoyoData::safeFallTicks,
+            ByteBufCodecs.optional(ByteBufCodecs.VAR_INT), ThrownLadybugYoyoData::id,
+            ByteBufCodecs.VAR_INT, ThrownLadybugYoyoData::safeFallTicks,
             ByteBufCodecs.BOOL, ThrownLadybugYoyoData::summonedLuckyCharm,
             ThrownLadybugYoyoData::new);
     public static final int DEFAULT_SAFE_FALL_TICKS = 60;

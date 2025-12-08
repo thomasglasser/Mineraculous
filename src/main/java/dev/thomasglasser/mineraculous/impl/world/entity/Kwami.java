@@ -94,6 +94,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     public static final RawAnimation SIT_EAT = RawAnimation.begin().thenPlay("misc.sit_eat");
     public static final RawAnimation HOLD = RawAnimation.begin().thenPlay("misc.hold");
 
+    public static final int DEFAULT_EAT_TICKS = SharedConstants.TICKS_PER_SECOND * 3;
     public static final BiPredicate<Kwami, Player> RENOUNCE_PREDICATE = (kwami, player) -> player != null && player.isAlive() && player != kwami.getOwner() && EntitySelector.NO_SPECTATORS.test(player) && !EntityUtils.TARGET_TOO_FAR_PREDICATE.test(kwami, player);
 
     private static final double SUMMON_RADIUS_STEP = 0.07;
@@ -321,7 +322,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     }
 
     public int getDefaultEatTicks() {
-        return SharedConstants.TICKS_PER_SECOND * 3;
+        return DEFAULT_EAT_TICKS;
     }
 
     public static int getMaxEatTicks(ItemStack stack) {

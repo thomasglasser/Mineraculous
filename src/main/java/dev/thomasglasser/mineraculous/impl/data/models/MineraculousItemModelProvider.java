@@ -86,6 +86,8 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         basicItem(MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE);
         basicItem(MineraculousItems.RAW_MACARON);
         basicItem(MineraculousItems.MACARON);
+        basicItem(MineraculousItems.ALMOND);
+        basicItem(MineraculousItems.ROASTED_ALMOND);
         basicItem(MineraculousBlocks.HIBISCUS_BUSH.asItem());
 
         basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK);
@@ -102,7 +104,6 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         MineraculousItems.WAXED_CAMEMBERT.forEach((age, item) -> withExistingParent(item.getId().getPath(), MineraculousItems.CAMEMBERT.get(age).getId()));
 
         basicItem(MineraculousBlocks.CHEESE_POT.getId());
-
         ItemModelBuilder inHandLadybugYoyo = withEntityModel(MineraculousItems.LADYBUG_YOYO.getId().withSuffix("_in_hand"))
                 .transforms()
                 .transform(MineraculousItemDisplayContexts.CURIOS_BODY.getValue()).rotation(-90, 0, 0).translation(-2, 10, 3.7f).scale(0.8f).end()
@@ -296,6 +297,9 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .predicate(MineraculousItemProperties.MODE, MineraculousItemProperties.getPropertyForAbility(ButterflyCaneItem.Mode.SPYGLASS) + 1)
                 .model(withSeparateInventoryModel(MineraculousItems.BUTTERFLY_CANE, inHandButterflyCane, inventoryButterflyCane))
                 .end();
+
+        woodSet(MineraculousBlocks.ALMOND_WOOD_SET);
+        leavesSet(MineraculousBlocks.ALMOND_LEAVES_SET);
     }
 
     private ModelBuilder.TransformsBuilder miraculous(ResourceKey<Miraculous> name) {

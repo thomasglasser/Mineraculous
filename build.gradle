@@ -193,7 +193,7 @@ dependencies {
     implementation "com.klikli_dev:modonomicon-${minecraft_version}-neoforge:${modonomicon_version}"
     implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
 
-	// Runtime
+    // Runtime
     localRuntime "maven.modrinth:simple-voice-chat:neoforge-${minecraft_version}-${voicechat_version}"
 }
 

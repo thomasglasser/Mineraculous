@@ -122,6 +122,7 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
 
 public class MineraculousClientEvents {
+
     // Setup
     static void onFMLClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
@@ -129,12 +130,14 @@ public class MineraculousClientEvents {
             CuriosRendererRegistry.register(MineraculousItems.CAT_STAFF.get(), ContextDependentCurioRenderer::new);
             CuriosRendererRegistry.register(MineraculousItems.LADYBUG_YOYO.get(), ContextDependentCurioRenderer::new);
             CuriosRendererRegistry.register(MineraculousItems.BUTTERFLY_CANE.get(), ContextDependentCurioRenderer::new);
-
             MineraculousItemProperties.init();
         });
     }
 
     static void onBuildCreativeModeTabContents(BuildCreativeModeTabContentsEvent event) {
+        MineraculousBlocks.ALMOND_WOOD_SET.addToCreativeModeTab(event.getTabKey(), event::insertAfter, Items.CHERRY_BUTTON.getDefaultInstance(), Items.CHERRY_LOG.getDefaultInstance(), Items.CHERRY_HANGING_SIGN.getDefaultInstance(), Items.CHERRY_CHEST_BOAT.getDefaultInstance());
+        MineraculousBlocks.ALMOND_LEAVES_SET.addToCreativeModeTab(event.getTabKey(), event::insertAfter, Items.CHERRY_LEAVES.getDefaultInstance(), Items.CHERRY_SAPLING.getDefaultInstance());
+
         if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
 
         } else if (event.getTabKey() == CreativeModeTabs.COLORED_BLOCKS) {
@@ -144,7 +147,6 @@ public class MineraculousClientEvents {
             event.insertAfter(Items.COBWEB.getDefaultInstance(), MineraculousBlocks.CATACLYSM_BLOCK.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         } else if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) {
             event.insertAfter(Items.LOOM.getDefaultInstance(), MineraculousBlocks.CHEESE_POT.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
-
             event.insertAfter(Items.BLAST_FURNACE.getDefaultInstance(), MineraculousBlocks.OVEN.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         } else if (event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS) {
 
@@ -158,6 +160,8 @@ public class MineraculousClientEvents {
         } else if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
             event.insertAfter(Items.COOKIE.getDefaultInstance(), MineraculousItems.RAW_MACARON.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             event.insertAfter(MineraculousItems.RAW_MACARON.toStack(), MineraculousItems.MACARON.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(Items.SWEET_BERRIES.getDefaultInstance(), MineraculousItems.ALMOND.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(MineraculousItems.ALMOND.toStack(), MineraculousItems.ROASTED_ALMOND.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
 
             addCheeses(event, Items.PUMPKIN_PIE.getDefaultInstance(), MineraculousItems.CHEESE);
             addCheeses(event, MineraculousItems.CHEESE.get(AgeingCheese.Age.TIME_HONORED).toStack(), MineraculousBlocks.CHEESE);

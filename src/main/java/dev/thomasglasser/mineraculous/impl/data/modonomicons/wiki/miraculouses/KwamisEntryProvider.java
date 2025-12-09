@@ -4,6 +4,7 @@ import com.klikli_dev.modonomicon.api.datagen.CategoryProviderBase;
 import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
+import com.klikli_dev.modonomicon.api.datagen.book.page.BookSpotlightPageModel;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
@@ -54,10 +55,26 @@ public class KwamisEntryProvider extends IndexModeEntryProvider {
                 After detransforming,
                 the kwami must be fed to recharge before it can be used to  transform again.
                 To charge a kwami,
-                feed it with any food item, or the kwami's preferred foods or treats.
+                feed it with any food item,
+                or the kwami's preferred foods or treats.
                 Treats will charge the kwami immediately,
                 preferred foods have a 1 in 3 chance,
                 and other foods foods have a 1 in 10 chance.
+                """);
+
+        page("item_form", () -> BookSpotlightPageModel.create()
+                .withItem(Miraculous.createItemStack(MineraculousItems.KWAMI, registries().holderOrThrow(Miraculouses.LADYBUG)))
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        pageTitle("Item Form");
+        pageText("""
+                For better hiding, storage, and information,
+                the kwami can be right clicked with an empty hand to enter the inventory in item form.
+                While in the inventory, it can be hovered over to display information about it,
+                such as its charged state and food items.
+                It will eat preferred foods or treats in the inventory to recharge if enabled by the server config (default: true).
+                When transforming with its miraculous, the kwami will exit the inventory to assist.
                 """);
 
         page("transferring_and_renouncing", () -> BookImagePageModel.create()

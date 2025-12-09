@@ -15,6 +15,7 @@ public class FloraAndFaunaCategoryProvider extends IndexModeCategoryProvider {
     @Override
     protected void generateEntries() {
         add(new FlowersEntryProvider(this).generate());
+        // TODO: Trees
     }
 
     @Override

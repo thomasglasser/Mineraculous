@@ -56,10 +56,11 @@ public class CatEntryProvider extends IndexModeEntryProvider {
                 It will cause particles to come from the performer's hand and can be dragged for 1 second after use begins.
                 It can be used on items, blocks, and entities.
                 Items will be converted to Cataclysm Dust.
-                Blocks will be converted to Cataclysm Blocks,
+                Blocks will slowly convert themselves and adjacent blocks to Cataclysm Blocks,
                 which drop Cataclysm Dust when broken with Silk Touch.
                 Entities will be given the Cataclysmed effect that will slowly kill them,
                 converting drops to Cataclysm Dust.
+                This is additive, so interacting with an entity multiple times will increase the Cataclysmed effect level.
                 It is possible to block Cataclysm with a shield,
                 which will apply it to the shield item instead of the target.
                 """);

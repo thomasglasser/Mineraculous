@@ -55,6 +55,7 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
                 This will summon a lucky charm item at the performer position.
                 If the tool is a special lucky charm summoning item, it can override the summon position.
                 The possible lucky charms are chosen from the loot table or list provided in the lucky charm [data maps](entry://apis/data_maps).
+                It will be tied to the relevant target used to determine the item.
                 """);
 
         page("miraculous_ladybug", () -> BookImagePageModel.create()
@@ -65,7 +66,10 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
         pageTitle("Miraculous Ladybug");
         pageText("""
                 The Miraculous Ladybug ability can be activated by pressing the Activate Power button (default: Y) with the lucky charm in hand.
-                It will send the lucky charm into the air and summon magic ladybugs that fly around and heal all damage caused by miraculous or kakikotization abilities related to the target.
+                It will send the lucky charm into the air and summon magic ladybugs that fly around and heal all damage caused by miraculous or kakikotization abilities related to the target,
+                or the summoner of the Miraculous Ladybug if no target is specified.
+                There are many server and client config options for customization of this ability,
+                including one for altering the performance impact.
                 """);
 
         page("passive_luck", () -> BookImagePageModel.create()
@@ -143,6 +147,7 @@ public class LadybugEntryProvider extends IndexModeEntryProvider {
                 There is no limit to how many Kamikos can be captured,
                 and right clicking will release all stored Kamikos at once,
                 launching them upwards.
+                When no Kamikos are stored, right clicking causes the yoyo to spin as a shield.
                 """);
 
         page("spyglass", () -> BookImagePageModel.create()

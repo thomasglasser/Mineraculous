@@ -67,7 +67,7 @@ public class GeneralEntryProvider extends IndexModeEntryProvider {
                 Once you perform your main ability, a detransformation timer will start.
                 The length of this timer can be controlled by the server config.
                 When the timer runs out, you will be automatically detransformed.
-                You can track the remaining time by looking at the miraculous or listening to the frequency of the beeps.
+                You can track the remaining time by looking at the miraculous' flashes or listening to the miraculous' beeps.
                 This timer will no longer apply after a certain amount of power uses.
                 """);
 
@@ -81,6 +81,18 @@ public class GeneralEntryProvider extends IndexModeEntryProvider {
                 This tool can be taken and returned to this slot when not activated by pressing the Open Item Radial Menu button (default: R).
                 It can be activated by pressing the De/Activate Item button (default: C).
                 When activated, the Open Item Radial Menu button (default: R) can be held to open the tool's radial menu and select a tool ability.
+                """);
+
+        page("toggling_buffs", () -> BookTextPageModel.create()
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        pageTitle("Toggling Buffs");
+        pageText("""
+                The Toggle Buffs key (default: `) can be pressed to toggle Miraculous effect levels.
+                If enabled, Miraculous effect levels will be dependent on Power Level.
+                If disabled, Miraculous effect levels will be capped to the starting levels.
+                Whether the buffs are active upon transformation depends on the server config (true by default).
                 """);
     }
 

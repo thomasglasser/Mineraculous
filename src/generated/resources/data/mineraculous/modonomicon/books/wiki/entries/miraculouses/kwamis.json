@@ -55,6 +55,22 @@
       "use_legacy_rendering": false
     },
     {
+      "type": "modonomicon:spotlight",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "item": {
+        "components": {
+          "mineraculous:miraculous": "mineraculous:ladybug"
+        },
+        "count": 1,
+        "item": "mineraculous:kwami"
+      },
+      "text": "book.mineraculous.wiki.miraculouses.kwamis.item_form.text",
+      "title": "book.mineraculous.wiki.miraculouses.kwamis.item_form.title"
+    },
+    {
       "type": "modonomicon:image",
       "anchor": "",
       "border": true,

@@ -30,7 +30,7 @@ public class MiraculousesCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected String categoryDescription() {
-        return "Magical jewels that provide amazing abilities";
+        return "Magical jewels that provide amazing abilities.";
     }
 
     @Override

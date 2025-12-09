@@ -23,7 +23,7 @@ public class ExpansionsCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected String categoryDescription() {
-        return "Official expansion mods and packs that enhance the Mineraculous experience.";
+        return "Official optional mods and packs that enhance the Mineraculous experience.";
     }
 
     @Override

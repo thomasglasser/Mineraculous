@@ -15,7 +15,9 @@ public class DependenciesCategoryProvider extends IndexModeCategoryProvider {
     @Override
     protected void generateEntries() {
         add(new JeiEntryProvider(this).generate());
+        add(new JadeEntryProvider(this).generate());
         add(new ModonomiconEntryProvider(this).generate());
+        add(new VoiceChatEntryProvider(this).generate());
     }
 
     @Override

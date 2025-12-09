@@ -19,7 +19,7 @@ public class KwamisEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("summoning", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/kwamis/summoning.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/kwamis/summoning"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -27,47 +27,48 @@ public class KwamisEntryProvider extends IndexModeEntryProvider {
         pageText("""
                 Kwamis are summoned by their (Miraculous)[category://miraculouses].
                 When summoned,
-                they will spin around you in a ball of light.
+                they will spin around in a ball of light.
                 While they are in this form,
-                you are unable to transform.
+                they cannot be used to transform.
                 """);
 
         page("transforming", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/kwamis/transforming.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/kwamis/transforming"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Transforming");
         pageText("""
                 In order to transform,
-                your Kwami must be loaded in the world with you and charged.
-                You can transform by pressing the Transform button (default: M).
-                The kwami will then speed towards you in a ball of light and disappear into the Miraculous.
+                the Kwami must be present and charged.
+                When transforming, the kwami will speed towards the miraculous in a ball of light and disappear.
                 """);
 
         page("charging", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/kwamis/charging.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/kwamis/charging"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Charging");
         pageText("""
                 After detransforming,
-                your kwami must be fed to recharge before you can transform again.
-                To charge a miraculous,
-                feed the kwami with its food or treat.
-                Treats will charge the kwami immediately, while foods may take a few tries.
+                the kwami must be fed to recharge before it can be used to  transform again.
+                To charge a kwami,
+                feed it with any food item, or the kwami's preferred foods or treats.
+                Treats will charge the kwami immediately,
+                preferred foods have a 1 in 3 chance,
+                and other foods foods have a 1 in 10 chance.
                 """);
 
         page("transferring_and_renouncing", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/kwamis/transferring_and_renouncing.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/kwamis/transferring_and_renouncing"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Transferring and Renouncing");
         pageText("""
                 To renounce a kwami and keep the miraculous, press the Renounce button (default: N) while holding the Miraculous in your hand.
-                To transfer or renounce to someone else, right click the kwami with the Miraculous in your hand.
+                To transfer or renounce to someone else, right click the kwami with the Miraculous in hand.
                 """);
     }
 
@@ -78,7 +79,7 @@ public class KwamisEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "Magic creatures summoned by the Miraculouses";
+        return "Magic creatures summoned by the Miraculouses.";
     }
 
     @Override

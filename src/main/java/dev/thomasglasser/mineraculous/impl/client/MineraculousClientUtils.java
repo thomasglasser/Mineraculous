@@ -125,7 +125,7 @@ public class MineraculousClientUtils {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateSpecialPlayerDataPayload(player.getUUID(), new SpecialPlayerData(
-                    MineraculousClientConfig.get().selfBetaTesterCosmeticChoice.get(),
+                    MineraculousClientConfig.get().betaTesterCosmeticChoice.get(),
                     MineraculousClientConfig.get().displaySelfBetaTesterCosmetic.get(),
                     MineraculousClientConfig.get().displaySelfDevTeamCosmetic.get(),
                     MineraculousClientConfig.get().displaySelfLegacyDevTeamCosmetic.get())));

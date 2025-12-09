@@ -17,7 +17,7 @@ public class FlowersEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("hibiscus", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("flora_and_fauna/flowers/hibiscus.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("flora_and_fauna/flowers/hibiscus"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -36,7 +36,7 @@ public class FlowersEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "The decorative florals of the mod";
+        return "The vibrant florals of the mod.";
     }
 
     @Override

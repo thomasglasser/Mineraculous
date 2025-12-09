@@ -7,38 +7,39 @@ import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.WikiBookSubProvider;
 import net.minecraft.world.item.Items;
 
-public class JeiEntryProvider extends IndexModeEntryProvider {
-    public static final String ID = "jei";
+public class JadeEntryProvider extends IndexModeEntryProvider {
+    public static final String ID = "jade";
 
-    public JeiEntryProvider(CategoryProviderBase parent) {
+    public JadeEntryProvider(CategoryProviderBase parent) {
         super(parent);
     }
 
     @Override
     protected void generatePages() {
-        page("miraculous", () -> BookImagePageModel.create()
-                .withAnchor("miraculous")
-                .withImages(WikiBookSubProvider.wikiTexture("dependencies/jei/miraculous"))
+        page("oven", () -> BookImagePageModel.create()
+                .withImages(WikiBookSubProvider.wikiTexture("dependencies/jade/oven"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
-        add(context().pageTitle(), "Miraculous");
-        add(context().pageText(), "[Just Enough Items](https://modrinth.com/mod/jei) is able to recognize and show the all data driven miraculous.");
+        add(context().pageTitle(), "Oven");
+        add(context().pageText(), """
+                The Jade overlay allows you to view the contents and cook progress of the oven.
+                """);
     }
 
     @Override
     protected String entryName() {
-        return "Just Enough Items";
+        return "Jade";
     }
 
     @Override
     protected String entryDescription() {
-        return "Just Enough Items is an item and recipe viewing mod.";
+        return "Jade is a block and entity information viewing mod.";
     }
 
     @Override
     protected BookIconModel entryIcon() {
-        return BookIconModel.create(Items.COMPASS);
+        return BookIconModel.create(Items.SPYGLASS);
     }
 
     @Override

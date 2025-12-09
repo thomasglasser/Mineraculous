@@ -8,7 +8,7 @@ import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.WikiBookSubPro
 
 public class AkumatizationEntryProvider extends IndexModeEntryProvider {
     public static final String ID = "akumatization";
-    public static final BookIconModel ICON = BookIconModel.create(WikiBookSubProvider.wikiTexture("expansions/akumatization/icon.png"));
+    public static final BookIconModel ICON = BookIconModel.create(WikiBookSubProvider.wikiTexture("expansions/akumatization/icon"));
 
     public AkumatizationEntryProvider(CategoryProviderBase parent) {
         super(parent);
@@ -17,7 +17,7 @@ public class AkumatizationEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("description", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("expansions/akumatization/description.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("expansions/akumatization/description"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -34,7 +34,7 @@ public class AkumatizationEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "Replaces \"Kamiko\" with \"Akuma\" in all cases";
+        return "Replaces all cases of \"Kamiko\" with \"Akuma\".";
     }
 
     @Override

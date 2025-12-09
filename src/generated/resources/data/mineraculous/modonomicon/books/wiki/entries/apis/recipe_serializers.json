@@ -2,23 +2,12 @@
   "background_u_index": 0,
   "background_v_index": 0,
   "category": "apis",
-  "description": "book.mineraculous.wiki.apis.data_maps.description",
+  "description": "book.mineraculous.wiki.apis.recipe_serializers.description",
   "hide_while_locked": false,
   "icon": {
-    "components": {
-      "mineraculous:lucky_charm": {
-        "id": 0,
-        "owner": [
-          0,
-          0,
-          0,
-          0
-        ]
-      }
-    },
-    "item": "minecraft:bow"
+    "item": "mineraculous:oven"
   },
-  "name": "book.mineraculous.wiki.apis.data_maps.name",
+  "name": "book.mineraculous.wiki.apis.recipe_serializers.name",
   "pages": [
     {
       "type": "modonomicon:text",
@@ -27,8 +16,8 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.apis.data_maps.lucky_charms.text",
-      "title": "book.mineraculous.wiki.apis.data_maps.lucky_charms.title",
+      "text": "book.mineraculous.wiki.apis.recipe_serializers.generator.text",
+      "title": "book.mineraculous.wiki.apis.recipe_serializers.generator.title",
       "use_markdown_in_title": false
     },
     {
@@ -38,8 +27,8 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.apis.data_maps.miraculous_effects.text",
-      "title": "book.mineraculous.wiki.apis.data_maps.miraculous_effects.title",
+      "text": "book.mineraculous.wiki.apis.recipe_serializers.oven_cooking.text",
+      "title": "book.mineraculous.wiki.apis.recipe_serializers.oven_cooking.title",
       "use_markdown_in_title": false
     },
     {
@@ -49,13 +38,13 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.apis.data_maps.ageables.text",
-      "title": "book.mineraculous.wiki.apis.data_maps.ageables.title",
+      "text": "book.mineraculous.wiki.apis.recipe_serializers.transmute.text",
+      "title": "book.mineraculous.wiki.apis.recipe_serializers.transmute.title",
       "use_markdown_in_title": false
     }
   ],
   "show_when_any_parent_unlocked": false,
-  "sort_number": 6,
+  "sort_number": 3,
   "x": 0,
   "y": 0
 }

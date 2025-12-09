@@ -25,7 +25,7 @@ public class CosmeticsCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected String categoryDescription() {
-        return "Exclusive cosmetics for mod supporters.";
+        return "Exclusive cosmetics for special mod community members.";
     }
 
     @Override

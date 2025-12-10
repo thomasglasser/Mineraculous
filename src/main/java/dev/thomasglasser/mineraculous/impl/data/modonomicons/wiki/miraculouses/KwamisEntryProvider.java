@@ -5,10 +5,14 @@ import com.klikli_dev.modonomicon.api.datagen.IndexModeEntryProvider;
 import com.klikli_dev.modonomicon.api.datagen.book.BookIconModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookImagePageModel;
 import com.klikli_dev.modonomicon.api.datagen.book.page.BookSpotlightPageModel;
+import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.WikiBookSubProvider;
+import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiFoods;
+import net.minecraft.world.item.ItemStack;
 
 public class KwamisEntryProvider extends IndexModeEntryProvider {
     public static final String ID = "kwamis";
@@ -62,8 +66,10 @@ public class KwamisEntryProvider extends IndexModeEntryProvider {
                 and other foods foods have a 1 in 10 chance.
                 """);
 
+        ItemStack item = Miraculous.createItemStack(MineraculousItems.KWAMI, registries().holderOrThrow(Miraculouses.LADYBUG));
+        item.set(MineraculousDataComponents.KWAMI_FOODS, new KwamiFoods(MineraculousItemTags.LADYBUG_KWAMI_PREFERRED_FOODS, MineraculousItemTags.LADYBUG_KWAMI_TREATS, 1, false));
         page("item_form", () -> BookSpotlightPageModel.create()
-                .withItem(Miraculous.createItemStack(MineraculousItems.KWAMI, registries().holderOrThrow(Miraculouses.LADYBUG)))
+                .withItem(item)
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 

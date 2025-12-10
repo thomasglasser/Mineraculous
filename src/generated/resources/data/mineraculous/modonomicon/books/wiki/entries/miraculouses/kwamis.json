@@ -62,6 +62,11 @@
       },
       "item": {
         "components": {
+          "mineraculous:kwami_foods": {
+            "default_eat_ticks": 1,
+            "preferred_foods": "mineraculous:kwami_preferred_foods/ladybug",
+            "treats": "mineraculous:kwami_treats/ladybug"
+          },
           "mineraculous:miraculous": "mineraculous:ladybug"
         },
         "count": 1,

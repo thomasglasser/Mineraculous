@@ -1,6 +1,10 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
+import com.google.gson.JsonSyntaxException;
+import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexMultiConsumer;
@@ -93,6 +97,53 @@ public class MineraculousClientUtils {
     private static final Map<Player, SpecialPlayerData> SPECIAL_PLAYER_DATA = new Reference2ReferenceOpenHashMap<>();
     private static final IntList CATACLYSM_PIXELS = new IntArrayList();
     private static boolean wasJumping = false;
+
+    public static PostChain kwamiEffect;
+    public static RenderTarget kwamiTarget;
+
+    public static void initKwami() {
+        if (kwamiEffect != null) {
+            kwamiEffect.close();
+        }
+
+        ResourceLocation resourcelocation = MineraculousConstants.modLoc("shaders/post/kwami_glow.json");
+
+        try {
+            kwamiEffect = new PostChain(
+                    Minecraft.getInstance().getTextureManager(),
+                    Minecraft.getInstance().getResourceManager(),
+                    Minecraft.getInstance().getMainRenderTarget(),
+                    resourcelocation);
+            kwamiEffect.resize(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+            kwamiTarget = kwamiEffect.getTempTarget("kwami");
+        } catch (IOException ioexception) {
+            MineraculousConstants.LOGGER.warn("Failed to load shader: {}", resourcelocation, ioexception);
+            kwamiEffect = null;
+            kwamiTarget = null;
+        } catch (JsonSyntaxException jsonsyntaxexception) {
+            MineraculousConstants.LOGGER.warn("Failed to parse shader: {}", resourcelocation, jsonsyntaxexception);
+            kwamiEffect = null;
+            kwamiTarget = null;
+        }
+    }
+
+    public static boolean shouldShowKwamiGlow() {
+        return !Minecraft.getInstance().gameRenderer.isPanoramicMode() && kwamiTarget != null && kwamiEffect != null && Minecraft.getInstance().player != null;
+    }
+
+    public static void doKwamiGlow() {
+        if (shouldShowKwamiGlow()) {
+            RenderSystem.enableBlend();
+            RenderSystem.blendFuncSeparate(
+                    GlStateManager.SourceFactor.SRC_ALPHA,
+                    GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
+                    GlStateManager.SourceFactor.ZERO,
+                    GlStateManager.DestFactor.ONE);
+            kwamiTarget.blitToScreen(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight(), false);
+            RenderSystem.disableBlend();
+            RenderSystem.defaultBlendFunc();
+        }
+    }
 
     // Special Player Handling
     public static void setSpecialPlayerData(Player player, SpecialPlayerData data) {

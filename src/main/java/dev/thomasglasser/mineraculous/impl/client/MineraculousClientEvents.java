@@ -62,6 +62,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.UUID;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -452,22 +453,53 @@ public class MineraculousClientEvents {
         PoseStack poseStack = event.getPoseStack();
         MultiBufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         float partialTick = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPartialTickTime();
-        int light = renderDispatcher.getPackedLightCoords(player, partialTick);
 
-        if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson()) {
-            poseStack.pushPose();
-            poseStack.translate(0, -1.6d, 0);
-            if (playerPerchRendererMap.containsKey(player.getUUID()))
-                playerPerchRendererMap.get(player.getUUID()).renderPerch(player, poseStack, bufferSource, light, partialTick);
-            CatStaffRenderer.renderTravel(player, poseStack, bufferSource, light, partialTick);
-            poseStack.popPose();
+        if (MineraculousClientUtils.shouldShowKwamiGlow()) {
+            if (stage == RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) {
+                MineraculousClientUtils.kwamiTarget.bindWrite(true);
+                Camera camera = renderDispatcher.camera;
+                final int KWAMI_GLOW_COLOR = 0xFFD8A600; // GOLDEN
+                KwamiBufferSource kwamiBufferSource = new KwamiBufferSource(KWAMI_GLOW_COLOR);
+                for (Entity entity : Minecraft.getInstance().level.entitiesForRendering()) {
 
-            if (MineraculousClientUtils.getCameraEntity() instanceof Leashable leashable && leashable.getLeashHolder() instanceof Player holder) {
-                holder.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).map(LeashingLadybugYoyoData::maxRopeLength).ifPresent(maxLength -> {
-                    double y = (leashable instanceof LivingEntity livingLeashed && livingLeashed.isCrouching()) ? -1.2d : -1.6d;
-                    poseStack.translate(0, y, 0);
-                    YoyoRopeRenderer.render((Entity) leashable, holder, maxLength + 1.3d, poseStack, bufferSource, partialTick);
-                });
+                    //if (/* entity is the player AND MineraculousClientUtils.hasKwamiGlowEffect(entity) */) {
+
+                    double x = entity.getX() - camera.getPosition().x;
+                    double y = entity.getY() - camera.getPosition().y;
+                    double z = entity.getZ() - camera.getPosition().z;
+                    int light = renderDispatcher.getPackedLightCoords(entity, partialTick);
+                    renderDispatcher.render(
+                            entity,
+                            x, y, z,
+                            entity.getYRot(),
+                            partialTick,
+                            poseStack,
+                            kwamiBufferSource,
+                            light);
+                    // }
+                }
+                kwamiBufferSource.endBatch();
+                MineraculousClientUtils.kwamiTarget.unbindWrite();
+                MineraculousClientUtils.kwamiEffect.process(partialTick);
+                Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
+            }
+
+            if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson()) {
+                int light = renderDispatcher.getPackedLightCoords(player, partialTick);
+                poseStack.pushPose();
+                poseStack.translate(0, -1.6d, 0);
+                if (playerPerchRendererMap.containsKey(player.getUUID()))
+                    playerPerchRendererMap.get(player.getUUID()).renderPerch(player, poseStack, bufferSource, light, partialTick);
+                CatStaffRenderer.renderTravel(player, poseStack, bufferSource, light, partialTick);
+                poseStack.popPose();
+
+                if (MineraculousClientUtils.getCameraEntity() instanceof Leashable leashable && leashable.getLeashHolder() instanceof Player holder) {
+                    holder.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).map(LeashingLadybugYoyoData::maxRopeLength).ifPresent(maxLength -> {
+                        double y = (leashable instanceof LivingEntity livingLeashed && livingLeashed.isCrouching()) ? -1.2d : -1.6d;
+                        poseStack.translate(0, y, 0);
+                        YoyoRopeRenderer.render((Entity) leashable, holder, maxLength + 1.3d, poseStack, bufferSource, partialTick);
+                    });
+                }
             }
         }
     }

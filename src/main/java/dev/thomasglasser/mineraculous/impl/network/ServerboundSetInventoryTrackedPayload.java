@@ -12,21 +12,21 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
-public record ServerboundRequestInventorySyncPayload(UUID uuid, boolean track) implements ExtendedPacketPayload {
-    public static final Type<ServerboundRequestInventorySyncPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_request_inventory_sync"));
-    public static final StreamCodec<ByteBuf, ServerboundRequestInventorySyncPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), ServerboundRequestInventorySyncPayload::uuid,
-            ByteBufCodecs.BOOL, ServerboundRequestInventorySyncPayload::track,
-            ServerboundRequestInventorySyncPayload::new);
+public record ServerboundSetInventoryTrackedPayload(UUID uuid, boolean track) implements ExtendedPacketPayload {
+    public static final Type<ServerboundSetInventoryTrackedPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_set_inventory_tracked"));
+    public static final StreamCodec<ByteBuf, ServerboundSetInventoryTrackedPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), ServerboundSetInventoryTrackedPayload::uuid,
+            ByteBufCodecs.BOOL, ServerboundSetInventoryTrackedPayload::track,
+            ServerboundSetInventoryTrackedPayload::new);
 
     // ON SERVER
     @Override
     public void handle(Player player) {
         Player target = player.level().getPlayerByUUID(uuid);
-        if (target != null && target != player) {
-            TommyLibServices.NETWORK.sendToClient(new ClientboundSyncInventoryPayload(target), (ServerPlayer) player);
+        if (target != null) {
             if (track) {
                 target.getData(MineraculousAttachmentTypes.INVENTORY_TRACKERS).add(player.getUUID());
+                TommyLibServices.NETWORK.sendToClient(new ClientboundSyncInventoryPayload(target), (ServerPlayer) player);
             } else {
                 target.getData(MineraculousAttachmentTypes.INVENTORY_TRACKERS).remove(player.getUUID());
             }

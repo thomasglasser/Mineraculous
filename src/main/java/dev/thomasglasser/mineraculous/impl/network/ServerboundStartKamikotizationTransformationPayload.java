@@ -22,9 +22,9 @@ public record ServerboundStartKamikotizationTransformationPayload(Kamikotization
     // ON SERVER
     @Override
     public void handle(Player player) {
-        ItemStack stack = slotInfo.getSlot().map(slot -> player.getInventory().getItem(slot), curiosData -> CuriosUtils.getStackInSlot(player, curiosData));
+        ItemStack stack = slotInfo.slot().map(slot -> player.getInventory().getItem(slot), curiosData -> CuriosUtils.getStackInSlot(player, curiosData));
         ItemStack result = data.transform(player, (ServerLevel) player.level(), stack);
-        slotInfo.getSlot().ifLeft(slot -> player.getInventory().setItem(slot, result)).ifRight(curiosData -> CuriosUtils.setStackInSlot(player, curiosData, result));
+        slotInfo.slot().ifLeft(slot -> player.getInventory().setItem(slot, result)).ifRight(curiosData -> CuriosUtils.setStackInSlot(player, curiosData, result));
     }
 
     @Override

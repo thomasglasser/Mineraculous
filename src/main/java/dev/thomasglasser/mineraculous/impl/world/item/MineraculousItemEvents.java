@@ -29,7 +29,7 @@ public class MineraculousItemEvents {
         SlotInfo kamikotizing = stack.get(MineraculousDataComponents.KAMIKOTIZING);
         if (kamikotizing != null) {
             Player player = event.getPlayer();
-            kamikotizing.getSlot().ifLeft(i -> {
+            kamikotizing.slot().ifLeft(i -> {
                 ItemStack current = player.getInventory().getItem(i);
                 if (!current.isEmpty())
                     player.addItem(current);

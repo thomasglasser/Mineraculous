@@ -165,10 +165,14 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
      * @param instant          Whether to detransform instantly
      * @param kamikotizedStack The {@link ItemStack} used for detransformation, if present
      */
-    public void detransform(LivingEntity entity, ServerLevel level, Vec3 kamikoSpawnPos, boolean instant, @Nullable ItemStack kamikotizedStack) {
-        Kamiko kamiko = kamikoData.summon(level, kamikoSpawnPos, kamikotization, entity);
-        if (kamiko == null) {
-            MineraculousConstants.LOGGER.error("Kamiko could not be created for player {}", entity.getName().plainCopy().getString());
+    public void detransform(LivingEntity entity, ServerLevel level, Vec3 kamikoSpawnPos, boolean revertKamiko, boolean instant, @Nullable ItemStack kamikotizedStack) {
+        if (revertKamiko) {
+            EntityReversionData.get(level).revertConversionOrCopy(kamikoData.uuid(), level, reverted -> reverted.moveTo(kamikoSpawnPos));
+        } else {
+            Kamiko kamiko = kamikoData.summon(level, kamikoSpawnPos, kamikotization, entity);
+            if (kamiko == null) {
+                MineraculousConstants.LOGGER.error("Kamiko could not be created for player {}", entity.getName().plainCopy().getString());
+            }
         }
 
         LivingEntity owner = level.getEntity(kamikoData.owner()) instanceof LivingEntity l ? l : null;

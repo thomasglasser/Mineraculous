@@ -50,7 +50,7 @@ public record KamikoData(UUID uuid, UUID owner, int powerLevel, int nameColor, O
     public Kamiko summon(ServerLevel level, Vec3 spawnPos, Holder<Kamikotization> kamikotization, @Nullable LivingEntity replicaSource) {
         Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(level);
         if (kamiko != null) {
-            kamiko.setPos(spawnPos);
+            kamiko.moveTo(spawnPos);
             kamiko.setUUID(uuid);
             kamiko.setOwnerUUID(owner);
             kamiko.setKamikotization(Optional.of(kamikotization));

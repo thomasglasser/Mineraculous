@@ -195,7 +195,6 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                                                 reverted.addDeltaMovement(new Vec3(0, 1, 0));
                                                 reverted.hurtMarked = true;
                                                 entities.add(reverted);
-                                                return reverted;
                                             });
                                         }
                                     }

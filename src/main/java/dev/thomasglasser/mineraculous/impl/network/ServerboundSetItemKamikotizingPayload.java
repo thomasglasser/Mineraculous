@@ -27,9 +27,9 @@ public record ServerboundSetItemKamikotizingPayload(Optional<UUID> targetId, boo
     public void handle(Player player) {
         Player target = targetId.isPresent() ? player.level().getPlayerByUUID(targetId.get()) : player;
         if (target != null) {
-            ItemStack stack = slotInfo.getSlot().map(slot -> target.getInventory().getItem(slot), curiosData -> CuriosUtils.getStackInSlot(target, curiosData));
+            ItemStack stack = slotInfo.slot().map(slot -> target.getInventory().getItem(slot), curiosData -> CuriosUtils.getStackInSlot(target, curiosData));
             stack.set(MineraculousDataComponents.KAMIKOTIZING, kamikotizing ? slotInfo : null);
-            slotInfo.getSlot().ifLeft(slot -> target.getInventory().setItem(slot, stack)).ifRight(curiosData -> CuriosUtils.setStackInSlot(target, curiosData, stack));
+            slotInfo.slot().ifLeft(slot -> target.getInventory().setItem(slot, stack)).ifRight(curiosData -> CuriosUtils.setStackInSlot(target, curiosData, stack));
         }
     }
 

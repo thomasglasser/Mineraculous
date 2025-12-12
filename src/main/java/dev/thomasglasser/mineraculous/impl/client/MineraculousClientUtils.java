@@ -24,7 +24,7 @@ import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.Per
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterCosmeticOptions;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.SpecialPlayerData;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundRequestInventorySyncPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundSetInventoryTrackedPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealCurioPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateSpecialPlayerDataPayload;
@@ -183,7 +183,7 @@ public class MineraculousClientUtils {
     }
 
     public static void openExternalCuriosInventoryScreenForStealing(Player target) {
-        TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), true));
+        TommyLibServices.NETWORK.sendToServer(new ServerboundSetInventoryTrackedPayload(target.getUUID(), true));
         Minecraft.getInstance().setScreen(new ExternalCuriosInventoryScreen(target, true) {
             @Override
             public void pickUp(Slot slot, Player target, AbstractContainerMenu menu) {
@@ -195,7 +195,7 @@ public class MineraculousClientUtils {
 
             @Override
             public void onClose(boolean cancel) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), false));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSetInventoryTrackedPayload(target.getUUID(), false));
             }
         });
     }

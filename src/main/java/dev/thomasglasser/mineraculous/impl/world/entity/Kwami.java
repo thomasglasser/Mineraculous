@@ -106,6 +106,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private static final EntityDataAccessor<Holder<Miraculous>> DATA_MIRACULOUS = SynchedEntityData.defineId(Kwami.class, MineraculousEntityDataSerializers.MIRACULOUS.get());
     private static final EntityDataAccessor<UUID> DATA_MIRACULOUS_ID = SynchedEntityData.defineId(Kwami.class, MineraculousEntityDataSerializers.UUID.get());
     private static final EntityDataAccessor<Boolean> DATA_TRANSFORMING = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Float> GLOWING_SIGMA = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.FLOAT);
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -145,6 +146,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         builder.define(DATA_MIRACULOUS, level().holderOrThrow(Miraculouses.LADYBUG));
         builder.define(DATA_MIRACULOUS_ID, Util.NIL_UUID);
         builder.define(DATA_TRANSFORMING, false);
+        builder.define(GLOWING_SIGMA, 0.0F);
     }
 
     public boolean isInCubeForm() {
@@ -193,6 +195,19 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
 
     public void setTransforming(boolean transforming) {
         entityData.set(DATA_TRANSFORMING, transforming);
+    }
+
+    public float getGlowingSigma() {
+        return entityData.get(GLOWING_SIGMA);
+    }
+
+    public void setGlowingSigma(float sigma) {
+        entityData.set(GLOWING_SIGMA, sigma);
+    }
+
+    public boolean isKwamiGlowing() {
+        return true;
+        //return getGlowingSigma() > 0;
     }
 
     @Override
@@ -518,6 +533,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         compound.put("Miraculous", Miraculous.CODEC.encodeStart(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), getMiraculous()).getOrThrow());
         compound.putUUID("MiraculousId", getMiraculousId());
         compound.putInt("EatTicks", eatTicks);
+        compound.putFloat("SigmaGlowing", getGlowingSigma());
     }
 
     @Override
@@ -528,6 +544,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         setMiraculous(Miraculous.CODEC.parse(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), compound.get("Miraculous")).getOrThrow());
         setMiraculousId(compound.getUUID("MiraculousId"));
         eatTicks = compound.getInt("EatTicks");
+        setGlowingSigma(compound.getFloat("SigmaGlowing"));
     }
 
     @Override

@@ -1,16 +1,15 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 
 public class KwamiBufferSource implements MultiBufferSource, AutoCloseable {
-    private final MultiBufferSource.BufferSource kwamiBufferSource = MultiBufferSource.immediate(new ByteBufferBuilder(1536));
+    private final MultiBufferSource.BufferSource kwamiBufferSource;
     private int color;
 
-    public KwamiBufferSource(int color) {
-        this.color = color;
+    public KwamiBufferSource(BufferSource bufferSource) {
+        kwamiBufferSource = bufferSource;
     }
 
     public void setColor(int color) {
@@ -21,10 +20,6 @@ public class KwamiBufferSource implements MultiBufferSource, AutoCloseable {
     public VertexConsumer getBuffer(RenderType renderType) {
         VertexConsumer delegate = this.kwamiBufferSource.getBuffer(renderType);
         return new KwamiOutlineGenerator(delegate, this.color);
-    }
-
-    public void endBatch() {
-        this.kwamiBufferSource.endBatch();
     }
 
     @Override

@@ -1,13 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.mixin.minecraft.client.renderer;
 
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
-import net.minecraft.client.Camera;
-import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
-import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -34,7 +28,7 @@ public class LevelRendererMixin {
         }
     }
 
-    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;getModelViewStack()Lorg/joml/Matrix4fStack;", shift = At.Shift.BEFORE))
+    /*@Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;getModelViewStack()Lorg/joml/Matrix4fStack;", shift = At.Shift.BEFORE))
     private void injectAfterOutlineClear(
             DeltaTracker deltaTracker,
             boolean renderBlockOutline,
@@ -46,7 +40,7 @@ public class LevelRendererMixin {
             CallbackInfo ci) {
         if (MineraculousClientUtils.shouldShowKwamiGlow()) {
             MineraculousClientUtils.kwamiTarget.clear(Minecraft.ON_OSX);
-            MineraculousClientUtils.kwamiTarget.copyDepthFrom(Minecraft.getInstance().getMainRenderTarget()); // supposed to enable depth test
+            //MineraculousClientUtils.kwamiTarget.copyDepthFrom(Minecraft.getInstance().getMainRenderTarget()); // supposed to enable depth test
         }
-    }
+    }*/
 }

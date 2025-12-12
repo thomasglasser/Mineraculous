@@ -19,7 +19,6 @@ public class ModPagesEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("modrinth", () -> BookImagePageModel.create()
-                .withAnchor("modrinth")
                 .withImages(MODRINTH_TEXTURE)
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
@@ -28,7 +27,6 @@ public class ModPagesEntryProvider extends IndexModeEntryProvider {
         add(context().pageText(), "The main place to find and download the mod is on [Modrinth](https://modrinth.com/mod/mineraculous).");
 
         page("curseforge", () -> BookImagePageModel.create()
-                .withAnchor("curseforge")
                 .withImages(WikiBookSubProvider.wikiTexture("support/mod_pages/curseforge"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
@@ -39,7 +37,6 @@ public class ModPagesEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("github", () -> BookImagePageModel.create()
-                .withAnchor("github")
                 .withImages(GITHUB_LOCATION)
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));

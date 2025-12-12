@@ -10,10 +10,12 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.WikiBookSubProvider;
 import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
 
 public class CatEntryProvider extends IndexModeEntryProvider {
     public static final String ID = "cat";
+    public static final ResourceLocation CHARGING_TEXTURE = WikiBookSubProvider.wikiTexture("miraculouses/cat/charging");
 
     public CatEntryProvider(CategoryProviderBase parent) {
         super(parent);
@@ -22,7 +24,7 @@ public class CatEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("charging", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/charging"))
+                .withImages(CHARGING_TEXTURE)
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 

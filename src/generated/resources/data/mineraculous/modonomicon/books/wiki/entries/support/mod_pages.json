@@ -13,7 +13,7 @@
   "pages": [
     {
       "type": "modonomicon:image",
-      "anchor": "modrinth",
+      "anchor": "",
       "border": true,
       "condition": {
         "type": "modonomicon:none"
@@ -27,7 +27,7 @@
     },
     {
       "type": "modonomicon:image",
-      "anchor": "curseforge",
+      "anchor": "",
       "border": true,
       "condition": {
         "type": "modonomicon:none"
@@ -41,7 +41,7 @@
     },
     {
       "type": "modonomicon:image",
-      "anchor": "github",
+      "anchor": "",
       "border": true,
       "condition": {
         "type": "modonomicon:none"

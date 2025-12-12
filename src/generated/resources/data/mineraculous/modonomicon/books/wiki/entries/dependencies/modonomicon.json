@@ -11,7 +11,7 @@
   "pages": [
     {
       "type": "modonomicon:spotlight",
-      "anchor": "wiki",
+      "anchor": "",
       "condition": {
         "type": "modonomicon:none"
       },

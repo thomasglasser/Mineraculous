@@ -18,7 +18,6 @@ public class ContactEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("github", () -> BookImagePageModel.create()
-                .withAnchor("github")
                 .withImages(ModPagesEntryProvider.GITHUB_LOCATION))
                         .withTitle(context().pageTitle())
                         .withText(context().pageText());
@@ -30,7 +29,6 @@ public class ContactEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("discord", () -> BookImagePageModel.create()
-                .withAnchor("discord")
                 .withImages(WikiBookSubProvider.wikiTexture("support/contact/discord"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
@@ -42,7 +40,6 @@ public class ContactEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("email", () -> BookTextPageModel.create()
-                .withAnchor("email")
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 

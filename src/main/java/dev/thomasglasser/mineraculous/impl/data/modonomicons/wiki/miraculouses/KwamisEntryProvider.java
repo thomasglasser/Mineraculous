@@ -50,7 +50,7 @@ public class KwamisEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("charging", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/kwamis/charging"))
+                .withImages(CatEntryProvider.CHARGING_TEXTURE)
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 

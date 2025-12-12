@@ -16,7 +16,6 @@ public class WikiEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("in_game", () -> BookTextPageModel.create()
-                .withAnchor("in_game")
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -27,7 +26,6 @@ public class WikiEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("online", () -> BookTextPageModel.create()
-                .withAnchor("online")
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 

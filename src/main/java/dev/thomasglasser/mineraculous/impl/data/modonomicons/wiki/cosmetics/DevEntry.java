@@ -18,7 +18,6 @@ public class DevEntry extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("legacy", () -> BookImagePageModel.create()
-                .withAnchor("legacy")
                 .withImages(WikiBookSubProvider.wikiTexture("cosmetics/dev/legacy"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
@@ -27,7 +26,6 @@ public class DevEntry extends IndexModeEntryProvider {
         add(context().pageText(), "Members of the development team that joined the project before the release of 1.0.0 get access to an exclusive beard cosmetic.");
 
         page("configuration", () -> BookTextPageModel.create()
-                .withAnchor("configuration")
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 

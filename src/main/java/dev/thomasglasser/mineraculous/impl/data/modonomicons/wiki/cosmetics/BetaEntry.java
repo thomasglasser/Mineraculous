@@ -26,7 +26,6 @@ public class BetaEntry extends IndexModeEntryProvider {
         add(context().pageText(), "Testers for 1.0.0 (Season 1) get access to a Derby Hat cosmetic.");
 
         page("configuration", () -> BookTextPageModel.create()
-                .withAnchor("configuration")
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 

@@ -48,7 +48,7 @@
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/miraculouses/kwamis/charging.png"
+        "mineraculous:textures/modonomicon/wiki/miraculouses/cat/charging.png"
       ],
       "text": "book.mineraculous.wiki.miraculouses.kwamis.charging.text",
       "title": "book.mineraculous.wiki.miraculouses.kwamis.charging.title",
@@ -64,8 +64,8 @@
         "components": {
           "mineraculous:kwami_foods": {
             "default_eat_ticks": 1,
-            "preferred_foods": "mineraculous:kwami_preferred_foods/ladybug",
-            "treats": "mineraculous:kwami_treats/ladybug"
+            "preferred_foods": "#mineraculous:kwami_preferred_foods/ladybug",
+            "treats": "#mineraculous:kwami_treats/ladybug"
           },
           "mineraculous:miraculous": "mineraculous:ladybug"
         },

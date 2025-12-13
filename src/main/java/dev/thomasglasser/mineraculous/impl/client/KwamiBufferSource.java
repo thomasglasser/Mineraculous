@@ -27,7 +27,8 @@ public class KwamiBufferSource implements MultiBufferSource, AutoCloseable {
         this.kwamiBufferSource.endBatch();
     }
 
-    static record KwamiOutlineGenerator(VertexConsumer delegate, int color) implements VertexConsumer {
+    public static record KwamiOutlineGenerator(VertexConsumer delegate, int color) implements VertexConsumer {
+
         @Override
         public VertexConsumer addVertex(float x, float y, float z) {
             this.delegate.addVertex(x, y, z).setColor(this.color);

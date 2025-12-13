@@ -53,6 +53,7 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRe
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRemoteDamagePayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
+import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.inventory.MineraculousRecipeBookTypes;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
@@ -66,6 +67,7 @@ import net.minecraft.client.particle.FlyStraightTowardsParticle;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
@@ -79,7 +81,6 @@ import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -470,15 +471,16 @@ public class MineraculousClientEvents {
             Vec3 cameraPos = camera.getPosition();
             for (Entity entity : Minecraft.getInstance().level.entitiesForRendering()) {
                 if (renderDispatcher.shouldRender(entity, event.getFrustum(), cameraPos.x, cameraPos.y, cameraPos.z)) {
-                    if (MineraculousClientUtils.shouldShowKwamiGlow() && entity instanceof Pig) {
+                    if (MineraculousClientUtils.shouldShowKwamiGlow() && entity instanceof Kwami kwami && !kwami.isInCubeForm()) {
                         kwamiGlowFlag = true;
                         KwamiBufferSource kwamiBufferSource = new KwamiBufferSource(multibuffersource$buffersource);
-                        kwamiBufferSource.setColor(0xFFD8A600);
+                        int color = kwami.getMiraculous().value().color().getValue();
+                        color = (0xFF << 24) | color;
+                        kwamiBufferSource.setColor(color);
                         Vec3 interpPos = entity.getPosition(partialTick);
                         double x = interpPos.x - camera.getPosition().x;
                         double y = interpPos.y - camera.getPosition().y;
                         double z = interpPos.z - camera.getPosition().z;
-                        int light = renderDispatcher.getPackedLightCoords(entity, partialTick);
                         renderDispatcher.render(
                                 entity,
                                 x, y, z,
@@ -486,7 +488,7 @@ public class MineraculousClientEvents {
                                 partialTick,
                                 poseStack,
                                 kwamiBufferSource,
-                                light);
+                                LightTexture.FULL_BRIGHT);
                     }
                 }
             }

@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.world.ability.context.EntityAbilityContext;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
@@ -315,13 +316,16 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
     @Override
     public BrainActivityGroup<? extends KamikotizedMinion> getFightTasks() {
         return BrainActivityGroup.fightTasks(
-                new InvalidateAttackTarget<>(),
+                new InvalidateAttackTarget<KamikotizedMinion>().whenStopping(minion -> {
+                    if (minion.getTarget() == null)
+                        minion.getKamikotizationData().withPowerActive(false).save(minion);
+                }),
                 new FirstApplicableBehaviour<>(
                         new AllApplicableBehaviours<>(
                                 new StrafeTarget<>(),
                                 new AnimatableRangedAttack<>(0)).startCondition(this::canPerformRangedAttack),
                         new AllApplicableBehaviours<>(
-                                new SetWalkTargetToAttackTarget<>(),
+                                new SetWalkTargetToAttackTarget<KamikotizedMinion>().whenStarting(minion -> minion.getKamikotizationData().withPowerActive(true).save(minion)),
                                 new AnimatableMeleeAttack<>(0))));
     }
 
@@ -351,6 +355,14 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
             return CommonHooks.getProjectile(this, shootable, itemstack.isEmpty() ? Items.ARROW.getDefaultInstance() : itemstack);
         }
         return super.getProjectile(shootable);
+    }
+
+    @Override
+    public boolean doHurtTarget(Entity entity) {
+        boolean hurt = super.doHurtTarget(entity);
+        if (hurt && level() instanceof ServerLevel level)
+            getKamikotizationData().performAbilities(this, level, new EntityAbilityContext(entity));
+        return hurt;
     }
 
     @Override

@@ -580,7 +580,7 @@
   "mineraculous.configuration.wake_up_chance.tooltip": "Percent chance that a player will wake up while being stolen from",
   "mineraculous.item_bound": "This item is bound to the player.",
   "mineraculous.item_unbreakable": "This item is unbreakable by normal means.",
-  "mineraculous.kamikotized_item_unbreakable": "You feel compelled to leave this item unbroken.",
+  "mineraculous.kamikotized_item_unbreakable": "You may not break this item.",
   "mineraculous.no_kamikotizations": "No Kamikotizations found in world, have you installed any addons?",
   "mineraculous.stealing_warning": "You may not rest now, there are thieves nearby.",
   "mineraculous_pack.incompatible.confirm.new": "This addon was made for a newer Mineraculous API version. Things may not work as expected.",

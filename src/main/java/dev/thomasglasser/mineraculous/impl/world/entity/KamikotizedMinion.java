@@ -1,52 +1,68 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.world.ability.context.EntityAbilityContext;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
-import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
+import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
+import dev.thomasglasser.mineraculous.impl.world.kamikotization.MinionKamikotizationData;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.players.OldUsersConverter;
-import net.minecraft.util.Unit;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.monster.RangedAttackMob;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ProjectileItem;
+import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.scores.Scoreboard;
+import net.neoforged.neoforge.common.CommonHooks;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
+import net.tslat.smartbrainlib.api.core.behaviour.AllApplicableBehaviours;
 import net.tslat.smartbrainlib.api.core.behaviour.FirstApplicableBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.attack.AnimatableMeleeAttack;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.attack.AnimatableRangedAttack;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FloatToSurfaceOfFluid;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowEntity;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.move.StrafeTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.InvalidateAttackTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.target.SetPlayerLookTarget;
@@ -57,10 +73,22 @@ import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
 import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 
-public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<KamikotizedMinion>, PlayerLike, OwnableEntity {
+public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<KamikotizedMinion>, PlayerLike, OwnableEntity, RangedAttackMob {
     private static final EntityDataAccessor<UUID> DATA_SOURCE_ID = SynchedEntityData.defineId(KamikotizedMinion.class, MineraculousEntityDataSerializers.UUID.get());
     private static final EntityDataAccessor<Optional<UUID>> DATA_OWNER_UUID = SynchedEntityData.defineId(KamikotizedMinion.class, EntityDataSerializers.OPTIONAL_UUID);
-    private static final EntityDataAccessor<Optional<Holder<Kamikotization>>> DATA_KAMIKOTIZATION = SynchedEntityData.defineId(KamikotizedMinion.class, MineraculousEntityDataSerializers.OPTIONAL_KAMIKOTIZATION.get());
+    private static final EntityDataAccessor<Optional<MinionKamikotizationData>> DATA_KAMIKOTIZATION_DATA = SynchedEntityData.defineId(KamikotizedMinion.class, MineraculousEntityDataSerializers.MINION_KAMIKOTIZATION_DATA.get());
+
+    protected final BiPredicate<KamikotizedMinion, LivingEntity> allyPredicate = (minion, ally) -> {
+        if (!minion.getClass().isAssignableFrom(ally.getClass()) || BrainUtils.getTargetOfEntity(ally) != null)
+            return false;
+
+        if (minion.getOwner() != ((OwnableEntity) ally).getOwner())
+            return false;
+
+        Entity lastHurtBy = BrainUtils.getMemory(ally, MemoryModuleType.HURT_BY_ENTITY);
+
+        return lastHurtBy == null || !ally.isAlliedTo(lastHurtBy);
+    };
 
     protected double xCloakO, yCloakO, zCloakO;
     protected double xCloak, yCloak, zCloak;
@@ -77,18 +105,11 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         super(entityType, level);
     }
 
-    public KamikotizedMinion(ServerPlayer source, Holder<Kamikotization> kamikotization, Optional<Component> name) {
+    public KamikotizedMinion(ServerPlayer source, Holder<Kamikotization> kamikotization, KamikoData kamikoData, String name, int toolCount) {
         this(MineraculousEntityTypes.KAMIKOTIZED_MINION.get(), source.level());
         setSourceId(source.getUUID());
-        setKamikotization(kamikotization);
-        name.ifPresent(this::setCustomName);
-        for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
-            ItemStack stack = Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.getForSlot(slot), kamikotization);
-            stack.enchant(level().holderOrThrow(Enchantments.BINDING_CURSE), 1);
-            stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS, Unit.INSTANCE);
-            setItemSlot(slot, stack);
-            setDropChance(slot, 0);
-        }
+        MinionKamikotizationData data = new MinionKamikotizationData(kamikotization, kamikoData, name, toolCount);
+        setKamikotizationData(data);
         moveTo(source.position(), source.getYRot(), source.getXRot());
         setYBodyRot(source.yBodyRot);
         setYHeadRot(source.yHeadRot);
@@ -97,6 +118,7 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         previousGameMode = source.gameMode.getGameModeForPlayer();
         source.setGameMode(GameType.SPECTATOR);
         AbilityEffectUtils.beginSpectation(source, Optional.of(getUUID()), Optional.empty(), Optional.empty(), Optional.empty(), false, false);
+        data.transform(this, source.serverLevel());
     }
 
     @Override
@@ -104,7 +126,7 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         super.defineSynchedData(builder);
         builder.define(DATA_SOURCE_ID, Util.NIL_UUID);
         builder.define(DATA_OWNER_UUID, Optional.empty());
-        builder.define(DATA_KAMIKOTIZATION, Optional.empty());
+        builder.define(DATA_KAMIKOTIZATION_DATA, Optional.empty());
     }
 
     public UUID getSourceId() {
@@ -145,12 +167,12 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         return storedOwner;
     }
 
-    public Optional<Holder<Kamikotization>> getKamikotization() {
-        return this.getEntityData().get(DATA_KAMIKOTIZATION);
+    public Optional<MinionKamikotizationData> getKamikotizationData() {
+        return this.getEntityData().get(DATA_KAMIKOTIZATION_DATA);
     }
 
-    public void setKamikotization(Holder<Kamikotization> kamikotization) {
-        this.getEntityData().set(DATA_KAMIKOTIZATION, Optional.of(kamikotization));
+    public void setKamikotizationData(MinionKamikotizationData data) {
+        this.getEntityData().set(DATA_KAMIKOTIZATION_DATA, Optional.of(data));
     }
 
     @Override
@@ -169,7 +191,7 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         this.oBob = this.bob;
         super.aiStep();
         Player owner = getOwner();
-        setNoAi(owner == null || !owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization).equals(getKamikotization()));
+        setNoAi(owner == null || !getKamikotizationData().map(MinionKamikotizationData::kamikotization).equals(owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization)));
         float f;
         if (this.onGround() && !this.isDeadOrDying() && !this.isSwimming()) {
             f = Math.min(0.1F, (float) this.getDeltaMovement().horizontalDistance());
@@ -193,6 +215,8 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         }
         super.tick();
         moveCloak();
+        if (level() instanceof ServerLevel level)
+            getKamikotizationData().ifPresent(data -> data.tick(this, level));
     }
 
     private void moveCloak() {
@@ -281,23 +305,74 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         return BrainActivityGroup.idleTasks(
                 new SetPlayerLookTarget<>().lookPredicate((minion, player) -> player == getTarget() || player == getOptionalSource().orElseThrow()),
                 new FirstApplicableBehaviour<>(
-                        new TargetOrRetaliate<>(),
-                        new FollowEntity<KamikotizedMinion, Player>().following(KamikotizedMinion::getOwner).teleportToTargetAfter(12)));
+                        new TargetOrRetaliate<KamikotizedMinion>().isAllyIf(allyPredicate).attackablePredicate(target -> target.isAlive() && (!(target instanceof Player player) || !player.getAbilities().invulnerable) && !allyPredicate.test(this, target)),
+                        new FollowEntity<KamikotizedMinion, Player>().following(KamikotizedMinion::getOwner).teleportToTargetAfter(64)));
     }
 
     @Override
     public BrainActivityGroup<? extends KamikotizedMinion> getFightTasks() {
         return BrainActivityGroup.fightTasks(
-                new InvalidateAttackTarget<>(),
-                new SetWalkTargetToAttackTarget<>(),
-                // TODO: Support ranged and powers
-                new AnimatableMeleeAttack<>(0));
+                new InvalidateAttackTarget<KamikotizedMinion>().whenStopping(minion -> {
+                    if (minion.getTarget() == null)
+                        minion.getKamikotizationData().ifPresent(data -> data.withPowerActive(false).save(minion));
+                }),
+                new FirstApplicableBehaviour<>(
+                        new AllApplicableBehaviours<>(
+                                new StrafeTarget<>(),
+                                new AnimatableRangedAttack<>(0)).startCondition(this::canPerformRangedAttack),
+                        new AllApplicableBehaviours<>(
+                                new SetWalkTargetToAttackTarget<KamikotizedMinion>().whenStarting(minion -> minion.getKamikotizationData().ifPresent(data -> data.withPowerActive(true).save(minion))),
+                                new AnimatableMeleeAttack<>(0))));
+    }
+
+    public boolean canPerformRangedAttack(LivingEntity entity) {
+        Item weapon = getMainHandItem().getItem();
+        return weapon instanceof ProjectileWeaponItem || weapon instanceof ProjectileItem;
+    }
+
+    @Override
+    public void performRangedAttack(LivingEntity target, float velocity) {
+        float inaccuracy = 1.0F;
+        ItemStack weapon = this.getMainHandItem();
+        if (weapon.getItem() instanceof ProjectileWeaponItem projectileWeaponItem) {
+            projectileWeaponItem.shoot((ServerLevel) level(), this, InteractionHand.MAIN_HAND, weapon, ProjectileWeaponItem.draw(weapon, getProjectile(weapon), this), velocity, inaccuracy, level().getRandom().nextBoolean(), target);
+        } else if (weapon.getItem() instanceof ProjectileItem projectileItem) {
+            Projectile projectile = projectileItem.asProjectile(level(), this.getEyePosition(), weapon, this.getDirection());
+            projectile.shootFromRotation(this, this.getXRot(), this.getYRot(), 0.0F, velocity, inaccuracy);
+            level().addFreshEntity(projectile);
+        }
+    }
+
+    @Override
+    public ItemStack getProjectile(ItemStack shootable) {
+        if (shootable.getItem() instanceof ProjectileWeaponItem projectileWeaponItem) {
+            Predicate<ItemStack> predicate = projectileWeaponItem.getSupportedHeldProjectiles(shootable);
+            ItemStack itemstack = ProjectileWeaponItem.getHeldProjectile(this, predicate);
+            return CommonHooks.getProjectile(this, shootable, itemstack.isEmpty() ? Items.ARROW.getDefaultInstance() : itemstack);
+        }
+        return super.getProjectile(shootable);
+    }
+
+    @Override
+    public boolean doHurtTarget(Entity entity) {
+        boolean hurt = super.doHurtTarget(entity);
+        if (hurt && level() instanceof ServerLevel level)
+            getKamikotizationData().ifPresent(data -> data.performAbilities(this, level, new EntityAbilityContext(entity)));
+        return hurt;
+    }
+
+    @Override
+    public Component getName() {
+        Component original = super.getName();
+        return getKamikotizationData().map(data -> Entity.removeAction(Component.literal(data.name()).setStyle(original.getStyle().withColor(data.kamikoData().nameColor()).withHoverEvent(null)))).orElse(original);
     }
 
     @Override
     public void remove(RemovalReason reason) {
-        super.remove(reason);
         unbindSource();
+        if (level() instanceof ServerLevel level)
+            getKamikotizationData().ifPresent(data -> data.detransform(this, level));
+        super.remove(reason);
     }
 
     public void unbindSource() {
@@ -384,17 +459,20 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
     @Override
     public void addAdditionalSaveData(CompoundTag compound) {
         super.addAdditionalSaveData(compound);
+        RegistryOps<Tag> ops = level().registryAccess().createSerializationContext(NbtOps.INSTANCE);
         compound.putUUID("Source", getSourceId());
         UUID uuid = getOwnerUUID();
         if (uuid != null) {
             compound.putUUID("Owner", uuid);
         }
+        getKamikotizationData().ifPresent(data -> MinionKamikotizationData.CODEC.encodeStart(ops, data).ifSuccess(tag -> compound.put("KamikotizationData", tag)).ifError(error -> MineraculousConstants.LOGGER.error(error.message())));
         compound.putString("PreviousGameMode", previousGameMode.getSerializedName());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
+        RegistryOps<Tag> ops = level().registryAccess().createSerializationContext(NbtOps.INSTANCE);
         setSourceId(compound.getUUID("Source"));
         UUID uuid;
         if (compound.hasUUID("Owner")) {
@@ -404,6 +482,8 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
             uuid = OldUsersConverter.convertMobOwnerIfNecessary(this.getServer(), s);
         }
         setOwnerUUID(uuid);
+        if (compound.contains("KamikotizationData"))
+            MinionKamikotizationData.CODEC.parse(ops, compound.get("KamikotizationData")).ifSuccess(this::setKamikotizationData).ifError(error -> MineraculousConstants.LOGGER.error(error.message()));
         previousGameMode = GameType.byName(compound.getString("PreviousGameMode"));
     }
 }

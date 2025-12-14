@@ -47,7 +47,11 @@ public record KamikoData(UUID uuid, UUID owner, int powerLevel, int nameColor, O
         this.faceMaskTexture = faceMaskTexture;
     }
 
-    public Kamiko summon(ServerLevel level, Vec3 spawnPos, Holder<Kamikotization> kamikotization, @Nullable LivingEntity replicaSource) {
+    public KamikoData(Kamiko kamiko) {
+        this(kamiko.getUUID(), kamiko.getOwnerUUID(), kamiko.getPowerLevel(), kamiko.getNameColor(), kamiko.getFaceMaskTexture());
+    }
+
+    public Kamiko summon(ServerLevel level, Vec3 spawnPos, Holder<Kamikotization> kamikotization, String name, int toolCount, @Nullable LivingEntity replicaSource) {
         Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(level);
         if (kamiko != null) {
             kamiko.moveTo(spawnPos);
@@ -56,7 +60,8 @@ public record KamikoData(UUID uuid, UUID owner, int powerLevel, int nameColor, O
             kamiko.setKamikotization(Optional.of(kamikotization));
             if (replicaSource != null && MineraculousServerConfig.get().enableKamikoReplication.getAsBoolean()) {
                 kamiko.setReplicaSource(Optional.of(replicaSource.getUUID()));
-                kamiko.setReplicaName(Optional.of(replicaSource.getDisplayName()));
+                kamiko.setReplicaName(name);
+                kamiko.setReplicaToolCount(toolCount);
                 BrainUtils.setMemory(kamiko, MineraculousMemoryModuleTypes.REPLICATION_STATUS.get(), ReplicationState.LOOKING_FOR_RESTING_LOCATION);
             }
             level.addFreshEntity(kamiko);

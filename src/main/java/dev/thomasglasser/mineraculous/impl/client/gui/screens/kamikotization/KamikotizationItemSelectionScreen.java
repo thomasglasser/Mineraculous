@@ -111,7 +111,7 @@ public class KamikotizationItemSelectionScreen extends ExternalCuriosInventorySc
             TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(minecraft.player.getUUID(), target.blockPosition().above()));
             AbilityEffectUtils.removeFaceMaskTexture(target, kamikoData.faceMaskTexture());
         } else if (slotInfo != null) {
-            Minecraft.getInstance().setScreen(new KamikotizationSelectionScreen(target, kamikoData, new ReferenceArrayList<>(kamikotizations.get(slotStack)), slotInfo, slotStack.getCount()));
+            Minecraft.getInstance().setScreen(new KamikotizationSelectionScreen(target, kamikoData, new ReferenceArrayList<>(kamikotizations.get(slotStack)), slotInfo));
             TommyLibServices.NETWORK.sendToServer(new ServerboundSetItemKamikotizingPayload(Optional.of(target.getUUID()), true, slotInfo));
         }
         TommyLibServices.NETWORK.sendToServer(new ServerboundSetInventoryTrackedPayload(target.getUUID(), false));

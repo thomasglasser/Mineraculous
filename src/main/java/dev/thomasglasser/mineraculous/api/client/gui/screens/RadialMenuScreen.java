@@ -11,8 +11,6 @@ import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetRadialMenuProviderOptionPayload;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.List;
-import java.util.function.BiConsumer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -20,6 +18,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * Displays a list of {@link RadialMenuOption}s and allows selection while the provided key is held.
@@ -27,7 +27,7 @@ import net.minecraft.world.item.ItemStack;
  * @param <T> The type of {@link RadialMenuOption} to display.
  */
 public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
-    private static final float MAX_CIRCLE_SIZE = 180f;
+    public static final float MAX_CIRCLE_SIZE = 100f;
     private static final float PRECISION = 2.5f / 360.0f;
 
     protected final int heldKey;
@@ -39,9 +39,14 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
 
     protected double currentMouseX;
     protected double currentMouseY;
-    protected int animationTick = 0;
 
-    private float animationTime = 0;
+    private float circleSize = 0;
+    private static float tickCircleSize = 0f;
+    private static float oldTickCircleSize = 0f;
+
+    public static float getInterpolatedRadialCircleSize(float partialTicks) {
+        return Mth.lerp(partialTicks, oldTickCircleSize, tickCircleSize);
+    }
 
     public RadialMenuScreen(int heldKey, List<T> options, int selectedColor, BiConsumer<T, Integer> onSelected) {
         super(Component.empty());
@@ -72,7 +77,7 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
         }
     }
 
-    protected int getSelectedOption(int pMouseX, int pMouseY, float circleSize) {
+    protected int getSelectedOption(int pMouseX, int pMouseY) {
         double hypotenuse = Mth.sqrt(pMouseX * pMouseX + pMouseY * pMouseY);
         // No selected option if in the middle of the circle
         if (hypotenuse < (circleSize) / 3f) {
@@ -116,17 +121,13 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
 
     @Override
     public void onClose() {
-        float circleSize;
-
-        if (this.animationTick < MineraculousClientConfig.get().animationSpeed.get()) {
-            animationTime = this.animationTick;
-        }
-        circleSize = animationTime * MAX_CIRCLE_SIZE / (float) MineraculousClientConfig.get().animationSpeed.get();
-        circleSize /= 2f;
-        int selectedOption = this.getSelectedOption((int) currentMouseX, (int) currentMouseY, circleSize);
+        int selectedOption = this.getSelectedOption((int) currentMouseX, (int) currentMouseY);
         if (selectedOption != -1) {
             onSelected.accept(options.get(selectedOption), selectedOption);
         }
+        circleSize = 0f;
+        tickCircleSize = 0f;
+        oldTickCircleSize = 0f;
         super.onClose();
     }
 
@@ -140,9 +141,9 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
     @Override
     public void tick() {
         super.tick();
-        if (animationTick < MineraculousClientConfig.get().animationSpeed.get()) {
-            animationTick++;
-        }
+        oldTickCircleSize = tickCircleSize;
+        tickCircleSize += MineraculousClientConfig.get().animationSpeed.get(); // adds the expected amount per tick
+        tickCircleSize = Math.min(tickCircleSize, MAX_CIRCLE_SIZE);
     }
 
     @Override
@@ -151,16 +152,9 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
         int width = pGuiGraphics.guiWidth();
         int mouseX = pMouseX - width / 2;
         int mouseY = -1 * (pMouseY - height / 2);
+        circleSize = getInterpolatedRadialCircleSize(pPartialTick);
 
-        float circleSize;
-
-        if (this.animationTick < MineraculousClientConfig.get().animationSpeed.get()) {
-            animationTime = this.animationTick + pPartialTick;
-        }
-        circleSize = animationTime * MAX_CIRCLE_SIZE / (float) MineraculousClientConfig.get().animationSpeed.get();
-        circleSize /= 2f;
-
-        int selectedOption = getSelectedOption(mouseX, mouseY, circleSize);
+        int selectedOption = getSelectedOption(mouseX, mouseY);
         boolean hasSelectedOption = selectedOption != -1;
 
         RenderSystem.enableBlend();

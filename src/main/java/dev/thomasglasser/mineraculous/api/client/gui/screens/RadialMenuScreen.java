@@ -27,7 +27,7 @@ import java.util.function.BiConsumer;
  * @param <T> The type of {@link RadialMenuOption} to display.
  */
 public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
-    public static final float MAX_CIRCLE_SIZE = 100f;
+    public static final float MAX_CIRCLE_SIZE = 89f;
     private static final float PRECISION = 2.5f / 360.0f;
 
     protected final int heldKey;

@@ -167,12 +167,8 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         return storedOwner;
     }
 
-    protected Optional<MinionKamikotizationData> getOptionalKamikotizationData() {
+    public Optional<MinionKamikotizationData> getKamikotizationData() {
         return this.getEntityData().get(DATA_KAMIKOTIZATION_DATA);
-    }
-
-    public MinionKamikotizationData getKamikotizationData() {
-        return getOptionalKamikotizationData().orElseThrow();
     }
 
     public void setKamikotizationData(MinionKamikotizationData data) {
@@ -195,7 +191,7 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         this.oBob = this.bob;
         super.aiStep();
         Player owner = getOwner();
-        setNoAi(owner == null || !getKamikotizationData().kamikotization().equals(owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization).orElse(null)));
+        setNoAi(owner == null || !getKamikotizationData().map(MinionKamikotizationData::kamikotization).equals(owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization)));
         float f;
         if (this.onGround() && !this.isDeadOrDying() && !this.isSwimming()) {
             f = Math.min(0.1F, (float) this.getDeltaMovement().horizontalDistance());
@@ -220,7 +216,7 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         super.tick();
         moveCloak();
         if (level() instanceof ServerLevel level)
-            getKamikotizationData().tick(this, level);
+            getKamikotizationData().ifPresent(data -> data.tick(this, level));
     }
 
     private void moveCloak() {
@@ -318,14 +314,14 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         return BrainActivityGroup.fightTasks(
                 new InvalidateAttackTarget<KamikotizedMinion>().whenStopping(minion -> {
                     if (minion.getTarget() == null)
-                        minion.getKamikotizationData().withPowerActive(false).save(minion);
+                        minion.getKamikotizationData().ifPresent(data -> data.withPowerActive(false).save(minion));
                 }),
                 new FirstApplicableBehaviour<>(
                         new AllApplicableBehaviours<>(
                                 new StrafeTarget<>(),
                                 new AnimatableRangedAttack<>(0)).startCondition(this::canPerformRangedAttack),
                         new AllApplicableBehaviours<>(
-                                new SetWalkTargetToAttackTarget<KamikotizedMinion>().whenStarting(minion -> minion.getKamikotizationData().withPowerActive(true).save(minion)),
+                                new SetWalkTargetToAttackTarget<KamikotizedMinion>().whenStarting(minion -> minion.getKamikotizationData().ifPresent(data -> data.withPowerActive(true).save(minion))),
                                 new AnimatableMeleeAttack<>(0))));
     }
 
@@ -361,24 +357,21 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
     public boolean doHurtTarget(Entity entity) {
         boolean hurt = super.doHurtTarget(entity);
         if (hurt && level() instanceof ServerLevel level)
-            getKamikotizationData().performAbilities(this, level, new EntityAbilityContext(entity));
+            getKamikotizationData().ifPresent(data -> data.performAbilities(this, level, new EntityAbilityContext(entity)));
         return hurt;
     }
 
     @Override
     public Component getName() {
         Component original = super.getName();
-        MinionKamikotizationData data = getKamikotizationData();
-        if (data.kamikotization() == null)
-            return original;
-        return Entity.removeAction(Component.literal(data.name()).setStyle(original.getStyle().withColor(data.kamikoData().nameColor()).withHoverEvent(null)));
+        return getKamikotizationData().map(data -> Entity.removeAction(Component.literal(data.name()).setStyle(original.getStyle().withColor(data.kamikoData().nameColor()).withHoverEvent(null)))).orElse(original);
     }
 
     @Override
     public void remove(RemovalReason reason) {
         unbindSource();
         if (level() instanceof ServerLevel level)
-            getKamikotizationData().detransform(this, level);
+            getKamikotizationData().ifPresent(data -> data.detransform(this, level));
         super.remove(reason);
     }
 
@@ -472,7 +465,7 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         if (uuid != null) {
             compound.putUUID("Owner", uuid);
         }
-        getOptionalKamikotizationData().ifPresent(data -> compound.put("KamikotizationData", MinionKamikotizationData.CODEC.encodeStart(ops, data).getOrThrow()));
+        getKamikotizationData().ifPresent(data -> MinionKamikotizationData.CODEC.encodeStart(ops, data).ifSuccess(tag -> compound.put("KamikotizationData", tag)).ifError(error -> MineraculousConstants.LOGGER.error(error.message())));
         compound.putString("PreviousGameMode", previousGameMode.getSerializedName());
     }
 
@@ -490,7 +483,7 @@ public class KamikotizedMinion extends PathfinderMob implements SmartBrainOwner<
         }
         setOwnerUUID(uuid);
         if (compound.contains("KamikotizationData"))
-            setKamikotizationData(MinionKamikotizationData.CODEC.parse(ops, compound.get("KamikotizationData")).getOrThrow());
+            MinionKamikotizationData.CODEC.parse(ops, compound.get("KamikotizationData")).ifSuccess(this::setKamikotizationData).ifError(error -> MineraculousConstants.LOGGER.error(error.message()));
         previousGameMode = GameType.byName(compound.getString("PreviousGameMode"));
     }
 }

@@ -57,7 +57,8 @@ import org.jetbrains.annotations.Nullable;
  * @param revertibleId           The unique identifier for the kamikotized item
  * @param kamikotizedSlot        The equipment slot the kamikotized item is in if present
  * @param transformationState    The remaining transformation frames for the current kamikotization if present
- * @param remainingStackCount    The remaining number of stacks to be broken for the kamikotization to end
+ * @param originalStackCount     The original count of items used in the kamikotization
+ * @param remainingStackCount    The remaining count of items to be broken for the kamikotization to end
  * @param powerActive            Whether the kamikotized entity's power is active
  * @param buffsActive            Whether the kamikotized entity's buffs are active
  * @param brokenKamikotizedStack The broken kamikotized item if present
@@ -208,22 +209,15 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
     public void tick(LivingEntity entity, ServerLevel level) {
         transformationState.ifPresentOrElse(state -> {
             int frames = state.remainingFrames();
-            if (state.transforming()) {
-                if (frames > 0) {
-                    if (entity.tickCount % 2 == 0) {
-                        decrementTransformationFrames().save(entity);
-                    }
-                    level.sendParticles(MineraculousParticleTypes.KAMIKOTIZATION.get(), entity.getX(), entity.getY() + 2 - ((Kamikotization.TRANSFORMATION_FRAMES + 1) - frames) / 5.0, entity.getZ(), 100, Math.random() / 3.0, Math.random() / 3.0, Math.random() / 3.0, 0);
-                } else {
+            if (frames > 0) {
+                if (entity.tickCount % 2 == 0) {
+                    decrementFrames().save(entity);
+                }
+                level.sendParticles(MineraculousParticleTypes.KAMIKOTIZATION.get(), entity.getX(), entity.getY() + 2 - ((Kamikotization.TRANSFORMATION_FRAMES + 1) - frames) / 5.0, entity.getZ(), 100, Math.random() / 3.0, Math.random() / 3.0, Math.random() / 3.0, 0);
+            } else {
+                if (state.transforming()) {
                     finishTransformation(entity);
                     clearTransformationFrames().save(entity);
-                }
-            } else {
-                if (frames > 0) {
-                    if (entity.tickCount % 2 == 0) {
-                        decrementDetransformationFrames().save(entity);
-                    }
-                    level.sendParticles(MineraculousParticleTypes.KAMIKOTIZATION.get(), entity.getX(), entity.getY() + 2 - ((Kamikotization.TRANSFORMATION_FRAMES + 1) - frames) / 5.0, entity.getZ(), 100, Math.random() / 3.0, Math.random() / 3.0, Math.random() / 3.0, 0);
                 } else {
                     finishDetransformation(entity, brokenKamikotizedStack.orElse(null));
                 }
@@ -282,8 +276,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
     }
 
     private void finishTransformation(LivingEntity entity) {
-        ArmorData armor = new ArmorData(entity.getItemBySlot(EquipmentSlot.HEAD), entity.getItemBySlot(EquipmentSlot.CHEST), entity.getItemBySlot(EquipmentSlot.LEGS), entity.getItemBySlot(EquipmentSlot.FEET));
-        entity.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
+        entity.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(new ArmorData(entity)));
         equipKamikotizationArmor(entity, kamikotization);
     }
 
@@ -303,11 +296,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, Optional.of(new MiraculousData.TransformationState(false, TRANSFORMATION_FRAMES)), originalStackCount, 0, false, buffsActive, Optional.ofNullable(brokenKamikotizedStack).map(stack -> stack.copyWithCount(Math.max(1, stack.getCount()))));
     }
 
-    private KamikotizationData decrementTransformationFrames() {
-        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, transformationState.map(MiraculousData.TransformationState::decrementFrames), originalStackCount, remainingStackCount, powerActive, buffsActive, brokenKamikotizedStack);
-    }
-
-    private KamikotizationData decrementDetransformationFrames() {
+    private KamikotizationData decrementFrames() {
         return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, transformationState.map(MiraculousData.TransformationState::decrementFrames), originalStackCount, remainingStackCount, powerActive, buffsActive, brokenKamikotizedStack);
     }
 

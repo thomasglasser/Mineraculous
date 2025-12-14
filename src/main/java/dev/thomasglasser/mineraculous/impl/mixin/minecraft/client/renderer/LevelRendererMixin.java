@@ -27,20 +27,4 @@ public class LevelRendererMixin {
             MineraculousClientUtils.kwamiEffect.close();
         }
     }
-
-    /*@Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;getModelViewStack()Lorg/joml/Matrix4fStack;", shift = At.Shift.BEFORE))
-    private void injectAfterOutlineClear(
-            DeltaTracker deltaTracker,
-            boolean renderBlockOutline,
-            Camera camera,
-            GameRenderer gameRenderer,
-            LightTexture lightTexture,
-            Matrix4f frustumMatrix,
-            Matrix4f projectionMatrix,
-            CallbackInfo ci) {
-        if (MineraculousClientUtils.shouldShowKwamiGlow()) {
-            MineraculousClientUtils.kwamiTarget.clear(Minecraft.ON_OSX);
-            //MineraculousClientUtils.kwamiTarget.copyDepthFrom(Minecraft.getInstance().getMainRenderTarget()); // supposed to enable depth test
-        }
-    }*/
 }

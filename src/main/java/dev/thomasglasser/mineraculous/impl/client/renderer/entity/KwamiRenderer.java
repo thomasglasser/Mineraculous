@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.KwamiBlockAndItemGeoLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.MiniHolidayHatGeoLayer;
@@ -10,8 +11,6 @@ import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import java.util.Map;
-import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -34,6 +33,8 @@ import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.util.Color;
+import java.util.Map;
+import java.util.function.Predicate;
 
 public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
     public static final String HEAD = "head";
@@ -72,6 +73,12 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
             int color = animatable.getMiraculous().value().color().getValue();
             renderRays(poseStack, progress, bufferSource.getBuffer(RenderType.lightning()), color);
             renderRays(poseStack, progress, bufferSource.getBuffer(RenderType.dragonRays()), color);
+        }
+        if (animatable.isKwamiGlowing() && !animatable.isInCubeForm()) {
+            colour = animatable.getMiraculousColor();
+            renderType = MineraculousRenderTypes.kwamiColor();
+            //buffer = new KwamiBufferSource.KwamiOutlineGenerator(buffer, colour);
+            buffer.setColor(colour);
         }
         super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, LightTexture.FULL_BRIGHT, packedOverlay, colour);
     }

@@ -471,7 +471,7 @@ public class MineraculousClientEvents {
             Vec3 cameraPos = camera.getPosition();
             for (Entity entity : Minecraft.getInstance().level.entitiesForRendering()) {
                 if (renderDispatcher.shouldRender(entity, event.getFrustum(), cameraPos.x, cameraPos.y, cameraPos.z)) {
-                    if (MineraculousClientUtils.shouldShowKwamiGlow() && entity instanceof Kwami kwami && !kwami.isInCubeForm()) {
+                    if (MineraculousClientUtils.shouldShowKwamiGlow() && entity instanceof Kwami kwami && kwami.isKwamiGlowing() && !kwami.isInCubeForm()) {
                         kwamiGlowFlag = true;
                         KwamiBufferSource kwamiBufferSource = new KwamiBufferSource(multibuffersource$buffersource);
                         int color = kwami.getMiraculous().value().color().getValue();
@@ -498,6 +498,7 @@ public class MineraculousClientEvents {
                 MineraculousClientUtils.kwamiTarget.unbindWrite();
             }
             if (kwamiGlowFlag) {
+                MineraculousClientUtils.updateKwamiGlowUniforms();
                 MineraculousClientUtils.kwamiEffect.process(partialTick);
             }
             Minecraft.getInstance().getMainRenderTarget().bindWrite(false);

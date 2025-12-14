@@ -1,6 +1,7 @@
 #version 150
 
 uniform sampler2D DiffuseSampler;
+uniform float BlurSigma;
 
 in vec2 texCoord;
 in vec2 sampleStep;
@@ -8,8 +9,7 @@ in vec2 sampleStep;
 out vec4 fragColor;
 
 // Gaussian blur parameters
-const int RADIUS = 16;       // Larger radius = rounder blur
-const float SIGMA = 7.0;     // Controls softness (higher = rounder)
+const int RADIUS = 25;       // Larger radius = rounder blur
 
 // Compute Gaussian weight dynamically
 float gaussian(float x, float sigma) {
@@ -18,14 +18,14 @@ float gaussian(float x, float sigma) {
 
 void main() {
     // Center pixel
-    float w0 = gaussian(0.0, SIGMA);
+    float w0 = gaussian(0.0, BlurSigma);
     vec4 color = texture(DiffuseSampler, texCoord) * w0;
 
     float weightSum = w0;
 
     // Blur in both directions (optimized loop)
     for (int i = 1; i <= RADIUS; i++) {
-        float w = gaussian(float(i), SIGMA);
+        float w = gaussian(float(i), BlurSigma);
 
         vec2 offset = sampleStep * float(i);
 

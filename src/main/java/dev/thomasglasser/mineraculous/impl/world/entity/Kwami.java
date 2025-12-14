@@ -210,6 +210,10 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         //return getGlowingSigma() > 0;
     }
 
+    public int getMiraculousColor() {
+        return getMiraculous().value().color().getValue();
+    }
+
     @Override
     protected PathNavigation createNavigation(Level level) {
         SmoothFlyingPathNavigation navigation = new SmoothFlyingPathNavigation(this, level);

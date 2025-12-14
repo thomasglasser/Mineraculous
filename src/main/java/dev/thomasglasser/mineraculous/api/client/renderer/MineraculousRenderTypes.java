@@ -26,6 +26,8 @@ public class MineraculousRenderTypes {
     private static final RenderType MIRACULOUS_LADYBUG_BODY = createMiraculousLadybugBody();
     private static final RenderType MIRACULOUS_LADYBUG_OUTLINE = createMiraculousLadybugOutline();
 
+    private static final RenderType KWAMI_COLOR = createKwamiColor();
+
     public static RenderType itemLuckyCharm() {
         return ITEM_LUCKY_CHARM;
     }
@@ -64,6 +66,10 @@ public class MineraculousRenderTypes {
 
     public static RenderType miraculousLadybugOutline() {
         return MIRACULOUS_LADYBUG_OUTLINE;
+    }
+
+    public static RenderType kwamiColor() {
+        return KWAMI_COLOR;
     }
 
     /**
@@ -197,5 +203,20 @@ public class MineraculousRenderTypes {
                         .setWriteMaskState(RenderStateShard.COLOR_WRITE)
                         .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
                         .createCompositeState(false));
+    }
+
+    private static RenderType createKwamiColor() {
+        return RenderType.create(
+                "kwami_color",
+                DefaultVertexFormat.NEW_ENTITY,
+                VertexFormat.Mode.QUADS,
+                256,
+                false,
+                true,
+                RenderType.CompositeState.builder()
+                        .setTextureState(RenderStateShard.NO_TEXTURE)
+                        .setShaderState(RenderStateShard.POSITION_COLOR_LIGHTMAP_SHADER)
+                        .setLightmapState(RenderStateShard.NO_LIGHTMAP)
+                        .createCompositeState(true));
     }
 }

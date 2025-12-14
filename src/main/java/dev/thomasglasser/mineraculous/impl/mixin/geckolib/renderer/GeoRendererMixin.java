@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.impl.client.KwamiBufferSource;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.projectile.AbstractArrow;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,5 +41,25 @@ public interface GeoRendererMixin {
             return true;
         }
         return false;
+    }
+
+    @ModifyReturnValue(method = "checkAndRefreshBuffer", at = @At("RETURN"))
+    default VertexConsumer kwamiRefreshOutline(
+            VertexConsumer original,
+            boolean isReRender,
+            VertexConsumer buffer,
+            MultiBufferSource bufferSource,
+            RenderType renderType) {
+        if (isReRender)
+            return original;
+
+        if (original instanceof KwamiBufferSource.KwamiOutlineGenerator kwami
+                && bufferNeedsRefresh(kwami.delegate())) {
+            return new KwamiBufferSource.KwamiOutlineGenerator(
+                    bufferSource.getBuffer(renderType),
+                    kwami.color());
+        }
+
+        return original;
     }
 }

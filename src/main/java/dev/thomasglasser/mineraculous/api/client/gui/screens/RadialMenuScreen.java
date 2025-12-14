@@ -11,6 +11,8 @@ import dev.thomasglasser.mineraculous.impl.client.MineraculousClientConfig;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetRadialMenuProviderOptionPayload;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.List;
+import java.util.function.BiConsumer;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -18,8 +20,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
-import java.util.List;
-import java.util.function.BiConsumer;
 
 /**
  * Displays a list of {@link RadialMenuOption}s and allows selection while the provided key is held.

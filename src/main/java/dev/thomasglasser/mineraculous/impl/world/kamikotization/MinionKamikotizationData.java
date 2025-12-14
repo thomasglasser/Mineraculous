@@ -14,6 +14,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.handler.KamikotizationAb
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.ItemReversionData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
@@ -29,6 +30,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.ExtraCodecs;
@@ -94,6 +96,14 @@ public record MinionKamikotizationData(Holder<Kamikotization> kamikotization, Ka
 
     public void detransform(KamikotizedMinion minion, ServerLevel level) {
         playKamikotizationEffects(minion, level, MineraculousSoundEvents.KAMIKOTIZATION_DETRANSFORM);
+
+        for (ResourceKey<MobEffect> effect : level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).keySet()) {
+            minion.removeEffect(level.holderOrThrow(effect));
+        }
+        minion.getAttributes().removeAttributeModifiers(MiraculousData.getMiraculousAttributes(level, kamikoData.powerLevel()));
+
+        ArmorData.restoreOrClear(minion);
+        minion.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
 
         Kamikotization value = kamikotization.value();
         AbilityData data = AbilityData.of(this);

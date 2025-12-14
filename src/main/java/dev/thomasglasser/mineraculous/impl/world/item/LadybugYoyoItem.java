@@ -28,12 +28,6 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.BiPredicate;
-import java.util.function.Supplier;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
@@ -76,6 +70,12 @@ import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.BiPredicate;
+import java.util.function.Supplier;
 
 public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Mode>, ActiveItem, LeftClickListener, LuckyCharmSummoningItem {
     public static final String CONTROLLER_USE = "use_controller";
@@ -162,7 +162,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                             } else {
                                 recallYoyo(player);
                                 Vec3 inertia = player.getDeltaMovement();
-                                if (inertia.length() > 1) inertia = inertia.add(0, 0.5, 0);
+                                if (inertia.length() > 0.7) inertia = inertia.add(0, 0.5, 0);
                                 player.setDeltaMovement(inertia.scale(2.5));
                             }
                         } else {

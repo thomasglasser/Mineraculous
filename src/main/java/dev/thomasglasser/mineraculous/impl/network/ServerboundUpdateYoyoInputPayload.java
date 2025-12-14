@@ -108,13 +108,14 @@ public record ServerboundUpdateYoyoInputPayload(int input) implements ExtendedPa
         boolean playerAffected = !player.isNoGravity() && !player.getAbilities().flying;
         boolean ropeTensioned = distance > maxRopeLn && maxRopeLn > 3;
         boolean playerAirborne = !player.onGround();
-        boolean noBlockBelow = player.level().getBlockState(
-                new BlockPos(
-                        (int) player.getX(),
-                        (int) player.getY() - 1,
-                        (int) player.getZ()))
+        boolean noBlockBelow =
+                player.level()
+                .getBlockState(
+                    BlockPos.containing(
+                        player.getX(),
+                        player.getY() - 1,
+                        player.getZ()))
                 .isAir();
-
         return yoyoAnchored &&
                 playerAffected &&
                 ropeTensioned &&

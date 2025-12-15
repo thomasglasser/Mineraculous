@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class LookManager {
     private static final Map<String, MiraculousLook> LOOKS = new ConcurrentHashMap<>();
-    private static final Table<UUID, Holder<Miraculous>, String> PLAYER_LOOKS = HashBasedTable.create();
+    private static final Table<UUID, Holder<Miraculous>, String> PLAYER_LOOKS = com.google.common.collect.Tables.synchronizedTable(HashBasedTable.create());
 
     private static boolean safeMode = false;
 

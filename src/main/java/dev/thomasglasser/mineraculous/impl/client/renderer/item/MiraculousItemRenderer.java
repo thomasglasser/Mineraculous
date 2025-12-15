@@ -75,6 +75,15 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
         return miraculous;
     }
 
+    public static @Nullable MiraculousLook getLook(ItemStack stack, Holder<Miraculous> miraculous) {
+        Integer carrier = stack.get(MineraculousDataComponents.CARRIER);
+        Level level = ClientUtils.getLevel();
+        if (carrier != null && level != null && level.getEntities().get(carrier) instanceof Player player) {
+            return LookManager.getLook(player.getUUID(), miraculous);
+        }
+        return null;
+    }
+
     public static boolean isHidden(ItemStack stack) {
         return stack.get(MineraculousDataComponents.TEXTURE_STATE) == MiraculousItem.TextureState.HIDDEN;
     }
@@ -138,14 +147,10 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
             @Override
             public BakedGeoModel getBakedModel(ResourceLocation location) {
                 ItemStack stack = getCurrentItemStack();
-                Integer carrier = stack.get(MineraculousDataComponents.CARRIER);
-                Level level = ClientUtils.getLevel();
-                if (carrier != null && level != null && level.getEntities().get(carrier) instanceof Player player) {
-                    MiraculousLook look = LookManager.getLook(player.getUUID(), miraculous);
-                    if (look != null) {
-                        MiraculousLook.AssetType assetType = isHidden(stack) ? MiraculousLook.AssetType.JEWEL_HIDDEN : MiraculousLook.AssetType.JEWEL_ACTIVE;
-                        return look.getModel(assetType, () -> super.getBakedModel(location));
-                    }
+                MiraculousLook look = getLook(stack, miraculous);
+                if (look != null) {
+                    MiraculousLook.AssetType assetType = isHidden(stack) ? MiraculousLook.AssetType.JEWEL_HIDDEN : MiraculousLook.AssetType.JEWEL_ACTIVE;
+                    return look.getModel(assetType, () -> super.getBakedModel(location));
                 }
                 return super.getBakedModel(location);
             }
@@ -153,14 +158,10 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
             @Override
             public ResourceLocation getTextureResource(T animatable) {
                 ItemStack stack = getCurrentItemStack();
-                Integer carrier = stack.get(MineraculousDataComponents.CARRIER);
-                Level level = ClientUtils.getLevel();
-                if (carrier != null && level != null && level.getEntities().get(carrier) instanceof Player player) {
-                    MiraculousLook look = LookManager.getLook(player.getUUID(), miraculous);
-                    if (look != null) {
-                        MiraculousLook.AssetType assetType = isHidden(stack) ? MiraculousLook.AssetType.JEWEL_HIDDEN : MiraculousLook.AssetType.JEWEL_ACTIVE;
-                        return look.getTexture(assetType, () -> texture);
-                    }
+                MiraculousLook look = getLook(stack, miraculous);
+                if (look != null) {
+                    MiraculousLook.AssetType assetType = isHidden(stack) ? MiraculousLook.AssetType.JEWEL_HIDDEN : MiraculousLook.AssetType.JEWEL_ACTIVE;
+                    return look.getTexture(assetType, () -> texture);
                 }
                 return texture;
             }
@@ -168,18 +169,14 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
             @Override
             public @Nullable Animation getAnimation(T animatable, String name) {
                 ItemStack stack = getCurrentItemStack();
-                Integer carrier = stack.get(MineraculousDataComponents.CARRIER);
-                Level level = ClientUtils.getLevel();
-                if (carrier != null && level != null && level.getEntities().get(carrier) instanceof Player player) {
-                    MiraculousLook look = LookManager.getLook(player.getUUID(), miraculous);
-                    if (look != null) {
-                        MiraculousLook.AssetType assetType = isHidden(stack) ? MiraculousLook.AssetType.JEWEL_HIDDEN : MiraculousLook.AssetType.JEWEL_ACTIVE;
-                        BakedAnimations animations = look.getAnimations(assetType, () -> null);
-                        if (animations != null) {
-                            Animation animation = animations.getAnimation(name);
-                            if (animation != null)
-                                return animation;
-                        }
+                MiraculousLook look = getLook(stack, miraculous);
+                if (look != null) {
+                    MiraculousLook.AssetType assetType = isHidden(stack) ? MiraculousLook.AssetType.JEWEL_HIDDEN : MiraculousLook.AssetType.JEWEL_ACTIVE;
+                    BakedAnimations animations = look.getAnimations(assetType, () -> null);
+                    if (animations != null) {
+                        Animation animation = animations.getAnimation(name);
+                        if (animation != null)
+                            return animation;
                     }
                 }
 

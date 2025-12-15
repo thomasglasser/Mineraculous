@@ -87,7 +87,7 @@ public class LookLoader {
                 loadFromRoot(path, hash);
             } else if (path.toString().endsWith(".zip")) {
                 try (FileSystem fs = FileSystems.newFileSystem(path, (ClassLoader) null)) {
-                    loadFromRoot(fs.getPath("/"), com.google.common.io.Files.asByteSource(path.toFile()).hash(Hashing.sha256()).toString());
+                    loadFromRoot(fs.getPath("/"), Hashing.sha256().hashBytes(Files.readAllBytes(path)).toString());
                 }
             }
         } catch (Exception e) {
@@ -188,7 +188,7 @@ public class LookLoader {
     private static @Nullable ResourceLocation registerTexture(Path root, JsonObject asset, String key, String id, MiraculousLook.AssetType assetType, String hash) throws Exception {
         Path path = findValidPath(root, asset, key);
         if (path != null) {
-            return registerTexture(NativeImage.read(path.toUri().toURL().openStream()), id, assetType, hash);
+            return registerTexture(NativeImage.read(Files.newInputStream(path)), id, assetType, hash);
         }
         return null;
     }

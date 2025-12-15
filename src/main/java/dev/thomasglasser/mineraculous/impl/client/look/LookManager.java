@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.client.look;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import java.util.Collection;
@@ -14,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class LookManager {
     private static final Map<String, MiraculousLook> LOOKS = new ConcurrentHashMap<>();
-    private static final Table<UUID, Holder<Miraculous>, String> PLAYER_LOOKS = com.google.common.collect.Tables.synchronizedTable(HashBasedTable.create());
+    private static final Table<UUID, Holder<Miraculous>, String> PLAYER_LOOKS = Tables.synchronizedTable(HashBasedTable.create());
 
     private static boolean safeMode = false;
 

@@ -48,6 +48,7 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.FaceMas
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.LegacyDevTeamLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.ButterflyCaneRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.item.KwamiItemRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRemoteDamagePayload;
@@ -261,11 +262,13 @@ public class MineraculousClientEvents {
     static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
         // Clears old rendering data on reload
         event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
-            MineraculousClientUtils.syncSpecialPlayerChoices();
-            MineraculousArmorUtils.clearAnimationData();
             MiraculousItemRenderer.clearAssets();
             MiraculousArmorItemRenderer.clearAssets();
-            KamikotizationArmorItemRenderer.clearModels();
+            KamikotizationArmorItemRenderer.clearAssets();
+            KwamiRenderer.clearAssets();
+            KwamiItemRenderer.clearAssets();
+            MineraculousClientUtils.syncSpecialPlayerChoices();
+            MineraculousArmorUtils.clearAnimationData();
             MineraculousClientUtils.refreshCataclysmPixels();
             ConditionalAutoGlowingGeoLayer.clearGlowmasks();
         });

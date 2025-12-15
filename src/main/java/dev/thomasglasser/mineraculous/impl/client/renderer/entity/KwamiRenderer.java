@@ -69,7 +69,7 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
 
     @Override
     public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
-        if (animatable.isInCubeForm()) {
+        if (animatable.isInOrbForm()) {
             int summonTicks = animatable.getSummonTicks();
             float progress = summonTicks > 0 ? (float) summonTicks / (SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt()) : 0.5F;
             int color = animatable.getMiraculous().value().color().getValue();
@@ -126,7 +126,7 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
     @Override
     public GeoModel<T> getGeoModel() {
         T animatable = getAnimatable();
-        if (animatable != null && !animatable.isInCubeForm()) {
+        if (animatable != null && !animatable.isInOrbForm()) {
             Holder<Miraculous> miraculous = animatable.getMiraculous();
             if (miraculous != null) {
                 if (!models.containsKey(miraculous))
@@ -160,7 +160,7 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
 
     @Override
     public Color getRenderColor(T animatable, float partialTick, int packedLight) {
-        if (animatable.isInCubeForm()) {
+        if (animatable.isInOrbForm()) {
             return COLORS.computeIfAbsent(animatable.getMiraculous().value().color().getValue(), Color::new);
         }
         return super.getRenderColor(animatable, partialTick, packedLight);

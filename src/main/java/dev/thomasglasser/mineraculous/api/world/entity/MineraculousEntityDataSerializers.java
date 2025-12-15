@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.api.world.entity;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.MiraculousLadybugTargetData;
 import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
@@ -27,6 +28,7 @@ public class MineraculousEntityDataSerializers {
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Optional<ResourceLocation>>> OPTIONAL_RESOURCE_LOCATION = ENTITY_DATA_SERIALIZERS.register("optional_resource_location", () -> EntityDataSerializer.forValueType(TommyLibExtraStreamCodecs.OPTIONAL_RESOURCE_LOCATION));
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<MiraculousLadybugTargetData>> MIRACULOUS_LADYBUG_TARGET_DATA = ENTITY_DATA_SERIALIZERS.register("miraculous_ladybug_target_data", () -> EntityDataSerializer.forValueType(MiraculousLadybugTargetData.STREAM_CODEC));
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Optional<Holder<Kamikotization>>>> OPTIONAL_KAMIKOTIZATION = ENTITY_DATA_SERIALIZERS.register("optional_kamikotization", () -> EntityDataSerializer.forValueType(ByteBufCodecs.optional(Kamikotization.STREAM_CODEC)));
+    public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Kwami.SummoningAppearance>> KWAMI_SUMMONING_APPEARANCE = ENTITY_DATA_SERIALIZERS.register("kwami_summoning_appearance", () -> EntityDataSerializer.forValueType(Kwami.SummoningAppearance.STREAM_CODEC));
 
     @ApiStatus.Internal
     public static void init() {}

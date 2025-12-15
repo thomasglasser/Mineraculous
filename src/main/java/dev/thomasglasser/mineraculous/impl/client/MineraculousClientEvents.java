@@ -59,10 +59,6 @@ import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUti
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.UUID;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -124,6 +120,10 @@ import org.lwjgl.glfw.GLFW;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.UUID;
 
 public class MineraculousClientEvents {
     // Setup
@@ -475,12 +475,11 @@ public class MineraculousClientEvents {
                         kwamiGlowFlag = true;
                         KwamiBufferSource kwamiBufferSource = new KwamiBufferSource(multibuffersource$buffersource);
                         int color = kwami.getMiraculous().value().color().getValue();
-                        color = (0xFF << 24) | color;
                         kwamiBufferSource.setColor(color);
-                        Vec3 interpPos = entity.getPosition(partialTick);
-                        double x = interpPos.x - camera.getPosition().x;
-                        double y = interpPos.y - camera.getPosition().y;
-                        double z = interpPos.z - camera.getPosition().z;
+                        Vec3 position = entity.getPosition(partialTick);
+                        double x = position.x - camera.getPosition().x;
+                        double y = position.y - camera.getPosition().y;
+                        double z = position.z - camera.getPosition().z;
                         renderDispatcher.render(
                                 entity,
                                 x, y, z,

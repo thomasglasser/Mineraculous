@@ -11,7 +11,10 @@ import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import java.util.Map;
+import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -32,9 +35,8 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import software.bernie.geckolib.util.ClientUtil;
 import software.bernie.geckolib.util.Color;
-import java.util.Map;
-import java.util.function.Predicate;
 
 public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
     public static final String HEAD = "head";
@@ -73,12 +75,6 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
             int color = animatable.getMiraculous().value().color().getValue();
             renderRays(poseStack, progress, bufferSource.getBuffer(RenderType.lightning()), color);
             renderRays(poseStack, progress, bufferSource.getBuffer(RenderType.dragonRays()), color);
-        }
-        if (animatable.isKwamiGlowing() && !animatable.isInCubeForm()) {
-            colour = animatable.getMiraculousColor();
-            renderType = MineraculousRenderTypes.kwamiColor();
-            //buffer = new KwamiBufferSource.KwamiOutlineGenerator(buffer, colour);
-            buffer.setColor(colour);
         }
         super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, LightTexture.FULL_BRIGHT, packedOverlay, colour);
     }
@@ -168,5 +164,21 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
             return COLORS.computeIfAbsent(animatable.getMiraculous().value().color().getValue(), Color::new);
         }
         return super.getRenderColor(animatable, partialTick, packedLight);
+    }
+
+    @Override
+    public RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+        final boolean invisible = animatable.isInvisible();
+
+        if (animatable.isKwamiGlowing())
+            return MineraculousRenderTypes.kwamiGlowColor(texture);
+
+        if (invisible && !animatable.isInvisibleTo(ClientUtil.getClientPlayer()))
+            return RenderType.itemEntityTranslucentCull(texture);
+
+        if (!invisible)
+            return super.getRenderType(animatable, texture, bufferSource, partialTick);
+
+        return Minecraft.getInstance().shouldEntityAppearGlowing(animatable) ? RenderType.outline(texture) : null;
     }
 }

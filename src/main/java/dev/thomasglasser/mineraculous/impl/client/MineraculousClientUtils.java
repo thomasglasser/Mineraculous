@@ -43,6 +43,16 @@ import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -79,16 +89,6 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import top.theillusivec4.curios.common.inventory.CurioSlot;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class MineraculousClientUtils {
     public static final Component GUI_CHOOSE = Component.translatable("gui.choose");
@@ -101,7 +101,7 @@ public class MineraculousClientUtils {
     public static PostChain kwamiEffect;
     public static RenderTarget kwamiTarget;
 
-    public static float kwamiGlowSigma = 0.0f;
+    public static float kwamiGlowPower = 0.0f;
 
     public static void initKwami() {
         if (kwamiEffect != null) {
@@ -130,9 +130,9 @@ public class MineraculousClientUtils {
     }
 
     public static void updateKwamiGlowUniforms() {
-        kwamiGlowSigma = 0.5f;
+        kwamiGlowPower = 120f;
         if (kwamiEffect != null) {
-            kwamiEffect.setUniform("BlurSigma", kwamiGlowSigma);
+            kwamiEffect.setUniform("BlurSigma", kwamiGlowPower);
         }
     }
 

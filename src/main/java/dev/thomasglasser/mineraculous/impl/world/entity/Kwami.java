@@ -20,11 +20,6 @@ import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
@@ -93,6 +88,11 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoEntity, FlyingAnimal {
     public static final RawAnimation EAT = RawAnimation.begin().thenPlay("misc.eat");
@@ -103,8 +103,10 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     public static final BiPredicate<Kwami, Player> RENOUNCE_PREDICATE = (kwami, player) -> player != null && player.isAlive() && player != kwami.getOwner() && EntitySelector.NO_SPECTATORS.test(player) && !EntityUtils.TARGET_TOO_FAR_PREDICATE.test(kwami, player);
 
     private static final double SUMMON_RADIUS_STEP = 0.07;
-    private static final double SUMMON_ANGLE_STEP = 0.5;
-    private static final double SUMMON_MAX_RADIUS = 1.5;
+    private static final double SUMMON_ORB_ANGLE_STEP = 0.5;
+    private static final double SUMMON_ORB_MAX_RADIUS = 1.5;
+    private static final double SUMMON_TRAIL_ANGLE_STEP = Math.toRadians(13);
+    private static final double SUMMON_TRAIL_MAX_RADIUS = 0.89;
 
     private static final EntityDataAccessor<Integer> DATA_SUMMON_TICKS = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
@@ -123,8 +125,8 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private TagKey<Item> preferredFoodsTag;
     private TagKey<Item> treatsTag;
 
-    private double summonAngle;
-    private double summonRadius;
+    private double summonAngle = 0;
+    private double summonRadius = 0;
     private int eatTicks = 0;
 
     public Kwami(EntityType<? extends Kwami> entityType, Level level) {
@@ -250,27 +252,56 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     }
 
     private void tickSummon() {
-        setSummonTicks(getSummonTicks() - 1);
         LivingEntity owner = getOwner();
         SummoningAppearance appearance = getSummoningAppearance();
+
+        if (summonAngle == 0 && appearance == SummoningAppearance.TRAIL) {
+            summonAngle = Math.toRadians(Math.random() * 180);
+        }
+        setSummonTicks(getSummonTicks() - 1);
         if (owner != null) {
             switch (appearance) {
-                case TRAIL:
+                case TRAIL: {
                     setGlowingPower(getSummonTicks() * getSummonTicks());
-                    //TODO implement spinning cylinder animation
-                case ORB:
+                    if (getSummonTicks() > 10) {
+                        summonRadius += SUMMON_RADIUS_STEP;
+                        summonAngle += SUMMON_TRAIL_ANGLE_STEP;
+                        if (summonRadius > SUMMON_TRAIL_MAX_RADIUS) {
+                            summonRadius = SUMMON_TRAIL_MAX_RADIUS;
+                        }
+
+                        double baseYawRad = Math.toRadians(owner.getYRot() + 180);
+                        Vec3 lookingAngle = new Vec3(Math.sin(baseYawRad), 0, -Math.cos(baseYawRad)).normalize();
+                        Vec3 vertical = new Vec3(0, 1, 0);
+                        Vec3 xzPerpendicular = lookingAngle.cross(vertical).normalize();
+
+                        double t = Math.max(summonRadius / SUMMON_TRAIL_MAX_RADIUS, 0.1);
+                        double scale = 1.3d * t;
+                        double x = summonRadius * Math.cos(summonAngle);
+                        double y = summonRadius * Math.sin(summonAngle);
+
+                        lookingAngle = lookingAngle.scale(scale);
+                        Vec3 rotation = vertical.scale(y).add(xzPerpendicular.scale(x));
+                        Vec3 position = lookingAngle.add(rotation).add(owner.getX(), owner.getY() + owner.getBbHeight() / 2d, owner.getZ());
+
+                        this.moveTo(position);
+                        this.setYRot(owner.getYRot() + 180);
+                        this.setYHeadRot(owner.getYRot() + 180);
+                    }
+                    break;
+                }
+                case ORB: {
                     if (this.getY() < owner.getEyeY() - this.getBbHeight() / 2) {
                         summonRadius += SUMMON_RADIUS_STEP;
-                        summonAngle += SUMMON_ANGLE_STEP;
-                        if (summonRadius > SUMMON_MAX_RADIUS) {
-                            summonRadius = SUMMON_MAX_RADIUS;
+                        summonAngle += SUMMON_ORB_ANGLE_STEP;
+                        if (summonRadius > SUMMON_ORB_MAX_RADIUS) {
+                            summonRadius = SUMMON_ORB_MAX_RADIUS;
                         }
 
                         Vec3 ownerPos = owner.position();
                         double startY = ownerPos.y + owner.getBbHeight() / 2;
-                        double t = Math.min(summonRadius / SUMMON_MAX_RADIUS, 1.0);
+                        double t = Math.min(summonRadius / SUMMON_ORB_MAX_RADIUS, 1.0);
                         double y = startY + (owner.getEyeY() - startY) * t - this.getBbHeight() / 2;
-
                         float baseYawRad = (float) Math.toRadians(180 + owner.getYRot());
                         double x = ownerPos.x + summonRadius * Math.cos(summonAngle + baseYawRad);
                         double z = ownerPos.z + summonRadius * Math.sin(summonAngle + baseYawRad);
@@ -280,8 +311,10 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                         this.setYHeadRot(owner.getYRot() + 180);
                     }
                     break;
-                case INSTANT:
+                }
+                case INSTANT: {
                     break;
+                }
             }
         }
         if (!isSummoning()) setSummoningAppearance(SummoningAppearance.INSTANT);

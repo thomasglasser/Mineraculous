@@ -76,6 +76,10 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
             renderRays(poseStack, progress, bufferSource.getBuffer(RenderType.lightning()), color);
             renderRays(poseStack, progress, bufferSource.getBuffer(RenderType.dragonRays()), color);
         }
+        if (animatable.isKwamiGlowing()) {
+            float scale = Math.max(0.2f, 1.001f - Mth.sqrt(animatable.getGlowingPower()) / 30f);
+            poseStack.scale(scale, scale, scale);
+        }
         super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, LightTexture.FULL_BRIGHT, packedOverlay, colour);
     }
 

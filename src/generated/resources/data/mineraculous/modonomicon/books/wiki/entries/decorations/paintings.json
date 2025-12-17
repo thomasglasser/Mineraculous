@@ -11,7 +11,7 @@
   "pages": [
     {
       "type": "modonomicon:image",
-      "anchor": "placeable",
+      "anchor": "",
       "border": true,
       "condition": {
         "type": "modonomicon:none"

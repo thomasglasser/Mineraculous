@@ -1,0 +1,61 @@
+{
+  "background_u_index": 0,
+  "background_v_index": 0,
+  "category": "apis",
+  "description": "book.mineraculous.wiki.apis.loot.description",
+  "hide_while_locked": false,
+  "icon": {
+    "components": {
+      "mineraculous:lucky_charm": {
+        "id": 0,
+        "owner": [
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "item": "minecraft:apple"
+  },
+  "name": "book.mineraculous.wiki.apis.loot.name",
+  "pages": [
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.loot.functions.text",
+      "title": "book.mineraculous.wiki.apis.loot.functions.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.loot.conditions.text",
+      "title": "book.mineraculous.wiki.apis.loot.conditions.title",
+      "use_markdown_in_title": false
+    },
+    {
+      "type": "modonomicon:text",
+      "anchor": "",
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "show_title_separator": true,
+      "text": "book.mineraculous.wiki.apis.loot.number_providers.text",
+      "title": "book.mineraculous.wiki.apis.loot.number_providers.title",
+      "use_markdown_in_title": false
+    }
+  ],
+  "show_when_any_parent_unlocked": false,
+  "sort_number": 5,
+  "x": 0,
+  "y": 0
+}

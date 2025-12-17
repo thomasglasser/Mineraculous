@@ -1,17 +1,21 @@
 package dev.thomasglasser.mineraculous.impl.data.lang.expansions;
 
+import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.api.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
+import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.KamikotizationItemSelectionScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.KamikotizationSelectionScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
+import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
+import dev.thomasglasser.mineraculous.impl.world.item.MineraculousCreativeModeTabs;
 import dev.thomasglasser.tommylib.api.data.lang.EnUsOverrideLanguageProvider;
 import net.minecraft.data.PackOutput;
 
@@ -23,6 +27,7 @@ public class AkumatizationPackEnUsLanguageProvider extends EnUsOverrideLanguageP
     @Override
     protected void addTranslations() {
         addItems();
+        addCreativeModeTabs();
         addEntityTypes();
         addAbilities();
         addGuis();
@@ -37,13 +42,24 @@ public class AkumatizationPackEnUsLanguageProvider extends EnUsOverrideLanguageP
         return "Akumatization Pack " + super.getName();
     }
 
+    protected void add(RadialMenuOption option, String name) {
+        add(option.displayName(), name);
+    }
+
     private void addItems() {
-        // Armor
         add(MineraculousArmors.KAMIKOTIZATION, "Akumatization", "Mask", "Chestplate", "Leggings", "Boots");
+
+        add(ButterflyCaneItem.Mode.KAMIKO_STORE, "Akuma Store");
+    }
+
+    private void addCreativeModeTabs() {
+        add(MineraculousCreativeModeTabs.KAMIKOTIZABLES.get(), "Akumatizables");
+        add(MineraculousCreativeModeTabs.KAMIKOTIZATION_TOOLS.get(), "Akumatization Tools");
     }
 
     private void addEntityTypes() {
         add(MineraculousEntityTypes.KAMIKO.get(), "Akuma");
+        add(MineraculousEntityTypes.KAMIKOTIZED_MINION.get(), "Akumatized Minion");
     }
 
     private void addAbilities() {
@@ -65,6 +81,9 @@ public class AkumatizationPackEnUsLanguageProvider extends EnUsOverrideLanguageP
 
         // Receiver Kamikotization Chat Screen
         add(ReceiverKamikotizationChatScreen.ACCEPT, "Accept Akumatization");
+
+        // Keys
+        add(MineraculousKeyMappings.REVOKE_KAMIKOTIZATION, "Revoke Akumatization");
     }
 
     private void addSounds() {
@@ -79,56 +98,90 @@ public class AkumatizationPackEnUsLanguageProvider extends EnUsOverrideLanguageP
 
     private void addConfigs() {
         addConfig(MineraculousServerConfig.get().enableKamikotizationRejection, "Enable Akumatization Rejection", "Enable rejection of akumatization by the victim");
+        addConfig(MineraculousServerConfig.get().enableKamikoReplication, "Enable Akuma Replication", "Enable replication of akumas when left uncaptured");
+        addConfig(MineraculousServerConfig.get().maxKamikoReplicas, "Maximum Akuma Replicas", "Maximum number of akuma replicas made by an akuma in one sitting");
+        addConfig(MineraculousServerConfig.get().forceKamikotizeCreativePlayers, "Force Akumatize Creative Players", "Force akumatize players even in creative mode");
     }
 
     private void addAdvancements() {
-        addAdvancement("miraculous", "kamikotize_player", "desc", "Provide power to another player with an akumatization");
+        addAdvancement("miraculous", "kamikotize_butterfly", "desc", "Akumatize a butterfly");
+        addAdvancement("miraculous", "kamikotize_butterfly", "title", "Fly Away My Little Akuma");
+        addAdvancement("miraculous", "kamikotize_entity", "desc", "Provide power to another being via akumatization");
         addAdvancement("miraculous", "kamikotize_self", "desc", "Use the butterfly miraculous to akumatize yourself");
-        addAdvancement("miraculous", "power_kamiko", "desc", "Power up an Akuma");
-        addAdvancement("miraculous", "power_kamiko", "title", "Fly Away My Little Akuma");
-        addAdvancement("miraculous", "release_purified_kamiko", "desc", "Purify and release an Akuma");
         addAdvancement("miraculous", "transform_kamikotization", "desc", "Accept an akumatization from the Butterfly miraculous holder");
     }
 
     private void addWiki() {
-        addEntryDescription("wiki", "apis", "abilities", "Supernatural abilities that can be used by Miraculous holders or Akumatizations");
-        addPageText("wiki", "apis", "advancement_triggers", "kamikotized_player", "This trigger is called when a player akumatizes another player. It has one parameter:\n- \"type\": The type of akumatization that was used.\n");
-        addPageTitle("wiki", "apis", "advancement_triggers", "kamikotized_player", "Akumatized Player");
-        addPageText("wiki", "apis", "advancement_triggers", "released_purified_kamiko", "This trigger is called when a player releases a purified akuma. It has one parameter:\n- \"count\": The number of purified akumas that were released.\n");
-        addPageTitle("wiki", "apis", "advancement_triggers", "released_purified_kamiko", "Released Purified Akuma");
-        addPageText("wiki", "apis", "advancement_triggers", "transformed_kamikotization", "This trigger is called when a player is transformed by a akumatization. It has two parameters:\n- \"type\": The type of akumatization that was used.\n- \"self\": Whether the player akumatized themselves.\n");
+        // APIs
+        // Abilities
+        addEntryDescription("wiki", "apis", "abilities", "Supernatural abilities that can be used by Miraculous or Akumatization holders.");
+
+        // Advancement Triggers
+        addPageText("wiki", "apis", "advancement_triggers", "kamikotized_entity", "This trigger is called when a player akumatizes an entity.\nIt has four parameters:\n- \"player\": The player that akumatized the entity.\n- \"target\": The entity that was akumatized.\n- \"kamikotization\": The akumatization that was given to the entity.\n- \"self\": Whether the player akumatized themself.\n");
+        addPageTitle("wiki", "apis", "advancement_triggers", "kamikotized_entity", "Akumatized Entity");
+
+        addPageText("wiki", "apis", "advancement_triggers", "performed_kamikotization_active_ability", "This trigger is called when a player performs an active ability provided by their akumatization.\nIt has three parameters:\n- \"player\": The player that performed the ability.\n- \"kamikotization\": The akumatization that provided the ability.\n- \"context\": The context in which the power was used.\nCan be any value for addon support,\nbut the ones included in the mod by default are:\n    - block\n    - entity\n    - living_entity\n");
+        addPageTitle("wiki", "apis", "advancement_triggers", "performed_kamikotization_active_ability", "Performed Akumatization Active Ability");
+
+        addPageText("wiki", "apis", "advancement_triggers", "transformed_kamikotization", "This trigger is called when a player is transformed by an akumatization.\nIt has three parameters:\n- \"player\": The player that was transformed.\n- \"kamikotization\": The akumatization that was used to transform.\n- \"self\": Whether the player akumatized themself.\n");
         addPageTitle("wiki", "apis", "advancement_triggers", "transformed_kamikotization", "Transformed Akumatization");
-        addPageText("wiki", "apis", "advancement_triggers", "used_kamikotization_power", "This trigger is called when a player uses a akumatization ability. It has two parameters:\n- \"type\": The type of akumatization that was used.\n- \"context\": The context in which the power was used. Can be one of the following:\n    - empty\n    - block\n    - entity\n    - living_entity\n    - item\n");
-        addPageTitle("wiki", "apis", "advancement_triggers", "used_kamikotization_power", "Used Akumatization Power");
-        addPageText("wiki", "apis", "data_maps", "lucky_charms", "Contextual lucky charms are determined for entities, miraculous holders, and akumatizations via data maps.\nThey are located in \"data/<namespace>/entity_type/lucky_charms.json\",\n\"data/<namespace>/mineraculous/miraculous/lucky_charms.json\",\nand \"data/<namespace>/mineraculous/kamikotization/lucky_charms.json\".\nGenerators can be found online [here](https://beta-jsons.thomasglasser.dev/partners/).\n");
-        addPageText("wiki", "apis", "kamikotizations", "fields", "Akumatizations have a few fields that determine how they work:\n- active_ability: The ability that is activated when the Activate Power button (default: O) is pressed.\n- default_name: The default name of the akumatization.\n- item_predicate: The predicate that determines if the akumatization can be applied to an item.\n- passive_abilities: The abilities that are active at all times when akumatized.\n");
-        addPageText("wiki", "apis", "kamikotizations", "generator", "A generator for akumatizations can be found online [here](https://beta-jsons.thomasglasser.dev/mineraculous/kamikotization/).\n");
-        addEntryDescription("wiki", "expansions", "kamikotizations", "An expansion mod adding all Akumatizations from the show into the game.");
-        addPageText("wiki", "expansions", "kamikotizations", "description", "For customization purposes, the base mod adds no Akumatizations by default.\nInstead, the Kamikotizations expansion mod is available to add all Akumatizations from the show into the game.\nUpdates release alongside the base mod,\nadding all the Akumatizations from that season.\n");
-        addEntryName("wiki", "flora_and_fauna", "kamikos", "Akumas");
-        addPageText("wiki", "flora_and_fauna", "kamikos", "obtaining", "Akumas can only be obtained via spawn egg in the creative menu.\n");
-        addPageText("wiki", "flora_and_fauna", "kamikos", "powered", "Once powered, akumas follow their owner if they're transformed.\nIf not, they also fly around aimlessly.\n");
-        addPageText("wiki", "flora_and_fauna", "kamikos", "unpowered", "Unpowered akumas are normal butterflies.\nThey just fly around aimlessly.\nIf an open butterfly cane or powered butterfly miraculous holder are nearby, they will fly around it.\n");
-        addCategoryName("wiki", "kamikotizations", "Akumatizations");
-        addCategoryDescription("wiki", "kamikotizations", "Powers given by the [Butterfly Miraculous](entry://miraculous/butterfly) to normal players. Addons can add entries to this category describing their akumatizations (see [this page](https://klikli-dev.github.io/modonomicon/docs/basics/structure/entries) for more info).");
-        addEntryDescription("wiki", "kamikotizations", "customization", "Per-player akumatization customization");
-        addPageText("wiki", "kamikotizations", "customization", "overriding", "NOTE: The following features are only available if the server manually enables it.\\\n\\\nThe look of your akumatizations can be further customized by putting files in the 'kamikotizations' subfolder of the 'miraculouslooks' folder in the client's minecraft directory.\\\nA guide for customizing can be found [here](https://beta-jsons.thomasglasser.dev/guides/customization/).\n");
+
+        // Data Maps
+        addPageText("wiki", "apis", "data_maps", "lucky_charms", "Contextual lucky charms are determined for akumatizations, miraculous holders, and entities via data maps.\nThey are located in \"data/mineraculous/kamikotization/lucky_charms.json\",\n\"data/mineraculous/miraculous/lucky_charms.json\",\nand \"data/mineraculous/entity_type/lucky_charms.json\".\nGenerators for these can be found online [here](https://beta-jsons.thomasglasser.dev/partners/).\nGenerators for the loot table can be found [here](https://beta-jsons.thomasglasser.dev/loot-table/).\n*Note: At this time, to generate a lucky charm loot table, you must use a preset to set the \"type\" field to \"mineraculous:lucky_charm\".\nSearching the presets for \"lucky_charm\" will yield valid results.*\n");
+        addPageText("wiki", "apis", "data_maps", "miraculous_effects", "Miraculous effects and attributes are provided to miraculous holders and akumatized entities while transformed.\nThese are determined via two data maps:\n- \"data/mineraculous/mob_effect/miraculous_effects.json\" for mob effects ([Generator](https://beta-jsons.thomasglasser.dev/mineraculous/data-map-miraculous-effects/))\n- \"data/mineraculous/attribute/miraculous_attribute_modifiers.json\" for attributes ([Generator](https://beta-jsons.thomasglasser.dev/mineraculous/data-map-miraculous-attribute-modifiers/))\n");
+
+        // Kamikotizations (API)
+        addEntryDescription("wiki", "apis", "kamikotizations", "Transformations that the Butterfly Miraculous can give to entities.");
+        addPageText("wiki", "apis", "kamikotizations", "generator", "A generator for akumatizations can be found [here](https://beta-jsons.thomasglasser.dev/mineraculous/kamikotization/).\n");
+        addPageText("wiki", "apis", "kamikotizations", "guide", "A guide for creating akumatizations can be found [here](https://beta-jsons.thomasglasser.dev/guides/kamikotization/).\n");
+        addEntryName("wiki", "apis", "kamikotizations", "Akumatizations");
+
+        // Loot
+        addPageText("wiki", "apis", "loot", "number_providers", "There is one number provider added by the mod:\n- \"mineraculous:power_level_multiplier\": Multiplies the given number by the entity's Miraculous or Akumatization power level.\n");
+
+        // Tags
+        addPageText("wiki", "apis", "tags", "damage_type", "There are two mod tags used by the mod:\n- \"mineraculous:hurts_kamikos\": Damage types that can damage Akumas.\n- \"mineraculous:is_cataclysm\": Damage types that can be considered cataclysm.\n");
+        addPageText("wiki", "apis", "tags", "item",
+                "There are seventeen mod tags and two common tags used by the mod:\n- \"mineraculous:kwami_preferred_foods/butterfly\": Items that can be used to have a better chance to charge the butterfly kwami.\n- \"mineraculous:kwami_treats/butterfly\": Items that can be used to immediately charge the butterfly kwami.\n- \"mineraculous:kwami_preferred_foods/cat\": Items that can be used to have a better chance to charge the cat kwami.\n- \"mineraculous:kwami_treats/cat\": Items that can be used to immediately charge the cat kwami.\n- \"mineraculous:kwami_preferred_foods/ladybug\": Items that can be used to have a better chance to charge the ladybug kwami.\n- \"mineraculous:kwami_treats/ladybug\": Items that can be used to immediately charge the ladybug kwami.\n- \"mineraculous:cheese\": Items that are normal cheese added by the mod.\n- \"mineraculous:cheese_blocks\": Items that are normal cheese blocks added by the mod.\n- \"mineraculous:camembert\": Items that are camembert cheese added by the mod.\n- \"mineraculous:camembert_blocks\": Items that are camembert cheese blocks added by the mod.\n- \"mineraculous:cataclysm_immune\": Items that cataclysm cannot apply to.\n- \"mineraculous:tough\": Items that take two tries to break if they do not have a max damage value.\n- \"mineraculous:lucky_charm_shader_immune\": Items that do not have a visual change when given as a lucky charm.\n- \"mineraculous:shooting_projectiles\": Projectiles that shoot down as a Lucky Charm instead of dropping normally.\n- \"mineraculous:generic_lucky_charms\": Lucky charm options when no specific pool is specified.\n- \"mineraculous:warden_distractors\": Items passed in a Warden lucky charm to distract it.\n- \"mineraculous:kamikotization_immune\": Items that cannot be used for Akumatization.\n- \"c:foods/cheeses\": Items from any mod that can be considered cheese and food.\n- \"c:foods/cheese_blocks\": An item copy of the \"c:foods/cheese_blocks\" block tag.\n");
+
+        // Kamikotizations (Category)
+        addCategoryDescription("wiki", "kamikotizations", "Powers given by the Butterfly Miraculous to normal players. Addons can inject entries to this category describing their akumatizations (see the Modonomicon Wiki for more info).");
+
+        // General
         addEntryDescription("wiki", "kamikotizations", "kamikotizations_general", "Features of all akumatizations");
-        addPageText("wiki", "kamikotizations", "kamikotizations_general", "receiving", "The only way to receive an akumatization is from a powered [Akuma](entry://flora_and_fauna/kamikos).\nThe owner of the akuma will choose an akumatization with powers for you based on the items in your inventory.\nIt will then send the akuma to you and it will enter that item.\nYou have the option to accept the powers, or you can reject the akumatization if the server allows it.\n");
-        addPageText("wiki", "kamikotizations", "kamikotizations_general", "revoking", "Akumatizations are revoked when the akumatized item is destroyed or when the [Butterfly Miraculous](entry://miraculous/butterfly) holder chooses to revoke the akumatization.\nThis will release the akuma from the item and remove the akumatization and powers.\n");
-        addPageText("wiki", "kamikotizations", "kamikotizations_general", "using_tool", "When you are akumatized, your akumatized item will either be turned into a tool or you will be given an ability to use on key press (default: O).\nThis tool and ability will be different depending on the akumatization, so refer to the [Akumatizations](category://kamikotizations) category for more info.\n");
-        addPageText("wiki", "miraculous", "butterfly", "abilities", "The Butterfly Miraculous has 3 abilities:\n- Akumatization\n- Akuma Control\n- Akumatized Communication\n");
-        addPageText("wiki", "miraculous", "butterfly", "cane_abilities", "The Butterfly Miraculous has 3 abilities:\n- Blade\n- Block\n- Akuma Store\n- Throw\n");
-        addPageText("wiki", "miraculous", "butterfly", "kamiko_control", "The Akuma Control ability can be activated by pressing the Activate Power button (default: O) with a powered [Akuma](entry://flora_and_fauna/kamikos) nearby.\nIt will cause a mask to appear on your face and will allow you to see through the eyes of the [Akuma](entry://flora_and_fauna/kamikos).\nYou can then press the number keys to select a target that the [Akuma](entry://flora_and_fauna/kamikos) will fly to.\nOnce it reaches the target, it will open the Akumatization Selection Screen and allow you to akumatize the target.\n");
-        addPageTitle("wiki", "miraculous", "butterfly", "kamiko_control", "Akuma Control");
-        addPageText("wiki", "miraculous", "butterfly", "kamiko_store", "Akuma Store mode allows you to right click to store a powered [Akuma](entry://flora_and_fauna/kamikos).\nYou can then right click again to release the [Akuma](entry://flora_and_fauna/kamikos).\n");
-        addPageTitle("wiki", "miraculous", "butterfly", "kamiko_store", "Akuma Store");
-        addPageText("wiki", "miraculous", "butterfly", "kamikotization", "The Akumatization ability can be activated by pressing the Activate Power button (default: O) with no powered [Akumas](entry://flora_and_fauna/kamikos) nearby.\nIt will cause particles to come from your hand.\nYou can then interact with an unpowered [Akuma](entry://flora_and_fauna/kamikos) to power and tame it.\n");
-        addPageTitle("wiki", "miraculous", "butterfly", "kamikotization", "Akumatization");
-        addPageText("wiki", "miraculous", "butterfly", "kamikotized_communication", "The Akumatized Communication ability can be activated by pressing the Activate Power button (default: O) with a akumatized player nearby.\nIt will cause a mask to appear on your face and the player's face and will allow you to see through their eyes.\nYou can then speak to the player or revoke their akumatization.\n");
-        addPageTitle("wiki", "miraculous", "butterfly", "kamikotized_communication", "Akumatized Communication");
-        addPageText("wiki", "miraculous", "customization", "kamikotization", "Akumatization looks can be customized in the 'kamikotizations' subfolder.\nYou can provide a custom texture, model, glowmask, and transforms with an id that is used in the command.\nThe only required file is the texture.\nIf only the texture is provided, it will use the default model.\n");
-        addPageTitle("wiki", "miraculous", "customization", "kamikotization", "Akumatization");
-        addPageText("wiki", "miraculous", "ladybug", "purify", "Purify mode allows you to catch and purify powered [Akumas](entry://flora_and_fauna/kamikos) with left click.\nYou can capture as many as you want and right click to release them all at once.\n");
+        addPageText("wiki", "kamikotizations", "kamikotizations_general", "receiving", "The only way to receive an akumatization is from an Akuma from the [Butterfly Miraculous](entry://miraculouses/butterfly).\nThe owner of the akuma sends it to a target to access the contents of the target's inventory.\nThey will then choose an akumatization to apply based on the items in the target's inventory,\ndisallowing that item to be moved while selection and communication occur.\nThe target has the option to accept the akumatizations via a button or can reject the akumatization with the Escape key if the server allows it.\nIf the owner selects themself, the Akuma will wait for detransformation to begin the process.\n");
+        addPageText("wiki", "kamikotizations", "kamikotizations_general", "rejecting", "Akumatized entities cannot destroy their akumatized item.\nInstead, Akumatizations can be rejected by the entity if the server allows it by pressing the Reject Akumatization key (default: K).\nThis will release the akuma from the item and remove the akumatization and powers.\n");
+        addPageText("wiki", "kamikotizations", "kamikotizations_general", "replication", "When an akumatized entity is detransformed, the Akuma will find a resting point and replicate.\nThe number of replicas depends on the server config (default: 32).\nReplicas will force minionize nearby players and despawn when all possible players are minionized.\nThis will also apply to Creative Mode players if enabled by the server config (default: false).\nMinions will remain frozen until the original entity is re-akumatized,\nthen act as tamed to the original.\n");
+        addPageText("wiki", "kamikotizations", "kamikotizations_general", "revoking", "Akumatizations are revoked when the akumatized item is destroyed or when the [Butterfly Miraculous](entry://miraculouses/butterfly) holder chooses to revoke the akumatization.\nThis will release the akuma from the damaged item and remove the akumatization and powers.\n");
+        addPageText("wiki", "kamikotizations", "kamikotizations_general", "using_tool", "When akumatized, the akumatized item will either be turned into a tool or the target will be given an ability to use on key press (default: O).\nThis tool and ability will be different depending on the akumatization;\nrefer to the [Akumatizations](category://kamikotizations) category for more info.\n");
+        addCategoryName("wiki", "kamikotizations", "Akumatizations");
+
+        // Miraculouses
+        // Butterfly
+        addPageText("wiki", "miraculouses", "butterfly", "abilities", "The Butterfly Miraculous has 3 abilities:\n- Akumatization\n- Akuma Control\n- Akumatized Communication\n");
+        addPageText("wiki", "miraculouses", "butterfly", "blade", "Blade mode unsheathes a rapier-like blade that can be used to attack entities.\nIt can also be thrown, damaging any entity or item hit, and releasing an Akuma if inside.\n");
+        addPageText("wiki", "miraculouses", "butterfly", "cane_abilities", "The tool of the Butterfly Miraculous is a Butterfly Cane.\nIt has five abilities:\n- Blade\n- Block\n- Akuma Store\n- Spyglass\n- Throw\n");
+
+        addPageText("wiki", "miraculouses", "butterfly", "kamiko_control", "The Akuma Control ability can be activated by pressing the Activate Power button (default: Y) with an Akuma nearby.\nIt will cause a mask to appear on the performer's face and will allow seeing through the eyes of the Akuma.\nThe number keys then allow selecting a target that the Akuma will fly to.\nOnce it reaches the target, it will open the Akumatization Selection Screen and allow akumatizing the target.\n");
+        addPageTitle("wiki", "miraculouses", "butterfly", "kamiko_control", "Akuma Control");
+
+        addPageText("wiki", "miraculouses", "butterfly", "kamiko_store", "Akuma Store mode allows right clicking to store or release a single Akuma.\n");
+        addPageTitle("wiki", "miraculouses", "butterfly", "kamiko_store", "Akuma Store");
+
+        addPageText("wiki", "miraculouses", "butterfly", "kamikotization", "The Akumatization ability can be activated by pressing the Activate Power button (default: Y) with no Akumas nearby or stored.\nIt will cause particles to come from the performer's hand.\nIt will then convert any non-player entity into an Akuma on interaction.\n");
+        addPageTitle("wiki", "miraculouses", "butterfly", "kamikotization", "Akumatization");
+
+        addPageText("wiki", "miraculouses", "butterfly", "kamikotized_communication", "The Akumatized Communication ability can be activated by pressing the Activate Power button (default: Y) with an akumatized entity nearby.\nIt will cause a mask to appear on the performer's and target's face and will allow spectation, private chat, remote damage, and akumatization revocation.\n");
+        addPageTitle("wiki", "miraculouses", "butterfly", "kamikotized_communication", "Akumatized Communication");
+
+        addPageText("wiki", "miraculouses", "butterfly", "throw", "Throw mode allows right clicking to throw the cane.\nThis will damage any entity or item hit, releasing an Akuma if inside.\n");
+
+        // Cat
+        addPageText("wiki", "miraculouses", "cat", "throw", "Throw mode allows right clicking to throw the staff.\nThis will damage any entity or item you hit, releasing an Akuma if inside.\n");
+
+        // Ladybug
+        addPageText("wiki", "miraculouses", "ladybug", "attacking", "Because the tool is a Yoyo, it can't melee attack.\nInstead, left clicking will launch a damaging projectile in the direction the user is facing.\nThis will damage any entity or item hit, releasing an Akuma if inside.\n");
+        addPageText("wiki", "miraculouses", "ladybug", "miraculous_ladybug", "The Miraculous Ladybug ability can be activated by pressing the Activate Power button (default: Y) with the lucky charm in hand.\nIt will send the lucky charm into the air and summon magic ladybugs that fly around and heal all damage caused by miraculous or akumatization abilities related to the target,\nor the summoner of the Miraculous Ladybug if no target is specified.\nThere are many server and client config options for customization of this ability,\nincluding one for altering the performance impact.\n");
+        addPageText("wiki", "miraculouses", "ladybug", "purify", "Purify mode allows capturing and purify Akumas with left click.\nThere is no limit to how many Akumas can be captured,\nand right clicking will release all stored Akumas at once,\nlaunching them upwards.\nWhen no Akumas are stored, right clicking causes the yoyo to spin as a shield.\n");
     }
 }

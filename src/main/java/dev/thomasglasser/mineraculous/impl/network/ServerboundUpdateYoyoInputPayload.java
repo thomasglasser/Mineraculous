@@ -7,7 +7,6 @@ import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybug
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -108,13 +107,7 @@ public record ServerboundUpdateYoyoInputPayload(int input) implements ExtendedPa
         boolean playerAffected = !player.isNoGravity() && !player.getAbilities().flying;
         boolean ropeTensioned = distance > maxRopeLn && maxRopeLn > 3;
         boolean playerAirborne = !player.onGround();
-        boolean noBlockBelow = player.level().getBlockState(
-                new BlockPos(
-                        (int) player.getX(),
-                        (int) player.getY() - 1,
-                        (int) player.getZ()))
-                .isAir();
-
+        boolean noBlockBelow = player.level().getBlockState(player.blockPosition().below()).isAir();
         return yoyoAnchored &&
                 playerAffected &&
                 ropeTensioned &&

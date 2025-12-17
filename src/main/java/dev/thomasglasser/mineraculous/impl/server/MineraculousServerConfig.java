@@ -45,7 +45,7 @@ public class MineraculousServerConfig {
 
         builder.push(MIRACULOUS);
         enableBuffsOnTransformation = builder
-                .define("enable_buffs_on_transformation", false);
+                .define("enable_buffs_on_transformation", true);
         maxToolLength = builder
                 .defineInRange("max_tool_length", 128, 32, 512);
         builder.push(CUSTOMIZATION);

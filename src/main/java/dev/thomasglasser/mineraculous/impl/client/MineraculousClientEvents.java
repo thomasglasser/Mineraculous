@@ -53,15 +53,13 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRe
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRemoteDamagePayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
+import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.inventory.MineraculousRecipeBookTypes;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.UUID;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -69,6 +67,7 @@ import net.minecraft.client.particle.FlyStraightTowardsParticle;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
@@ -79,6 +78,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
@@ -90,6 +90,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientChatReceivedEvent;
@@ -120,6 +121,11 @@ import org.lwjgl.glfw.GLFW;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.UUID;
 
 public class MineraculousClientEvents {
     // Setup
@@ -452,9 +458,85 @@ public class MineraculousClientEvents {
         PoseStack poseStack = event.getPoseStack();
         MultiBufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
         float partialTick = Minecraft.getInstance().getEntityRenderDispatcher().camera.getPartialTickTime();
-        int light = renderDispatcher.getPackedLightCoords(player, partialTick);
+
+        if (stage == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
+            boolean kwamiGlowFlag = false;
+            ArrayList<Float> glowingPowers = new ArrayList<>();
+
+            if (MineraculousClientUtils.shouldShowKwamiGlow()) {
+                MineraculousClientUtils.kwamiTarget.clear(Minecraft.ON_OSX);
+                MineraculousClientUtils.kwamiTarget.copyDepthFrom(Minecraft.getInstance().getMainRenderTarget()); // supposed to enable depth test
+                MineraculousClientUtils.kwamiTarget.bindWrite(true);
+            }
+
+            MultiBufferSource.BufferSource multibuffersource$buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
+            Camera camera = renderDispatcher.camera;
+            Vec3 cameraPos = camera.getPosition();
+            for (Entity entity : Minecraft.getInstance().level.entitiesForRendering()) {
+                if (renderDispatcher.shouldRender(entity, event.getFrustum(), cameraPos.x, cameraPos.y, cameraPos.z)) {
+                    if (MineraculousClientUtils.shouldShowKwamiGlow() && entity instanceof Kwami kwami && kwami.isKwamiGlowing() && !kwami.isInOrbForm()) {
+                        glowingPowers.add(kwami.getGlowingPower());
+                        kwamiGlowFlag = true;
+                        KwamiBufferSource kwamiBufferSource = new KwamiBufferSource(multibuffersource$buffersource);
+                        kwamiBufferSource.setColor(kwami.getMiraculous().value().color().getValue());
+
+                        float trailWeight = Mth.clamp(kwami.getGlowingPower() / 200f, 0f, 1f);
+
+                        Vec3[] positions = kwami.getTickPositionsCopy();
+                        Vec3 currentPoint = entity.getPosition(partialTick);
+
+                        double stepDist = 0.05;
+                        double totalTrailLength = 0.5 * trailWeight;
+                        double distanceTravelled = 0;
+
+                        kwami.setTrailSize(1.0f);
+                        renderDispatcher.render(entity, currentPoint.x - camera.getPosition().x, currentPoint.y - camera.getPosition().y, currentPoint.z - camera.getPosition().z, entity.getYRot(), partialTick, poseStack, kwamiBufferSource, LightTexture.FULL_BRIGHT);
+
+                        if (totalTrailLength > 0.01) {
+                            int waypointIndex = 1;
+                            while (waypointIndex < positions.length && distanceTravelled < totalTrailLength) {
+                                Vec3 targetWaypoint = positions[waypointIndex];
+                                double distToNext = currentPoint.distanceTo(targetWaypoint);
+
+                                if (distToNext > stepDist) {
+                                    Vec3 dir = targetWaypoint.subtract(currentPoint).normalize();
+                                    currentPoint = currentPoint.add(dir.scale(stepDist));
+
+                                    float progress = (float) (distanceTravelled / totalTrailLength);
+                                    float exponentialScale = (float) Math.pow(1.0f - progress, 2.0);
+                                    kwami.setTrailSize(exponentialScale * trailWeight);
+
+                                    renderDispatcher.render(
+                                            entity, currentPoint.x - camera.getPosition().x,
+                                            currentPoint.y - camera.getPosition().y,
+                                            currentPoint.z - camera.getPosition().z,
+                                            entity.getYRot(), partialTick, poseStack, kwamiBufferSource,
+                                            LightTexture.FULL_BRIGHT);
+
+                                    distanceTravelled += stepDist;
+                                } else {
+                                    currentPoint = targetWaypoint;
+                                    waypointIndex++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            multibuffersource$buffersource.endBatch();
+
+            if (MineraculousClientUtils.shouldShowKwamiGlow()) {
+                MineraculousClientUtils.kwamiTarget.unbindWrite();
+            }
+            if (kwamiGlowFlag) {
+                MineraculousClientUtils.updateKwamiGlowUniforms(glowingPowers);
+                MineraculousClientUtils.kwamiEffect.process(partialTick);
+            }
+            Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
+        }
 
         if (stage == RenderLevelStageEvent.Stage.AFTER_SOLID_BLOCKS && renderDispatcher.options.getCameraType().isFirstPerson()) {
+            int light = renderDispatcher.getPackedLightCoords(player, partialTick);
             poseStack.pushPose();
             poseStack.translate(0, -1.6d, 0);
             if (playerPerchRendererMap.containsKey(player.getUUID()))

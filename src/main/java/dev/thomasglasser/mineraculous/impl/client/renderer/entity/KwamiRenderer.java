@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.KwamiBlockAndItemGeoLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.MiniHolidayHatGeoLayer;
@@ -13,6 +14,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -33,6 +35,7 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import software.bernie.geckolib.util.ClientUtil;
 import software.bernie.geckolib.util.Color;
 
 public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
@@ -66,12 +69,17 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
 
     @Override
     public void actuallyRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
-        if (animatable.isInCubeForm()) {
+        if (animatable.isInOrbForm()) {
             int summonTicks = animatable.getSummonTicks();
             float progress = summonTicks > 0 ? (float) summonTicks / (SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt()) : 0.5F;
             int color = animatable.getMiraculous().value().color().getValue();
             renderRays(poseStack, progress, bufferSource.getBuffer(RenderType.lightning()), color);
             renderRays(poseStack, progress, bufferSource.getBuffer(RenderType.dragonRays()), color);
+        }
+        if (animatable.isKwamiGlowing()) {
+            float scale = Math.max(0.2f, 1.001f - Mth.sqrt(animatable.getGlowingPower()) / 30f);
+            scale *= (float) animatable.getTrailSize();
+            poseStack.scale(scale, scale, scale);
         }
         super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, LightTexture.FULL_BRIGHT, packedOverlay, colour);
     }
@@ -123,7 +131,7 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
     @Override
     public GeoModel<T> getGeoModel() {
         T animatable = getAnimatable();
-        if (animatable != null && !animatable.isInCubeForm()) {
+        if (animatable != null && !animatable.isInOrbForm()) {
             Holder<Miraculous> miraculous = animatable.getMiraculous();
             if (miraculous != null) {
                 if (!models.containsKey(miraculous))
@@ -157,9 +165,25 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
 
     @Override
     public Color getRenderColor(T animatable, float partialTick, int packedLight) {
-        if (animatable.isInCubeForm()) {
+        if (animatable.isInOrbForm()) {
             return COLORS.computeIfAbsent(animatable.getMiraculous().value().color().getValue(), Color::new);
         }
         return super.getRenderColor(animatable, partialTick, packedLight);
+    }
+
+    @Override
+    public RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
+        final boolean invisible = animatable.isInvisible();
+
+        if (animatable.isKwamiGlowing())
+            return MineraculousRenderTypes.kwamiGlowColor(texture);
+
+        if (invisible && !animatable.isInvisibleTo(ClientUtil.getClientPlayer()))
+            return RenderType.itemEntityTranslucentCull(texture);
+
+        if (!invisible)
+            return super.getRenderType(animatable, texture, bufferSource, partialTick);
+
+        return Minecraft.getInstance().shouldEntityAppearGlowing(animatable) ? RenderType.outline(texture) : null;
     }
 }

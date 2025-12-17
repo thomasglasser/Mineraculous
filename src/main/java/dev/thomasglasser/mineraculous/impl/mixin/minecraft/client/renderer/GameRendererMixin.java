@@ -4,7 +4,6 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.entity.player.Player;
@@ -33,13 +32,5 @@ public abstract class GameRendererMixin {
     private boolean checkCatacylsmedForConfusionSpin(boolean original) {
         Player player = this.minecraft.player;
         return original || (player != null && player.hasEffect(MineraculousMobEffects.CATACLYSM));
-    }
-
-    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;doEntityOutline()V", shift = At.Shift.AFTER))
-    private void afterEntityOutline(
-            DeltaTracker deltaTracker,
-            boolean renderLevel,
-            CallbackInfo ci) {
-        MineraculousClientUtils.doKwamiGlow();
     }
 }

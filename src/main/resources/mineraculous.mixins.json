@@ -43,7 +43,6 @@
     "minecraft.client.player.LocalPlayerMixin",
     "minecraft.client.renderer.BlockEntityWithoutLevelRendererMixin",
     "minecraft.client.renderer.GameRendererMixin",
-    "minecraft.client.renderer.LevelRendererMixin",
     "minecraft.client.renderer.entity.ArrowRendererMixin",
     "minecraft.client.renderer.entity.EntityRenderDispatcherMixin",
     "minecraft.client.renderer.entity.EntityRendererMixin",

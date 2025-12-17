@@ -143,7 +143,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                     }
                 }
                 if (level.getEntity(kwamiId) instanceof Kwami kwami) {
-                    if (kwami.isCharged() && kwami.getMainHandItem().isEmpty() && !kwami.isInOrbForm()) {
+                    if (kwami.isCharged() && kwami.getMainHandItem().isEmpty() && !kwami.isInCubeForm()) {
                         kwami.setTransforming(true);
 
                         ResourceKey<Miraculous> key = miraculous.getKey();
@@ -267,7 +267,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         value.passiveAbilities().forEach(ability -> ability.value().detransform(data, level, entity));
 
         if (!removed) {
-            Kwami kwami = MineraculousEntityUtils.summonKwami(entity, false, miraculousId, miraculous, Kwami.SummoningAppearance.TRAIL, miraculousStack.get(MineraculousDataComponents.KWAMI_ID));
+            Kwami kwami = MineraculousEntityUtils.summonKwami(entity, false, miraculousId, miraculous, true, miraculousStack.get(MineraculousDataComponents.KWAMI_ID));
             if (kwami == null) {
                 MineraculousConstants.LOGGER.error("Kwami could not be created for entity {}", entity.getName().plainCopy().getString());
             }

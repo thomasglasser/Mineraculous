@@ -80,7 +80,7 @@ public class MineraculousServerConfig {
         builder.pop();
         builder.push(KWAMIS);
         kwamiSummonTime = builder
-                .defineInRange("kwami_summon_time", 3, 2, 6);
+                .defineInRange("kwami_summon_time", 2, 1, 60);
         enableKwamiItemCharging = builder
                 .define("enable_kwami_item_charging", true);
         builder.pop();

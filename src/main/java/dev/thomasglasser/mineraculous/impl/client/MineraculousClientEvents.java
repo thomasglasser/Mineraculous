@@ -30,6 +30,7 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.Syn
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.inventory.OvenScreen;
+import dev.thomasglasser.mineraculous.impl.client.look.LookLoader;
 import dev.thomasglasser.mineraculous.impl.client.model.BeardModel;
 import dev.thomasglasser.mineraculous.impl.client.model.DerbyHatModel;
 import dev.thomasglasser.mineraculous.impl.client.model.FaceMaskModel;
@@ -271,6 +272,7 @@ public class MineraculousClientEvents {
             MineraculousArmorUtils.clearAnimationData();
             MineraculousClientUtils.refreshCataclysmPixels();
             ConditionalAutoGlowingGeoLayer.clearGlowmasks();
+            LookLoader.load();
         });
     }
 
@@ -493,6 +495,10 @@ public class MineraculousClientEvents {
     // Special Player Handling
     static void onClientPlayerLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
         MineraculousClientUtils.syncSpecialPlayerChoices();
+
+        // TODO: Server syncs available server looks to client
+        // TODO: Server syncs all players' current looks to new client (fetching if needed)
+        // TODO: Server syncs new client’s current looks to all players (fetching if needed)
     }
 
     static void onConfigChanged(ModConfigEvent event) {

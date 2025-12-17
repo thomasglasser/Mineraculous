@@ -2,16 +2,19 @@ package dev.thomasglasser.mineraculous.impl.client.look;
 
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import java.util.EnumMap;
+import java.util.Set;
 import java.util.function.Supplier;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.loading.object.BakedAnimations;
 
-public record MiraculousLook(String id, String hash, String displayName, String author, boolean isBuiltIn, EnumMap<AssetType, BakedGeoModel> models, EnumMap<AssetType, ResourceLocation> textures, EnumMap<AssetType, BakedAnimations> animations, EnumMap<AssetType, ItemTransforms> transforms) {
+public record MiraculousLook(String id, String hash, String displayName, String author, boolean isBuiltIn, Set<ResourceKey<Miraculous>> validMiraculouses, EnumMap<AssetType, BakedGeoModel> models, EnumMap<AssetType, ResourceLocation> textures, EnumMap<AssetType, BakedAnimations> animations, EnumMap<AssetType, ItemTransforms> transforms) {
 
     public BakedGeoModel getModel(AssetType type, Supplier<BakedGeoModel> fallback) {
         BakedGeoModel model = models.get(type);

@@ -12,6 +12,7 @@ public class MineraculousServerConfig {
     public final ModConfigSpec.BooleanValue enableBuffsOnTransformation;
     public final ModConfigSpec.IntValue maxToolLength;
 
+    // TODO: Implement
     public static final String CUSTOMIZATION = "customization";
     public final ModConfigSpec.BooleanValue enableCustomization;
     public final ModConfigSpec.EnumValue<PermissionMode> customizationPermissionsMode;

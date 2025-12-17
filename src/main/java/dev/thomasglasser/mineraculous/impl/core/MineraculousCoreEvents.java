@@ -11,11 +11,13 @@ import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
 import dev.thomasglasser.tommylib.api.packs.PackInfo;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.nio.file.Path;
 import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.packs.PackLocationInfo;
 import net.minecraft.server.packs.PackResources;
 import net.minecraft.server.packs.PathPackResources;
@@ -89,9 +91,11 @@ public class MineraculousCoreEvents {
 
     // Start
     public static void onServerStarted(ServerStartedEvent event) {
-        if (event.getServer().registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).size() == 0) {
+        MinecraftServer server = event.getServer();
+        if (server.registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).size() == 0) {
             MineraculousConstants.LOGGER.warn(Kamikotization.NO_KAMIKOTIZATIONS.getString());
         }
+        ServerLookManager.init(server);
     }
 
     // Misc

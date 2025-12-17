@@ -48,6 +48,9 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundActivatePowerPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundActivatePowerPayload.CODEC),
             new PayloadInfo<>(ServerboundToggleBuffsPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundToggleBuffsPayload.CODEC),
             new PayloadInfo<>(ServerboundSetItemKamikotizingPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetItemKamikotizingPayload.CODEC),
+            new PayloadInfo<>(ServerboundSetLookPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetLookPayload.CODEC),
+            new PayloadInfo<>(ServerboundRequestLookPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRequestLookPayload.CODEC),
+            new PayloadInfo<>(ServerboundSendLookPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSendLookPayload.CODEC),
 
             // Clientbound
             new PayloadInfo<>(ClientboundToggleNightVisionShaderPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundToggleNightVisionShaderPayload.CODEC),
@@ -62,7 +65,10 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ClientboundOpenMiraculousTransferScreenPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundOpenMiraculousTransferScreenPayload.CODEC),
             new PayloadInfo<>(ClientboundAddRightHandParticlesPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundAddRightHandParticlesPayload.CODEC),
             new PayloadInfo<>(ClientboundSyncArrowPickupStackPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncArrowPickupStackPayload.CODEC),
-            new PayloadInfo<>(ClientboundRefreshDisplayNamePayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRefreshDisplayNamePayload.CODEC));
+            new PayloadInfo<>(ClientboundRefreshDisplayNamePayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRefreshDisplayNamePayload.CODEC),
+            new PayloadInfo<>(ClientboundSetLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSetLookPayload.CODEC),
+            new PayloadInfo<>(ClientboundRequestLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestLookPayload.CODEC),
+            new PayloadInfo<>(ClientboundSendLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSendLookPayload.CODEC));
 
     public static void onRegisterPackets(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(MineraculousConstants.MOD_ID);

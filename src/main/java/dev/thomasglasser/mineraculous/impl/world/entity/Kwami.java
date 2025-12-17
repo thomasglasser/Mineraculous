@@ -88,6 +88,7 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -105,7 +106,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private static final double SUMMON_RADIUS_STEP = 0.07;
     private static final double SUMMON_ORB_ANGLE_STEP = 0.5;
     private static final double SUMMON_ORB_MAX_RADIUS = 1.5;
-    private static final double SUMMON_TRAIL_ANGLE_STEP = Math.toRadians(13);
+    private static final double SUMMON_TRAIL_ANGLE_STEP = Math.toRadians(26);
     private static final double SUMMON_TRAIL_MAX_RADIUS = 0.89;
 
     private static final EntityDataAccessor<Integer> DATA_SUMMON_TICKS = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.INT);
@@ -128,6 +129,23 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private double summonAngle = 0;
     private double summonRadius = 0;
     private int eatTicks = 0;
+
+    // CLIENT-USAGE ONLY
+    private final Vec3[] tickPositions = new Vec3[8];
+    private boolean tickPositionsInitialized = false;
+    private double trailSize = 1;
+
+    public Vec3[] getTickPositionsCopy() {
+        return tickPositions.clone();
+    }
+
+    public double getTrailSize() {
+        return trailSize;
+    }
+
+    public void setTrailSize(double scale) {
+        trailSize = scale;
+    }
 
     public Kwami(EntityType<? extends Kwami> entityType, Level level) {
         super(entityType, level);
@@ -251,6 +269,28 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         return new SmartBrainProvider<>(this);
     }
 
+    @Override
+    public void tick() {
+        if (level().isClientSide()) {
+            /*if (Minecraft.getInstance().player == owner && getSummoningAppearance() == SummoningAppearance.TRAIL) {
+                float a = Minecraft.getInstance().options.getCameraType().isFirstPerson()
+                        ? getSummonTicks() * getSummonTicks() * 3
+                        : getSummonTicks() * getSummonTicks();
+                setGlowingPower(a);
+            }*/
+            if (tickPositionsInitialized) {
+                for (int i = tickPositions.length - 1; i > 0; i--) {
+                    tickPositions[i] = tickPositions[i - 1];
+                }
+                tickPositions[0] = position();
+            } else {
+                Arrays.fill(tickPositions, position());
+                tickPositionsInitialized = true;
+            }
+        }
+        super.tick();
+    }
+
     private void tickSummon() {
         LivingEntity owner = getOwner();
         SummoningAppearance appearance = getSummoningAppearance();
@@ -262,7 +302,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         if (owner != null) {
             switch (appearance) {
                 case TRAIL: {
-                    setGlowingPower(getSummonTicks() * getSummonTicks());
+                    setGlowingPower((float) Math.pow(getSummonTicks(), 2.25));
                     if (getSummonTicks() > 10) {
                         summonRadius += SUMMON_RADIUS_STEP;
                         summonAngle += SUMMON_TRAIL_ANGLE_STEP;
@@ -282,7 +322,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
 
                         lookingAngle = lookingAngle.scale(scale);
                         Vec3 rotation = vertical.scale(y).add(xzPerpendicular.scale(x));
-                        Vec3 position = lookingAngle.add(rotation).add(owner.getX(), owner.getY() + owner.getBbHeight() / 2d, owner.getZ());
+                        Vec3 position = lookingAngle.add(rotation).add(owner.getX(), owner.getY() + 3 * owner.getBbHeight() / 4d, owner.getZ());
 
                         this.moveTo(position);
                         this.setYRot(owner.getYRot() + 180);

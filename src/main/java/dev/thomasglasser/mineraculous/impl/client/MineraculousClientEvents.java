@@ -78,6 +78,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
@@ -477,20 +478,48 @@ public class MineraculousClientEvents {
                         glowingPowers.add(kwami.getGlowingPower());
                         kwamiGlowFlag = true;
                         KwamiBufferSource kwamiBufferSource = new KwamiBufferSource(multibuffersource$buffersource);
-                        int color = kwami.getMiraculous().value().color().getValue();
-                        kwamiBufferSource.setColor(color);
-                        Vec3 position = entity.getPosition(partialTick);
-                        double x = position.x - camera.getPosition().x;
-                        double y = position.y - camera.getPosition().y;
-                        double z = position.z - camera.getPosition().z;
-                        renderDispatcher.render(
-                                entity,
-                                x, y, z,
-                                entity.getYRot(),
-                                partialTick,
-                                poseStack,
-                                kwamiBufferSource,
-                                LightTexture.FULL_BRIGHT);
+                        kwamiBufferSource.setColor(kwami.getMiraculous().value().color().getValue());
+
+                        float trailWeight = Mth.clamp(kwami.getGlowingPower() / 200f, 0f, 1f);
+
+                        Vec3[] positions = kwami.getTickPositionsCopy();
+                        Vec3 currentPoint = entity.getPosition(partialTick);
+
+                        double stepDist = 0.05;
+                        double totalTrailLength = 0.5 * trailWeight;
+                        double distanceTravelled = 0;
+
+                        kwami.setTrailSize(1.0f);
+                        renderDispatcher.render(entity, currentPoint.x - camera.getPosition().x, currentPoint.y - camera.getPosition().y, currentPoint.z - camera.getPosition().z, entity.getYRot(), partialTick, poseStack, kwamiBufferSource, LightTexture.FULL_BRIGHT);
+
+                        if (totalTrailLength > 0.01) {
+                            int waypointIndex = 1;
+                            while (waypointIndex < positions.length && distanceTravelled < totalTrailLength) {
+                                Vec3 targetWaypoint = positions[waypointIndex];
+                                double distToNext = currentPoint.distanceTo(targetWaypoint);
+
+                                if (distToNext > stepDist) {
+                                    Vec3 dir = targetWaypoint.subtract(currentPoint).normalize();
+                                    currentPoint = currentPoint.add(dir.scale(stepDist));
+
+                                    float progress = (float) (distanceTravelled / totalTrailLength);
+                                    float exponentialScale = (float) Math.pow(1.0f - progress, 2.0);
+                                    kwami.setTrailSize(exponentialScale * trailWeight);
+
+                                    renderDispatcher.render(
+                                            entity, currentPoint.x - camera.getPosition().x,
+                                            currentPoint.y - camera.getPosition().y,
+                                            currentPoint.z - camera.getPosition().z,
+                                            entity.getYRot(), partialTick, poseStack, kwamiBufferSource,
+                                            LightTexture.FULL_BRIGHT);
+
+                                    distanceTravelled += stepDist;
+                                } else {
+                                    currentPoint = targetWaypoint;
+                                    waypointIndex++;
+                                }
+                            }
+                        }
                     }
                 }
             }

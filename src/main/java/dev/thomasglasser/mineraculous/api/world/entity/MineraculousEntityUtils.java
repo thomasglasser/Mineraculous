@@ -159,8 +159,8 @@ public class MineraculousEntityUtils {
             kwami.setYHeadRot(owner.getYRot() + 180);
             switch (appearance) {
                 case Kwami.SummoningAppearance.TRAIL:
-                    kwami.moveTo(owner.position());
-                    kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * 2);
+                    kwami.moveTo(owner.position().add(new Vec3(0, owner.getBbHeight() * 3d / 4d, 0)));
+                    kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * 3 / 2);
                     kwami.setSummoningAppearance(appearance);
                     break;
                 case Kwami.SummoningAppearance.ORB:

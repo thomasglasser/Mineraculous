@@ -17,9 +17,7 @@ public class ApisCategoryProvider extends IndexModeCategoryProvider {
         add(new AbilitiesEntryProvider(this).generate());
         add(new MiraculousEntryProvider(this).generate());
         add(new KamikotizationsEntryProvider(this).generate());
-        add(new RecipeSerializersEntryProvider(this).generate());
         add(new AdvancementTriggersEntryProvider(this).generate());
-        add(new LootEntryProvider(this).generate());
         add(new DataMapsEntryProvider(this).generate());
         add(new TagsEntryProvider(this).generate());
     }
@@ -31,7 +29,7 @@ public class ApisCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected String categoryDescription() {
-        return "APIs that allow for Java and JSON addon customization.";
+        return "APIs that allow for addon mod and datapack customization.";
     }
 
     @Override

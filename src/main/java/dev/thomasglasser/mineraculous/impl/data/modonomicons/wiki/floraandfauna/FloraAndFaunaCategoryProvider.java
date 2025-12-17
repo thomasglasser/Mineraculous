@@ -15,7 +15,7 @@ public class FloraAndFaunaCategoryProvider extends IndexModeCategoryProvider {
     @Override
     protected void generateEntries() {
         add(new FlowersEntryProvider(this).generate());
-        // TODO: Trees
+        add(new KamikosEntryProvider(this).generate());
     }
 
     @Override
@@ -25,7 +25,7 @@ public class FloraAndFaunaCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected String categoryDescription() {
-        return "The plants and animals that make up the Mineraculous ecosystem.";
+        return "The plants and animals that make up the Mineraculous ecosystem";
     }
 
     @Override

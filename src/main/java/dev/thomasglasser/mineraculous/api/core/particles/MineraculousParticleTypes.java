@@ -12,7 +12,7 @@ public class MineraculousParticleTypes {
     private static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(Registries.PARTICLE_TYPE, MineraculousConstants.MOD_ID);
 
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> BLACK_ORB = PARTICLE_TYPES.register("black_orb", () -> new SimpleParticleType(true));
-    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> KAMIKOTIZATION = PARTICLE_TYPES.register("kamikotization", () -> new SimpleParticleType(false));
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> KAMIKOTIZATION = PARTICLE_TYPES.register("kamikotization", () -> new SimpleParticleType(true));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> REVERTING_LADYBUG = PARTICLE_TYPES.register("reverting_ladybug", () -> new SimpleParticleType(false));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SPARKLE = PARTICLE_TYPES.register("sparkle", () -> new SimpleParticleType(false));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SUMMONING_LADYBUG = PARTICLE_TYPES.register("summoning_ladybug", () -> new SimpleParticleType(true));

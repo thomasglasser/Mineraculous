@@ -127,7 +127,7 @@ public class MineraculousKeyMappings {
         } else {
             Player player = ClientUtils.getLocalPlayer();
             if (player != null && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION.get()).isPresent() && MineraculousServerConfig.get().enableKamikotizationRejection.get()) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationDetransformationPayload(Optional.empty(), true, false));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationDetransformationPayload(Optional.empty(), false));
             }
         }
     }

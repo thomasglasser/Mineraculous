@@ -18,6 +18,7 @@ public class ContactEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("github", () -> BookImagePageModel.create()
+                .withAnchor("github")
                 .withImages(ModPagesEntryProvider.GITHUB_LOCATION))
                         .withTitle(context().pageTitle())
                         .withText(context().pageText());
@@ -25,21 +26,23 @@ public class ContactEntryProvider extends IndexModeEntryProvider {
         add(context().pageTitle(), "GitHub");
         add(context().pageText(), """
                 For issues and bugs,
-                make an issue on [GitHub](https://github.com/thomasglasser/Mineraculous/issues).
+                [GitHub](https://github.com/thomasglasser/Mineraculous/issues) is the best place to go.
                 """);
 
         page("discord", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("support/contact/discord"))
+                .withAnchor("discord")
+                .withImages(WikiBookSubProvider.wikiTexture("support/contact/discord.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         add(context().pageTitle(), "Discord");
         add(context().pageText(), """
                 For questions, discussions, and feature requests,
-                come chat with us on [Discord](https://discord.gg/Vd6yX2ngWX).
+                the [Discord](https://discord.gg/Vd6yX2ngWX) is the best place to go.
                 """);
 
         page("email", () -> BookTextPageModel.create()
+                .withAnchor("email")
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 

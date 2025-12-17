@@ -58,6 +58,7 @@ public class KamikotizationSelectionScreen extends Screen {
     private final Player targetPreview;
     private final KamikoData kamikoData;
     private final SlotInfo slotInfo;
+    private final int slotCount;
 
     private int topLeftX;
     private int topLeftY;
@@ -72,13 +73,14 @@ public class KamikotizationSelectionScreen extends Screen {
     @Nullable
     private Holder<Kamikotization> selectedKamikotization;
 
-    public KamikotizationSelectionScreen(Player target, KamikoData kamikoData, List<Holder<Kamikotization>> kamikotizations, SlotInfo slotInfo) {
+    public KamikotizationSelectionScreen(Player target, KamikoData kamikoData, List<Holder<Kamikotization>> kamikotizations, SlotInfo slotInfo, int slotCount) {
         super(TITLE);
         this.target = target;
         this.targetPreview = new RemotePlayer((ClientLevel) target.level(), target.getGameProfile());
         this.kamikotizations = kamikotizations;
         this.kamikoData = kamikoData;
         this.slotInfo = slotInfo;
+        this.slotCount = slotCount;
     }
 
     @Override
@@ -331,7 +333,7 @@ public class KamikotizationSelectionScreen extends Screen {
             TommyLibServices.NETWORK.sendToServer(new ServerboundSetItemKamikotizingPayload(Optional.of(target.getUUID()), false, slotInfo));
             AbilityEffectUtils.removeFaceMaskTexture(player, kamikoData.faceMaskTexture());
         } else {
-            KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, name.getValue());
+            KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, name.getValue(), slotCount);
             if (target == minecraft.player) {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationTransformationPayload(kamikotizationData, slotInfo));
                 TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(target.getUUID(), target.getUUID(), kamikotizationData.kamikotization().getKey()));

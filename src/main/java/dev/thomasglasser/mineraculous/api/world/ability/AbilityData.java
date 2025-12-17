@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.api.world.ability;
 import com.google.common.collect.ImmutableList;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
-import dev.thomasglasser.mineraculous.impl.world.kamikotization.MinionKamikotizationData;
 import java.util.List;
 import net.minecraft.nbt.CompoundTag;
 
@@ -20,10 +19,6 @@ public record AbilityData(int powerLevel, boolean powerActive, List<CompoundTag>
     }
 
     public static AbilityData of(KamikotizationData data) {
-        return new AbilityData(data.kamikoData().powerLevel(), data.powerActive(), ImmutableList.of());
-    }
-
-    public static AbilityData of(MinionKamikotizationData data) {
         return new AbilityData(data.kamikoData().powerLevel(), data.powerActive(), ImmutableList.of());
     }
 }

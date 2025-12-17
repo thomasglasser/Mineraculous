@@ -57,13 +57,12 @@ import org.jetbrains.annotations.Nullable;
  * @param revertibleId           The unique identifier for the kamikotized item
  * @param kamikotizedSlot        The equipment slot the kamikotized item is in if present
  * @param transformationState    The remaining transformation frames for the current kamikotization if present
- * @param originalStackCount     The original count of items used in the kamikotization
- * @param remainingStackCount    The remaining count of items to be broken for the kamikotization to end
+ * @param remainingStackCount    The remaining number of stacks to be broken for the kamikotization to end
  * @param powerActive            Whether the kamikotized entity's power is active
  * @param buffsActive            Whether the kamikotized entity's buffs are active
  * @param brokenKamikotizedStack The broken kamikotized item if present
  */
-public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoData kamikoData, String name, UUID revertibleId, Optional<EquipmentSlot> kamikotizedSlot, Optional<MiraculousData.TransformationState> transformationState, int originalStackCount, int remainingStackCount, boolean powerActive, boolean buffsActive, Optional<ItemStack> brokenKamikotizedStack) {
+public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoData kamikoData, String name, UUID revertibleId, Optional<EquipmentSlot> kamikotizedSlot, Optional<MiraculousData.TransformationState> transformationState, int remainingStackCount, boolean powerActive, boolean buffsActive, Optional<ItemStack> brokenKamikotizedStack) {
 
     public static final Codec<KamikotizationData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Kamikotization.CODEC.fieldOf("kamikotization").forGetter(KamikotizationData::kamikotization),
@@ -71,8 +70,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
             Codec.STRING.optionalFieldOf("name", "").forGetter(KamikotizationData::name),
             UUIDUtil.CODEC.fieldOf("revertible_id").forGetter(KamikotizationData::revertibleId),
             EquipmentSlot.CODEC.optionalFieldOf("kamikotized_slot").forGetter(KamikotizationData::kamikotizedSlot),
-            MiraculousData.TransformationState.CODEC.optionalFieldOf("transformation_state").forGetter(KamikotizationData::transformationState),
-            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("original_stack_count").forGetter(KamikotizationData::originalStackCount),
+            MiraculousData.TransformationState.CODEC.optionalFieldOf("transformation_frames").forGetter(KamikotizationData::transformationState),
             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("remaining_stack_count").forGetter(KamikotizationData::remainingStackCount),
             Codec.BOOL.fieldOf("power_active").forGetter(KamikotizationData::powerActive),
             Codec.BOOL.fieldOf("buffs_active").forGetter(KamikotizationData::buffsActive),
@@ -84,18 +82,16 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
             UUIDUtil.STREAM_CODEC, KamikotizationData::revertibleId,
             ByteBufCodecs.optional(TommyLibExtraStreamCodecs.forEnum(EquipmentSlot.class)), KamikotizationData::kamikotizedSlot,
             ByteBufCodecs.optional(MiraculousData.TransformationState.STREAM_CODEC), KamikotizationData::transformationState,
-            ByteBufCodecs.VAR_INT, KamikotizationData::originalStackCount,
             ByteBufCodecs.VAR_INT, KamikotizationData::remainingStackCount,
             ByteBufCodecs.BOOL, KamikotizationData::powerActive,
             ByteBufCodecs.BOOL, KamikotizationData::buffsActive,
             ByteBufCodecs.optional(ItemStack.STREAM_CODEC), KamikotizationData::brokenKamikotizedStack,
             KamikotizationData::new);
-    public KamikotizationData(Holder<Kamikotization> kamikotization, KamikoData kamikoData, String name) {
-        this(kamikotization, kamikoData, name, Util.NIL_UUID, Optional.empty(), Optional.empty(), 0, 0, false, false, Optional.empty());
+    public KamikotizationData(Holder<Kamikotization> kamikotization, KamikoData kamikoData, String name, int slotCount) {
+        this(kamikotization, kamikoData, name, Util.NIL_UUID, Optional.empty(), Optional.empty(), slotCount, false, false, Optional.empty());
     }
 
-    /// The number of frames of transformation, decreasing every 2 ticks
-    public static final int TRANSFORMATION_FRAMES = 10;
+    private static final int TRANSFORMATION_FRAMES = 10;
 
     /**
      * Transforms the provided entity with {@link Kamikotization},
@@ -169,14 +165,10 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
      * @param instant          Whether to detransform instantly
      * @param kamikotizedStack The {@link ItemStack} used for detransformation, if present
      */
-    public void detransform(LivingEntity entity, ServerLevel level, Vec3 kamikoSpawnPos, boolean revertKamiko, boolean instant, @Nullable ItemStack kamikotizedStack) {
-        if (revertKamiko) {
-            EntityReversionData.get(level).revertConversionOrCopy(kamikoData.uuid(), level, reverted -> reverted.moveTo(kamikoSpawnPos));
-        } else {
-            Kamiko kamiko = kamikoData.summon(level, kamikoSpawnPos, kamikotization, name, originalStackCount, entity);
-            if (kamiko == null) {
-                MineraculousConstants.LOGGER.error("Kamiko could not be created for player {}", entity.getName().plainCopy().getString());
-            }
+    public void detransform(LivingEntity entity, ServerLevel level, Vec3 kamikoSpawnPos, boolean instant, @Nullable ItemStack kamikotizedStack) {
+        Kamiko kamiko = kamikoData.summon(level, kamikoSpawnPos, kamikotization, entity);
+        if (kamiko == null) {
+            MineraculousConstants.LOGGER.error("Kamiko could not be created for player {}", entity.getName().plainCopy().getString());
         }
 
         LivingEntity owner = level.getEntity(kamikoData.owner()) instanceof LivingEntity l ? l : null;
@@ -209,15 +201,22 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
     public void tick(LivingEntity entity, ServerLevel level) {
         transformationState.ifPresentOrElse(state -> {
             int frames = state.remainingFrames();
-            if (frames > 0) {
-                if (entity.tickCount % 2 == 0) {
-                    decrementFrames().save(entity);
-                }
-                level.sendParticles(MineraculousParticleTypes.KAMIKOTIZATION.get(), entity.getX(), entity.getY() + 2 - ((Kamikotization.TRANSFORMATION_FRAMES + 1) - frames) / 5.0, entity.getZ(), 100, Math.random() / 3.0, Math.random() / 3.0, Math.random() / 3.0, 0);
-            } else {
-                if (state.transforming()) {
+            if (state.transforming()) {
+                if (frames > 0) {
+                    if (entity.tickCount % 2 == 0) {
+                        decrementTransformationFrames().save(entity);
+                    }
+                    level.sendParticles(MineraculousParticleTypes.KAMIKOTIZATION.get(), entity.getX(), entity.getY() + 2 - ((Kamikotization.TRANSFORMATION_FRAMES + 1) - frames) / 5.0, entity.getZ(), 100, Math.random() / 3.0, Math.random() / 3.0, Math.random() / 3.0, 0);
+                } else {
                     finishTransformation(entity);
                     clearTransformationFrames().save(entity);
+                }
+            } else {
+                if (frames > 0) {
+                    if (entity.tickCount % 2 == 0) {
+                        decrementDetransformationFrames().save(entity);
+                    }
+                    level.sendParticles(MineraculousParticleTypes.KAMIKOTIZATION.get(), entity.getX(), entity.getY() + 2 - ((Kamikotization.TRANSFORMATION_FRAMES + 1) - frames) / 5.0, entity.getZ(), 100, Math.random() / 3.0, Math.random() / 3.0, Math.random() / 3.0, 0);
                 } else {
                     finishDetransformation(entity, brokenKamikotizedStack.orElse(null));
                 }
@@ -260,24 +259,15 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         }
     }
 
-    /**
-     * Equips {@link MineraculousArmors#KAMIKOTIZATION} with the provided {@link Kamikotization} on the provided entity.
-     *
-     * @param entity         The entity to equip the armor on
-     * @param kamikotization The kamikotization to assign to the armor
-     */
-    public static void equipKamikotizationArmor(LivingEntity entity, Holder<Kamikotization> kamikotization) {
+    private void finishTransformation(LivingEntity entity) {
+        ArmorData armor = new ArmorData(entity.getItemBySlot(EquipmentSlot.HEAD), entity.getItemBySlot(EquipmentSlot.CHEST), entity.getItemBySlot(EquipmentSlot.LEGS), entity.getItemBySlot(EquipmentSlot.FEET));
+        entity.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
         for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
             ItemStack stack = Kamikotization.createItemStack(MineraculousArmors.KAMIKOTIZATION.getForSlot(slot), kamikotization);
             stack.enchant(entity.level().holderOrThrow(Enchantments.BINDING_CURSE), 1);
             stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS, Unit.INSTANCE);
             entity.setItemSlot(slot, stack);
         }
-    }
-
-    private void finishTransformation(LivingEntity entity) {
-        entity.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(new ArmorData(entity)));
-        equipKamikotizationArmor(entity, kamikotization);
     }
 
     private void finishDetransformation(LivingEntity entity, @Nullable ItemStack kamikotizedStack) {
@@ -289,35 +279,39 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
     }
 
     private KamikotizationData startTransformation(UUID revertibleId, Optional<EquipmentSlot> kamikotizedSlot, int stackCount) {
-        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, Optional.of(new MiraculousData.TransformationState(true, TRANSFORMATION_FRAMES)), stackCount, stackCount, false, MineraculousServerConfig.get().enableBuffsOnTransformation.get(), Optional.empty());
+        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, Optional.of(new MiraculousData.TransformationState(true, TRANSFORMATION_FRAMES)), stackCount, false, MineraculousServerConfig.get().enableBuffsOnTransformation.get(), Optional.empty());
     }
 
     private KamikotizationData startDetransformation(@Nullable ItemStack brokenKamikotizedStack) {
-        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, Optional.of(new MiraculousData.TransformationState(false, TRANSFORMATION_FRAMES)), originalStackCount, 0, false, buffsActive, Optional.ofNullable(brokenKamikotizedStack).map(stack -> stack.copyWithCount(Math.max(1, stack.getCount()))));
+        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, Optional.of(new MiraculousData.TransformationState(false, TRANSFORMATION_FRAMES)), 0, false, buffsActive, Optional.ofNullable(brokenKamikotizedStack).map(stack -> stack.copyWithCount(Math.max(1, stack.getCount()))));
     }
 
-    private KamikotizationData decrementFrames() {
-        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, transformationState.map(MiraculousData.TransformationState::decrementFrames), originalStackCount, remainingStackCount, powerActive, buffsActive, brokenKamikotizedStack);
+    private KamikotizationData decrementTransformationFrames() {
+        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, transformationState.map(MiraculousData.TransformationState::decrementFrames), remainingStackCount, powerActive, buffsActive, brokenKamikotizedStack);
+    }
+
+    private KamikotizationData decrementDetransformationFrames() {
+        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, transformationState.map(MiraculousData.TransformationState::decrementFrames), remainingStackCount, powerActive, buffsActive, brokenKamikotizedStack);
     }
 
     private KamikotizationData clearTransformationFrames() {
-        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, Optional.empty(), originalStackCount, remainingStackCount, powerActive, buffsActive, brokenKamikotizedStack);
+        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, Optional.empty(), remainingStackCount, powerActive, buffsActive, brokenKamikotizedStack);
     }
 
     public KamikotizationData clearKamikotizedSlot() {
-        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, Optional.empty(), transformationState, originalStackCount, remainingStackCount, powerActive, buffsActive, brokenKamikotizedStack);
+        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, Optional.empty(), transformationState, remainingStackCount, powerActive, buffsActive, brokenKamikotizedStack);
     }
 
     public KamikotizationData decrementRemainingStackCount() {
-        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, transformationState, originalStackCount, remainingStackCount - 1, powerActive, buffsActive, brokenKamikotizedStack);
+        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, transformationState, remainingStackCount - 1, powerActive, buffsActive, brokenKamikotizedStack);
     }
 
     public KamikotizationData withPowerActive(boolean powerActive) {
-        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, transformationState, originalStackCount, remainingStackCount, powerActive, buffsActive, brokenKamikotizedStack);
+        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, transformationState, remainingStackCount, powerActive, buffsActive, brokenKamikotizedStack);
     }
 
     public KamikotizationData toggleBuffsActive() {
-        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, transformationState, originalStackCount, remainingStackCount, powerActive, !buffsActive, brokenKamikotizedStack);
+        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, transformationState, remainingStackCount, powerActive, !buffsActive, brokenKamikotizedStack);
     }
 
     /**

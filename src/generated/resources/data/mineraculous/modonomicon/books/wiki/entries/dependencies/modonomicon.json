@@ -11,7 +11,7 @@
   "pages": [
     {
       "type": "modonomicon:spotlight",
-      "anchor": "",
+      "anchor": "wiki",
       "condition": {
         "type": "modonomicon:none"
       },
@@ -23,7 +23,7 @@
     }
   ],
   "show_when_any_parent_unlocked": false,
-  "sort_number": 2,
+  "sort_number": 1,
   "x": 0,
   "y": 0
 }

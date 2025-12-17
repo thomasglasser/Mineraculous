@@ -16,13 +16,14 @@ public class JeiEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected void generatePages() {
-        page("miraculouses", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("dependencies/jei/miraculouses"))
+        page("miraculous", () -> BookImagePageModel.create()
+                .withAnchor("miraculous")
+                .withImages(WikiBookSubProvider.wikiTexture("dependencies/jei/miraculous.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
-        add(context().pageTitle(), "Miraculouses");
-        add(context().pageText(), "[Just Enough Items](https://modrinth.com/mod/jei) is able to recognize and show the all data driven miraculouses.");
+        add(context().pageTitle(), "Miraculous");
+        add(context().pageText(), "[Just Enough Items](https://modrinth.com/mod/jei) is able to recognize and show the all data driven miraculous.");
     }
 
     @Override

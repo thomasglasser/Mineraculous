@@ -33,6 +33,7 @@ public class AbilitiesEntryProvider extends IndexModeEntryProvider {
                 Abilities have a type that determines how they work and what fields the json should have.
                 Some examples include:
                 - mineraculous:apply_effects_or_destroy
+                - mineraculous:automatic_night_vision
                 - mineraculous:context_dependent
                 - mineraculous:continuous
                 - mineraculous:convert_and_tame
@@ -42,8 +43,7 @@ public class AbilitiesEntryProvider extends IndexModeEntryProvider {
                 - mineraculous:revert_lucky_charm_targets_ability_effects
                 - mineraculous:right_hand_particles
                 - mineraculous:spectate_entity
-                - mineraculous:summon_target_dependent_lucky_charm
-                - mineraculous:toggleable_night_vision\\
+                - mineraculous:summon_target_dependent_lucky_charm\\
                 The "context_dependent" and "continuous" types allow for more complex abilities.
                 """);
     }
@@ -55,7 +55,7 @@ public class AbilitiesEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "Supernatural abilities that can be used by Miraculous or Kamikotization holders.";
+        return "Supernatural abilities that can be used by Miraculous holders or Kamikotizations";
     }
 
     @Override

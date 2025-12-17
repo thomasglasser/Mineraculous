@@ -25,7 +25,7 @@
     },
     {
       "type": "modonomicon:text",
-      "anchor": "",
+      "anchor": "configuration",
       "condition": {
         "type": "modonomicon:none"
       },

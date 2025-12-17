@@ -194,7 +194,7 @@ dependencies {
     implementation "de.maxhenkel.voicechat:voicechat-api:${voicechat_api_version}"
 
 	// Runtime
-//    localRuntime "maven.modrinth:simple-voice-chat:neoforge-${minecraft_version}-${voicechat_version}"
+    localRuntime "maven.modrinth:simple-voice-chat:neoforge-${minecraft_version}-${voicechat_version}"
 }
 
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {

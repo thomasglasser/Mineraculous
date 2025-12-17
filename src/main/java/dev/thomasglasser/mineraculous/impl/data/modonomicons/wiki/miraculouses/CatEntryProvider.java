@@ -10,12 +10,10 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.wiki.WikiBookSubProvider;
 import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Ingredient;
 
 public class CatEntryProvider extends IndexModeEntryProvider {
     public static final String ID = "cat";
-    public static final ResourceLocation CHARGING_TEXTURE = WikiBookSubProvider.wikiTexture("miraculouses/cat/charging");
 
     public CatEntryProvider(CategoryProviderBase parent) {
         super(parent);
@@ -24,15 +22,15 @@ public class CatEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("charging", () -> BookImagePageModel.create()
-                .withImages(CHARGING_TEXTURE)
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/charging.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Charging");
         pageText("""
                 Charging the cat kwami requires [cheese](entry://food/cheese).
-                By default, the normal food is any kind of cheese and the treat is camembert.
-                These are configurable with the kwami_preferred_foods/cat and kwami_treats/cat [tags](entry://apis/tags).
+                By default, the normal food is cheese and the treat is camembert.
+                These are configurable with the kwami_foods/cat and kwami_treats/cat [tags](entry://apis/tags).
                 """);
 
         page("abilities", () -> BookTextPageModel.create()
@@ -48,51 +46,51 @@ public class CatEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("cataclysm", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/abilities/cataclysm"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/abilities/cataclysm.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Cataclysm");
         pageText("""
-                The Cataclysm ability can be activated by pressing the Activate Power button (default: Y).
-                It will cause particles to come from the performer's hand and can be dragged for 1 second after use begins.
-                It can be used on items, blocks, and entities.
+                The Cataclysm ability can be activated by pressing the Activate Power button (default: O).
+                It will cause particles to come from your hand and can be dragged for 1 second after you start using it.
+                You can interact with items, blocks, and entities.
                 Items will be converted to Cataclysm Dust.
-                Blocks will slowly convert themselves and adjacent blocks to Cataclysm Blocks,
-                which drop Cataclysm Dust when broken with Silk Touch.
-                Entities will be given the Cataclysmed effect that will slowly kill them,
-                converting drops to Cataclysm Dust.
-                This is additive, so interacting with an entity multiple times will increase the Cataclysmed effect level.
+                Blocks will be converted to Cataclysm Blocks, which drop Cataclysm Dust.
+                Entities will be given the Cataclysmed effect that will slowly kill them.
+                They will drop Cataclysm Dust when killed.
                 It is possible to block Cataclysm with a shield,
-                which will apply it to the shield item instead of the target.
+                which will apply it to the shield item instead of the entity.
                 """);
 
         page("cat_vision", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/abilities/cat_vision"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/abilities/cat_vision.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Cat Vision");
         pageText("""
-                The Cat Vision ability is toggleable with the Toggle Night Vision key (default: V).
-                It will cause vision to become bright and green.
+                The Cat Vision ability is activated when you enter an area with very low light.
+                It will cause your vision to become bright green.
+                It will automatically deactivate when you enter an area with normal light.
                 """);
 
         page("passive_unluck", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/abilities/passive_unluck"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/abilities/passive_unluck.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Passive Bad Luck");
         pageText("""
                 The Passive Bad Luck ability needs no activation.
-                The Cat Miraculous holder automatically has the Bad Luck effect applied while transformed.
-                This effect produces worse loot when opening containers or fishing.
-                The effect level scales as Power Level increases.
+                As the Cat Miraculous holder,
+                you will automatically have the Bad Luck effect applied while transformed.
+                This effect will result in worse loot when opening containers or fishing.
+                The effect level scales as your Power Level increases.
                 """);
 
         page("staff_abilities", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/staff/abilities"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/staff/abilities.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -113,54 +111,54 @@ public class CatEntryProvider extends IndexModeEntryProvider {
 
         pageTitle("Block");
         pageText("""
-                Block mode allows holding right click to spin the staff in a shield that will block most attacks and projectiles.
-                Holding the shield upwards allows slow fall.
+                Block mode allows you to hold right click to spin your staff to make a shield that will block most attacks and projectiles.
+                Holding the shield above your head will allow you to slow fall.
                 """);
 
         page("perch", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/staff/perch"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/staff/perch.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Perch");
         pageText("""
-                Perch mode allows launching upwards by right clicking.
-                Right click can be pressed again to go back down,
-                or left click will make the staff fall in the facing direction,
-                or use the Ascend Tool (default: X) and Descend Tool (default: Z) keys to change staff height.
+                Perch mode allows you to launch yourself upwards by right clicking.
+                You can then right click again to go back down,
+                left click to fall in the direction you are facing,
+                or use the Ascend Tool (default: Up Arrow) and Descend Tool (default: Down Arrow) keys to change your height.
                 """);
 
         page("spyglass", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/staff/spyglass"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/staff/spyglass.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Spyglass");
         pageText("""
-                Spyglass mode allows using the yoyo as a spyglass to get a closer look at things.
-                It is activated by holding right click.
+                Spyglass mode allows you to use your staff as a spyglass to get a closer look around the area you are in.
+                You can use right click to look through the spyglass.
                 """);
 
         page("throw", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/staff/throw"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/staff/throw.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Throw");
         pageText("""
-                Throw mode allows right clicking to throw the staff.
-                This will damage any entity or item you hit, releasing a Kamiko if inside.
+                Throw mode allows you to right click to throw your staff at entities.
+                This will damage any entity or item you hit, releasing a [Kamiko](entry://flora_and_fauna/kamikos) if inside.
                 """);
 
         page("travel", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/staff/travel"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/cat/staff/travel.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Travel");
         pageText("""
-                Travel mode allows using the staff to launch in the facing direction.
-                Right click can be held while in the air looking down to slow fall or looking up to launch again.
+                Travel mode allows you to use your staff to launch yourself in the direction you are facing.
+                You can then hold right click while in the air looking down to slow your fall or looking up to launch again.
                 """);
 
         page("lucky_charms", () -> BookSpotlightPageModel.create()
@@ -183,7 +181,7 @@ public class CatEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "The Miraculous of Destruction.";
+        return "The Miraculous of Destruction";
     }
 
     @Override

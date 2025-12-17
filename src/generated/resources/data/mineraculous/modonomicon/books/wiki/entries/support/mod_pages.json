@@ -13,7 +13,7 @@
   "pages": [
     {
       "type": "modonomicon:image",
-      "anchor": "",
+      "anchor": "modrinth",
       "border": true,
       "condition": {
         "type": "modonomicon:none"
@@ -27,21 +27,7 @@
     },
     {
       "type": "modonomicon:image",
-      "anchor": "",
-      "border": true,
-      "condition": {
-        "type": "modonomicon:none"
-      },
-      "images": [
-        "mineraculous:textures/modonomicon/wiki/support/mod_pages/curseforge.png"
-      ],
-      "text": "book.mineraculous.wiki.support.mod_pages.curseforge.text",
-      "title": "book.mineraculous.wiki.support.mod_pages.curseforge.title",
-      "use_legacy_rendering": false
-    },
-    {
-      "type": "modonomicon:image",
-      "anchor": "",
+      "anchor": "github",
       "border": true,
       "condition": {
         "type": "modonomicon:none"
@@ -51,6 +37,20 @@
       ],
       "text": "book.mineraculous.wiki.support.mod_pages.github.text",
       "title": "book.mineraculous.wiki.support.mod_pages.github.title",
+      "use_legacy_rendering": false
+    },
+    {
+      "type": "modonomicon:image",
+      "anchor": "curseforge",
+      "border": true,
+      "condition": {
+        "type": "modonomicon:none"
+      },
+      "images": [
+        "mineraculous:textures/modonomicon/wiki/support/mod_pages/curseforge.png"
+      ],
+      "text": "book.mineraculous.wiki.support.mod_pages.curseforge.text",
+      "title": "book.mineraculous.wiki.support.mod_pages.curseforge.title",
       "use_legacy_rendering": false
     }
   ],

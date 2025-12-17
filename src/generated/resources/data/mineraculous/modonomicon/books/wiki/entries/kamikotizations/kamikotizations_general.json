@@ -24,17 +24,6 @@
       "use_legacy_rendering": false
     },
     {
-      "type": "modonomicon:text",
-      "anchor": "",
-      "condition": {
-        "type": "modonomicon:none"
-      },
-      "show_title_separator": true,
-      "text": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.rejecting.text",
-      "title": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.rejecting.title",
-      "use_markdown_in_title": false
-    },
-    {
       "type": "modonomicon:image",
       "anchor": "",
       "border": true,
@@ -49,20 +38,6 @@
       "use_legacy_rendering": false
     },
     {
-      "type": "modonomicon:image",
-      "anchor": "",
-      "border": true,
-      "condition": {
-        "type": "modonomicon:none"
-      },
-      "images": [
-        "mineraculous:textures/modonomicon/wiki/kamikotizations/general/replication.png"
-      ],
-      "text": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.replication.text",
-      "title": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.replication.title",
-      "use_legacy_rendering": false
-    },
-    {
       "type": "modonomicon:text",
       "anchor": "",
       "condition": {
@@ -71,17 +46,6 @@
       "show_title_separator": true,
       "text": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.using_tool.text",
       "title": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.using_tool.title",
-      "use_markdown_in_title": false
-    },
-    {
-      "type": "modonomicon:text",
-      "anchor": "",
-      "condition": {
-        "type": "modonomicon:none"
-      },
-      "show_title_separator": true,
-      "text": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.toggling_buffs.text",
-      "title": "book.mineraculous.wiki.kamikotizations.kamikotizations_general.toggling_buffs.title",
       "use_markdown_in_title": false
     }
   ],

@@ -17,8 +17,8 @@ import net.minecraft.world.item.Item;
 public record KwamiFoods(TagKey<Item> preferredFoods, TagKey<Item> treats, int defaultEatTicks, boolean isLeftHanded) {
 
     public static final Codec<KwamiFoods> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            TagKey.hashedCodec(Registries.ITEM).fieldOf("preferred_foods").forGetter(KwamiFoods::preferredFoods),
-            TagKey.hashedCodec(Registries.ITEM).fieldOf("treats").forGetter(KwamiFoods::treats),
+            TagKey.codec(Registries.ITEM).fieldOf("preferred_foods").forGetter(KwamiFoods::preferredFoods),
+            TagKey.codec(Registries.ITEM).fieldOf("treats").forGetter(KwamiFoods::treats),
             ExtraCodecs.POSITIVE_INT.optionalFieldOf("default_eat_ticks", Kwami.DEFAULT_EAT_TICKS).forGetter(KwamiFoods::defaultEatTicks),
             Codec.BOOL.optionalFieldOf("is_left_handed", false).forGetter(KwamiFoods::isLeftHanded)).apply(instance, KwamiFoods::new));
     private static final StreamCodec<ByteBuf, TagKey<Item>> ITEM_TAG_STREAM_CODEC = ResourceLocation.STREAM_CODEC.map(loc -> TagKey.create(Registries.ITEM, loc), TagKey::location);

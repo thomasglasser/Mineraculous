@@ -9,8 +9,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ModPagesEntryProvider extends IndexModeEntryProvider {
     public static final String ID = "mod_pages";
-    public static final ResourceLocation MODRINTH_TEXTURE = WikiBookSubProvider.wikiTexture("support/mod_pages/modrinth");
-    public static final ResourceLocation GITHUB_LOCATION = WikiBookSubProvider.wikiTexture("support/mod_pages/github");
+    public static final ResourceLocation MODRINTH_TEXTURE = WikiBookSubProvider.wikiTexture("support/mod_pages/modrinth.png");
+    public static final ResourceLocation GITHUB_LOCATION = WikiBookSubProvider.wikiTexture("support/mod_pages/github.png");
 
     public ModPagesEntryProvider(CategoryProviderBase parent) {
         super(parent);
@@ -19,6 +19,7 @@ public class ModPagesEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("modrinth", () -> BookImagePageModel.create()
+                .withAnchor("modrinth")
                 .withImages(MODRINTH_TEXTURE)
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
@@ -26,17 +27,8 @@ public class ModPagesEntryProvider extends IndexModeEntryProvider {
         add(context().pageTitle(), "Modrinth");
         add(context().pageText(), "The main place to find and download the mod is on [Modrinth](https://modrinth.com/mod/mineraculous).");
 
-        page("curseforge", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("support/mod_pages/curseforge"))
-                .withTitle(context().pageTitle())
-                .withText(context().pageText()));
-
-        add(context().pageTitle(), "CurseForge");
-        add(context().pageText(), """
-                The mod can also be found on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/mineraculous).
-                """);
-
         page("github", () -> BookImagePageModel.create()
+                .withAnchor("github")
                 .withImages(GITHUB_LOCATION)
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
@@ -44,7 +36,18 @@ public class ModPagesEntryProvider extends IndexModeEntryProvider {
         add(context().pageTitle(), "GitHub");
         add(context().pageText(), """
                 The source code for the mod can be found on [GitHub](https://github.com/thomasglasser/Mineraculous).
-                This is also the place to report issues and bugs and find base models for addons.
+                This is also the place to report issues and bugs.
+                """);
+
+        page("curseforge", () -> BookImagePageModel.create()
+                .withAnchor("curseforge")
+                .withImages(WikiBookSubProvider.wikiTexture("support/mod_pages/curseforge.png"))
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        add(context().pageTitle(), "CurseForge");
+        add(context().pageText(), """
+                The mod can also be found on [CurseForge](https://www.curseforge.com/minecraft/mc-mods/mineraculous).
                 """);
     }
 

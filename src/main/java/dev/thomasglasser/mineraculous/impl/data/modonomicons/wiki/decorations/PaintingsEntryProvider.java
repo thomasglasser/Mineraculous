@@ -20,6 +20,7 @@ public class PaintingsEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("placeable", () -> BookImagePageModel.create()
+                .withAnchor("placeable")
                 .withImages(paintingLoc(MineraculousPaintingVariants.LADYBUG), paintingLoc(MineraculousPaintingVariants.MINI_LADYBUG), paintingLoc(MineraculousPaintingVariants.CAT), paintingLoc(MineraculousPaintingVariants.MINI_CAT), paintingLoc(MineraculousPaintingVariants.BUTTERFLY), paintingLoc(MineraculousPaintingVariants.MINI_BUTTERFLY))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));

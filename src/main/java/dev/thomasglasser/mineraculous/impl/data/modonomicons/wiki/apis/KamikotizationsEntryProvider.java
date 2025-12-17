@@ -41,7 +41,7 @@ public class KamikotizationsEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "Transformations that the Butterfly Miraculous can give to entities.";
+        return "Transformations that the Butterfly Miraculous can give to entities";
     }
 
     @Override

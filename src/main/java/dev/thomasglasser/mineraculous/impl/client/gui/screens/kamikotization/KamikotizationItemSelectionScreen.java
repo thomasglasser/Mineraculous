@@ -11,7 +11,7 @@ import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundSetInventoryTrackedPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundRequestInventorySyncPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetItemKamikotizingPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSpawnTamedKamikoPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
@@ -48,6 +48,12 @@ public class KamikotizationItemSelectionScreen extends ExternalCuriosInventorySc
     public KamikotizationItemSelectionScreen(Player target, KamikoData kamikoData) {
         super(target, false);
         this.kamikoData = kamikoData;
+        determineKamikotizations();
+    }
+
+    @Override
+    public void onInventorySynced(Player player) {
+        determineKamikotizations();
     }
 
     protected void determineKamikotizations() {
@@ -71,17 +77,6 @@ public class KamikotizationItemSelectionScreen extends ExternalCuriosInventorySc
                 }
             }
         }
-    }
-
-    @Override
-    public void init() {
-        determineKamikotizations();
-        super.init();
-    }
-
-    @Override
-    public void onInventorySynced(Player player) {
-        determineKamikotizations();
     }
 
     @Override
@@ -111,10 +106,10 @@ public class KamikotizationItemSelectionScreen extends ExternalCuriosInventorySc
             TommyLibServices.NETWORK.sendToServer(new ServerboundSpawnTamedKamikoPayload(minecraft.player.getUUID(), target.blockPosition().above()));
             AbilityEffectUtils.removeFaceMaskTexture(target, kamikoData.faceMaskTexture());
         } else if (slotInfo != null) {
-            Minecraft.getInstance().setScreen(new KamikotizationSelectionScreen(target, kamikoData, new ReferenceArrayList<>(kamikotizations.get(slotStack)), slotInfo));
+            Minecraft.getInstance().setScreen(new KamikotizationSelectionScreen(target, kamikoData, new ReferenceArrayList<>(kamikotizations.get(slotStack)), slotInfo, slotStack.getCount()));
             TommyLibServices.NETWORK.sendToServer(new ServerboundSetItemKamikotizingPayload(Optional.of(target.getUUID()), true, slotInfo));
         }
-        TommyLibServices.NETWORK.sendToServer(new ServerboundSetInventoryTrackedPayload(target.getUUID(), false));
+        TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), false));
     }
 
     @Override

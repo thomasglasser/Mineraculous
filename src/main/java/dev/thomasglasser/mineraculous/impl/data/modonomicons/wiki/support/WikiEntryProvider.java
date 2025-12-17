@@ -16,20 +16,22 @@ public class WikiEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("in_game", () -> BookTextPageModel.create()
+                .withAnchor("in_game")
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
-        add(context().pageTitle(), "In-Game");
+        add(context().pageTitle(), "In-Game Wiki");
         add(context().pageText(), """
                 The mod has an in-game wiki when [Modonomicon](entry://dependencies/modonomicon) is installed.
                 This wiki contains information about the mod and its features.
                 """);
 
         page("online", () -> BookTextPageModel.create()
+                .withAnchor("online")
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
-        add(context().pageTitle(), "Online");
+        add(context().pageTitle(), "Online Wiki");
         add(context().pageText(), """
                 The wiki is also hosted online [here](https://mineraculous.wiki.thomasglasser.dev).
                 """);

@@ -21,9 +21,9 @@ public class CommandEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "charged");
         add(context().pageText(), """
-                The "charged" subcommand queries or sets the charged state of a kwami.
+                The "charged" subcommand allows you to set the charged state of a kwami.
                 It requires the commands enabled permission level.
-                The kwami must be present to change its charged state.
+                The kwami must be present in the world to change its charged state.
                 """);
 
         page("power_level", () -> BookTextPageModel.create()
@@ -32,7 +32,7 @@ public class CommandEntryProvider extends IndexModeEntryProvider {
 
         add(context().pageTitle(), "power_level");
         add(context().pageText(), """
-                The "power_level" subcommand queries or sets the power level of a miraculous.
+                The "power_level" subcommand allows you to set the power level of a miraculous.
                 It requires the commands enabled permission level.
                 It has a maximum value of 100.
                 """);
@@ -45,7 +45,7 @@ public class CommandEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "The /miraculous command can be executed to configure per-player Miraculous data.";
+        return "The /miraculous command can be executed to customize your Miraculous.";
     }
 
     @Override

@@ -19,8 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
@@ -39,7 +39,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.entity.PartEntity;
-import org.apache.commons.lang3.function.Consumers;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -177,7 +176,7 @@ public class EntityReversionData extends SavedData {
         return data;
     }
 
-    private void revert(RevertibleEntity revertible, ResourceKey<Level> targetDimension, ServerLevel level, Consumer<Entity> onLoaded) {
+    private void revert(RevertibleEntity revertible, ResourceKey<Level> targetDimension, ServerLevel level, UnaryOperator<Entity> onLoaded) {
         CompoundTag data = revertible.data();
         Entity entity = MineraculousEntityUtils.findEntity(level, revertible.uuid());
         if (entity != null) {
@@ -189,7 +188,7 @@ public class EntityReversionData extends SavedData {
             return;
         }
         entity = EntityType.loadEntityRecursive(data, level, loaded -> {
-            onLoaded.accept(loaded);
+            onLoaded.apply(loaded);
             return loaded;
         });
         if (entity != null) {
@@ -198,7 +197,7 @@ public class EntityReversionData extends SavedData {
     }
 
     private void revert(RevertibleEntity revertible, EntityLocation location, ServerLevel level) {
-        revert(revertible, location.dimension(), level, Consumers.nop());
+        revert(revertible, location.dimension(), level, UnaryOperator.identity());
     }
 
     /**
@@ -346,9 +345,9 @@ public class EntityReversionData extends SavedData {
      *
      * @param entityId The ID of the entity to revert if it's marked for reversion or removal
      * @param level    The level to revert the entity in
-     * @param onLoaded The consumer to apply to the entity when loaded
+     * @param onLoaded The operator to apply to the entity when loaded
      */
-    public void revertConversionOrCopy(UUID entityId, ServerLevel level, Consumer<Entity> onLoaded) {
+    public void revertConversionOrCopy(UUID entityId, ServerLevel level, UnaryOperator<Entity> onLoaded) {
         for (Table.Cell<UUID, EntityLocation, Set<RevertibleEntity>> cell : convertedEntities.cellSet()) {
             Iterator<RevertibleEntity> it = cell.getValue().iterator();
             while (it.hasNext()) {
@@ -378,7 +377,7 @@ public class EntityReversionData extends SavedData {
     }
 
     public void revertConversionOrCopy(UUID entityId, ServerLevel level) {
-        revertConversionOrCopy(entityId, level, Consumers.nop());
+        revertConversionOrCopy(entityId, level, UnaryOperator.identity());
     }
 
     private Set<RevertibleEntity> getOrCreateConverted(UUID cause, EntityLocation location) {

@@ -10,7 +10,7 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.MiniHol
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.EatingItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiFoods;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.Map;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -24,7 +24,7 @@ import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 
 public class KwamiItemRenderer extends GeoItemRenderer<KwamiItem> {
-    private final Map<Holder<Miraculous>, GeoModel<KwamiItem>> models = new Object2ReferenceOpenHashMap<>();
+    private final Map<Holder<Miraculous>, GeoModel<KwamiItem>> models = new Reference2ReferenceOpenHashMap<>();
 
     public KwamiItemRenderer() {
         super((GeoModel<KwamiItem>) null);

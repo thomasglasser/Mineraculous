@@ -15,7 +15,6 @@ public class FoodCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected void generateEntries() {
-        // TODO: Almonds and Macarons
         add(new CheeseEntryProvider(this).generate());
     }
 

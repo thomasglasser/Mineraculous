@@ -10,7 +10,7 @@ public class MineraculousClientConfig {
     public static final String COSMETICS = "cosmetics";
     public static final String SELF = "self";
     public final ModConfigSpec.BooleanValue displaySelfBetaTesterCosmetic;
-    public final ModConfigSpec.EnumValue<BetaTesterCosmeticOptions> betaTesterCosmeticChoice;
+    public final ModConfigSpec.EnumValue<BetaTesterCosmeticOptions> selfBetaTesterCosmeticChoice;
     public final ModConfigSpec.BooleanValue displaySelfDevTeamCosmetic;
     public final ModConfigSpec.BooleanValue displaySelfLegacyDevTeamCosmetic;
     public static final String OTHERS = "others";
@@ -37,8 +37,8 @@ public class MineraculousClientConfig {
         builder.push(SELF);
         displaySelfBetaTesterCosmetic = builder
                 .define("display_self_beta_tester_cosmetic", true);
-        betaTesterCosmeticChoice = builder
-                .defineEnum("beta_tester_cosmetic_choice", BetaTesterCosmeticOptions.DERBY_HAT);
+        selfBetaTesterCosmeticChoice = builder
+                .defineEnum("self_beta_tester_cosmetic_choice", BetaTesterCosmeticOptions.DERBY_HAT);
         displaySelfDevTeamCosmetic = builder
                 .define("display_self_dev_team_cosmetic", true);
         displaySelfLegacyDevTeamCosmetic = builder

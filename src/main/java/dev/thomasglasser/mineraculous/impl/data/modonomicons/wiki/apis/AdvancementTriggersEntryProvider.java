@@ -33,7 +33,7 @@ public class AdvancementTriggersEntryProvider extends IndexModeEntryProvider {
         add(context().pageText(), """
                 This trigger is called when a player transforms with a miraculous.
                 It has two parameters:
-                - "player": The player that transformed.
+                - "player": The player that was transformed.
                 - "miraculous": The miraculous that was used to transform.
                 """);
 
@@ -47,7 +47,7 @@ public class AdvancementTriggersEntryProvider extends IndexModeEntryProvider {
                 It has three parameters:
                 - "player": The player that performed the ability.
                 - "miraculous": The miraculous that provided the ability.
-                - "context": The context in which the ability was used.
+                - "context": The context in which the power was used.
                 Can be any value for addon support,
                 but the ones included in the mod by default are:
                     - block
@@ -79,7 +79,7 @@ public class AdvancementTriggersEntryProvider extends IndexModeEntryProvider {
                 It has three parameters:
                 - "player": The player that released the entities.
                 - "released": The entities that were released.
-                - "count": The number of purified entities that were released.
+                - "count": The number of purified kamikos that were released.
                 """);
 
         page("transformed_kamikotization", () -> BookTextPageModel.create()

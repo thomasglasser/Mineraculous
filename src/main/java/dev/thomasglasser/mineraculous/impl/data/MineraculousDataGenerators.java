@@ -75,7 +75,7 @@ public class MineraculousDataGenerators {
                         new Kamikotization(
                                 "Bugaboo",
                                 ItemPredicate.Builder.item().build(),
-                                Either.left(Items.BOW.getDefaultInstance()),
+                                Either.left(Items.DIAMOND_SWORD.getDefaultInstance()),
                                 HolderSet.direct(abilities.getOrThrow(Abilities.CAT_VISION), abilities.getOrThrow(Abilities.KAMIKO_CONTROL))));
                 ItemStack stormyTool = Items.DIAMOND.getDefaultInstance();
                 stormyTool.enchant(enchantments.getOrThrow(Enchantments.SHARPNESS), 1);

@@ -38,12 +38,10 @@ public record ClientboundSyncInventoryPayload(UUID uuid, NonNullList<ItemStack> 
     @Override
     public void handle(Player player) {
         Player target = player.level().getPlayerByUUID(uuid);
-        if (target != null) {
-            if (player != target) {
-                target.getInventory().selected = selected;
-                for (int i = 0; i < inventory.size(); i++) {
-                    target.getInventory().setItem(i, inventory.get(i));
-                }
+        if (target != null && player != target) {
+            target.getInventory().selected = selected;
+            for (int i = 0; i < inventory.size(); i++) {
+                target.getInventory().setItem(i, inventory.get(i));
             }
             MineraculousClientUtils.triggerInventorySyncListener(target);
         }

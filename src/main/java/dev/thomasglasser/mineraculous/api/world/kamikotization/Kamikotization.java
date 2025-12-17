@@ -123,7 +123,7 @@ public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Ei
             if (o instanceof LivingEntity owner) {
                 owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresentOrElse(data -> {
                     if (data.remainingStackCount() <= 1) {
-                        data.detransform(owner, level, kamikoPos != null ? kamikoPos : owner.position().add(0, 1, 0), false, false, stack);
+                        data.detransform(owner, level, kamikoPos != null ? kamikoPos : owner.position().add(0, 1, 0), false, stack);
                     } else {
                         data.decrementRemainingStackCount().save(owner);
                     }

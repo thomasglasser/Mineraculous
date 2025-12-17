@@ -11,16 +11,16 @@
   "pages": [
     {
       "type": "modonomicon:image",
-      "anchor": "",
+      "anchor": "miraculous",
       "border": true,
       "condition": {
         "type": "modonomicon:none"
       },
       "images": [
-        "mineraculous:textures/modonomicon/wiki/dependencies/jei/miraculouses.png"
+        "mineraculous:textures/modonomicon/wiki/dependencies/jei/miraculous.png"
       ],
-      "text": "book.mineraculous.wiki.dependencies.jei.miraculouses.text",
-      "title": "book.mineraculous.wiki.dependencies.jei.miraculouses.title",
+      "text": "book.mineraculous.wiki.dependencies.jei.miraculous.text",
+      "title": "book.mineraculous.wiki.dependencies.jei.miraculous.title",
       "use_legacy_rendering": false
     }
   ],

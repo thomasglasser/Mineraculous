@@ -42,7 +42,7 @@ public class MiraculousEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "Jewels that provide special abilities and fancy a super suit to the holder.";
+        return "Jewels that provide special abilities and fancy a super suit to the holder";
     }
 
     @Override

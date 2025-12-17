@@ -18,7 +18,7 @@ public class BetaEntry extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("season_1", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("cosmetics/beta/season_1"))
+                .withImages(WikiBookSubProvider.wikiTexture("cosmetics/beta/season_1.png"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -26,15 +26,15 @@ public class BetaEntry extends IndexModeEntryProvider {
         add(context().pageText(), "Testers for 1.0.0 (Season 1) get access to a Derby Hat cosmetic.");
 
         page("configuration", () -> BookTextPageModel.create()
+                .withAnchor("configuration")
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         add(context().pageTitle(), "Configuration");
         add(context().pageText(), """
-                Beta Cosmetics have three client configuration options:
-                - "display_self_beta_tester_cosmetic" - Whether or not to display your own Beta Tester cosmetic.
-                - "beta_tester_cosmetic_choice" - The beta tester cosmetic to display.
-                - "display_others_beta_tester_cosmetic" - Whether or not to display other players' Beta Tester cosmetics.
+                Beta Cosmetics have two client configuration options:
+                - "display_beta_tester_cosmetic" - Whether or not to display the Beta Tester cosmetic.
+                - "beta_tester_cosmetic_choice" - The cosmetic to display for the Beta Tester.
                 """);
     }
 

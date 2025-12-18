@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.behavior.SetWalkTargetToLikedPlayer;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
@@ -366,9 +367,6 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
             Vec3 middlePos = this.getBoundingBox().getCenter();
             Vec3 ownerMiddlePos = owner.getBoundingBox().getCenter();
             setDeltaMovement(ownerMiddlePos.subtract(middlePos).normalize().scale(0.6 + (owner.isSprinting() ? 0.2 : 0)));
-            if (ownerMiddlePos.closerThan(middlePos, 0.3)) {
-                discard();
-            }
         } else {
             setTransforming(false);
         }
@@ -655,12 +653,17 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     @Override
     public void playerTouch(Player player) {
         super.playerTouch(player);
-        if (player.getUUID().equals(BrainUtils.getMemory(this, MemoryModuleType.LIKED_PLAYER)) && getOwner() == null) {
-            BrainUtils.setMemory(this, MemoryModuleType.LIKED_PLAYER, null);
-            setOwnerUUID(player.getUUID());
-            getMainHandItem().remove(MineraculousDataComponents.POWERED);
-            player.addItem(getMainHandItem());
-            setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        if (level() instanceof ServerLevel level) {
+            if (isTransforming() && player.getUUID().equals(getOwnerUUID())) {
+                player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(getMiraculous()).transform(player, level, getMiraculous());
+                discard();
+            } else if (player.getUUID().equals(BrainUtils.getMemory(this, MemoryModuleType.LIKED_PLAYER)) && getOwner() == null) {
+                BrainUtils.setMemory(this, MemoryModuleType.LIKED_PLAYER, null);
+                setOwnerUUID(player.getUUID());
+                getMainHandItem().remove(MineraculousDataComponents.POWERED);
+                player.addItem(getMainHandItem());
+                setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            }
         }
     }
 

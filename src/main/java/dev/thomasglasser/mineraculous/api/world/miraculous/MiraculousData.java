@@ -122,6 +122,45 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
     }
 
     /**
+     * Triggers transformation mode for the kwami for the provided entity.
+     *
+     * @param entity     The entity to trigger transformation for
+     * @param level      The level to trigger transformation in
+     * @param miraculous The miraculous to trigger transformation for
+     */
+    public void triggerTransformation(LivingEntity entity, ServerLevel level, Holder<Miraculous> miraculous) {
+        if (checkNoTransform(entity)) {
+            MineraculousConstants.LOGGER.error("Tried to trigger transformation for currently powered entity {}", entity.getName().plainCopy().getString());
+            return;
+        }
+        curiosData.ifPresentOrElse(curiosData -> {
+            UUID kwamiId = CuriosUtils.getStackInSlot(entity, curiosData).get(MineraculousDataComponents.KWAMI_ID);
+            if (kwamiId != null) {
+                for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
+                    if (stack.getItem() instanceof KwamiItem && kwamiId.equals(stack.get(MineraculousDataComponents.KWAMI_ID))) {
+                        KwamiItem.summonKwami(stack, entity);
+                    }
+                    if (level.getEntity(kwamiId) instanceof Kwami kwami) {
+                        if (kwami.isCharged() && kwami.getMainHandItem().isEmpty() && !kwami.isInOrbForm()) {
+                            kwami.setTransforming(true);
+                        } else {
+                            kwami.playHurtSound(level.damageSources().starve());
+                        }
+                    } else {
+                        if (entity instanceof Player player) {
+                            player.displayClientMessage(Component.translatable(KWAMI_NOT_FOUND, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.getKey()))), true);
+                        } else {
+                            MineraculousConstants.LOGGER.error("Tried to trigger transformation for entity {} with invalid kwami id {}", entity.getName().plainCopy().getString(), kwamiId);
+                        }
+                    }
+                }
+            } else {
+                MineraculousConstants.LOGGER.error("Tried to trigger transformation for entity {} with no Kwami Data", entity.getName().plainCopy().getString());
+            }
+        }, () -> MineraculousConstants.LOGGER.error("Tried to trigger transformation for entity {} with no curios data", entity.getName().plainCopy().getString()));
+    }
+
+    /**
      * Transforms the provided entity with the provided {@link Miraculous}.
      *
      * @param entity     The entity to transform
@@ -129,73 +168,49 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
      * @param miraculous The miraculous to transform with
      */
     public void transform(LivingEntity entity, ServerLevel level, Holder<Miraculous> miraculous) {
-        if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
+        if (checkNoTransform(entity)) {
             MineraculousConstants.LOGGER.error("Tried to transform currently powered entity {}", entity.getName().plainCopy().getString());
             return;
         }
         curiosData.ifPresentOrElse(curiosData -> {
             ItemStack miraculousStack = CuriosUtils.getStackInSlot(entity, curiosData);
-            UUID kwamiId = miraculousStack.get(MineraculousDataComponents.KWAMI_ID);
-            if (kwamiId != null) {
-                for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
-                    if (stack.getItem() instanceof KwamiItem && stack.get(MineraculousDataComponents.KWAMI_ID).equals(kwamiId)) {
-                        KwamiItem.summonKwami(stack, entity);
-                    }
-                }
-                if (level.getEntity(kwamiId) instanceof Kwami kwami) {
-                    if (kwami.isCharged() && kwami.getMainHandItem().isEmpty() && !kwami.isInOrbForm()) {
-                        kwami.setTransforming(true);
+            ResourceKey<Miraculous> key = miraculous.getKey();
+            Miraculous value = miraculous.value();
+            Optional<Integer> transformationFrames = value.transformationFrames();
 
-                        ResourceKey<Miraculous> key = miraculous.getKey();
-                        Miraculous value = miraculous.value();
-                        Optional<Integer> transformationFrames = value.transformationFrames();
+            miraculousStack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
+            miraculousStack.set(MineraculousDataComponents.TEXTURE_STATE, MiraculousItem.TextureState.POWERED);
+            CuriosUtils.setStackInSlot(entity, curiosData, miraculousStack);
 
-                        miraculousStack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
-                        miraculousStack.set(MineraculousDataComponents.TEXTURE_STATE, MiraculousItem.TextureState.POWERED);
-                        CuriosUtils.setStackInSlot(entity, curiosData, miraculousStack);
+            ArmorData armor = new ArmorData(entity.getItemBySlot(EquipmentSlot.HEAD), entity.getItemBySlot(EquipmentSlot.CHEST), entity.getItemBySlot(EquipmentSlot.LEGS), entity.getItemBySlot(EquipmentSlot.FEET));
+            entity.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
+            for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
+                ItemStack stack = Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.getForSlot(slot), miraculous);
+                stack.enchant(entity.level().holderOrThrow(Enchantments.BINDING_CURSE), 1);
+                stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS, Unit.INSTANCE);
+                transformationFrames.ifPresent(frames -> stack.set(MineraculousDataComponents.TRANSFORMATION_STATE, new TransformationState(true, frames)));
+                entity.setItemSlot(slot, stack);
+            }
 
-                        ArmorData armor = new ArmorData(entity.getItemBySlot(EquipmentSlot.HEAD), entity.getItemBySlot(EquipmentSlot.CHEST), entity.getItemBySlot(EquipmentSlot.LEGS), entity.getItemBySlot(EquipmentSlot.FEET));
-                        entity.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(armor));
-                        for (EquipmentSlot slot : new EquipmentSlot[] { EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET }) {
-                            ItemStack stack = Miraculous.createItemStack(MineraculousArmors.MIRACULOUS.getForSlot(slot), miraculous);
-                            stack.enchant(entity.level().holderOrThrow(Enchantments.BINDING_CURSE), 1);
-                            stack.set(MineraculousDataComponents.HIDE_ENCHANTMENTS, Unit.INSTANCE);
-                            transformationFrames.ifPresent(frames -> stack.set(MineraculousDataComponents.TRANSFORMATION_STATE, new TransformationState(true, frames)));
-                            entity.setItemSlot(slot, stack);
-                        }
+            if (/*name.isEmpty()*/false && entity instanceof Player player) {
+                player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(MineraculousConstants.toLanguageKey(key)), key.location().getPath()), true);
+            }
 
-                        if (/*name.isEmpty()*/false && entity instanceof Player player) {
-                            player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(MineraculousConstants.toLanguageKey(key)), key.location().getPath()), true);
-                        }
+            level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.transformSound(), entity.getSoundSource(), 1, 1);
+            level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, miraculousEffect) -> MineraculousEntityUtils.applyInfiniteHiddenEffect(entity, level.holderOrThrow(effect), miraculousEffect.amplifier() + ((!miraculousEffect.toggleable() || MineraculousServerConfig.get().enableBuffsOnTransformation.get()) ? powerLevel / 10 : 0)));
+            entity.getAttributes().addTransientAttributeModifiers(getMiraculousAttributes(level, powerLevel));
 
-                        level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.transformSound(), entity.getSoundSource(), 1, 1);
-                        level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).forEach((effect, miraculousEffect) -> MineraculousEntityUtils.applyInfiniteHiddenEffect(entity, level.holderOrThrow(effect), miraculousEffect.amplifier() + ((!miraculousEffect.toggleable() || MineraculousServerConfig.get().enableBuffsOnTransformation.get()) ? powerLevel / 10 : 0)));
-                        entity.getAttributes().addTransientAttributeModifiers(getMiraculousAttributes(level, powerLevel));
+            AbilityData data = AbilityData.of(this);
+            value.activeAbility().value().transform(data, level, entity);
+            value.passiveAbilities().forEach(ability -> ability.value().transform(data, level, entity));
+            EntityReversionData.get(level).startTracking(entity.getUUID());
 
-                        AbilityData data = AbilityData.of(this);
-                        value.activeAbility().value().transform(data, level, entity);
-                        value.passiveAbilities().forEach(ability -> ability.value().transform(data, level, entity));
-                        EntityReversionData.get(level).startTracking(entity.getUUID());
+            transformationFrames.ifPresentOrElse(frames -> {
+                startTransformation(frames).save(miraculous, entity);
+            }, () -> finishTransformation(entity, level, miraculous));
 
-                        transformationFrames.ifPresentOrElse(frames -> {
-                            startTransformation(frames).save(miraculous, entity);
-                        }, () -> finishTransformation(entity, level, miraculous));
-
-                        if (entity instanceof ServerPlayer player) {
-                            MineraculousEntityUtils.refreshAndSyncDisplayName(player);
-                        }
-                    } else {
-                        kwami.playHurtSound(level.damageSources().starve());
-                    }
-                } else {
-                    if (entity instanceof Player player) {
-                        player.displayClientMessage(Component.translatable(KWAMI_NOT_FOUND, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.getKey()))), true);
-                    } else {
-                        MineraculousConstants.LOGGER.error("Tried to transform entity {} with invalid kwami id {}", entity.getName().plainCopy().getString(), kwamiId);
-                    }
-                }
-            } else {
-                MineraculousConstants.LOGGER.error("Tried to transform entity {} with no Kwami Data", entity.getName().plainCopy().getString());
+            if (entity instanceof ServerPlayer player) {
+                MineraculousEntityUtils.refreshAndSyncDisplayName(player);
             }
         }, () -> MineraculousConstants.LOGGER.error("Tried to transform entity {} with no curios data", entity.getName().plainCopy().getString()));
     }
@@ -408,6 +423,11 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                 CuriosUtils.setStackInSlot(entity, curiosData.get(), stack);
             }
         });
+    }
+
+    // TODO: Move to event
+    private boolean checkNoTransform(LivingEntity entity) {
+        return entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed();
     }
 
     private boolean hasLimitedPower() {

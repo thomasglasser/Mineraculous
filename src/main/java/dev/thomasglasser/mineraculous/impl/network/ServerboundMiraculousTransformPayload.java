@@ -26,7 +26,7 @@ public record ServerboundMiraculousTransformPayload(Holder<Miraculous> miraculou
     public void handle(Player player) {
         ServerLevel level = (ServerLevel) player.level();
         if (transform) {
-            data.transform(player, level, miraculous);
+            data.triggerTransformation(player, level, miraculous);
         } else {
             data.detransform(player, level, miraculous, null, false);
         }

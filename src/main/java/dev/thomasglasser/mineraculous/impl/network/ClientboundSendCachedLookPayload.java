@@ -12,12 +12,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
-public record ClientboundSendLookPayload(String hash, byte[] data) implements ExtendedPacketPayload {
-    public static final Type<ClientboundSendLookPayload> TYPE = new Type<>(MineraculousConstants.modLoc("clientbound_send_look"));
-    public static final StreamCodec<ByteBuf, ClientboundSendLookPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8, ClientboundSendLookPayload::hash,
-            ByteBufCodecs.byteArray(ServerLookManager.MAX_FILE_SIZE), ClientboundSendLookPayload::data,
-            ClientboundSendLookPayload::new);
+public record ClientboundSendCachedLookPayload(String hash, byte[] data) implements ExtendedPacketPayload {
+    public static final Type<ClientboundSendCachedLookPayload> TYPE = new Type<>(MineraculousConstants.modLoc("clientbound_send_cached_look"));
+    public static final StreamCodec<ByteBuf, ClientboundSendCachedLookPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, ClientboundSendCachedLookPayload::hash,
+            ByteBufCodecs.byteArray(ServerLookManager.MAX_FILE_SIZE), ClientboundSendCachedLookPayload::data,
+            ClientboundSendCachedLookPayload::new);
 
     // ON CLIENT
     @Override
@@ -27,7 +27,7 @@ public record ClientboundSendLookPayload(String hash, byte[] data) implements Ex
             ServerLookManager.ensureCacheExists(LookLoader.CACHE_PATH);
             Path look = LookLoader.CACHE_PATH.resolve(hash + ".look");
             Files.write(look, data);
-            LookLoader.load(look);
+            LookLoader.load(look, false);
         } catch (Exception e) {
             MineraculousConstants.LOGGER.warn("Failed to parse look {}", hash, e);
         }

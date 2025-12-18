@@ -3,10 +3,13 @@ package dev.thomasglasser.mineraculous.impl.client.look;
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import java.util.EnumMap;
 import java.util.Set;
 import java.util.function.Supplier;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
@@ -14,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.loading.object.BakedAnimations;
 
-public record MiraculousLook(String hash, boolean isBuiltIn, String name, String author, Set<ResourceKey<Miraculous>> validMiraculouses, EnumMap<AssetType, BakedGeoModel> models, EnumMap<AssetType, ResourceLocation> textures, EnumMap<AssetType, BakedAnimations> animations, EnumMap<AssetType, ItemTransforms> transforms) {
+public record MiraculousLook(String hash, String name, String author, Set<ResourceKey<Miraculous>> validMiraculouses, Set<AssetType> includedAssets, EnumMap<AssetType, BakedGeoModel> models, EnumMap<AssetType, ResourceLocation> textures, EnumMap<AssetType, BakedAnimations> animations, EnumMap<AssetType, ItemTransforms> transforms) {
 
     public BakedGeoModel getModel(AssetType type, Supplier<BakedGeoModel> fallback) {
         BakedGeoModel model = models.get(type);
@@ -47,6 +50,8 @@ public record MiraculousLook(String hash, boolean isBuiltIn, String name, String
             return fallback.get();
         return transforms;
     }
+
+    // TODO: Move to registry
     public enum AssetType implements StringRepresentable {
         SUIT(false),
         TOOL(true),
@@ -54,6 +59,7 @@ public record MiraculousLook(String hash, boolean isBuiltIn, String name, String
         JEWEL_HIDDEN(true);
 
         public static final Codec<AssetType> CODEC = StringRepresentable.fromEnum(AssetType::values);
+        public static final StreamCodec<FriendlyByteBuf, AssetType> STREAM_CODEC = TommyLibExtraStreamCodecs.forEnum(AssetType.class);
 
         private final boolean hasTransforms;
 

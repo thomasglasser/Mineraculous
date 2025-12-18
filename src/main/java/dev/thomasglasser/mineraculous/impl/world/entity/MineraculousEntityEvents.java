@@ -18,9 +18,10 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.Tra
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
-import dev.thomasglasser.mineraculous.impl.network.ClientboundSetLookPayload;
+import dev.thomasglasser.mineraculous.impl.network.ClientboundRequestLooksPayload;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerChoicesPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItemPayload;
+import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
@@ -28,7 +29,9 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffD
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -93,6 +96,18 @@ public class MineraculousEntityEvents {
                 value.powerSource().right().ifPresent(ability -> ability.value().joinLevel(abilityData, level, livingEntity));
             });
         }
+
+        if (entity instanceof ServerPlayer player) {
+            Set<String> missingLooks = new ObjectOpenHashSet<>();
+            player.getData(MineraculousAttachmentTypes.MIRACULOUSES).forEach((miraculous, data) -> {
+                for (String hash : data.lookData().hashes().values()) {
+                    if (!ServerLookManager.hasLook(hash))
+                        missingLooks.add(hash);
+                }
+            });
+            if (!missingLooks.isEmpty())
+                TommyLibServices.NETWORK.sendToClient(new ClientboundRequestLooksPayload(missingLooks), player);
+        }
     }
 
     public static void onServerPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
@@ -102,13 +117,6 @@ public class MineraculousEntityEvents {
         TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncSpecialPlayerChoicesPayload.INSTANCE, server);
 
         // TODO: Server syncs available server looks to client
-        for (ServerPlayer other : server.getPlayerList().getPlayers()) {
-            if (other == player)
-                continue;
-            other.getData(MineraculousAttachmentTypes.MIRACULOUSES).forEach((miraculous, data) -> data.lookData().hash().ifPresent(hash -> TommyLibServices.NETWORK.sendToClient(new ClientboundSetLookPayload(other.getUUID(), miraculous, Optional.of(hash)), player)));
-        }
-
-        player.getData(MineraculousAttachmentTypes.MIRACULOUSES).forEach((miraculous, data) -> data.lookData().hash().ifPresent(hash -> TommyLibServices.NETWORK.sendToAllClients(new ClientboundSetLookPayload(player.getUUID(), miraculous, Optional.of(hash)), player.getServer())));
     }
 
     /// Life

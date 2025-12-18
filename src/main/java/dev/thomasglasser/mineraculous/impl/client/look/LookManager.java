@@ -1,85 +1,85 @@
 package dev.thomasglasser.mineraculous.impl.client.look;
 
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Table;
-import com.google.common.collect.Tables;
+import com.google.common.collect.ImmutableSortedSet;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRequestLookPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import net.minecraft.core.Holder;
+import net.minecraft.world.entity.player.Player;
+import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.Nullable;
 
 public class LookManager {
-    private static final Map<String, StoredLook> LOOKS = new ConcurrentHashMap<>();
-    private static final Table<UUID, Holder<Miraculous>, String> PLAYER_LOOKS = Tables.synchronizedTable(HashBasedTable.create());
+    private static final Map<String, StoredLook> CACHED_LOOKS = new ConcurrentHashMap<>();
+    private static final Map<String, StoredLook> EQUIPPABLE_LOOKS = new ConcurrentHashMap<>();
 
     private static boolean safeMode = false;
 
     public static void refresh() {
-        for (String hash : PLAYER_LOOKS.values()) {
-            StoredLook look = LOOKS.get(hash);
-            if (look != null && look.look().hash().equals(hash)) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundRequestLookPayload(hash));
-            }
-        }
-        LOOKS.clear();
+        CACHED_LOOKS.clear();
+        EQUIPPABLE_LOOKS.clear();
         safeMode = false;
     }
 
-    public static void add(Path path, MiraculousLook look) {
+    public static void add(Path path, MiraculousLook look, boolean equippable) {
         if (isInSafeMode())
             return;
-        LOOKS.put(look.hash(), new StoredLook(path, look));
+        StoredLook stored = new StoredLook(path, look);
+        CACHED_LOOKS.put(look.hash(), stored);
+        if (equippable)
+            EQUIPPABLE_LOOKS.put(look.hash(), stored);
     }
 
-    public static ImmutableSet<MiraculousLook> values() {
-        ImmutableSet.Builder<MiraculousLook> looks = ImmutableSet.builder();
-        for (StoredLook look : LOOKS.values()) {
+    public static ImmutableSortedSet<MiraculousLook> getEquippable() {
+        ImmutableSortedSet.Builder<MiraculousLook> looks = ImmutableSortedSet.orderedBy(Comparator.comparing(MiraculousLook::name));
+        for (StoredLook look : EQUIPPABLE_LOOKS.values()) {
             looks.add(look.look());
         }
         return looks.build();
     }
 
-    public static void assign(UUID playerId, Holder<Miraculous> miraculous, String hash) {
-        if (isInSafeMode())
-            return;
-        PLAYER_LOOKS.put(playerId, miraculous, hash);
-    }
-
-    public static void unassign(UUID playerId, Holder<Miraculous> miraculous) {
-        PLAYER_LOOKS.remove(playerId, miraculous);
-    }
-
-    public static boolean hasLook(String hash) {
-        return LOOKS.containsKey(hash);
-    }
-
-    public static @Nullable MiraculousLook getLook(String hash) {
-        StoredLook look = LOOKS.get(hash);
+    public static @Nullable MiraculousLook getCachedLook(String hash) {
+        StoredLook look = CACHED_LOOKS.get(hash);
         return look != null ? look.look() : null;
     }
 
-    public static @Nullable Path getPath(String hash) {
-        StoredLook look = LOOKS.get(hash);
+    public static @Nullable MiraculousLook getEquippableLook(String hash) {
+        StoredLook look = EQUIPPABLE_LOOKS.get(hash);
+        return look != null ? look.look() : null;
+    }
+
+    public static @Nullable Path getEquippablePath(String hash) {
+        StoredLook look = EQUIPPABLE_LOOKS.get(hash);
         return look != null ? look.path() : null;
     }
 
-    public static @Nullable MiraculousLook getLook(UUID playerId, Holder<Miraculous> miraculous) {
+    public static @Nullable MiraculousLook getOrFetchLook(Player player, Holder<Miraculous> miraculous, MiraculousLook.AssetType assetType) {
         if (isInSafeMode()) {
-            MineraculousConstants.LOGGER.warn("Tried to fetch look for {} in safe mode, using the default...", playerId);
+            MineraculousConstants.LOGGER.warn("Tried to fetch look for {} in safe mode, using the default...", player.getUUID());
             return null;
         }
 
-        String hash = PLAYER_LOOKS.get(playerId, miraculous);
+        String hash = player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).lookData().hashes().get(assetType);
         if (hash == null) return null;
 
-        return getLook(hash);
+        MiraculousLook look = getCachedLook(hash);
+        if (look == null)
+            TommyLibServices.NETWORK.sendToServer(new ServerboundRequestLookPayload(hash));
+        return look;
+    }
+
+    public static <T> T getOrFetchLookAsset(Player player, Holder<Miraculous> miraculous, MiraculousLook.AssetType assetType, TriFunction<MiraculousLook, MiraculousLook.AssetType, Supplier<T>, T> getter, Supplier<T> fallback) {
+        MiraculousLook look = getOrFetchLook(player, miraculous, assetType);
+        if (look != null)
+            return getter.apply(look, assetType, fallback);
+        return fallback.get();
     }
 
     public static boolean isInSafeMode() {

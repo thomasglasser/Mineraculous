@@ -21,6 +21,7 @@ import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
+import dev.thomasglasser.mineraculous.impl.client.look.MiraculousLook;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
@@ -30,14 +31,17 @@ import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -598,14 +602,19 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
         }
     }
 
-    public record LookData(Optional<String> name, Optional<String> hash) {
-        public static final LookData DEFAULT = new LookData(Optional.empty(), Optional.empty());
+    public record LookData(Optional<String> name, EnumMap<MiraculousLook.AssetType, String> hashes) {
+        public static final LookData DEFAULT = new LookData(Optional.empty(), new EnumMap<>(MiraculousLook.AssetType.class));
         public static final Codec<LookData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.STRING.optionalFieldOf("name").forGetter(LookData::name),
-                Codec.STRING.optionalFieldOf("hash").forGetter(LookData::hash)).apply(instance, LookData::new));
-        public static final StreamCodec<ByteBuf, LookData> STREAM_CODEC = StreamCodec.composite(
+                Codec.unboundedMap(MiraculousLook.AssetType.CODEC, Codec.STRING).fieldOf("hashes").xmap(map -> map.isEmpty() ? new EnumMap<>(MiraculousLook.AssetType.class) : new EnumMap<>(map), Function.identity()).forGetter(LookData::hashes)).apply(instance, LookData::new));
+        public static final StreamCodec<FriendlyByteBuf, LookData> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), LookData::name,
-                ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), LookData::hash,
+                ByteBufCodecs.map(
+                        i -> new EnumMap<>(MiraculousLook.AssetType.class),
+                        MiraculousLook.AssetType.STREAM_CODEC,
+                        ByteBufCodecs.STRING_UTF8,
+                        MiraculousLook.AssetType.values().length),
+                LookData::hashes,
                 LookData::new);
     }
 }

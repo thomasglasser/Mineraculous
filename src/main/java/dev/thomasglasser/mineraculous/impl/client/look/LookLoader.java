@@ -46,7 +46,7 @@ public class LookLoader {
 
     private static final String JSON_NAME = "look.json";
 
-    private static final String DISPLAY_NAME_KEY = "display_name";
+    private static final String NAME_KEY = "name";
     private static final String AUTHOR_KEY = "author";
     private static final String VALID_MIRACULOUSES_KEY = "valid_miraculouses";
     private static final String ASSETS_KEY = "assets";
@@ -63,7 +63,11 @@ public class LookLoader {
                 ServerLookManager.clearOrCreateCache(CACHE_PATH);
 
                 try (Stream<Path> paths = Files.list(LOOKS_PATH)) {
-                    paths.filter(path -> !path.equals(CACHE_PATH)).forEach(LookLoader::load);
+                    paths.forEach(path -> {
+                        if (path.equals(CACHE_PATH))
+                            return;
+                        load(path, !path.startsWith(CACHE_PATH));
+                    });
                 }
             } catch (Exception e) {
                 LookManager.enterSafeMode(e.getMessage());
@@ -71,7 +75,7 @@ public class LookLoader {
         });
     }
 
-    public static void load(Path path) {
+    public static void load(Path path, boolean equippable) {
         if (LookManager.isInSafeMode())
             return;
         try {
@@ -83,13 +87,13 @@ public class LookLoader {
                     ServerLookManager.ensureCacheExists(CACHE_PATH);
                     Path look = CACHE_PATH.resolve(hash + ".look");
                     Files.write(look, zipBytes);
-                    load(look);
+                    load(look, equippable);
                 } catch (IOException e) {
                     MineraculousConstants.LOGGER.error("Failed to parse look folder {}: {}", path, e.getMessage());
                 }
             } else if (path.toString().endsWith(".zip") || path.toString().endsWith(".look")) {
                 try (FileSystem fs = FileSystems.newFileSystem(path, (ClassLoader) null)) {
-                    loadFromRoot(fs.getPath("/"), path, com.google.common.io.Files.asByteSource(path.toFile()).hash(Hashing.sha256()).toString());
+                    loadFromRoot(fs.getPath("/"), path, com.google.common.io.Files.asByteSource(path.toFile()).hash(Hashing.sha256()).toString(), equippable);
                 }
             }
         } catch (Exception e) {
@@ -100,11 +104,13 @@ public class LookLoader {
     public static byte[] zipFolderToBytes(Path sourceFolder) throws IOException {
         ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
         try (ZipOutputStream zipStream = new ZipOutputStream(byteStream)) {
-            try (Stream<Path> paths = Files.walk(sourceFolder)) {
+            try (Stream<Path> paths = Files.walk(sourceFolder).sorted()) {
                 paths.filter(path -> !Files.isDirectory(path))
                         .forEach(path -> {
-                            ZipEntry zipEntry = new ZipEntry(sourceFolder.relativize(path).toString().replace('\\', '/'));
                             try {
+                                ZipEntry zipEntry = new ZipEntry(sourceFolder.relativize(path).toString().replace('\\', '/'));
+
+                                zipEntry.setTime(0);
                                 zipStream.putNextEntry(zipEntry);
                                 Files.copy(path, zipStream);
                                 zipStream.closeEntry();
@@ -117,7 +123,7 @@ public class LookLoader {
         return byteStream.toByteArray();
     }
 
-    private static void loadFromRoot(Path root, Path source, String hash) throws Exception {
+    private static void loadFromRoot(Path root, Path source, String hash, boolean equippable) throws Exception {
         if (LookManager.isInSafeMode())
             return;
 
@@ -127,8 +133,8 @@ public class LookLoader {
 
         JsonObject json = JsonParser.parseString(Files.readString(path)).getAsJsonObject();
 
-        if (!json.has(DISPLAY_NAME_KEY)) throw new IOException("Look missing '" + DISPLAY_NAME_KEY + "'");
-        String displayName = json.get(DISPLAY_NAME_KEY).getAsString();
+        if (!json.has(NAME_KEY)) throw new IOException("Look missing '" + NAME_KEY + "'");
+        String displayName = json.get(NAME_KEY).getAsString();
 
         String author = json.has(AUTHOR_KEY) ? json.get(AUTHOR_KEY).getAsString() : "Unknown";
 
@@ -150,29 +156,38 @@ public class LookLoader {
         Set<String> keys = assets.keySet();
         if (keys.isEmpty()) throw new IOException("Look '" + source + "' has no assets");
 
+        ImmutableSet.Builder<MiraculousLook.AssetType> includedAssets = ImmutableSet.builder();
         for (String key : keys) {
             MiraculousLook.AssetType assetType = MiraculousLook.AssetType.of(key);
             if (assetType != null) {
                 JsonObject asset = assets.getAsJsonObject(key);
                 if (asset.has(MODEL_KEY)) {
                     BakedGeoModel model = read(root, asset, MODEL_KEY, LookLoader::readModel);
-                    if (model != null)
+                    if (model != null) {
                         models.put(assetType, model);
+                        includedAssets.add(assetType);
+                    }
                 }
                 if (asset.has(TEXTURE_KEY)) {
                     ResourceLocation texture = registerTexture(root, asset, TEXTURE_KEY, hash, assetType, source);
-                    if (texture != null)
+                    if (texture != null) {
                         textures.put(assetType, texture);
+                        includedAssets.add(assetType);
+                    }
                 }
                 if (asset.has(ANIMATIONS_KEY)) {
                     BakedAnimations animation = read(root, asset, ANIMATIONS_KEY, LookLoader::readAnimations);
-                    if (animation != null)
+                    if (animation != null) {
                         animations.put(assetType, animation);
+                        includedAssets.add(assetType);
+                    }
                 }
                 if (assetType.hasTransforms() && asset.has(TRANSFORMS_KEY)) {
                     ItemTransforms itemTransforms = read(root, asset, TRANSFORMS_KEY, LookLoader::readTransforms);
-                    if (itemTransforms != null)
+                    if (itemTransforms != null) {
                         transforms.put(assetType, itemTransforms);
+                        includedAssets.add(assetType);
+                    }
                 }
             }
         }
@@ -181,7 +196,7 @@ public class LookLoader {
             throw new IOException("Look '" + source + "' has no assets");
         }
 
-        LookManager.add(source, new MiraculousLook(hash, false, displayName, author, validMiraculouses.build(), models, textures, animations, transforms));
+        LookManager.add(source, new MiraculousLook(hash, displayName, author, validMiraculouses.build(), includedAssets.build(), models, textures, animations, transforms), equippable);
     }
 
     private static @Nullable Path findValidPath(Path root, JsonObject asset, String key) throws Exception {

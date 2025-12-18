@@ -15,8 +15,12 @@ import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -35,6 +39,10 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
 
     private final Map<Holder<Miraculous>, GeoModel<?>> models = new Object2ReferenceOpenHashMap<>();
 
+    private @Nullable BakedGeoModel model = null;
+    private @Nullable ResourceLocation texture = null;
+    private @Nullable BakedAnimations animations = null;
+
     public MiraculousArmorItemRenderer() {
         super((GeoModel<T>) null);
         addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
@@ -46,6 +54,17 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
         FRAME_TEXTURES.clear();
         INSTANCES.forEach(renderer -> renderer.models.clear());
         INSTANCES.clear();
+    }
+
+    @Override
+    public void prepForRender(Entity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> baseModel, MultiBufferSource bufferSource, float partialTick, float limbSwing, float limbSwingAmount, float netHeadYaw, float headPitch) {
+        super.prepForRender(entity, stack, slot, baseModel, bufferSource, partialTick, limbSwing, limbSwingAmount, netHeadYaw, headPitch);
+        if (entity instanceof Player player) {
+            Holder<Miraculous> miraculous = MiraculousItemRenderer.getMiraculousOrDefault(stack);
+            model = LookManager.getOrFetchLookAsset(player, miraculous, MiraculousLook.AssetType.SUIT, MiraculousLook::getModel, () -> null);
+            texture = LookManager.getOrFetchLookAsset(player, miraculous, MiraculousLook.AssetType.SUIT, MiraculousLook::getTexture, () -> null);
+            animations = LookManager.getOrFetchLookAsset(player, miraculous, MiraculousLook.AssetType.SUIT, MiraculousLook::getAnimations, () -> null);
+        }
     }
 
     @Override
@@ -76,19 +95,12 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
 
     private GeoModel<T> createGeoModel(Holder<Miraculous> miraculous) {
         return new DefaultedItemGeoModel<>(miraculous.getKey().location().withPrefix("armor/miraculous/")) {
-            private final ResourceLocation texture = miraculous.getKey().location().withPath(path -> "textures/entity/equipment/humanoid/miraculous/" + path + ".png");
+            private final ResourceLocation defaultTexture = miraculous.getKey().location().withPath(path -> "textures/entity/equipment/humanoid/miraculous/" + path + ".png");
 
             private BakedGeoModel currentModel = null;
 
             @Override
             public BakedGeoModel getBakedModel(ResourceLocation location) {
-                BakedGeoModel model = null;
-                if (getCurrentEntity() instanceof Player player) {
-                    MiraculousLook look = LookManager.getLook(player.getUUID(), miraculous);
-                    if (look != null) {
-                        model = look.getModel(MiraculousLook.AssetType.SUIT, () -> super.getBakedModel(location));
-                    }
-                }
                 if (model == null)
                     model = super.getBakedModel(location);
                 if (model != this.currentModel) {
@@ -100,26 +112,17 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
 
             @Override
             public ResourceLocation getTextureResource(T animatable) {
-                if (getCurrentEntity() instanceof Player player) {
-                    MiraculousLook look = LookManager.getLook(player.getUUID(), miraculous);
-                    if (look != null)
-                        return look.getTexture(MiraculousLook.AssetType.SUIT, () -> texture);
-                }
+                if (texture == null)
+                    return defaultTexture;
                 return texture;
             }
 
             @Override
             public @Nullable Animation getAnimation(T animatable, String name) {
-                if (getCurrentEntity() instanceof Player player) {
-                    MiraculousLook look = LookManager.getLook(player.getUUID(), miraculous);
-                    if (look != null) {
-                        BakedAnimations animations = look.getAnimations(MiraculousLook.AssetType.SUIT, () -> null);
-                        if (animations != null) {
-                            Animation animation = animations.getAnimation(name);
-                            if (animation != null)
-                                return animation;
-                        }
-                    }
+                if (animations != null) {
+                    Animation animation = animations.getAnimation(name);
+                    if (animation != null)
+                        return animation;
                 }
 
                 try {

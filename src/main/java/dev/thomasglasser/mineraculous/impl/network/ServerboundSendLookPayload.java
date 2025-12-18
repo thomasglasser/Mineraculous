@@ -21,7 +21,7 @@ public record ServerboundSendLookPayload(String hash, byte[] data) implements Ex
     public void handle(Player player) {
         // TODO: Check permissions
         ServerLookManager.saveLook(hash, data);
-        TommyLibServices.NETWORK.sendToAllClients(new ClientboundSendLookPayload(hash, data), player.getServer());
+        TommyLibServices.NETWORK.sendToAllClients(new ClientboundSendCachedLookPayload(hash, data), player.getServer());
     }
 
     @Override

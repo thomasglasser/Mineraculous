@@ -8,8 +8,7 @@ import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.Map;
 import java.util.Optional;
 import net.minecraft.core.Holder;
@@ -24,8 +23,8 @@ import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
 public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoArmorRenderer<T> {
-    private static final Map<Holder<Miraculous>, GeoModel<?>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
-    private static final Map<ResourceLocation, Int2ObjectMap<ResourceLocation>> FRAME_TEXTURES = new Object2ReferenceOpenHashMap<>();
+    private static final Map<Holder<Miraculous>, GeoModel<?>> DEFAULT_MODELS = new Object2ObjectOpenHashMap<>();
+    private static final Map<ResourceLocation, Int2ObjectMap<ResourceLocation>> FRAME_TEXTURES = new Object2ObjectOpenHashMap<>();
 
     public MiraculousArmorItemRenderer() {
         super((GeoModel<T>) null);

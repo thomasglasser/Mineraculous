@@ -1,9 +1,9 @@
 package dev.thomasglasser.mineraculous.api.packs;
 
+import com.google.common.collect.ImmutableSet;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.tommylib.api.packs.PackInfo;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import java.util.List;
+import java.util.Set;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.repository.PackSource;
 import org.jetbrains.annotations.ApiStatus;
@@ -17,7 +17,7 @@ public class MineraculousPacks {
     }
 
     @ApiStatus.Internal
-    public static List<PackInfo> getPacks() {
-        return ReferenceArrayList.of(AKUMATIZATION);
+    public static Set<PackInfo> getPacks() {
+        return ImmutableSet.of(AKUMATIZATION);
     }
 }

@@ -137,7 +137,7 @@ public record MiraculousLadybugTriggerData(UUID performerId, UUID targetId, Opti
     }
 
     private void spawnMiraculousLadybugs(ServerLevel level, Entity entity) {
-        ArrayList<Vector2d> circle = MineraculousMathUtils.generateCirclePoints(50, MIRACULOUS_LADYBUGS_COUNT);
+        List<Vector2d> circle = MineraculousMathUtils.generateCirclePoints(50, MIRACULOUS_LADYBUGS_COUNT);
         Vec3 spawnPosition = entity.position();
         ArrayList<ArrayList<MiraculousLadybugTarget<?>>> targetDatas = assignTargets(level);
 

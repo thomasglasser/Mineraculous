@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
@@ -27,7 +28,6 @@ import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.ExtendedKeyMapping;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -74,7 +74,7 @@ public class MineraculousKeyMappings {
                 Holder<Miraculous> miraculous = transformed.getFirst();
                 TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), false));
             } else {
-                List<RadialMenuOption> options = new ReferenceArrayList<>();
+                ImmutableList.Builder<RadialMenuOption> optionsBuilder = new ImmutableList.Builder<>();
                 Map<RadialMenuOption, Holder<Miraculous>> miraculousOptions = new Reference2ReferenceOpenHashMap<>();
                 for (ItemStack stack : CuriosUtils.getAllItems(player).values()) {
                     Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
@@ -96,11 +96,12 @@ public class MineraculousKeyMappings {
                                     return color;
                                 }
                             };
-                            options.add(option);
+                            optionsBuilder.add(option);
                             miraculousOptions.put(option, miraculous);
                         }
                     }
                 }
+                ImmutableList<RadialMenuOption> options = optionsBuilder.build();
                 if (options.size() > 1) {
                     Minecraft.getInstance().setScreen(new RadialMenuScreen<>(TRANSFORM.getKey().getValue(), options, -1, (selected, i) -> {
                         Holder<Miraculous> miraculous = miraculousOptions.get(selected);

@@ -207,7 +207,7 @@ public class MineraculousEntityEvents {
     }
 
     public static void onBlockInteract(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getLevel() instanceof ServerLevel level) {
+        if (event.getLevel() instanceof ServerLevel level && event.getHand() == InteractionHand.MAIN_HAND) {
             AbilityUtils.performBlockAbilities(level, event.getEntity(), event.getPos());
         }
     }

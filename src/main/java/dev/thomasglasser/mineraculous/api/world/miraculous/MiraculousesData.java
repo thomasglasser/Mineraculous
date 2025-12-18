@@ -5,7 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.UnboundedMapCodec;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,7 +27,7 @@ public class MiraculousesData {
     public static final Codec<MiraculousesData> CODEC = MAP_CODEC.xmap(MiraculousesData::new, data -> data.map);
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousesData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.map(
-                    Reference2ObjectOpenHashMap::new,
+                    Object2ObjectOpenHashMap::new,
                     Miraculous.STREAM_CODEC,
                     MiraculousData.STREAM_CODEC),
             set -> set.map,
@@ -36,11 +36,11 @@ public class MiraculousesData {
     private final Map<Holder<Miraculous>, MiraculousData> map;
 
     public MiraculousesData() {
-        this.map = new Reference2ObjectOpenHashMap<>();
+        this.map = new Object2ObjectOpenHashMap<>();
     }
 
     public MiraculousesData(Map<Holder<Miraculous>, MiraculousData> map) {
-        this.map = new Reference2ObjectOpenHashMap<>(map);
+        this.map = new Object2ObjectOpenHashMap<>(map);
     }
 
     @ApiStatus.Internal

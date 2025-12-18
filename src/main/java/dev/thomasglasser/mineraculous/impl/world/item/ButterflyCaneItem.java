@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.item;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
@@ -153,8 +154,7 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
                         triggerAnim(player, animId, CONTROLLER_USE, ANIMATION_CLOSE);
                         CompoundTag kamikoTag = new CompoundTag();
                         kamiko.save(kamikoTag);
-                        storingData.storedEntities().add(kamikoTag);
-                        storingData.save(storingKey, caneOwner);
+                        storingData.withStoredEntities(ImmutableList.of(kamikoTag)).save(storingKey, caneOwner);
                     }
                     kamiko.discard();
                     player.setItemInHand(usedHand, stack);
@@ -182,15 +182,17 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
                     MiraculousesData miraculousesData = caneOwner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
                     Holder<Miraculous> storingKey = miraculousesData.getFirstTransformedIn(MiraculousTags.CAN_USE_BUTTERFLY_CANE);
                     MiraculousData storingData = miraculousesData.get(storingKey);
-                    if (mode == Mode.KAMIKO_STORE && level instanceof ServerLevel serverLevel && storingData != null && !storingData.storedEntities().isEmpty()) {
-                        Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(serverLevel);
-                        if (kamiko != null) {
-                            kamiko.load(storingData.storedEntities().getFirst());
-                            kamiko.setPos(player.position().add(0, 1, 0));
-                            serverLevel.addFreshEntity(kamiko);
-                            triggerAnim(player, GeoItem.getOrAssignId(stack, serverLevel), CONTROLLER_USE, ANIMATION_OPEN);
-                            storingData.storedEntities().removeFirst();
-                            storingData.save(storingKey, caneOwner);
+                    if (mode == Mode.KAMIKO_STORE && level instanceof ServerLevel serverLevel && storingData != null) {
+                        ImmutableList<CompoundTag> stored = storingData.storedEntities();
+                        if (!stored.isEmpty()) {
+                            Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(serverLevel);
+                            if (kamiko != null) {
+                                kamiko.load(stored.getFirst());
+                                kamiko.setPos(player.position().add(0, 1, 0));
+                                serverLevel.addFreshEntity(kamiko);
+                                triggerAnim(player, GeoItem.getOrAssignId(stack, serverLevel), CONTROLLER_USE, ANIMATION_OPEN);
+                                storingData.withStoredEntities(stored.subList(1, stored.size())).save(storingKey, caneOwner);
+                            }
                         }
                     }
                 } else

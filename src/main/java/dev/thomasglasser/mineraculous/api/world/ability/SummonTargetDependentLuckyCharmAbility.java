@@ -23,7 +23,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.entity.LuckyCharmItemSpawner;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -85,7 +85,7 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
                         .create(MineraculousLootContextParamSets.LUCKY_CHARM);
 
                 LootTable table = level.getServer().reloadableRegistries().getLootTable(lootTable);
-                ObjectArrayList<ItemStack> stacks = target instanceof LivingEntity livingEntity ? table.getRandomItems(params, livingEntity.getLootTableSeed()) : table.getRandomItems(params);
+                List<ItemStack> stacks = target instanceof LivingEntity livingEntity ? table.getRandomItems(params, livingEntity.getLootTableSeed()) : table.getRandomItems(params);
                 return stacks.isEmpty() ? ItemStack.EMPTY : stacks.get(level.random.nextInt(stacks.size()));
             }, set -> set.getRandomElement(level.random).map(item -> item.value().getDefaultInstance()).orElse(ItemStack.EMPTY));
             if (stack.isEmpty()) {

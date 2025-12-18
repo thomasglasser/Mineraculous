@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableList;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.impl.world.kamikotization.MinionKamikotizationData;
-import java.util.List;
 import net.minecraft.nbt.CompoundTag;
 
 /**
@@ -14,7 +13,7 @@ import net.minecraft.nbt.CompoundTag;
  * @param powerActive    Whether the performer's power is active
  * @param storedEntities Entities stored in the ability performer's data
  */
-public record AbilityData(int powerLevel, boolean powerActive, List<CompoundTag> storedEntities) {
+public record AbilityData(int powerLevel, boolean powerActive, ImmutableList<CompoundTag> storedEntities) {
     public static AbilityData of(MiraculousData data) {
         return new AbilityData(data.powerLevel(), data.powerActive(), data.storedEntities());
     }

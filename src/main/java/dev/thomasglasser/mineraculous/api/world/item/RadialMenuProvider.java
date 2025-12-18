@@ -1,9 +1,9 @@
 package dev.thomasglasser.mineraculous.api.world.item;
 
+import com.google.common.collect.ImmutableList;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.core.component.DataComponentType;
@@ -61,9 +61,12 @@ public interface RadialMenuProvider<T extends RadialMenuOption> {
      * @return The filtered list of options available
      */
     default List<T> getEnabledOptions(ItemStack stack, InteractionHand hand, Player holder) {
-        List<T> filtered = new ReferenceArrayList<>(getOptions(stack, hand, holder));
-        filtered.removeIf(option -> !option.isEnabled(stack, holder));
-        return filtered;
+        ImmutableList.Builder<T> list = new ImmutableList.Builder<>();
+        for (T option : getOptions(stack, hand, holder)) {
+            if (option.isEnabled(stack, holder))
+                list.add(option);
+        }
+        return list.build();
     }
 
     /**

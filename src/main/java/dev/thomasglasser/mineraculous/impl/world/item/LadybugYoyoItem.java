@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.item;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
@@ -27,10 +28,8 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyo
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
@@ -206,9 +205,9 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                             Holder<Miraculous> storingKey = miraculousesData.getFirstTransformedIn(MiraculousTags.CAN_USE_LADYBUG_YOYO);
                             MiraculousData storingData = miraculousesData.get(storingKey);
                             if (storingData != null) {
-                                List<CompoundTag> stored = storingData.storedEntities();
+                                ImmutableList<CompoundTag> stored = storingData.storedEntities();
                                 if (!stored.isEmpty()) {
-                                    Set<Entity> entities = new ReferenceOpenHashSet<>();
+                                    ImmutableList.Builder<Entity> released = new ImmutableList.Builder<>();
                                     for (CompoundTag tag : stored) {
                                         Entity entity = EntityType.loadEntityRecursive(tag, level, loaded -> {
                                             loaded.setPos(player.getX(), player.getY() + 0.5, player.getZ());
@@ -220,13 +219,12 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                                                 reverted.moveTo(player.position().add(0, 1, 0));
                                                 reverted.addDeltaMovement(new Vec3(0, 1, 0));
                                                 reverted.hurtMarked = true;
-                                                entities.add(reverted);
+                                                released.add(reverted);
                                             });
                                         }
                                     }
-                                    MineraculousCriteriaTriggers.RELEASED_PURIFIED_ENTITIES.get().trigger((ServerPlayer) player, entities);
-                                    storingData.storedEntities().clear();
-                                    storingData.save(storingKey, owner);
+                                    MineraculousCriteriaTriggers.RELEASED_PURIFIED_ENTITIES.get().trigger((ServerPlayer) player, released.build());
+                                    storingData.withStoredEntities(ImmutableList.of()).save(storingKey, owner);
                                     player.getCooldowns().addCooldown(this, 10);
                                 } else {
                                     player.startUsingItem(usedHand);
@@ -369,7 +367,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
         if (canEquip(stack)) {
             return ICurioItem.super.getSlotsTooltip(tooltips, context, stack);
         }
-        return ReferenceArrayList.of();
+        return ImmutableList.of();
     }
 
     @Override

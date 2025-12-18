@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.core;
 
+import com.google.common.collect.ImmutableList;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.dispenser.ActiveProjectileDispenseBehavior;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousBuiltInRegistries;
@@ -12,7 +13,6 @@ import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.tommylib.api.packs.PackInfo;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.nio.file.Path;
 import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
@@ -112,11 +112,12 @@ public class MineraculousCoreEvents {
     public static void addLootToTable(LootTable table, LootPoolEntryContainer.Builder<?>... entries) {
         LootPool main = table.getPool("main");
         if (main != null) {
-            ReferenceArrayList<LootPoolEntryContainer> list = new ReferenceArrayList<>(main.entries);
+            ImmutableList.Builder<LootPoolEntryContainer> list = new ImmutableList.Builder<>();
+            list.addAll(main.entries);
             for (LootPoolEntryContainer.Builder<?> entry : entries) {
                 list.add(entry.build());
             }
-            main.entries = list;
+            main.entries = list.build();
         }
     }
 }

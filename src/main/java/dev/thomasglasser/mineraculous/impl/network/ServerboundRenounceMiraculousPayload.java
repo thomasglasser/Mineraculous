@@ -36,7 +36,7 @@ public class ServerboundRenounceMiraculousPayload implements ExtendedPacketPaylo
     private void renounceMiraculous(ItemStack stack, Player player) {
         Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
         if (miraculous != null) {
-            MineraculousEntityUtils.renounceKwami(stack.get(MineraculousDataComponents.KWAMI_ID), stack, (ServerLevel) player.level());
+            MineraculousEntityUtils.renounceKwami(true, stack, (ServerLevel) player.level(), player);
         }
     }
 

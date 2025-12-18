@@ -91,8 +91,6 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                             kwami.setTame(true, true);
                             kwami.setOwnerUUID(entity.getUUID());
                         }
-                    } else if (!stack.has(MineraculousDataComponents.POWERED)) {
-                        stack.remove(MineraculousDataComponents.KWAMI_ID);
                     }
                 }
             }

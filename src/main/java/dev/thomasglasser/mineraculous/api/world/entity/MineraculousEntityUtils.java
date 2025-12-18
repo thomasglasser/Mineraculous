@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.entity;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
@@ -13,6 +14,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundRefreshDisplayNamePayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
+import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -178,16 +180,28 @@ public class MineraculousEntityUtils {
     /**
      * Renounces a kwami from a provided {@link ItemStack} and discards it if in the same level.
      *
-     * @param kwamiId The {@link UUID} of the kwami to renounce
-     * @param stack   The {@link ItemStack} to renounce
-     * @param level   The level to renounce the kwami in
+     * @param requireKwami Whether the kwami is required to be found to renounce it
+     * @param stack        The {@link ItemStack} to renounce
+     * @param level        The level to renounce the kwami in
+     * @param entity       The entity renouncing the kwami
      */
-    public static void renounceKwami(@Nullable UUID kwamiId, ItemStack stack, ServerLevel level) {
-        stack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
-        stack.remove(MineraculousDataComponents.REMAINING_TICKS);
-        stack.remove(MineraculousDataComponents.KWAMI_ID);
-        if (kwamiId != null && level.getEntity(kwamiId) instanceof Kwami kwami) {
-            kwami.discard();
+    public static void renounceKwami(boolean requireKwami, ItemStack stack, ServerLevel level, @Nullable LivingEntity entity) {
+        UUID kwamiId = stack.get(MineraculousDataComponents.KWAMI_ID);
+        Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+        Kwami kwami = kwamiId != null && level.getEntity(kwamiId) instanceof Kwami k ? k : null;
+        if (!requireKwami || kwami != null) {
+            if (kwami != null)
+                kwami.discard();
+            stack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
+            stack.set(MineraculousDataComponents.TEXTURE_STATE, MiraculousItem.TextureState.POWERED);
+            stack.remove(MineraculousDataComponents.REMAINING_TICKS);
+            stack.remove(MineraculousDataComponents.KWAMI_ID);
+        } else if (miraculous != null && entity instanceof Player player) {
+            player.displayClientMessage(Component.translatable(MiraculousData.KWAMI_NOT_FOUND, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.getKey()))), true);
+        } else if (kwamiId != null) {
+            MineraculousConstants.LOGGER.warn("Unable to find kwami with ID {}", kwamiId);
+        } else {
+            MineraculousConstants.LOGGER.warn("Tried to renounce kwami with no kwami ID");
         }
     }
 

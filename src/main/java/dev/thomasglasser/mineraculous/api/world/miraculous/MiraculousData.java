@@ -231,7 +231,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         miraculousStack.set(MineraculousDataComponents.TEXTURE_STATE, removed ? MiraculousItem.TextureState.ACTIVE : MiraculousItem.TextureState.HIDDEN);
 
         if (removed) {
-            MineraculousEntityUtils.renounceKwami(miraculousStack.get(MineraculousDataComponents.KWAMI_ID), miraculousStack, level);
+            MineraculousEntityUtils.renounceKwami(false, miraculousStack, level, entity);
         } else {
             miraculousStack.remove(MineraculousDataComponents.POWERED);
         }

@@ -20,6 +20,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerChoicesPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItemPayload;
+import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
@@ -292,13 +293,16 @@ public class MineraculousEntityEvents {
         if (entity.level() instanceof ServerLevel level) {
             MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
             for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
+                if (stack.getItem() instanceof KwamiItem) {
+                    KwamiItem.summonKwami(stack, entity);
+                }
                 Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
                 if (stack.getItem() instanceof MiraculousItem && miraculous != null) {
                     MiraculousData data = miraculousesData.get(miraculous);
                     if (data.transformed()) {
                         data.detransform(entity, level, miraculous, stack, true);
                     } else {
-                        MineraculousEntityUtils.renounceKwami(stack.get(MineraculousDataComponents.KWAMI_ID), stack, level);
+                        MineraculousEntityUtils.renounceKwami(true, stack, level, entity);
                     }
                 }
                 entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {

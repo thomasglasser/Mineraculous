@@ -12,6 +12,7 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.api.world.level.storage.BlockLocation;
 import dev.thomasglasser.mineraculous.api.world.level.storage.BlockReversionData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.PersistentAbilityEffectData;
+import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTargetCollector;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.ArrayDeque;
 import java.util.Optional;
@@ -98,6 +99,11 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean insta
      */
     public boolean isValidBlock(ServerLevel level, BlockPos pos) {
         return !level.getBlockState(pos).isAir() && validBlocks.map(predicate -> predicate.matches(level, pos)).orElse(true) && invalidBlocks.map(predicate -> !predicate.matches(level, pos)).orElse(true);
+    }
+
+    @Override
+    public void revert(AbilityData data, ServerLevel level, LivingEntity performer, MiraculousLadybugTargetCollector targetCollector) {
+        performer.getData(MineraculousAttachmentTypes.PERSISTENT_ABILITY_EFFECTS).withDelayedBlockReplacements(ImmutableSet.of()).save(performer);
     }
 
     private ImmutableSet<BlockPos> getAffectedBlocks(ServerLevel level, BlockPos pos, int max) {

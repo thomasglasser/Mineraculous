@@ -131,15 +131,15 @@ public class MineraculousEntityUtils {
      * Summons a {@link Kwami} with the provided charge, miraculous ID, miraculous, and UUID for the provided owner,
      * optionally playing a summoning animation.
      *
-     * @param owner         The owner of the kwami
-     * @param charged       Whether the kwami is charged
-     * @param miraculousId  The related miraculous item {@link UUID}
-     * @param miraculous    The miraculous of the kwami
-     * @param playAnimation Whether to play the kwami summon animation
-     * @param uuidOverride  The {@link UUID} to use for the kwami, or null to use a random UUID
+     * @param owner        The owner of the kwami
+     * @param charged      Whether the kwami is charged
+     * @param miraculousId The related miraculous item {@link UUID}
+     * @param miraculous   The miraculous of the kwami
+     * @param appearance   What summon animation to play
+     * @param uuidOverride The {@link UUID} to use for the kwami, or null to use a random UUID
      * @return The summoned kwami
      */
-    public static Kwami summonKwami(Entity owner, boolean charged, UUID miraculousId, Holder<Miraculous> miraculous, boolean playAnimation, @Nullable UUID uuidOverride) {
+    public static Kwami summonKwami(Entity owner, boolean charged, UUID miraculousId, Holder<Miraculous> miraculous, Kwami.SummoningAppearance appearance, @Nullable UUID uuidOverride) {
         ServerLevel level = (ServerLevel) owner.level();
         if (uuidOverride != null && level.getEntity(uuidOverride) instanceof Kwami kwami) {
             kwami.discard();
@@ -157,15 +157,25 @@ public class MineraculousEntityUtils {
             }
             kwami.setYRot(owner.getYRot() + 180);
             kwami.setYHeadRot(owner.getYRot() + 180);
-            if (playAnimation) {
-                kwami.moveTo(owner.position());
-                kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt());
-                kwami.playSound(MineraculousSoundEvents.KWAMI_SUMMON.get());
-            } else {
-                Vec3 ownerPos = owner.position();
-                Vec3 lookDirection = owner.getLookAngle();
-                Vec3 kwamiPos = ownerPos.add(lookDirection.scale(1.5));
-                kwami.moveTo(kwamiPos.x, owner.getEyeY(), kwamiPos.z);
+            switch (appearance) {
+                case Kwami.SummoningAppearance.TRAIL:
+                    kwami.moveTo(owner.position().add(new Vec3(0, owner.getBbHeight() * 3d / 4d, 0)));
+                    kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * 3 / 2);
+                    kwami.setSummoningAppearance(appearance);
+                    break;
+                case Kwami.SummoningAppearance.ORB:
+                    kwami.moveTo(owner.position());
+                    kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt());
+                    kwami.playSound(MineraculousSoundEvents.KWAMI_SUMMON.get());
+                    kwami.setSummoningAppearance(appearance);
+                    break;
+                case Kwami.SummoningAppearance.INSTANT:
+                    Vec3 ownerPos = owner.position();
+                    Vec3 lookDirection = owner.getLookAngle();
+                    Vec3 kwamiPos = ownerPos.add(lookDirection.scale(1.5));
+                    kwami.moveTo(kwamiPos.x, owner.getEyeY(), kwamiPos.z);
+                    kwami.setSummoningAppearance(appearance);
+                    break;
             }
             if (uuidOverride != null)
                 kwami.setUUID(uuidOverride);

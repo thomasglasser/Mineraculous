@@ -14,7 +14,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
 import org.jetbrains.annotations.Nullable;
 
-public class ServerLookManager {
+public class LookManager {
     public static final Path LOOKS_SUBPATH = Path.of(MineraculousConstants.MOD_ID, "looks");
     public static final Path CACHE_SUBPATH = LOOKS_SUBPATH.resolve(".cache");
     public static final int MAX_TEXTURE_SIZE = 1024;

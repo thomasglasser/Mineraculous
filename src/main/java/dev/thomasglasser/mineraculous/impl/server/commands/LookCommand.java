@@ -6,8 +6,8 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
-import dev.thomasglasser.mineraculous.impl.client.look.LookManager;
-import dev.thomasglasser.mineraculous.impl.client.look.MiraculousLook;
+import dev.thomasglasser.mineraculous.impl.client.look.ClientLookManager;
+import dev.thomasglasser.mineraculous.impl.client.look.Look;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetLookDataPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.EnumMap;
@@ -32,18 +32,18 @@ public class LookCommand {
                                 .executes(LookCommand::unequip))));
     }
 
-    private static final SuggestionProvider<CommandSourceStack> SUGGEST_LOOKS = (context, builder) -> SharedSuggestionProvider.suggest(LookManager.getEquippable().stream().map(MiraculousLook::hash), builder);
+    private static final SuggestionProvider<CommandSourceStack> SUGGEST_LOOKS = (context, builder) -> SharedSuggestionProvider.suggest(ClientLookManager.getEquippable().stream().map(Look::hash), builder);
 
     private static int equip(CommandContext<CommandSourceStack> context) {
         try {
             var miraculous = ResourceArgument.getResource(context, "miraculous", MineraculousRegistries.MIRACULOUS);
             String hash = StringArgumentType.getString(context, "hash");
 
-            MiraculousLook look = LookManager.getEquippableLook(hash);
+            Look look = ClientLookManager.getEquippableLook(hash);
             if (look != null) {
                 if (look.validMiraculouses().contains(miraculous.getKey())) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetLookDataPayload(miraculous, new MiraculousData.LookData(Optional.empty(), Util.make(new EnumMap<>(MiraculousLook.AssetType.class), map -> {
-                        for (MiraculousLook.AssetType type : MiraculousLook.AssetType.values())
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetLookDataPayload(miraculous, new MiraculousData.LookData(Optional.empty(), Util.make(new EnumMap<>(Look.AssetType.class), map -> {
+                        for (Look.AssetType type : Look.AssetType.values())
                             map.put(type, hash);
                     }))));
                     context.getSource().sendSuccess(() -> Component.literal("Equipped look: " + hash), true);
@@ -63,7 +63,7 @@ public class LookCommand {
         try {
             var miraculous = ResourceArgument.getResource(context, "miraculous", MineraculousRegistries.MIRACULOUS);
 
-            TommyLibServices.NETWORK.sendToServer(new ServerboundSetLookDataPayload(miraculous, new MiraculousData.LookData(Optional.empty(), new EnumMap<>(MiraculousLook.AssetType.class))));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundSetLookDataPayload(miraculous, new MiraculousData.LookData(Optional.empty(), new EnumMap<>(Look.AssetType.class))));
             context.getSource().sendSuccess(() -> Component.literal("Unequipped look."), true);
         } catch (Exception e) {
             context.getSource().sendFailure(Component.literal("Error: " + e.getMessage()));

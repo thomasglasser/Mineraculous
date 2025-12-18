@@ -10,7 +10,7 @@ import com.mojang.serialization.JsonOps;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
+import dev.thomasglasser.mineraculous.impl.server.look.LookManager;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -41,8 +41,8 @@ import software.bernie.geckolib.loading.object.BakedModelFactory;
 import software.bernie.geckolib.loading.object.GeometryTree;
 
 public class LookLoader {
-    public static final Path LOOKS_PATH = Minecraft.getInstance().gameDirectory.toPath().resolve(ServerLookManager.LOOKS_SUBPATH);
-    public static final Path CACHE_PATH = Minecraft.getInstance().gameDirectory.toPath().resolve(ServerLookManager.CACHE_SUBPATH);
+    public static final Path LOOKS_PATH = Minecraft.getInstance().gameDirectory.toPath().resolve(LookManager.LOOKS_SUBPATH);
+    public static final Path CACHE_PATH = Minecraft.getInstance().gameDirectory.toPath().resolve(LookManager.CACHE_SUBPATH);
 
     private static final String JSON_NAME = "look.json";
 
@@ -56,11 +56,11 @@ public class LookLoader {
     private static final String TRANSFORMS_KEY = "display";
 
     public static void load() {
-        LookManager.refresh();
+        ClientLookManager.refresh();
 
         CompletableFuture.runAsync(() -> {
             try {
-                ServerLookManager.clearOrCreateCache(CACHE_PATH);
+                LookManager.clearOrCreateCache(CACHE_PATH);
 
                 try (Stream<Path> paths = Files.list(LOOKS_PATH)) {
                     paths.forEach(path -> {
@@ -70,13 +70,13 @@ public class LookLoader {
                     });
                 }
             } catch (Exception e) {
-                LookManager.enterSafeMode(e.getMessage());
+                ClientLookManager.enterSafeMode(e.getMessage());
             }
         });
     }
 
     public static void load(Path path, boolean equippable) {
-        if (LookManager.isInSafeMode())
+        if (ClientLookManager.isInSafeMode())
             return;
         try {
             String hash;
@@ -84,7 +84,7 @@ public class LookLoader {
                 try {
                     byte[] zipBytes = zipFolderToBytes(path);
                     hash = Hashing.sha256().hashBytes(zipBytes).toString();
-                    ServerLookManager.ensureCacheExists(CACHE_PATH);
+                    LookManager.ensureCacheExists(CACHE_PATH);
                     Path look = CACHE_PATH.resolve(hash + ".look");
                     Files.write(look, zipBytes);
                     load(look, equippable);
@@ -124,7 +124,7 @@ public class LookLoader {
     }
 
     private static void loadFromRoot(Path root, Path source, String hash, boolean equippable) throws Exception {
-        if (LookManager.isInSafeMode())
+        if (ClientLookManager.isInSafeMode())
             return;
 
         Path path = root.resolve(JSON_NAME);
@@ -145,10 +145,10 @@ public class LookLoader {
             }
         }
 
-        EnumMap<MiraculousLook.AssetType, BakedGeoModel> models = new EnumMap<>(MiraculousLook.AssetType.class);
-        EnumMap<MiraculousLook.AssetType, ResourceLocation> textures = new EnumMap<>(MiraculousLook.AssetType.class);
-        EnumMap<MiraculousLook.AssetType, BakedAnimations> animations = new EnumMap<>(MiraculousLook.AssetType.class);
-        EnumMap<MiraculousLook.AssetType, ItemTransforms> transforms = new EnumMap<>(MiraculousLook.AssetType.class);
+        EnumMap<Look.AssetType, BakedGeoModel> models = new EnumMap<>(Look.AssetType.class);
+        EnumMap<Look.AssetType, ResourceLocation> textures = new EnumMap<>(Look.AssetType.class);
+        EnumMap<Look.AssetType, BakedAnimations> animations = new EnumMap<>(Look.AssetType.class);
+        EnumMap<Look.AssetType, ItemTransforms> transforms = new EnumMap<>(Look.AssetType.class);
 
         if (!json.has(ASSETS_KEY)) throw new IOException("Look missing '" + ASSETS_KEY + "'");
         JsonObject assets = json.getAsJsonObject(ASSETS_KEY);
@@ -156,9 +156,9 @@ public class LookLoader {
         Set<String> keys = assets.keySet();
         if (keys.isEmpty()) throw new IOException("Look '" + source + "' has no assets");
 
-        ImmutableSet.Builder<MiraculousLook.AssetType> includedAssets = ImmutableSet.builder();
+        ImmutableSet.Builder<Look.AssetType> includedAssets = ImmutableSet.builder();
         for (String key : keys) {
-            MiraculousLook.AssetType assetType = MiraculousLook.AssetType.of(key);
+            Look.AssetType assetType = Look.AssetType.of(key);
             if (assetType != null) {
                 JsonObject asset = assets.getAsJsonObject(key);
                 if (asset.has(MODEL_KEY)) {
@@ -196,7 +196,7 @@ public class LookLoader {
             throw new IOException("Look '" + source + "' has no assets");
         }
 
-        LookManager.add(source, new MiraculousLook(hash, displayName, author, validMiraculouses.build(), includedAssets.build(), models, textures, animations, transforms), equippable);
+        ClientLookManager.add(source, new Look(hash, displayName, author, validMiraculouses.build(), includedAssets.build(), models, textures, animations, transforms), equippable);
     }
 
     private static @Nullable Path findValidPath(Path root, JsonObject asset, String key) throws Exception {
@@ -210,7 +210,7 @@ public class LookLoader {
             if (!Files.exists(path)) {
                 throw new FileNotFoundException("Referenced file not found: " + file);
             }
-            if (Files.size(path) > ServerLookManager.MAX_FILE_SIZE)
+            if (Files.size(path) > LookManager.MAX_FILE_SIZE)
                 throw new IOException("File too large, must be <=2MB: " + file);
 
             return path;
@@ -225,7 +225,7 @@ public class LookLoader {
         return null;
     }
 
-    private static @Nullable ResourceLocation registerTexture(Path root, JsonObject asset, String key, String hash, MiraculousLook.AssetType assetType, Path source) throws Exception {
+    private static @Nullable ResourceLocation registerTexture(Path root, JsonObject asset, String key, String hash, Look.AssetType assetType, Path source) throws Exception {
         Path path = findValidPath(root, asset, key);
         if (path != null) {
             return registerTexture(NativeImage.read(Files.newInputStream(path)), hash, assetType, source);
@@ -237,9 +237,9 @@ public class LookLoader {
         return BakedModelFactory.getForNamespace(MineraculousConstants.MOD_ID).constructGeoModel(GeometryTree.fromModel(KeyFramesAdapter.GEO_GSON.fromJson(object, Model.class)));
     }
 
-    private static @Nullable ResourceLocation registerTexture(NativeImage image, String hash, MiraculousLook.AssetType assetType, Path source) {
-        if (image.getWidth() > ServerLookManager.MAX_TEXTURE_SIZE || image.getHeight() > ServerLookManager.MAX_TEXTURE_SIZE) {
-            MineraculousConstants.LOGGER.warn("Look texture for look {} is too large ({}x{}). Max is {}x{}.", source, image.getWidth(), image.getHeight(), ServerLookManager.MAX_TEXTURE_SIZE, ServerLookManager.MAX_TEXTURE_SIZE);
+    private static @Nullable ResourceLocation registerTexture(NativeImage image, String hash, Look.AssetType assetType, Path source) {
+        if (image.getWidth() > LookManager.MAX_TEXTURE_SIZE || image.getHeight() > LookManager.MAX_TEXTURE_SIZE) {
+            MineraculousConstants.LOGGER.warn("Look texture for look {} is too large ({}x{}). Max is {}x{}.", source, image.getWidth(), image.getHeight(), LookManager.MAX_TEXTURE_SIZE, LookManager.MAX_TEXTURE_SIZE);
             image.close();
             return null;
         }

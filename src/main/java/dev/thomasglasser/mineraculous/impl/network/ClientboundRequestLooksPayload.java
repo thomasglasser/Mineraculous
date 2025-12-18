@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.impl.client.look.ClientLookManager;
 import dev.thomasglasser.mineraculous.impl.client.look.LookLoader;
-import dev.thomasglasser.mineraculous.impl.client.look.LookManager;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
@@ -27,7 +27,7 @@ public record ClientboundRequestLooksPayload(Set<String> hashes) implements Exte
     public void handle(Player player) {
         // TODO: Check permissions for allowed
         for (String hash : hashes) {
-            Path path = LookManager.getEquippablePath(hash);
+            Path path = ClientLookManager.getEquippablePath(hash);
             if (path != null) {
                 try {
                     byte[] data;

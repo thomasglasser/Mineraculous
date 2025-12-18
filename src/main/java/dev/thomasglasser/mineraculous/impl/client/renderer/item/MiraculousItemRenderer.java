@@ -7,8 +7,8 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.client.look.LookManager;
-import dev.thomasglasser.mineraculous.impl.client.look.MiraculousLook;
+import dev.thomasglasser.mineraculous.impl.client.look.ClientLookManager;
+import dev.thomasglasser.mineraculous.impl.client.look.Look;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -77,11 +77,11 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
         return miraculous;
     }
 
-    public static <T> T getLookAsset(ItemStack stack, Holder<Miraculous> miraculous, MiraculousLook.AssetType assetType, TriFunction<MiraculousLook, MiraculousLook.AssetType, Supplier<T>, T> getter, Supplier<T> fallback) {
+    public static <T> T getLookAsset(ItemStack stack, Holder<Miraculous> miraculous, Look.AssetType assetType, TriFunction<Look, Look.AssetType, Supplier<T>, T> getter, Supplier<T> fallback) {
         Integer carrier = stack.get(MineraculousDataComponents.CARRIER);
         Level level = ClientUtils.getLevel();
         if (carrier != null && level != null && level.getEntities().get(carrier) instanceof Player player) {
-            return LookManager.getOrFetchLookAsset(player, miraculous, assetType, getter, fallback);
+            return ClientLookManager.getOrFetchLookAsset(player, miraculous, assetType, getter, fallback);
         }
         return fallback.get();
     }
@@ -97,7 +97,7 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
 
             boolean transformed = false;
             ItemStack stack = getCurrentItemStack();
-            ItemTransforms transforms = getLookAsset(stack, getMiraculousOrDefault(stack), isHidden(stack) ? MiraculousLook.AssetType.JEWEL_HIDDEN : MiraculousLook.AssetType.JEWEL_ACTIVE, MiraculousLook::getTransforms, () -> null);
+            ItemTransforms transforms = getLookAsset(stack, getMiraculousOrDefault(stack), isHidden(stack) ? Look.AssetType.JEWEL_HIDDEN : Look.AssetType.JEWEL_ACTIVE, Look::getTransforms, () -> null);
             if (transforms != null && transforms.hasTransform(renderPerspective)) {
                 transformed = true;
                 transforms.getTransform(renderPerspective).apply(false, poseStack);
@@ -142,19 +142,19 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
             @Override
             public BakedGeoModel getBakedModel(ResourceLocation location) {
                 ItemStack stack = getCurrentItemStack();
-                return getLookAsset(stack, miraculous, isHidden(stack) ? MiraculousLook.AssetType.JEWEL_HIDDEN : MiraculousLook.AssetType.JEWEL_ACTIVE, MiraculousLook::getModel, () -> super.getBakedModel(location));
+                return getLookAsset(stack, miraculous, isHidden(stack) ? Look.AssetType.JEWEL_HIDDEN : Look.AssetType.JEWEL_ACTIVE, Look::getModel, () -> super.getBakedModel(location));
             }
 
             @Override
             public ResourceLocation getTextureResource(T animatable) {
                 ItemStack stack = getCurrentItemStack();
-                return getLookAsset(stack, miraculous, isHidden(stack) ? MiraculousLook.AssetType.JEWEL_HIDDEN : MiraculousLook.AssetType.JEWEL_ACTIVE, MiraculousLook::getTexture, () -> texture);
+                return getLookAsset(stack, miraculous, isHidden(stack) ? Look.AssetType.JEWEL_HIDDEN : Look.AssetType.JEWEL_ACTIVE, Look::getTexture, () -> texture);
             }
 
             @Override
             public @Nullable Animation getAnimation(T animatable, String name) {
                 ItemStack stack = getCurrentItemStack();
-                BakedAnimations animations = getLookAsset(stack, miraculous, isHidden(stack) ? MiraculousLook.AssetType.JEWEL_HIDDEN : MiraculousLook.AssetType.JEWEL_ACTIVE, MiraculousLook::getAnimations, () -> null);
+                BakedAnimations animations = getLookAsset(stack, miraculous, isHidden(stack) ? Look.AssetType.JEWEL_HIDDEN : Look.AssetType.JEWEL_ACTIVE, Look::getAnimations, () -> null);
                 if (animations != null) {
                     Animation animation = animations.getAnimation(name);
                     if (animation != null)

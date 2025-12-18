@@ -11,7 +11,7 @@ import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
+import dev.thomasglasser.mineraculous.impl.server.look.LookManager;
 import dev.thomasglasser.tommylib.api.packs.PackInfo;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.nio.file.Path;
@@ -95,7 +95,7 @@ public class MineraculousCoreEvents {
         if (server.registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).size() == 0) {
             MineraculousConstants.LOGGER.warn(Kamikotization.NO_KAMIKOTIZATIONS.getString());
         }
-        ServerLookManager.init(server);
+        LookManager.init(server);
     }
 
     // Misc

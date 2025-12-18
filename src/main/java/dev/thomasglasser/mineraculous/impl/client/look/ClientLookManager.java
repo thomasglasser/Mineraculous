@@ -16,7 +16,7 @@ import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.Nullable;
 
-public class LookManager {
+public class ClientLookManager {
     private static final Map<String, StoredLook> CACHED_LOOKS = new ConcurrentHashMap<>();
     private static final Map<String, StoredLook> EQUIPPABLE_LOOKS = new ConcurrentHashMap<>();
 
@@ -28,7 +28,7 @@ public class LookManager {
         safeMode = false;
     }
 
-    public static void add(Path path, MiraculousLook look, boolean equippable) {
+    public static void add(Path path, Look look, boolean equippable) {
         if (isInSafeMode())
             return;
         StoredLook stored = new StoredLook(path, look);
@@ -37,20 +37,20 @@ public class LookManager {
             EQUIPPABLE_LOOKS.put(look.hash(), stored);
     }
 
-    public static ImmutableSortedSet<MiraculousLook> getEquippable() {
-        ImmutableSortedSet.Builder<MiraculousLook> looks = ImmutableSortedSet.orderedBy(Comparator.comparing(MiraculousLook::name));
+    public static ImmutableSortedSet<Look> getEquippable() {
+        ImmutableSortedSet.Builder<Look> looks = ImmutableSortedSet.orderedBy(Comparator.comparing(Look::name));
         for (StoredLook look : EQUIPPABLE_LOOKS.values()) {
             looks.add(look.look());
         }
         return looks.build();
     }
 
-    public static @Nullable MiraculousLook getCachedLook(String hash) {
+    public static @Nullable Look getCachedLook(String hash) {
         StoredLook look = CACHED_LOOKS.get(hash);
         return look != null ? look.look() : null;
     }
 
-    public static @Nullable MiraculousLook getEquippableLook(String hash) {
+    public static @Nullable Look getEquippableLook(String hash) {
         StoredLook look = EQUIPPABLE_LOOKS.get(hash);
         return look != null ? look.look() : null;
     }
@@ -60,7 +60,7 @@ public class LookManager {
         return look != null ? look.path() : null;
     }
 
-    public static @Nullable MiraculousLook getOrFetchLook(Player player, Holder<Miraculous> miraculous, MiraculousLook.AssetType assetType) {
+    public static @Nullable Look getOrFetchLook(Player player, Holder<Miraculous> miraculous, Look.AssetType assetType) {
         if (isInSafeMode()) {
             MineraculousConstants.LOGGER.warn("Tried to fetch look for {} in safe mode, using the default...", player.getUUID());
             return null;
@@ -69,14 +69,14 @@ public class LookManager {
         String hash = player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).lookData().hashes().get(assetType);
         if (hash == null) return null;
 
-        MiraculousLook look = getCachedLook(hash);
+        Look look = getCachedLook(hash);
         if (look == null)
             TommyLibServices.NETWORK.sendToServer(new ServerboundRequestLookPayload(hash));
         return look;
     }
 
-    public static <T> T getOrFetchLookAsset(Player player, Holder<Miraculous> miraculous, MiraculousLook.AssetType assetType, TriFunction<MiraculousLook, MiraculousLook.AssetType, Supplier<T>, T> getter, Supplier<T> fallback) {
-        MiraculousLook look = getOrFetchLook(player, miraculous, assetType);
+    public static <T> T getOrFetchLookAsset(Player player, Holder<Miraculous> miraculous, Look.AssetType assetType, TriFunction<Look, Look.AssetType, Supplier<T>, T> getter, Supplier<T> fallback) {
+        Look look = getOrFetchLook(player, miraculous, assetType);
         if (look != null)
             return getter.apply(look, assetType, fallback);
         return fallback.get();
@@ -91,5 +91,5 @@ public class LookManager {
         MineraculousConstants.LOGGER.warn("Entering safe mode due to look error: {}", error);
     }
 
-    private record StoredLook(Path path, MiraculousLook look) {}
+    private record StoredLook(Path path, Look look) {}
 }

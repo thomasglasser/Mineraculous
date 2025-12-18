@@ -21,7 +21,7 @@ import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
-import dev.thomasglasser.mineraculous.impl.client.look.MiraculousLook;
+import dev.thomasglasser.mineraculous.impl.client.look.Look;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
@@ -602,18 +602,18 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
         }
     }
 
-    public record LookData(Optional<String> name, EnumMap<MiraculousLook.AssetType, String> hashes) {
-        public static final LookData DEFAULT = new LookData(Optional.empty(), new EnumMap<>(MiraculousLook.AssetType.class));
+    public record LookData(Optional<String> name, EnumMap<Look.AssetType, String> hashes) {
+        public static final LookData DEFAULT = new LookData(Optional.empty(), new EnumMap<>(Look.AssetType.class));
         public static final Codec<LookData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.STRING.optionalFieldOf("name").forGetter(LookData::name),
-                Codec.unboundedMap(MiraculousLook.AssetType.CODEC, Codec.STRING).fieldOf("hashes").xmap(map -> map.isEmpty() ? new EnumMap<>(MiraculousLook.AssetType.class) : new EnumMap<>(map), Function.identity()).forGetter(LookData::hashes)).apply(instance, LookData::new));
+                Codec.unboundedMap(Look.AssetType.CODEC, Codec.STRING).fieldOf("hashes").xmap(map -> map.isEmpty() ? new EnumMap<>(Look.AssetType.class) : new EnumMap<>(map), Function.identity()).forGetter(LookData::hashes)).apply(instance, LookData::new));
         public static final StreamCodec<FriendlyByteBuf, LookData> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), LookData::name,
                 ByteBufCodecs.map(
-                        i -> new EnumMap<>(MiraculousLook.AssetType.class),
-                        MiraculousLook.AssetType.STREAM_CODEC,
+                        i -> new EnumMap<>(Look.AssetType.class),
+                        Look.AssetType.STREAM_CODEC,
                         ByteBufCodecs.STRING_UTF8,
-                        MiraculousLook.AssetType.values().length),
+                        Look.AssetType.values().length),
                 LookData::hashes,
                 LookData::new);
     }

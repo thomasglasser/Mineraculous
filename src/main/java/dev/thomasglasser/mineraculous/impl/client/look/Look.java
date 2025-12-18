@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.loading.object.BakedAnimations;
 
-public record MiraculousLook(String hash, String name, String author, Set<ResourceKey<Miraculous>> validMiraculouses, Set<AssetType> includedAssets, EnumMap<AssetType, BakedGeoModel> models, EnumMap<AssetType, ResourceLocation> textures, EnumMap<AssetType, BakedAnimations> animations, EnumMap<AssetType, ItemTransforms> transforms) {
+public record Look(String hash, String name, String author, Set<ResourceKey<Miraculous>> validMiraculouses, Set<AssetType> includedAssets, EnumMap<AssetType, BakedGeoModel> models, EnumMap<AssetType, ResourceLocation> textures, EnumMap<AssetType, BakedAnimations> animations, EnumMap<AssetType, ItemTransforms> transforms) {
 
     public BakedGeoModel getModel(AssetType type, Supplier<BakedGeoModel> fallback) {
         BakedGeoModel model = models.get(type);
@@ -50,8 +50,6 @@ public record MiraculousLook(String hash, String name, String author, Set<Resour
             return fallback.get();
         return transforms;
     }
-
-    // TODO: Move to registry
     public enum AssetType implements StringRepresentable {
         SUIT(false),
         TOOL(true),

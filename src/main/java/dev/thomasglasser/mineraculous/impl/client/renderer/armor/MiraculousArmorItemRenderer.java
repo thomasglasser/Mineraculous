@@ -5,8 +5,8 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
-import dev.thomasglasser.mineraculous.impl.client.look.LookManager;
-import dev.thomasglasser.mineraculous.impl.client.look.MiraculousLook;
+import dev.thomasglasser.mineraculous.impl.client.look.ClientLookManager;
+import dev.thomasglasser.mineraculous.impl.client.look.Look;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -61,9 +61,9 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
         super.prepForRender(entity, stack, slot, baseModel, bufferSource, partialTick, limbSwing, limbSwingAmount, netHeadYaw, headPitch);
         if (entity instanceof Player player) {
             Holder<Miraculous> miraculous = MiraculousItemRenderer.getMiraculousOrDefault(stack);
-            model = LookManager.getOrFetchLookAsset(player, miraculous, MiraculousLook.AssetType.SUIT, MiraculousLook::getModel, () -> null);
-            texture = LookManager.getOrFetchLookAsset(player, miraculous, MiraculousLook.AssetType.SUIT, MiraculousLook::getTexture, () -> null);
-            animations = LookManager.getOrFetchLookAsset(player, miraculous, MiraculousLook.AssetType.SUIT, MiraculousLook::getAnimations, () -> null);
+            model = ClientLookManager.getOrFetchLookAsset(player, miraculous, Look.AssetType.SUIT, Look::getModel, () -> null);
+            texture = ClientLookManager.getOrFetchLookAsset(player, miraculous, Look.AssetType.SUIT, Look::getTexture, () -> null);
+            animations = ClientLookManager.getOrFetchLookAsset(player, miraculous, Look.AssetType.SUIT, Look::getAnimations, () -> null);
         }
     }
 

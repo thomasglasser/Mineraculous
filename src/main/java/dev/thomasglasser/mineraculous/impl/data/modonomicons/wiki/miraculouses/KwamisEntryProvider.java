@@ -30,7 +30,7 @@ public class KwamisEntryProvider extends IndexModeEntryProvider {
 
         pageTitle("Summoning");
         pageText("""
-                Kwamis are summoned by their (Miraculous)[category://miraculouses].
+                Kwamis are summoned by their [Miraculous](category://miraculouses).
                 When summoned,
                 they will spin around in a ball of light.
                 While they are in this form,

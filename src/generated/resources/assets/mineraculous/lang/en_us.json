@@ -313,7 +313,7 @@
   "book.mineraculous.wiki.miraculouses.kwamis.item_form.text": "For better hiding, storage, and information,\nthe kwami can be right clicked with an empty hand to enter the inventory in item form.\nWhile in the inventory, it can be hovered over to display information about it,\nsuch as its charged state and food items.\nIt will eat preferred foods or treats in the inventory to recharge if enabled by the server config (default: true).\nWhen transforming with its miraculous, the kwami will exit the inventory to assist.\n",
   "book.mineraculous.wiki.miraculouses.kwamis.item_form.title": "Item Form",
   "book.mineraculous.wiki.miraculouses.kwamis.name": "Kwamis",
-  "book.mineraculous.wiki.miraculouses.kwamis.summoning.text": "Kwamis are summoned by their (Miraculous)[category://miraculouses].\nWhen summoned,\nthey will spin around in a ball of light.\nWhile they are in this form,\nthey cannot be used to transform.\n",
+  "book.mineraculous.wiki.miraculouses.kwamis.summoning.text": "Kwamis are summoned by their [Miraculous](category://miraculouses).\nWhen summoned,\nthey will spin around in a ball of light.\nWhile they are in this form,\nthey cannot be used to transform.\n",
   "book.mineraculous.wiki.miraculouses.kwamis.summoning.title": "Summoning",
   "book.mineraculous.wiki.miraculouses.kwamis.transferring_and_renouncing.text": "To renounce a kwami and keep the miraculous, press the Renounce button (default: N) while holding the Miraculous in your hand.\nTo transfer or renounce to someone else, right click the kwami with the Miraculous in hand.\n",
   "book.mineraculous.wiki.miraculouses.kwamis.transferring_and_renouncing.title": "Transferring and Renouncing",

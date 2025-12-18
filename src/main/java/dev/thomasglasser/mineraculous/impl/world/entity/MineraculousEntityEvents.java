@@ -18,8 +18,10 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.Tra
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import dev.thomasglasser.mineraculous.impl.network.ClientboundRequestLooksPayload;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerChoicesPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItemPayload;
+import dev.thomasglasser.mineraculous.impl.server.look.LookManager;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
@@ -27,13 +29,16 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffD
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -91,10 +96,27 @@ public class MineraculousEntityEvents {
                 value.powerSource().right().ifPresent(ability -> ability.value().joinLevel(abilityData, level, livingEntity));
             });
         }
+
+        if (entity instanceof ServerPlayer player) {
+            Set<String> missingLooks = new ObjectOpenHashSet<>();
+            player.getData(MineraculousAttachmentTypes.MIRACULOUSES).forEach((miraculous, data) -> {
+                for (String hash : data.lookData().hashes().values()) {
+                    if (!LookManager.hasLook(hash))
+                        missingLooks.add(hash);
+                }
+            });
+            if (!missingLooks.isEmpty())
+                TommyLibServices.NETWORK.sendToClient(new ClientboundRequestLooksPayload(missingLooks), player);
+        }
     }
 
     public static void onServerPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncSpecialPlayerChoicesPayload.INSTANCE, event.getEntity().getServer());
+        ServerPlayer player = (ServerPlayer) event.getEntity();
+        MinecraftServer server = player.getServer();
+
+        TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncSpecialPlayerChoicesPayload.INSTANCE, server);
+
+        // TODO: Server syncs available server looks to client
     }
 
     /// Life

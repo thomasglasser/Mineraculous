@@ -6,8 +6,10 @@ import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.impl.world.item.armor.KamikotizationArmorItem;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Map;
+import java.util.Set;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -19,11 +21,20 @@ import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
 public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<KamikotizationArmorItem> {
-    private static final Map<Holder<Kamikotization>, GeoModel<KamikotizationArmorItem>> DEFAULT_MODELS = new Reference2ReferenceOpenHashMap<>();
+    private static final Set<KamikotizationArmorItemRenderer> INSTANCES = new ReferenceOpenHashSet<>();
+
+    private final Map<Holder<Kamikotization>, GeoModel<KamikotizationArmorItem>> models = new Object2ReferenceOpenHashMap<>();
 
     public KamikotizationArmorItemRenderer() {
         super((GeoModel<KamikotizationArmorItem>) null);
         addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
+
+        INSTANCES.add(this);
+    }
+
+    public static void clearAssets() {
+        INSTANCES.forEach(renderer -> renderer.models.clear());
+        INSTANCES.clear();
     }
 
     public static Holder<Kamikotization> getKamikotizationOrDefault(ItemStack stack) {
@@ -38,16 +49,12 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
         return kamikotization;
     }
 
-    public static void clearModels() {
-        DEFAULT_MODELS.clear();
-    }
-
     @Override
     public GeoModel<KamikotizationArmorItem> getGeoModel() {
-        return DEFAULT_MODELS.computeIfAbsent(getKamikotizationOrDefault(getCurrentStack()), this::createDefaultGeoModel);
+        return models.computeIfAbsent(getKamikotizationOrDefault(getCurrentStack()), this::createGeoModel);
     }
 
-    private GeoModel<KamikotizationArmorItem> createDefaultGeoModel(Holder<Kamikotization> kamikotization) {
+    private GeoModel<KamikotizationArmorItem> createGeoModel(Holder<Kamikotization> kamikotization) {
         return new DefaultedItemGeoModel<>(kamikotization.getKey().location().withPrefix("armor/kamikotization/")) {
             private final ResourceLocation texture = kamikotization.getKey().location().withPath(path -> "textures/entity/equipment/humanoid/kamikotization/" + path + ".png");
 

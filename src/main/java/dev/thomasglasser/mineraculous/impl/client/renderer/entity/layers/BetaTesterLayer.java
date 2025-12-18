@@ -25,7 +25,7 @@ public class BetaTesterLayer<S extends AbstractClientPlayer> extends RenderLayer
 
     @Override
     protected ResourceLocation getTextureLocation(S player) {
-        return switch (MineraculousClientUtils.betaChoice(player)) {
+        return switch (MineraculousClientUtils.betaChoice(player.getUUID())) {
             case DERBY_HAT -> DerbyHatModel.TEXTURE;
         };
     }
@@ -35,7 +35,7 @@ public class BetaTesterLayer<S extends AbstractClientPlayer> extends RenderLayer
         if (MineraculousClientUtils.renderBetaTesterLayer(player)) {
             poseStack.pushPose();
             VertexConsumer vertexConsumer = multiBufferSource.getBuffer(RenderType.entityCutout(getTextureLocation(player)));
-            BetaTesterCosmeticOptions cosmetic = MineraculousClientUtils.betaChoice(player);
+            BetaTesterCosmeticOptions cosmetic = MineraculousClientUtils.betaChoice(player.getUUID());
             ModelPart parent = switch (cosmetic.slot()) {
                 case HEAD -> getParentModel().head;
                 default -> getParentModel().body;

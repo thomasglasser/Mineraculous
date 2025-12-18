@@ -95,19 +95,19 @@ public class MineraculousClientUtils {
     private static boolean wasJumping = false;
 
     // Special Player Handling
-    public static void setSpecialPlayerData(Player player, SpecialPlayerData data) {
-        SPECIAL_PLAYER_DATA.put(player.getUUID(), data);
+    public static void setSpecialPlayerData(UUID id, SpecialPlayerData data) {
+        SPECIAL_PLAYER_DATA.put(id, data);
     }
 
     public static boolean renderBetaTesterLayer(AbstractClientPlayer player) {
         if (player != ClientUtils.getLocalPlayer() && !MineraculousClientConfig.get().displayOthersBetaTesterCosmetic.getAsBoolean())
             return false;
         SpecialPlayerData data = SPECIAL_PLAYER_DATA.get(player.getUUID());
-        return data != null && data.displayBeta() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, betaChoice(player).slot());
+        return data != null && data.displayBeta() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, betaChoice(player.getUUID()).slot());
     }
 
-    public static BetaTesterCosmeticOptions betaChoice(AbstractClientPlayer player) {
-        SpecialPlayerData data = SPECIAL_PLAYER_DATA.get(player.getUUID());
+    public static BetaTesterCosmeticOptions betaChoice(UUID id) {
+        SpecialPlayerData data = SPECIAL_PLAYER_DATA.get(id);
         return data != null ? data.choice() : BetaTesterCosmeticOptions.DERBY_HAT;
     }
 

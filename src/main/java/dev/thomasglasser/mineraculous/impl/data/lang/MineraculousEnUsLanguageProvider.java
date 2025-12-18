@@ -267,7 +267,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(ServerboundWakeUpPayload.STEALING_WARNING, "You may not rest now, there are thieves nearby.");
         add(ExternalInventoryScreen.ITEM_BOUND_KEY, "This item is bound to the player.");
         add(MineraculousItemUtils.ITEM_UNBREAKABLE_KEY, "This item is unbreakable by normal means.");
-        add(MineraculousItemUtils.KAMIKOTIZED_ITEM_UNBREAKABLE_KEY, "You feel compelled to leave this item unbroken.");
+        add(MineraculousItemUtils.KAMIKOTIZED_ITEM_UNBREAKABLE_KEY, "You may not break this item.");
 
         // Miraculous Data
         add(MiraculousData.KWAMI_NOT_FOUND, "%s Kwami not found in the world.");
@@ -442,7 +442,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfigSection(MineraculousClientConfig.COSMETICS, "Player Cosmetics", "Settings for player cosmetics");
         addConfigSection(MineraculousClientConfig.SELF, "Self", "Settings for your own player cosmetics");
         addConfig(MineraculousClientConfig.get().displaySelfBetaTesterCosmetic, "Display Beta Tester Cosmetic", "Display your preferred Beta Tester Cosmetic (if eligible)");
-        addConfig(MineraculousClientConfig.get().selfBetaTesterCosmeticChoice, "Beta Tester Cosmetic Choice", "The Beta Tester Cosmetic to be displayed (if eligible)");
+        addConfig(MineraculousClientConfig.get().betaTesterCosmeticChoice, "Beta Tester Cosmetic Choice", "The Beta Tester Cosmetic to be displayed (if eligible)");
         addConfig(MineraculousClientConfig.get().displaySelfDevTeamCosmetic, "Display Dev Team Cosmetic", "Display your Dev Team cosmetic (if eligible)");
         addConfig(MineraculousClientConfig.get().displaySelfLegacyDevTeamCosmetic, "Display Legacy Dev Team Cosmetic", "Display your Legacy Dev Team cosmetic (if eligible)");
         addConfigSection(MineraculousClientConfig.OTHERS, "Others", "Settings for other players' cosmetics");

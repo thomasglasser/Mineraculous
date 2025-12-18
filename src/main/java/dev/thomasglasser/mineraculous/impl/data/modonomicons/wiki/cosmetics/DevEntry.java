@@ -18,24 +18,24 @@ public class DevEntry extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("legacy", () -> BookImagePageModel.create()
-                .withAnchor("legacy")
-                .withImages(WikiBookSubProvider.wikiTexture("cosmetics/dev/legacy.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("cosmetics/dev/legacy"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         add(context().pageTitle(), "Legacy Development Team");
-        add(context().pageText(), "Members of the development team that have been with the project since the beginning get access to an exclusive beard cosmetic.");
+        add(context().pageText(), "Members of the development team that joined the project before the release of 1.0.0 get access to an exclusive beard cosmetic.");
 
         page("configuration", () -> BookTextPageModel.create()
-                .withAnchor("configuration")
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         add(context().pageTitle(), "Configuration");
         add(context().pageText(), """
-                The Development Team cosmetics have two client configuration options:
-                - "display_dev_team_cosmetic" - Whether or not to display the Development Team cosmetic.
-                - "display_legacy_dev_team_cosmetic" - Whether or not to display the Legacy Development Team cosmetic.
+                Dev Team Cosmetics have four client configuration options:
+                - "display_self_dev_team_cosmetic" - Whether or not to display your own Dev Team cosmetic.
+                - "display_self_legacy_dev_team_cosmetic" - Whether or not to display your own Legacy Dev Team cosmetic.
+                - "display_others_dev_team_cosmetic" - Whether or not to display other players' Dev Team cosmetics.
+                - "display_others_legacy_dev_team_cosmetic" - Whether or not to display other players' Legacy Dev Team cosmetics.
                 """);
     }
 

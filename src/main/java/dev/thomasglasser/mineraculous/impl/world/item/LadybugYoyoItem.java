@@ -98,6 +98,32 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
         SingletonGeoAnimatable.registerSyncedAnimatable(this);
     }
 
+    public static void removeHeldLeash(Entity holder) {
+        holder.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).ifPresent(data -> {
+            Entity leashed = holder.level().getEntity(data.leashedId());
+            if (leashed != null) {
+                removeLeash(leashed, holder);
+            }
+        });
+    }
+
+    public static void removeLeashFrom(Entity leashed) {
+        if (leashed instanceof Leashable leashable) {
+            Entity holder = leashable.getLeashHolder();
+            if (holder != null) {
+                removeLeash(leashed, holder);
+            }
+        }
+    }
+
+    public static void removeLeash(Entity leashed, Entity holder) {
+        if (leashed instanceof Leashable leashable) {
+            leashable.dropLeash(true, false);
+        }
+        leashed.setData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE, false);
+        LeashingLadybugYoyoData.remove(holder);
+    }
+
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, CONTROLLER_USE, state -> {
@@ -162,7 +188,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                             } else {
                                 recallYoyo(player);
                                 Vec3 inertia = player.getDeltaMovement();
-                                if (inertia.length() > 1) inertia = inertia.add(0, 0.5, 0);
+                                if (inertia.length() > 0.7) inertia = inertia.add(0, 0.5, 0);
                                 player.setDeltaMovement(inertia.scale(2.5));
                             }
                         } else {
@@ -195,7 +221,6 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                                                 reverted.addDeltaMovement(new Vec3(0, 1, 0));
                                                 reverted.hurtMarked = true;
                                                 entities.add(reverted);
-                                                return reverted;
                                             });
                                         }
                                     }
@@ -220,32 +245,6 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
         }
         return super.use(level, player, usedHand);
-    }
-
-    public static void removeHeldLeash(Entity holder) {
-        holder.getData(MineraculousAttachmentTypes.LEASHING_LADYBUG_YOYO).ifPresent(data -> {
-            Entity leashed = holder.level().getEntity(data.leashedId());
-            if (leashed != null) {
-                removeLeash(leashed, holder);
-            }
-        });
-    }
-
-    public static void removeLeashFrom(Entity leashed) {
-        if (leashed instanceof Leashable leashable) {
-            Entity holder = leashable.getLeashHolder();
-            if (holder != null) {
-                removeLeash(leashed, holder);
-            }
-        }
-    }
-
-    public static void removeLeash(Entity leashed, Entity holder) {
-        if (leashed instanceof Leashable leashable) {
-            leashable.dropLeash(true, false);
-        }
-        leashed.setData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE, false);
-        LeashingLadybugYoyoData.remove(holder);
     }
 
     @Override
@@ -506,6 +505,14 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
             this.displayName = Component.translatable(MineraculousItems.LADYBUG_YOYO.getId().toLanguageKey("mode", getSerializedName()));
         }
 
+        public static List<Mode> valuesList() {
+            return VALUES_LIST;
+        }
+
+        public static Mode of(String name) {
+            return valueOf(name.toUpperCase());
+        }
+
         @Override
         public Component displayName() {
             return displayName;
@@ -519,14 +526,6 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
         @Override
         public String getSerializedName() {
             return name().toLowerCase();
-        }
-
-        public static List<Mode> valuesList() {
-            return VALUES_LIST;
-        }
-
-        public static Mode of(String name) {
-            return valueOf(name.toUpperCase());
         }
     }
 }

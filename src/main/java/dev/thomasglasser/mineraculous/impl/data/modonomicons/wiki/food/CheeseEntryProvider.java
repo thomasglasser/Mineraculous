@@ -24,7 +24,7 @@ public class CheeseEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("ageing", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("food/cheese/ageing.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("food/cheese/ageing"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -36,8 +36,8 @@ public class CheeseEntryProvider extends IndexModeEntryProvider {
                 - Ripened
                 - Exquisite
                 - Time-Honored\\
-                Blocks can be waxed with Honeycomb to prevent further ageing.
-                They can then be scraped with an Axe to start ageing again.
+                Cheese blocks can be waxed with Honeycomb to prevent further ageing.
+                They can be scraped with an Axe to start ageing again.
                 """);
 
         AgeingCheeseEdibleFullBlock block = MineraculousBlocks.CAMEMBERT.get(AgeingCheese.Age.AGED).get();

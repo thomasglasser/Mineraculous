@@ -11,7 +11,7 @@
   "pages": [
     {
       "type": "modonomicon:text",
-      "anchor": "in_game",
+      "anchor": "",
       "condition": {
         "type": "modonomicon:none"
       },
@@ -22,7 +22,7 @@
     },
     {
       "type": "modonomicon:text",
-      "anchor": "online",
+      "anchor": "",
       "condition": {
         "type": "modonomicon:none"
       },

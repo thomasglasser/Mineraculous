@@ -20,7 +20,7 @@ public class GeneralEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("obtaining", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/general/obtaining.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/general/obtaining"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -35,7 +35,8 @@ public class GeneralEntryProvider extends IndexModeEntryProvider {
 
         pageTitle("Activating");
         pageText("""
-                To activate a miraculous, simply place it in the correct Curios slot. This can be done by right-clicking with the Miraculous in your hand.
+                To activate a miraculous, simply place it in the correct Curios slot.
+                This can be done by right-clicking with the Miraculous in your hand or shift-clicking in the Curios inventory screen.
                 """);
 
         page("transforming", () -> BookTextPageModel.create()
@@ -44,7 +45,7 @@ public class GeneralEntryProvider extends IndexModeEntryProvider {
 
         pageTitle("Transforming");
         pageText("""
-                To transform with a miraculous equipped, press the Transform button (default: M).
+                To transform with a miraculous equipped, press the Transform button (default: U).
                 """);
 
         page("using_abilities", () -> BookTextPageModel.create()
@@ -53,20 +54,21 @@ public class GeneralEntryProvider extends IndexModeEntryProvider {
 
         pageTitle("Using Abilities");
         pageText("""
-                To use an ability with a miraculous equipped, press the Activate Power button (default: O).
+                To use an ability with a miraculous equipped, press the Activate Power button (default: Y).
                 """);
 
         page("timer", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/general/timer.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/general/timer"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Timer");
         pageText("""
-                Once you perform your main ability, a five minute timer will start.
+                Once you perform your main ability, a detransformation timer will start.
+                The length of this timer can be controlled by the server config.
                 When the timer runs out, you will be automatically detransformed.
-                You can track the remaining time by looking at the miraculous or listening to the frequency of the beeps.
-                This timer will no longer apply when you reach Power Level 100.
+                You can track the remaining time by looking at the miraculous' flashes or listening to the miraculous' beeps.
+                This timer will no longer apply after a certain amount of power uses.
                 """);
 
         page("using_tool", () -> BookTextPageModel.create()
@@ -75,10 +77,22 @@ public class GeneralEntryProvider extends IndexModeEntryProvider {
 
         pageTitle("Using the Tool");
         pageText("""
-                When you transform, the tool will be automatically equipped in a curios slot or added to your inventory.
-                You can take and return the tool to this slot when not activated by pressing the Open Item Radial Menu button (default: R).
-                You can also activate the tool by pressing the De/Activate Item button (default: I).
-                When activated, you can hold the Open Item Radial Menu button (default: R) to open the tool's radial menu and select a tool ability.
+                Upon transformation, the tool will be automatically equipped in a curios slot or added to your inventory.
+                This tool can be taken and returned to this slot when not activated by pressing the Open Item Radial Menu button (default: R).
+                It can be activated by pressing the De/Activate Item button (default: C).
+                When activated, the Open Item Radial Menu button (default: R) can be held to open the tool's radial menu and select a tool ability.
+                """);
+
+        page("toggling_buffs", () -> BookTextPageModel.create()
+                .withTitle(context().pageTitle())
+                .withText(context().pageText()));
+
+        pageTitle("Toggling Buffs");
+        pageText("""
+                The Toggle Buffs key (default: `) can be pressed to toggle Miraculous effect levels.
+                If enabled, Miraculous effect levels will be dependent on Power Level.
+                If disabled, Miraculous effect levels will be capped to the starting levels.
+                Whether the buffs are active upon transformation depends on the server config (true by default).
                 """);
     }
 
@@ -89,7 +103,7 @@ public class GeneralEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "Features of all miraculous";
+        return "Features of all miraculouses.";
     }
 
     @Override

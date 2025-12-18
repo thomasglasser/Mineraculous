@@ -19,15 +19,15 @@ public class ButterflyEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("charging", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/charging.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/charging"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Charging");
         pageText("""
                 Charging the butterfly kwami requires flowers.
-                By default, the normal food is small flowers and the treat is [hibiscus](entry://flora_and_fauna/flowers).
-                These are configurable with the kwami_foods/butterfly and kwami_treats/butterfly [tags](entry://apis/tags).
+                By default, the preferred food is small flowers and the treat is [hibiscus](entry://flora_and_fauna/flowers).
+                These are configurable with the kwami_preferred_foods/butterfly and kwami_treats/butterfly [tags](entry://apis/tags).
                 """);
 
         page("abilities", () -> BookTextPageModel.create()
@@ -43,44 +43,43 @@ public class ButterflyEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("kamikotization", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/abilities/kamikotization.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/abilities/kamikotization"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Kamikotization");
         pageText("""
-                The Kamikotization ability can be activated by pressing the Activate Power button (default: O) with no [Kamikos](entry://flora_and_fauna/kamikos) nearby.
-                It will cause particles to come from your hand.
-                You can then interact with any entity to convert it to a [Kamiko](entry://flora_and_fauna/kamikos) and tame it.
+                The Kamikotization ability can be activated by pressing the Activate Power button (default: Y) with no Kamikos nearby or stored.
+                It will cause particles to come from the performer's hand.
+                It will then convert any non-player entity into a Kamiko on interaction.
                 """);
 
         page("kamiko_control", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/abilities/kamiko_control.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/abilities/kamiko_control"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Kamiko Control");
         pageText("""
-                The Kamiko Control ability can be activated by pressing the Activate Power button (default: O) with a [Kamiko](entry://flora_and_fauna/kamikos) nearby.
-                It will cause a mask to appear on your face and will allow you to see through the eyes of the [Kamiko](entry://flora_and_fauna/kamikos).
-                You can then press the number keys to select a target that the [Kamiko](entry://flora_and_fauna/kamikos) will fly to.
-                Once it reaches the target, it will open the Kamikotization Selection Screen and allow you to kamikotize the target.
+                The Kamiko Control ability can be activated by pressing the Activate Power button (default: Y) with a Kamiko nearby.
+                It will cause a mask to appear on the performer's face and will allow seeing through the eyes of the Kamiko.
+                The number keys then allow selecting a target that the Kamiko will fly to.
+                Once it reaches the target, it will open the Kamikotization Selection Screen and allow kamikotizing the target.
                 """);
 
         page("kamikotized_communication", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/abilities/kamikotized_communication.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/abilities/kamikotized_communication"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Kamikotized Communication");
         pageText("""
-                The Kamikotized Communication ability can be activated by pressing the Activate Power button (default: O) with a kamikotized entity nearby.
-                It will cause a mask to appear on your face and the target's face and will allow you to see through their eyes.
-                You can then speak to the target, damage them by left clicking, or revoke their kamikotization.
+                The Kamikotized Communication ability can be activated by pressing the Activate Power button (default: Y) with a kamikotized entity nearby.
+                It will cause a mask to appear on the performer's and target's face and will allow spectation, private chat, remote damage, and kamikotization revocation.
                 """);
 
         page("cane_abilities", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/cane/abilities.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/cane/abilities"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -96,14 +95,14 @@ public class ButterflyEntryProvider extends IndexModeEntryProvider {
                 """);
 
         page("blade", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/cane/blade.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/cane/blade"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Blade");
         pageText("""
                 Blade mode unsheathes a rapier-like blade that can be used to attack entities.
-                You can also right click to throw the blade, damaging any entity or item you hit, and releasing a [Kamiko](entry://flora_and_fauna/kamikos) if inside.
+                It can also be thrown, damaging any entity or item hit, and releasing a Kamiko if inside.
                 """);
 
         page("block", () -> BookTextPageModel.create()
@@ -112,41 +111,40 @@ public class ButterflyEntryProvider extends IndexModeEntryProvider {
 
         pageTitle("Block");
         pageText("""
-                Block mode allows you to hold right click to spin your butterfly cane to make a shield that will block most attacks and projectiles.
-                Holding the shield above your head will allow you to slow fall.
+                Block mode allows holding right click to spin the butterfly cane into a shield that will block most attacks and projectiles.
+                Holding the shield overhead allows slow fall.
                 """);
 
         page("kamiko_store", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/cane/kamiko_store.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/cane/kamiko_store"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Kamiko Store");
         pageText("""
-                Kamiko Store mode allows you to right click to store a [Kamiko](entry://flora_and_fauna/kamikos).
-                You can then right click again to release the [Kamiko](entry://flora_and_fauna/kamikos).
+                Kamiko Store mode allows right clicking to store or release a single Kamiko.
                 """);
 
         page("spyglass", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/cane/spyglass.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/cane/spyglass"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Spyglass");
         pageText("""
-                Spyglass mode allows you to use your cane as a spyglass to get a closer look around the area you are in.
-                You can use right click to look through the spyglass.
+                Spyglass mode allows using the cane as a spyglass to get a closer look at things.
+                It is activated by holding right click.
                 """);
 
         page("throw", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/cane/throw.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("miraculouses/butterfly/cane/throw"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
         pageTitle("Throw");
         pageText("""
-                Throw mode allows you to right click to throw your butterfly cane.
-                This will damage any entity or item you hit, releasing a [Kamiko](entry://flora_and_fauna/kamikos) if inside.
+                Throw mode allows right clicking to throw the cane.
+                This will damage any entity or item hit, releasing a Kamiko if inside.
                 """);
     }
 
@@ -157,7 +155,7 @@ public class ButterflyEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "The Miraculous of Transmission";
+        return "The Miraculous of Transmission.";
     }
 
     @Override

@@ -278,7 +278,8 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                 startDetransformation(detransformationFrames.get()).save(miraculous, entity);
             }
         } else {
-            finishRemovedDetransformation(entity, miraculous);
+            ArmorData.restoreOrClear(entity);
+            finishRemovedDetransformation().save(miraculous, entity);
         }
 
         if (stack == null) {
@@ -459,11 +460,6 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         } else {
             MineraculousConstants.LOGGER.error("Tool could not be created for entity {}", entity.getName().plainCopy().getString());
         }
-    }
-
-    private void finishRemovedDetransformation(LivingEntity entity, Holder<Miraculous> miraculous) {
-        ArmorData.restoreOrClear(entity);
-        finishRemovedDetransformation().save(miraculous, entity);
     }
 
     private void finishDetransformation(LivingEntity entity, Holder<Miraculous> miraculous) {

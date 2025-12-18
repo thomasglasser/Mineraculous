@@ -8,15 +8,14 @@ import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries
 import dev.thomasglasser.mineraculous.impl.client.look.LookManager;
 import dev.thomasglasser.mineraculous.impl.client.look.MiraculousLook;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetLookPayload;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.Optional;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceArgument;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 
 // TODO: Remove when screen is added
 public class LookCommand {
@@ -24,29 +23,29 @@ public class LookCommand {
         dispatcher.register(Commands.literal("look")
                 .then(Commands.literal("equip")
                         .then(Commands.argument("miraculous", ResourceArgument.resource(context, MineraculousRegistries.MIRACULOUS))
-                                .then(Commands.argument("look_id", StringArgumentType.string())
+                                .then(Commands.argument("hash", StringArgumentType.string())
                                         .suggests(SUGGEST_LOOKS)
                                         .executes(LookCommand::equip))
                                 .executes(LookCommand::unequip))));
     }
 
-    private static final SuggestionProvider<CommandSourceStack> SUGGEST_LOOKS = (context, builder) -> SharedSuggestionProvider.suggest(LookManager.values().stream().map(MiraculousLook::id), builder);
+    private static final SuggestionProvider<CommandSourceStack> SUGGEST_LOOKS = (context, builder) -> SharedSuggestionProvider.suggest(LookManager.values().stream().map(MiraculousLook::hash), builder);
 
     private static int equip(CommandContext<CommandSourceStack> context) {
         try {
             var miraculous = ResourceArgument.getResource(context, "miraculous", MineraculousRegistries.MIRACULOUS);
-            String lookId = StringArgumentType.getString(context, "look_id");
+            String hash = StringArgumentType.getString(context, "hash");
 
-            MiraculousLook look = LookManager.getLook(lookId);
+            MiraculousLook look = LookManager.getLook(hash);
             if (look != null) {
                 if (look.validMiraculouses().contains(miraculous.getKey())) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetLookPayload(miraculous, lookId, look.hash()));
-                    context.getSource().sendSuccess(() -> Component.literal("Equipped look: " + lookId), true);
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetLookPayload(miraculous, Optional.of(hash)));
+                    context.getSource().sendSuccess(() -> Component.literal("Equipped look: " + hash), true);
                 } else {
-                    context.getSource().sendFailure(Component.literal("Look " + lookId + " not allowed for miraculous " + miraculous.getKey().location()));
+                    context.getSource().sendFailure(Component.literal("Look " + hash + " not allowed for miraculous " + miraculous.getKey().location()));
                 }
             } else {
-                context.getSource().sendFailure(Component.literal("Look not found: " + lookId));
+                context.getSource().sendFailure(Component.literal("Look not found: " + hash));
             }
         } catch (Exception e) {
             context.getSource().sendFailure(Component.literal("Error: " + e.getMessage()));
@@ -56,10 +55,9 @@ public class LookCommand {
 
     private static int unequip(CommandContext<CommandSourceStack> context) {
         try {
-            Player player = ClientUtils.getLocalPlayer();
             var miraculous = ResourceArgument.getResource(context, "miraculous", MineraculousRegistries.MIRACULOUS);
 
-            LookManager.unassign(player.getUUID(), miraculous);
+            TommyLibServices.NETWORK.sendToServer(new ServerboundSetLookPayload(miraculous, Optional.empty()));
             context.getSource().sendSuccess(() -> Component.literal("Unequipped look."), true);
         } catch (Exception e) {
             context.getSource().sendFailure(Component.literal("Error: " + e.getMessage()));

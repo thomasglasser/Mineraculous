@@ -59,12 +59,12 @@ public class MiraculousArmorItem extends ArmorItem implements GeoArmorItem {
     @Override
     public void createGeoRenderer(Consumer<GeoRenderProvider> consumer) {
         consumer.accept(new GeoRenderProvider() {
-            private MiraculousArmorItemRenderer renderer;
+            private MiraculousArmorItemRenderer<?> renderer;
 
             @Override
             public <T extends LivingEntity> HumanoidModel<?> getGeoArmorRenderer(@Nullable T livingEntity, ItemStack itemStack, @Nullable EquipmentSlot equipmentSlot, @Nullable HumanoidModel<T> original) {
                 if (this.renderer == null)
-                    this.renderer = new MiraculousArmorItemRenderer();
+                    this.renderer = new MiraculousArmorItemRenderer<>();
 
                 return this.renderer;
             }

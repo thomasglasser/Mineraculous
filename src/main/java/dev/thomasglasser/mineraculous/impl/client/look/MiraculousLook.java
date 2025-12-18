@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.loading.object.BakedAnimations;
 
-public record MiraculousLook(String id, String hash, String displayName, String author, boolean isBuiltIn, Set<ResourceKey<Miraculous>> validMiraculouses, EnumMap<AssetType, BakedGeoModel> models, EnumMap<AssetType, ResourceLocation> textures, EnumMap<AssetType, BakedAnimations> animations, EnumMap<AssetType, ItemTransforms> transforms) {
+public record MiraculousLook(String hash, boolean isBuiltIn, String name, String author, Set<ResourceKey<Miraculous>> validMiraculouses, EnumMap<AssetType, BakedGeoModel> models, EnumMap<AssetType, ResourceLocation> textures, EnumMap<AssetType, BakedAnimations> animations, EnumMap<AssetType, ItemTransforms> transforms) {
 
     public BakedGeoModel getModel(AssetType type, Supplier<BakedGeoModel> fallback) {
         BakedGeoModel model = models.get(type);

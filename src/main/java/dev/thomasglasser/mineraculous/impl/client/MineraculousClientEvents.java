@@ -495,10 +495,6 @@ public class MineraculousClientEvents {
     // Special Player Handling
     static void onClientPlayerLoggingIn(ClientPlayerNetworkEvent.LoggingIn event) {
         MineraculousClientUtils.syncSpecialPlayerChoices();
-
-        // TODO: Server syncs available server looks to client
-        // TODO: Server syncs all players' current looks to new client (fetching if needed)
-        // TODO: Server syncs new client’s current looks to all players (fetching if needed)
     }
 
     static void onConfigChanged(ModConfigEvent event) {

@@ -18,6 +18,7 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.Tra
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import dev.thomasglasser.mineraculous.impl.network.ClientboundSetLookPayload;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerChoicesPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItemPayload;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
@@ -34,6 +35,7 @@ import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -94,7 +96,19 @@ public class MineraculousEntityEvents {
     }
 
     public static void onServerPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncSpecialPlayerChoicesPayload.INSTANCE, event.getEntity().getServer());
+        ServerPlayer player = (ServerPlayer) event.getEntity();
+        MinecraftServer server = player.getServer();
+
+        TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncSpecialPlayerChoicesPayload.INSTANCE, server);
+
+        // TODO: Server syncs available server looks to client
+        for (ServerPlayer other : server.getPlayerList().getPlayers()) {
+            if (other == player)
+                continue;
+            other.getData(MineraculousAttachmentTypes.MIRACULOUSES).forEach((miraculous, data) -> data.lookData().hash().ifPresent(hash -> TommyLibServices.NETWORK.sendToClient(new ClientboundSetLookPayload(other.getUUID(), miraculous, Optional.of(hash)), player)));
+        }
+
+        player.getData(MineraculousAttachmentTypes.MIRACULOUSES).forEach((miraculous, data) -> data.lookData().hash().ifPresent(hash -> TommyLibServices.NETWORK.sendToAllClients(new ClientboundSetLookPayload(player.getUUID(), miraculous, Optional.of(hash)), player.getServer())));
     }
 
     /// Life

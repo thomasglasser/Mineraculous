@@ -46,7 +46,6 @@ public class LookLoader {
 
     private static final String JSON_NAME = "look.json";
 
-    private static final String ID_KEY = "id";
     private static final String DISPLAY_NAME_KEY = "display_name";
     private static final String AUTHOR_KEY = "author";
     private static final String VALID_MIRACULOUSES_KEY = "valid_miraculouses";
@@ -128,10 +127,6 @@ public class LookLoader {
 
         JsonObject json = JsonParser.parseString(Files.readString(path)).getAsJsonObject();
 
-        if (!json.has(ID_KEY)) throw new IOException("Look missing '" + ID_KEY + "'");
-        String id = json.get(ID_KEY).getAsString();
-        if (id.isEmpty()) throw new IOException("Look ID cannot be empty");
-
         if (!json.has(DISPLAY_NAME_KEY)) throw new IOException("Look missing '" + DISPLAY_NAME_KEY + "'");
         String displayName = json.get(DISPLAY_NAME_KEY).getAsString();
 
@@ -153,7 +148,7 @@ public class LookLoader {
         JsonObject assets = json.getAsJsonObject(ASSETS_KEY);
 
         Set<String> keys = assets.keySet();
-        if (keys.isEmpty()) throw new IOException("Look '" + id + "' has no assets");
+        if (keys.isEmpty()) throw new IOException("Look '" + source + "' has no assets");
 
         for (String key : keys) {
             MiraculousLook.AssetType assetType = MiraculousLook.AssetType.of(key);
@@ -165,7 +160,7 @@ public class LookLoader {
                         models.put(assetType, model);
                 }
                 if (asset.has(TEXTURE_KEY)) {
-                    ResourceLocation texture = registerTexture(root, asset, TEXTURE_KEY, id, assetType, hash);
+                    ResourceLocation texture = registerTexture(root, asset, TEXTURE_KEY, hash, assetType, source);
                     if (texture != null)
                         textures.put(assetType, texture);
                 }
@@ -183,10 +178,10 @@ public class LookLoader {
         }
 
         if (models.isEmpty() && textures.isEmpty() && animations.isEmpty() && transforms.isEmpty()) {
-            throw new IOException("Look '" + id + "' has no assets");
+            throw new IOException("Look '" + source + "' has no assets");
         }
 
-        LookManager.add(source, new MiraculousLook(id, hash, displayName, author, false, validMiraculouses.build(), models, textures, animations, transforms));
+        LookManager.add(source, new MiraculousLook(hash, false, displayName, author, validMiraculouses.build(), models, textures, animations, transforms));
     }
 
     private static @Nullable Path findValidPath(Path root, JsonObject asset, String key) throws Exception {
@@ -215,10 +210,10 @@ public class LookLoader {
         return null;
     }
 
-    private static @Nullable ResourceLocation registerTexture(Path root, JsonObject asset, String key, String id, MiraculousLook.AssetType assetType, String hash) throws Exception {
+    private static @Nullable ResourceLocation registerTexture(Path root, JsonObject asset, String key, String hash, MiraculousLook.AssetType assetType, Path source) throws Exception {
         Path path = findValidPath(root, asset, key);
         if (path != null) {
-            return registerTexture(NativeImage.read(Files.newInputStream(path)), id, assetType, hash);
+            return registerTexture(NativeImage.read(Files.newInputStream(path)), hash, assetType, source);
         }
         return null;
     }
@@ -227,14 +222,14 @@ public class LookLoader {
         return BakedModelFactory.getForNamespace(MineraculousConstants.MOD_ID).constructGeoModel(GeometryTree.fromModel(KeyFramesAdapter.GEO_GSON.fromJson(object, Model.class)));
     }
 
-    private static @Nullable ResourceLocation registerTexture(NativeImage image, String id, MiraculousLook.AssetType assetType, String hash) {
+    private static @Nullable ResourceLocation registerTexture(NativeImage image, String hash, MiraculousLook.AssetType assetType, Path source) {
         if (image.getWidth() > ServerLookManager.MAX_TEXTURE_SIZE || image.getHeight() > ServerLookManager.MAX_TEXTURE_SIZE) {
-            MineraculousConstants.LOGGER.warn("Look texture for look {} is too large ({}x{}). Max is {}x{}.", id, image.getWidth(), image.getHeight(), ServerLookManager.MAX_TEXTURE_SIZE, ServerLookManager.MAX_TEXTURE_SIZE);
+            MineraculousConstants.LOGGER.warn("Look texture for look {} is too large ({}x{}). Max is {}x{}.", source, image.getWidth(), image.getHeight(), ServerLookManager.MAX_TEXTURE_SIZE, ServerLookManager.MAX_TEXTURE_SIZE);
             image.close();
             return null;
         }
 
-        ResourceLocation texture = MineraculousConstants.modLoc("textures/looks/" + id + "_" + assetType.getSerializedName() + "_" + hash + ".png");
+        ResourceLocation texture = MineraculousConstants.modLoc("textures/looks/" + hash + "_" + assetType.getSerializedName() + "_.png");
         Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(image));
         return texture;
     }

@@ -22,10 +22,10 @@ public class LookManager {
     private static boolean safeMode = false;
 
     public static void refresh() {
-        for (String id : PLAYER_LOOKS.values()) {
-            StoredLook look = LOOKS.get(id);
-            if (look != null) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundRequestLookPayload(look.look().hash()));
+        for (String hash : PLAYER_LOOKS.values()) {
+            StoredLook look = LOOKS.get(hash);
+            if (look != null && look.look().hash().equals(hash)) {
+                TommyLibServices.NETWORK.sendToServer(new ServerboundRequestLookPayload(hash));
             }
         }
         LOOKS.clear();
@@ -35,7 +35,7 @@ public class LookManager {
     public static void add(Path path, MiraculousLook look) {
         if (isInSafeMode())
             return;
-        LOOKS.put(look.id(), new StoredLook(path, look));
+        LOOKS.put(look.hash(), new StoredLook(path, look));
     }
 
     public static ImmutableSet<MiraculousLook> values() {
@@ -46,27 +46,27 @@ public class LookManager {
         return looks.build();
     }
 
-    public static void assign(UUID playerId, Holder<Miraculous> miraculous, String lookId) {
+    public static void assign(UUID playerId, Holder<Miraculous> miraculous, String hash) {
         if (isInSafeMode())
             return;
-        PLAYER_LOOKS.put(playerId, miraculous, lookId);
+        PLAYER_LOOKS.put(playerId, miraculous, hash);
     }
 
     public static void unassign(UUID playerId, Holder<Miraculous> miraculous) {
         PLAYER_LOOKS.remove(playerId, miraculous);
     }
 
-    public static boolean hasLook(String id, String hash) {
-        return LOOKS.containsKey(id) && LOOKS.get(id).look().hash().equals(hash);
+    public static boolean hasLook(String hash) {
+        return LOOKS.containsKey(hash);
     }
 
-    public static @Nullable MiraculousLook getLook(String id) {
-        StoredLook look = LOOKS.get(id);
+    public static @Nullable MiraculousLook getLook(String hash) {
+        StoredLook look = LOOKS.get(hash);
         return look != null ? look.look() : null;
     }
 
-    public static @Nullable Path getPath(String id) {
-        StoredLook look = LOOKS.get(id);
+    public static @Nullable Path getPath(String hash) {
+        StoredLook look = LOOKS.get(hash);
         return look != null ? look.path() : null;
     }
 
@@ -76,10 +76,10 @@ public class LookManager {
             return null;
         }
 
-        String lookId = PLAYER_LOOKS.get(playerId, miraculous);
-        if (lookId == null) return null;
+        String hash = PLAYER_LOOKS.get(playerId, miraculous);
+        if (hash == null) return null;
 
-        return getLook(lookId);
+        return getLook(hash);
     }
 
     public static boolean isInSafeMode() {

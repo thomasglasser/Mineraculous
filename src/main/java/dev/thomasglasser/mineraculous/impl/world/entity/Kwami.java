@@ -21,12 +21,6 @@ import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
@@ -95,6 +89,12 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoEntity, FlyingAnimal {
     public static final RawAnimation EAT = RawAnimation.begin().thenPlay("misc.eat");
@@ -273,12 +273,6 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     @Override
     public void tick() {
         if (level().isClientSide()) {
-            /*if (Minecraft.getInstance().player == owner && getSummoningAppearance() == SummoningAppearance.TRAIL) {
-                float a = Minecraft.getInstance().options.getCameraType().isFirstPerson()
-                        ? getSummonTicks() * getSummonTicks() * 3
-                        : getSummonTicks() * getSummonTicks();
-                setGlowingPower(a);
-            }*/
             if (tickPositionsInitialized) {
                 for (int i = tickPositions.length - 1; i > 0; i--) {
                     tickPositions[i] = tickPositions[i - 1];
@@ -356,6 +350,13 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                 case INSTANT: {
                     break;
                 }
+                default: {
+                    MineraculousConstants.LOGGER.error(
+                            "Kwami {} has invalid SummoningAppearance: {}",
+                            this.getUUID(),
+                            appearance);
+                    break;
+                }
             }
         }
         if (!isSummoning()) setSummoningAppearance(SummoningAppearance.INSTANT);
@@ -364,9 +365,13 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private void tickTransforming() {
         LivingEntity owner = getOwner();
         if (owner != null) {
-            Vec3 middlePos = this.getBoundingBox().getCenter();
-            Vec3 ownerMiddlePos = owner.getBoundingBox().getCenter();
-            setDeltaMovement(ownerMiddlePos.subtract(middlePos).normalize().scale(0.6 + (owner.isSprinting() ? 0.2 : 0)));
+            if (getGlowingPower() < 400)
+                setGlowingPower(getGlowingPower() + 20);
+            if (getGlowingPower() > 300) {
+                Vec3 middlePos = this.getBoundingBox().getCenter();
+                Vec3 ownerMiddlePos = owner.getBoundingBox().getCenter();
+                setDeltaMovement(ownerMiddlePos.subtract(middlePos).normalize().scale(0.4 + (owner.isSprinting() ? 0.2 : 0)));
+            }
         } else {
             setTransforming(false);
         }
@@ -629,7 +634,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         compound.put("Miraculous", Miraculous.CODEC.encodeStart(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), getMiraculous()).getOrThrow());
         compound.putUUID("MiraculousId", getMiraculousId());
         compound.putInt("EatTicks", eatTicks);
-        compound.putFloat("SigmaGlowing", getGlowingPower());
+        compound.putFloat("GlowingPower", getGlowingPower());
         compound.putString("SummoningAppearance", getSummoningAppearance().name());
     }
 
@@ -641,7 +646,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         setMiraculous(Miraculous.CODEC.parse(level().registryAccess().createSerializationContext(NbtOps.INSTANCE), compound.get("Miraculous")).getOrThrow());
         setMiraculousId(compound.getUUID("MiraculousId"));
         eatTicks = compound.getInt("EatTicks");
-        setGlowingPower(compound.getFloat("SigmaGlowing"));
+        setGlowingPower(compound.getFloat("GlowingPower"));
         setSummoningAppearance(SummoningAppearance.valueOf(compound.getString("SummoningAppearance")));
     }
 
@@ -655,8 +660,12 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         super.playerTouch(player);
         if (level() instanceof ServerLevel level) {
             if (isTransforming() && player.getUUID().equals(getOwnerUUID())) {
-                player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(getMiraculous()).transform(player, level, getMiraculous());
-                discard();
+                Vec3 middlePos = this.getBoundingBox().getCenter();
+                Vec3 ownerMiddlePos = owner.getBoundingBox().getCenter();
+                if (middlePos.distanceTo(ownerMiddlePos) < 0.3) {
+                    player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(getMiraculous()).transform(player, level, getMiraculous());
+                    discard();
+                }
             } else if (player.getUUID().equals(BrainUtils.getMemory(this, MemoryModuleType.LIKED_PLAYER)) && getOwner() == null) {
                 BrainUtils.setMemory(this, MemoryModuleType.LIKED_PLAYER, null);
                 setOwnerUUID(player.getUUID());

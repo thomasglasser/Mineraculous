@@ -213,15 +213,15 @@ public class MineraculousRenderTypes {
             () -> Minecraft.getInstance().getMainRenderTarget().bindWrite(false));
 
     static final BiFunction<ResourceLocation, RenderStateShard.CullStateShard, RenderType> KWAMI_GLOW = Util.memoize(
-            (p_349872_, p_349873_) -> RenderType.create(
+            (textureLocation, cullState) -> RenderType.create(
                     "outline",
                     DefaultVertexFormat.POSITION_TEX_COLOR,
                     VertexFormat.Mode.QUADS,
                     1536,
                     RenderType.CompositeState.builder()
                             .setShaderState(RenderStateShard.RENDERTYPE_OUTLINE_SHADER)
-                            .setTextureState(new RenderStateShard.TextureStateShard(p_349872_, false, false))
-                            .setCullState(p_349873_)
+                            .setTextureState(new RenderStateShard.TextureStateShard(textureLocation, false, false))
+                            .setCullState(cullState)
                             .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
                             .setOutputState(KWAMI_TARGET)
                             .createCompositeState(RenderType.OutlineProperty.IS_OUTLINE)));

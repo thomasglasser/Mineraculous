@@ -5,7 +5,7 @@
     "dstrgb": "zero"
   },
   "vertex": "blur",
-  "fragment": "mineraculous:kwami_box_blur",
+  "fragment": "mineraculous:kwami_blur",
   "attributes": [ "Position" ],
   "samplers": [
     { "name": "DiffuseSampler" }

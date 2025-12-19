@@ -33,7 +33,7 @@ public interface GeoRendererMixin {
     }
 
     @ModifyReturnValue(method = "bufferNeedsRefresh", at = @At("RETURN"))
-    private boolean isKwamiGlowing(boolean original, VertexConsumer buffer) {
+    private boolean modifyBufferNeedsRefreshForKwami(boolean original, VertexConsumer buffer) {
         if (buffer instanceof KwamiBufferSource.KwamiOutlineGenerator kwamiGlows) {
             return bufferNeedsRefresh(kwamiGlows.delegate());
         }

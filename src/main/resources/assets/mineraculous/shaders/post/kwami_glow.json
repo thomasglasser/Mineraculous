@@ -5,7 +5,7 @@
   ],
   "passes": [
     {
-      "name": "mineraculous:kwami_box_blur",
+      "name": "mineraculous:kwami_blur",
       "intarget": "kwami",
       "outtarget": "swap",
       "use_linear_filter": true,
@@ -17,7 +17,7 @@
       ]
     },
     {
-      "name": "mineraculous:kwami_box_blur",
+      "name": "mineraculous:kwami_blur",
       "intarget": "swap",
       "outtarget": "kwami",
       "use_linear_filter": true,
@@ -29,7 +29,7 @@
       ]
     },
     {
-      "name": "mineraculous:kwami_box_blur",
+      "name": "mineraculous:kwami_blur",
       "intarget": "kwami",
       "outtarget": "swap",
       "use_linear_filter": true,
@@ -41,7 +41,7 @@
       ]
     },
     {
-      "name": "mineraculous:kwami_box_blur",
+      "name": "mineraculous:kwami_blur",
       "intarget": "swap",
       "outtarget": "kwami",
       "use_linear_filter": true,

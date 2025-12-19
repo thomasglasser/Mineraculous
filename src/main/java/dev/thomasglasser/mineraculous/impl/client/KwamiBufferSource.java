@@ -28,10 +28,6 @@ public class KwamiBufferSource implements MultiBufferSource, AutoCloseable {
     }
 
     public static record KwamiOutlineGenerator(VertexConsumer delegate, int color) implements VertexConsumer {
-
-        // --- Core Fix ---
-        // 1. Intercept the setColor call from the renderer (Geo/Minecraft).
-        // 2. Ignore the colors it tries to set and use our forced color instead.
         @Override
         public VertexConsumer setColor(int red, int green, int blue, int alpha) {
             final int r = (color >> 16) & 0xFF;
@@ -42,17 +38,13 @@ public class KwamiBufferSource implements MultiBufferSource, AutoCloseable {
             this.delegate.setColor(r, g, b, a);
             return this;
         }
-        // ----------------
 
-        // Add the vertex normally. Since setColor was called just prior,
-        // the delegate will use the forced color we set above.
         @Override
         public VertexConsumer addVertex(float x, float y, float z) {
             this.delegate.addVertex(x, y, z);
             return this;
         }
 
-        // Pass all other vertex data calls directly to the delegate.
         @Override
         public VertexConsumer setUv(float u, float v) {
             this.delegate.setUv(u, v);

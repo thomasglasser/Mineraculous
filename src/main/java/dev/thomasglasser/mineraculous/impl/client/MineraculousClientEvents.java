@@ -59,11 +59,6 @@ import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUti
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.UUID;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -126,6 +121,11 @@ import org.lwjgl.glfw.GLFW;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import top.theillusivec4.curios.api.client.CuriosRendererRegistry;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.UUID;
 
 public class MineraculousClientEvents {
     // Setup
@@ -486,7 +486,7 @@ public class MineraculousClientEvents {
                         Vec3 currentPoint = entity.getPosition(partialTick);
 
                         double stepDist = 0.05;
-                        double totalTrailLength = 0.5 * trailWeight;
+                        double totalTrailLength = kwami.isTransforming() ? 1.5 : 0.7 * trailWeight;
                         double distanceTravelled = 0;
 
                         kwami.setTrailSize(1.0f);
@@ -503,7 +503,7 @@ public class MineraculousClientEvents {
                                     currentPoint = currentPoint.add(dir.scale(stepDist));
 
                                     float progress = (float) (distanceTravelled / totalTrailLength);
-                                    float exponentialScale = (float) Math.pow(1.0f - progress, 2.0);
+                                    float exponentialScale = (float) Math.pow(1.0f - progress, 1.7);
                                     kwami.setTrailSize(exponentialScale * trailWeight);
 
                                     renderDispatcher.render(

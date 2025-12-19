@@ -127,10 +127,7 @@ public class MineraculousClientUtils {
     }
 
     public static void updateKwamiGlowUniforms(ArrayList<Float> values) {
-        kwamiGlowPower = 0;
-        for (float x : values) {
-            kwamiGlowPower = Math.max(kwamiGlowPower, x);
-        }
+        kwamiGlowPower = values.stream().max(Float::compare).orElse(0.0f);
         if (kwamiEffect != null) {
             kwamiEffect.setUniform("BlurSigma", kwamiGlowPower);
         }

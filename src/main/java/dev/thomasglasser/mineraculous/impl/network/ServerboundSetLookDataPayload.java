@@ -4,7 +4,7 @@ import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
-import dev.thomasglasser.mineraculous.impl.server.look.LookManager;
+import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -30,7 +30,7 @@ public record ServerboundSetLookDataPayload(Holder<Miraculous> miraculous, Mirac
         player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).withLookData(lookData).save(miraculous, player);
         Set<String> missing = new ObjectOpenHashSet<>();
         for (String hash : lookData.hashes().values()) {
-            if (!LookManager.hasLook(hash)) {
+            if (!ServerLookManager.hasLook(hash)) {
                 missing.add(hash);
             }
         }

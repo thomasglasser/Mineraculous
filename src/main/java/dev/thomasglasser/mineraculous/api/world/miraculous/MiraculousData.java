@@ -1,12 +1,16 @@
 package dev.thomasglasser.mineraculous.api.world.miraculous;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
+import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.ability.AbilityData;
@@ -21,7 +25,6 @@ import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.level.storage.ArmorData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
-import dev.thomasglasser.mineraculous.impl.client.look.Look;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
@@ -31,7 +34,7 @@ import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,7 +44,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -602,18 +604,17 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
         }
     }
 
-    public record LookData(Optional<String> name, EnumMap<Look.AssetType, String> hashes) {
-        public static final LookData DEFAULT = new LookData(Optional.empty(), new EnumMap<>(Look.AssetType.class));
+    public record LookData(Optional<String> name, ImmutableMap<ResourceKey<LookContext>, String> hashes) {
+        public static final LookData DEFAULT = new LookData(Optional.empty(), ImmutableMap.of());
         public static final Codec<LookData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.STRING.optionalFieldOf("name").forGetter(LookData::name),
-                Codec.unboundedMap(Look.AssetType.CODEC, Codec.STRING).fieldOf("hashes").xmap(map -> map.isEmpty() ? new EnumMap<>(Look.AssetType.class) : new EnumMap<>(map), Function.identity()).forGetter(LookData::hashes)).apply(instance, LookData::new));
-        public static final StreamCodec<FriendlyByteBuf, LookData> STREAM_CODEC = StreamCodec.composite(
+                Codec.unboundedMap(ResourceKey.codec(MineraculousRegistries.LOOK_CONTEXT), Codec.STRING).fieldOf("hashes").xmap(ImmutableMap::copyOf, Function.identity()).forGetter(LookData::hashes)).apply(instance, LookData::new));
+        public static final StreamCodec<ByteBuf, LookData> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), LookData::name,
                 ByteBufCodecs.map(
-                        i -> new EnumMap<>(Look.AssetType.class),
-                        Look.AssetType.STREAM_CODEC,
-                        ByteBufCodecs.STRING_UTF8,
-                        Look.AssetType.values().length),
+                        Maps::newHashMapWithExpectedSize,
+                        ResourceKey.streamCodec(MineraculousRegistries.LOOK_CONTEXT),
+                        ByteBufCodecs.STRING_UTF8).map(ImmutableMap::copyOf, HashMap::new),
                 LookData::hashes,
                 LookData::new);
     }

@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.impl.server.look.LookManager;
+import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
@@ -21,9 +21,9 @@ public record ServerboundRequestLookPayload(String hash) implements ExtendedPack
     @Override
     public void handle(Player player) {
         // TODO: Check permissions
-        byte[] look = LookManager.getLookData(hash);
+        byte[] look = ServerLookManager.getLookData(hash);
         if (look != null) {
-            TommyLibServices.NETWORK.sendToClient(new ClientboundSendCachedLookPayload(hash, look), (ServerPlayer) player);
+            TommyLibServices.NETWORK.sendToClient(new ClientboundCacheLookPayload(hash, look), (ServerPlayer) player);
         }
     }
 

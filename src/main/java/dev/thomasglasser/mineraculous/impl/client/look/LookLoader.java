@@ -1,16 +1,21 @@
 package dev.thomasglasser.mineraculous.impl.client.look;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.hash.Hashing;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.serialization.JsonOps;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
+import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetTypes;
+import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssets;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
+import dev.thomasglasser.mineraculous.api.core.registries.MineraculousBuiltInRegistries;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.server.look.LookManager;
+import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -18,31 +23,20 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.EnumMap;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BlockModel;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.loading.json.raw.Model;
-import software.bernie.geckolib.loading.json.typeadapter.KeyFramesAdapter;
-import software.bernie.geckolib.loading.object.BakedAnimations;
-import software.bernie.geckolib.loading.object.BakedModelFactory;
-import software.bernie.geckolib.loading.object.GeometryTree;
 
 public class LookLoader {
-    public static final Path LOOKS_PATH = Minecraft.getInstance().gameDirectory.toPath().resolve(LookManager.LOOKS_SUBPATH);
-    public static final Path CACHE_PATH = Minecraft.getInstance().gameDirectory.toPath().resolve(LookManager.CACHE_SUBPATH);
+    public static final Path LOOKS_PATH = Minecraft.getInstance().gameDirectory.toPath().resolve(ServerLookManager.LOOKS_SUBPATH);
+    public static final Path CACHE_PATH = Minecraft.getInstance().gameDirectory.toPath().resolve(ServerLookManager.CACHE_SUBPATH);
 
     private static final String JSON_NAME = "look.json";
 
@@ -50,17 +44,13 @@ public class LookLoader {
     private static final String AUTHOR_KEY = "author";
     private static final String VALID_MIRACULOUSES_KEY = "valid_miraculouses";
     private static final String ASSETS_KEY = "assets";
-    private static final String MODEL_KEY = "model";
-    private static final String TEXTURE_KEY = "texture";
-    private static final String ANIMATIONS_KEY = "animations";
-    private static final String TRANSFORMS_KEY = "display";
 
     public static void load() {
-        ClientLookManager.refresh();
+        InternalLookManager.refresh();
 
         CompletableFuture.runAsync(() -> {
             try {
-                LookManager.clearOrCreateCache(CACHE_PATH);
+                ServerLookManager.clearOrCreateCache(CACHE_PATH);
 
                 try (Stream<Path> paths = Files.list(LOOKS_PATH)) {
                     paths.forEach(path -> {
@@ -70,13 +60,13 @@ public class LookLoader {
                     });
                 }
             } catch (Exception e) {
-                ClientLookManager.enterSafeMode(e.getMessage());
+                InternalLookManager.enterSafeMode(e.getMessage());
             }
         });
     }
 
     public static void load(Path path, boolean equippable) {
-        if (ClientLookManager.isInSafeMode())
+        if (InternalLookManager.isInSafeMode())
             return;
         try {
             String hash;
@@ -84,7 +74,7 @@ public class LookLoader {
                 try {
                     byte[] zipBytes = zipFolderToBytes(path);
                     hash = Hashing.sha256().hashBytes(zipBytes).toString();
-                    LookManager.ensureCacheExists(CACHE_PATH);
+                    ServerLookManager.ensureCacheExists(CACHE_PATH);
                     Path look = CACHE_PATH.resolve(hash + ".look");
                     Files.write(look, zipBytes);
                     load(look, equippable);
@@ -124,7 +114,7 @@ public class LookLoader {
     }
 
     private static void loadFromRoot(Path root, Path source, String hash, boolean equippable) throws Exception {
-        if (ClientLookManager.isInSafeMode())
+        if (InternalLookManager.isInSafeMode())
             return;
 
         Path path = root.resolve(JSON_NAME);
@@ -133,7 +123,7 @@ public class LookLoader {
 
         JsonObject json = JsonParser.parseString(Files.readString(path)).getAsJsonObject();
 
-        if (!json.has(NAME_KEY)) throw new IOException("Look missing '" + NAME_KEY + "'");
+        if (!json.has(NAME_KEY)) throw new IOException("Look missing " + NAME_KEY);
         String displayName = json.get(NAME_KEY).getAsString();
 
         String author = json.has(AUTHOR_KEY) ? json.get(AUTHOR_KEY).getAsString() : "Unknown";
@@ -145,58 +135,54 @@ public class LookLoader {
             }
         }
 
-        EnumMap<Look.AssetType, BakedGeoModel> models = new EnumMap<>(Look.AssetType.class);
-        EnumMap<Look.AssetType, ResourceLocation> textures = new EnumMap<>(Look.AssetType.class);
-        EnumMap<Look.AssetType, BakedAnimations> animations = new EnumMap<>(Look.AssetType.class);
-        EnumMap<Look.AssetType, ItemTransforms> transforms = new EnumMap<>(Look.AssetType.class);
+        if (!json.has(ASSETS_KEY)) throw new IOException("Look missing " + ASSETS_KEY);
+        JsonObject contexts = json.getAsJsonObject(ASSETS_KEY);
 
-        if (!json.has(ASSETS_KEY)) throw new IOException("Look missing '" + ASSETS_KEY + "'");
-        JsonObject assets = json.getAsJsonObject(ASSETS_KEY);
+        Set<String> contextKeys = contexts.keySet();
+        if (contextKeys.isEmpty()) throw new IOException("Look " + source + " has no assets");
 
-        Set<String> keys = assets.keySet();
-        if (keys.isEmpty()) throw new IOException("Look '" + source + "' has no assets");
+        ImmutableMap.Builder<ResourceKey<LookContext>, LookAssets> contextAssetsBuilder = new ImmutableMap.Builder<>();
+        for (String contextKey : contextKeys) {
+            ResourceLocation contextLoc = ResourceLocation.parse(contextKey);
+            Holder<LookContext> context = MineraculousBuiltInRegistries.LOOK_CONTEXT.getHolder(contextLoc).orElse(null);
+            if (context != null) {
+                JsonObject assets = contexts.getAsJsonObject(contextKey);
+                Set<String> assetKeys = assets.keySet();
+                if (assetKeys.isEmpty()) throw new IOException("Look " + source + " has no assets for context " + contextLoc);
 
-        ImmutableSet.Builder<Look.AssetType> includedAssets = ImmutableSet.builder();
-        for (String key : keys) {
-            Look.AssetType assetType = Look.AssetType.of(key);
-            if (assetType != null) {
-                JsonObject asset = assets.getAsJsonObject(key);
-                if (asset.has(MODEL_KEY)) {
-                    BakedGeoModel model = read(root, asset, MODEL_KEY, LookLoader::readModel);
-                    if (model != null) {
-                        models.put(assetType, model);
-                        includedAssets.add(assetType);
+                LookAssets.Builder assetsBuilder = new LookAssets.Builder();
+                for (String assetKey : assetKeys) {
+                    LookAssetType<?> assetType = LookAssetTypes.get(ResourceLocation.parse(assetKey));
+                    if (assetType != null) {
+                        if (!context.value().assetTypes().contains(assetType))
+                            throw new IllegalArgumentException("Asset type " + assetKey + " not valid for context " + contextLoc);
+                        try {
+                            Path validPath = findValidPath(root, assets, assetKey);
+                            if (validPath == null)
+                                throw new IOException("No valid path found for asset " + assetKey + " for context " + contextLoc);
+                            assetsBuilder.add(assetType, validPath, hash, contextLoc);
+                        } catch (IllegalArgumentException e) {
+                            MineraculousConstants.LOGGER.warn("Failed to load asset {} for context {}: {}", assetKey, contextLoc, e.getMessage());
+                        }
+                    } else {
+                        throw new IOException("Invalid asset type " + assetKey + " for context " + contextLoc);
                     }
                 }
-                if (asset.has(TEXTURE_KEY)) {
-                    ResourceLocation texture = registerTexture(root, asset, TEXTURE_KEY, hash, assetType, source);
-                    if (texture != null) {
-                        textures.put(assetType, texture);
-                        includedAssets.add(assetType);
-                    }
-                }
-                if (asset.has(ANIMATIONS_KEY)) {
-                    BakedAnimations animation = read(root, asset, ANIMATIONS_KEY, LookLoader::readAnimations);
-                    if (animation != null) {
-                        animations.put(assetType, animation);
-                        includedAssets.add(assetType);
-                    }
-                }
-                if (assetType.hasTransforms() && asset.has(TRANSFORMS_KEY)) {
-                    ItemTransforms itemTransforms = read(root, asset, TRANSFORMS_KEY, LookLoader::readTransforms);
-                    if (itemTransforms != null) {
-                        transforms.put(assetType, itemTransforms);
-                        includedAssets.add(assetType);
-                    }
-                }
+
+                LookAssets lookAssets = assetsBuilder.build();
+                if (lookAssets.isEmpty()) throw new IOException("Look " + source + " has no assets for context " + contextLoc);
+
+                contextAssetsBuilder.put(context.getKey(), lookAssets);
             }
         }
 
-        if (models.isEmpty() && textures.isEmpty() && animations.isEmpty() && transforms.isEmpty()) {
+        ImmutableMap<ResourceKey<LookContext>, LookAssets> contextAssets = contextAssetsBuilder.build();
+
+        if (contextAssets.isEmpty()) {
             throw new IOException("Look '" + source + "' has no assets");
         }
 
-        ClientLookManager.add(source, new Look(hash, displayName, author, validMiraculouses.build(), includedAssets.build(), models, textures, animations, transforms), equippable);
+        InternalLookManager.add(source, new Look(hash, displayName, author, validMiraculouses.build(), contextAssets), equippable);
     }
 
     private static @Nullable Path findValidPath(Path root, JsonObject asset, String key) throws Exception {
@@ -210,52 +196,11 @@ public class LookLoader {
             if (!Files.exists(path)) {
                 throw new FileNotFoundException("Referenced file not found: " + file);
             }
-            if (Files.size(path) > LookManager.MAX_FILE_SIZE)
+            if (Files.size(path) > ServerLookManager.MAX_FILE_SIZE)
                 throw new IOException("File too large, must be <=2MB: " + file);
 
             return path;
         }
-        return null;
-    }
-
-    private static <T> @Nullable T read(Path root, JsonObject asset, String key, Function<JsonObject, @Nullable T> reader) throws Exception {
-        Path path = findValidPath(root, asset, key);
-        if (path != null)
-            return reader.apply(JsonParser.parseString(Files.readString(path)).getAsJsonObject());
-        return null;
-    }
-
-    private static @Nullable ResourceLocation registerTexture(Path root, JsonObject asset, String key, String hash, Look.AssetType assetType, Path source) throws Exception {
-        Path path = findValidPath(root, asset, key);
-        if (path != null) {
-            return registerTexture(NativeImage.read(Files.newInputStream(path)), hash, assetType, source);
-        }
-        return null;
-    }
-
-    private static @Nullable BakedGeoModel readModel(JsonObject object) {
-        return BakedModelFactory.getForNamespace(MineraculousConstants.MOD_ID).constructGeoModel(GeometryTree.fromModel(KeyFramesAdapter.GEO_GSON.fromJson(object, Model.class)));
-    }
-
-    private static @Nullable ResourceLocation registerTexture(NativeImage image, String hash, Look.AssetType assetType, Path source) {
-        if (image.getWidth() > LookManager.MAX_TEXTURE_SIZE || image.getHeight() > LookManager.MAX_TEXTURE_SIZE) {
-            MineraculousConstants.LOGGER.warn("Look texture for look {} is too large ({}x{}). Max is {}x{}.", source, image.getWidth(), image.getHeight(), LookManager.MAX_TEXTURE_SIZE, LookManager.MAX_TEXTURE_SIZE);
-            image.close();
-            return null;
-        }
-
-        ResourceLocation texture = MineraculousConstants.modLoc("textures/looks/" + hash + "_" + assetType.getSerializedName() + "_.png");
-        Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(image));
-        return texture;
-    }
-
-    private static @Nullable BakedAnimations readAnimations(JsonObject object) {
-        return KeyFramesAdapter.GEO_GSON.fromJson(GsonHelper.getAsJsonObject(object, "animations"), BakedAnimations.class);
-    }
-
-    private static @Nullable ItemTransforms readTransforms(JsonObject object) {
-        if (object.has(TRANSFORMS_KEY))
-            return BlockModel.fromString(object.toString()).getTransforms();
         return null;
     }
 }

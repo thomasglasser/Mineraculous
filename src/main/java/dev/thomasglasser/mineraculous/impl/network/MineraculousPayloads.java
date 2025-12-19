@@ -67,7 +67,7 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ClientboundSyncArrowPickupStackPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSyncArrowPickupStackPayload.CODEC),
             new PayloadInfo<>(ClientboundRefreshDisplayNamePayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRefreshDisplayNamePayload.CODEC),
             new PayloadInfo<>(ClientboundRequestLooksPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundRequestLooksPayload.CODEC),
-            new PayloadInfo<>(ClientboundSendCachedLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundSendCachedLookPayload.CODEC));
+            new PayloadInfo<>(ClientboundCacheLookPayload.TYPE, ExtendedPacketPayload.Direction.SERVER_TO_CLIENT, ClientboundCacheLookPayload.CODEC));
 
     public static void onRegisterPackets(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(MineraculousConstants.MOD_ID);

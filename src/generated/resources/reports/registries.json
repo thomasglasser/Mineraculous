@@ -296,6 +296,11 @@
     "mineraculous:ladybug",
     "mineraculous:stormy"
   ],
+  "mineraculous:look_context": [
+    "mineraculous:active_miraculous",
+    "mineraculous:hidden_miraculous",
+    "mineraculous:suit"
+  ],
   "mineraculous:miraculous": [
     "mineraculous:butterfly",
     "mineraculous:cat",

@@ -2,13 +2,16 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.thomasglasser.mineraculous.api.client.look.LookManager;
+import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
+import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetTypes;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.client.look.ClientLookManager;
-import dev.thomasglasser.mineraculous.impl.client.look.Look;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
@@ -30,7 +33,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import org.apache.commons.lang3.function.TriFunction;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.Animation;
@@ -77,17 +79,19 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
         return miraculous;
     }
 
-    public static <T> T getLookAsset(ItemStack stack, Holder<Miraculous> miraculous, Look.AssetType assetType, TriFunction<Look, Look.AssetType, Supplier<T>, T> getter, Supplier<T> fallback) {
+    public static <T> T getLookAsset(ItemStack stack, Holder<Miraculous> miraculous, Holder<LookContext> context, LookAssetType<T> assetType, Supplier<T> fallback) {
         Integer carrier = stack.get(MineraculousDataComponents.CARRIER);
         Level level = ClientUtils.getLevel();
         if (carrier != null && level != null && level.getEntities().get(carrier) instanceof Player player) {
-            return ClientLookManager.getOrFetchLookAsset(player, miraculous, assetType, getter, fallback);
+            T asset = LookManager.getOrFetchLookAsset(player, miraculous, context, assetType);
+            if (asset != null)
+                return asset;
         }
         return fallback.get();
     }
 
-    public static boolean isHidden(ItemStack stack) {
-        return stack.get(MineraculousDataComponents.TEXTURE_STATE) == MiraculousItem.TextureState.HIDDEN;
+    public static Holder<LookContext> getContext(ItemStack stack) {
+        return stack.get(MineraculousDataComponents.TEXTURE_STATE) == MiraculousItem.TextureState.HIDDEN ? LookContexts.HIDDEN_MIRACULOUS : LookContexts.ACTIVE_MIRACULOUS;
     }
 
     @Override
@@ -97,7 +101,7 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
 
             boolean transformed = false;
             ItemStack stack = getCurrentItemStack();
-            ItemTransforms transforms = getLookAsset(stack, getMiraculousOrDefault(stack), isHidden(stack) ? Look.AssetType.JEWEL_HIDDEN : Look.AssetType.JEWEL_ACTIVE, Look::getTransforms, () -> null);
+            ItemTransforms transforms = getLookAsset(stack, getMiraculousOrDefault(stack), getContext(stack), LookAssetTypes.ITEM_TRANSFORMS, () -> null);
             if (transforms != null && transforms.hasTransform(renderPerspective)) {
                 transformed = true;
                 transforms.getTransform(renderPerspective).apply(false, poseStack);
@@ -137,24 +141,24 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
 
     private GeoModel<T> createGeoModel(Holder<Miraculous> miraculous) {
         return new DefaultedItemGeoModel<>(miraculous.getKey().location().withPrefix("miraculous/")) {
-            private final ResourceLocation texture = miraculous.getKey().location().withPath(path -> "textures/item/miraculous/" + path + "/active.png");
+            private final ResourceLocation defaultTexture = miraculous.getKey().location().withPath(path -> "textures/item/miraculous/" + path + "/active.png");
 
             @Override
             public BakedGeoModel getBakedModel(ResourceLocation location) {
                 ItemStack stack = getCurrentItemStack();
-                return getLookAsset(stack, miraculous, isHidden(stack) ? Look.AssetType.JEWEL_HIDDEN : Look.AssetType.JEWEL_ACTIVE, Look::getModel, () -> super.getBakedModel(location));
+                return getLookAsset(stack, miraculous, getContext(stack), LookAssetTypes.GECKOLIB_MODEL, () -> super.getBakedModel(location));
             }
 
             @Override
             public ResourceLocation getTextureResource(T animatable) {
                 ItemStack stack = getCurrentItemStack();
-                return getLookAsset(stack, miraculous, isHidden(stack) ? Look.AssetType.JEWEL_HIDDEN : Look.AssetType.JEWEL_ACTIVE, Look::getTexture, () -> texture);
+                return getLookAsset(stack, miraculous, getContext(stack), LookAssetTypes.TEXTURE, () -> defaultTexture);
             }
 
             @Override
             public @Nullable Animation getAnimation(T animatable, String name) {
                 ItemStack stack = getCurrentItemStack();
-                BakedAnimations animations = getLookAsset(stack, miraculous, isHidden(stack) ? Look.AssetType.JEWEL_HIDDEN : Look.AssetType.JEWEL_ACTIVE, Look::getAnimations, () -> null);
+                BakedAnimations animations = getLookAsset(stack, miraculous, getContext(stack), LookAssetTypes.GECKOLIB_ANIMATIONS, () -> null);
                 if (animations != null) {
                     Animation animation = animations.getAnimation(name);
                     if (animation != null)

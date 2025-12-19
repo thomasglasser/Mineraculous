@@ -9,12 +9,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
 import org.jetbrains.annotations.Nullable;
 
-public class LookManager {
+public class ServerLookManager {
     public static final Path LOOKS_SUBPATH = Path.of(MineraculousConstants.MOD_ID, "looks");
     public static final Path CACHE_SUBPATH = LOOKS_SUBPATH.resolve(".cache");
     public static final int MAX_TEXTURE_SIZE = 1024;
@@ -25,19 +24,10 @@ public class LookManager {
     private static Path cachePath;
 
     public static void init(MinecraftServer server) {
+        LOOKS.clear();
         cachePath = server.getWorldPath(LevelResource.ROOT).resolve(CACHE_SUBPATH);
-
         try {
             clearOrCreateCache(cachePath);
-
-            try (Stream<Path> stream = Files.list(cachePath)) {
-                stream.filter(Files::isRegularFile)
-                        .forEach(path -> {
-                            String filename = path.getFileName().toString();
-                            String hash = com.google.common.io.Files.getNameWithoutExtension(filename);
-                            LOOKS.put(hash, path);
-                        });
-            }
         } catch (IOException e) {
             MineraculousConstants.LOGGER.error("Failed to initialize server look storage", e);
         }

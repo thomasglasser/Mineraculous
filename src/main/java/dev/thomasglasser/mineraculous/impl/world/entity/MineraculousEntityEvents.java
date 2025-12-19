@@ -21,7 +21,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundRequestLooksPayload;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerChoicesPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItemPayload;
-import dev.thomasglasser.mineraculous.impl.server.look.LookManager;
+import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
@@ -101,7 +101,7 @@ public class MineraculousEntityEvents {
             Set<String> missingLooks = new ObjectOpenHashSet<>();
             player.getData(MineraculousAttachmentTypes.MIRACULOUSES).forEach((miraculous, data) -> {
                 for (String hash : data.lookData().hashes().values()) {
-                    if (!LookManager.hasLook(hash))
+                    if (!ServerLookManager.hasLook(hash))
                         missingLooks.add(hash);
                 }
             });

@@ -65,6 +65,7 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
         HIDDEN_TEXTURES.clear();
 
         INSTANCES.forEach(renderer -> renderer.models.clear());
+        INSTANCES.clear();
     }
 
     public static Holder<Miraculous> getMiraculousOrDefault(ItemStack stack) {
@@ -98,7 +99,6 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
     public void preRender(PoseStack poseStack, T animatable, BakedGeoModel model, @Nullable MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, colour);
         if (!isReRender) {
-
             boolean transformed = false;
             ItemStack stack = getCurrentItemStack();
             ItemTransforms transforms = getLookAsset(stack, getMiraculousOrDefault(stack), getContext(stack), LookAssetTypes.ITEM_TRANSFORMS, () -> null);

@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.api.client.look.asset;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonElement;
 import java.io.IOException;
 import java.nio.file.Path;
 import net.minecraft.resources.ResourceLocation;
@@ -40,8 +41,8 @@ public class LookAssets {
     public static class Builder {
         private final ImmutableMap.Builder<LookAssetType<?>, Object> assets = new ImmutableMap.Builder<>();
 
-        public <T> Builder add(LookAssetType<T> type, Path asset, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
-            assets.put(type, type.load(asset, hash, context));
+        public <T> Builder add(LookAssetType<T> type, JsonElement asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
+            assets.put(type, type.load(asset, root, hash, context));
             return this;
         }
 

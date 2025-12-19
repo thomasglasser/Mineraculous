@@ -14,7 +14,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -43,6 +42,7 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
     private @Nullable BakedGeoModel model = null;
     private @Nullable ResourceLocation texture = null;
     private @Nullable BakedAnimations animations = null;
+    private @Nullable Int2ObjectMap<ResourceLocation> frameTextures = null;
 
     public MiraculousArmorItemRenderer() {
         super((GeoModel<T>) null);
@@ -62,9 +62,10 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
         super.prepForRender(entity, stack, slot, baseModel, bufferSource, partialTick, limbSwing, limbSwingAmount, netHeadYaw, headPitch);
         if (entity instanceof Player player) {
             Holder<Miraculous> miraculous = MiraculousItemRenderer.getMiraculousOrDefault(stack);
-            model = LookManager.getOrFetchLookAsset(player, miraculous, LookContexts.SUIT, LookAssetTypes.GECKOLIB_MODEL);
-            texture = LookManager.getOrFetchLookAsset(player, miraculous, LookContexts.SUIT, LookAssetTypes.TEXTURE);
-            animations = LookManager.getOrFetchLookAsset(player, miraculous, LookContexts.SUIT, LookAssetTypes.GECKOLIB_ANIMATIONS);
+            model = LookManager.getOrFetchLookAsset(player, miraculous, LookContexts.MIRACULOUS_SUIT, LookAssetTypes.GECKOLIB_MODEL);
+            texture = LookManager.getOrFetchLookAsset(player, miraculous, LookContexts.MIRACULOUS_SUIT, LookAssetTypes.TEXTURE);
+            animations = LookManager.getOrFetchLookAsset(player, miraculous, LookContexts.MIRACULOUS_SUIT, LookAssetTypes.GECKOLIB_ANIMATIONS);
+            frameTextures = LookManager.getOrFetchLookAsset(player, miraculous, LookContexts.MIRACULOUS_SUIT, LookAssetTypes.TEXTURE_FRAMES);
         }
     }
 
@@ -72,21 +73,21 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
     public ResourceLocation getTextureLocation(T animatable) {
         ResourceLocation base = super.getTextureLocation(animatable);
         ItemStack stack = getCurrentStack();
-        Holder<Miraculous> miraculous = MiraculousItemRenderer.getMiraculousOrDefault(stack);
-        Optional<Integer> transformationFrames = miraculous.value().transformationFrames();
-        if (transformationFrames.isPresent()) {
+        return MiraculousItemRenderer.getMiraculousOrDefault(stack).value().transformationFrames().map(frames -> {
             MiraculousData.TransformationState transformationState = stack.get(MineraculousDataComponents.TRANSFORMATION_STATE);
             if (transformationState != null) {
                 int remainingFrames = transformationState.remainingFrames();
-                int frame = transformationState.transforming() ? transformationFrames.get() - remainingFrames : remainingFrames;
+                int frame = transformationState.transforming() ? frames - remainingFrames : remainingFrames;
                 if (frame >= 0) {
-                    ResourceLocation texture = FRAME_TEXTURES.computeIfAbsent(base, loc -> new Int2ObjectOpenHashMap<>()).computeIfAbsent(frame, i -> base.withPath(path -> path.replace(".png", "_" + i + ".png")));
+                    ResourceLocation texture = frameTextures != null ? frameTextures.get(frame) : null;
+                    if (texture == null)
+                        texture = FRAME_TEXTURES.computeIfAbsent(base, loc -> new Int2ObjectOpenHashMap<>()).computeIfAbsent(frame, i -> base.withPath(path -> path.replace(".png", "_" + i + ".png")));
                     if (MineraculousClientUtils.isValidTexture(texture))
                         return texture;
                 }
             }
-        }
-        return base;
+            return base;
+        }).orElse(base);
     }
 
     @Override
@@ -102,6 +103,7 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
 
             @Override
             public BakedGeoModel getBakedModel(ResourceLocation location) {
+                BakedGeoModel model = MiraculousArmorItemRenderer.this.model;
                 if (model == null)
                     model = super.getBakedModel(location);
                 if (model != this.currentModel) {
@@ -128,7 +130,7 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
 
                 try {
                     return super.getAnimation(animatable, name);
-                } catch (RuntimeException e) {
+                } catch (RuntimeException ignored) {
                     return null;
                 }
             }

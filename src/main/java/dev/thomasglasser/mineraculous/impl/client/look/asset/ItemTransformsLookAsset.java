@@ -2,7 +2,9 @@ package dev.thomasglasser.mineraculous.impl.client.look.asset;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,7 +28,7 @@ public class ItemTransformsLookAsset implements LookAssetType<ItemTransforms> {
     }
 
     @Override
-    public ItemTransforms load(Path path, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
-        return GsonHelper.fromJson(DESERIALIZER, Files.readString(path), ItemTransforms.class);
+    public ItemTransforms load(JsonElement asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
+        return GsonHelper.fromJson(DESERIALIZER, Files.readString(LookManager.findValidPath(root, asset.getAsString())), ItemTransforms.class);
     }
 }

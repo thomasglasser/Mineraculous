@@ -299,7 +299,7 @@
   "mineraculous:look_context": [
     "mineraculous:active_miraculous",
     "mineraculous:hidden_miraculous",
-    "mineraculous:suit"
+    "mineraculous:miraculous_suit"
   ],
   "mineraculous:miraculous": [
     "mineraculous:butterfly",

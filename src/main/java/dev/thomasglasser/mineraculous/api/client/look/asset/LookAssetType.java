@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.api.client.look.asset;
 
+import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import java.io.IOException;
@@ -30,10 +31,11 @@ public interface LookAssetType<T> {
     /**
      * Loads the asset from the provided path.
      *
-     * @param path    The path to the asset
+     * @param asset   The asset to load
+     * @param root    The root path of the look
      * @param hash    The hash of the look (for ID purposes)
      * @param context The {@link dev.thomasglasser.mineraculous.api.core.look.context.LookContext} to load the asset for
      * @return The loaded asset
      */
-    T load(Path path, String hash, ResourceLocation context) throws IOException, IllegalArgumentException;
+    T load(JsonElement asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException;
 }

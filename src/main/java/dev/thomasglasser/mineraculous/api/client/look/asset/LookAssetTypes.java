@@ -4,7 +4,9 @@ import com.google.common.collect.ImmutableSet;
 import dev.thomasglasser.mineraculous.impl.client.look.asset.GeckolibAnimationsLookAsset;
 import dev.thomasglasser.mineraculous.impl.client.look.asset.GeckolibModelLookAsset;
 import dev.thomasglasser.mineraculous.impl.client.look.asset.ItemTransformsLookAsset;
+import dev.thomasglasser.mineraculous.impl.client.look.asset.TextureFramesLookAsset;
 import dev.thomasglasser.mineraculous.impl.client.look.asset.TextureLookAsset;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Set;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
@@ -19,6 +21,8 @@ public class LookAssetTypes {
 
     /// Represents the {@link ResourceLocation} of a texture in the {@link net.minecraft.client.renderer.texture.TextureManager}.
     public static final LookAssetType<ResourceLocation> TEXTURE = register(TextureLookAsset.INSTANCE);
+    /// Represents a map of frames to {@link ResourceLocation}s in the {@link net.minecraft.client.renderer.texture.TextureManager}.
+    public static final LookAssetType<Int2ObjectMap<ResourceLocation>> TEXTURE_FRAMES = register(TextureFramesLookAsset.INSTANCE);
     /// Represents a {@link BakedGeoModel} used in {@link software.bernie.geckolib.model.GeoModel}s.
     public static final LookAssetType<BakedGeoModel> GECKOLIB_MODEL = register(GeckolibModelLookAsset.INSTANCE);
     /// Represents a {@link BakedAnimations} used in {@link software.bernie.geckolib.model.GeoModel}s.

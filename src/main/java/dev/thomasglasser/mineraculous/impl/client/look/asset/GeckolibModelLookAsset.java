@@ -1,7 +1,9 @@
 package dev.thomasglasser.mineraculous.impl.client.look.asset;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,7 +27,7 @@ public class GeckolibModelLookAsset implements LookAssetType<BakedGeoModel> {
     }
 
     @Override
-    public BakedGeoModel load(Path path, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
-        return BakedModelFactory.getForNamespace(MineraculousConstants.MOD_ID).constructGeoModel(GeometryTree.fromModel(KeyFramesAdapter.GEO_GSON.fromJson(JsonParser.parseString(Files.readString(path)).getAsJsonObject(), Model.class)));
+    public BakedGeoModel load(JsonElement asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
+        return BakedModelFactory.getForNamespace(MineraculousConstants.MOD_ID).constructGeoModel(GeometryTree.fromModel(KeyFramesAdapter.GEO_GSON.fromJson(JsonParser.parseString(Files.readString(LookManager.findValidPath(root, asset.getAsString()))).getAsJsonObject(), Model.class)));
     }
 }

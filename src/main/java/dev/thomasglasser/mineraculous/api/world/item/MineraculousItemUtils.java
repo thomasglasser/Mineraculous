@@ -6,7 +6,10 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import dev.thomasglasser.mineraculous.impl.world.item.ItemAnimationData;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -25,7 +28,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.FlyingAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeItem;
@@ -36,10 +41,52 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.constant.DefaultAnimations;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.util.RenderUtil;
 
 public class MineraculousItemUtils {
     public static final Component ITEM_UNBREAKABLE_KEY = Component.translatable("mineraculous.item_unbreakable");
     public static final Component KAMIKOTIZED_ITEM_UNBREAKABLE_KEY = Component.translatable("mineraculous.kamikotized_item_unbreakable");
+    private static final Map<? super GeoAnimatable, ItemAnimationData> ANIMATION_DATA = new Object2ObjectOpenHashMap<>();
+
+    /**
+     * Determines the animation to use based on what the entity is doing and what animations the item has.
+     *
+     * @param state      The current {@link AnimationState}
+     * @param animatable The animatable item
+     * @return The updated {@link PlayState}
+     * @param <T> The type of the animatable
+     */
+    public static <T extends GeoAnimatable> PlayState genericOptionalController(AnimationState<T> state, T animatable, boolean armor) {
+        Entity entity = state.getData(DataTickets.ENTITY);
+        if (entity != null) {
+            boolean flying = entity instanceof Player player ? player.getAbilities().flying : entity instanceof FlyingAnimal flyingAnimal ? flyingAnimal.isFlying() : entity instanceof FlyingMob || entity.isFlapping();
+            boolean swimming = entity.isSwimming();
+            boolean sprinting = entity.isSprinting();
+            boolean walking = state.isMoving();
+            ItemStack stack = state.getData(DataTickets.ITEMSTACK);
+            GeoModel<T> model = (GeoModel<T>) (armor ? RenderUtil.getGeoModelForArmor(stack) : RenderUtil.getGeoModelForItem(stack));
+            if (model != null) {
+                ItemAnimationData data = ANIMATION_DATA.computeIfAbsent(animatable, a -> new ItemAnimationData(model, animatable));
+                if (flying && data.flying())
+                    return state.setAndContinue(DefaultAnimations.FLY);
+                else if (swimming && data.swimming())
+                    return state.setAndContinue(DefaultAnimations.SWIM);
+                else if (sprinting && data.sprinting())
+                    return state.setAndContinue(DefaultAnimations.RUN);
+                else if (walking && data.walking())
+                    return state.setAndContinue(DefaultAnimations.WALK);
+                else if (data.idle())
+                    return state.setAndContinue(DefaultAnimations.IDLE);
+            }
+        }
+        return PlayState.STOP;
+    }
 
     /**
      * Tries to break the provided {@link ItemStack}, checking its {@link Kamikotization}.
@@ -265,6 +312,11 @@ public class MineraculousItemUtils {
         boolean flag = dyeditemcolor == null || dyeditemcolor.showInTooltip();
         itemstack.set(DataComponents.DYED_COLOR, new DyedItemColor(l3, flag));
         return itemstack;
+    }
+
+    @ApiStatus.Internal
+    public static void clearAnimationData() {
+        ANIMATION_DATA.clear();
     }
 
     /**

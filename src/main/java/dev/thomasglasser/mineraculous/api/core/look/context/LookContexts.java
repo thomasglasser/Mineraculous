@@ -13,11 +13,11 @@ public class LookContexts {
     private static final DeferredRegister<LookContext> LOOK_CONTEXTS = DeferredRegister.create(MineraculousRegistries.LOOK_CONTEXT, MineraculousConstants.MOD_ID);
 
     /// Used for rendering armor on the body.
-    public static final DeferredHolder<LookContext, LookContext> SUIT = register("suit", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS);
+    public static final DeferredHolder<LookContext, LookContext> MIRACULOUS_SUIT = register("miraculous_suit", LookAssetTypes.TEXTURE, LookAssetTypes.TEXTURE_FRAMES, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS);
     /// Used for rendering a {@link dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem} that is not hidden.
-    public static final DeferredHolder<LookContext, LookContext> ACTIVE_MIRACULOUS = register("active_miraculous", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS, LookAssetTypes.ITEM_TRANSFORMS);
+    public static final DeferredHolder<LookContext, LookContext> ACTIVE_MIRACULOUS = register("active_miraculous", LookAssetTypes.TEXTURE, LookAssetTypes.TEXTURE_FRAMES, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS, LookAssetTypes.ITEM_TRANSFORMS);
     /// Used for rendering a {@link dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem} that is hidden.
-    public static final DeferredHolder<LookContext, LookContext> HIDDEN_MIRACULOUS = register("hidden_miraculous", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS, LookAssetTypes.ITEM_TRANSFORMS);
+    public static final DeferredHolder<LookContext, LookContext> HIDDEN_MIRACULOUS = register("hidden_miraculous", LookAssetTypes.TEXTURE, LookAssetTypes.TEXTURE_FRAMES, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS, LookAssetTypes.ITEM_TRANSFORMS);
 
     private static DeferredHolder<LookContext, LookContext> register(String name, LookAssetType<?>... assetTypes) {
         return LOOK_CONTEXTS.register(name, () -> new LookContext(ImmutableSet.copyOf(assetTypes)));

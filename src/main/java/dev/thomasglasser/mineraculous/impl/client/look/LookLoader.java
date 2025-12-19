@@ -32,7 +32,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.Nullable;
 
 public class LookLoader {
     public static final Path LOOKS_PATH = Minecraft.getInstance().gameDirectory.toPath().resolve(ServerLookManager.LOOKS_SUBPATH);
@@ -157,10 +156,7 @@ public class LookLoader {
                         if (!context.value().assetTypes().contains(assetType))
                             throw new IllegalArgumentException("Asset type " + assetKey + " not valid for context " + contextLoc);
                         try {
-                            Path validPath = findValidPath(root, assets, assetKey);
-                            if (validPath == null)
-                                throw new IOException("No valid path found for asset " + assetKey + " for context " + contextLoc);
-                            assetsBuilder.add(assetType, validPath, hash, contextLoc);
+                            assetsBuilder.add(assetType, assets.get(assetKey), root, hash, contextLoc);
                         } catch (IllegalArgumentException e) {
                             MineraculousConstants.LOGGER.warn("Failed to load asset {} for context {}: {}", assetKey, contextLoc, e.getMessage());
                         }
@@ -183,24 +179,5 @@ public class LookLoader {
         }
 
         InternalLookManager.add(source, new Look(hash, displayName, author, validMiraculouses.build(), contextAssets), equippable);
-    }
-
-    private static @Nullable Path findValidPath(Path root, JsonObject asset, String key) throws Exception {
-        if (asset.has(key)) {
-            String file = asset.get(key).getAsString();
-            Path path = root.resolve(file);
-
-            if (!path.normalize().startsWith(root.normalize())) {
-                throw new IOException("Invalid path (Zip Slip attempt): " + path);
-            }
-            if (!Files.exists(path)) {
-                throw new FileNotFoundException("Referenced file not found: " + file);
-            }
-            if (Files.size(path) > ServerLookManager.MAX_FILE_SIZE)
-                throw new IOException("File too large, must be <=2MB: " + file);
-
-            return path;
-        }
-        return null;
     }
 }

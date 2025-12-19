@@ -10,7 +10,12 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.look.InternalLookManager;
 import dev.thomasglasser.mineraculous.impl.client.look.Look;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRequestLookPayload;
+import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
@@ -81,5 +86,27 @@ public class LookManager {
 
     public static <T> @Nullable T getOrFetchLookAsset(Player player, Holder<Miraculous> miraculous, Holder<LookContext> context, LookAssetType<T> assetType) {
         return getOrFetchLookAsset(player, miraculous, context.getKey(), assetType);
+    }
+
+    /**
+     * Finds the {@link Path} that the provided value is pointing to within the provided root.
+     *
+     * @param root  The root path of the pack
+     * @param value The value to find within the root
+     * @return The path of the provided value
+     */
+    public static Path findValidPath(Path root, String value) throws IOException {
+        Path path = root.resolve(value);
+
+        if (!path.normalize().startsWith(root.normalize())) {
+            throw new IOException("Invalid path (Zip Slip attempt): " + value);
+        }
+        if (!Files.exists(path)) {
+            throw new FileNotFoundException("Referenced file not found: " + value);
+        }
+        if (Files.size(path) > ServerLookManager.MAX_FILE_SIZE)
+            throw new IOException("File too large, must be <=2MB: " + value);
+
+        return path;
     }
 }

@@ -84,10 +84,10 @@
     "mineraculous:miraculous",
     "mineraculous:miraculous_id",
     "mineraculous:owner",
+    "mineraculous:power_state",
     "mineraculous:powered",
     "mineraculous:remaining_ticks",
     "mineraculous:revertible_item_id",
-    "mineraculous:texture_state",
     "mineraculous:tool_id",
     "mineraculous:transformation_state"
   ],
@@ -299,7 +299,8 @@
   "mineraculous:look_context": [
     "mineraculous:active_miraculous",
     "mineraculous:hidden_miraculous",
-    "mineraculous:miraculous_suit"
+    "mineraculous:miraculous_suit",
+    "mineraculous:powered_miraculous"
   ],
   "mineraculous:miraculous": [
     "mineraculous:butterfly",

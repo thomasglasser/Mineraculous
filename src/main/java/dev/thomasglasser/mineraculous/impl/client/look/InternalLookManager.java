@@ -2,13 +2,16 @@ package dev.thomasglasser.mineraculous.impl.client.look;
 
 import com.google.common.collect.ImmutableSortedSet;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 public class InternalLookManager {
+    private static final Map<ResourceLocation, DefaultLook> DEFAULT_LOOKS = new Object2ObjectOpenHashMap<>();
     private static final Map<String, StoredLook> CACHED_LOOKS = new ConcurrentHashMap<>();
     private static final Map<String, StoredLook> EQUIPPABLE_LOOKS = new ConcurrentHashMap<>();
 
@@ -18,6 +21,11 @@ public class InternalLookManager {
         CACHED_LOOKS.clear();
         EQUIPPABLE_LOOKS.clear();
         safeMode = false;
+    }
+
+    public static void setDefaults(Map<ResourceLocation, DefaultLook> looks) {
+        DEFAULT_LOOKS.clear();
+        DEFAULT_LOOKS.putAll(looks);
     }
 
     public static void add(Path path, Look look, boolean equippable) {
@@ -35,6 +43,13 @@ public class InternalLookManager {
             looks.add(look.look());
         }
         return looks.build();
+    }
+
+    public static DefaultLook getDefaultLook(ResourceLocation key) {
+        DefaultLook look = DEFAULT_LOOKS.get(key.withPath(path -> "looks/" + path + ".json"));
+        if (look == null)
+            throw new RuntimeException("Default look not found: " + key);
+        return look;
     }
 
     public static @Nullable Look getCachedLook(String hash) {

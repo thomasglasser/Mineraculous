@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.function.Supplier;
 import net.minecraft.resources.ResourceLocation;
 
 public class TransformationTexturesLookAsset implements LookAssetType<Int2ObjectMap<ResourceLocation>> {
@@ -38,5 +39,18 @@ public class TransformationTexturesLookAsset implements LookAssetType<Int2Object
             } catch (FileNotFoundException ignored) {}
         }
         return Int2ObjectMaps.unmodifiable(map);
+    }
+
+    @Override
+    public Supplier<Int2ObjectMap<ResourceLocation>> loadDefault(JsonElement asset) {
+        Int2ObjectMap<ResourceLocation> map = new Int2ObjectOpenHashMap<>();
+        JsonObject assetObject = asset.getAsJsonObject();
+        String base = assetObject.get(BASE_KEY).getAsString();
+        int count = assetObject.get(TEXTURE_COUNT_KEY).getAsInt();
+        for (int i = 0; i < count; i++) {
+            map.put(i, ResourceLocation.parse(base.replace(".png", "_" + i + ".png")));
+        }
+        Int2ObjectMap<ResourceLocation> immutable = Int2ObjectMaps.unmodifiable(map);
+        return () -> immutable;
     }
 }

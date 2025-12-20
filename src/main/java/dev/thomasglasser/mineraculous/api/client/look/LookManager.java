@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssets;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
+import dev.thomasglasser.mineraculous.impl.client.look.DefaultLook;
 import dev.thomasglasser.mineraculous.impl.client.look.InternalLookManager;
 import dev.thomasglasser.mineraculous.impl.client.look.Look;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRequestLookPayload;
@@ -18,10 +19,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 public class LookManager {
+    /**
+     * Returns the default look for the provided key,
+     * erroring if not found.
+     * 
+     * @param key The key of the look
+     * @return The default look for the provided key
+     */
+    public static DefaultLook getDefaultLook(ResourceLocation key) {
+        return InternalLookManager.getDefaultLook(key);
+    }
+
     /**
      * Returns an immutable view of all equippable looks, sorted by name.
      * 

@@ -8,23 +8,35 @@ import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.loading.object.BakedAnimations;
-import software.bernie.geckolib.model.DefaultedItemGeoModel;
+import software.bernie.geckolib.model.GeoModel;
 
-public class LookGeoModel<T extends GeoAnimatable> extends DefaultedItemGeoModel<T> {
+/**
+ * A {@link GeoModel} that uses the look system for the model, texture, and animation.
+ * 
+ * @param <T> The type of animatable
+ */
+public class LookGeoModel<T extends GeoAnimatable> extends GeoModel<T> {
     private final LookRenderer renderer;
-    private final ResourceLocation defaultTexture;
 
     private BakedGeoModel currentModel = null;
 
-    public LookGeoModel(LookRenderer renderer, ResourceLocation defaultSubpath, ResourceLocation defaultTexture) {
-        super(defaultSubpath);
+    public LookGeoModel(LookRenderer renderer) {
         this.renderer = renderer;
-        this.defaultTexture = defaultTexture;
+    }
+
+    @Override
+    public ResourceLocation getModelResource(T animatable) {
+        return null;
+    }
+
+    @Override
+    public ResourceLocation getAnimationResource(T animatable) {
+        return null;
     }
 
     @Override
     public BakedGeoModel getBakedModel(ResourceLocation location) {
-        BakedGeoModel model = renderer.getAssetOrDefault(LookAssetTypes.GECKOLIB_MODEL, () -> super.getBakedModel(location));
+        BakedGeoModel model = renderer.getAssetOrDefault(LookAssetTypes.GECKOLIB_MODEL);
         if (model != this.currentModel) {
             this.getAnimationProcessor().setActiveModel(model);
             this.currentModel = model;
@@ -34,22 +46,22 @@ public class LookGeoModel<T extends GeoAnimatable> extends DefaultedItemGeoModel
 
     @Override
     public ResourceLocation getTextureResource(T animatable) {
-        return renderer.getAssetOrDefault(LookAssetTypes.TEXTURE, () -> defaultTexture);
+        return renderer.getAssetOrDefault(LookAssetTypes.TEXTURE);
     }
 
     @Override
     public @Nullable Animation getAnimation(T animatable, String name) {
-        BakedAnimations animations = renderer.getAsset(LookAssetTypes.GECKOLIB_ANIMATIONS);
+        return findAnimation(name, renderer.getAsset(LookAssetTypes.GECKOLIB_ANIMATIONS), renderer.getDefaultAsset(LookAssetTypes.GECKOLIB_ANIMATIONS));
+    }
+
+    private static @Nullable Animation findAnimation(String name, @Nullable BakedAnimations animations, @Nullable BakedAnimations fallback) {
         if (animations != null) {
             Animation animation = animations.getAnimation(name);
             if (animation != null)
                 return animation;
         }
-
-        try {
-            return super.getAnimation(animatable, name);
-        } catch (RuntimeException ignored) {
-            return null;
-        }
+        if (fallback != null)
+            return fallback.getAnimation(name);
+        return null;
     }
 }

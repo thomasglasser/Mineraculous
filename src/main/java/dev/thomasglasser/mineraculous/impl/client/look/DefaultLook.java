@@ -1,0 +1,75 @@
+package dev.thomasglasser.mineraculous.impl.client.look;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.gson.JsonObject;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.client.look.asset.DefaultLookAssets;
+import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
+import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetTypes;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
+import dev.thomasglasser.mineraculous.api.core.registries.MineraculousBuiltInRegistries;
+import java.util.Set;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
+
+public record DefaultLook(ImmutableMap<ResourceKey<LookContext>, DefaultLookAssets> assets) {
+    public <T> T getAsset(LookAssetType<T> assetType, ResourceKey<LookContext> context) {
+        return assets.get(context).getAsset(assetType);
+    }
+
+    public <T> T getAsset(LookAssetType<T> assetType, Holder<LookContext> context) {
+        return getAsset(assetType, context.getKey());
+    }
+
+    public static @Nullable DefaultLook load(JsonObject json, ResourceLocation location) {
+        try {
+            Set<String> contextKeys = json.keySet();
+            if (contextKeys.isEmpty()) throw new IllegalArgumentException("Look " + location + " has no assets");
+
+            ImmutableMap.Builder<ResourceKey<LookContext>, DefaultLookAssets> contextAssetsBuilder = new ImmutableMap.Builder<>();
+            for (String contextKey : contextKeys) {
+                ResourceLocation contextLoc = ResourceLocation.parse(contextKey);
+                Holder<LookContext> context = MineraculousBuiltInRegistries.LOOK_CONTEXT.getHolder(contextLoc).orElse(null);
+                if (context != null) {
+                    JsonObject assets = json.getAsJsonObject(contextKey);
+                    Set<String> assetKeys = assets.keySet();
+                    if (assetKeys.isEmpty()) throw new IllegalArgumentException("Look " + location + " has no assets for context " + contextLoc);
+
+                    DefaultLookAssets.Builder assetsBuilder = new DefaultLookAssets.Builder();
+                    for (String assetKey : assetKeys) {
+                        LookAssetType<?> assetType = LookAssetTypes.get(ResourceLocation.parse(assetKey));
+                        if (assetType != null) {
+                            if (!context.value().assetTypes().contains(assetType))
+                                throw new IllegalArgumentException("Asset type " + assetKey + " not valid for context " + contextLoc);
+                            assetsBuilder.add(assetType, assets.get(assetKey));
+                        } else {
+                            throw new IllegalArgumentException("Invalid asset type " + assetKey + " for context " + contextLoc);
+                        }
+                    }
+
+                    DefaultLookAssets lookAssets = assetsBuilder.build();
+                    if (lookAssets.isEmpty()) throw new IllegalArgumentException("Look " + lookAssets + " has no assets for context " + contextLoc);
+                    for (LookAssetType<?> assetType : context.value().assetTypes()) {
+                        if (!lookAssets.hasAsset(assetType))
+                            throw new IllegalArgumentException("Look " + location + " has no asset for type " + assetType.key() + " for context " + contextLoc);
+                    }
+
+                    contextAssetsBuilder.put(context.getKey(), lookAssets);
+                }
+            }
+
+            ImmutableMap<ResourceKey<LookContext>, DefaultLookAssets> contextAssets = contextAssetsBuilder.build();
+
+            if (contextAssets.isEmpty()) {
+                throw new IllegalArgumentException("Look " + location + " has no assets");
+            }
+
+            return new DefaultLook(contextAssets);
+        } catch (Exception e) {
+            MineraculousConstants.LOGGER.error("Failed to load default look {}: {}", location, e.getMessage());
+            return null;
+        }
+    }
+}

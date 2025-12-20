@@ -26,10 +26,10 @@ public class LookAssetTypes {
     public static final LookAssetType<ResourceLocation> TEXTURE = register(TextureLookAsset.INSTANCE);
     /// Represents a {@link BakedGeoModel} used in {@link software.bernie.geckolib.model.GeoModel}s.
     public static final LookAssetType<BakedGeoModel> GECKOLIB_MODEL = register(GeckolibModelLookAsset.INSTANCE);
-    /// Represents a {@link BakedAnimations} used in {@link software.bernie.geckolib.model.GeoModel}s.
-    public static final LookAssetType<BakedAnimations> GECKOLIB_ANIMATIONS = register(GeckolibAnimationsLookAsset.INSTANCE);
-    /// Represents the {@link ItemTransforms} of an item to alter rendering placement.
-    public static final LookAssetType<ItemTransforms> ITEM_TRANSFORMS = register(ItemTransformsLookAsset.INSTANCE);
+    /// Represents an optional {@link BakedAnimations} used in {@link software.bernie.geckolib.model.GeoModel}s.
+    public static final LookAssetType<@Nullable BakedAnimations> GECKOLIB_ANIMATIONS = register(GeckolibAnimationsLookAsset.INSTANCE);
+    /// Represents the optional {@link ItemTransforms} of an item to alter rendering placement.
+    public static final LookAssetType<@Nullable ItemTransforms> ITEM_TRANSFORMS = register(ItemTransformsLookAsset.INSTANCE);
 
     // Specific
     /// Represents a map of transformation frames to {@link ResourceLocation}s in the {@link net.minecraft.client.renderer.texture.TextureManager}.

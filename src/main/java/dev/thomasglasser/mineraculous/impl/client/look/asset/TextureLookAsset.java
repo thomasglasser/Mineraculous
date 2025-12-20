@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Supplier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
@@ -27,6 +28,12 @@ public class TextureLookAsset implements LookAssetType<ResourceLocation> {
     @Override
     public ResourceLocation load(JsonElement asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
         return load(LookManager.findValidPath(root, asset.getAsString()), "textures/looks/" + hash + "_" + context.getNamespace() + "_" + context.getPath());
+    }
+
+    @Override
+    public Supplier<ResourceLocation> loadDefault(JsonElement asset) {
+        ResourceLocation location = ResourceLocation.parse(asset.getAsString());
+        return () -> location;
     }
 
     public static ResourceLocation load(Path path, String texturePath) throws IOException, IllegalArgumentException {

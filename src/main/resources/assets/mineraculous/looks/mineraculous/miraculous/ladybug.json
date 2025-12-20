@@ -1,0 +1,29 @@
+{
+  "mineraculous:miraculous_suit": {
+    "mineraculous:texture": "mineraculous:textures/entity/equipment/humanoid/miraculous/ladybug.png",
+    "mineraculous:transformation_textures": {
+      "base": "mineraculous:textures/entity/equipment/humanoid/miraculous/ladybug.png",
+      "texture_count": 9
+    },
+    "mineraculous:geckolib_model": "mineraculous:geo/item/armor/miraculous/ladybug.geo.json",
+    "mineraculous:geckolib_animations": ""
+  },
+  "mineraculous:powered_miraculous": {
+    "mineraculous:texture": "mineraculous:textures/item/miraculous/ladybug/powered.png",
+    "mineraculous:countdown_textures": {
+      "base": "mineraculous:textures/item/miraculous/ladybug/powered.png"
+    },
+    "mineraculous:geckolib_model": "mineraculous:geo/item/miraculous/ladybug.geo.json",
+    "mineraculous:geckolib_animations": "",
+    "mineraculous:item_transforms": "mineraculous:models/item/miraculous/ladybug.json"
+  },
+  "mineraculous:active_miraculous": {
+    "mineraculous:texture": "mineraculous:textures/item/miraculous/ladybug/active.png"
+  },
+  "mineraculous:hidden_miraculous": {
+    "mineraculous:texture": "mineraculous:textures/item/miraculous/ladybug/hidden.png",
+    "mineraculous:geckolib_model": "mineraculous:geo/item/miraculous/ladybug.geo.json",
+    "mineraculous:geckolib_animations": "",
+    "mineraculous:item_transforms": "mineraculous:models/item/miraculous/ladybug.json"
+  }
+}

@@ -16,6 +16,7 @@ import dev.thomasglasser.mineraculous.api.core.registries.MineraculousBuiltInReg
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,8 +24,11 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -32,6 +36,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.profiling.ProfilerFiller;
+import software.bernie.geckolib.loading.FileLoader;
 
 public class LookLoader {
     public static final Path LOOKS_PATH = Minecraft.getInstance().gameDirectory.toPath().resolve(ServerLookManager.LOOKS_SUBPATH);
@@ -43,6 +51,34 @@ public class LookLoader {
     private static final String AUTHOR_KEY = "author";
     private static final String VALID_MIRACULOUSES_KEY = "valid_miraculouses";
     private static final String ASSETS_KEY = "assets";
+
+    public static CompletableFuture<Void> reloadDefaults(PreparableReloadListener.PreparationBarrier stage, ResourceManager resourceManager,
+            ProfilerFiller preparationsProfiler, ProfilerFiller reloadProfiler, Executor backgroundExecutor,
+            Executor gameExecutor) {
+        ImmutableMap.Builder<ResourceLocation, DefaultLook> map = new ImmutableMap.Builder<>();
+        return loadDefaults(backgroundExecutor, resourceManager, map::put)
+                .thenCompose(stage::wait)
+                .thenAcceptAsync(empty -> InternalLookManager.setDefaults(map.build()), gameExecutor);
+    }
+
+    private static CompletableFuture<Void> loadDefaults(Executor executor, ResourceManager resourceManager, BiConsumer<ResourceLocation, DefaultLook> map) {
+        return CompletableFuture.runAsync(() -> CompletableFuture.supplyAsync(
+                () -> resourceManager.listResources("looks", fileName -> fileName.toString().endsWith(".json")), executor)
+                .thenApplyAsync(resources -> {
+                    Map<ResourceLocation, CompletableFuture<DefaultLook>> tasks = new Object2ObjectOpenHashMap<>();
+
+                    for (ResourceLocation resource : resources.keySet()) {
+                        tasks.put(resource, CompletableFuture.supplyAsync(() -> DefaultLook.load(FileLoader.loadFile(resource, resourceManager), resource), executor));
+                    }
+
+                    return tasks;
+                }, executor)
+                .thenAcceptAsync(tasks -> {
+                    for (Map.Entry<ResourceLocation, CompletableFuture<DefaultLook>> entry : tasks.entrySet()) {
+                        map.accept(entry.getKey(), entry.getValue().join());
+                    }
+                }, executor));
+    }
 
     public static void load() {
         InternalLookManager.refresh();

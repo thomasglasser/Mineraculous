@@ -1,0 +1,29 @@
+{
+  "mineraculous:miraculous_suit": {
+    "mineraculous:texture": "mineraculous:textures/entity/equipment/humanoid/miraculous/cat.png",
+    "mineraculous:transformation_textures": {
+      "base": "mineraculous:textures/entity/equipment/humanoid/miraculous/cat.png",
+      "texture_count": 9
+    },
+    "mineraculous:geckolib_model": "mineraculous:geo/item/armor/miraculous/cat.geo.json",
+    "mineraculous:geckolib_animations": ""
+  },
+  "mineraculous:powered_miraculous": {
+    "mineraculous:texture": "mineraculous:textures/item/miraculous/cat/powered.png",
+    "mineraculous:countdown_textures": {
+      "base": "mineraculous:textures/item/miraculous/cat/powered.png"
+    },
+    "mineraculous:geckolib_model": "mineraculous:geo/item/miraculous/cat.geo.json",
+    "mineraculous:geckolib_animations": "",
+    "mineraculous:item_transforms": "mineraculous:models/item/miraculous/cat.json"
+  },
+  "mineraculous:active_miraculous": {
+    "mineraculous:texture": "mineraculous:textures/item/miraculous/cat/active.png"
+  },
+  "mineraculous:hidden_miraculous": {
+    "mineraculous:texture": "mineraculous:textures/item/miraculous/cat/hidden.png",
+    "mineraculous:geckolib_model": "mineraculous:geo/item/miraculous/cat.geo.json",
+    "mineraculous:geckolib_animations": "",
+    "mineraculous:item_transforms": "mineraculous:models/item/miraculous/cat.json"
+  }
+}

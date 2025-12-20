@@ -8,8 +8,10 @@ import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.function.Supplier;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
+import software.bernie.geckolib.cache.GeckoLibCache;
 import software.bernie.geckolib.loading.json.typeadapter.KeyFramesAdapter;
 import software.bernie.geckolib.loading.object.BakedAnimations;
 
@@ -27,5 +29,11 @@ public class GeckolibAnimationsLookAsset implements LookAssetType<BakedAnimation
     @Override
     public BakedAnimations load(JsonElement asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
         return KeyFramesAdapter.GEO_GSON.fromJson(GsonHelper.getAsJsonObject(JsonParser.parseString(Files.readString(LookManager.findValidPath(root, asset.getAsString()))).getAsJsonObject(), "animations"), BakedAnimations.class);
+    }
+
+    @Override
+    public Supplier<BakedAnimations> loadDefault(JsonElement asset) {
+        ResourceLocation location = ResourceLocation.parse(asset.getAsString());
+        return () -> GeckoLibCache.getBakedAnimations().get(location);
     }
 }

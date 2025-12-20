@@ -10,6 +10,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.function.Supplier;
 import net.minecraft.resources.ResourceLocation;
 
 public class CountdownTexturesLookAsset implements LookAssetType<ImmutableList<ResourceLocation>> {
@@ -35,5 +36,17 @@ public class CountdownTexturesLookAsset implements LookAssetType<ImmutableList<R
             } catch (FileNotFoundException ignored) {}
         }
         return list.build();
+    }
+
+    @Override
+    public Supplier<ImmutableList<ResourceLocation>> loadDefault(JsonElement asset) {
+        ImmutableList.Builder<ResourceLocation> builder = new ImmutableList.Builder<>();
+        JsonObject assetObject = asset.getAsJsonObject();
+        String base = assetObject.get(BASE_KEY).getAsString();
+        for (int i = 1; i < MiraculousData.COUNTDOWN_FRAMES; i++) {
+            builder.add(ResourceLocation.parse(base.replace(".png", "_" + i + ".png")));
+        }
+        ImmutableList<ResourceLocation> list = builder.build();
+        return () -> list;
     }
 }

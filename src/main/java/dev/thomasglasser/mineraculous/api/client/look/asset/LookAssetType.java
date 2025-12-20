@@ -6,6 +6,7 @@ import com.mojang.serialization.DataResult;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.function.Supplier;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -38,4 +39,12 @@ public interface LookAssetType<T> {
      * @return The loaded asset
      */
     T load(JsonElement asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException;
+
+    /**
+     * Loads the default asset.
+     *
+     * @param asset The asset to load
+     * @return A supplier pointing to the loaded asset
+     */
+    Supplier<T> loadDefault(JsonElement asset);
 }

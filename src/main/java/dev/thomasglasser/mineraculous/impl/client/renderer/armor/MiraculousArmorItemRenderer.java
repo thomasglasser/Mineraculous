@@ -42,7 +42,7 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
     private @Nullable BakedGeoModel model = null;
     private @Nullable ResourceLocation texture = null;
     private @Nullable BakedAnimations animations = null;
-    private @Nullable Int2ObjectMap<ResourceLocation> frameTextures = null;
+    private @Nullable Int2ObjectMap<ResourceLocation> transformationTextures = null;
 
     public MiraculousArmorItemRenderer() {
         super((GeoModel<T>) null);
@@ -65,7 +65,7 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
             model = LookManager.getOrFetchLookAsset(player, miraculous, LookContexts.MIRACULOUS_SUIT, LookAssetTypes.GECKOLIB_MODEL);
             texture = LookManager.getOrFetchLookAsset(player, miraculous, LookContexts.MIRACULOUS_SUIT, LookAssetTypes.TEXTURE);
             animations = LookManager.getOrFetchLookAsset(player, miraculous, LookContexts.MIRACULOUS_SUIT, LookAssetTypes.GECKOLIB_ANIMATIONS);
-            frameTextures = LookManager.getOrFetchLookAsset(player, miraculous, LookContexts.MIRACULOUS_SUIT, LookAssetTypes.TEXTURE_FRAMES);
+            transformationTextures = LookManager.getOrFetchLookAsset(player, miraculous, LookContexts.MIRACULOUS_SUIT, LookAssetTypes.TRANSFORMATION_TEXTURES);
         }
     }
 
@@ -74,14 +74,17 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
         ResourceLocation base = super.getTextureLocation(animatable);
         ItemStack stack = getCurrentStack();
         return MiraculousItemRenderer.getMiraculousOrDefault(stack).value().transformationFrames().map(frames -> {
-            MiraculousData.TransformationState transformationState = stack.get(MineraculousDataComponents.TRANSFORMATION_STATE);
-            if (transformationState != null) {
-                int remainingFrames = transformationState.remainingFrames();
-                int frame = transformationState.transforming() ? frames - remainingFrames : remainingFrames;
+            MiraculousData.TransformationState state = stack.get(MineraculousDataComponents.TRANSFORMATION_STATE);
+            if (state != null) {
+                int remaining = state.remainingFrames();
+                int frame = state.transforming() ? frames - remaining : remaining;
                 if (frame >= 0) {
-                    ResourceLocation texture = frameTextures != null ? frameTextures.get(frame) : null;
-                    if (texture == null)
+                    ResourceLocation texture;
+                    if (transformationTextures != null) {
+                        texture = transformationTextures.get(frame);
+                    } else {
                         texture = FRAME_TEXTURES.computeIfAbsent(base, loc -> new Int2ObjectOpenHashMap<>()).computeIfAbsent(frame, i -> base.withPath(path -> path.replace(".png", "_" + i + ".png")));
+                    }
                     if (MineraculousClientUtils.isValidTexture(texture))
                         return texture;
                 }

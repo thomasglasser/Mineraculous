@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
@@ -45,7 +46,7 @@ import software.bernie.geckolib.renderer.GeoItemRenderer;
 public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoItemRenderer<T> {
     private static final Set<MiraculousItemRenderer<?>> INSTANCES = new ReferenceOpenHashSet<>();
     private static final Map<ResourceKey<Miraculous>, ModelResourceLocation> MODEL_LOCATIONS = new Reference2ReferenceOpenHashMap<>();
-    private static final Map<ResourceLocation, EnumMap<MiraculousItem.TextureState, ResourceLocation>> POWERED_FRAME_TEXTURES = new Object2ReferenceOpenHashMap<>();
+    private static final Map<ResourceLocation, EnumMap<MiraculousItem.PowerState, ResourceLocation>> POWERED_FRAME_TEXTURES = new Object2ReferenceOpenHashMap<>();
     private static final Map<ResourceLocation, ResourceLocation> POWERED_TEXTURES = new Object2ReferenceOpenHashMap<>();
     private static final Map<ResourceLocation, ResourceLocation> HIDDEN_TEXTURES = new Object2ReferenceOpenHashMap<>();
 
@@ -91,8 +92,12 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
         return fallback.get();
     }
 
+    public static Holder<LookContext> getContext(@Nullable MiraculousItem.PowerState powerState) {
+        return powerState == MiraculousItem.PowerState.HIDDEN ? LookContexts.HIDDEN_MIRACULOUS : LookContexts.POWERED_MIRACULOUS;
+    }
+
     public static Holder<LookContext> getContext(ItemStack stack) {
-        return stack.get(MineraculousDataComponents.TEXTURE_STATE) == MiraculousItem.TextureState.HIDDEN ? LookContexts.HIDDEN_MIRACULOUS : LookContexts.ACTIVE_MIRACULOUS;
+        return getContext(stack.get(MineraculousDataComponents.POWER_STATE));
     }
 
     @Override
@@ -120,18 +125,23 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
 
     @Override
     public ResourceLocation getTextureLocation(T animatable) {
-        MiraculousItem.TextureState state = getCurrentItemStack().get(MineraculousDataComponents.TEXTURE_STATE);
         ResourceLocation base = super.getTextureLocation(animatable);
-        if (state == null || state == MiraculousItem.TextureState.POWERED) {
-            return POWERED_TEXTURES.computeIfAbsent(base, loc -> loc.withPath(path -> path.replace("active", "powered")));
-        }
-        if (state == MiraculousItem.TextureState.ACTIVE) {
-            return base;
-        }
-        if (state == MiraculousItem.TextureState.HIDDEN) {
-            return HIDDEN_TEXTURES.computeIfAbsent(base, loc -> loc.withPath(path -> path.replace("active", "hidden")));
-        }
-        return POWERED_FRAME_TEXTURES.computeIfAbsent(base, loc -> new EnumMap<>(MiraculousItem.TextureState.class)).computeIfAbsent(state, i -> base.withPath(path -> path.replace("active", "powered_" + i.frame())));
+        ItemStack stack = getCurrentItemStack();
+        Holder<Miraculous> miraculous = getMiraculousOrDefault(stack);
+        MiraculousItem.PowerState powerState = stack.getOrDefault(MineraculousDataComponents.POWER_STATE, MiraculousItem.PowerState.POWERED);
+        Holder<LookContext> context = getContext(powerState);
+        return switch (powerState) {
+            case HIDDEN -> getLookAsset(stack, miraculous, context, LookAssetTypes.TEXTURE, () -> HIDDEN_TEXTURES.computeIfAbsent(base, loc -> loc.withPath(path -> path.replace("active", "hidden"))));
+            case ACTIVE -> getLookAsset(stack, miraculous, LookContexts.ACTIVE_MIRACULOUS, LookAssetTypes.TEXTURE, () -> base);
+            case POWERED -> getLookAsset(stack, miraculous, context, LookAssetTypes.TEXTURE, () -> POWERED_TEXTURES.computeIfAbsent(base, loc -> loc.withPath(path -> path.replace("active", "powered"))));
+            default -> {
+                ImmutableList<ResourceLocation> countdownTextures = getLookAsset(stack, miraculous, context, LookAssetTypes.COUNTDOWN_TEXTURES, () -> null);
+                if (countdownTextures != null) {
+                    yield countdownTextures.get(powerState.frame() - 1);
+                }
+                yield POWERED_FRAME_TEXTURES.computeIfAbsent(base, loc -> new EnumMap<>(MiraculousItem.PowerState.class)).computeIfAbsent(powerState, state -> base.withPath(path -> path.replace("active", "powered_" + state.frame())));
+            }
+        };
     }
 
     @Override

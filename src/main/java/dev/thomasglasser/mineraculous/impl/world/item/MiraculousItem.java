@@ -89,7 +89,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                 stack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
             }
             if (entity instanceof LivingEntity livingEntity && !CuriosUtils.isEquipped(livingEntity, stack)) {
-                stack.set(MineraculousDataComponents.TEXTURE_STATE, stack.has(MineraculousDataComponents.POWERED) ? TextureState.POWERED : TextureState.ACTIVE);
+                stack.set(MineraculousDataComponents.POWER_STATE, stack.has(MineraculousDataComponents.POWERED) ? PowerState.POWERED : PowerState.ACTIVE);
             }
         }
     }
@@ -188,7 +188,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
         });
     }
 
-    public enum TextureState implements StringRepresentable {
+    public enum PowerState implements StringRepresentable {
         HIDDEN,
         ACTIVE,
         POWERED_1(1),
@@ -197,16 +197,16 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
         POWERED_4(4),
         POWERED;
 
-        public static final Codec<TextureState> CODEC = StringRepresentable.fromEnum(TextureState::values);
-        public static final StreamCodec<ByteBuf, TextureState> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(TextureState::of, TextureState::getSerializedName);
+        public static final Codec<PowerState> CODEC = StringRepresentable.fromEnum(PowerState::values);
+        public static final StreamCodec<ByteBuf, PowerState> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(PowerState::of, PowerState::getSerializedName);
 
         private final int frame;
 
-        TextureState(int frame) {
+        PowerState(int frame) {
             this.frame = frame;
         }
 
-        TextureState() {
+        PowerState() {
             this(-1);
         }
 
@@ -219,11 +219,11 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
             return name().toLowerCase();
         }
 
-        public static TextureState of(String name) {
+        public static PowerState of(String name) {
             return valueOf(name.toUpperCase());
         }
 
-        public static TextureState forFrame(int frame) {
+        public static PowerState forFrame(int frame) {
             return switch (frame) {
                 case -1 -> HIDDEN;
                 case 0 -> ACTIVE;

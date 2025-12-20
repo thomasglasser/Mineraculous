@@ -13,13 +13,13 @@ import java.io.IOException;
 import java.nio.file.Path;
 import net.minecraft.resources.ResourceLocation;
 
-public class TextureFramesLookAsset implements LookAssetType<Int2ObjectMap<ResourceLocation>> {
-    public static final TextureFramesLookAsset INSTANCE = new TextureFramesLookAsset();
-    private static final ResourceLocation KEY = MineraculousConstants.modLoc("texture_frames");
+public class TransformationTexturesLookAsset implements LookAssetType<Int2ObjectMap<ResourceLocation>> {
+    public static final TransformationTexturesLookAsset INSTANCE = new TransformationTexturesLookAsset();
+    private static final ResourceLocation KEY = MineraculousConstants.modLoc("transformation_textures");
     private static final String BASE_KEY = "base";
-    private static final String FRAMES_KEY = "frames";
+    private static final String TEXTURE_COUNT_KEY = "texture_count";
 
-    private TextureFramesLookAsset() {}
+    private TransformationTexturesLookAsset() {}
 
     @Override
     public ResourceLocation key() {
@@ -31,8 +31,8 @@ public class TextureFramesLookAsset implements LookAssetType<Int2ObjectMap<Resou
         Int2ObjectMap<ResourceLocation> map = new Int2ObjectOpenHashMap<>();
         JsonObject assetObject = asset.getAsJsonObject();
         String base = assetObject.get(BASE_KEY).getAsString();
-        int frames = assetObject.get(FRAMES_KEY).getAsInt();
-        for (int i = 0; i < frames; i++) {
+        int count = assetObject.get(TEXTURE_COUNT_KEY).getAsInt();
+        for (int i = 0; i < count; i++) {
             try {
                 map.put(i, TextureLookAsset.load(LookManager.findValidPath(root, base.replace(".png", "_" + i + ".png")), "textures/looks/" + hash + "_" + context.getNamespace() + "_" + context.getPath() + "_" + i));
             } catch (FileNotFoundException ignored) {}

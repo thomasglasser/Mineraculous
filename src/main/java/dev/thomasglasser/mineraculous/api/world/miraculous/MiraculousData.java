@@ -85,6 +85,7 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
     public static final String NAME_NOT_SET = "miraculous_data.name.not_set";
     public static final String KWAMI_NOT_FOUND = "miraculous_data.kwami_not_found";
     public static final int MAX_POWER_LEVEL = 100;
+    public static final int COUNTDOWN_FRAMES = 5;
 
     public static final Codec<MiraculousData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             LookData.CODEC.fieldOf("look_data").forGetter(MiraculousData::lookData),
@@ -161,7 +162,7 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
                         Optional<Integer> transformationFrames = value.transformationFrames();
 
                         miraculousStack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
-                        miraculousStack.set(MineraculousDataComponents.TEXTURE_STATE, MiraculousItem.TextureState.POWERED);
+                        miraculousStack.set(MineraculousDataComponents.POWER_STATE, MiraculousItem.PowerState.POWERED);
                         CuriosUtils.setStackInSlot(entity, curiosData, miraculousStack);
 
                         ArmorData armor = new ArmorData(entity.getItemBySlot(EquipmentSlot.HEAD), entity.getItemBySlot(EquipmentSlot.CHEST), entity.getItemBySlot(EquipmentSlot.LEGS), entity.getItemBySlot(EquipmentSlot.FEET));
@@ -238,7 +239,7 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
         }
 
         miraculousStack.remove(MineraculousDataComponents.REMAINING_TICKS);
-        miraculousStack.set(MineraculousDataComponents.TEXTURE_STATE, removed ? MiraculousItem.TextureState.ACTIVE : MiraculousItem.TextureState.HIDDEN);
+        miraculousStack.set(MineraculousDataComponents.POWER_STATE, removed ? MiraculousItem.PowerState.ACTIVE : MiraculousItem.PowerState.HIDDEN);
 
         if (removed) {
             MineraculousEntityUtils.renounceKwami(miraculousStack.get(MineraculousDataComponents.KWAMI_ID), miraculousStack, level);
@@ -337,40 +338,40 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
                         detransform(entity, level, miraculous, null, false);
                         return;
                     } else {
-                        MiraculousItem.TextureState textureState;
+                        MiraculousItem.PowerState powerState;
                         remainingTicks = remainingTicks.map(i -> i - 1);
                         int ticks = remainingTicks.get();
                         int seconds = ticks / SharedConstants.TICKS_PER_SECOND;
                         if (seconds < 10) {
                             if (ticks % 4 == 0) {
                                 level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.timerWarningSound().value(), entity.getSoundSource(), 1, 1);
-                                textureState = MiraculousItem.TextureState.ACTIVE;
+                                powerState = MiraculousItem.PowerState.ACTIVE;
                             } else {
-                                textureState = MiraculousItem.TextureState.POWERED_1;
+                                powerState = MiraculousItem.PowerState.POWERED_1;
                             }
                         } else {
                             int maxSeconds = MineraculousServerConfig.get().miraculousTimerDuration.get();
-                            int threshold = Math.max(maxSeconds / 5, 1);
+                            int threshold = Math.max(maxSeconds / COUNTDOWN_FRAMES, 1);
                             int frame = seconds / threshold + 1;
                             if (seconds % threshold == 0) {
                                 if (ticks % (20 / frame + (frame > 3 ? 2 : 3)) == 0) {
                                     level.playSound(null, entity.getX(), entity.getY(), entity.getZ(), value.timerWarningSound().value(), entity.getSoundSource(), 1, 1);
-                                    textureState = MiraculousItem.TextureState.forFrame(frame - 1);
+                                    powerState = MiraculousItem.PowerState.forFrame(frame - 1);
                                 } else {
-                                    textureState = MiraculousItem.TextureState.forFrame(frame - 2);
+                                    powerState = MiraculousItem.PowerState.forFrame(frame - 2);
                                 }
                             } else {
                                 if (seconds % 2 == 0) {
-                                    textureState = MiraculousItem.TextureState.forFrame(frame - 1);
+                                    powerState = MiraculousItem.PowerState.forFrame(frame - 1);
                                 } else {
-                                    textureState = MiraculousItem.TextureState.forFrame(frame);
+                                    powerState = MiraculousItem.PowerState.forFrame(frame);
                                 }
                             }
                         }
                         if (curiosData.isPresent()) {
                             ItemStack stack = CuriosUtils.getStackInSlot(entity, curiosData.get());
                             stack.set(MineraculousDataComponents.REMAINING_TICKS, remainingTicks.get());
-                            stack.set(MineraculousDataComponents.TEXTURE_STATE, textureState);
+                            stack.set(MineraculousDataComponents.POWER_STATE, powerState);
                             CuriosUtils.setStackInSlot(entity, curiosData.get(), stack);
                         }
                     }
@@ -379,7 +380,7 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
                     if (curiosData.isPresent()) {
                         ItemStack stack = CuriosUtils.getStackInSlot(entity, curiosData.get());
                         stack.remove(MineraculousDataComponents.REMAINING_TICKS);
-                        stack.set(MineraculousDataComponents.TEXTURE_STATE, MiraculousItem.TextureState.POWERED);
+                        stack.set(MineraculousDataComponents.POWER_STATE, MiraculousItem.PowerState.POWERED);
                         CuriosUtils.setStackInSlot(entity, curiosData.get(), stack);
                     }
                 }
@@ -414,7 +415,7 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
                 tickTransformed(remainingTicks, powerActive, countdownStarted).save(miraculous, entity);
             } else if (curiosData.isPresent()) {
                 ItemStack stack = CuriosUtils.getStackInSlot(entity, curiosData.get());
-                stack.set(MineraculousDataComponents.TEXTURE_STATE, entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() ? MiraculousItem.TextureState.ACTIVE : MiraculousItem.TextureState.HIDDEN);
+                stack.set(MineraculousDataComponents.POWER_STATE, entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() ? MiraculousItem.PowerState.ACTIVE : MiraculousItem.PowerState.HIDDEN);
                 CuriosUtils.setStackInSlot(entity, curiosData.get(), stack);
             }
         });

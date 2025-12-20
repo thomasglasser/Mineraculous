@@ -1,11 +1,13 @@
 package dev.thomasglasser.mineraculous.api.client.look.asset;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import dev.thomasglasser.mineraculous.impl.client.look.asset.CountdownTexturesLookAsset;
 import dev.thomasglasser.mineraculous.impl.client.look.asset.GeckolibAnimationsLookAsset;
 import dev.thomasglasser.mineraculous.impl.client.look.asset.GeckolibModelLookAsset;
 import dev.thomasglasser.mineraculous.impl.client.look.asset.ItemTransformsLookAsset;
-import dev.thomasglasser.mineraculous.impl.client.look.asset.TextureFramesLookAsset;
 import dev.thomasglasser.mineraculous.impl.client.look.asset.TextureLookAsset;
+import dev.thomasglasser.mineraculous.impl.client.look.asset.TransformationTexturesLookAsset;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Set;
@@ -19,16 +21,21 @@ public class LookAssetTypes {
     /// Holds all known {@link LookAssetType}s.
     private static final Set<LookAssetType<?>> REGISTRY = new ReferenceOpenHashSet<>();
 
+    // General
     /// Represents the {@link ResourceLocation} of a texture in the {@link net.minecraft.client.renderer.texture.TextureManager}.
     public static final LookAssetType<ResourceLocation> TEXTURE = register(TextureLookAsset.INSTANCE);
-    /// Represents a map of frames to {@link ResourceLocation}s in the {@link net.minecraft.client.renderer.texture.TextureManager}.
-    public static final LookAssetType<Int2ObjectMap<ResourceLocation>> TEXTURE_FRAMES = register(TextureFramesLookAsset.INSTANCE);
     /// Represents a {@link BakedGeoModel} used in {@link software.bernie.geckolib.model.GeoModel}s.
     public static final LookAssetType<BakedGeoModel> GECKOLIB_MODEL = register(GeckolibModelLookAsset.INSTANCE);
     /// Represents a {@link BakedAnimations} used in {@link software.bernie.geckolib.model.GeoModel}s.
     public static final LookAssetType<BakedAnimations> GECKOLIB_ANIMATIONS = register(GeckolibAnimationsLookAsset.INSTANCE);
     /// Represents the {@link ItemTransforms} of an item to alter rendering placement.
     public static final LookAssetType<ItemTransforms> ITEM_TRANSFORMS = register(ItemTransformsLookAsset.INSTANCE);
+
+    // Specific
+    /// Represents a map of transformation frames to {@link ResourceLocation}s in the {@link net.minecraft.client.renderer.texture.TextureManager}.
+    public static final LookAssetType<Int2ObjectMap<ResourceLocation>> TRANSFORMATION_TEXTURES = register(TransformationTexturesLookAsset.INSTANCE);
+    /// Represents a list of countdown texture {@link ResourceLocation}s in the {@link net.minecraft.client.renderer.texture.TextureManager}.
+    public static final LookAssetType<ImmutableList<ResourceLocation>> COUNTDOWN_TEXTURES = register(CountdownTexturesLookAsset.INSTANCE);
 
     /**
      * Returns an immutable view of all available {@link LookAssetType}s.

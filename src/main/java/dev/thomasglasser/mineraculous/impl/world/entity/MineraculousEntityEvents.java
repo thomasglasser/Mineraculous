@@ -52,6 +52,7 @@ import net.minecraft.world.level.portal.DimensionTransition;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
@@ -173,6 +174,12 @@ public class MineraculousEntityEvents {
             if (!event.getEntity().level().isClientSide)
                 PerchingCatStaffData.remove(event.getEntity());
         }
+    }
+
+    public static void onEntityTeleport(EntityTeleportEvent event) {
+        Entity entity = event.getEntity();
+        if (entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE))
+            LadybugYoyoItem.removeLeashFrom(entity);
     }
 
     // Abilities

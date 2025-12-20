@@ -1,13 +1,17 @@
 package dev.thomasglasser.mineraculous.impl.client.renderer.armor;
 
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
+import dev.thomasglasser.mineraculous.api.client.look.LookRenderer;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetTypes;
+import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
+import dev.thomasglasser.mineraculous.impl.client.look.Look;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -26,23 +30,16 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
-import software.bernie.geckolib.animation.Animation;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.loading.object.BakedAnimations;
-import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
-public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoArmorRenderer<T> {
+public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoArmorRenderer<T> implements LookRenderer {
     private static final Set<MiraculousArmorItemRenderer<?>> INSTANCES = new ReferenceOpenHashSet<>();
     private static final Map<ResourceLocation, Int2ObjectMap<ResourceLocation>> FRAME_TEXTURES = new Object2ReferenceOpenHashMap<>();
 
     private final Map<Holder<Miraculous>, GeoModel<?>> models = new Object2ReferenceOpenHashMap<>();
 
-    private @Nullable BakedGeoModel model = null;
-    private @Nullable ResourceLocation texture = null;
-    private @Nullable BakedAnimations animations = null;
-    private @Nullable Int2ObjectMap<ResourceLocation> transformationTextures = null;
+    private @Nullable Look look = null;
 
     public MiraculousArmorItemRenderer() {
         super((GeoModel<T>) null);
@@ -58,14 +55,20 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
     }
 
     @Override
+    public Holder<LookContext> getCurrentLookContext() {
+        return LookContexts.MIRACULOUS_SUIT;
+    }
+
+    @Override
+    public @Nullable Look getCurrentLook() {
+        return look;
+    }
+
+    @Override
     public void prepForRender(Entity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> baseModel, MultiBufferSource bufferSource, float partialTick, float limbSwing, float limbSwingAmount, float netHeadYaw, float headPitch) {
         super.prepForRender(entity, stack, slot, baseModel, bufferSource, partialTick, limbSwing, limbSwingAmount, netHeadYaw, headPitch);
         if (entity instanceof Player player) {
-            Holder<Miraculous> miraculous = MiraculousItemRenderer.getMiraculousOrDefault(stack);
-            model = LookManager.getOrFetchLookAsset(player, miraculous, LookContexts.MIRACULOUS_SUIT, LookAssetTypes.GECKOLIB_MODEL);
-            texture = LookManager.getOrFetchLookAsset(player, miraculous, LookContexts.MIRACULOUS_SUIT, LookAssetTypes.TEXTURE);
-            animations = LookManager.getOrFetchLookAsset(player, miraculous, LookContexts.MIRACULOUS_SUIT, LookAssetTypes.GECKOLIB_ANIMATIONS);
-            transformationTextures = LookManager.getOrFetchLookAsset(player, miraculous, LookContexts.MIRACULOUS_SUIT, LookAssetTypes.TRANSFORMATION_TEXTURES);
+            look = LookManager.getOrFetchLook(player, MiraculousItemRenderer.getMiraculousOrDefault(stack), getCurrentLookContext().getKey());
         }
     }
 
@@ -80,6 +83,7 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
                 int frame = state.transforming() ? frames - remaining : remaining;
                 if (frame >= 0) {
                     ResourceLocation texture;
+                    Int2ObjectMap<ResourceLocation> transformationTextures = getAsset(LookAssetTypes.TRANSFORMATION_TEXTURES);
                     if (transformationTextures != null) {
                         texture = transformationTextures.get(frame);
                     } else {
@@ -99,44 +103,7 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
     }
 
     private GeoModel<T> createGeoModel(Holder<Miraculous> miraculous) {
-        return new DefaultedItemGeoModel<>(miraculous.getKey().location().withPrefix("armor/miraculous/")) {
-            private final ResourceLocation defaultTexture = miraculous.getKey().location().withPath(path -> "textures/entity/equipment/humanoid/miraculous/" + path + ".png");
-
-            private BakedGeoModel currentModel = null;
-
-            @Override
-            public BakedGeoModel getBakedModel(ResourceLocation location) {
-                BakedGeoModel model = MiraculousArmorItemRenderer.this.model;
-                if (model == null)
-                    model = super.getBakedModel(location);
-                if (model != this.currentModel) {
-                    this.getAnimationProcessor().setActiveModel(model);
-                    this.currentModel = model;
-                }
-                return currentModel;
-            }
-
-            @Override
-            public ResourceLocation getTextureResource(T animatable) {
-                if (texture == null)
-                    return defaultTexture;
-                return texture;
-            }
-
-            @Override
-            public @Nullable Animation getAnimation(T animatable, String name) {
-                if (animations != null) {
-                    Animation animation = animations.getAnimation(name);
-                    if (animation != null)
-                        return animation;
-                }
-
-                try {
-                    return super.getAnimation(animatable, name);
-                } catch (RuntimeException ignored) {
-                    return null;
-                }
-            }
-        };
+        ResourceLocation miraculousId = miraculous.getKey().location();
+        return new LookGeoModel<>(this, miraculousId.withPrefix("armor/miraculous/"), miraculousId.withPath(id -> "textures/entity/equipment/humanoid/miraculous/" + id + ".png"));
     }
 }

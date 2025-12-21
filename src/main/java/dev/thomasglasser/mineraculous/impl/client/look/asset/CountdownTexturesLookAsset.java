@@ -34,7 +34,7 @@ public class CountdownTexturesLookAsset implements LookAssetType<CountdownTextur
         ImmutableList.Builder<ResourceLocation> list = new ImmutableList.Builder<>();
         for (int i = 1; i < MiraculousData.COUNTDOWN_FRAMES; i++) {
             try {
-                list.add(TextureLookAsset.load(LookManager.findValidPath(root, asset.base().replace(".png", "_" + i + ".png")), "textures/looks/" + hash + "_" + context.getNamespace() + "_" + context.getPath() + "_" + i));
+                list.add(TextureLookAsset.load(LookManager.findValidPath(root, asset.base().replace(".png", "_" + i + ".png")), "textures/looks/" + hash + "_" + LookManager.toShortPath(context) + "_" + i));
             } catch (FileNotFoundException ignored) {}
         }
         return list.build();

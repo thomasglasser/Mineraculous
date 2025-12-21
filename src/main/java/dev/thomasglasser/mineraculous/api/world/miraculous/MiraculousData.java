@@ -170,7 +170,7 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
                             entity.setItemSlot(slot, stack);
                         }
 
-                        if (/*name.isEmpty()*/false && entity instanceof Player player) {
+                        if (lookData.name().isEmpty() && entity instanceof Player player) {
                             player.displayClientMessage(Component.translatable(MiraculousData.NAME_NOT_SET, Component.translatable(MineraculousConstants.toLanguageKey(key)), key.location().getPath()), true);
                         }
 
@@ -425,7 +425,7 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
      *
      * @param level      The level to perform the abilities in
      * @param entity     The performer of the abilities
-     * @param miraculous The miraculous to fetch abilities from
+     * @param miraculous The miraculous to get abilities from
      * @param context    The context to perform the abilities with. If {@code null}, abilities will be performed passively
      */
     public void performAbilities(ServerLevel level, LivingEntity entity, Holder<Miraculous> miraculous, @Nullable AbilityContext context) {
@@ -476,7 +476,7 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
     /**
      * Collects all attribute modifiers provided by {@link MineraculousDataMaps#MIRACULOUS_ATTRIBUTE_MODIFIERS}.
      *
-     * @param level      The level to fetch the data map from
+     * @param level      The level to get the data map from
      * @param powerLevel The power level to apply to the attribute modifiers
      * @return A multimap containing all attribute modifiers provided by {@link MineraculousDataMaps#MIRACULOUS_ATTRIBUTE_MODIFIERS}
      */
@@ -497,6 +497,7 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
                 ItemStack tool = value.tool();
                 int id = ToolIdData.get(level).incrementToolId(miraculousId);
                 tool.set(MineraculousDataComponents.OWNER, entity.getUUID());
+                tool.set(MineraculousDataComponents.MIRACULOUS, miraculous);
                 tool.set(MineraculousDataComponents.MIRACULOUS_ID, miraculousId);
                 tool.set(MineraculousDataComponents.TOOL_ID, id);
                 value.toolSlot().ifPresentOrElse(slot -> {

@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.client.renderer.armor;
 
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
-import dev.thomasglasser.mineraculous.api.client.look.LookRenderer;
+import dev.thomasglasser.mineraculous.api.client.look.renderer.LookRenderer;
 import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
@@ -61,6 +61,15 @@ public class KamikotizationArmorItemRenderer<T extends Item & GeoItem> extends G
         return getDefaultLookId(getKamikotizationOrDefault(stack).getKey());
     }
 
+    public static @Nullable Look getLook(ItemStack stack, Holder<LookContext> context) {
+        UUID owner = stack.get(MineraculousDataComponents.OWNER);
+        Level level = ClientUtils.getLevel();
+        if (owner != null && level != null && level.getEntities().get(owner) instanceof Player player) {
+            return player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::lookData).map(lookData -> LookManager.getLook(player, lookData, context.getKey())).orElse(null);
+        }
+        return null;
+    }
+
     @Override
     public GeoModel<T> getGeoModel() {
         return model;
@@ -84,9 +93,6 @@ public class KamikotizationArmorItemRenderer<T extends Item & GeoItem> extends G
     @Override
     public void prepForRender(Entity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> baseModel, MultiBufferSource bufferSource, float partialTick, float limbSwing, float limbSwingAmount, float netHeadYaw, float headPitch) {
         super.prepForRender(entity, stack, slot, baseModel, bufferSource, partialTick, limbSwing, limbSwingAmount, netHeadYaw, headPitch);
-        UUID owner = stack.get(MineraculousDataComponents.OWNER);
-        if (owner != null && entity.level().getEntities().get(owner) instanceof Player player) {
-            look = player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::lookData).map(lookData -> LookManager.getOrFetchLook(player, lookData, getContext().getKey())).orElse(null);
-        }
+        look = getLook(getCurrentStack(), getContext());
     }
 }

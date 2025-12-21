@@ -15,15 +15,15 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 public record DefaultLook(ImmutableMap<ResourceKey<LookContext>, DefaultLookAssets> assets) {
-    public <T> @Nullable T getAsset(LookAssetType<?, T> assetType, ResourceKey<LookContext> context) {
+    public <T> @Nullable T getAsset(ResourceKey<LookContext> context, LookAssetType<?, T> assetType) {
         DefaultLookAssets assets = this.assets.get(context);
         if (assets != null)
             return assets.getAsset(assetType);
         return null;
     }
 
-    public <T> @Nullable T getAsset(LookAssetType<?, T> assetType, Holder<LookContext> context) {
-        return getAsset(assetType, context.getKey());
+    public <T> @Nullable T getAsset(Holder<LookContext> context, LookAssetType<?, T> assetType) {
+        return getAsset(context.getKey(), assetType);
     }
 
     public static @Nullable DefaultLook load(JsonObject json, ResourceLocation location) {

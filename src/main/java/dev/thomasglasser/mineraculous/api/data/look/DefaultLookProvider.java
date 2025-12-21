@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.api.data.look;
 import com.google.gson.JsonObject;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetTypes;
+import dev.thomasglasser.mineraculous.api.client.look.renderer.MiraculousToolLookRenderer;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
@@ -22,6 +23,7 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 
 public abstract class DefaultLookProvider extends AbstractLookProvider {
     private final Map<String, Builder> looks = new Object2ObjectOpenHashMap<>();
@@ -50,7 +52,7 @@ public abstract class DefaultLookProvider extends AbstractLookProvider {
      * @param miraculous The {@link Miraculous} to create the look for
      * @return The {@link Builder} for the look
      */
-    protected Builder miraculousLook(Holder<Miraculous> miraculous) {
+    protected Builder miraculous(Holder<Miraculous> miraculous) {
         ResourceKey<Miraculous> key = miraculous.getKey();
         String name = key.location().getPath();
         String suitBase = modString("textures/entity/equipment/humanoid/miraculous/" + name + ".png");
@@ -76,7 +78,7 @@ public abstract class DefaultLookProvider extends AbstractLookProvider {
                         .add(LookAssetTypes.GECKOLIB_MODEL, miraculousModel)
                         .add(LookAssetTypes.GECKOLIB_ANIMATIONS, miraculousAnimations)
                         .add(LookAssetTypes.ITEM_TRANSFORMS, miraculousTransforms));
-        miraculous.value().transformationFrames().ifPresent(frames -> look.get(LookContexts.MIRACULOUS_SUIT).add(LookAssetTypes.TRANSFORMATION_TEXTURES, new TransformationTexturesLookAsset.TransformationTextures(suitBase, frames)));
+        miraculous.value().transformationFrames().ifPresent(frames -> look.add(LookContexts.MIRACULOUS_SUIT, LookAssetTypes.TRANSFORMATION_TEXTURES, new TransformationTexturesLookAsset.TransformationTextures(suitBase, frames)));
         return look;
     }
 
@@ -86,15 +88,32 @@ public abstract class DefaultLookProvider extends AbstractLookProvider {
      * @param miraculous The {@link Miraculous} to create the look for
      * @return The {@link Builder} for the look
      */
-    protected Builder miraculousLookNoAnims(Holder<Miraculous> miraculous) {
-        Builder look = miraculousLook(miraculous);
-        look.get(LookContexts.MIRACULOUS_SUIT)
-                .remove(LookAssetTypes.GECKOLIB_ANIMATIONS);
-        look.get(LookContexts.POWERED_MIRACULOUS)
-                .remove(LookAssetTypes.GECKOLIB_ANIMATIONS);
-        look.get(LookContexts.HIDDEN_MIRACULOUS)
-                .remove(LookAssetTypes.GECKOLIB_ANIMATIONS);
-        return look;
+    protected Builder miraculousNoAnims(Holder<Miraculous> miraculous) {
+        return miraculous(miraculous)
+                .remove(LookContexts.MIRACULOUS_SUIT, LookAssetTypes.GECKOLIB_ANIMATIONS)
+                .remove(LookContexts.POWERED_MIRACULOUS, LookAssetTypes.GECKOLIB_ANIMATIONS)
+                .remove(LookContexts.HIDDEN_MIRACULOUS, LookAssetTypes.GECKOLIB_ANIMATIONS);
+    }
+
+    /**
+     * Creates the default look for a {@link Miraculous} tool.
+     * 
+     * @param item The {@link Item} to create the look for
+     * @return The {@link Builder} for the look
+     */
+    protected Builder miraculousTool(ResourceKey<Item> item) {
+        String name = item.location().getPath();
+        AssetsBuilder toolAssets = assets()
+                .add(LookAssetTypes.TEXTURE, modString("textures/item/geo/" + name + ".png"))
+                .add(LookAssetTypes.GECKOLIB_MODEL, modString("geo/item/" + name + ".geo.json"))
+                .add(LookAssetTypes.GECKOLIB_ANIMATIONS, modString("animations/item/" + name + ".animation.json"));
+        return look(MiraculousToolLookRenderer.getDefaultLookId(item).getPath())
+                .add(LookContexts.MIRACULOUS_TOOL, toolAssets.copy())
+                .add(LookContexts.MIRACULOUS_TOOL_THROWN, toolAssets.copy())
+                .add(LookContexts.MIRACULOUS_TOOL_BLOCKING, toolAssets.copy())
+                .add(LookContexts.MIRACULOUS_TOOL_PHONE, toolAssets.copy())
+                .add(LookContexts.MIRACULOUS_TOOL_SPYGLASS, toolAssets.copy()
+                        .add(LookAssetTypes.SCOPE_TEXTURE, modString("textures/misc/" + name + "_spyglass_scope.png")));
     }
 
     /**
@@ -119,10 +138,8 @@ public abstract class DefaultLookProvider extends AbstractLookProvider {
      * @return The {@link Builder} for the look
      */
     protected Builder kamikotizationLookNoAnims(ResourceKey<Kamikotization> key) {
-        Builder look = kamikotizationLook(key);
-        look.get(LookContexts.KAMIKOTIZATION_SUIT)
-                .remove(LookAssetTypes.GECKOLIB_ANIMATIONS);
-        return look;
+        return kamikotizationLook(key)
+                .remove(LookContexts.KAMIKOTIZATION_SUIT, LookAssetTypes.GECKOLIB_ANIMATIONS);
     }
 
     @Override
@@ -165,12 +182,44 @@ public abstract class DefaultLookProvider extends AbstractLookProvider {
     protected static class Builder {
         protected Map<Holder<LookContext>, LookProvider.AssetsBuilder> assets = new Object2ObjectOpenHashMap<>();
 
-        protected AssetsBuilder get(Holder<LookContext> context) {
-            return this.assets.getOrDefault(context, new LookProvider.AssetsBuilder());
+        /**
+         * Adds the provided assets for the provided context.
+         * 
+         * @param context The context of the assets
+         * @param builder The assets for the look
+         * @return The builder
+         */
+        public Builder add(Holder<LookContext> context, AssetsBuilder builder) {
+            this.assets.put(context, builder);
+            return this;
         }
 
-        protected Builder add(Holder<LookContext> context, AssetsBuilder builder) {
-            this.assets.put(context, builder);
+        /**
+         * Adds the provided asset for the provided context.
+         * 
+         * @param context   The context of the asset
+         * @param assetType The type of the asset
+         * @param asset     The asset
+         * @return The builder
+         * @param <S> The stored type of the asset
+         */
+        public <S> Builder add(Holder<LookContext> context, LookAssetType<S, ?> assetType, S asset) {
+            AssetsBuilder builder = this.assets.getOrDefault(context, new AssetsBuilder());
+            builder.add(assetType, asset);
+            return this;
+        }
+
+        /**
+         * Removes the provided asset type from the assets for the provided context.
+         * 
+         * @param context   The context of the asset
+         * @param assetType The asset type to remove
+         * @return The builder
+         */
+        public Builder remove(Holder<LookContext> context, LookAssetType<?, ?> assetType) {
+            AssetsBuilder builder = this.assets.get(context);
+            if (builder != null)
+                builder.remove(assetType);
             return this;
         }
     }

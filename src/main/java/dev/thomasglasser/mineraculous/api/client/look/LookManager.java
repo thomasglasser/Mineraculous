@@ -25,6 +25,16 @@ import org.jetbrains.annotations.Nullable;
 
 public class LookManager {
     /**
+     * Converts the provided {@link ResourceLocation} to a path, bypassing the namespace if it is {@link ResourceLocation#DEFAULT_NAMESPACE}.
+     * 
+     * @param location The {@link ResourceLocation} to convert
+     * @return The converted path
+     */
+    public static String toShortPath(ResourceLocation location) {
+        return location.toShortLanguageKey().replace('.', '/');
+    }
+
+    /**
      * Returns the default look for the provided key,
      * erroring if not found.
      * 
@@ -46,7 +56,7 @@ public class LookManager {
     public static <T> ResourceLocation getDefaultLookId(ResourceKey<T> key, ResourceKey<Registry<T>> registry) {
         ResourceLocation id = key.location();
         ResourceLocation registryId = registry.location();
-        return id.withPrefix(registryId.getNamespace() + "/" + registryId.getPath() + "/");
+        return id.withPrefix(toShortPath(registryId) + "/");
     }
 
     /**
@@ -71,14 +81,14 @@ public class LookManager {
     /**
      * Returns the look of the player for the provided data and context.
      *
-     * @param player   The player to fetch the look for
-     * @param lookData The data to fetch the look from
-     * @param context  The context to fetch the look for
+     * @param player   The player to get the look for
+     * @param lookData The data to get the look from
+     * @param context  The context to get the look for
      * @return The look of the player for the provided miraculous and context, or null if not found
      */
-    public static @Nullable Look getOrFetchLook(Player player, LookData lookData, ResourceKey<LookContext> context) {
+    public static @Nullable Look getLook(Player player, LookData lookData, ResourceKey<LookContext> context) {
         if (InternalLookManager.isInSafeMode()) {
-            MineraculousConstants.LOGGER.warn("Tried to fetch look for {} in safe mode, using the default...", player.getUUID());
+            MineraculousConstants.LOGGER.warn("Tried to get look for {} in safe mode, using the default...", player.getUUID());
             return null;
         }
 
@@ -94,15 +104,15 @@ public class LookManager {
     /**
      * Returns the asset of the provided asset type of the look of the player for the provided data and context.
      *
-     * @param player    The player to fetch the asset for
-     * @param lookData  The data to fetch the look from
-     * @param context   The context to fetch the asset for
-     * @param assetType The asset type to fetch
+     * @param player    The player to get the asset for
+     * @param lookData  The data to get the look from
+     * @param context   The context to get the asset for
+     * @param assetType The asset type to get
      * @return The asset of the provided asset type of the look of the player for the provided miraculous and context, or null if not found
      * @param <T> The type of the asset
      */
-    public static <T> @Nullable T getOrFetchLookAsset(Player player, LookData lookData, ResourceKey<LookContext> context, LookAssetType<?, T> assetType) {
-        Look look = getOrFetchLook(player, lookData, context);
+    public static <T> @Nullable T getLookAsset(Player player, LookData lookData, ResourceKey<LookContext> context, LookAssetType<?, T> assetType) {
+        Look look = getLook(player, lookData, context);
         if (look != null) {
             LookAssets assets = look.assets().get(context);
             if (assets != null)
@@ -111,8 +121,8 @@ public class LookManager {
         return null;
     }
 
-    public static <T> @Nullable T getOrFetchLookAsset(Player player, LookData lookData, Holder<LookContext> context, LookAssetType<?, T> assetType) {
-        return getOrFetchLookAsset(player, lookData, context.getKey(), assetType);
+    public static <T> @Nullable T getLookAsset(Player player, LookData lookData, Holder<LookContext> context, LookAssetType<?, T> assetType) {
+        return getLookAsset(player, lookData, context.getKey(), assetType);
     }
 
     /**

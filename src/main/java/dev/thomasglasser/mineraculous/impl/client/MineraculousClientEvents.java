@@ -6,6 +6,7 @@ import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.MineraculousGuiLayers;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.ExternalMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.tooltip.ClientLabeledItemTagsTooltip;
+import dev.thomasglasser.mineraculous.api.client.look.item.MiraculousLookToolClientExtensions;
 import dev.thomasglasser.mineraculous.api.client.particle.FadingParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.FlourishingParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
@@ -68,7 +69,6 @@ import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.particle.FlyStraightTowardsParticle;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
@@ -112,7 +112,6 @@ import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
@@ -197,8 +196,8 @@ public class MineraculousClientEvents {
     static void onRegisterAdditionalModels(ModelEvent.RegisterAdditional event) {
         ResourceManager manager = Minecraft.getInstance().getResourceManager();
         Map<ResourceLocation, Resource> miraculous = manager.listResources("models/item/miraculous", (location -> location.getPath().endsWith(".json")));
-        for (ResourceLocation rl : miraculous.keySet()) {
-            ResourceLocation stripped = ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), rl.getPath().substring("models/".length(), rl.getPath().indexOf(".json")));
+        for (ResourceLocation loc : miraculous.keySet()) {
+            ResourceLocation stripped = loc.withPath(path -> path.substring("models/".length(), path.indexOf(".json")));
             event.register(ModelResourceLocation.standalone(stripped));
         }
     }
@@ -285,48 +284,9 @@ public class MineraculousClientEvents {
 
     static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
         // Miraculous Tools
-        event.registerItem(new IClientItemExtensions() {
-            private BlockEntityWithoutLevelRenderer renderer;
-
-            @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                if (renderer == null) renderer = new LadybugYoyoRenderer();
-                return renderer;
-            }
-
-            @Override
-            public ResourceLocation getScopeOverlayTexture(ItemStack stack) {
-                return LadybugYoyoRenderer.SPYGLASS_SCOPE_LOCATION;
-            }
-        }, MineraculousItems.LADYBUG_YOYO);
-        event.registerItem(new IClientItemExtensions() {
-            private BlockEntityWithoutLevelRenderer renderer;
-
-            @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                if (renderer == null) renderer = new CatStaffRenderer();
-                return renderer;
-            }
-
-            @Override
-            public ResourceLocation getScopeOverlayTexture(ItemStack stack) {
-                return CatStaffRenderer.SPYGLASS_SCOPE_LOCATION;
-            }
-        }, MineraculousItems.CAT_STAFF);
-        event.registerItem(new IClientItemExtensions() {
-            private BlockEntityWithoutLevelRenderer renderer;
-
-            @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                if (renderer == null) renderer = new ButterflyCaneRenderer();
-                return renderer;
-            }
-
-            @Override
-            public ResourceLocation getScopeOverlayTexture(ItemStack stack) {
-                return ButterflyCaneRenderer.SPYGLASS_SCOPE_LOCATION;
-            }
-        }, MineraculousItems.BUTTERFLY_CANE);
+        event.registerItem(new MiraculousLookToolClientExtensions<>(LadybugYoyoRenderer::new), MineraculousItems.LADYBUG_YOYO);
+        event.registerItem(new MiraculousLookToolClientExtensions<>(CatStaffRenderer::new), MineraculousItems.CAT_STAFF);
+        event.registerItem(new MiraculousLookToolClientExtensions<>(ButterflyCaneRenderer::new), MineraculousItems.BUTTERFLY_CANE);
     }
 
     static void onRegisterClientTooltipComponentFactories(RegisterClientTooltipComponentFactoriesEvent event) {

@@ -1,5 +1,6 @@
-package dev.thomasglasser.mineraculous.api.client.look;
+package dev.thomasglasser.mineraculous.api.client.look.renderer;
 
+import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssets;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
@@ -44,14 +45,14 @@ public interface LookRenderer {
 
     /**
      * Returns the default asset of the provided type for the provided context.
-     * 
-     * @param assetType The {@link LookAssetType} of the asset
+     *
      * @param context   The context for the asset
+     * @param assetType The {@link LookAssetType} of the asset
      * @return The asset
      * @param <T> The type of the asset
      */
     default <T> T getDefaultAsset(LookAssetType<?, T> assetType, Holder<LookContext> context) {
-        return getDefaultLook().getAsset(assetType, context);
+        return getDefaultLook().getAsset(context, assetType);
     }
 
     /**

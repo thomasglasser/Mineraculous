@@ -3,15 +3,15 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.client.renderer.item.BlockingDefaultedGeoItemRenderer;
+import dev.thomasglasser.mineraculous.api.client.look.renderer.MiraculousToolLookRenderer;
+import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
-import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import net.minecraft.client.Minecraft;
@@ -19,19 +19,20 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Holder;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.renderer.GeoItemRenderer;
 
-public class LadybugYoyoRenderer extends BlockingDefaultedGeoItemRenderer<LadybugYoyoItem> {
-    public static final ResourceLocation SPYGLASS_SCOPE_LOCATION = MineraculousConstants.modLoc("textures/misc/ladybug_yoyo_spyglass_scope.png");
-    public static final ResourceLocation SPYGLASS_LOCATION = makeTextureLocation(MineraculousConstants.modLoc("ladybug_yoyo_spyglass"));
-    public static final ResourceLocation PHONE_LOCATION = makeTextureLocation(MineraculousConstants.modLoc("ladybug_yoyo_phone"));
-
+public class LadybugYoyoRenderer<T extends Item & GeoAnimatable> extends GeoItemRenderer<T> implements MiraculousToolLookRenderer {
     // Hand Rendering Constants
     private static final Quaternionf HAND_XP_ROT = Axis.XP.rotationDegrees(-40);
     private static final Quaternionf RIGHT_HAND_YP_ROT = Axis.YP.rotationDegrees(110);
@@ -39,24 +40,34 @@ public class LadybugYoyoRenderer extends BlockingDefaultedGeoItemRenderer<Ladybu
     private static final Quaternionf RIGHT_HAND_ZP_ROT = Axis.ZP.rotationDegrees(-10);
     private static final Quaternionf LEFT_HAND_ZP_ROT = Axis.ZP.rotationDegrees(10);
 
+    private final GeoModel<T> model;
+
     public LadybugYoyoRenderer() {
-        super(MineraculousItems.LADYBUG_YOYO.getId());
+        super((GeoModel<T>) null);
         addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
+
+        this.model = new LookGeoModel<>(this);
     }
 
     @Override
-    public ResourceLocation getTextureLocation(LadybugYoyoItem animatable) {
-        LadybugYoyoItem.Mode mode = getCurrentItemStack().get(MineraculousDataComponents.LADYBUG_YOYO_MODE);
-        if (mode == LadybugYoyoItem.Mode.PHONE) {
-            return PHONE_LOCATION;
-        } else if (mode == LadybugYoyoItem.Mode.SPYGLASS) {
-            return SPYGLASS_LOCATION;
-        }
-        return super.getTextureLocation(animatable);
+    public GeoModel<T> getGeoModel() {
+        return model;
     }
 
     @Override
-    public void defaultRender(PoseStack poseStack, LadybugYoyoItem animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
+    public Holder<LookContext> getContext() {
+        ItemStack stack = getCurrentItemStack();
+        if (stack.has(MineraculousDataComponents.BLOCKING))
+            return LookContexts.MIRACULOUS_TOOL_BLOCKING;
+        return switch (stack.get(MineraculousDataComponents.LADYBUG_YOYO_MODE)) {
+            case PHONE -> LookContexts.MIRACULOUS_TOOL_PHONE;
+            case SPYGLASS -> LookContexts.MIRACULOUS_TOOL_SPYGLASS;
+            case null, default -> LookContexts.MIRACULOUS_TOOL;
+        };
+    }
+
+    @Override
+    public void defaultRender(PoseStack poseStack, T animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
         Integer carrierId = getCurrentItemStack().get(MineraculousDataComponents.CARRIER);
         Level level = ClientUtils.getLevel();
         if (carrierId != null && level != null) {

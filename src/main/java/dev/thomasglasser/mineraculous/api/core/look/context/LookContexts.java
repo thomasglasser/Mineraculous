@@ -25,10 +25,26 @@ public class LookContexts {
     public static final DeferredHolder<LookContext, LookContext> ACTIVE_MIRACULOUS = register("active_miraculous", LookAssetTypes.TEXTURE);
     /// Used for rendering a {@link dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem} that is hidden.
     public static final DeferredHolder<LookContext, LookContext> HIDDEN_MIRACULOUS = register("hidden_miraculous", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS, LookAssetTypes.ITEM_TRANSFORMS);
+    /// Used for rendering a miraculous tool.
+    public static final DeferredHolder<LookContext, LookContext> MIRACULOUS_TOOL = register("miraculous_tool", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS);
+    /// Used for rendering a thrown miraculous tool.
+    public static final DeferredHolder<LookContext, LookContext> MIRACULOUS_TOOL_THROWN = register("miraculous_tool_thrown", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS);
+    /// Used for rendering a blocking miraculous tool.
+    public static final DeferredHolder<LookContext, LookContext> MIRACULOUS_TOOL_BLOCKING = register("miraculous_tool_blocking", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS);
+    /// Used for rendering a miraculous tool phone.
+    public static final DeferredHolder<LookContext, LookContext> MIRACULOUS_TOOL_PHONE = register("miraculous_tool_phone", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS);
+    /// Used for rendering a miraculous tool spyglass.
+    public static final DeferredHolder<LookContext, LookContext> MIRACULOUS_TOOL_SPYGLASS = register("miraculous_tool_spyglass", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS, LookAssetTypes.SCOPE_TEXTURE);
 
     // Kamikotization
     /// Used for rendering {@link dev.thomasglasser.mineraculous.impl.world.item.armor.KamikotizationArmorItem}s on the body.
     public static final DeferredHolder<LookContext, LookContext> KAMIKOTIZATION_SUIT = register("kamikotization_suit", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS);
+    /// Used for rendering a kamikotization tool.
+    public static final DeferredHolder<LookContext, LookContext> KAMIKOTIZATION_TOOL = register("kamikotization_tool", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS);
+    /// Used for rendering a thrown kamikotization tool.
+    public static final DeferredHolder<LookContext, LookContext> KAMIKOTIZATION_TOOL_THROWN = register("kamikotization_tool_thrown", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS);
+    /// Used for rendering a kamikotization tool spyglass.
+    public static final DeferredHolder<LookContext, LookContext> KAMIKOTIZATION_TOOL_SPYGLASS = register("kamikotization_tool_spyglass", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS, LookAssetTypes.SCOPE_TEXTURE);
 
     private static DeferredHolder<LookContext, LookContext> register(String name, LookAssetType<?, ?>... assetTypes) {
         return LOOK_CONTEXTS.register(name, () -> new LookContext(ImmutableSet.copyOf(assetTypes)));

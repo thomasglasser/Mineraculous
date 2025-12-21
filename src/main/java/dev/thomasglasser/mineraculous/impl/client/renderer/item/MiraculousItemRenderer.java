@@ -3,8 +3,8 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
-import dev.thomasglasser.mineraculous.api.client.look.LookRenderer;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetTypes;
+import dev.thomasglasser.mineraculous.api.client.look.renderer.LookRenderer;
 import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
@@ -73,6 +73,15 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
         return powerState == MiraculousItem.PowerState.HIDDEN ? LookContexts.HIDDEN_MIRACULOUS : LookContexts.POWERED_MIRACULOUS;
     }
 
+    public static @Nullable Look getLook(ItemStack stack, Holder<LookContext> context) {
+        UUID owner = stack.get(MineraculousDataComponents.OWNER);
+        Level level = ClientUtils.getLevel();
+        if (owner != null && level != null && level.getEntities().get(owner) instanceof Player player) {
+            return LookManager.getLook(player, player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(getMiraculousOrDefault(stack)).lookData(), context.getKey());
+        }
+        return null;
+    }
+
     @Override
     public ResourceLocation getDefaultLookId() {
         return getDefaultLookId(getCurrentItemStack());
@@ -85,13 +94,7 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
 
     @Override
     public @Nullable Look getLook() {
-        ItemStack stack = getCurrentItemStack();
-        UUID owner = stack.get(MineraculousDataComponents.OWNER);
-        Level level = ClientUtils.getLevel();
-        if (owner != null && level != null && level.getEntities().get(owner) instanceof Player player) {
-            return LookManager.getOrFetchLook(player, player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(getMiraculousOrDefault(stack)).lookData(), getContext().getKey());
-        }
-        return null;
+        return getLook(getCurrentItemStack(), getContext());
     }
 
     @Override

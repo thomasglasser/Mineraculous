@@ -41,7 +41,7 @@ public class TransformationTexturesLookAsset implements LookAssetType<Transforma
         Int2ObjectMap<ResourceLocation> map = new Int2ObjectOpenHashMap<>();
         for (int i = 0; i < asset.textureCount(); i++) {
             try {
-                map.put(i, TextureLookAsset.load(LookManager.findValidPath(root, asset.base().replace(".png", "_" + i + ".png")), "textures/looks/" + hash + "_" + context.getNamespace() + "_" + context.getPath() + "_" + i));
+                map.put(i, TextureLookAsset.load(LookManager.findValidPath(root, asset.base().replace(".png", "_" + i + ".png")), "textures/looks/" + hash + "_" + LookManager.toShortPath(context) + "_" + i));
             } catch (FileNotFoundException ignored) {}
         }
         return Int2ObjectMaps.unmodifiable(map);

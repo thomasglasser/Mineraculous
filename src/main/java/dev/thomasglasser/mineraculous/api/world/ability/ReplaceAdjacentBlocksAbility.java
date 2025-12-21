@@ -56,7 +56,7 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean insta
      * @param affected    The location to replace
      * @param replacement The replacement block
      * @param cause       The cause ID of the replacement
-     * @param level       The level to fetch the server from
+     * @param level       The level to get the server from
      */
     public static void replace(BlockLocation affected, BlockState replacement, UUID cause, ServerLevel level) {
         level = level.getServer().getLevel(affected.dimension());

@@ -121,7 +121,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     protected void add(IJadeProvider provider, String name) {
-        add("config.jade.plugin_" + provider.getUid().getNamespace() + "." + provider.getUid().getPath(), name);
+        add("config.jade.plugin_" + provider.getUid().toShortLanguageKey(), name);
     }
 
     private void add(MineraculousPackCompatibility compatibility, String description, String confirmation) {

@@ -3,7 +3,12 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.client.look.renderer.MiraculousToolLookRenderer;
+import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
+import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
@@ -11,15 +16,16 @@ import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import dev.thomasglasser.tommylib.api.client.renderer.item.GlowingDefaultedGeoItemRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -27,29 +33,42 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.renderer.GeoItemRenderer;
 
-public class CatStaffRenderer extends GlowingDefaultedGeoItemRenderer<CatStaffItem> {
+public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRenderer<T> implements MiraculousToolLookRenderer {
     public static final ResourceLocation EXTENDED_LOCATION = MineraculousConstants.modLoc("textures/misc/cat_staff.png");
-    public static final ResourceLocation SPYGLASS_SCOPE_LOCATION = MineraculousConstants.modLoc("textures/misc/cat_staff_spyglass_scope.png");
-    public static final ResourceLocation PHONE_LOCATION = makeTextureLocation(MineraculousConstants.modLoc("cat_staff_phone"));
-
     private static final float PIXEL = 1 / 16f;
 
+    private final GeoModel<T> model;
+
     public CatStaffRenderer() {
-        super(MineraculousItems.CAT_STAFF.getId());
+        super((GeoModel<T>) null);
+        addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
+
+        this.model = new LookGeoModel<>(this);
     }
 
     @Override
-    public ResourceLocation getTextureLocation(CatStaffItem animatable) {
-        CatStaffItem.Mode mode = getCurrentItemStack().get(MineraculousDataComponents.CAT_STAFF_MODE);
-        if (mode == CatStaffItem.Mode.PHONE) {
-            return PHONE_LOCATION;
-        }
-        return super.getTextureLocation(animatable);
+    public GeoModel<T> getGeoModel() {
+        return model;
     }
 
     @Override
-    public void defaultRender(PoseStack poseStack, CatStaffItem animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
+    public Holder<LookContext> getContext() {
+        ItemStack stack = getCurrentItemStack();
+        if (stack.has(MineraculousDataComponents.BLOCKING))
+            return LookContexts.MIRACULOUS_TOOL_BLOCKING;
+        return switch (stack.get(MineraculousDataComponents.CAT_STAFF_MODE)) {
+            case PHONE -> LookContexts.MIRACULOUS_TOOL_PHONE;
+            case SPYGLASS -> LookContexts.MIRACULOUS_TOOL_SPYGLASS;
+            case null, default -> LookContexts.MIRACULOUS_TOOL;
+        };
+    }
+
+    @Override
+    public void defaultRender(PoseStack poseStack, T animatable, MultiBufferSource bufferSource, @Nullable RenderType renderType, @Nullable VertexConsumer buffer, float yaw, float partialTick, int packedLight) {
         ItemStack stack = getCurrentItemStack();
         Integer carrierId = stack.get(MineraculousDataComponents.CARRIER);
         Level level = ClientUtils.getLevel();

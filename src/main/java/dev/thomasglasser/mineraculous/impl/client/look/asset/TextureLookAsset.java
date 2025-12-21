@@ -18,7 +18,7 @@ public class TextureLookAsset implements LookAssetType<String, ResourceLocation>
     public static final TextureLookAsset INSTANCE = new TextureLookAsset();
     private static final ResourceLocation KEY = MineraculousConstants.modLoc("texture");
 
-    private TextureLookAsset() {}
+    protected TextureLookAsset() {}
 
     @Override
     public ResourceLocation key() {
@@ -32,7 +32,7 @@ public class TextureLookAsset implements LookAssetType<String, ResourceLocation>
 
     @Override
     public ResourceLocation load(String asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
-        return load(LookManager.findValidPath(root, asset), "textures/looks/" + hash + "_" + context.getNamespace() + "_" + context.getPath());
+        return load(LookManager.findValidPath(root, asset), "textures/looks/" + LookManager.toShortPath(key()) + "_" + hash + "_" + LookManager.toShortPath(context));
     }
 
     @Override

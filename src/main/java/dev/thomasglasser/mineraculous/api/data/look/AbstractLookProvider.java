@@ -95,6 +95,17 @@ public abstract class AbstractLookProvider implements DataProvider {
         protected Map<LookAssetType<?, ?>, Object> assets = new Object2ObjectOpenHashMap<>();
 
         /**
+         * Makes a copy of the current {@link AssetsBuilder} so it can be modified separately.
+         * 
+         * @return A copy of the current {@link AssetsBuilder}
+         */
+        public AssetsBuilder copy() {
+            AssetsBuilder builder = new AssetsBuilder();
+            builder.assets.putAll(assets);
+            return builder;
+        }
+
+        /**
          * Adds an asset to the builder.
          * 
          * @param type  The type of the asset
@@ -102,7 +113,7 @@ public abstract class AbstractLookProvider implements DataProvider {
          * @return The builder
          * @param <S> The stored type of the asset
          */
-        protected <S> AssetsBuilder add(LookAssetType<S, ?> type, S asset) {
+        public <S> AssetsBuilder add(LookAssetType<S, ?> type, S asset) {
             this.assets.put(type, asset);
             return this;
         }
@@ -113,7 +124,7 @@ public abstract class AbstractLookProvider implements DataProvider {
          * @param type The type of the asset
          * @return The builder
          */
-        protected AssetsBuilder remove(LookAssetType<?, ?> type) {
+        public AssetsBuilder remove(LookAssetType<?, ?> type) {
             this.assets.remove(type);
             return this;
         }

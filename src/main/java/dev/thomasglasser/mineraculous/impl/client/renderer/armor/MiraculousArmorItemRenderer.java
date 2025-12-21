@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.client.renderer.armor;
 
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
-import dev.thomasglasser.mineraculous.api.client.look.LookRenderer;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetTypes;
+import dev.thomasglasser.mineraculous.api.client.look.renderer.LookRenderer;
 import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
@@ -64,7 +64,7 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
         super.prepForRender(entity, stack, slot, baseModel, bufferSource, partialTick, limbSwing, limbSwingAmount, netHeadYaw, headPitch);
         UUID owner = stack.get(MineraculousDataComponents.OWNER);
         if (owner != null && entity.level().getEntities().get(owner) instanceof Player player) {
-            look = LookManager.getOrFetchLook(player, player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(MiraculousItemRenderer.getMiraculousOrDefault(stack)).lookData(), getContext().getKey());
+            look = LookManager.getLook(player, player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(MiraculousItemRenderer.getMiraculousOrDefault(stack)).lookData(), getContext().getKey());
         }
     }
 

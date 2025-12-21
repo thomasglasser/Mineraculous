@@ -47,7 +47,7 @@ public class ItemTransformsLookAsset implements LookAssetType<String, ItemTransf
 
     @Override
     public Supplier<ItemTransforms> loadDefault(String asset) {
-        ModelResourceLocation location = ModelResourceLocation.standalone(ResourceLocation.parse(asset).withPath(path -> path.substring("models/".length(), path.length() - ".json".length())));
+        ModelResourceLocation location = ModelResourceLocation.standalone(ResourceLocation.parse(asset).withPath(path -> path.substring("models/".length(), path.indexOf(".json"))));
         return () -> Minecraft.getInstance().getModelManager().getModel(location).getTransforms();
     }
 }

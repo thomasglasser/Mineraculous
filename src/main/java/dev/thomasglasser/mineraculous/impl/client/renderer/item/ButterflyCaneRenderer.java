@@ -1,50 +1,42 @@
 package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 
-import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.client.look.renderer.MiraculousToolLookRenderer;
+import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.impl.world.item.ButterflyCaneItem;
-import dev.thomasglasser.tommylib.api.client.renderer.item.DefaultedGeoItemRenderer;
-import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib.model.DefaultedItemGeoModel;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
+import net.minecraft.core.Holder;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.renderer.GeoItemRenderer;
 
-public class ButterflyCaneRenderer extends DefaultedGeoItemRenderer<ButterflyCaneItem> {
-    public static final ResourceLocation SPYGLASS_SCOPE_LOCATION = MineraculousConstants.modLoc("textures/misc/butterfly_cane_spyglass_scope.png");
-    public static final ResourceLocation SPYGLASS_LOCATION = makeTextureLocation(MineraculousConstants.modLoc("butterfly_cane_spyglass"));
-    public static final ResourceLocation PHONE_LOCATION = makeTextureLocation(MineraculousConstants.modLoc("butterfly_cane_phone"));
-
-    private final GeoModel<ButterflyCaneItem> phoneModel;
+public class ButterflyCaneRenderer<T extends Item & GeoAnimatable> extends GeoItemRenderer<T> implements MiraculousToolLookRenderer {
+    private final GeoModel<T> model;
 
     public ButterflyCaneRenderer() {
-        super(MineraculousItems.BUTTERFLY_CANE.getId());
+        super((GeoModel<T>) null);
         addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
-        phoneModel = new DefaultedItemGeoModel<>(MineraculousItems.BUTTERFLY_CANE.getId().withSuffix("_phone")) {
-            @Override
-            public ResourceLocation getAnimationResource(ButterflyCaneItem animatable) {
-                return ButterflyCaneRenderer.this.model.getAnimationResource(animatable);
-            }
+
+        this.model = new LookGeoModel<>(this);
+    }
+
+    @Override
+    public GeoModel<T> getGeoModel() {
+        return this.model;
+    }
+
+    @Override
+    public Holder<LookContext> getContext() {
+        ItemStack stack = getCurrentItemStack();
+        if (stack.has(MineraculousDataComponents.BLOCKING))
+            return LookContexts.MIRACULOUS_TOOL_BLOCKING;
+        return switch (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE)) {
+            case PHONE -> LookContexts.MIRACULOUS_TOOL_PHONE;
+            case SPYGLASS -> LookContexts.MIRACULOUS_TOOL_SPYGLASS;
+            case null, default -> LookContexts.MIRACULOUS_TOOL;
         };
-    }
-
-    @Override
-    public GeoModel<ButterflyCaneItem> getGeoModel() {
-        ButterflyCaneItem.Mode mode = getCurrentItemStack().get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
-        if (mode == ButterflyCaneItem.Mode.PHONE) {
-            return phoneModel;
-        }
-        return super.getGeoModel();
-    }
-
-    @Override
-    public ResourceLocation getTextureLocation(ButterflyCaneItem animatable) {
-        ButterflyCaneItem.Mode mode = getCurrentItemStack().get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
-        if (mode == ButterflyCaneItem.Mode.PHONE) {
-            return PHONE_LOCATION;
-        } else if (mode == ButterflyCaneItem.Mode.SPYGLASS) {
-            return SPYGLASS_LOCATION;
-        }
-        return super.getTextureLocation(animatable);
     }
 }

@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.impl.data;
 import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.api.data.look.MiraculousDefaultLookProvider;
 import dev.thomasglasser.mineraculous.api.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
@@ -113,6 +114,7 @@ public class MineraculousDataGenerators {
         DataGenerationUtils.createProvider(event, MineraculousParticleDescriptionProvider::new);
         DataGenerationUtils.createProvider(event, MineraculousSoundDefinitionsProvider::new);
         DataGenerationUtils.createProvider(event, MineraculousResourceLocationClientTagsProvider::new);
+        DataGenerationUtils.createProvider(event, (packOutput, lookupProvider, existingFileHelper) -> new MiraculousDefaultLookProvider(packOutput, lookupProvider));
 
         DataGenerator generator = event.getGenerator();
         PackOutput packOutput = generator.getPackOutput();

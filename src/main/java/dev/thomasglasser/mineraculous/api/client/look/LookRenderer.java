@@ -50,7 +50,7 @@ public interface LookRenderer {
      * @return The asset
      * @param <T> The type of the asset
      */
-    default <T> T getDefaultAsset(LookAssetType<T> assetType, Holder<LookContext> context) {
+    default <T> T getDefaultAsset(LookAssetType<?, T> assetType, Holder<LookContext> context) {
         return getDefaultLook().getAsset(assetType, context);
     }
 
@@ -61,7 +61,7 @@ public interface LookRenderer {
      * @return The asset
      * @param <T> The type of the asset
      */
-    default <T> T getDefaultAsset(LookAssetType<T> assetType) {
+    default <T> T getDefaultAsset(LookAssetType<?, T> assetType) {
         return getDefaultAsset(assetType, getContext());
     }
 
@@ -74,7 +74,7 @@ public interface LookRenderer {
      * @return The asset
      * @param <T> The type of the asset
      */
-    default <T> @Nullable T getAsset(LookAssetType<T> assetType, Holder<LookContext> context) {
+    default <T> @Nullable T getAsset(LookAssetType<?, T> assetType, Holder<LookContext> context) {
         Look look = getLook();
         if (look != null) {
             LookAssets assets = look.assets().get(context.getKey());
@@ -92,7 +92,7 @@ public interface LookRenderer {
      * @return The asset
      * @param <T> The type of the asset
      */
-    default <T> @Nullable T getAsset(LookAssetType<T> assetType) {
+    default <T> @Nullable T getAsset(LookAssetType<?, T> assetType) {
         return getAsset(assetType, getContext());
     }
 
@@ -105,7 +105,7 @@ public interface LookRenderer {
      * @return The asset
      * @param <T> The type of the asset
      */
-    default <T> T getAssetOrDefault(LookAssetType<T> assetType, Holder<LookContext> context) {
+    default <T> T getAssetOrDefault(LookAssetType<?, T> assetType, Holder<LookContext> context) {
         T asset = getAsset(assetType, context);
         if (asset != null)
             return asset;
@@ -120,7 +120,7 @@ public interface LookRenderer {
      * @return The asset
      * @param <T> The type of the asset
      */
-    default <T> T getAssetOrDefault(LookAssetType<T> assetType) {
+    default <T> T getAssetOrDefault(LookAssetType<?, T> assetType) {
         return getAssetOrDefault(assetType, getContext());
     }
 }

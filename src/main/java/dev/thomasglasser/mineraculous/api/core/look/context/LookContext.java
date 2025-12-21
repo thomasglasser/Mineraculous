@@ -8,4 +8,4 @@ import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
  *
  * @param assetTypes The {@link LookAssetType}s used by this context
  */
-public record LookContext(ImmutableSet<LookAssetType<?>> assetTypes) {}
+public record LookContext(ImmutableSet<LookAssetType<?, ?>> assetTypes) {}

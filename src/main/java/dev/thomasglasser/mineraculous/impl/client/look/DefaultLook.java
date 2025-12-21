@@ -15,11 +15,14 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 public record DefaultLook(ImmutableMap<ResourceKey<LookContext>, DefaultLookAssets> assets) {
-    public <T> T getAsset(LookAssetType<T> assetType, ResourceKey<LookContext> context) {
-        return assets.get(context).getAsset(assetType);
+    public <T> @Nullable T getAsset(LookAssetType<?, T> assetType, ResourceKey<LookContext> context) {
+        DefaultLookAssets assets = this.assets.get(context);
+        if (assets != null)
+            return assets.getAsset(assetType);
+        return null;
     }
 
-    public <T> T getAsset(LookAssetType<T> assetType, Holder<LookContext> context) {
+    public <T> @Nullable T getAsset(LookAssetType<?, T> assetType, Holder<LookContext> context) {
         return getAsset(assetType, context.getKey());
     }
 
@@ -39,7 +42,7 @@ public record DefaultLook(ImmutableMap<ResourceKey<LookContext>, DefaultLookAsse
 
                     DefaultLookAssets.Builder assetsBuilder = new DefaultLookAssets.Builder();
                     for (String assetKey : assetKeys) {
-                        LookAssetType<?> assetType = LookAssetTypes.get(ResourceLocation.parse(assetKey));
+                        LookAssetType<?, ?> assetType = LookAssetTypes.get(ResourceLocation.parse(assetKey));
                         if (assetType != null) {
                             if (!context.value().assetTypes().contains(assetType))
                                 throw new IllegalArgumentException("Asset type " + assetKey + " not valid for context " + contextLoc);
@@ -51,8 +54,8 @@ public record DefaultLook(ImmutableMap<ResourceKey<LookContext>, DefaultLookAsse
 
                     DefaultLookAssets lookAssets = assetsBuilder.build();
                     if (lookAssets.isEmpty()) throw new IllegalArgumentException("Look " + lookAssets + " has no assets for context " + contextLoc);
-                    for (LookAssetType<?> assetType : context.value().assetTypes()) {
-                        if (!lookAssets.hasAsset(assetType))
+                    for (LookAssetType<?, ?> assetType : context.value().assetTypes()) {
+                        if (!assetType.isOptional() && !lookAssets.hasAsset(assetType))
                             throw new IllegalArgumentException("Look " + location + " has no asset for type " + assetType.key() + " for context " + contextLoc);
                     }
 

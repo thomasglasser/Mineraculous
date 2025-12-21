@@ -19,30 +19,30 @@ import software.bernie.geckolib.loading.object.BakedAnimations;
 
 public class LookAssetTypes {
     /// Holds all known {@link LookAssetType}s.
-    private static final Set<LookAssetType<?>> REGISTRY = new ReferenceOpenHashSet<>();
+    private static final Set<LookAssetType<?, ?>> REGISTRY = new ReferenceOpenHashSet<>();
 
     // General
     /// Represents the {@link ResourceLocation} of a texture in the {@link net.minecraft.client.renderer.texture.TextureManager}.
-    public static final LookAssetType<ResourceLocation> TEXTURE = register(TextureLookAsset.INSTANCE);
+    public static final LookAssetType<String, ResourceLocation> TEXTURE = register(TextureLookAsset.INSTANCE);
     /// Represents a {@link BakedGeoModel} used in {@link software.bernie.geckolib.model.GeoModel}s.
-    public static final LookAssetType<BakedGeoModel> GECKOLIB_MODEL = register(GeckolibModelLookAsset.INSTANCE);
+    public static final LookAssetType<String, BakedGeoModel> GECKOLIB_MODEL = register(GeckolibModelLookAsset.INSTANCE);
     /// Represents an optional {@link BakedAnimations} used in {@link software.bernie.geckolib.model.GeoModel}s.
-    public static final LookAssetType<@Nullable BakedAnimations> GECKOLIB_ANIMATIONS = register(GeckolibAnimationsLookAsset.INSTANCE);
+    public static final LookAssetType<String, BakedAnimations> GECKOLIB_ANIMATIONS = register(GeckolibAnimationsLookAsset.INSTANCE);
     /// Represents the optional {@link ItemTransforms} of an item to alter rendering placement.
-    public static final LookAssetType<@Nullable ItemTransforms> ITEM_TRANSFORMS = register(ItemTransformsLookAsset.INSTANCE);
+    public static final LookAssetType<String, ItemTransforms> ITEM_TRANSFORMS = register(ItemTransformsLookAsset.INSTANCE);
 
     // Specific
     /// Represents a map of transformation frames to {@link ResourceLocation}s in the {@link net.minecraft.client.renderer.texture.TextureManager}.
-    public static final LookAssetType<Int2ObjectMap<ResourceLocation>> TRANSFORMATION_TEXTURES = register(TransformationTexturesLookAsset.INSTANCE);
+    public static final LookAssetType<TransformationTexturesLookAsset.TransformationTextures, Int2ObjectMap<ResourceLocation>> TRANSFORMATION_TEXTURES = register(TransformationTexturesLookAsset.INSTANCE);
     /// Represents a list of countdown texture {@link ResourceLocation}s in the {@link net.minecraft.client.renderer.texture.TextureManager}.
-    public static final LookAssetType<ImmutableList<ResourceLocation>> COUNTDOWN_TEXTURES = register(CountdownTexturesLookAsset.INSTANCE);
+    public static final LookAssetType<CountdownTexturesLookAsset.CountdownTextures, ImmutableList<ResourceLocation>> COUNTDOWN_TEXTURES = register(CountdownTexturesLookAsset.INSTANCE);
 
     /**
      * Returns an immutable view of all available {@link LookAssetType}s.
      *
      * @return An immutable view of all available {@link LookAssetType}s
      */
-    public static Set<LookAssetType<?>> values() {
+    public static Set<LookAssetType<?, ?>> values() {
         return ImmutableSet.copyOf(REGISTRY);
     }
 
@@ -52,8 +52,8 @@ public class LookAssetTypes {
      * @param key The key of the {@link LookAssetType}
      * @return The {@link LookAssetType} for the provided key, or null if not found
      */
-    public static @Nullable LookAssetType<?> get(ResourceLocation key) {
-        for (LookAssetType<?> type : REGISTRY) {
+    public static @Nullable LookAssetType<?, ?> get(ResourceLocation key) {
+        for (LookAssetType<?, ?> type : REGISTRY) {
             if (type.key().equals(key))
                 return type;
         }
@@ -65,9 +65,10 @@ public class LookAssetTypes {
      *
      * @param type The {@link LookAssetType} to register
      * @return The registered {@link LookAssetType}
-     * @param <T> The type of asset
+     * @param <S> The stored type of the asset
+     * @param <L> The loaded type of the asset
      */
-    public static <T> LookAssetType<T> register(LookAssetType<T> type) {
+    public static <S, L> LookAssetType<S, L> register(LookAssetType<S, L> type) {
         REGISTRY.add(type);
         return type;
     }

@@ -25,7 +25,7 @@ public class LookContexts {
     /// Used for rendering a {@link dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem} that is hidden.
     public static final DeferredHolder<LookContext, LookContext> HIDDEN_MIRACULOUS = register("hidden_miraculous", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS, LookAssetTypes.ITEM_TRANSFORMS);
 
-    private static DeferredHolder<LookContext, LookContext> register(String name, LookAssetType<?>... assetTypes) {
+    private static DeferredHolder<LookContext, LookContext> register(String name, LookAssetType<?, ?>... assetTypes) {
         return LOOK_CONTEXTS.register(name, () -> new LookContext(ImmutableSet.copyOf(assetTypes)));
     }
 

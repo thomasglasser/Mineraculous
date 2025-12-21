@@ -45,12 +45,12 @@ public class LookLoader {
     public static final Path LOOKS_PATH = Minecraft.getInstance().gameDirectory.toPath().resolve(ServerLookManager.LOOKS_SUBPATH);
     public static final Path CACHE_PATH = Minecraft.getInstance().gameDirectory.toPath().resolve(ServerLookManager.CACHE_SUBPATH);
 
-    private static final String JSON_NAME = "look.json";
+    public static final String JSON_NAME = "look.json";
 
-    private static final String NAME_KEY = "name";
-    private static final String AUTHOR_KEY = "author";
-    private static final String VALID_MIRACULOUSES_KEY = "valid_miraculouses";
-    private static final String ASSETS_KEY = "assets";
+    public static final String NAME_KEY = "name";
+    public static final String AUTHOR_KEY = "author";
+    public static final String VALID_MIRACULOUSES_KEY = "valid_miraculouses";
+    public static final String ASSETS_KEY = "assets";
 
     public static CompletableFuture<Void> reloadDefaults(PreparableReloadListener.PreparationBarrier stage, ResourceManager resourceManager,
             ProfilerFiller preparationsProfiler, ProfilerFiller reloadProfiler, Executor backgroundExecutor,
@@ -63,7 +63,7 @@ public class LookLoader {
 
     private static CompletableFuture<Void> loadDefaults(Executor executor, ResourceManager resourceManager, BiConsumer<ResourceLocation, DefaultLook> map) {
         return CompletableFuture.runAsync(() -> CompletableFuture.supplyAsync(
-                () -> resourceManager.listResources("looks", fileName -> fileName.toString().endsWith(".json")), executor)
+                () -> resourceManager.listResources(ServerLookManager.LOOKS_SUBPATH.toString().replace('\\', '/'), fileName -> fileName.toString().endsWith(".json")), executor)
                 .thenApplyAsync(resources -> {
                     Map<ResourceLocation, CompletableFuture<DefaultLook>> tasks = new Object2ObjectOpenHashMap<>();
 
@@ -187,7 +187,7 @@ public class LookLoader {
 
                 LookAssets.Builder assetsBuilder = new LookAssets.Builder();
                 for (String assetKey : assetKeys) {
-                    LookAssetType<?> assetType = LookAssetTypes.get(ResourceLocation.parse(assetKey));
+                    LookAssetType<?, ?> assetType = LookAssetTypes.get(ResourceLocation.parse(assetKey));
                     if (assetType != null) {
                         if (!context.value().assetTypes().contains(assetType))
                             throw new IllegalArgumentException("Asset type " + assetKey + " not valid for context " + contextLoc);

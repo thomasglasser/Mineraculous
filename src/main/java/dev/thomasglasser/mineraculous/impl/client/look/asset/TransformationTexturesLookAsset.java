@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.client.look.asset;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
@@ -13,12 +13,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.function.Supplier;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
 
-public class TransformationTexturesLookAsset implements LookAssetType<Int2ObjectMap<ResourceLocation>> {
+public class TransformationTexturesLookAsset implements LookAssetType<TransformationTexturesLookAsset.TransformationTextures, Int2ObjectMap<ResourceLocation>> {
     public static final TransformationTexturesLookAsset INSTANCE = new TransformationTexturesLookAsset();
     private static final ResourceLocation KEY = MineraculousConstants.modLoc("transformation_textures");
-    private static final String BASE_KEY = "base";
-    private static final String TEXTURE_COUNT_KEY = "texture_count";
 
     private TransformationTexturesLookAsset() {}
 
@@ -28,29 +27,39 @@ public class TransformationTexturesLookAsset implements LookAssetType<Int2Object
     }
 
     @Override
-    public Int2ObjectMap<ResourceLocation> load(JsonElement asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
+    public boolean isOptional() {
+        return true;
+    }
+
+    @Override
+    public Codec<TransformationTextures> getCodec() {
+        return TransformationTextures.CODEC;
+    }
+
+    @Override
+    public Int2ObjectMap<ResourceLocation> load(TransformationTextures asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
         Int2ObjectMap<ResourceLocation> map = new Int2ObjectOpenHashMap<>();
-        JsonObject assetObject = asset.getAsJsonObject();
-        String base = assetObject.get(BASE_KEY).getAsString();
-        int count = assetObject.get(TEXTURE_COUNT_KEY).getAsInt();
-        for (int i = 0; i < count; i++) {
+        for (int i = 0; i < asset.textureCount(); i++) {
             try {
-                map.put(i, TextureLookAsset.load(LookManager.findValidPath(root, base.replace(".png", "_" + i + ".png")), "textures/looks/" + hash + "_" + context.getNamespace() + "_" + context.getPath() + "_" + i));
+                map.put(i, TextureLookAsset.load(LookManager.findValidPath(root, asset.base().replace(".png", "_" + i + ".png")), "textures/looks/" + hash + "_" + context.getNamespace() + "_" + context.getPath() + "_" + i));
             } catch (FileNotFoundException ignored) {}
         }
         return Int2ObjectMaps.unmodifiable(map);
     }
 
     @Override
-    public Supplier<Int2ObjectMap<ResourceLocation>> loadDefault(JsonElement asset) {
+    public Supplier<Int2ObjectMap<ResourceLocation>> loadDefault(TransformationTextures asset) {
         Int2ObjectMap<ResourceLocation> map = new Int2ObjectOpenHashMap<>();
-        JsonObject assetObject = asset.getAsJsonObject();
-        String base = assetObject.get(BASE_KEY).getAsString();
-        int count = assetObject.get(TEXTURE_COUNT_KEY).getAsInt();
-        for (int i = 0; i < count; i++) {
-            map.put(i, ResourceLocation.parse(base.replace(".png", "_" + i + ".png")));
+        for (int i = 0; i < asset.textureCount(); i++) {
+            map.put(i, ResourceLocation.parse(asset.base().replace(".png", "_" + i + ".png")));
         }
         Int2ObjectMap<ResourceLocation> immutable = Int2ObjectMaps.unmodifiable(map);
         return () -> immutable;
+    }
+
+    public record TransformationTextures(String base, int textureCount) {
+        private static final Codec<TransformationTextures> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.STRING.fieldOf("base").forGetter(TransformationTextures::base),
+                ExtraCodecs.POSITIVE_INT.fieldOf("texture_count").forGetter(TransformationTextures::textureCount)).apply(instance, TransformationTextures::new));
     }
 }

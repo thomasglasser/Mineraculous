@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -58,10 +59,14 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
         return miraculous;
     }
 
-    public static ResourceLocation getDefaultLookId(ItemStack stack) {
-        ResourceLocation miraculousId = MiraculousItemRenderer.getMiraculousOrDefault(stack).getKey().location();
+    public static ResourceLocation getDefaultLookId(ResourceKey<Miraculous> miraculous) {
+        ResourceLocation miraculousId = miraculous.location();
         ResourceLocation registryId = MineraculousRegistries.MIRACULOUS.location();
         return miraculousId.withPrefix(registryId.getNamespace() + "/" + registryId.getPath() + "/");
+    }
+
+    public static ResourceLocation getDefaultLookId(ItemStack stack) {
+        return getDefaultLookId(getMiraculousOrDefault(stack).getKey());
     }
 
     public static Holder<LookContext> getContext(@Nullable MiraculousItem.PowerState powerState) {

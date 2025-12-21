@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.client.look;
 
 import com.google.common.collect.ImmutableSortedSet;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.nio.file.Path;
 import java.util.Comparator;
@@ -46,7 +47,7 @@ public class InternalLookManager {
     }
 
     public static DefaultLook getDefaultLook(ResourceLocation key) {
-        DefaultLook look = DEFAULT_LOOKS.get(key.withPath(path -> "looks/" + path + ".json"));
+        DefaultLook look = DEFAULT_LOOKS.get(key.withPath(path -> ServerLookManager.LOOKS_SUBPATH.toString().replace("\\", "/") + "/" + path + ".json"));
         if (look == null)
             throw new RuntimeException("Default look not found: " + key);
         return look;

@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.client.look.asset;
 
-import com.google.gson.JsonElement;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
@@ -14,7 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 
-public class TextureLookAsset implements LookAssetType<ResourceLocation> {
+public class TextureLookAsset implements LookAssetType<String, ResourceLocation> {
     public static final TextureLookAsset INSTANCE = new TextureLookAsset();
     private static final ResourceLocation KEY = MineraculousConstants.modLoc("texture");
 
@@ -26,13 +26,18 @@ public class TextureLookAsset implements LookAssetType<ResourceLocation> {
     }
 
     @Override
-    public ResourceLocation load(JsonElement asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
-        return load(LookManager.findValidPath(root, asset.getAsString()), "textures/looks/" + hash + "_" + context.getNamespace() + "_" + context.getPath());
+    public Codec<String> getCodec() {
+        return Codec.STRING;
     }
 
     @Override
-    public Supplier<ResourceLocation> loadDefault(JsonElement asset) {
-        ResourceLocation location = ResourceLocation.parse(asset.getAsString());
+    public ResourceLocation load(String asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
+        return load(LookManager.findValidPath(root, asset), "textures/looks/" + hash + "_" + context.getNamespace() + "_" + context.getPath());
+    }
+
+    @Override
+    public Supplier<ResourceLocation> loadDefault(String asset) {
+        ResourceLocation location = ResourceLocation.parse(asset);
         return () -> location;
     }
 

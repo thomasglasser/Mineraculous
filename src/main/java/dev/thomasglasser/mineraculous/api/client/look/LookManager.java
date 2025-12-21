@@ -87,7 +87,7 @@ public class LookManager {
      * @return The asset of the provided asset type of the look of the player for the provided miraculous and context, or null if not found
      * @param <T> The type of the asset
      */
-    public static <T> @Nullable T getOrFetchLookAsset(Player player, Holder<Miraculous> miraculous, ResourceKey<LookContext> context, LookAssetType<T> assetType) {
+    public static <T> @Nullable T getOrFetchLookAsset(Player player, Holder<Miraculous> miraculous, ResourceKey<LookContext> context, LookAssetType<?, T> assetType) {
         Look look = getOrFetchLook(player, miraculous, context);
         if (look != null) {
             LookAssets assets = look.assets().get(context);
@@ -97,7 +97,7 @@ public class LookManager {
         return null;
     }
 
-    public static <T> @Nullable T getOrFetchLookAsset(Player player, Holder<Miraculous> miraculous, Holder<LookContext> context, LookAssetType<T> assetType) {
+    public static <T> @Nullable T getOrFetchLookAsset(Player player, Holder<Miraculous> miraculous, Holder<LookContext> context, LookAssetType<?, T> assetType) {
         return getOrFetchLookAsset(player, miraculous, context.getKey(), assetType);
     }
 

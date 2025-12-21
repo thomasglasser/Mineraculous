@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.api.client.look.asset;
 
-import com.google.gson.JsonElement;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import java.io.IOException;
@@ -12,10 +11,11 @@ import net.minecraft.resources.ResourceLocation;
 /**
  * Represents a type of asset that can be loaded and used in a {@link dev.thomasglasser.mineraculous.api.core.look.context.LookContext}.
  *
- * @param <T> The type of the asset
+ * @param <S> The stored type of the asset
+ * @param <L> The loaded type of the asset
  */
-public interface LookAssetType<T> {
-    Codec<LookAssetType<?>> CODEC = ResourceLocation.CODEC
+public interface LookAssetType<S, L> {
+    Codec<LookAssetType<?, ?>> CODEC = ResourceLocation.CODEC
             .comapFlatMap(
                     id -> Optional.ofNullable(LookAssetTypes.get(id))
                             .map(DataResult::success)
@@ -30,6 +30,22 @@ public interface LookAssetType<T> {
     ResourceLocation key();
 
     /**
+     * Returns the codec to de/serialize the stored asset type.
+     * 
+     * @return The codec to de/serialize the stored asset type
+     */
+    Codec<S> getCodec();
+
+    /**
+     * Returns whether the asset is optional.
+     * 
+     * @return Whether the asset is optional
+     */
+    default boolean isOptional() {
+        return false;
+    }
+
+    /**
      * Loads the asset from the provided path.
      *
      * @param asset   The asset to load
@@ -38,7 +54,7 @@ public interface LookAssetType<T> {
      * @param context The {@link dev.thomasglasser.mineraculous.api.core.look.context.LookContext} to load the asset for
      * @return The loaded asset
      */
-    T load(JsonElement asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException;
+    L load(S asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException;
 
     /**
      * Loads the default asset.
@@ -46,5 +62,5 @@ public interface LookAssetType<T> {
      * @param asset The asset to load
      * @return A supplier pointing to the loaded asset
      */
-    Supplier<T> loadDefault(JsonElement asset);
+    Supplier<L> loadDefault(S asset);
 }

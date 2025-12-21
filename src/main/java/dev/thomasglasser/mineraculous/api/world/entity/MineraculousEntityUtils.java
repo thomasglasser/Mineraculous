@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.entity;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
@@ -11,7 +10,6 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundRefreshDisplayNamePayload;
-import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
@@ -19,7 +17,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import net.minecraft.SharedConstants;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -157,26 +154,7 @@ public class MineraculousEntityUtils {
             }
             kwami.setYRot(owner.getYRot() + 180);
             kwami.setYHeadRot(owner.getYRot() + 180);
-            switch (appearance) {
-                case Kwami.SummoningAppearance.TRAIL:
-                    kwami.moveTo(owner.position().add(new Vec3(0, owner.getBbHeight() * 3d / 4d, 0)));
-                    kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * 3 / 2);
-                    kwami.setSummoningAppearance(appearance);
-                    break;
-                case Kwami.SummoningAppearance.ORB:
-                    kwami.moveTo(owner.position());
-                    kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt());
-                    kwami.playSound(MineraculousSoundEvents.KWAMI_SUMMON.get());
-                    kwami.setSummoningAppearance(appearance);
-                    break;
-                case Kwami.SummoningAppearance.INSTANT:
-                    Vec3 ownerPos = owner.position();
-                    Vec3 lookDirection = owner.getLookAngle();
-                    Vec3 kwamiPos = ownerPos.add(lookDirection.scale(1.5));
-                    kwami.moveTo(kwamiPos.x, owner.getEyeY(), kwamiPos.z);
-                    kwami.setSummoningAppearance(appearance);
-                    break;
-            }
+            Kwami.applySummoningAppearance(appearance, kwami, owner);
             if (uuidOverride != null)
                 kwami.setUUID(uuidOverride);
             level.addFreshEntity(kwami);

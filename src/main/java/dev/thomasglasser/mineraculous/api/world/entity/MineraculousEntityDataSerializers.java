@@ -30,7 +30,7 @@ public class MineraculousEntityDataSerializers {
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<MiraculousLadybugTargetData>> MIRACULOUS_LADYBUG_TARGET_DATA = ENTITY_DATA_SERIALIZERS.register("miraculous_ladybug_target_data", () -> EntityDataSerializer.forValueType(MiraculousLadybugTargetData.STREAM_CODEC));
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Optional<Holder<Kamikotization>>>> OPTIONAL_KAMIKOTIZATION = ENTITY_DATA_SERIALIZERS.register("optional_kamikotization", () -> EntityDataSerializer.forValueType(ByteBufCodecs.optional(Kamikotization.STREAM_CODEC)));
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Optional<MinionKamikotizationData>>> MINION_KAMIKOTIZATION_DATA = ENTITY_DATA_SERIALIZERS.register("minion_kamikotization_data", () -> EntityDataSerializer.forValueType(ByteBufCodecs.optional(MinionKamikotizationData.STREAM_CODEC)));
-    public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Kwami.SummoningAppearance>> KWAMI_SUMMONING_APPEARANCE = ENTITY_DATA_SERIALIZERS.register("kwami_summoning_appearance", () -> EntityDataSerializer.forValueType(Kwami.SummoningAppearance.STREAM_CODEC));
+    public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Kwami.SummoningAppearance>> KWAMI_SUMMONING_APPEARANCE = ENTITY_DATA_SERIALIZERS.register("kwami_summoning_appearance", () -> EntityDataSerializer.forValueType(TommyLibExtraStreamCodecs.forEnum(Kwami.SummoningAppearance.class)));
 
     @ApiStatus.Internal
     public static void init() {}

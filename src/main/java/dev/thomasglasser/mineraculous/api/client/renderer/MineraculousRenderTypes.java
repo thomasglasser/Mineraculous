@@ -30,6 +30,25 @@ public class MineraculousRenderTypes {
     private static final RenderType MIRACULOUS_LADYBUG_BODY = createMiraculousLadybugBody();
     private static final RenderType MIRACULOUS_LADYBUG_OUTLINE = createMiraculousLadybugOutline();
 
+    public static final RenderStateShard.OutputStateShard KWAMI_TARGET = new RenderStateShard.OutputStateShard(
+            "kwami_target",
+            () -> MineraculousClientUtils.kwamiTarget.bindWrite(false),
+            () -> Minecraft.getInstance().getMainRenderTarget().bindWrite(false));
+
+    static final BiFunction<ResourceLocation, RenderStateShard.CullStateShard, RenderType> KWAMI_GLOW = Util.memoize(
+            (textureLocation, cullState) -> RenderType.create(
+                    "kwami_glow",
+                    DefaultVertexFormat.POSITION_TEX_COLOR,
+                    VertexFormat.Mode.QUADS,
+                    1536,
+                    RenderType.CompositeState.builder()
+                            .setShaderState(RenderStateShard.RENDERTYPE_OUTLINE_SHADER)
+                            .setTextureState(new RenderStateShard.TextureStateShard(textureLocation, false, false))
+                            .setCullState(cullState)
+                            .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
+                            .setOutputState(KWAMI_TARGET)
+                            .createCompositeState(RenderType.OutlineProperty.IS_OUTLINE)));
+
     public static RenderType itemLuckyCharm() {
         return ITEM_LUCKY_CHARM;
     }
@@ -206,23 +225,4 @@ public class MineraculousRenderTypes {
     public static RenderType kwamiGlowColor(ResourceLocation location) {
         return KWAMI_GLOW.apply(location, RenderStateShard.NO_CULL);
     }
-
-    public static final RenderStateShard.OutputStateShard KWAMI_TARGET = new RenderStateShard.OutputStateShard(
-            "kwami_target",
-            () -> MineraculousClientUtils.kwamiTarget.bindWrite(false),
-            () -> Minecraft.getInstance().getMainRenderTarget().bindWrite(false));
-
-    static final BiFunction<ResourceLocation, RenderStateShard.CullStateShard, RenderType> KWAMI_GLOW = Util.memoize(
-            (textureLocation, cullState) -> RenderType.create(
-                    "outline",
-                    DefaultVertexFormat.POSITION_TEX_COLOR,
-                    VertexFormat.Mode.QUADS,
-                    1536,
-                    RenderType.CompositeState.builder()
-                            .setShaderState(RenderStateShard.RENDERTYPE_OUTLINE_SHADER)
-                            .setTextureState(new RenderStateShard.TextureStateShard(textureLocation, false, false))
-                            .setCullState(cullState)
-                            .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
-                            .setOutputState(KWAMI_TARGET)
-                            .createCompositeState(RenderType.OutlineProperty.IS_OUTLINE)));
 }

@@ -12,6 +12,7 @@ import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundOpenMiraculousTransferScreenPayload;
+import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -21,6 +22,12 @@ import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
@@ -43,6 +50,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -89,12 +97,6 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 
 public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoEntity, FlyingAnimal {
     public static final RawAnimation EAT = RawAnimation.begin().thenPlay("misc.eat");
@@ -695,6 +697,37 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
             this.owner = super.getOwner();
 
         return this.owner;
+    }
+
+    public static void applySummoningAppearance(SummoningAppearance appearance, Kwami kwami, Entity owner) {
+        switch (appearance) {
+            case Kwami.SummoningAppearance.TRAIL:
+                kwami.moveTo(owner.position().add(new Vec3(0, owner.getBbHeight() * 3d / 4d, 0)));
+                kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * 3 / 2);
+                kwami.setSummoningAppearance(appearance);
+                break;
+            case Kwami.SummoningAppearance.ORB:
+                kwami.moveTo(owner.position());
+                kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().kwamiSummonTime.getAsInt());
+                kwami.playSound(MineraculousSoundEvents.KWAMI_SUMMON.get());
+                kwami.setSummoningAppearance(appearance);
+                break;
+            case Kwami.SummoningAppearance.INSTANT:
+                Vec3 ownerPos = owner.position();
+                Vec3 lookDirection = owner.getLookAngle();
+                Vec3 kwamiPos = ownerPos.add(lookDirection.scale(1.5));
+                kwami.moveTo(kwamiPos.x, owner.getEyeY(), kwamiPos.z);
+                kwami.setSummoningAppearance(appearance);
+                break;
+            default: {
+                kwami.moveTo(owner.getX(), owner.getEyeY(), owner.getZ());
+                MineraculousConstants.LOGGER.error(
+                        "Kwami {} has invalid SummoningAppearance: {}",
+                        kwami.getUUID(),
+                        appearance);
+                break;
+            }
+        }
     }
 
     public enum SummoningAppearance implements StringRepresentable {

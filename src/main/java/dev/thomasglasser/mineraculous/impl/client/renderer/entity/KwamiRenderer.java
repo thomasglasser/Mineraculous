@@ -14,7 +14,6 @@ import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -35,7 +34,6 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
-import software.bernie.geckolib.util.ClientUtil;
 import software.bernie.geckolib.util.Color;
 
 public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
@@ -173,17 +171,10 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
 
     @Override
     public RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-        final boolean invisible = animatable.isInvisible();
-
-        if (animatable.isKwamiGlowing())
+        if (animatable.isKwamiGlowing()) {
             return MineraculousRenderTypes.kwamiGlowColor(texture);
-
-        if (invisible && !animatable.isInvisibleTo(ClientUtil.getClientPlayer()))
-            return RenderType.itemEntityTranslucentCull(texture);
-
-        if (!invisible)
+        } else {
             return super.getRenderType(animatable, texture, bufferSource, partialTick);
-
-        return Minecraft.getInstance().shouldEntityAppearGlowing(animatable) ? RenderType.outline(texture) : null;
+        }
     }
 }

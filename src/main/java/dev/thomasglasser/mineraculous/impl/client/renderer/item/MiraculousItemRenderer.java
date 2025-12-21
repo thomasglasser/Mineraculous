@@ -11,11 +11,13 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.look.Look;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
+import java.util.UUID;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
@@ -60,9 +62,7 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
     }
 
     public static ResourceLocation getDefaultLookId(ResourceKey<Miraculous> miraculous) {
-        ResourceLocation miraculousId = miraculous.location();
-        ResourceLocation registryId = MineraculousRegistries.MIRACULOUS.location();
-        return miraculousId.withPrefix(registryId.getNamespace() + "/" + registryId.getPath() + "/");
+        return LookManager.getDefaultLookId(miraculous, MineraculousRegistries.MIRACULOUS);
     }
 
     public static ResourceLocation getDefaultLookId(ItemStack stack) {
@@ -86,10 +86,10 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
     @Override
     public @Nullable Look getLook() {
         ItemStack stack = getCurrentItemStack();
-        Integer carrier = stack.get(MineraculousDataComponents.CARRIER);
+        UUID owner = stack.get(MineraculousDataComponents.OWNER);
         Level level = ClientUtils.getLevel();
-        if (carrier != null && level != null && level.getEntities().get(carrier) instanceof Player player) {
-            return LookManager.getOrFetchLook(player, getMiraculousOrDefault(stack), getContext().getKey());
+        if (owner != null && level != null && level.getEntities().get(owner) instanceof Player player) {
+            return LookManager.getOrFetchLook(player, player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(getMiraculousOrDefault(stack)).lookData(), getContext().getKey());
         }
         return null;
     }

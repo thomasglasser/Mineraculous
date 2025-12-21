@@ -214,6 +214,6 @@ public class LookLoader {
             throw new IOException("Look '" + source + "' has no assets");
         }
 
-        InternalLookManager.add(source, new Look(hash, displayName, author, validMiraculouses.build(), contextAssets), equippable);
+        InternalLookManager.add(source, new Look(hash, displayName, author/*, validMiraculouses.build()*/, contextAssets), equippable);
     }
 }

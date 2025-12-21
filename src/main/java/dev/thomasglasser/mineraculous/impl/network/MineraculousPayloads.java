@@ -48,7 +48,7 @@ public class MineraculousPayloads {
             new PayloadInfo<>(ServerboundActivatePowerPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundActivatePowerPayload.CODEC),
             new PayloadInfo<>(ServerboundToggleBuffsPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundToggleBuffsPayload.CODEC),
             new PayloadInfo<>(ServerboundSetItemKamikotizingPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetItemKamikotizingPayload.CODEC),
-            new PayloadInfo<>(ServerboundSetLookDataPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetLookDataPayload.CODEC),
+            new PayloadInfo<>(ServerboundSetMiraculousLookDataPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSetMiraculousLookDataPayload.CODEC),
             new PayloadInfo<>(ServerboundRequestLookPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundRequestLookPayload.CODEC),
             new PayloadInfo<>(ServerboundSendLookPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundSendLookPayload.CODEC),
 

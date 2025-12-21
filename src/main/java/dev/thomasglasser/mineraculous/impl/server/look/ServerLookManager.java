@@ -4,12 +4,18 @@ import com.google.common.hash.Hashing;
 import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.core.look.LookData;
+import dev.thomasglasser.mineraculous.impl.network.ClientboundRequestLooksPayload;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.storage.LevelResource;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,6 +49,17 @@ public class ServerLookManager {
     public static void ensureCacheExists(Path cachePath) throws IOException {
         if (!Files.exists(cachePath))
             Files.createDirectories(cachePath);
+    }
+
+    public static void requestMissingLooks(LookData lookData, ServerPlayer player) {
+        Set<String> missing = new ObjectOpenHashSet<>();
+        for (String hash : lookData.hashes().values()) {
+            if (!hasLook(hash)) {
+                missing.add(hash);
+            }
+        }
+        if (!missing.isEmpty())
+            TommyLibServices.NETWORK.sendToClient(new ClientboundRequestLooksPayload(missing), player);
     }
 
     public static boolean hasLook(String hash) {

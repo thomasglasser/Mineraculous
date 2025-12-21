@@ -35,7 +35,6 @@ import dev.thomasglasser.mineraculous.impl.client.look.LookLoader;
 import dev.thomasglasser.mineraculous.impl.client.model.BeardModel;
 import dev.thomasglasser.mineraculous.impl.client.model.DerbyHatModel;
 import dev.thomasglasser.mineraculous.impl.client.model.FaceMaskModel;
-import dev.thomasglasser.mineraculous.impl.client.renderer.armor.KamikotizationArmorItemRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.LuckyCharmItemSpawnerRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.MiraculousLadybugRenderer;
@@ -262,7 +261,6 @@ public class MineraculousClientEvents {
     static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
         // Clears old rendering data on reload
         event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
-            KamikotizationArmorItemRenderer.clearAssets();
             KwamiRenderer.clearAssets();
             KwamiItemRenderer.clearAssets();
             MineraculousClientUtils.syncSpecialPlayerChoices();

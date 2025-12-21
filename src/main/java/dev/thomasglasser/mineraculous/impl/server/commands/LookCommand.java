@@ -5,13 +5,13 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
+import dev.thomasglasser.mineraculous.api.core.look.LookData;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousBuiltInRegistries;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
-import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.impl.client.look.InternalLookManager;
 import dev.thomasglasser.mineraculous.impl.client.look.Look;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundSetLookDataPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundSetMiraculousLookDataPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import java.util.Optional;
 import net.minecraft.Util;
@@ -44,8 +44,9 @@ public class LookCommand {
 
             Look look = InternalLookManager.getEquippableLook(hash);
             if (look != null) {
-                if (look.validMiraculouses().contains(miraculous.getKey())) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetLookDataPayload(miraculous, new MiraculousData.LookData(Optional.empty(), Util.make(new ImmutableMap.Builder<ResourceKey<LookContext>, String>(), builder -> {
+                // TODO: Fix
+                if (/*look.validMiraculouses().contains(miraculous.getKey())*/true) {
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousLookDataPayload(miraculous, new LookData(Optional.empty(), Util.make(new ImmutableMap.Builder<ResourceKey<LookContext>, String>(), builder -> {
                         for (ResourceKey<LookContext> lookContext : MineraculousBuiltInRegistries.LOOK_CONTEXT.registryKeySet())
                             builder.put(lookContext, hash);
                     }).build())));
@@ -66,7 +67,7 @@ public class LookCommand {
         try {
             var miraculous = ResourceArgument.getResource(context, "miraculous", MineraculousRegistries.MIRACULOUS);
 
-            TommyLibServices.NETWORK.sendToServer(new ServerboundSetLookDataPayload(miraculous, new MiraculousData.LookData(Optional.empty(), ImmutableMap.of())));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousLookDataPayload(miraculous, new LookData(Optional.empty(), ImmutableMap.of())));
             context.getSource().sendSuccess(() -> Component.literal("Unequipped look."), true);
         } catch (Exception e) {
             context.getSource().sendFailure(Component.literal("Error: " + e.getMessage()));

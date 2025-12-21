@@ -4,9 +4,8 @@ import com.google.common.collect.ImmutableSortedSet;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssets;
+import dev.thomasglasser.mineraculous.api.core.look.LookData;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
-import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.look.DefaultLook;
 import dev.thomasglasser.mineraculous.impl.client.look.InternalLookManager;
 import dev.thomasglasser.mineraculous.impl.client.look.Look;
@@ -18,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -33,6 +33,20 @@ public class LookManager {
      */
     public static DefaultLook getDefaultLook(ResourceLocation key) {
         return InternalLookManager.getDefaultLook(key);
+    }
+
+    /**
+     * Determines the default look id for a registry entry
+     * 
+     * @param key      The key of the entry
+     * @param registry The registry of the entry
+     * @return The default look id for the provided key and registry
+     * @param <T> The type of the entry
+     */
+    public static <T> ResourceLocation getDefaultLookId(ResourceKey<T> key, ResourceKey<Registry<T>> registry) {
+        ResourceLocation id = key.location();
+        ResourceLocation registryId = registry.location();
+        return id.withPrefix(registryId.getNamespace() + "/" + registryId.getPath() + "/");
     }
 
     /**
@@ -55,20 +69,20 @@ public class LookManager {
     }
 
     /**
-     * Returns the look of the player for the provided miraculous and context.
+     * Returns the look of the player for the provided data and context.
      *
-     * @param player     The player to fetch the look for
-     * @param miraculous The miraculous to fetch the look for
-     * @param context    The context to fetch the look for
+     * @param player   The player to fetch the look for
+     * @param lookData The data to fetch the look from
+     * @param context  The context to fetch the look for
      * @return The look of the player for the provided miraculous and context, or null if not found
      */
-    public static @Nullable Look getOrFetchLook(Player player, Holder<Miraculous> miraculous, ResourceKey<LookContext> context) {
+    public static @Nullable Look getOrFetchLook(Player player, LookData lookData, ResourceKey<LookContext> context) {
         if (InternalLookManager.isInSafeMode()) {
             MineraculousConstants.LOGGER.warn("Tried to fetch look for {} in safe mode, using the default...", player.getUUID());
             return null;
         }
 
-        String hash = player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).lookData().hashes().get(context);
+        String hash = lookData.hashes().get(context);
         if (hash == null) return null;
 
         Look look = InternalLookManager.getCachedLook(hash);
@@ -78,17 +92,17 @@ public class LookManager {
     }
 
     /**
-     * Returns the asset of the provided asset type of the look of the player for the provided miraculous and context.
+     * Returns the asset of the provided asset type of the look of the player for the provided data and context.
      *
-     * @param player     The player to fetch the asset for
-     * @param miraculous The miraculous to fetch the asset for
-     * @param context    The context to fetch the asset for
-     * @param assetType  The asset type to fetch
+     * @param player    The player to fetch the asset for
+     * @param lookData  The data to fetch the look from
+     * @param context   The context to fetch the asset for
+     * @param assetType The asset type to fetch
      * @return The asset of the provided asset type of the look of the player for the provided miraculous and context, or null if not found
      * @param <T> The type of the asset
      */
-    public static <T> @Nullable T getOrFetchLookAsset(Player player, Holder<Miraculous> miraculous, ResourceKey<LookContext> context, LookAssetType<?, T> assetType) {
-        Look look = getOrFetchLook(player, miraculous, context);
+    public static <T> @Nullable T getOrFetchLookAsset(Player player, LookData lookData, ResourceKey<LookContext> context, LookAssetType<?, T> assetType) {
+        Look look = getOrFetchLook(player, lookData, context);
         if (look != null) {
             LookAssets assets = look.assets().get(context);
             if (assets != null)
@@ -97,8 +111,8 @@ public class LookManager {
         return null;
     }
 
-    public static <T> @Nullable T getOrFetchLookAsset(Player player, Holder<Miraculous> miraculous, Holder<LookContext> context, LookAssetType<?, T> assetType) {
-        return getOrFetchLookAsset(player, miraculous, context.getKey(), assetType);
+    public static <T> @Nullable T getOrFetchLookAsset(Player player, LookData lookData, Holder<LookContext> context, LookAssetType<?, T> assetType) {
+        return getOrFetchLookAsset(player, lookData, context.getKey(), assetType);
     }
 
     /**

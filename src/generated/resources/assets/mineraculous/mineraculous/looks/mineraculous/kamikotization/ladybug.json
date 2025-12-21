@@ -1,0 +1,6 @@
+{
+  "mineraculous:kamikotization_suit": {
+    "mineraculous:geckolib_model": "mineraculous:geo/item/armor/kamikotization/ladybug.geo.json",
+    "mineraculous:texture": "mineraculous:textures/entity/equipment/humanoid/kamikotization/ladybug.png"
+  }
+}

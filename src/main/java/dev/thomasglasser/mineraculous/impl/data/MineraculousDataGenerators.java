@@ -3,7 +3,6 @@ package dev.thomasglasser.mineraculous.impl.data;
 import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
-import dev.thomasglasser.mineraculous.api.data.look.MiraculousDefaultLookProvider;
 import dev.thomasglasser.mineraculous.api.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
@@ -16,6 +15,7 @@ import dev.thomasglasser.mineraculous.impl.data.curios.MineraculousCuriosProvide
 import dev.thomasglasser.mineraculous.impl.data.datamaps.MineraculousDataMapProvider;
 import dev.thomasglasser.mineraculous.impl.data.lang.MineraculousEnUsLanguageProvider;
 import dev.thomasglasser.mineraculous.impl.data.lang.expansions.AkumatizationPackEnUsLanguageProvider;
+import dev.thomasglasser.mineraculous.impl.data.looks.MineraculousDefaultLookProvider;
 import dev.thomasglasser.mineraculous.impl.data.loot.MineraculousLootTables;
 import dev.thomasglasser.mineraculous.impl.data.models.MineraculousItemModelProvider;
 import dev.thomasglasser.mineraculous.impl.data.modonomicons.MineraculousBookProvider;
@@ -114,7 +114,7 @@ public class MineraculousDataGenerators {
         DataGenerationUtils.createProvider(event, MineraculousParticleDescriptionProvider::new);
         DataGenerationUtils.createProvider(event, MineraculousSoundDefinitionsProvider::new);
         DataGenerationUtils.createProvider(event, MineraculousResourceLocationClientTagsProvider::new);
-        DataGenerationUtils.createProvider(event, (packOutput, lookupProvider, existingFileHelper) -> new MiraculousDefaultLookProvider(packOutput, lookupProvider));
+        DataGenerationUtils.createProvider(event, (packOutput, lookupProvider, existingFileHelper) -> new MineraculousDefaultLookProvider(packOutput, lookupProvider));
 
         DataGenerator generator = event.getGenerator();
         PackOutput packOutput = generator.getPackOutput();

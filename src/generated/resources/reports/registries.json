@@ -299,6 +299,7 @@
   "mineraculous:look_context": [
     "mineraculous:active_miraculous",
     "mineraculous:hidden_miraculous",
+    "mineraculous:kamikotization_suit",
     "mineraculous:miraculous_suit",
     "mineraculous:powered_miraculous"
   ],
@@ -329,6 +330,7 @@
     "mineraculous:yoyo_leash_override"
   ],
   "neoforge:entity_data_serializers": [
+    "mineraculous:look_data",
     "mineraculous:minion_kamikotization_data",
     "mineraculous:miraculous",
     "mineraculous:miraculous_ladybug_target_data",

@@ -25,6 +25,7 @@ public class KamikotizationArmorItem extends ArmorItem implements GeoArmorItem {
     public KamikotizationArmorItem(Type type, Properties pProperties) {
         super(MineraculousArmorMaterials.MIRACULOUS, type, pProperties
                 .component(DataComponents.UNBREAKABLE, new Unbreakable(false)));
+        GeckoLibUtil.registerSyncedAnimatable(this);
     }
 
     @Override

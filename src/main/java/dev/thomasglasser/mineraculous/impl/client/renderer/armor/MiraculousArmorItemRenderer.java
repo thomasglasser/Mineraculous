@@ -8,10 +8,12 @@ import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoG
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.look.Look;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
+import java.util.UUID;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Holder;
@@ -60,8 +62,9 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
     @Override
     public void prepForRender(Entity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> baseModel, MultiBufferSource bufferSource, float partialTick, float limbSwing, float limbSwingAmount, float netHeadYaw, float headPitch) {
         super.prepForRender(entity, stack, slot, baseModel, bufferSource, partialTick, limbSwing, limbSwingAmount, netHeadYaw, headPitch);
-        if (entity instanceof Player player) {
-            look = LookManager.getOrFetchLook(player, MiraculousItemRenderer.getMiraculousOrDefault(stack), getContext().getKey());
+        UUID owner = stack.get(MineraculousDataComponents.OWNER);
+        if (owner != null && entity.level().getEntities().get(owner) instanceof Player player) {
+            look = LookManager.getOrFetchLook(player, player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(MiraculousItemRenderer.getMiraculousOrDefault(stack)).lookData(), getContext().getKey());
         }
     }
 

@@ -1,16 +1,13 @@
 package dev.thomasglasser.mineraculous.api.world.miraculous;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
-import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.api.core.look.LookData;
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.ability.AbilityData;
@@ -34,11 +31,9 @@ import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Function;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -603,20 +598,5 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
         public TransformationState decrementFrames() {
             return new TransformationState(transforming, remainingFrames - 1);
         }
-    }
-
-    public record LookData(Optional<String> name, ImmutableMap<ResourceKey<LookContext>, String> hashes) {
-        public static final LookData DEFAULT = new LookData(Optional.empty(), ImmutableMap.of());
-        public static final Codec<LookData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.STRING.optionalFieldOf("name").forGetter(LookData::name),
-                Codec.unboundedMap(ResourceKey.codec(MineraculousRegistries.LOOK_CONTEXT), Codec.STRING).fieldOf("hashes").xmap(ImmutableMap::copyOf, Function.identity()).forGetter(LookData::hashes)).apply(instance, LookData::new));
-        public static final StreamCodec<ByteBuf, LookData> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), LookData::name,
-                ByteBufCodecs.map(
-                        Maps::newHashMapWithExpectedSize,
-                        ResourceKey.streamCodec(MineraculousRegistries.LOOK_CONTEXT),
-                        ByteBufCodecs.STRING_UTF8).map(ImmutableMap::copyOf, HashMap::new),
-                LookData::hashes,
-                LookData::new);
     }
 }

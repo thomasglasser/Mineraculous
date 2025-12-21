@@ -9,7 +9,7 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.MiniHol
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.Map;
 import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
@@ -45,7 +45,7 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
     };
     private static final Int2ObjectOpenHashMap<Color> COLORS = new Int2ObjectOpenHashMap<>();
 
-    private final Map<Holder<Miraculous>, GeoModel<T>> models = new Reference2ReferenceOpenHashMap<>();
+    private final Map<Holder<Miraculous>, GeoModel<T>> models = new Object2ObjectOpenHashMap<>();
 
     public KwamiRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new DefaultedEntityGeoModel<>(MineraculousConstants.modLoc("summoning_cube")) {

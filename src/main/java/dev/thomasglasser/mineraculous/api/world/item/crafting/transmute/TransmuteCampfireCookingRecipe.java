@@ -10,6 +10,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.ItemLike;
 
+/// A {@link CampfireCookingRecipe} that transmutes properties to the provided result.
 public class TransmuteCampfireCookingRecipe extends CampfireCookingRecipe {
     private final ItemLike result;
 

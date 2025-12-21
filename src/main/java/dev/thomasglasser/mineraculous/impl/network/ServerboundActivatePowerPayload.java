@@ -26,7 +26,7 @@ public class ServerboundActivatePowerPayload implements ExtendedPacketPayload {
             Holder<Miraculous> miraculous = transformed.getFirst();
             MiraculousData data = player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous);
             if (data.transformed() && !data.powerActive()) {
-                data.withPowerActive(true).save(miraculous, player, true);
+                data.withPowerActive(true).save(miraculous, player);
             }
         } else {
             player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {

@@ -10,6 +10,7 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.crafting.SmeltingRecipe;
 import net.minecraft.world.level.ItemLike;
 
+/// A {@link SmeltingRecipe} that transmutes properties to the provided result.
 public class TransmuteSmeltingRecipe extends SmeltingRecipe {
     private final ItemLike result;
 

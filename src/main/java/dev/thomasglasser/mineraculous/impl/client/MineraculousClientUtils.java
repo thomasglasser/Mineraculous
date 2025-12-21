@@ -24,7 +24,7 @@ import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.Per
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterCosmeticOptions;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.SpecialPlayerData;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundRequestInventorySyncPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundSetInventoryTrackedPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealCurioPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateSpecialPlayerDataPayload;
@@ -38,7 +38,7 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -90,42 +90,46 @@ public class MineraculousClientUtils {
     public static final Component GUI_CHOOSE = Component.translatable("gui.choose");
     public static final Component GUI_NAME = Component.translatable("gui.name");
 
-    private static final Map<Player, SpecialPlayerData> SPECIAL_PLAYER_DATA = new Reference2ReferenceOpenHashMap<>();
+    private static final Map<UUID, SpecialPlayerData> SPECIAL_PLAYER_DATA = new Object2ReferenceOpenHashMap<>();
     private static final IntList CATACLYSM_PIXELS = new IntArrayList();
     private static boolean wasJumping = false;
 
     // Special Player Handling
-    public static void setSpecialPlayerData(Player player, SpecialPlayerData data) {
-        SPECIAL_PLAYER_DATA.put(player, data);
+    public static void setSpecialPlayerData(UUID id, SpecialPlayerData data) {
+        SPECIAL_PLAYER_DATA.put(id, data);
     }
 
     public static boolean renderBetaTesterLayer(AbstractClientPlayer player) {
         if (player != ClientUtils.getLocalPlayer() && !MineraculousClientConfig.get().displayOthersBetaTesterCosmetic.getAsBoolean())
             return false;
-        return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayBeta() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, betaChoice(player).slot());
+        SpecialPlayerData data = SPECIAL_PLAYER_DATA.get(player.getUUID());
+        return data != null && data.displayBeta() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, betaChoice(player.getUUID()).slot());
     }
 
-    public static BetaTesterCosmeticOptions betaChoice(AbstractClientPlayer player) {
-        return SPECIAL_PLAYER_DATA.get(player) != null ? SPECIAL_PLAYER_DATA.get(player).choice() : BetaTesterCosmeticOptions.DERBY_HAT;
+    public static BetaTesterCosmeticOptions betaChoice(UUID id) {
+        SpecialPlayerData data = SPECIAL_PLAYER_DATA.get(id);
+        return data != null ? data.choice() : BetaTesterCosmeticOptions.DERBY_HAT;
     }
 
     public static boolean renderDevLayer(AbstractClientPlayer player) {
         if (player != ClientUtils.getLocalPlayer() && !MineraculousClientConfig.get().displayOthersDevTeamCosmetic.getAsBoolean())
             return false;
-        return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
+        SpecialPlayerData data = SPECIAL_PLAYER_DATA.get(player.getUUID());
+        return data != null && data.displayDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
     }
 
     public static boolean renderLegacyDevLayer(AbstractClientPlayer player) {
         if (player != ClientUtils.getLocalPlayer() && !MineraculousClientConfig.get().displayOthersLegacyDevTeamCosmetic.getAsBoolean())
             return false;
-        return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayLegacyDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
+        SpecialPlayerData data = SPECIAL_PLAYER_DATA.get(player.getUUID());
+        return data != null && data.displayLegacyDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
     }
 
     public static void syncSpecialPlayerChoices() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) {
             TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateSpecialPlayerDataPayload(player.getUUID(), new SpecialPlayerData(
-                    MineraculousClientConfig.get().selfBetaTesterCosmeticChoice.get(),
+                    MineraculousClientConfig.get().betaTesterCosmeticChoice.get(),
                     MineraculousClientConfig.get().displaySelfBetaTesterCosmetic.get(),
                     MineraculousClientConfig.get().displaySelfDevTeamCosmetic.get(),
                     MineraculousClientConfig.get().displaySelfLegacyDevTeamCosmetic.get())));
@@ -183,7 +187,7 @@ public class MineraculousClientUtils {
     }
 
     public static void openExternalCuriosInventoryScreenForStealing(Player target) {
-        TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), true));
+        TommyLibServices.NETWORK.sendToServer(new ServerboundSetInventoryTrackedPayload(target.getUUID(), true));
         Minecraft.getInstance().setScreen(new ExternalCuriosInventoryScreen(target, true) {
             @Override
             public void pickUp(Slot slot, Player target, AbstractContainerMenu menu) {
@@ -195,7 +199,7 @@ public class MineraculousClientUtils {
 
             @Override
             public void onClose(boolean cancel) {
-                TommyLibServices.NETWORK.sendToServer(new ServerboundRequestInventorySyncPayload(target.getUUID(), false));
+                TommyLibServices.NETWORK.sendToServer(new ServerboundSetInventoryTrackedPayload(target.getUUID(), false));
             }
         });
     }

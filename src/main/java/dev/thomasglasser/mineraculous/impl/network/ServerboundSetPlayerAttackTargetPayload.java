@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Player;
 public record ServerboundSetPlayerAttackTargetPayload(int entityId, UUID targetId) implements ExtendedPacketPayload {
     public static final Type<ServerboundSetPlayerAttackTargetPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_set_attack_target"));
     public static final StreamCodec<ByteBuf, ServerboundSetPlayerAttackTargetPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT, ServerboundSetPlayerAttackTargetPayload::entityId,
+            ByteBufCodecs.VAR_INT, ServerboundSetPlayerAttackTargetPayload::entityId,
             UUIDUtil.STREAM_CODEC, ServerboundSetPlayerAttackTargetPayload::targetId,
             ServerboundSetPlayerAttackTargetPayload::new);
 

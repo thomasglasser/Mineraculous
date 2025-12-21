@@ -1,11 +1,11 @@
 package dev.thomasglasser.mineraculous.api.world.level.storage.loot.predicates;
 
+import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.loot.predicates.MineraculousLootItemConditions;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -46,7 +46,7 @@ public record HasItem(ItemPredicate predicate, boolean invert) implements LootIt
 
     @Override
     public Set<LootContextParam<?>> getReferencedContextParams() {
-        return ReferenceOpenHashSet.of(LootContextParams.THIS_ENTITY);
+        return ImmutableSet.of(LootContextParams.THIS_ENTITY);
     }
 
     public static Builder hasItemsMatching(ItemPredicate predicate) {

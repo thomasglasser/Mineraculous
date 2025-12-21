@@ -10,12 +10,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Holds a set of humanoid armor.
+ * Holds a set of humanoid armor,
+ * corresponding to an {@link EquipmentSlot} value.
  *
- * @param head  The item in the head slot
- * @param chest The item in the chest slot
- * @param legs  The item in the legs slot
- * @param feet  The item in the feet slot
+ * @param head  The item in the {@link EquipmentSlot#HEAD} slot
+ * @param chest The item in the {@link EquipmentSlot#CHEST} slot
+ * @param legs  The item in the {@link EquipmentSlot#LEGS} slot
+ * @param feet  The item in the {@link EquipmentSlot#FEET} slot
  */
 public record ArmorData(ItemStack head, ItemStack chest, ItemStack legs, ItemStack feet) {
 
@@ -25,6 +26,10 @@ public record ArmorData(ItemStack head, ItemStack chest, ItemStack legs, ItemSta
             ItemStack.OPTIONAL_CODEC.fieldOf("legs").forGetter(ArmorData::legs),
             ItemStack.OPTIONAL_CODEC.fieldOf("feet").forGetter(ArmorData::feet))
             .apply(instance, ArmorData::new));
+    public ArmorData(LivingEntity entity) {
+        this(entity.getItemBySlot(EquipmentSlot.HEAD), entity.getItemBySlot(EquipmentSlot.CHEST), entity.getItemBySlot(EquipmentSlot.LEGS), entity.getItemBySlot(EquipmentSlot.FEET));
+    }
+
     /**
      * Equips the stored armor on the provided {@link LivingEntity} and clears {@link MineraculousAttachmentTypes#STORED_ARMOR}.
      *

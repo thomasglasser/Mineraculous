@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.kamikotization;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.EitherCodec;
@@ -10,7 +11,6 @@ import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.UUID;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -20,7 +20,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.RegistryFileCodec;
+import net.minecraft.resources.RegistryFixedCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -30,7 +30,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Data-driven entity transformation provided by {@link Kamiko} control.
+ * Data-driven entity transformation provided by a {@link Kamiko}.
  *
  * @param defaultName      The default name of the kamikotized entity
  * @param itemPredicate    The predicate for which items be used to transform
@@ -47,7 +47,7 @@ public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Ei
             ItemPredicate.CODEC.optionalFieldOf("item_predicate", ItemPredicate.Builder.item().build()).forGetter(Kamikotization::itemPredicate),
             new EitherCodec<>(ItemStack.CODEC, Ability.CODEC).fieldOf("power_source").forGetter(Kamikotization::powerSource),
             Ability.HOLDER_SET_CODEC.optionalFieldOf("passive_abilities", HolderSet.empty()).forGetter(Kamikotization::passiveAbilities)).apply(instance, Kamikotization::new));
-    public static final Codec<Holder<Kamikotization>> CODEC = RegistryFileCodec.create(MineraculousRegistries.KAMIKOTIZATION, DIRECT_CODEC);
+    public static final Codec<Holder<Kamikotization>> CODEC = RegistryFixedCodec.create(MineraculousRegistries.KAMIKOTIZATION);
 
     public static final StreamCodec<RegistryFriendlyByteBuf, Kamikotization> DIRECT_STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8, Kamikotization::defaultName,
@@ -70,7 +70,7 @@ public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Ei
      * @return The compiled list of valid Kamikotizations
      */
     public static List<Holder<Kamikotization>> getFor(Entity entity) {
-        List<Holder<Kamikotization>> kamikotizations = new ReferenceArrayList<>();
+        ImmutableList.Builder<Holder<Kamikotization>> kamikotizations = new ImmutableList.Builder<>();
         entity.level().registryAccess().lookupOrThrow(MineraculousRegistries.KAMIKOTIZATION).listElements().forEach(kamikotization -> {
             for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
                 if (!stack.isEmpty() && !stack.has(MineraculousDataComponents.KAMIKOTIZATION) && kamikotization.value().itemPredicate().test(stack)) {
@@ -79,7 +79,7 @@ public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Ei
                 }
             }
         });
-        return kamikotizations;
+        return kamikotizations.build();
     }
 
     /**
@@ -123,7 +123,7 @@ public record Kamikotization(String defaultName, ItemPredicate itemPredicate, Ei
             if (o instanceof LivingEntity owner) {
                 owner.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresentOrElse(data -> {
                     if (data.remainingStackCount() <= 1) {
-                        data.detransform(owner, level, kamikoPos != null ? kamikoPos : owner.position().add(0, 1, 0), false, stack);
+                        data.detransform(owner, level, kamikoPos != null ? kamikoPos : owner.position().add(0, 1, 0), false, false, stack);
                     } else {
                         data.decrementRemainingStackCount().save(owner);
                     }

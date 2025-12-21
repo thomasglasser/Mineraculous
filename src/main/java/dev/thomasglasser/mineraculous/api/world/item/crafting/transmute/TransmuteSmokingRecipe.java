@@ -10,6 +10,7 @@ import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.item.crafting.SmokingRecipe;
 import net.minecraft.world.level.ItemLike;
 
+/// A {@link SmokingRecipe} that transmutes properties to the provided result.
 public class TransmuteSmokingRecipe extends SmokingRecipe {
     private final ItemLike result;
 

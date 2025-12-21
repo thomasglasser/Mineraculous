@@ -9,7 +9,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTargetCollector;
-import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.function.Function;
@@ -133,7 +133,7 @@ public interface Ability {
      * @return A sorted set with the passed ability and all contained sub abilities
      */
     static SortedSet<Ability> getAll(Ability ability) {
-        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
+        SortedSet<Ability> abilities = new ObjectLinkedOpenHashSet<>();
         abilities.add(ability);
         if (ability instanceof AbilityWithSubAbilities abilityWithSubAbilities) {
             abilities.addAll(abilityWithSubAbilities.getAll());
@@ -149,7 +149,7 @@ public interface Ability {
      * @return A sorted set with any matching of the passed ability and all contained sub abilities
      */
     static SortedSet<Ability> getMatching(Predicate<Ability> predicate, Ability ability) {
-        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
+        SortedSet<Ability> abilities = new ObjectLinkedOpenHashSet<>();
         if (predicate.test(ability))
             abilities.add(ability);
         if (ability instanceof AbilityWithSubAbilities abilityWithSubAbilities)
@@ -182,7 +182,7 @@ public interface Ability {
 
     // Overloads for active and passive abilities
     static SortedSet<Ability> getAll(Optional<Holder<Ability>> activeAbility, HolderSet<Ability> passiveAbilities) {
-        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
+        SortedSet<Ability> abilities = new ObjectLinkedOpenHashSet<>();
         activeAbility.ifPresent(ability -> abilities.addAll(getAll(ability.value())));
         for (Holder<Ability> ability : passiveAbilities) {
             abilities.addAll(getAll(ability.value()));
@@ -191,7 +191,7 @@ public interface Ability {
     }
 
     static SortedSet<Ability> getMatching(Predicate<Ability> predicate, Optional<Holder<Ability>> activeAbility, HolderSet<Ability> passiveAbilities) {
-        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
+        SortedSet<Ability> abilities = new ObjectLinkedOpenHashSet<>();
         activeAbility.ifPresent(ability -> abilities.addAll(getMatching(predicate, ability.value())));
         for (Holder<Ability> ability : passiveAbilities) {
             abilities.addAll(getMatching(predicate, ability.value()));

@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 public record ClientboundSyncArrowPickupStackPayload(int entityId, ItemStack stack) implements ExtendedPacketPayload {
     public static final Type<ClientboundSyncArrowPickupStackPayload> TYPE = new Type<>(MineraculousConstants.modLoc("clientbound_sync_arrow_pickup_stack"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundSyncArrowPickupStackPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT, ClientboundSyncArrowPickupStackPayload::entityId,
+            ByteBufCodecs.VAR_INT, ClientboundSyncArrowPickupStackPayload::entityId,
             ItemStack.OPTIONAL_STREAM_CODEC, ClientboundSyncArrowPickupStackPayload::stack,
             ClientboundSyncArrowPickupStackPayload::new);
 

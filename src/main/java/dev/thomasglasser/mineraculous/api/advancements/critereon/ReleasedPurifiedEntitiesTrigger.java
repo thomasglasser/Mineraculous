@@ -5,7 +5,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -29,11 +28,11 @@ public class ReleasedPurifiedEntitiesTrigger extends SimpleCriterionTrigger<Rele
     }
 
     public void trigger(ServerPlayer player, Collection<? extends Entity> released) {
-        List<LootContext> releaseContexts = new ReferenceArrayList<>();
+        ImmutableList.Builder<LootContext> releaseContexts = new ImmutableList.Builder<>();
         for (Entity entity : released) {
             releaseContexts.add(EntityPredicate.createContext(player, entity));
         }
-        this.trigger(player, instance -> instance.matches(releaseContexts));
+        this.trigger(player, instance -> instance.matches(releaseContexts.build()));
     }
 
     public record TriggerInstance(Optional<ContextAwarePredicate> player, List<ContextAwarePredicate> released, Optional<Integer> count) implements SimpleInstance {

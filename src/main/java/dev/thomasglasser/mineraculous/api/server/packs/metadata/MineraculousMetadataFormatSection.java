@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import java.util.Optional;
 import net.minecraft.server.packs.metadata.MetadataSectionType;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.InclusiveRange;
 
 /**
@@ -16,8 +17,8 @@ import net.minecraft.util.InclusiveRange;
 public record MineraculousMetadataFormatSection(int apiFormat, Optional<InclusiveRange<Integer>> supportedApiFormats) {
     public static final Codec<MineraculousMetadataFormatSection> CODEC = RecordCodecBuilder.create(
             p_337567_ -> p_337567_.group(
-                    Codec.INT.fieldOf("api_format").forGetter(MineraculousMetadataFormatSection::apiFormat),
-                    InclusiveRange.codec(Codec.INT).optionalFieldOf("supported_api_formats").forGetter(MineraculousMetadataFormatSection::supportedApiFormats))
+                    ExtraCodecs.NON_NEGATIVE_INT.fieldOf("api_format").forGetter(MineraculousMetadataFormatSection::apiFormat),
+                    InclusiveRange.codec(ExtraCodecs.NON_NEGATIVE_INT).optionalFieldOf("supported_api_formats").forGetter(MineraculousMetadataFormatSection::supportedApiFormats))
                     .apply(p_337567_, MineraculousMetadataFormatSection::new));
     public static final MetadataSectionType<MineraculousMetadataFormatSection> TYPE = MetadataSectionType.fromCodec("mineraculous", CODEC);
 

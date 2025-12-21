@@ -17,7 +17,7 @@ import net.minecraft.world.entity.player.Player;
 public record ClientboundSetCameraEntityPayload(Optional<Integer> entityId, Optional<ResourceLocation> shader) implements ExtendedPacketPayload {
     public static final Type<ClientboundSetCameraEntityPayload> TYPE = new Type<>(MineraculousConstants.modLoc("clientbound_set_camera_entity"));
     public static final StreamCodec<ByteBuf, ClientboundSetCameraEntityPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.optional(ByteBufCodecs.INT), ClientboundSetCameraEntityPayload::entityId,
+            ByteBufCodecs.optional(ByteBufCodecs.VAR_INT), ClientboundSetCameraEntityPayload::entityId,
             TommyLibExtraStreamCodecs.OPTIONAL_RESOURCE_LOCATION, ClientboundSetCameraEntityPayload::shader,
             ClientboundSetCameraEntityPayload::new);
 

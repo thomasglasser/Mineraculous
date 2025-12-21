@@ -19,9 +19,8 @@ import dev.thomasglasser.tommylib.api.registration.DeferredHolder;
 import dev.thomasglasser.tommylib.api.registration.DeferredItem;
 import dev.thomasglasser.tommylib.api.registration.DeferredRegister;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectLinkedOpenHashMap;
+import java.util.EnumMap;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import net.minecraft.core.component.DataComponents;
@@ -35,7 +34,6 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SmithingTemplateItem;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tiers;
 import net.minecraft.world.item.armortrim.TrimPattern;
 import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.block.Block;
@@ -59,7 +57,8 @@ public class MineraculousItems {
     public static final DeferredItem<MiraculousItem> MIRACULOUS = register("miraculous", () -> new MiraculousItem(new Item.Properties().component(MineraculousDataComponents.CHARGED, true)));
     public static final DeferredItem<KwamiItem> KWAMI = register("kwami", () -> new KwamiItem(new Item.Properties()));
 
-    public static final DeferredItem<SwordItem> GREAT_SWORD = register("great_sword", () -> new SwordItem(MineraculousTiers.MIRACULOUS, new Item.Properties().attributes(SwordItem.createAttributes(Tiers.DIAMOND, 6, -3))));
+    /// Dramatically large and powerful sword for lucky charm
+    public static final DeferredItem<SwordItem> GREAT_SWORD = register("great_sword", () -> new SwordItem(MineraculousTiers.MIRACULOUS, new Item.Properties().attributes(SwordItem.createAttributes(MineraculousTiers.MIRACULOUS, 6, -3))));
     /// Inventory filler used for ability reversion
     public static final DeferredItem<Item> CATACLYSM_DUST = register("cataclysm_dust", () -> new Item(new Item.Properties().rarity(Rarity.EPIC)));
 
@@ -72,16 +71,17 @@ public class MineraculousItems {
     public static final DeferredItem<SmithingTemplateItem> BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE = registerSmithingTemplate(MineraculousTrimPatterns.BUTTERFLY);
 
     // Cheese Wedges
-    public static final SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> CHEESE = wedges("cheese", MineraculousFoods.CHEESE, MineraculousBlocks.CHEESE);
-    public static final SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> WAXED_CHEESE = waxedWedges("cheese", MineraculousBlocks.WAXED_CHEESE);
-    public static final SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> CAMEMBERT = wedges("camembert", MineraculousFoods.CAMEMBERT, MineraculousBlocks.CAMEMBERT);
-    public static final SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> WAXED_CAMEMBERT = waxedWedges("camembert", MineraculousBlocks.WAXED_CAMEMBERT);
+    public static final EnumMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> CHEESE = wedges("cheese", MineraculousFoods.CHEESE, MineraculousBlocks.CHEESE);
+    public static final EnumMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> WAXED_CHEESE = waxedWedges("cheese", MineraculousBlocks.WAXED_CHEESE);
+    public static final EnumMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> CAMEMBERT = wedges("camembert", MineraculousFoods.CAMEMBERT, MineraculousBlocks.CAMEMBERT);
+    public static final EnumMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> WAXED_CAMEMBERT = waxedWedges("camembert", MineraculousBlocks.WAXED_CAMEMBERT);
 
+    // Foods
     public static final DeferredItem<Item> RAW_MACARON = register("raw_macaron", () -> new Item(new Item.Properties().stacksTo(16).food(MineraculousFoods.RAW_MACARON)));
     public static final DeferredItem<Item> MACARON = register("macaron", () -> new Item(new Item.Properties().stacksTo(16).food(MineraculousFoods.MACARON)));
 
-    private static SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> wedges(String name, FoodProperties foodProperties, SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> blocks) {
-        SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> cheeses = new Reference2ObjectLinkedOpenHashMap<>(AgeingCheese.Age.values().length);
+    private static EnumMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> wedges(String name, FoodProperties foodProperties, EnumMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> blocks) {
+        EnumMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> cheeses = new EnumMap<>(AgeingCheese.Age.class);
         for (AgeingCheese.Age age : AgeingCheese.Age.values()) {
             DeferredBlock<AgeingCheeseEdibleFullBlock> block = blocks.get(age);
             cheeses.put(age, register(age.getSerializedName() + "_" + name + "_wedge", () -> new ItemNameBlockItem(block.get(), new Item.Properties().stacksTo(16).food(foodProperties).component(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY.with(block.get().getMissingPiecesProperty(), block.get().getMaxMissingPieces()))) {
@@ -92,8 +92,8 @@ public class MineraculousItems {
         return cheeses;
     }
 
-    private static SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> waxedWedges(String name, SortedMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> blocks) {
-        SortedMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> cheeses = new Reference2ObjectLinkedOpenHashMap<>(AgeingCheese.Age.values().length);
+    private static EnumMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> waxedWedges(String name, EnumMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> blocks) {
+        EnumMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> cheeses = new EnumMap<>(AgeingCheese.Age.class);
         for (AgeingCheese.Age age : AgeingCheese.Age.values()) {
             DeferredBlock<PieceBlock> block = blocks.get(age);
             cheeses.put(age, register("waxed_" + age.getSerializedName() + "_" + name + "_wedge", () -> new ItemNameBlockItem(block.get(), new Item.Properties().stacksTo(16).component(DataComponents.BLOCK_STATE, BlockItemStateProperties.EMPTY.with(block.get().getMissingPiecesProperty(), block.get().getMaxMissingPieces()))) {

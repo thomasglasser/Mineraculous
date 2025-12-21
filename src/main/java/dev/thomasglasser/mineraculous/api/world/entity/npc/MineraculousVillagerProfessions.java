@@ -23,6 +23,7 @@ public class MineraculousVillagerProfessions {
 
     /// Found in the Creamery, sells cheeses
     public static final DeferredHolder<VillagerProfession, VillagerProfession> FROMAGER = register("fromager", MineraculousPoiTypes.FROMAGER.getKey(), SoundEvents.VILLAGER_WORK_CLERIC);
+    /// Found in the Bakery, sells macarons
     public static final DeferredHolder<VillagerProfession, VillagerProfession> BAKER = register("baker", MineraculousPoiTypes.BAKER.getKey(), SoundEvents.VILLAGER_WORK_BUTCHER);
 
     private static DeferredHolder<VillagerProfession, VillagerProfession> register(String name, ResourceKey<PoiType> jobSite, @Nullable SoundEvent workSound) {

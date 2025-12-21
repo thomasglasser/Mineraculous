@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.api.world.level.block;
 
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
@@ -8,6 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +27,7 @@ import net.minecraft.world.phys.HitResult;
 /// A block composed of pieces that can be missing
 public class PieceBlock extends Block {
     public static final MapCodec<PieceBlock> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            Codec.INT.fieldOf("max_pieces").forGetter(PieceBlock::getMaxPieces),
+            ExtraCodecs.POSITIVE_INT.fieldOf("max_pieces").forGetter(PieceBlock::getMaxPieces),
             BuiltInRegistries.ITEM.holderByNameCodec().fieldOf("piece").forGetter(PieceBlock::getPiece),
             propertiesCodec()).apply(instance, PieceBlock::new));
     public static final String MISSING_PIECES = "missing_pieces";

@@ -32,17 +32,17 @@ public class DataMapsEntryProvider extends IndexModeEntryProvider {
                 and "data/mineraculous/entity_type/lucky_charms.json".
                 Generators for these can be found online [here](https://beta-jsons.thomasglasser.dev/partners/).
                 Generators for the loot table can be found [here](https://beta-jsons.thomasglasser.dev/loot-table/).
-                (Note: At this time, to generate a lucky charm loot table, you must use a preset to set the "type" field to "mineraculous:lucky_charm".
-                Searching the presets for "lucky_charm" will yield valid results.)
+                *Note: At this time, to generate a lucky charm loot table, you must use a preset to set the "type" field to "mineraculous:lucky_charm".
+                Searching the presets for "lucky_charm" will yield valid results.*
                 """);
 
-        page("miraculous_buffs", () -> BookTextPageModel.create()
+        page("miraculous_effects", () -> BookTextPageModel.create()
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
-        add(context().pageTitle(), "Miraculous Buffs");
+        add(context().pageTitle(), "Miraculous Effects and Attributes");
         add(context().pageText(), """
-                Miraculous buffs are provided to miraculous holders and kamikotized entities while transformed.
+                Miraculous effects and attributes are provided to miraculous holders and kamikotized entities while transformed.
                 These are determined via two data maps:
                 - "data/mineraculous/mob_effect/miraculous_effects.json" for mob effects ([Generator](https://beta-jsons.thomasglasser.dev/mineraculous/data-map-miraculous-effects/))
                 - "data/mineraculous/attribute/miraculous_attribute_modifiers.json" for attributes ([Generator](https://beta-jsons.thomasglasser.dev/mineraculous/data-map-miraculous-attribute-modifiers/))
@@ -67,7 +67,7 @@ public class DataMapsEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "Data-driven JSON maps used to expand mod functionality";
+        return "Data-driven registry element maps used to expand mod functionality.";
     }
 
     @Override

@@ -51,6 +51,13 @@ public interface LeashableMixin {
         return original;
     }
 
+    @Inject(method = "dropLeash(Lnet/minecraft/world/entity/Entity;ZZ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;broadcast(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/network/protocol/Packet;)V"))
+    private static <E extends Entity & Leashable> void updateLeashedPlayer(E entity, boolean broadcastPacket, boolean dropItem, CallbackInfo ci) {
+        if (entity instanceof ServerPlayer player) {
+            player.connection.send(new ClientboundSetEntityLinkPacket(entity, null));
+        }
+    }
+
     @Inject(method = "setLeashedTo(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity;Z)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerChunkCache;broadcast(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/network/protocol/Packet;)V"))
     private static <E extends Entity & Leashable> void syncLeashDataToSelf(E entity, Entity leashHolder, boolean broadcastPacket, CallbackInfo ci) {
         if (entity instanceof ServerPlayer player) {

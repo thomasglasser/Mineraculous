@@ -8,6 +8,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.AbstractCookingRecipe;
 import net.minecraft.world.item.crafting.CookingBookCategory;
@@ -15,6 +16,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 
+/// A {@link RecipeSerializer} for building a {@link AbstractCookingRecipe} for transmuting.
 public class SimpleTransmuteCookingSerializer<T extends AbstractCookingRecipe> implements RecipeSerializer<T> {
     private final Factory<T> factory;
     private final MapCodec<T> codec;
@@ -29,7 +31,7 @@ public class SimpleTransmuteCookingSerializer<T extends AbstractCookingRecipe> i
                         Ingredient.CODEC_NONEMPTY.fieldOf("ingredient").forGetter(p_300833_ -> p_300833_.ingredient),
                         BuiltInRegistries.ITEM.byNameCodec().fieldOf("result").forGetter(p_300827_ -> p_300827_.result.getItem()),
                         Codec.FLOAT.fieldOf("experience").orElse(0.0F).forGetter(p_300826_ -> p_300826_.experience),
-                        Codec.INT.fieldOf("cookingtime").orElse(cookingTime).forGetter(p_300834_ -> p_300834_.cookingTime))
+                        ExtraCodecs.NON_NEGATIVE_INT.fieldOf("cookingtime").orElse(cookingTime).forGetter(p_300834_ -> p_300834_.cookingTime))
                         .apply(p_300831_, factory::create));
         this.streamCodec = StreamCodec.of(this::toNetwork, this::fromNetwork);
     }

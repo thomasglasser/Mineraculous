@@ -91,8 +91,6 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                             kwami.setTame(true, true);
                             kwami.setOwnerUUID(entity.getUUID());
                         }
-                    } else if (!stack.has(MineraculousDataComponents.POWERED)) {
-                        stack.remove(MineraculousDataComponents.KWAMI_ID);
                     }
                 }
             }
@@ -131,7 +129,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                         MineraculousConstants.LOGGER.error("Kwami could not be created for entity {}", entity.getName().plainCopy().getString());
                     }
                 }
-                data.equip(new CuriosData(slotContext)).save(miraculous, entity, true);
+                data.equip(new CuriosData(slotContext)).save(miraculous, entity);
             }
         }
     }
@@ -145,7 +143,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
             if (data.transformed()) {
                 data.detransform(entity, level, miraculous, stack, true);
             } else {
-                data.unequip().save(miraculous, entity, true);
+                data.unequip().save(miraculous, entity);
             }
         }
     }

@@ -62,7 +62,7 @@ public record Miraculous(TextColor color, String acceptableSlot, Optional<Intege
     public static final StreamCodec<RegistryFriendlyByteBuf, Miraculous> DIRECT_STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
             ByteBufCodecs.fromCodec(TextColor.CODEC), Miraculous::color,
             ByteBufCodecs.STRING_UTF8, Miraculous::acceptableSlot,
-            ByteBufCodecs.optional(ByteBufCodecs.INT), Miraculous::transformationFrames,
+            ByteBufCodecs.optional(ByteBufCodecs.VAR_INT), Miraculous::transformationFrames,
             ItemStack.STREAM_CODEC, Miraculous::tool,
             ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), Miraculous::toolSlot,
             Ability.STREAM_CODEC, Miraculous::activeAbility,
@@ -82,24 +82,56 @@ public record Miraculous(TextColor color, String acceptableSlot, Optional<Intege
         return tool.copy();
     }
 
+    /**
+     * Creates a tag key for preferred foods for the given miraculous' kwami.
+     *
+     * @param key The miraculous's resource key
+     * @return The preferred foods tag key
+     */
     public static TagKey<Item> createPreferredFoodsTag(ResourceKey<Miraculous> key) {
         return TagKey.create(Registries.ITEM, key.location().withPrefix("kwami_preferred_foods/"));
     }
 
+    /**
+     * Creates a tag key for treats for the given miraculous' kwami.
+     *
+     * @param key The miraculous's resource key
+     * @return The treats tag key
+     */
     public static TagKey<Item> createTreatsTag(ResourceKey<Miraculous> key) {
         return TagKey.create(Registries.ITEM, key.location().withPrefix("kwami_treats/"));
     }
 
+    /**
+     * Creates an item stack for the provided item and miraculous.
+     *
+     * @param item       The item to create the stack for
+     * @param miraculous The miraculous to assign to the stack
+     * @return The miraculous-assigned stack
+     */
     public static ItemStack createItemStack(ItemLike item, Holder<Miraculous> miraculous) {
         ItemStack stack = item.asItem().getDefaultInstance();
         stack.set(MineraculousDataComponents.MIRACULOUS, miraculous);
         return stack;
     }
 
+    /**
+     * Creates a {@link MineraculousItems#MIRACULOUS} with the provided miraculous.
+     *
+     * @param miraculous The miraculous to assign to the stack
+     * @return The miraculous stack
+     */
     public static ItemStack createMiraculousStack(Holder<Miraculous> miraculous) {
         return createItemStack(MineraculousItems.MIRACULOUS, miraculous);
     }
 
+    /**
+     * Prefixes the item name with the name of the miraculous assigned to the stack in the miraculous' color.
+     *
+     * @param stack    The stack to format the name of
+     * @param original The original item name
+     * @return The formatted item name
+     */
     public static Component formatItemName(ItemStack stack, Component original) {
         Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
         if (miraculous != null) {

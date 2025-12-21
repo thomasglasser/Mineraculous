@@ -58,9 +58,8 @@ import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUti
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.HashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.Map;
-import java.util.SortedMap;
 import java.util.UUID;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -184,7 +183,7 @@ public class MineraculousClientEvents {
         }
     }
 
-    private static <T extends ItemLike> void addCheeses(BuildCreativeModeTabContentsEvent event, ItemStack before, SortedMap<AgeingCheese.Age, T> cheeses) {
+    private static <T extends ItemLike> void addCheeses(BuildCreativeModeTabContentsEvent event, ItemStack before, Map<AgeingCheese.Age, T> cheeses) {
         event.insertAfter(before, cheeses.get(AgeingCheese.Age.FRESH).asItem().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         for (int i = 1; i < AgeingCheese.Age.values().length; i++) {
             AgeingCheese.Age age = AgeingCheese.Age.values()[i];
@@ -429,7 +428,7 @@ public class MineraculousClientEvents {
         }
     }
 
-    private static final HashMap<UUID, CatStaffRenderer.PerchRenderer> playerPerchRendererMap = new HashMap<>();
+    private static final Map<UUID, CatStaffRenderer.PerchRenderer> playerPerchRendererMap = new Object2ObjectOpenHashMap<>();
 
     public static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
         Player player = event.getEntity();

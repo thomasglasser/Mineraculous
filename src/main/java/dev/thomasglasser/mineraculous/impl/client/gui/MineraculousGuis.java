@@ -60,7 +60,7 @@ public class MineraculousGuis {
                 Player player = ClientUtils.getLocalPlayer();
                 if (cameraEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
                     KamikotizationData kamikotizationData = cameraEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationDetransformationPayload(Optional.of(cameraEntity.getUUID()), false));
+                    TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationDetransformationPayload(Optional.of(cameraEntity.getUUID()), true, false));
                     AbilityEffectUtils.removeFaceMaskTexture(cameraEntity, kamikotizationData.kamikoData().faceMaskTexture());
                 } else if (player != null) {
                     TommyLibServices.NETWORK.sendToServer(new ServerboundRevertConvertedEntityPayload(cameraEntity.getUUID()));

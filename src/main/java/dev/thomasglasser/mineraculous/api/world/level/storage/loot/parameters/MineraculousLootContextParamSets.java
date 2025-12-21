@@ -9,7 +9,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import org.jetbrains.annotations.ApiStatus;
 
 public class MineraculousLootContextParamSets {
-    /// Used in {@link SummonTargetDependentLuckyCharmAbility}.
+    /// Used in {@link dev.thomasglasser.mineraculous.api.world.ability.SummonTargetDependentLuckyCharmAbility}.
     public static final LootContextParamSet LUCKY_CHARM = register("lucky_charm", builder -> builder
             .required(LootContextParams.THIS_ENTITY)
             .required(LootContextParams.ORIGIN)

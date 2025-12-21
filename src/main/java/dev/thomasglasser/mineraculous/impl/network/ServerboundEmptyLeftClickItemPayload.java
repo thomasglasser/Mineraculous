@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.world.item.LeftClickTrackingItem;
+import dev.thomasglasser.mineraculous.api.world.item.LeftClickListener;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -17,8 +17,8 @@ public class ServerboundEmptyLeftClickItemPayload implements ExtendedPacketPaylo
     @Override
     public void handle(Player player) {
         ItemStack mainHandItem = player.getMainHandItem();
-        if (mainHandItem.getItem() instanceof LeftClickTrackingItem leftClickTrackingItem) {
-            leftClickTrackingItem.onLeftClick(mainHandItem, player);
+        if (mainHandItem.getItem() instanceof LeftClickListener leftClickListener) {
+            leftClickListener.onLeftClick(mainHandItem, player);
         }
     }
 

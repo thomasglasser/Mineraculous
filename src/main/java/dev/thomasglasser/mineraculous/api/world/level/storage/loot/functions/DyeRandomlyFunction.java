@@ -1,10 +1,10 @@
 package dev.thomasglasser.mineraculous.api.world.level.storage.loot.functions;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.DyeColor;
@@ -20,6 +20,10 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProvider;
 import net.minecraft.world.level.storage.loot.providers.number.NumberProviders;
 
+/**
+ * Dyes the provided stack with the provided {@link #colorCount} of random colors,
+ * filtering out non-dyeable items if {@link #onlyDyeable} is set to false.
+ */
 public class DyeRandomlyFunction extends LootItemConditionalFunction {
     public static final MapCodec<DyeRandomlyFunction> CODEC = RecordCodecBuilder.mapCodec(instance -> commonFields(instance).and(
             instance.group(NumberProviders.CODEC.optionalFieldOf("color_count", ConstantValue.exactly(1)).forGetter(function -> function.colorCount),
@@ -42,12 +46,12 @@ public class DyeRandomlyFunction extends LootItemConditionalFunction {
     @Override
     protected ItemStack run(ItemStack stack, LootContext context) {
         RandomSource random = context.getRandom();
-        List<DyeItem> dyes = new ReferenceArrayList<>();
+        ImmutableList.Builder<DyeItem> dyes = new ImmutableList.Builder<>();
         int count = this.colorCount.getInt(context);
         for (int i = 0; i < count; i++) {
             dyes.add(DyeItem.byColor(DyeColor.byId(random.nextInt(DyeColor.values().length))));
         }
-        return onlyDyeable ? DyedItemColor.applyDyes(stack, dyes) : MineraculousItemUtils.applyDyesToUndyeable(stack, dyes);
+        return onlyDyeable ? DyedItemColor.applyDyes(stack, dyes.build()) : MineraculousItemUtils.applyDyesToUndyeable(stack, dyes.build());
     }
 
     public static Builder randomDye() {

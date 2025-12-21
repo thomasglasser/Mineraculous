@@ -6,7 +6,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.PersistentAbilityEffectData;
-import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.function.Predicate;
@@ -73,7 +73,7 @@ public record ContinuousAbility(Holder<Ability> ability, int ticks, Optional<Hol
 
     @Override
     public SortedSet<Ability> getAll() {
-        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
+        SortedSet<Ability> abilities = new ObjectLinkedOpenHashSet<>();
         abilities.add(this);
         abilities.addAll(Ability.getAll(ability.value()));
         return abilities;

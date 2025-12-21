@@ -22,42 +22,70 @@ import org.jetbrains.annotations.Nullable;
 
 /// Data for reverting trackable block changes
 public class BlockReversionData extends SavedData {
-    public static final String FILE_ID = "block_reversion";
+    private static final String FILE_ID = "block_reversion";
     private final Table<UUID, BlockLocation, BlockState> revertibleBlocks = HashBasedTable.create();
 
     public static BlockReversionData get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(BlockReversionData.factory(), BlockReversionData.FILE_ID);
     }
 
-    public static Factory<BlockReversionData> factory() {
+    private static Factory<BlockReversionData> factory() {
         return new Factory<>(BlockReversionData::new, BlockReversionData::load, DataFixTypes.LEVEL);
     }
 
-    public Multimap<ResourceKey<Level>, BlockPos> getReversionPositions(UUID uuid) {
+    /**
+     * Gets all positions that have been marked as revertible for the given cause.
+     *
+     * @param cause The cause to get revertible positions for
+     * @return A multimap of dimensions to positions that have been marked as revertible for the given cause
+     */
+    public Multimap<ResourceKey<Level>, BlockPos> getReversionPositions(UUID cause) {
         Multimap<ResourceKey<Level>, BlockPos> positions = HashMultimap.create();
-        for (BlockLocation loc : revertibleBlocks.row(uuid).keySet()) {
+        for (BlockLocation loc : revertibleBlocks.row(cause).keySet()) {
             positions.put(loc.dimension(), loc.pos());
         }
         return positions;
     }
 
-    public void revert(UUID owner, ServerLevel level, BlockPos pos) {
+    /**
+     * Reverts all revertible blocks at the provided position for the provided cause.
+     *
+     * @param cause The cause to revert blocks for
+     * @param level The level to revert blocks in
+     * @param pos   The position to revert blocks at
+     */
+    public void revert(UUID cause, ServerLevel level, BlockPos pos) {
         BlockLocation loc = new BlockLocation(level.dimension(), pos);
-        BlockState state = revertibleBlocks.remove(owner, loc);
+        BlockState state = revertibleBlocks.remove(cause, loc);
         if (state != null) {
             level.setBlockAndUpdate(pos, state);
         }
         setDirty();
     }
 
-    public void putRevertible(UUID owner, ResourceKey<Level> dimension, BlockPos pos, BlockState state) {
+    /**
+     * Marks the provided block position as revertible to the provided state for the provided cause.
+     *
+     * @param cause     The cause to mark the position as revertible for
+     * @param dimension The dimension of the position
+     * @param pos       The position to mark as revertible
+     * @param state     The state to revert the position to
+     */
+    public void putRevertible(UUID cause, ResourceKey<Level> dimension, BlockPos pos, BlockState state) {
         BlockLocation location = new BlockLocation(dimension, pos);
-        if (!revertibleBlocks.contains(owner, location)) {
-            revertibleBlocks.put(owner, location, state);
+        if (!revertibleBlocks.contains(cause, location)) {
+            revertibleBlocks.put(cause, location, state);
             setDirty();
         }
     }
 
+    /**
+     * Determines the cause of the provided block position if it's marked for reversion.
+     *
+     * @param dimension The dimension of the position
+     * @param pos       The position to check
+     * @return The cause of the provided block position if it's marked for reversion, or {@code null} if it's not marked for reversion
+     */
     public @Nullable UUID getCause(ResourceKey<Level> dimension, BlockPos pos) {
         BlockLocation location = new BlockLocation(dimension, pos);
         for (Table.Cell<UUID, BlockLocation, BlockState> cell : revertibleBlocks.cellSet()) {

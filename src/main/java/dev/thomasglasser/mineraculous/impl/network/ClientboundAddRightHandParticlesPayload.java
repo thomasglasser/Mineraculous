@@ -18,7 +18,7 @@ import net.minecraft.world.phys.Vec3;
 public record ClientboundAddRightHandParticlesPayload(Optional<Integer> targetId, ParticleOptions particle) implements ExtendedPacketPayload {
     public static final Type<ClientboundAddRightHandParticlesPayload> TYPE = new Type<>(MineraculousConstants.modLoc("clientbound_add_right_hand_particles"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundAddRightHandParticlesPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.optional(ByteBufCodecs.INT), ClientboundAddRightHandParticlesPayload::targetId,
+            ByteBufCodecs.optional(ByteBufCodecs.VAR_INT), ClientboundAddRightHandParticlesPayload::targetId,
             ParticleTypes.STREAM_CODEC, ClientboundAddRightHandParticlesPayload::particle,
             ClientboundAddRightHandParticlesPayload::new);
 

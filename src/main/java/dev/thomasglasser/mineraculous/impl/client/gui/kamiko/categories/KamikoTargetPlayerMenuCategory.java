@@ -7,7 +7,7 @@ import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.gui.kamiko.KamikoPlayerMenuItem;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.Collection;
 import java.util.List;
 import net.minecraft.client.Minecraft;
@@ -26,8 +26,8 @@ public class KamikoTargetPlayerMenuCategory implements SelectionMenuCategory {
     }
 
     public KamikoTargetPlayerMenuCategory(Collection<PlayerInfo> players) {
-        this.items = new ReferenceArrayList<>();
-        List<PlayerInfo> sorted = new ReferenceArrayList<>(players);
+        this.items = new ObjectArrayList<>();
+        List<PlayerInfo> sorted = new ObjectArrayList<>(players);
         sorted.sort(TeleportToPlayerMenuCategory.PROFILE_ORDER);
         for (PlayerInfo playerInfo : sorted) {
             if (playerInfo.getGameMode() == GameType.SPECTATOR)

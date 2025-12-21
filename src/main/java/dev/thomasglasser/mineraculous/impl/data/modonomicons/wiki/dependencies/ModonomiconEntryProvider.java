@@ -17,7 +17,6 @@ public class ModonomiconEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("wiki", () -> BookSpotlightPageModel.create()
-                .withAnchor("wiki")
                 .withItem(Ingredient.of(Items.ENCHANTED_BOOK))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));

@@ -3,9 +3,9 @@ package dev.thomasglasser.mineraculous.api.world.entity.ai.behavior;
 import com.mojang.datafixers.util.Pair;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.memory.MineraculousMemoryModuleTypes;
-import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.IntSupplier;
 import net.minecraft.util.Unit;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -14,14 +14,24 @@ import net.tslat.smartbrainlib.api.core.behaviour.ExtendedBehaviour;
 import net.tslat.smartbrainlib.object.MemoryTest;
 import net.tslat.smartbrainlib.util.BrainUtils;
 
+/**
+ * Replicates the entity every tick until the maximum number of replicas is reached.
+ * 
+ * @param <E> The entity being replicated
+ */
 public class Replicate<E extends Mob> extends ExtendedBehaviour<E> {
     private static final MemoryTest MEMORY_REQUIREMENTS = MemoryTest.builder(3).usesMemories(MineraculousMemoryModuleTypes.REPLICATION_STATUS.get(), MineraculousMemoryModuleTypes.REPLICAS_MADE.get(), MineraculousMemoryModuleTypes.REPLICATION_WAIT_TICKS.get());
 
+    private IntSupplier maxReplicas = () -> 10;
     private BiConsumer<E, E> onReplication = (replica, original) -> {};
+
+    public Replicate<E> maxReplicas(IntSupplier maxReplicas) {
+        this.maxReplicas = maxReplicas;
+        return this;
+    }
 
     public Replicate<E> onReplication(BiConsumer<E, E> onReplication) {
         this.onReplication = onReplication;
-
         return this;
     }
 
@@ -42,7 +52,7 @@ public class Replicate<E extends Mob> extends ExtendedBehaviour<E> {
             } else {
                 BrainUtils.setMemory(entity, MineraculousMemoryModuleTypes.REPLICATION_WAIT_TICKS.get(), waitTicks);
             }
-        } else if (replicasMade < MineraculousServerConfig.get().maxKamikoReplicas.getAsInt()) {
+        } else if (replicasMade < maxReplicas.getAsInt()) {
             replicate(entity, replicasMade);
         } else {
             stop(entity);
@@ -65,7 +75,7 @@ public class Replicate<E extends Mob> extends ExtendedBehaviour<E> {
     protected void stop(E entity) {
         super.stop(entity);
         int replicasMade = BrainUtils.memoryOrDefault(entity, MineraculousMemoryModuleTypes.REPLICAS_MADE.get(), () -> 0);
-        if (replicasMade >= MineraculousServerConfig.get().maxKamikoReplicas.getAsInt()) {
+        if (replicasMade >= maxReplicas.getAsInt()) {
             BrainUtils.setMemory(entity, MineraculousMemoryModuleTypes.HAS_REPLICATED.get(), Unit.INSTANCE);
             BrainUtils.clearMemories(entity, MineraculousMemoryModuleTypes.REPLICATION_STATUS.get(), MineraculousMemoryModuleTypes.REPLICAS_MADE.get(), MineraculousMemoryModuleTypes.REPLICATION_WAIT_TICKS.get());
         }

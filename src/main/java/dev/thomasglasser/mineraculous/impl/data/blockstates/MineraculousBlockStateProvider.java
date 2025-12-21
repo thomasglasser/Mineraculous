@@ -9,8 +9,8 @@ import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
 import dev.thomasglasser.tommylib.api.data.blockstates.ExtendedBlockStateProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
+import java.util.Map;
 import java.util.Objects;
-import java.util.SortedMap;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.FurnaceBlock;
@@ -54,7 +54,7 @@ public class MineraculousBlockStateProvider extends ExtendedBlockStateProvider {
         });
     }
 
-    protected void cheese(SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> blocks, SortedMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> waxed, String name) {
+    protected void cheese(Map<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> blocks, Map<AgeingCheese.Age, DeferredBlock<PieceBlock>> waxed, String name) {
         Table<AgeingCheese.Age, Integer, ModelFile> models = HashBasedTable.create();
         blocks.forEach(((age, block) -> getVariantBuilder(block.get()).forAllStates(blockState -> {
             int bites = blockState.getValue(block.get().getMissingPiecesProperty());

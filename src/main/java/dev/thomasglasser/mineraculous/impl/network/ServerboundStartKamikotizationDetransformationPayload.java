@@ -14,10 +14,12 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 
-public record ServerboundStartKamikotizationDetransformationPayload(Optional<UUID> targetId, boolean instant) implements ExtendedPacketPayload {
+public record ServerboundStartKamikotizationDetransformationPayload(Optional<UUID> targetId, boolean revertKamiko, boolean instant) implements ExtendedPacketPayload {
+
     public static final Type<ServerboundStartKamikotizationDetransformationPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_start_kamikotization_detransformation"));
     public static final StreamCodec<RegistryFriendlyByteBuf, ServerboundStartKamikotizationDetransformationPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC), ServerboundStartKamikotizationDetransformationPayload::targetId,
+            ByteBufCodecs.BOOL, ServerboundStartKamikotizationDetransformationPayload::revertKamiko,
             ByteBufCodecs.BOOL, ServerboundStartKamikotizationDetransformationPayload::instant,
             ServerboundStartKamikotizationDetransformationPayload::new);
 
@@ -32,7 +34,7 @@ public record ServerboundStartKamikotizationDetransformationPayload(Optional<UUI
             target = player;
         }
         if (target != null) {
-            target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.detransform(target, level, target.position().add(0, 1, 0), instant, null));
+            target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> data.detransform(target, level, target.position().add(0, 1, 0), revertKamiko, instant, null));
         }
     }
 

@@ -21,6 +21,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.phys.Vec3;
 
 public record MiraculousLadybugClusterTarget(List<List<MiraculousLadybugTarget<?>>> layers, Vec3 center, double width, double height, int tickCount) implements MiraculousLadybugTarget<MiraculousLadybugClusterTarget> {
@@ -30,14 +31,14 @@ public record MiraculousLadybugClusterTarget(List<List<MiraculousLadybugTarget<?
             Vec3.CODEC.fieldOf("center").forGetter(MiraculousLadybugClusterTarget::center),
             Codec.DOUBLE.fieldOf("width").forGetter(MiraculousLadybugClusterTarget::width),
             Codec.DOUBLE.fieldOf("height").forGetter(MiraculousLadybugClusterTarget::height),
-            Codec.INT.fieldOf("tick_count").forGetter(MiraculousLadybugClusterTarget::tickCount)).apply(instance, MiraculousLadybugClusterTarget::new));
+            ExtraCodecs.NON_NEGATIVE_INT.fieldOf("tick_count").forGetter(MiraculousLadybugClusterTarget::tickCount)).apply(instance, MiraculousLadybugClusterTarget::new));
     public static final Codec<MiraculousLadybugClusterTarget> CODEC = MAP_CODEC.codec();
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousLadybugClusterTarget> STREAM_CODEC = StreamCodec.composite(
             MiraculousLadybugTarget.STREAM_CODEC.apply(ByteBufCodecs.list()).apply(ByteBufCodecs.list()), MiraculousLadybugClusterTarget::layers,
             TommyLibExtraStreamCodecs.VEC_3, MiraculousLadybugClusterTarget::center,
             ByteBufCodecs.DOUBLE, MiraculousLadybugClusterTarget::width,
             ByteBufCodecs.DOUBLE, MiraculousLadybugClusterTarget::height,
-            ByteBufCodecs.INT, MiraculousLadybugClusterTarget::tickCount,
+            ByteBufCodecs.VAR_INT, MiraculousLadybugClusterTarget::tickCount,
             MiraculousLadybugClusterTarget::new);
     public MiraculousLadybugClusterTarget withTicks(int t) {
         return new MiraculousLadybugClusterTarget(layers, center, width, height, t);

@@ -11,9 +11,11 @@ import net.minecraft.util.ExtraCodecs;
  * @param toggleable Whether the effect can be toggled by {@link dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings#TOGGLE_BUFFS}
  */
 public record MiraculousEffect(int amplifier, boolean toggleable) {
-    public static final Codec<MiraculousEffect> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    public static final Codec<MiraculousEffect> SIMPLE_CODEC = ExtraCodecs.intRange(0, 255).xmap(MiraculousEffect::new, MiraculousEffect::amplifier);
+    public static final Codec<MiraculousEffect> CODEC = Codec.withAlternative(RecordCodecBuilder.create(instance -> instance.group(
             ExtraCodecs.intRange(0, 255).fieldOf("amplifier").forGetter(MiraculousEffect::amplifier),
-            Codec.BOOL.optionalFieldOf("toggleable", false).forGetter(MiraculousEffect::toggleable)).apply(instance, MiraculousEffect::new));
+            Codec.BOOL.optionalFieldOf("toggleable", false).forGetter(MiraculousEffect::toggleable)).apply(instance, MiraculousEffect::new)),
+            SIMPLE_CODEC);
 
     public MiraculousEffect(int amplifier) {
         this(amplifier, false);

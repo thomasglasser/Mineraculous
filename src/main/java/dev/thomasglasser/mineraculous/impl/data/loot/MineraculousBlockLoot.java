@@ -1,10 +1,10 @@
 package dev.thomasglasser.mineraculous.impl.data.loot;
 
+import com.google.common.collect.ImmutableSet;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.block.PieceBlock;
 import dev.thomasglasser.tommylib.api.data.loot.ExtendedBlockLootSubProvider;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
@@ -25,7 +25,7 @@ import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
 public class MineraculousBlockLoot extends ExtendedBlockLootSubProvider {
     protected MineraculousBlockLoot(HolderLookup.Provider provider) {
-        super(ReferenceOpenHashSet.of(), FeatureFlags.REGISTRY.allFlags(), provider, MineraculousBlocks.BLOCKS);
+        super(ImmutableSet.of(), FeatureFlags.REGISTRY.allFlags(), provider, MineraculousBlocks.BLOCKS);
     }
 
     @Override

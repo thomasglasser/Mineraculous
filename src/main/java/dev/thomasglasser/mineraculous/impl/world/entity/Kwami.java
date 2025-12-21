@@ -1,5 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
@@ -16,8 +18,6 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.EntityUtils;
 import dev.thomasglasser.tommylib.api.world.item.ItemUtils;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -94,6 +94,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     public static final RawAnimation SIT_EAT = RawAnimation.begin().thenPlay("misc.sit_eat");
     public static final RawAnimation HOLD = RawAnimation.begin().thenPlay("misc.hold");
 
+    public static final int DEFAULT_EAT_TICKS = SharedConstants.TICKS_PER_SECOND * 3;
     public static final BiPredicate<Kwami, Player> RENOUNCE_PREDICATE = (kwami, player) -> player != null && player.isAlive() && player != kwami.getOwner() && EntitySelector.NO_SPECTATORS.test(player) && !EntityUtils.TARGET_TOO_FAR_PREDICATE.test(kwami, player);
 
     private static final double SUMMON_RADIUS_STEP = 0.07;
@@ -321,7 +322,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     }
 
     public int getDefaultEatTicks() {
-        return SharedConstants.TICKS_PER_SECOND * 3;
+        return DEFAULT_EAT_TICKS;
     }
 
     public static int getMaxEatTicks(ItemStack stack) {
@@ -480,24 +481,24 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                 UUID stackId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
                 return stackId != null && stackId.equals(getMiraculousId());
             };
-            List<ItemStack> inventoryMiraculouses = new ReferenceArrayList<>();
+            ImmutableSet.Builder<ItemStack> miraculouses = new ImmutableSet.Builder<>();
             for (ItemStack stack : EntityUtils.getInventory(owner)) {
                 if (isMyMiraculous.test(stack)) {
-                    inventoryMiraculouses.add(stack);
+                    miraculouses.add(stack);
                 }
             }
-            Map<CuriosData, ItemStack> curiosMiraculouses = new Reference2ReferenceOpenHashMap<>();
+            ImmutableMap.Builder<CuriosData, ItemStack> curiosMiraculousesBuilder = ImmutableMap.builder();
             for (Map.Entry<CuriosData, ItemStack> entry : CuriosUtils.getAllItems(owner).entrySet()) {
                 if (isMyMiraculous.test(entry.getValue())) {
-                    curiosMiraculouses.put(entry.getKey(), entry.getValue());
+                    curiosMiraculousesBuilder.put(entry.getKey(), entry.getValue());
                 }
             }
-            List<ItemStack> allMiraculouses = new ReferenceArrayList<>(inventoryMiraculouses);
-            allMiraculouses.addAll(curiosMiraculouses.values());
-            for (ItemStack stack : allMiraculouses) {
+            Map<CuriosData, ItemStack> curios = curiosMiraculousesBuilder.build();
+            miraculouses.addAll(curios.values());
+            for (ItemStack stack : miraculouses.build()) {
                 stack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
             }
-            curiosMiraculouses.forEach((data, stack) -> CuriosUtils.setStackInSlot(owner, data, stack));
+            curios.forEach((data, stack) -> CuriosUtils.setStackInSlot(owner, data, stack));
         }
         super.die(damageSource);
     }

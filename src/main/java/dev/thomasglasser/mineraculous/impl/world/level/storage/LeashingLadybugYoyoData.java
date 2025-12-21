@@ -10,7 +10,7 @@ import net.minecraft.world.entity.Entity;
 
 public record LeashingLadybugYoyoData(int leashedId, float maxRopeLength) {
     public static final StreamCodec<ByteBuf, LeashingLadybugYoyoData> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT, LeashingLadybugYoyoData::leashedId,
+            ByteBufCodecs.VAR_INT, LeashingLadybugYoyoData::leashedId,
             ByteBufCodecs.FLOAT, LeashingLadybugYoyoData::maxRopeLength,
             LeashingLadybugYoyoData::new);
 

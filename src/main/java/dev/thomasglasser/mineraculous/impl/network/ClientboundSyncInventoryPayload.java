@@ -20,7 +20,7 @@ public record ClientboundSyncInventoryPayload(UUID uuid, NonNullList<ItemStack> 
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundSyncInventoryPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8.map(UUID::fromString, UUID::toString), ClientboundSyncInventoryPayload::uuid,
             NON_NULL_LIST_ITEMSTACK_STREAM_CODEC, ClientboundSyncInventoryPayload::inventory,
-            ByteBufCodecs.INT, ClientboundSyncInventoryPayload::selected,
+            ByteBufCodecs.VAR_INT, ClientboundSyncInventoryPayload::selected,
             ClientboundSyncInventoryPayload::new);
     public ClientboundSyncInventoryPayload(Player player) {
         this(player.getUUID(), getInventory(player), player.getInventory().selected);
@@ -38,10 +38,12 @@ public record ClientboundSyncInventoryPayload(UUID uuid, NonNullList<ItemStack> 
     @Override
     public void handle(Player player) {
         Player target = player.level().getPlayerByUUID(uuid);
-        if (target != null && player != target) {
-            target.getInventory().selected = selected;
-            for (int i = 0; i < inventory.size(); i++) {
-                target.getInventory().setItem(i, inventory.get(i));
+        if (target != null) {
+            if (player != target) {
+                target.getInventory().selected = selected;
+                for (int i = 0; i < inventory.size(); i++) {
+                    target.getInventory().setItem(i, inventory.get(i));
+                }
             }
             MineraculousClientUtils.triggerInventorySyncListener(target);
         }

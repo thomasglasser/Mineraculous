@@ -1,12 +1,11 @@
 package dev.thomasglasser.mineraculous.api.world.miraculous;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mojang.serialization.codecs.UnboundedMapCodec;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,11 +24,10 @@ import org.jetbrains.annotations.Nullable;
 /// Holds all {@link MiraculousData}s for an entity
 public class MiraculousesData {
     public static final UnboundedMapCodec<Holder<Miraculous>, MiraculousData> MAP_CODEC = Codec.unboundedMap(Miraculous.CODEC, MiraculousData.CODEC);
-    public static final Codec<MiraculousesData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            MAP_CODEC.fieldOf("map").forGetter(set -> set.map)).apply(instance, MiraculousesData::new));
+    public static final Codec<MiraculousesData> CODEC = MAP_CODEC.xmap(MiraculousesData::new, data -> data.map);
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousesData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.map(
-                    Maps::newHashMapWithExpectedSize,
+                    Object2ObjectOpenHashMap::new,
                     Miraculous.STREAM_CODEC,
                     MiraculousData.STREAM_CODEC),
             set -> set.map,
@@ -38,11 +36,11 @@ public class MiraculousesData {
     private final Map<Holder<Miraculous>, MiraculousData> map;
 
     public MiraculousesData() {
-        this.map = new Reference2ObjectOpenHashMap<>();
+        this.map = new Object2ObjectOpenHashMap<>();
     }
 
     public MiraculousesData(Map<Holder<Miraculous>, MiraculousData> map) {
-        this.map = new Reference2ObjectOpenHashMap<>(map);
+        this.map = new Object2ObjectOpenHashMap<>(map);
     }
 
     @ApiStatus.Internal
@@ -50,38 +48,71 @@ public class MiraculousesData {
         forEach((miraculous, data) -> data.tick(entity, level, miraculous));
     }
 
+    /**
+     * Gets the {@link MiraculousData} for the provided {@link Miraculous}
+     *
+     * @param key The miraculous to get the data for
+     * @return The miraculous data
+     */
     public MiraculousData get(Holder<Miraculous> key) {
         return map.getOrDefault(key, new MiraculousData());
     }
 
-    public MiraculousData put(Entity entity, Holder<Miraculous> key, MiraculousData value, boolean syncToClient) {
+    @ApiStatus.Internal
+    /// @see MiraculousData#save(Holder, Entity)
+    public MiraculousData put(Entity entity, Holder<Miraculous> key, MiraculousData value) {
         MiraculousData data = map.put(key, value);
         save(entity);
         return data;
     }
 
+    /**
+     * Returns an immutable set of miraculous keys.
+     *
+     * @return An immutable set of miraculous keys
+     */
     public Set<Holder<Miraculous>> keySet() {
-        return Set.copyOf(map.keySet());
+        return ImmutableSet.copyOf(map.keySet());
     }
 
-    public List<MiraculousData> values() {
-        return List.copyOf(map.values());
+    /**
+     * Returns an immutable set of miraculous data.
+     *
+     * @return An immutable set of miraculous data
+     */
+    public Set<MiraculousData> values() {
+        return ImmutableSet.copyOf(map.values());
     }
 
+    /**
+     * Executes the provided consumer for each miraculous data entry.
+     *
+     * @param consumer The consumer to execute for each miraculous data entry
+     */
     public void forEach(BiConsumer<Holder<Miraculous>, MiraculousData> consumer) {
         map.forEach(consumer);
     }
 
+    /**
+     * Collects all miraculous keys that are currently transformed.
+     *
+     * @return An immutable list of miraculous keys that are currently transformed
+     */
     public List<Holder<Miraculous>> getTransformed() {
-        List<Holder<Miraculous>> keys = new ReferenceArrayList<>();
+        ImmutableList.Builder<Holder<Miraculous>> keys = new ImmutableList.Builder<>();
         for (Holder<Miraculous> key : map.keySet()) {
             if (get(key).transformed()) {
                 keys.add(key);
             }
         }
-        return keys;
+        return keys.build();
     }
 
+    /**
+     * Determines if any miraculous is currently transformed.
+     *
+     * @return Whether any miraculous is currently transformed
+     */
     public boolean isTransformed() {
         for (Holder<Miraculous> key : keySet()) {
             if (get(key).transformed()) {
@@ -91,6 +122,12 @@ public class MiraculousesData {
         return false;
     }
 
+    /**
+     * Finds the first miraculous that is transformed in the provided tag.
+     *
+     * @param tag The tag to check miraculouses in
+     * @return The first miraculous that is transformed in the provided tag, or {@code null} if none are
+     */
     public @Nullable Holder<Miraculous> getFirstTransformedIn(TagKey<Miraculous> tag) {
         for (Holder<Miraculous> miraculous : getTransformed()) {
             if (miraculous.is(tag))
@@ -99,6 +136,12 @@ public class MiraculousesData {
         return null;
     }
 
+    /**
+     * Determines if any miraculous in the provided tag has stored entities.
+     *
+     * @param tag The tag to check miraculouses in
+     * @return Whether any miraculous in the provided tag has stored entities
+     */
     public boolean hasStoredEntities(TagKey<Miraculous> tag) {
         Holder<Miraculous> miraculous = getFirstTransformedIn(tag);
         if (miraculous != null) {
@@ -107,14 +150,24 @@ public class MiraculousesData {
         return false;
     }
 
-    public int getPowerLevel() {
+    /**
+     * Determines the highest power level of all currently transformed miraculouses.
+     *
+     * @return The highest power level of all currently transformed miraculouses
+     */
+    public int getMaxTransformedPowerLevel() {
         int powerLevel = 0;
-        for (Holder<Miraculous> miraculous : keySet()) {
+        for (Holder<Miraculous> miraculous : getTransformed()) {
             powerLevel = Math.max(powerLevel, get(miraculous).powerLevel());
         }
         return powerLevel;
     }
 
+    /**
+     * Saves the miraculouses data to the provided entity and syncs it to clients.
+     *
+     * @param entity The entity to save the miraculouses data to
+     */
     public void save(Entity entity) {
         entity.setData(MineraculousAttachmentTypes.MIRACULOUSES, this);
     }

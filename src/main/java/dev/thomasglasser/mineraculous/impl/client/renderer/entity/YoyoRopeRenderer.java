@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
@@ -45,7 +45,7 @@ public class YoyoRopeRenderer {
     }
 
     public static void renderRope(Vec3 playerHandPos, Vec3 projectilePos, double maxLength, PoseStack poseStack, MultiBufferSource bufferSource) {
-        final List<RopePoint> points = new ReferenceArrayList<>();
+        final List<RopePoint> points = new ObjectArrayList<>();
         Vec3 lastProjectilePos = Vec3.ZERO;
         Vec3 lastPlayerHandPos = Vec3.ZERO;
         double lastMaxLength = 0;
@@ -63,18 +63,18 @@ public class YoyoRopeRenderer {
             MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (fromProjectileToHand.x + ropeThickness.x), (float) (fromProjectileToHand.y + ropeThickness.y), (float) (fromProjectileToHand.z + ropeThickness.z), 1f, 0f, LightTexture.FULL_BRIGHT);
             MineraculousClientUtils.vertex(vertexConsumer, pose, (float) ropeThickness.x, (float) +ropeThickness.y, (float) ropeThickness.z, 0f, 0f, LightTexture.FULL_BRIGHT);
         } else {
-            List<RopePoint> pointList = calculateRopePoints(points, lastProjectilePos, lastPlayerHandPos, lastMaxLength, projectilePos, playerHandPos, maxLength);
+            calculateRopePoints(points, lastProjectilePos, lastPlayerHandPos, lastMaxLength, projectilePos, playerHandPos, maxLength);
 
-            Vec3 firstPointPos = new Vec3(pointList.getFirst().worldX() + projectilePos.x, pointList.getFirst().localY() + projectilePos.y, pointList.getFirst().worldZ() + projectilePos.z);
+            Vec3 firstPointPos = new Vec3(points.getFirst().worldX() + projectilePos.x, points.getFirst().localY() + projectilePos.y, points.getFirst().worldZ() + projectilePos.z);
             Vec3 projectileToFirstPointThickness = getSegmentThickness(projectilePos, firstPointPos);
             MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (-projectileToFirstPointThickness.x), (float) (-projectileToFirstPointThickness.y), (float) (-projectileToFirstPointThickness.z), 0f, 1f, LightTexture.FULL_BRIGHT);
-            MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (pointList.getFirst().worldX() - projectileToFirstPointThickness.x), (float) (pointList.getFirst().localY() - projectileToFirstPointThickness.y), (float) (pointList.getFirst().worldZ() - projectileToFirstPointThickness.z), 1f, 1f, LightTexture.FULL_BRIGHT);
-            MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (pointList.getFirst().worldX() + projectileToFirstPointThickness.x), (float) (pointList.getFirst().localY() + projectileToFirstPointThickness.y), (float) (pointList.getFirst().worldZ() + projectileToFirstPointThickness.z), 1f, 0f, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (points.getFirst().worldX() - projectileToFirstPointThickness.x), (float) (points.getFirst().localY() - projectileToFirstPointThickness.y), (float) (points.getFirst().worldZ() - projectileToFirstPointThickness.z), 1f, 1f, LightTexture.FULL_BRIGHT);
+            MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (points.getFirst().worldX() + projectileToFirstPointThickness.x), (float) (points.getFirst().localY() + projectileToFirstPointThickness.y), (float) (points.getFirst().worldZ() + projectileToFirstPointThickness.z), 1f, 0f, LightTexture.FULL_BRIGHT);
             MineraculousClientUtils.vertex(vertexConsumer, pose, (float) (projectileToFirstPointThickness.x), (float) (projectileToFirstPointThickness.y), (float) (projectileToFirstPointThickness.z), 0f, 0f, LightTexture.FULL_BRIGHT);
 
             for (int i = 0; i < POINTS - 1; i++) {
-                RopePoint pA = pointList.get(i);
-                RopePoint pB = pointList.get(i + 1);
+                RopePoint pA = points.get(i);
+                RopePoint pB = points.get(i + 1);
 
                 Vec3 pointPos = new Vec3(
                         pA.worldX() + projectilePos.x,
@@ -117,7 +117,7 @@ public class YoyoRopeRenderer {
         }
     }
 
-    private static List<RopePoint> calculateRopePoints(List<RopePoint> points, Vec3 lastProjectilePos, Vec3 lastPlayerHandPos, double lastMaxLength, Vec3 projectilePos, Vec3 playerHandPos, double maxLength) {
+    private static void calculateRopePoints(List<RopePoint> points, Vec3 lastProjectilePos, Vec3 lastPlayerHandPos, double lastMaxLength, Vec3 projectilePos, Vec3 playerHandPos, double maxLength) {
         if (shouldRecalculatePoints(projectilePos, lastProjectilePos, lastPlayerHandPos, lastMaxLength, playerHandPos, maxLength)) {
             Vec3 fromProjectileToHand = new Vec3(playerHandPos.x - projectilePos.x,
                     playerHandPos.y - projectilePos.y,
@@ -142,8 +142,6 @@ public class YoyoRopeRenderer {
                 points.add(new RopePoint(x, y, fromProjectileToHandOnXZ));
             }
         }
-
-        return points;
     }
 
     private static boolean shouldRecalculatePoints(Vec3 projectilePos, Vec3 lastProjectilePos, Vec3 lastPlayerHandPos, double lastMaxLength, Vec3 playerHandPos, double maxLength) {

@@ -74,6 +74,6 @@ public class WikiBookSubProvider extends SingleBookSubProvider {
     }
 
     public static ResourceLocation wikiTexture(String path) {
-        return MineraculousConstants.modLoc("textures/modonomicon/wiki/" + path);
+        return MineraculousConstants.modLoc("textures/modonomicon/wiki/" + path + ".png");
     }
 }

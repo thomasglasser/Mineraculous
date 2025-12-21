@@ -1,12 +1,12 @@
 package dev.thomasglasser.mineraculous.api.advancements.critereon;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.advancements.Criterion;
@@ -42,7 +42,7 @@ public class PerformedKamikotizationActiveAbilityTrigger extends SimpleCriterion
         }
 
         public static Criterion<TriggerInstance> performedActiveAbility(ResourceKey<Kamikotization> kamikotization, String... contexts) {
-            return performedActiveAbility(Optional.empty(), Optional.of(kamikotization), contexts.length == 0 ? Optional.empty() : Optional.of(ReferenceArrayList.of(contexts)));
+            return performedActiveAbility(Optional.empty(), Optional.of(kamikotization), contexts.length == 0 ? Optional.empty() : Optional.of(ImmutableList.copyOf(contexts)));
         }
 
         public static Criterion<TriggerInstance> performedActiveAbility(Optional<ContextAwarePredicate> player, Optional<ResourceKey<Kamikotization>> kamikotization, Optional<List<String>> contexts) {

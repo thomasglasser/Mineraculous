@@ -19,7 +19,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundTriggerKamikotizat
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.ChatFormatting;
@@ -58,7 +58,6 @@ public class KamikotizationSelectionScreen extends Screen {
     private final Player targetPreview;
     private final KamikoData kamikoData;
     private final SlotInfo slotInfo;
-    private final int slotCount;
 
     private int topLeftX;
     private int topLeftY;
@@ -73,14 +72,13 @@ public class KamikotizationSelectionScreen extends Screen {
     @Nullable
     private Holder<Kamikotization> selectedKamikotization;
 
-    public KamikotizationSelectionScreen(Player target, KamikoData kamikoData, List<Holder<Kamikotization>> kamikotizations, SlotInfo slotInfo, int slotCount) {
+    public KamikotizationSelectionScreen(Player target, KamikoData kamikoData, List<Holder<Kamikotization>> kamikotizations, SlotInfo slotInfo) {
         super(TITLE);
         this.target = target;
         this.targetPreview = new RemotePlayer((ClientLevel) target.level(), target.getGameProfile());
         this.kamikotizations = kamikotizations;
         this.kamikoData = kamikoData;
         this.slotInfo = slotInfo;
-        this.slotCount = slotCount;
     }
 
     @Override
@@ -145,7 +143,7 @@ public class KamikotizationSelectionScreen extends Screen {
 
     public void renderKamikotization(GuiGraphics guiGraphics) {
         if (selectedKamikotization != null) {
-            List<MutableComponent> components = new ReferenceArrayList<>();
+            List<MutableComponent> components = new ObjectArrayList<>();
             Either<ItemStack, Holder<Ability>> powerSource = selectedKamikotization.value().powerSource();
             if (powerSource.left().isPresent()) {
                 components.add(TOOL.copy().withStyle(ChatFormatting.BOLD));
@@ -333,7 +331,7 @@ public class KamikotizationSelectionScreen extends Screen {
             TommyLibServices.NETWORK.sendToServer(new ServerboundSetItemKamikotizingPayload(Optional.of(target.getUUID()), false, slotInfo));
             AbilityEffectUtils.removeFaceMaskTexture(player, kamikoData.faceMaskTexture());
         } else {
-            KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, name.getValue(), slotCount);
+            KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, name.getValue());
             if (target == minecraft.player) {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationTransformationPayload(kamikotizationData, slotInfo));
                 TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(target.getUUID(), target.getUUID(), kamikotizationData.kamikotization().getKey()));

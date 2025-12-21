@@ -16,7 +16,7 @@ import org.joml.Vector3f;
 public record ServerboundUpdateStaffInputPayload(int input, PerchingCatStaffData perchData) implements ExtendedPacketPayload {
     public static final Type<ServerboundUpdateStaffInputPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_update_staff_input"));
     public static final StreamCodec<ByteBuf, ServerboundUpdateStaffInputPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT, ServerboundUpdateStaffInputPayload::input,
+            ByteBufCodecs.VAR_INT, ServerboundUpdateStaffInputPayload::input,
             PerchingCatStaffData.STREAM_CODEC, ServerboundUpdateStaffInputPayload::perchData,
             ServerboundUpdateStaffInputPayload::new);
 

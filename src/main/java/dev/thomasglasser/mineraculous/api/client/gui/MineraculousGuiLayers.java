@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.api.client.gui;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.Set;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.client.gui.VanillaGuiLayers;
@@ -17,7 +17,7 @@ public class MineraculousGuiLayers {
     /// Renders when in the Kamiko GUI with a {@link dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenuItem} is selected.
     public static final ResourceLocation KAMIKO_TOOLTIP = MineraculousConstants.modLoc("kamiko_tooltip");
 
-    private static final Set<ResourceLocation> ALLOWED_SPECTATING_GUI_LAYERS = ReferenceOpenHashSet.of(
+    private static final Set<ResourceLocation> ALLOWED_SPECTATING_GUI_LAYERS = ObjectOpenHashSet.of(
             MineraculousGuiLayers.REVOKE_BUTTON,
             MineraculousGuiLayers.KAMIKO_HOTBAR,
             MineraculousGuiLayers.KAMIKO_TOOLTIP,

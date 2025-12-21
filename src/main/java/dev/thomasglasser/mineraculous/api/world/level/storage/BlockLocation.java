@@ -9,6 +9,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
+/**
+ * A block position in a dimension.
+ *
+ * @param dimension The dimension the block position is in
+ * @param pos       The block position
+ */
 public record BlockLocation(ResourceKey<Level> dimension, BlockPos pos) {
     public static final Codec<BlockLocation> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Level.RESOURCE_KEY_CODEC.fieldOf("dimension").forGetter(BlockLocation::dimension),

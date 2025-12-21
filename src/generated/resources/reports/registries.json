@@ -323,6 +323,7 @@
     "mineraculous:yoyo_leash_override"
   ],
   "neoforge:entity_data_serializers": [
+    "mineraculous:minion_kamikotization_data",
     "mineraculous:miraculous",
     "mineraculous:miraculous_ladybug_target_data",
     "mineraculous:optional_kamikotization",

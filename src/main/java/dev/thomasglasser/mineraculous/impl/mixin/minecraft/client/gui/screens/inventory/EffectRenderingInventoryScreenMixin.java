@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.mixin.minecraft.client.gui.screens.inventory;
 
+import com.google.common.collect.ImmutableList;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -24,7 +25,7 @@ public class EffectRenderingInventoryScreenMixin {
             Collection<MobEffectInstance> filtered = new ObjectOpenHashSet<>(original);
             Set<ResourceKey<MobEffect>> miraculousEffects = level.registryAccess().registryOrThrow(Registries.MOB_EFFECT).getDataMap(MineraculousDataMaps.MIRACULOUS_EFFECTS).keySet();
             filtered.removeIf(effect -> miraculousEffects.contains(effect.getEffect().getKey()));
-            return filtered;
+            return ImmutableList.copyOf(filtered);
         }
         return original;
     }

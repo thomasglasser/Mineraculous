@@ -10,6 +10,8 @@ public class MineraculousFoods {
     /// Food properties of a camembert wedge, like cheese but slightly saturating
     public static final FoodProperties CAMEMBERT = new FoodProperties.Builder().nutrition(2).saturationModifier(0.1F).build();
 
+    /// Base food properties of a raw macaron, with a chance to cause hunger
     public static final FoodProperties RAW_MACARON = new FoodProperties.Builder().nutrition(1).effect(() -> new MobEffectInstance(MobEffects.HUNGER, 300, 0), 0.15F).build();
+    /// Base food properties of a cooked macaron
     public static final FoodProperties MACARON = new FoodProperties.Builder().nutrition(4).saturationModifier(0.2F).build();
 }

@@ -18,7 +18,7 @@ public class StealingEntryProvider extends IndexModeEntryProvider {
     @Override
     protected void generatePages() {
         page("stealing", () -> BookImagePageModel.create()
-                .withImages(WikiBookSubProvider.wikiTexture("item_stealing_and_breaking/stealing.png"))
+                .withImages(WikiBookSubProvider.wikiTexture("item_stealing_and_breaking/stealing"))
                 .withTitle(context().pageTitle())
                 .withText(context().pageText()));
 
@@ -48,7 +48,7 @@ public class StealingEntryProvider extends IndexModeEntryProvider {
 
     @Override
     protected String entryDescription() {
-        return "Forcefully taking items from players";
+        return "Forcefully taking items from players.";
     }
 
     @Override

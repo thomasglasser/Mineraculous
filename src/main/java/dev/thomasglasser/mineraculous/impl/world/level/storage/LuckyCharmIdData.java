@@ -1,6 +1,5 @@
 package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
-import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.nbt.MineraculousNbtUtils;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
@@ -14,6 +13,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
@@ -56,14 +56,14 @@ public class LuckyCharmIdData extends SavedData {
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
         RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
-        tag.put("LuckyCharmIds", MineraculousNbtUtils.writeStringKeyedMap(luckyCharmIds, UUID::toString, MineraculousNbtUtils.codecEncoder(Codec.INT, ops)));
+        tag.put("LuckyCharmIds", MineraculousNbtUtils.writeStringKeyedMap(luckyCharmIds, UUID::toString, MineraculousNbtUtils.codecEncoder(ExtraCodecs.NON_NEGATIVE_INT, ops)));
         return tag;
     }
 
     public static LuckyCharmIdData load(CompoundTag tag, HolderLookup.Provider registries) {
         RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
         LuckyCharmIdData data = new LuckyCharmIdData();
-        data.luckyCharmIds.putAll(MineraculousNbtUtils.readStringKeyedMap(Object2IntOpenHashMap::new, tag.getCompound("LuckyCharmIds"), UUID::fromString, MineraculousNbtUtils.codecDecoder(Codec.INT, ops)));
+        data.luckyCharmIds.putAll(MineraculousNbtUtils.readStringKeyedMap(Object2IntOpenHashMap::new, tag.getCompound("LuckyCharmIds"), UUID::fromString, MineraculousNbtUtils.codecDecoder(ExtraCodecs.NON_NEGATIVE_INT, ops)));
         return data;
     }
 }

@@ -15,7 +15,7 @@ import net.minecraft.world.entity.player.Player;
 public record ServerboundHandleEntityRemovedOnClientPayload(int entityId) implements ExtendedPacketPayload {
     public static final Type<ServerboundHandleEntityRemovedOnClientPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_handle_entity_removed_on_client"));
     public static final StreamCodec<ByteBuf, ServerboundHandleEntityRemovedOnClientPayload> CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT, ServerboundHandleEntityRemovedOnClientPayload::entityId,
+            ByteBufCodecs.VAR_INT, ServerboundHandleEntityRemovedOnClientPayload::entityId,
             ServerboundHandleEntityRemovedOnClientPayload::new);
 
     @Override

@@ -9,6 +9,11 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 
+/**
+ * A tooltip component that displays item tags with their associated labels.
+ * 
+ * @param tagKeys The tags and labels to display
+ */
 public record LabeledItemTagsTooltip(SortedMap<Component, TagKey<Item>> tagKeys) implements TooltipComponent {
     public LabeledItemTagsTooltip(KwamiFoods kwamiFoods) {
         this(Util.make(new Object2ReferenceLinkedOpenHashMap<>(), map -> {

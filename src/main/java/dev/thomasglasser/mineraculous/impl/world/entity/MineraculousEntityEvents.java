@@ -97,6 +97,7 @@ public class MineraculousEntityEvents {
         if (entity instanceof ServerPlayer player) {
             player.getData(MineraculousAttachmentTypes.MIRACULOUSES).forEach((miraculous, data) -> ServerLookManager.requestMissingLooks(data.lookData(), player));
             player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> ServerLookManager.requestMissingLooks(data.lookData(), player));
+            ServerLookManager.sendServerLooks(player);
         }
     }
 

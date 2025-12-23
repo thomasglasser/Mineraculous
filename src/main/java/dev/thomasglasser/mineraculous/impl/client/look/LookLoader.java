@@ -17,7 +17,6 @@ import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -30,8 +29,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -107,7 +104,7 @@ public class LookLoader {
             String hash;
             if (Files.isDirectory(path)) {
                 try {
-                    byte[] zipBytes = zipFolderToBytes(path);
+                    byte[] zipBytes = ServerLookManager.zipFolderToBytes(path);
                     hash = Hashing.sha256().hashBytes(zipBytes).toString();
                     ServerLookManager.ensureCacheExists(CACHE_PATH);
                     Path look = CACHE_PATH.resolve(hash + ".look");
@@ -124,28 +121,6 @@ public class LookLoader {
         } catch (Exception e) {
             MineraculousConstants.LOGGER.error("Failed to load look from {}: {}", path, e.getMessage());
         }
-    }
-
-    public static byte[] zipFolderToBytes(Path sourceFolder) throws IOException {
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        try (ZipOutputStream zipStream = new ZipOutputStream(byteStream)) {
-            try (Stream<Path> paths = Files.walk(sourceFolder).sorted()) {
-                paths.filter(path -> !Files.isDirectory(path))
-                        .forEach(path -> {
-                            try {
-                                ZipEntry zipEntry = new ZipEntry(sourceFolder.relativize(path).toString().replace('\\', '/'));
-
-                                zipEntry.setTime(0);
-                                zipStream.putNextEntry(zipEntry);
-                                Files.copy(path, zipStream);
-                                zipStream.closeEntry();
-                            } catch (IOException e) {
-                                MineraculousConstants.LOGGER.warn("Failed to zip look file: {}", path, e);
-                            }
-                        });
-            }
-        }
-        return byteStream.toByteArray();
     }
 
     private static void loadFromRoot(Path root, Path source, String hash, boolean equippable) throws Exception {

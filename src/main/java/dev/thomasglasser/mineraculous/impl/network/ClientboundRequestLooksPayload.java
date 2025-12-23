@@ -2,7 +2,7 @@ package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.client.look.InternalLookManager;
-import dev.thomasglasser.mineraculous.impl.client.look.LookLoader;
+import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
@@ -32,7 +32,7 @@ public record ClientboundRequestLooksPayload(Set<String> hashes) implements Exte
                 try {
                     byte[] data;
                     if (Files.isDirectory(path)) {
-                        data = LookLoader.zipFolderToBytes(path);
+                        data = ServerLookManager.zipFolderToBytes(path);
                     } else {
                         data = Files.readAllBytes(path);
                     }

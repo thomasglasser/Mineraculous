@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
+import dev.thomasglasser.mineraculous.api.core.look.asset.LookAssetTypeKeys;
 import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,13 +17,12 @@ import net.minecraft.resources.ResourceLocation;
 
 public class TextureLookAsset implements LookAssetType<String, ResourceLocation> {
     public static final TextureLookAsset INSTANCE = new TextureLookAsset();
-    private static final ResourceLocation KEY = MineraculousConstants.modLoc("texture");
 
     protected TextureLookAsset() {}
 
     @Override
     public ResourceLocation key() {
-        return KEY;
+        return LookAssetTypeKeys.TEXTURE;
     }
 
     @Override

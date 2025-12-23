@@ -3,9 +3,9 @@ package dev.thomasglasser.mineraculous.impl.client.look.asset;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
+import dev.thomasglasser.mineraculous.api.core.look.asset.LookAssetTypeKeys;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,13 +15,12 @@ import net.minecraft.resources.ResourceLocation;
 
 public class CountdownTexturesLookAsset implements LookAssetType<CountdownTexturesLookAsset.CountdownTextures, ImmutableList<ResourceLocation>> {
     public static final CountdownTexturesLookAsset INSTANCE = new CountdownTexturesLookAsset();
-    private static final ResourceLocation KEY = MineraculousConstants.modLoc("countdown_textures");
 
     private CountdownTexturesLookAsset() {}
 
     @Override
     public ResourceLocation key() {
-        return KEY;
+        return LookAssetTypeKeys.COUNTDOWN_TEXTURES;
     }
 
     @Override

@@ -1,11 +1,11 @@
 package dev.thomasglasser.mineraculous.api.core.look.context;
 
 import com.google.common.collect.ImmutableSet;
-import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
+import net.minecraft.resources.ResourceLocation;
 
 /**
- * Represents a context of a look with certain used {@link LookAssetType}s.
+ * Represents a context of a look with certain used {@link dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType}s.
  *
- * @param assetTypes The {@link LookAssetType}s used by this context
+ * @param assetTypes The keys of the {@link dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType}s used by this context
  */
-public record LookContext(ImmutableSet<LookAssetType<?, ?>> assetTypes) {}
+public record LookContext(ImmutableSet<ResourceLocation> assetTypes) {}

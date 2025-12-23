@@ -1,5 +1,7 @@
 package dev.thomasglasser.mineraculous.api.client.look.asset;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.thomasglasser.mineraculous.impl.client.look.asset.CountdownTexturesLookAsset;
@@ -10,7 +12,6 @@ import dev.thomasglasser.mineraculous.impl.client.look.asset.ScopeTextureLookAss
 import dev.thomasglasser.mineraculous.impl.client.look.asset.TextureLookAsset;
 import dev.thomasglasser.mineraculous.impl.client.look.asset.TransformationTexturesLookAsset;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Set;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +21,7 @@ import software.bernie.geckolib.loading.object.BakedAnimations;
 
 public class LookAssetTypes {
     /// Holds all known {@link LookAssetType}s.
-    private static final Set<LookAssetType<?, ?>> REGISTRY = new ReferenceOpenHashSet<>();
+    private static final BiMap<ResourceLocation, LookAssetType<?, ?>> REGISTRY = HashBiMap.create();
 
     // General
     /// The {@link ResourceLocation} of a texture in the {@link net.minecraft.client.renderer.texture.TextureManager}.
@@ -46,7 +47,7 @@ public class LookAssetTypes {
      * @return An immutable view of all available {@link LookAssetType}s
      */
     public static Set<LookAssetType<?, ?>> values() {
-        return ImmutableSet.copyOf(REGISTRY);
+        return ImmutableSet.copyOf(REGISTRY.values());
     }
 
     /**
@@ -56,11 +57,7 @@ public class LookAssetTypes {
      * @return The {@link LookAssetType} for the provided key, or null if not found
      */
     public static @Nullable LookAssetType<?, ?> get(ResourceLocation key) {
-        for (LookAssetType<?, ?> type : REGISTRY) {
-            if (type.key().equals(key))
-                return type;
-        }
-        return null;
+        return REGISTRY.get(key);
     }
 
     /**
@@ -72,7 +69,7 @@ public class LookAssetTypes {
      * @param <L> The loaded type of the asset
      */
     public static <S, L> LookAssetType<S, L> register(LookAssetType<S, L> type) {
-        REGISTRY.add(type);
+        REGISTRY.put(type.key(), type);
         return type;
     }
 }

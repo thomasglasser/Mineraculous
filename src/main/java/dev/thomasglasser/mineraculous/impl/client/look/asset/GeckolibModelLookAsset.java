@@ -5,6 +5,7 @@ import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
+import dev.thomasglasser.mineraculous.api.core.look.asset.LookAssetTypeKeys;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,13 +20,12 @@ import software.bernie.geckolib.loading.object.GeometryTree;
 
 public class GeckolibModelLookAsset implements LookAssetType<String, BakedGeoModel> {
     public static final GeckolibModelLookAsset INSTANCE = new GeckolibModelLookAsset();
-    private static final ResourceLocation KEY = MineraculousConstants.modLoc("geckolib_model");
 
     private GeckolibModelLookAsset() {}
 
     @Override
     public ResourceLocation key() {
-        return KEY;
+        return LookAssetTypeKeys.GECKOLIB_MODEL;
     }
 
     @Override

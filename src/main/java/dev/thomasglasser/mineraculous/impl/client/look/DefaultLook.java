@@ -42,21 +42,23 @@ public record DefaultLook(ImmutableMap<ResourceKey<LookContext>, DefaultLookAsse
 
                     DefaultLookAssets.Builder assetsBuilder = new DefaultLookAssets.Builder();
                     for (String assetKey : assetKeys) {
-                        LookAssetType<?, ?> assetType = LookAssetTypes.get(ResourceLocation.parse(assetKey));
-                        if (assetType != null) {
-                            if (!context.value().assetTypes().contains(assetType))
-                                throw new IllegalArgumentException("Asset type " + assetKey + " not valid for context " + contextLoc);
-                            assetsBuilder.add(assetType, assets.get(assetKey));
-                        } else {
+                        ResourceLocation assetLoc = ResourceLocation.parse(assetKey);
+                        if (!context.value().assetTypes().contains(assetLoc))
+                            throw new IllegalArgumentException("Asset type " + assetKey + " not valid for context " + contextLoc);
+                        LookAssetType<?, ?> assetType = LookAssetTypes.get(assetLoc);
+                        if (assetType == null)
                             throw new IllegalArgumentException("Invalid asset type " + assetKey + " for context " + contextLoc);
-                        }
+                        assetsBuilder.add(assetType, assets.get(assetKey));
                     }
 
                     DefaultLookAssets lookAssets = assetsBuilder.build();
                     if (lookAssets.isEmpty()) throw new IllegalArgumentException("Look " + lookAssets + " has no assets for context " + contextLoc);
-                    for (LookAssetType<?, ?> assetType : context.value().assetTypes()) {
+                    for (ResourceLocation key : context.value().assetTypes()) {
+                        LookAssetType<?, ?> assetType = LookAssetTypes.get(key);
+                        if (assetType == null)
+                            throw new IllegalArgumentException("Look " + location + " has invalid asset type " + key + " for context " + contextLoc);
                         if (!assetType.isOptional() && !lookAssets.hasAsset(assetType))
-                            throw new IllegalArgumentException("Look " + location + " has no asset for type " + assetType.key() + " for context " + contextLoc);
+                            throw new IllegalArgumentException("Look " + location + " has no asset for type " + key + " for context " + contextLoc);
                     }
 
                     contextAssetsBuilder.put(context.getKey(), lookAssets);

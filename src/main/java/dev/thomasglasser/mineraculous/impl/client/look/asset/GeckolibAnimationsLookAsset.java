@@ -2,9 +2,9 @@ package dev.thomasglasser.mineraculous.impl.client.look.asset;
 
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
-import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
+import dev.thomasglasser.mineraculous.api.core.look.asset.LookAssetTypeKeys;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,13 +18,12 @@ import software.bernie.geckolib.loading.object.BakedAnimations;
 
 public class GeckolibAnimationsLookAsset implements LookAssetType<String, BakedAnimations> {
     public static final GeckolibAnimationsLookAsset INSTANCE = new GeckolibAnimationsLookAsset();
-    private static final ResourceLocation KEY = MineraculousConstants.modLoc("geckolib_animations");
 
     private GeckolibAnimationsLookAsset() {}
 
     @Override
     public ResourceLocation key() {
-        return KEY;
+        return LookAssetTypeKeys.GECKOLIB_ANIMATIONS;
     }
 
     @Override

@@ -187,17 +187,16 @@ public class LookLoader {
 
                 LookAssets.Builder assetsBuilder = new LookAssets.Builder();
                 for (String assetKey : assetKeys) {
-                    LookAssetType<?, ?> assetType = LookAssetTypes.get(ResourceLocation.parse(assetKey));
-                    if (assetType != null) {
-                        if (!context.value().assetTypes().contains(assetType))
-                            throw new IllegalArgumentException("Asset type " + assetKey + " not valid for context " + contextLoc);
-                        try {
-                            assetsBuilder.add(assetType, assets.get(assetKey), root, hash, contextLoc);
-                        } catch (IllegalArgumentException e) {
-                            MineraculousConstants.LOGGER.warn("Failed to load asset {} for context {}: {}", assetKey, contextLoc, e.getMessage());
-                        }
-                    } else {
-                        throw new IOException("Invalid asset type " + assetKey + " for context " + contextLoc);
+                    ResourceLocation assetLoc = ResourceLocation.parse(assetKey);
+                    if (!context.value().assetTypes().contains(assetLoc))
+                        throw new IllegalArgumentException("Asset type " + assetKey + " not valid for context " + contextLoc);
+                    LookAssetType<?, ?> assetType = LookAssetTypes.get(assetLoc);
+                    if (assetType == null)
+                        throw new IllegalArgumentException("Invalid asset type " + assetKey + " for context " + contextLoc);
+                    try {
+                        assetsBuilder.add(assetType, assets.get(assetKey), root, hash, contextLoc);
+                    } catch (IllegalArgumentException e) {
+                        MineraculousConstants.LOGGER.warn("Failed to load asset {} for context {}: {}", assetKey, contextLoc, e.getMessage());
                     }
                 }
 

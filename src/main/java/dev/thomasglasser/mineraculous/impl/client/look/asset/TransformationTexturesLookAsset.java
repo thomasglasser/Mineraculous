@@ -2,9 +2,9 @@ package dev.thomasglasser.mineraculous.impl.client.look.asset;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
+import dev.thomasglasser.mineraculous.api.core.look.asset.LookAssetTypeKeys;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -17,13 +17,12 @@ import net.minecraft.util.ExtraCodecs;
 
 public class TransformationTexturesLookAsset implements LookAssetType<TransformationTexturesLookAsset.TransformationTextures, Int2ObjectMap<ResourceLocation>> {
     public static final TransformationTexturesLookAsset INSTANCE = new TransformationTexturesLookAsset();
-    private static final ResourceLocation KEY = MineraculousConstants.modLoc("transformation_textures");
 
     private TransformationTexturesLookAsset() {}
 
     @Override
     public ResourceLocation key() {
-        return KEY;
+        return LookAssetTypeKeys.TRANSFORMATION_TEXTURES;
     }
 
     @Override

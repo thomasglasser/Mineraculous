@@ -158,9 +158,12 @@ public abstract class DefaultLookProvider extends AbstractLookProvider {
                 LookProvider.AssetsBuilder assetsBuilder = builder.assets.get(context);
                 if (assetsBuilder.assets.isEmpty())
                     throw new RuntimeException("Look " + id + " has no assets for context " + contextKey);
-                for (LookAssetType<?, ?> assetType : context.value().assetTypes()) {
+                for (ResourceLocation key : context.value().assetTypes()) {
+                    LookAssetType<?, ?> assetType = LookAssetTypes.get(key);
+                    if (assetType == null)
+                        throw new IllegalArgumentException("Look " + id + " has invalid asset type " + key + " for context " + contextKey);
                     if (!assetType.isOptional() && !assetsBuilder.assets.containsKey(assetType))
-                        throw new RuntimeException("Look " + id + " has no asset for context " + contextKey + " and asset type " + assetType.key());
+                        throw new RuntimeException("Look " + id + " has no asset for context " + contextKey + " and asset type " + key);
                 }
                 for (Map.Entry<LookAssetType<?, ?>, Object> asset : assetsBuilder.assets.entrySet()) {
                     LookAssetType<?, ?> assetType = asset.getKey();

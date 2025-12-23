@@ -15,14 +15,8 @@ public class LookContexts {
     // Miraculous
     /// Used for rendering {@link dev.thomasglasser.mineraculous.impl.world.item.armor.MiraculousArmorItem}s on the body.
     public static final DeferredHolder<LookContext, LookContext> MIRACULOUS_SUIT = register("miraculous_suit", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS, LookAssetTypes.TRANSFORMATION_TEXTURES);
-    /// Used for rendering a {@link dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem} that is powered.
+    /// Used for rendering a {@link dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem} that is powered or active.
     public static final DeferredHolder<LookContext, LookContext> POWERED_MIRACULOUS = register("powered_miraculous", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS, LookAssetTypes.ITEM_TRANSFORMS, LookAssetTypes.COUNTDOWN_TEXTURES);
-    /**
-     * Used for rendering a {@link dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem} that is not powered or hidden.
-     * Only applies to the texture,
-     * {@link LookContexts#POWERED_MIRACULOUS} is used for other asset types.
-     */
-    public static final DeferredHolder<LookContext, LookContext> ACTIVE_MIRACULOUS = register("active_miraculous", LookAssetTypes.TEXTURE);
     /// Used for rendering a {@link dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem} that is hidden.
     public static final DeferredHolder<LookContext, LookContext> HIDDEN_MIRACULOUS = register("hidden_miraculous", LookAssetTypes.TEXTURE, LookAssetTypes.GECKOLIB_MODEL, LookAssetTypes.GECKOLIB_ANIMATIONS, LookAssetTypes.ITEM_TRANSFORMS);
     /// Used for rendering a miraculous tool.

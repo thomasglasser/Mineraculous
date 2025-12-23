@@ -26,7 +26,9 @@ public class MineraculousDefaultLookProvider extends DefaultLookProvider {
         // Miraculouses
         miraculousNoAnims(miraculouses.getOrThrow(Miraculouses.LADYBUG));
         miraculousNoAnims(miraculouses.getOrThrow(Miraculouses.CAT));
-        miraculousNoAnims(miraculouses.getOrThrow(Miraculouses.BUTTERFLY));
+        miraculousNoAnims(miraculouses.getOrThrow(Miraculouses.BUTTERFLY))
+                .add(LookContexts.HIDDEN_MIRACULOUS, LookAssetTypes.GECKOLIB_MODEL, modString("geo/item/miraculous/butterfly_hidden.geo.json"))
+                .add(LookContexts.HIDDEN_MIRACULOUS, LookAssetTypes.ITEM_TRANSFORMS, modString("models/item/miraculous/butterfly_hidden.json"));
 
         // Miraculous Tools
         miraculousTool(MineraculousItems.LADYBUG_YOYO.getKey())

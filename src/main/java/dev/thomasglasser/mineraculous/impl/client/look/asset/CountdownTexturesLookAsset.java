@@ -32,7 +32,7 @@ public class CountdownTexturesLookAsset implements LookAssetType<CountdownTextur
     @Override
     public ImmutableList<ResourceLocation> load(CountdownTextures asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
         ImmutableList.Builder<ResourceLocation> list = new ImmutableList.Builder<>();
-        for (int i = 1; i < MiraculousData.COUNTDOWN_FRAMES; i++) {
+        for (int i = 0; i < MiraculousData.COUNTDOWN_FRAMES; i++) {
             try {
                 list.add(TextureLookAsset.load(LookManager.findValidPath(root, asset.base().replace(".png", "_" + i + ".png")), "textures/looks/" + hash + "_" + LookManager.toShortPath(context) + "_" + i));
             } catch (FileNotFoundException ignored) {}
@@ -43,7 +43,7 @@ public class CountdownTexturesLookAsset implements LookAssetType<CountdownTextur
     @Override
     public Supplier<ImmutableList<ResourceLocation>> loadDefault(CountdownTextures asset) {
         ImmutableList.Builder<ResourceLocation> builder = new ImmutableList.Builder<>();
-        for (int i = 1; i < MiraculousData.COUNTDOWN_FRAMES; i++) {
+        for (int i = 0; i < MiraculousData.COUNTDOWN_FRAMES; i++) {
             builder.add(ResourceLocation.parse(asset.base().replace(".png", "_" + i + ".png")));
         }
         ImmutableList<ResourceLocation> list = builder.build();

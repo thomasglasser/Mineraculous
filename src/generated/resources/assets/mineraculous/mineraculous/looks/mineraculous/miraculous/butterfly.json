@@ -1,10 +1,7 @@
 {
-  "mineraculous:active_miraculous": {
-    "mineraculous:texture": "mineraculous:textures/item/miraculous/butterfly/active.png"
-  },
   "mineraculous:hidden_miraculous": {
-    "mineraculous:geckolib_model": "mineraculous:geo/item/miraculous/butterfly.geo.json",
-    "mineraculous:item_transforms": "mineraculous:models/item/miraculous/butterfly.json",
+    "mineraculous:geckolib_model": "mineraculous:geo/item/miraculous/butterfly_hidden.geo.json",
+    "mineraculous:item_transforms": "mineraculous:models/item/miraculous/butterfly_hidden.json",
     "mineraculous:texture": "mineraculous:textures/item/miraculous/butterfly/hidden.png"
   },
   "mineraculous:miraculous_suit": {

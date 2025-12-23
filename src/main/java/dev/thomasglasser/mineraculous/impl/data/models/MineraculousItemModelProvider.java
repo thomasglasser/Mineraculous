@@ -62,6 +62,9 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .transform(ItemDisplayContext.FIXED).translation(0, -3, 0).scale(0.4F).end()
                 .transform(ItemDisplayContext.GUI).rotation(0, 180, 0).translation(0, -7, 0).end()
                 .end();
+        miraculous(Miraculouses.BUTTERFLY, "hidden")
+                .transform(MineraculousItemDisplayContexts.CURIOS_BODY.getValue()).rotation(0, 0, 180).translation(0, 1.5F, -2.025F).scale(0.3F).end()
+                .transform(ItemDisplayContext.GUI).rotation(0, 180, 0).translation(0, -0.5F, 0).scale(2).end();
 
         MineraculousArmors.MIRACULOUS.getAll().forEach(item -> singleTexture(item.getId().getPath(), mcItemLoc("generated"), "layer0", modItemLoc("miraculous/armor")));
         MineraculousArmors.KAMIKOTIZATION.getAll().forEach(item -> singleTexture(item.getId().getPath(), mcItemLoc("generated"), "layer0", modItemLoc("kamikotization_armor")));
@@ -298,8 +301,16 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
                 .end();
     }
 
+    private ModelBuilder.TransformsBuilder miraculous(String name) {
+        return getBuilder("item/miraculous/" + name).transforms();
+    }
+
     private ModelBuilder.TransformsBuilder miraculous(ResourceKey<Miraculous> name) {
-        return getBuilder("item/miraculous/" + name.location().getPath()).transforms();
+        return miraculous(name.location().getPath());
+    }
+
+    private ModelBuilder.TransformsBuilder miraculous(ResourceKey<Miraculous> name, String suffix) {
+        return miraculous(name.location().getPath() + "_" + suffix);
     }
 
     private ItemModelBuilder withBitesOverrides(DeferredBlock<?> block, ItemModelBuilder builder) {

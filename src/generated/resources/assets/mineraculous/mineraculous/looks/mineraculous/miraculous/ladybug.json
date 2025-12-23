@@ -1,7 +1,4 @@
 {
-  "mineraculous:active_miraculous": {
-    "mineraculous:texture": "mineraculous:textures/item/miraculous/ladybug/active.png"
-  },
   "mineraculous:hidden_miraculous": {
     "mineraculous:geckolib_model": "mineraculous:geo/item/miraculous/ladybug.geo.json",
     "mineraculous:item_transforms": "mineraculous:models/item/miraculous/ladybug.json",

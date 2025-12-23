@@ -190,7 +190,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
 
     public enum PowerState implements StringRepresentable {
         HIDDEN,
-        ACTIVE,
+        ACTIVE(0),
         POWERED_1(1),
         POWERED_2(2),
         POWERED_3(3),

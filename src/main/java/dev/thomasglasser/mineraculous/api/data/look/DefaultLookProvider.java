@@ -71,8 +71,6 @@ public abstract class DefaultLookProvider extends AbstractLookProvider {
                         .add(LookAssetTypes.GECKOLIB_ANIMATIONS, miraculousAnimations)
                         .add(LookAssetTypes.ITEM_TRANSFORMS, miraculousTransforms)
                         .add(LookAssetTypes.COUNTDOWN_TEXTURES, new CountdownTexturesLookAsset.CountdownTextures(poweredBase)))
-                .add(LookContexts.ACTIVE_MIRACULOUS, assets()
-                        .add(LookAssetTypes.TEXTURE, poweredBase.replace("powered", "active")))
                 .add(LookContexts.HIDDEN_MIRACULOUS, assets()
                         .add(LookAssetTypes.TEXTURE, poweredBase.replace("powered", "hidden"))
                         .add(LookAssetTypes.GECKOLIB_MODEL, miraculousModel)

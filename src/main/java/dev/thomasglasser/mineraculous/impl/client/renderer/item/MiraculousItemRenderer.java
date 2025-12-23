@@ -120,8 +120,7 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
         MiraculousItem.PowerState powerState = getCurrentItemStack().getOrDefault(MineraculousDataComponents.POWER_STATE, MiraculousItem.PowerState.POWERED);
         return switch (powerState) {
             case HIDDEN, POWERED -> getAssetOrDefault(LookAssetTypes.TEXTURE);
-            case ACTIVE -> getAssetOrDefault(LookAssetTypes.TEXTURE, LookContexts.ACTIVE_MIRACULOUS);
-            default -> getAssetOrDefault(LookAssetTypes.COUNTDOWN_TEXTURES).get(powerState.frame() - 1);
+            default -> getAssetOrDefault(LookAssetTypes.COUNTDOWN_TEXTURES).get(powerState.frame());
         };
     }
 }

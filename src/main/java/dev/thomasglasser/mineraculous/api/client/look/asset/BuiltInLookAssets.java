@@ -8,9 +8,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * Holds a collection of built-in look assets assigned to {@link LookAssetType}s.
- */
+/// Holds a collection of built-in look assets assigned to {@link LookAssetType}s.
 public class BuiltInLookAssets implements AbstractLookAssets {
     private final ImmutableMap<LookAssetType<?, ?>, Supplier<?>> assets;
 

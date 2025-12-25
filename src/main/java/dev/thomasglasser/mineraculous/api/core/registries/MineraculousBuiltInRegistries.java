@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.api.core.registries;
 
 import com.mojang.serialization.MapCodec;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
+import dev.thomasglasser.mineraculous.api.core.look.metadata.LookMetadataType;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTargetType;
 import net.minecraft.core.Registry;
@@ -15,6 +16,8 @@ public class MineraculousBuiltInRegistries {
     public static final Registry<MiraculousLadybugTargetType<?>> MIRACULOUS_LADYBUG_TARGET_TYPE = new RegistryBuilder<>(MineraculousRegistries.MIRACULOUS_LADYBUG_TARGET_TYPE).sync(true).create();
     /// The static registry for {@link MineraculousRegistries#LOOK_CONTEXT}.
     public static final Registry<LookContext> LOOK_CONTEXT = new RegistryBuilder<>(MineraculousRegistries.LOOK_CONTEXT).sync(true).create();
+    /// The static registry for {@link MineraculousRegistries#LOOK_METADATA_TYPE}.
+    public static final Registry<LookMetadataType<?>> LOOK_METADATA_TYPE = new RegistryBuilder<>(MineraculousRegistries.LOOK_METADATA_TYPE).sync(true).create();
 
     @ApiStatus.Internal
     public static void init() {}

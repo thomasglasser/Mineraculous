@@ -6,5 +6,8 @@
     }
   },
   "author": "Mineraculous",
+  "metadata": {
+    "mineraculous:valid_kamikotizations": "mineraculous:ladybug"
+  },
   "name": "Bugaboo"
 }

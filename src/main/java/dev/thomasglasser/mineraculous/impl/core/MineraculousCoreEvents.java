@@ -54,6 +54,7 @@ public class MineraculousCoreEvents {
         event.register(MineraculousBuiltInRegistries.ABILITY_SERIALIZER);
         event.register(MineraculousBuiltInRegistries.MIRACULOUS_LADYBUG_TARGET_TYPE);
         event.register(MineraculousBuiltInRegistries.LOOK_CONTEXT);
+        event.register(MineraculousBuiltInRegistries.LOOK_METADATA_TYPE);
     }
 
     public static void onNewDataPackRegistry(DataPackRegistryEvent.NewRegistry event) {

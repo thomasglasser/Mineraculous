@@ -5,7 +5,9 @@ import com.google.gson.JsonObject;
 import dev.thomasglasser.mineraculous.api.client.look.asset.AbstractLookAssets;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetTypes;
+import dev.thomasglasser.mineraculous.api.client.look.metadata.LookMetadata;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
+import dev.thomasglasser.mineraculous.api.core.look.metadata.LookMetadataType;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousBuiltInRegistries;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -18,17 +20,20 @@ import org.jetbrains.annotations.Nullable;
 /**
  * A group of assets for {@link LookContext}s with a name and author.
  * 
- * @param name   The name of the look
- * @param author The author of the look
- * @param assets The assets of the look
- * @param <T>    The type of the assets
+ * @param name     The name of the look
+ * @param author   The author of the look
+ * @param metadata The metadata of the look
+ * @param assets   The assets of the look
+ * @param <T>      The type of the assets
  */
-public record Look<T extends AbstractLookAssets>(String name, String author, ImmutableMap<ResourceKey<LookContext>, T> assets) {
+public record Look<T extends AbstractLookAssets>(String name, String author, LookMetadata metadata, ImmutableMap<ResourceKey<LookContext>, T> assets) {
 
     /// The JSON key for the name of the look.
     public static final String NAME_KEY = "name";
     /// The JSON key for the author of the look.
     public static final String AUTHOR_KEY = "author";
+    /// The JSON key for the metadata of the look.
+    public static final String METADATA_KEY = "metadata";
     /// The JSON key for the assets of the look.
     public static final String ASSETS_KEY = "assets";
     /**
@@ -58,7 +63,16 @@ public record Look<T extends AbstractLookAssets>(String name, String author, Imm
 
         String author = json.has(AUTHOR_KEY) ? json.get(AUTHOR_KEY).getAsString() : "Unknown";
 
-        // TODO: Load metadata
+        LookMetadata.Builder metadataBuilder = new LookMetadata.Builder();
+        if (json.has(METADATA_KEY)) {
+            JsonObject metadata = json.getAsJsonObject(METADATA_KEY);
+            for (String dataKey : metadata.keySet()) {
+                LookMetadataType<?> type = MineraculousBuiltInRegistries.LOOK_METADATA_TYPE.get(ResourceLocation.parse(dataKey));
+                if (type == null)
+                    throw lookException(lookId, "has invalid metadata type " + dataKey);
+                metadataBuilder.add(type, metadata.get(dataKey));
+            }
+        }
 
         if (!json.has(ASSETS_KEY)) throw lookException(lookId, "missing " + ASSETS_KEY + " field");
         JsonObject contexts = json.getAsJsonObject(ASSETS_KEY);
@@ -99,7 +113,7 @@ public record Look<T extends AbstractLookAssets>(String name, String author, Imm
             throw lookException(lookId, "has no assets");
         }
 
-        return new Look<>(name, author, contextAssetsBuilder.build());
+        return new Look<>(name, author, metadataBuilder.build(), contextAssetsBuilder.build());
     }
 
     private static IllegalStateException lookException(ResourceLocation lookId, String message) {

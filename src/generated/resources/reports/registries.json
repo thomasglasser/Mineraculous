@@ -310,6 +310,10 @@
     "mineraculous:miraculous_tool_thrown",
     "mineraculous:powered_miraculous"
   ],
+  "mineraculous:look_metadata_type": [
+    "mineraculous:valid_kamikotizations",
+    "mineraculous:valid_miraculouses"
+  ],
   "mineraculous:miraculous": [
     "mineraculous:butterfly",
     "mineraculous:cat",

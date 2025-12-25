@@ -458,6 +458,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         }
         int id = createAndEquipTool(entity, level, miraculous);
         if (id > -1) {
+            entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).setLastUsed(miraculous);
             finishTransformation(id).save(miraculous, entity);
         } else {
             MineraculousConstants.LOGGER.error("Tool could not be created for entity {}", entity.getName().plainCopy().getString());

@@ -2,8 +2,8 @@ package dev.thomasglasser.mineraculous.impl.client.look.asset;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
+import dev.thomasglasser.mineraculous.api.core.look.LookUtils;
 import dev.thomasglasser.mineraculous.api.core.look.asset.LookAssetTypeKeys;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
@@ -36,18 +36,18 @@ public class TransformationTexturesLookAsset implements LookAssetType<Transforma
     }
 
     @Override
-    public Int2ObjectMap<ResourceLocation> load(TransformationTextures asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
+    public Int2ObjectMap<ResourceLocation> load(TransformationTextures asset, ResourceLocation lookId, Path root, ResourceLocation contextId) throws IOException, IllegalArgumentException {
         Int2ObjectMap<ResourceLocation> map = new Int2ObjectOpenHashMap<>();
         for (int i = 0; i < asset.textureCount(); i++) {
             try {
-                map.put(i, TextureLookAsset.load(LookManager.findValidPath(root, asset.base().replace(".png", "_" + i + ".png")), "textures/looks/" + hash + "_" + LookManager.toShortPath(context) + "_" + i));
+                map.put(i, TextureLookAsset.load(LookUtils.findValidPath(root, asset.base().replace(".png", "_" + i + ".png")), lookId, key(), contextId, "_" + i));
             } catch (FileNotFoundException ignored) {}
         }
         return Int2ObjectMaps.unmodifiable(map);
     }
 
     @Override
-    public Supplier<Int2ObjectMap<ResourceLocation>> loadDefault(TransformationTextures asset) {
+    public Supplier<Int2ObjectMap<ResourceLocation>> getBuiltIn(TransformationTextures asset, ResourceLocation lookId) {
         Int2ObjectMap<ResourceLocation> map = new Int2ObjectOpenHashMap<>();
         for (int i = 0; i < asset.textureCount(); i++) {
             map.put(i, ResourceLocation.parse(asset.base().replace(".png", "_" + i + ".png")));

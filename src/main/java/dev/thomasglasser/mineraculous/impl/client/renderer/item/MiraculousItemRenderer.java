@@ -2,19 +2,20 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.thomasglasser.mineraculous.api.client.look.Look;
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetTypes;
-import dev.thomasglasser.mineraculous.api.client.look.renderer.LookRenderer;
+import dev.thomasglasser.mineraculous.api.client.look.util.renderer.LookRenderer;
 import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.look.LookUtils;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.impl.client.look.Look;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import java.util.UUID;
@@ -22,7 +23,6 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransform;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -61,12 +61,8 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
         return miraculous;
     }
 
-    public static ResourceLocation getDefaultLookId(ResourceKey<Miraculous> miraculous) {
-        return LookManager.getDefaultLookId(miraculous, MineraculousRegistries.MIRACULOUS);
-    }
-
     public static ResourceLocation getDefaultLookId(ItemStack stack) {
-        return getDefaultLookId(getMiraculousOrDefault(stack).getKey());
+        return LookUtils.getDefaultLookId(getMiraculousOrDefault(stack).getKey());
     }
 
     public static Holder<LookContext> getContext(@Nullable MiraculousItem.PowerState powerState) {
@@ -77,7 +73,7 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
         UUID owner = stack.get(MineraculousDataComponents.OWNER);
         Level level = ClientUtils.getLevel();
         if (owner != null && level != null && level.getEntities().get(owner) instanceof Player player) {
-            return LookManager.getLook(player, player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(getMiraculousOrDefault(stack)).lookData(), context.getKey());
+            return LookManager.getLook(player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(getMiraculousOrDefault(stack)).lookData(), context.getKey());
         }
         return null;
     }

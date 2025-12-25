@@ -12,4 +12,9 @@ public class ScopeTextureLookAsset extends TextureLookAsset {
     public ResourceLocation key() {
         return LookAssetTypeKeys.SCOPE_TEXTURE;
     }
+
+    @Override
+    public boolean isOptional() {
+        return true;
+    }
 }

@@ -1,7 +1,7 @@
-package dev.thomasglasser.mineraculous.api.client.look.item;
+package dev.thomasglasser.mineraculous.api.client.look.util.item;
 
-import dev.thomasglasser.mineraculous.api.client.look.renderer.LookRenderer;
-import dev.thomasglasser.mineraculous.api.client.look.renderer.MiraculousToolLookRenderer;
+import dev.thomasglasser.mineraculous.api.client.look.util.renderer.LookRenderer;
+import dev.thomasglasser.mineraculous.api.client.look.util.renderer.MiraculousToolLookRenderer;
 import dev.thomasglasser.mineraculous.api.core.look.LookData;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -35,7 +35,7 @@ public class MiraculousLookToolClientExtensions<T extends BlockEntityWithoutLeve
     }
 
     @Override
-    public LookData getLookData(Player player, ItemStack stack) {
-        return player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(MiraculousItemRenderer.getMiraculousOrDefault(stack)).lookData();
+    public LookData getLookData(Entity entity, ItemStack stack) {
+        return entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(MiraculousItemRenderer.getMiraculousOrDefault(stack)).lookData();
     }
 }

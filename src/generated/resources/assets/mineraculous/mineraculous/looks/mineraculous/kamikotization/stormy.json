@@ -1,7 +1,11 @@
 {
-  "mineraculous:kamikotization_suit": {
-    "mineraculous:geckolib_animations": "mineraculous:animations/item/armor/kamikotization/stormy.animation.json",
-    "mineraculous:geckolib_model": "mineraculous:geo/item/armor/kamikotization/stormy.geo.json",
-    "mineraculous:texture": "mineraculous:textures/entity/equipment/humanoid/kamikotization/stormy.png"
-  }
+  "assets": {
+    "mineraculous:kamikotization_suit": {
+      "mineraculous:geckolib_animations": "mineraculous:animations/item/armor/kamikotization/stormy.animation.json",
+      "mineraculous:geckolib_model": "mineraculous:geo/item/armor/kamikotization/stormy.geo.json",
+      "mineraculous:texture": "mineraculous:textures/entity/equipment/humanoid/kamikotization/stormy.png"
+    }
+  },
+  "author": "Mineraculous",
+  "name": "Stormy"
 }

@@ -1,11 +1,10 @@
-package dev.thomasglasser.mineraculous.api.client.look.renderer;
+package dev.thomasglasser.mineraculous.api.client.look.util.renderer;
 
+import dev.thomasglasser.mineraculous.api.client.look.Look;
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
+import dev.thomasglasser.mineraculous.api.client.look.asset.BuiltInLookAssets;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
-import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssets;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
-import dev.thomasglasser.mineraculous.impl.client.look.DefaultLook;
-import dev.thomasglasser.mineraculous.impl.client.look.Look;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
@@ -32,15 +31,15 @@ public interface LookRenderer {
      * @return The look of the renderer
      */
     @Nullable
-    Look getLook();
+    Look<?> getLook();
 
     /**
      * Returns the default look of the renderer.
      * 
      * @return The default look of the renderer
      */
-    default DefaultLook getDefaultLook() {
-        return LookManager.getDefaultLook(getDefaultLookId());
+    default Look<BuiltInLookAssets> getDefaultLook() {
+        return LookManager.getBuiltInLook(getDefaultLookId());
     }
 
     /**
@@ -76,11 +75,9 @@ public interface LookRenderer {
      * @param <T> The type of the asset
      */
     default <T> @Nullable T getAsset(LookAssetType<?, T> assetType, Holder<LookContext> context) {
-        Look look = getLook();
+        Look<?> look = getLook();
         if (look != null) {
-            LookAssets assets = look.assets().get(context.getKey());
-            if (assets != null)
-                return assets.getAsset(assetType);
+            return look.getAsset(context, assetType);
         }
         return null;
     }

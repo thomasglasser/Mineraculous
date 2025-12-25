@@ -9,9 +9,9 @@ import java.util.function.Supplier;
 import net.minecraft.resources.ResourceLocation;
 
 /**
- * Represents a type of asset that can be loaded and used in a {@link dev.thomasglasser.mineraculous.api.core.look.context.LookContext}.
+ * Represents a type of asset that can be de/serialized, loaded, and used in a {@link dev.thomasglasser.mineraculous.api.core.look.context.LookContext}.
  *
- * @param <S> The stored type of the asset
+ * @param <S> The serialization type of the asset
  * @param <L> The loaded type of the asset
  */
 public interface LookAssetType<S, L> {
@@ -30,9 +30,9 @@ public interface LookAssetType<S, L> {
     ResourceLocation key();
 
     /**
-     * Returns the codec to de/serialize the stored asset type.
+     * Returns the codec to de/serialize the asset type.
      * 
-     * @return The codec to de/serialize the stored asset type
+     * @return The codec to de/serialize the asset type
      */
     Codec<S> getCodec();
 
@@ -48,19 +48,20 @@ public interface LookAssetType<S, L> {
     /**
      * Loads the asset from the provided path.
      *
-     * @param asset   The asset to load
-     * @param root    The root path of the look
-     * @param hash    The hash of the look (for ID purposes)
-     * @param context The {@link dev.thomasglasser.mineraculous.api.core.look.context.LookContext} to load the asset for
+     * @param asset     The asset to load
+     * @param lookId    The id of the look
+     * @param root      The root path of the look
+     * @param contextId The context of the asset
      * @return The loaded asset
      */
-    L load(S asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException;
+    L load(S asset, ResourceLocation lookId, Path root, ResourceLocation contextId) throws IOException, IllegalArgumentException;
 
     /**
-     * Loads the default asset.
+     * Gets the built-in asset.
      *
-     * @param asset The asset to load
-     * @return A supplier pointing to the loaded asset
+     * @param asset  The asset to get
+     * @param lookId The id of the look
+     * @return A supplier pointing to the asset
      */
-    Supplier<L> loadDefault(S asset);
+    Supplier<L> getBuiltIn(S asset, ResourceLocation lookId);
 }

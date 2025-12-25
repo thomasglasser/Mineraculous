@@ -1,8 +1,9 @@
 package dev.thomasglasser.mineraculous.impl.client.renderer.armor;
 
+import dev.thomasglasser.mineraculous.api.client.look.Look;
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetTypes;
-import dev.thomasglasser.mineraculous.api.client.look.renderer.LookRenderer;
+import dev.thomasglasser.mineraculous.api.client.look.util.renderer.LookRenderer;
 import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
@@ -11,7 +12,6 @@ import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
-import dev.thomasglasser.mineraculous.impl.client.look.Look;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import java.util.UUID;
 import net.minecraft.client.model.HumanoidModel;
@@ -64,7 +64,7 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
         super.prepForRender(entity, stack, slot, baseModel, bufferSource, partialTick, limbSwing, limbSwingAmount, netHeadYaw, headPitch);
         UUID owner = stack.get(MineraculousDataComponents.OWNER);
         if (owner != null && entity.level().getEntities().get(owner) instanceof Player player) {
-            look = LookManager.getLook(player, player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(MiraculousItemRenderer.getMiraculousOrDefault(stack)).lookData(), getContext().getKey());
+            look = LookManager.getLook(player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(MiraculousItemRenderer.getMiraculousOrDefault(stack)).lookData(), getContext().getKey());
         }
     }
 

@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.api.client.model;
 
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetTypes;
-import dev.thomasglasser.mineraculous.api.client.look.renderer.LookRenderer;
+import dev.thomasglasser.mineraculous.api.client.look.util.renderer.LookRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoAnimatable;

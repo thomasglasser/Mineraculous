@@ -1,6 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.client.renderer.item;
 
-import dev.thomasglasser.mineraculous.api.client.look.renderer.MiraculousToolLookRenderer;
+import dev.thomasglasser.mineraculous.api.client.look.util.renderer.MiraculousToolLookRenderer;
 import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;

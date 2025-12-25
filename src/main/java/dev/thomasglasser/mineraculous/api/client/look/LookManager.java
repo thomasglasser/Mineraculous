@@ -1,149 +1,108 @@
 package dev.thomasglasser.mineraculous.api.client.look;
 
-import com.google.common.collect.ImmutableSortedSet;
-import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.client.look.asset.BuiltInLookAssets;
+import dev.thomasglasser.mineraculous.api.client.look.asset.LoadedLookAssets;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
-import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssets;
 import dev.thomasglasser.mineraculous.api.core.look.LookData;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
-import dev.thomasglasser.mineraculous.impl.client.look.DefaultLook;
-import dev.thomasglasser.mineraculous.impl.client.look.InternalLookManager;
-import dev.thomasglasser.mineraculous.impl.client.look.Look;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundRequestLookPayload;
-import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import dev.thomasglasser.mineraculous.impl.client.look.ClientLookManager;
+import java.util.Set;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 public class LookManager {
     /**
-     * Converts the provided {@link ResourceLocation} to a path, bypassing the namespace if it is {@link ResourceLocation#DEFAULT_NAMESPACE}.
+     * Returns a set of all built-in look ids.
      * 
-     * @param location The {@link ResourceLocation} to convert
-     * @return The converted path
+     * @return A set of all built-in look ids
      */
-    public static String toShortPath(ResourceLocation location) {
-        return location.toShortLanguageKey().replace('.', '/');
+    public static Set<ResourceLocation> getBuiltIn() {
+        return ClientLookManager.getBuiltIn();
     }
 
     /**
-     * Returns the default look for the provided key,
-     * erroring if not found.
+     * Gets a built-in look by its id.
      * 
-     * @param key The key of the look
-     * @return The default look for the provided key
+     * @param id The id of the look
+     * @return The built-in look, or null if not found
      */
-    public static DefaultLook getDefaultLook(ResourceLocation key) {
-        return InternalLookManager.getDefaultLook(key);
+    public static @Nullable Look<BuiltInLookAssets> getBuiltInLook(ResourceLocation id) {
+        return ClientLookManager.getBuiltInLook(id);
     }
 
     /**
-     * Determines the default look id for a registry entry
-     * 
-     * @param key      The key of the entry
-     * @param registry The registry of the entry
-     * @return The default look id for the provided key and registry
-     * @param <T> The type of the entry
-     */
-    public static <T> ResourceLocation getDefaultLookId(ResourceKey<T> key, ResourceKey<Registry<T>> registry) {
-        ResourceLocation id = key.location();
-        ResourceLocation registryId = registry.location();
-        return id.withPrefix(toShortPath(registryId) + "/");
-    }
-
-    /**
-     * Returns an immutable view of all equippable looks, sorted by name.
-     * 
-     * @return An immutable view of all equippable looks, sorted by name
-     */
-    public static ImmutableSortedSet<Look> getEquippable() {
-        return InternalLookManager.getEquippable();
-    }
-
-    /**
-     * Returns the equippable look for the provided hash.
-     * 
-     * @param hash The hash of the look
-     * @return The equippable look for the provided hash, or null if not found
-     */
-    public static @Nullable Look getEquippableLook(String hash) {
-        return InternalLookManager.getEquippableLook(hash);
-    }
-
-    /**
-     * Returns the look of the player for the provided data and context.
+     * Gets a built-in look by its id,
+     * or throws an exception if not found.
      *
-     * @param player   The player to get the look for
-     * @param lookData The data to get the look from
-     * @param context  The context to get the look for
-     * @return The look of the player for the provided miraculous and context, or null if not found
+     * @param id The id of the look
+     * @return The built-in look
      */
-    public static @Nullable Look getLook(Player player, LookData lookData, ResourceKey<LookContext> context) {
-        if (InternalLookManager.isInSafeMode()) {
-            MineraculousConstants.LOGGER.warn("Tried to get look for {} in safe mode, using the default...", player.getUUID());
-            return null;
-        }
-
-        String hash = lookData.hashes().get(context);
-        if (hash == null) return null;
-
-        Look look = InternalLookManager.getCachedLook(hash);
+    public static Look<BuiltInLookAssets> getOrThrowBuiltInLook(ResourceLocation id) {
+        Look<BuiltInLookAssets> look = getBuiltInLook(id);
         if (look == null)
-            TommyLibServices.NETWORK.sendToServer(new ServerboundRequestLookPayload(hash));
+            throw new NullPointerException("No built-in look with id " + id + " found");
         return look;
     }
 
     /**
-     * Returns the asset of the provided asset type of the look of the player for the provided data and context.
-     *
-     * @param player    The player to get the asset for
-     * @param lookData  The data to get the look from
-     * @param context   The context to get the asset for
-     * @param assetType The asset type to get
-     * @return The asset of the provided asset type of the look of the player for the provided miraculous and context, or null if not found
-     * @param <T> The type of the asset
+     * Returns a set of all equippable look hashes.
+     * 
+     * @return A set of all equippable look hashes
      */
-    public static <T> @Nullable T getLookAsset(Player player, LookData lookData, ResourceKey<LookContext> context, LookAssetType<?, T> assetType) {
-        Look look = getLook(player, lookData, context);
-        if (look != null) {
-            LookAssets assets = look.assets().get(context);
-            if (assets != null)
-                return assets.getAsset(assetType);
+    public static Set<String> getEquippable() {
+        return ClientLookManager.getEquippable();
+    }
+
+    /**
+     * Gets an equippable look by its hash.
+     * 
+     * @param hash The hash of the look
+     * @return The equippable look, or null if not found
+     */
+    public static @Nullable Look<LoadedLookAssets> getEquippableLook(String hash) {
+        return ClientLookManager.getEquippableLook(hash);
+    }
+
+    /**
+     * Gets the appropriate look from the provided {@link LookData} for the provided {@link dev.thomasglasser.mineraculous.api.core.look.context.LookContext}.
+     * 
+     * @param data    The look data to use
+     * @param context The context to use
+     * @return The appropriate look, or null if not found
+     */
+    public static @Nullable Look<?> getLook(LookData data, ResourceKey<LookContext> context) {
+        ResourceLocation lookId = data.looks().get(context);
+        if (lookId != null) {
+            if (!lookId.getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE))
+                return getBuiltInLook(lookId);
+            return ClientLookManager.getLoadedLook(lookId.getPath());
         }
         return null;
     }
 
-    public static <T> @Nullable T getLookAsset(Player player, LookData lookData, Holder<LookContext> context, LookAssetType<?, T> assetType) {
-        return getLookAsset(player, lookData, context.getKey(), assetType);
+    public static @Nullable Look<?> getLook(LookData data, Holder<LookContext> context) {
+        return getLook(data, context.getKey());
     }
 
     /**
-     * Finds the {@link Path} that the provided value is pointing to within the provided root.
-     *
-     * @param root  The root path of the pack
-     * @param value The value to find within the root
-     * @return The path of the provided value
+     * Gets an asset from the provided {@link LookData} for the provided {@link dev.thomasglasser.mineraculous.api.core.look.context.LookContext} and {@link LookAssetType}.
+     * 
+     * @param data      The look data to use
+     * @param context   The context to use
+     * @param assetType The asset type to use
+     * @return The asset, or null if not found
+     * @param <L> The loaded type of the asset
      */
-    public static Path findValidPath(Path root, String value) throws IOException {
-        Path path = root.resolve(value);
+    public static <L> @Nullable L getAsset(LookData data, ResourceKey<LookContext> context, LookAssetType<?, L> assetType) {
+        Look<?> look = getLook(data, context);
+        if (look != null)
+            return look.getAsset(context, assetType);
+        return null;
+    }
 
-        if (!path.normalize().startsWith(root.normalize())) {
-            throw new IOException("Invalid path (Zip Slip attempt): " + value);
-        }
-        if (!Files.exists(path)) {
-            throw new FileNotFoundException("Referenced file not found: " + value);
-        }
-        if (Files.size(path) > ServerLookManager.MAX_FILE_SIZE)
-            throw new IOException("File too large, must be <=2MB: " + value);
-
-        return path;
+    public static <L> @Nullable L getAsset(LookData data, Holder<LookContext> context, LookAssetType<?, L> assetType) {
+        return getAsset(data, context.getKey(), assetType);
     }
 }

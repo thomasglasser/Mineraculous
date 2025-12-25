@@ -3,8 +3,8 @@ package dev.thomasglasser.mineraculous.impl.client.look.asset;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
+import dev.thomasglasser.mineraculous.api.core.look.LookUtils;
 import dev.thomasglasser.mineraculous.api.core.look.asset.LookAssetTypeKeys;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,12 +34,12 @@ public class GeckolibModelLookAsset implements LookAssetType<String, BakedGeoMod
     }
 
     @Override
-    public BakedGeoModel load(String asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
-        return BakedModelFactory.getForNamespace(MineraculousConstants.MOD_ID).constructGeoModel(GeometryTree.fromModel(KeyFramesAdapter.GEO_GSON.fromJson(JsonParser.parseString(Files.readString(LookManager.findValidPath(root, asset))).getAsJsonObject(), Model.class)));
+    public BakedGeoModel load(String asset, ResourceLocation lookId, Path root, ResourceLocation contextId) throws IOException, IllegalArgumentException {
+        return BakedModelFactory.getForNamespace(MineraculousConstants.MOD_ID).constructGeoModel(GeometryTree.fromModel(KeyFramesAdapter.GEO_GSON.fromJson(JsonParser.parseString(Files.readString(LookUtils.findValidPath(root, asset))).getAsJsonObject(), Model.class)));
     }
 
     @Override
-    public Supplier<BakedGeoModel> loadDefault(String asset) {
+    public Supplier<BakedGeoModel> getBuiltIn(String asset, ResourceLocation lookId) {
         ResourceLocation location = ResourceLocation.parse(asset);
         return () -> GeckoLibCache.getBakedModels().get(location);
     }

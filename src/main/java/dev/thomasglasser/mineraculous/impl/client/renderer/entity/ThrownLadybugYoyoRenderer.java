@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import dev.thomasglasser.mineraculous.api.client.look.renderer.ThrownMiraculousToolLookRenderer;
+import dev.thomasglasser.mineraculous.api.client.look.util.renderer.ThrownMiraculousToolLookRenderer;
 import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;

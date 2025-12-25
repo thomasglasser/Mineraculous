@@ -1,23 +1,23 @@
 package dev.thomasglasser.mineraculous.impl.client.renderer.armor;
 
+import dev.thomasglasser.mineraculous.api.client.look.Look;
 import dev.thomasglasser.mineraculous.api.client.look.LookManager;
-import dev.thomasglasser.mineraculous.api.client.look.renderer.LookRenderer;
+import dev.thomasglasser.mineraculous.api.client.look.util.renderer.LookRenderer;
 import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.look.LookUtils;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
-import dev.thomasglasser.mineraculous.impl.client.look.Look;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import java.util.UUID;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Holder;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -53,19 +53,15 @@ public class KamikotizationArmorItemRenderer<T extends Item & GeoItem> extends G
         return kamikotization;
     }
 
-    public static ResourceLocation getDefaultLookId(ResourceKey<Kamikotization> miraculous) {
-        return LookManager.getDefaultLookId(miraculous, MineraculousRegistries.KAMIKOTIZATION);
-    }
-
     public static ResourceLocation getDefaultLookId(ItemStack stack) {
-        return getDefaultLookId(getKamikotizationOrDefault(stack).getKey());
+        return LookUtils.getDefaultLookId(getKamikotizationOrDefault(stack).getKey());
     }
 
     public static @Nullable Look getLook(ItemStack stack, Holder<LookContext> context) {
         UUID owner = stack.get(MineraculousDataComponents.OWNER);
         Level level = ClientUtils.getLevel();
         if (owner != null && level != null && level.getEntities().get(owner) instanceof Player player) {
-            return player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::lookData).map(lookData -> LookManager.getLook(player, lookData, context.getKey())).orElse(null);
+            return player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::lookData).map(lookData -> LookManager.getLook(lookData, context.getKey())).orElse(null);
         }
         return null;
     }

@@ -1,8 +1,8 @@
-package dev.thomasglasser.mineraculous.api.client.look.renderer;
+package dev.thomasglasser.mineraculous.api.client.look.util.renderer;
 
+import dev.thomasglasser.mineraculous.api.client.look.Look;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
 import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
-import dev.thomasglasser.mineraculous.impl.client.look.Look;
 import dev.thomasglasser.mineraculous.impl.client.renderer.armor.KamikotizationArmorItemRenderer;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
@@ -24,7 +24,7 @@ public interface KamikotizationToolLookRenderer extends LookRenderer {
     }
 
     @Override
-    default @Nullable Look getLook() {
+    default @Nullable Look<?> getLook() {
         return KamikotizationArmorItemRenderer.getLook(getCurrentItemStack(), getContext());
     }
 }

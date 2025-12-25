@@ -106,8 +106,6 @@ public class MineraculousEntityEvents {
         MinecraftServer server = player.getServer();
 
         TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncSpecialPlayerChoicesPayload.INSTANCE, server);
-
-        // TODO: Server syncs available server looks to client
     }
 
     /// Life

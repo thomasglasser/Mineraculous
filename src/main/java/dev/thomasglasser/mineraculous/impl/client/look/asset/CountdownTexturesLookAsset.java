@@ -3,8 +3,8 @@ package dev.thomasglasser.mineraculous.impl.client.look.asset;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
+import dev.thomasglasser.mineraculous.api.core.look.LookUtils;
 import dev.thomasglasser.mineraculous.api.core.look.asset.LookAssetTypeKeys;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import java.io.FileNotFoundException;
@@ -29,18 +29,18 @@ public class CountdownTexturesLookAsset implements LookAssetType<CountdownTextur
     }
 
     @Override
-    public ImmutableList<ResourceLocation> load(CountdownTextures asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
+    public ImmutableList<ResourceLocation> load(CountdownTextures asset, ResourceLocation lookId, Path root, ResourceLocation contextId) throws IOException, IllegalArgumentException {
         ImmutableList.Builder<ResourceLocation> list = new ImmutableList.Builder<>();
         for (int i = 0; i < MiraculousData.COUNTDOWN_FRAMES; i++) {
             try {
-                list.add(TextureLookAsset.load(LookManager.findValidPath(root, asset.base().replace(".png", "_" + i + ".png")), "textures/looks/" + hash + "_" + LookManager.toShortPath(context) + "_" + i));
+                list.add(TextureLookAsset.load(LookUtils.findValidPath(root, asset.base().replace(".png", "_" + i + ".png")), lookId, key(), contextId, "_" + i));
             } catch (FileNotFoundException ignored) {}
         }
         return list.build();
     }
 
     @Override
-    public Supplier<ImmutableList<ResourceLocation>> loadDefault(CountdownTextures asset) {
+    public Supplier<ImmutableList<ResourceLocation>> getBuiltIn(CountdownTextures asset, ResourceLocation lookId) {
         ImmutableList.Builder<ResourceLocation> builder = new ImmutableList.Builder<>();
         for (int i = 0; i < MiraculousData.COUNTDOWN_FRAMES; i++) {
             builder.add(ResourceLocation.parse(asset.base().replace(".png", "_" + i + ".png")));

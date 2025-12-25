@@ -2,11 +2,10 @@ package dev.thomasglasser.mineraculous.impl.client.look.asset;
 
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.serialization.Codec;
-import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.client.look.LookManager;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
+import dev.thomasglasser.mineraculous.api.core.look.LookUtils;
 import dev.thomasglasser.mineraculous.api.core.look.asset.LookAssetTypeKeys;
-import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
+import dev.thomasglasser.mineraculous.impl.core.look.LookLoader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,29 +30,29 @@ public class TextureLookAsset implements LookAssetType<String, ResourceLocation>
     }
 
     @Override
-    public ResourceLocation load(String asset, Path root, String hash, ResourceLocation context) throws IOException, IllegalArgumentException {
-        return load(LookManager.findValidPath(root, asset), "textures/looks/" + LookManager.toShortPath(key()) + "_" + hash + "_" + LookManager.toShortPath(context));
+    public ResourceLocation load(String asset, ResourceLocation lookId, Path root, ResourceLocation contextId) throws IOException, IllegalArgumentException {
+        return load(LookUtils.findValidPath(root, asset), lookId, key(), contextId, "");
     }
 
     @Override
-    public Supplier<ResourceLocation> loadDefault(String asset) {
+    public Supplier<ResourceLocation> getBuiltIn(String asset, ResourceLocation lookId) {
         ResourceLocation location = ResourceLocation.parse(asset);
         return () -> location;
     }
 
-    public static ResourceLocation load(Path path, String texturePath) throws IOException, IllegalArgumentException {
-        NativeImage image = NativeImage.read(Files.newInputStream(path));
+    public static ResourceLocation load(Path imagePath, ResourceLocation lookId, ResourceLocation key, ResourceLocation context, String textureSuffix) throws IOException, IllegalArgumentException {
+        NativeImage image = NativeImage.read(Files.newInputStream(imagePath));
         verifyImage(image);
 
-        ResourceLocation texture = MineraculousConstants.modLoc(texturePath + ".png");
+        ResourceLocation texture = lookId.withPath(path -> "textures/" + LookUtils.toString(LookLoader.LOOKS_SUBPATH) + "/" + path + "/" + LookUtils.toShortPath(context) + "/" + LookUtils.toShortPath(key) + textureSuffix + ".png");
         Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(image));
         return texture;
     }
 
     private static void verifyImage(NativeImage image) {
-        if (image.getWidth() > ServerLookManager.MAX_TEXTURE_SIZE || image.getHeight() > ServerLookManager.MAX_TEXTURE_SIZE) {
+        if (image.getWidth() > LookLoader.MAX_TEXTURE_SIZE || image.getHeight() > LookLoader.MAX_TEXTURE_SIZE) {
             image.close();
-            throw new IllegalArgumentException("Look texture is too large (" + image.getWidth() + "x" + image.getHeight() + "). Max is " + ServerLookManager.MAX_TEXTURE_SIZE + "x" + ServerLookManager.MAX_TEXTURE_SIZE);
+            throw new IllegalArgumentException("Look texture is too large (" + image.getWidth() + "x" + image.getHeight() + "). Max is " + LookLoader.MAX_TEXTURE_SIZE + "x" + LookLoader.MAX_TEXTURE_SIZE);
         }
     }
 }

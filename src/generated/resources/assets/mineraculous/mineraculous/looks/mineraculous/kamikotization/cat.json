@@ -1,6 +1,10 @@
 {
-  "mineraculous:kamikotization_suit": {
-    "mineraculous:geckolib_model": "mineraculous:geo/item/armor/kamikotization/cat.geo.json",
-    "mineraculous:texture": "mineraculous:textures/entity/equipment/humanoid/kamikotization/cat.png"
-  }
+  "assets": {
+    "mineraculous:kamikotization_suit": {
+      "mineraculous:geckolib_model": "mineraculous:geo/item/armor/kamikotization/cat.geo.json",
+      "mineraculous:texture": "mineraculous:textures/entity/equipment/humanoid/kamikotization/cat.png"
+    }
+  },
+  "author": "Mineraculous",
+  "name": "Kitty"
 }

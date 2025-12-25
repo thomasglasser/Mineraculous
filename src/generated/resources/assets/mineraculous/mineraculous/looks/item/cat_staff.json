@@ -1,28 +1,32 @@
 {
-  "mineraculous:miraculous_tool": {
-    "mineraculous:geckolib_animations": "mineraculous:animations/item/cat_staff.animation.json",
-    "mineraculous:geckolib_model": "mineraculous:geo/item/cat_staff.geo.json",
-    "mineraculous:texture": "mineraculous:textures/item/geo/cat_staff.png"
+  "assets": {
+    "mineraculous:miraculous_tool": {
+      "mineraculous:geckolib_animations": "mineraculous:animations/item/cat_staff.animation.json",
+      "mineraculous:geckolib_model": "mineraculous:geo/item/cat_staff.geo.json",
+      "mineraculous:texture": "mineraculous:textures/item/geo/cat_staff.png"
+    },
+    "mineraculous:miraculous_tool_blocking": {
+      "mineraculous:geckolib_animations": "mineraculous:animations/item/cat_staff.animation.json",
+      "mineraculous:geckolib_model": "mineraculous:geo/item/cat_staff.geo.json",
+      "mineraculous:texture": "mineraculous:textures/item/geo/cat_staff.png"
+    },
+    "mineraculous:miraculous_tool_phone": {
+      "mineraculous:geckolib_animations": "mineraculous:animations/item/cat_staff.animation.json",
+      "mineraculous:geckolib_model": "mineraculous:geo/item/cat_staff.geo.json",
+      "mineraculous:texture": "mineraculous:textures/item/geo/cat_staff_phone.png"
+    },
+    "mineraculous:miraculous_tool_spyglass": {
+      "mineraculous:geckolib_animations": "mineraculous:animations/item/cat_staff.animation.json",
+      "mineraculous:geckolib_model": "mineraculous:geo/item/cat_staff.geo.json",
+      "mineraculous:scope_texture": "mineraculous:textures/misc/cat_staff_spyglass_scope.png",
+      "mineraculous:texture": "mineraculous:textures/item/geo/cat_staff.png"
+    },
+    "mineraculous:miraculous_tool_thrown": {
+      "mineraculous:geckolib_animations": "mineraculous:animations/item/cat_staff.animation.json",
+      "mineraculous:geckolib_model": "mineraculous:geo/item/cat_staff.geo.json",
+      "mineraculous:texture": "mineraculous:textures/item/geo/cat_staff.png"
+    }
   },
-  "mineraculous:miraculous_tool_blocking": {
-    "mineraculous:geckolib_animations": "mineraculous:animations/item/cat_staff.animation.json",
-    "mineraculous:geckolib_model": "mineraculous:geo/item/cat_staff.geo.json",
-    "mineraculous:texture": "mineraculous:textures/item/geo/cat_staff.png"
-  },
-  "mineraculous:miraculous_tool_phone": {
-    "mineraculous:geckolib_animations": "mineraculous:animations/item/cat_staff.animation.json",
-    "mineraculous:geckolib_model": "mineraculous:geo/item/cat_staff.geo.json",
-    "mineraculous:texture": "mineraculous:textures/item/geo/cat_staff_phone.png"
-  },
-  "mineraculous:miraculous_tool_spyglass": {
-    "mineraculous:geckolib_animations": "mineraculous:animations/item/cat_staff.animation.json",
-    "mineraculous:geckolib_model": "mineraculous:geo/item/cat_staff.geo.json",
-    "mineraculous:scope_texture": "mineraculous:textures/misc/cat_staff_spyglass_scope.png",
-    "mineraculous:texture": "mineraculous:textures/item/geo/cat_staff.png"
-  },
-  "mineraculous:miraculous_tool_thrown": {
-    "mineraculous:geckolib_animations": "mineraculous:animations/item/cat_staff.animation.json",
-    "mineraculous:geckolib_model": "mineraculous:geo/item/cat_staff.geo.json",
-    "mineraculous:texture": "mineraculous:textures/item/geo/cat_staff.png"
-  }
+  "author": "Mineraculous",
+  "name": "Cat Noir"
 }

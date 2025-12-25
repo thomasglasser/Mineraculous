@@ -1,23 +1,27 @@
 {
-  "mineraculous:hidden_miraculous": {
-    "mineraculous:geckolib_model": "mineraculous:geo/item/miraculous/ladybug.geo.json",
-    "mineraculous:item_transforms": "mineraculous:models/item/miraculous/ladybug.json",
-    "mineraculous:texture": "mineraculous:textures/item/miraculous/ladybug/hidden.png"
-  },
-  "mineraculous:miraculous_suit": {
-    "mineraculous:geckolib_model": "mineraculous:geo/item/armor/miraculous/ladybug.geo.json",
-    "mineraculous:texture": "mineraculous:textures/entity/equipment/humanoid/miraculous/ladybug.png",
-    "mineraculous:transformation_textures": {
-      "base": "mineraculous:textures/entity/equipment/humanoid/miraculous/ladybug.png",
-      "texture_count": 9
+  "assets": {
+    "mineraculous:hidden_miraculous": {
+      "mineraculous:geckolib_model": "mineraculous:geo/item/miraculous/ladybug.geo.json",
+      "mineraculous:item_transforms": "mineraculous:models/item/miraculous/ladybug.json",
+      "mineraculous:texture": "mineraculous:textures/item/miraculous/ladybug/hidden.png"
+    },
+    "mineraculous:miraculous_suit": {
+      "mineraculous:geckolib_model": "mineraculous:geo/item/armor/miraculous/ladybug.geo.json",
+      "mineraculous:texture": "mineraculous:textures/entity/equipment/humanoid/miraculous/ladybug.png",
+      "mineraculous:transformation_textures": {
+        "base": "mineraculous:textures/entity/equipment/humanoid/miraculous/ladybug.png",
+        "texture_count": 9
+      }
+    },
+    "mineraculous:powered_miraculous": {
+      "mineraculous:countdown_textures": {
+        "base": "mineraculous:textures/item/miraculous/ladybug/powered.png"
+      },
+      "mineraculous:geckolib_model": "mineraculous:geo/item/miraculous/ladybug.geo.json",
+      "mineraculous:item_transforms": "mineraculous:models/item/miraculous/ladybug.json",
+      "mineraculous:texture": "mineraculous:textures/item/miraculous/ladybug/powered.png"
     }
   },
-  "mineraculous:powered_miraculous": {
-    "mineraculous:countdown_textures": {
-      "base": "mineraculous:textures/item/miraculous/ladybug/powered.png"
-    },
-    "mineraculous:geckolib_model": "mineraculous:geo/item/miraculous/ladybug.geo.json",
-    "mineraculous:item_transforms": "mineraculous:models/item/miraculous/ladybug.json",
-    "mineraculous:texture": "mineraculous:textures/item/miraculous/ladybug/powered.png"
-  }
+  "author": "Mineraculous",
+  "name": "Ladybug"
 }

@@ -6,7 +6,7 @@ import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.MineraculousGuiLayers;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.ExternalMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.tooltip.ClientLabeledItemTagsTooltip;
-import dev.thomasglasser.mineraculous.api.client.look.item.MiraculousLookToolClientExtensions;
+import dev.thomasglasser.mineraculous.api.client.look.util.item.MiraculousLookToolClientExtensions;
 import dev.thomasglasser.mineraculous.api.client.particle.FadingParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.FlourishingParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
@@ -32,7 +32,7 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.Syn
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.inventory.OvenScreen;
-import dev.thomasglasser.mineraculous.impl.client.look.LookLoader;
+import dev.thomasglasser.mineraculous.impl.client.look.ClientLookManager;
 import dev.thomasglasser.mineraculous.impl.client.model.BeardModel;
 import dev.thomasglasser.mineraculous.impl.client.model.DerbyHatModel;
 import dev.thomasglasser.mineraculous.impl.client.model.FaceMaskModel;
@@ -52,6 +52,7 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.KwamiItemRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
+import dev.thomasglasser.mineraculous.impl.core.look.LookLoader;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRemoteDamagePayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
@@ -63,6 +64,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.model.geom.EntityModelSet;
@@ -79,6 +81,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
@@ -266,9 +269,13 @@ public class MineraculousClientEvents {
             MineraculousItemUtils.clearAnimationData();
             MineraculousClientUtils.refreshCataclysmPixels();
             ConditionalAutoGlowingGeoLayer.clearGlowmasks();
-            LookLoader.load();
         });
-        event.registerReloadListener(LookLoader::reloadDefaults);
+        event.registerReloadListener((preparationBarrier, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor) -> CompletableFuture.allOf(
+                LookLoader.loadBuiltIn(preparationBarrier, resourceManager, backgroundExecutor, gameExecutor),
+                preparationBarrier.wait(Unit.INSTANCE).thenRunAsync(() -> {
+                    ClientLookManager.refreshLoaded();
+                    LookLoader.loadLoaded(ClientLookManager::add);
+                }, gameExecutor)));
     }
 
     static void onRegisterRenderBuffers(RegisterRenderBuffersEvent event) {

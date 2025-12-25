@@ -112,6 +112,7 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousCommandEvents::onCommandsRegister);
         NeoForge.EVENT_BUS.addListener(MineraculousCommandEvents::onClientCommandsRegister);
 
+        NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onAddReloadListener);
         NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onServerStarted);
         NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onLootTableLoad);
 

@@ -1,7 +1,5 @@
 package dev.thomasglasser.mineraculous.api.client.look.asset;
 
-import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import dev.thomasglasser.mineraculous.impl.client.look.asset.CountdownTexturesLookAsset;
@@ -12,6 +10,8 @@ import dev.thomasglasser.mineraculous.impl.client.look.asset.ScopeTextureLookAss
 import dev.thomasglasser.mineraculous.impl.client.look.asset.TextureLookAsset;
 import dev.thomasglasser.mineraculous.impl.client.look.asset.TransformationTexturesLookAsset;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import java.util.Map;
 import java.util.Set;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.resources.ResourceLocation;
@@ -21,7 +21,7 @@ import software.bernie.geckolib.loading.object.BakedAnimations;
 
 public class LookAssetTypes {
     /// Holds all known {@link LookAssetType}s.
-    private static final BiMap<ResourceLocation, LookAssetType<?, ?>> REGISTRY = HashBiMap.create();
+    private static final Map<ResourceLocation, LookAssetType<?, ?>> REGISTRY = new Object2ObjectOpenHashMap<>();
 
     // General
     /// The {@link ResourceLocation} of a texture in the {@link net.minecraft.client.renderer.texture.TextureManager}.
@@ -34,11 +34,11 @@ public class LookAssetTypes {
     public static final LookAssetType<String, ItemTransforms> ITEM_TRANSFORMS = register(ItemTransformsLookAsset.INSTANCE);
 
     // Specific
-    /// A map of transformation frames to {@link ResourceLocation}s in the {@link net.minecraft.client.renderer.texture.TextureManager}.
+    /// An optional map of transformation frames to {@link ResourceLocation}s in the {@link net.minecraft.client.renderer.texture.TextureManager}.
     public static final LookAssetType<TransformationTexturesLookAsset.TransformationTextures, Int2ObjectMap<ResourceLocation>> TRANSFORMATION_TEXTURES = register(TransformationTexturesLookAsset.INSTANCE);
     /// A list of countdown texture {@link ResourceLocation}s in the {@link net.minecraft.client.renderer.texture.TextureManager}.
     public static final LookAssetType<CountdownTexturesLookAsset.CountdownTextures, ImmutableList<ResourceLocation>> COUNTDOWN_TEXTURES = register(CountdownTexturesLookAsset.INSTANCE);
-    /// The {@link ResourceLocation} of a texture in the {@link net.minecraft.client.renderer.texture.TextureManager} used when spyglass scoping.
+    /// The optional {@link ResourceLocation} of a texture in the {@link net.minecraft.client.renderer.texture.TextureManager} used when spyglass scoping.
     public static final LookAssetType<String, ResourceLocation> SCOPE_TEXTURE = register(ScopeTextureLookAsset.INSTANCE);
 
     /**
@@ -65,7 +65,7 @@ public class LookAssetTypes {
      *
      * @param type The {@link LookAssetType} to register
      * @return The registered {@link LookAssetType}
-     * @param <S> The stored type of the asset
+     * @param <S> The serialization type of the asset
      * @param <L> The loaded type of the asset
      */
     public static <S, L> LookAssetType<S, L> register(LookAssetType<S, L> type) {

@@ -7,7 +7,9 @@
   },
   "author": "Mineraculous",
   "metadata": {
-    "mineraculous:valid_kamikotizations": "mineraculous:cat"
+    "mineraculous:valid_kamikotizations": [
+      "mineraculous:cat"
+    ]
   },
   "name": "Kitty"
 }

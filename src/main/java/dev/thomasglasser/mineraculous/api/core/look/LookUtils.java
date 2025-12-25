@@ -4,6 +4,7 @@ import com.google.common.io.MoreFiles;
 import com.google.common.io.RecursiveDeleteOption;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.core.look.LookLoader;
+import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,6 +18,15 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.ApiStatus;
 
 public class LookUtils {
+    /**
+     * Checks whether clients should be unable to send looks.
+     * 
+     * @return Whether clients should be unable to send looks
+     */
+    public static boolean disableClientLooks() {
+        return !MineraculousServerConfig.get().enableClientProvidedLooks.getAsBoolean();
+    }
+
     /**
      * Converts a key to a look id,
      * using the registry and location.

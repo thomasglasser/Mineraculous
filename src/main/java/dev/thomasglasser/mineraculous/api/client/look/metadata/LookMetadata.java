@@ -17,6 +17,7 @@ public class LookMetadata {
 
     /**
      * Retrieves the metadata for the provided type.
+     * 
      * @param type The type to retrieve the metadata for
      * @return The metadata for the provided type
      * @param <T> The type of the metadata

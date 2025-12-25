@@ -24,7 +24,9 @@
   },
   "author": "Mineraculous",
   "metadata": {
-    "mineraculous:valid_miraculouses": "mineraculous:cat"
+    "mineraculous:valid_miraculouses": [
+      "mineraculous:cat"
+    ]
   },
   "name": "Cat Noir"
 }

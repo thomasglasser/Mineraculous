@@ -20,7 +20,6 @@ public record ServerboundRequestLookPayload(String hash) implements ExtendedPack
     // ON SERVER
     @Override
     public void handle(Player player) {
-        // TODO: Check permissions
         ServerLookManager.CachedLook look = ServerLookManager.get(hash);
         if (look != null) {
             TommyLibServices.NETWORK.sendToClient(new ClientboundSendLookPayload(hash, look), (ServerPlayer) player);

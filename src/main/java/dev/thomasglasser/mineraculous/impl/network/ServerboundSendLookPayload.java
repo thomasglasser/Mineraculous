@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.core.look.LookUtils;
 import dev.thomasglasser.mineraculous.impl.core.look.LookLoader;
 import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
@@ -18,9 +19,11 @@ public record ServerboundSendLookPayload(String hash, byte[] data) implements Ex
             ByteBufCodecs.byteArray(LookLoader.MAX_FILE_SIZE), ServerboundSendLookPayload::data,
             ServerboundSendLookPayload::new);
 
+    // ON SERVER
     @Override
     public void handle(Player player) {
-        // TODO: Check permissions
+        if (LookUtils.disableClientLooks())
+            return;
         ServerLookManager.add(hash, data, false);
         TommyLibServices.NETWORK.sendToAllClients(new ClientboundSendLookPayload(hash, new ServerLookManager.CachedLook(data, false)), player.getServer());
     }

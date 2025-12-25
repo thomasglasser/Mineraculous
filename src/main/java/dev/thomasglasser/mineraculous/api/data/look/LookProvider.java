@@ -20,13 +20,13 @@ import dev.thomasglasser.mineraculous.impl.client.look.asset.CountdownTexturesLo
 import dev.thomasglasser.mineraculous.impl.client.look.asset.TransformationTexturesLookAsset;
 import dev.thomasglasser.mineraculous.impl.core.look.LookLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderSet;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -135,7 +135,7 @@ public abstract class LookProvider implements DataProvider {
         String miraculousAnimations = modString("animations/item/miraculous/" + id + ".animation.json");
         String miraculousTransforms = modString("models/item/miraculous/" + id + ".json");
         Builder look = look(LookUtils.getDefaultLookId(key).getPath(), name)
-                .metadata(LookMetadataTypes.VALID_MIRACULOUSES, HolderSet.direct(miraculous))
+                .metadata(LookMetadataTypes.VALID_MIRACULOUSES, ObjectOpenHashSet.of(miraculous.getKey()))
                 .assets(LookContexts.MIRACULOUS_SUIT, assets()
                         .add(LookAssetTypes.TEXTURE, suitBase)
                         .add(LookAssetTypes.GECKOLIB_MODEL, modString("geo/item/armor/miraculous/" + id + ".geo.json"))
@@ -195,11 +195,10 @@ public abstract class LookProvider implements DataProvider {
      * @param kamikotization The {@link Kamikotization} to create the look for
      * @return The {@link Builder} for the look
      */
-    protected Builder kamikotizationLook(Holder<Kamikotization> kamikotization, String name) {
-        ResourceKey<Kamikotization> key = kamikotization.getKey();
-        String id = key.location().getPath();
-        return look(LookUtils.getDefaultLookId(key).getPath(), name)
-                .metadata(LookMetadataTypes.VALID_KAMIKOTIZATIONS, HolderSet.direct(kamikotization))
+    protected Builder kamikotizationLook(ResourceKey<Kamikotization> kamikotization, String name) {
+        String id = kamikotization.location().getPath();
+        return look(LookUtils.getDefaultLookId(kamikotization).getPath(), name)
+                .metadata(LookMetadataTypes.VALID_KAMIKOTIZATIONS, ObjectOpenHashSet.of(kamikotization))
                 .assets(LookContexts.KAMIKOTIZATION_SUIT, assets()
                         .add(LookAssetTypes.TEXTURE, modString("textures/entity/equipment/humanoid/kamikotization/" + id + ".png"))
                         .add(LookAssetTypes.GECKOLIB_MODEL, modString("geo/item/armor/kamikotization/" + id + ".geo.json"))
@@ -212,7 +211,7 @@ public abstract class LookProvider implements DataProvider {
      * @param kamikotization The {@link Kamikotization} to create the look for
      * @return The {@link Builder} for the look
      */
-    protected Builder kamikotizationLookNoAnims(Holder<Kamikotization> kamikotization, String name) {
+    protected Builder kamikotizationLookNoAnims(ResourceKey<Kamikotization> kamikotization, String name) {
         return kamikotizationLook(kamikotization, name)
                 .remove(LookContexts.KAMIKOTIZATION_SUIT, LookAssetTypes.GECKOLIB_ANIMATIONS);
     }
@@ -281,6 +280,7 @@ public abstract class LookProvider implements DataProvider {
 
         /**
          * Sets the author of the look to the provided string.
+         * 
          * @param author The author of the look
          * @return The builder
          */
@@ -291,6 +291,7 @@ public abstract class LookProvider implements DataProvider {
 
         /**
          * Adds the provided metadata for the provided type.
+         * 
          * @param type The metadata type
          * @param data The metadata to add
          * @return The builder
@@ -364,7 +365,7 @@ public abstract class LookProvider implements DataProvider {
         /**
          * Adds metadata to the builder.
          *
-         * @param type  The metadata type
+         * @param type The metadata type
          * @param data The metadata to add
          * @return The builder
          * @param <T> The type of the data

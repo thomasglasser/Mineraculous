@@ -407,13 +407,13 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfigTitle(MineraculousConstants.MOD_NAME);
 
         // Server
-        addConfigSection(MineraculousServerConfig.MIRACULOUS, "Miraculous", "Settings for miraculous");
+        addConfigSection(MineraculousServerConfig.LOOKS, "Looks", "Settings for looks");
+        addConfig(MineraculousServerConfig.get().enableClientProvidedLooks, "Enable Client Provided Looks", "Enable loading and using looks uploaded by clients");
+
+        addConfigSection(MineraculousServerConfig.MIRACULOUSES, "Miraculouses", "Settings for miraculouses");
         addConfig(MineraculousServerConfig.get().enableBuffsOnTransformation, "Enable Buffs on Transformation", "Enable having buffs when transforming");
         addConfig(MineraculousServerConfig.get().maxToolLength, "Maximum Tool Length", "Amount of blocks that tools can be extended to");
-
-        addConfigSection(MineraculousServerConfig.CUSTOMIZATION, "Customization", "Settings for customization");
-        addConfig(MineraculousServerConfig.get().enableCustomization, "Enable Customization", "Enable customization of miraculous suits and items. §4WARNING: This may lead to vulnerabilities. Only enable if you trust server members.");
-        addConfig(MineraculousServerConfig.get().customizationPermissionsMode, "Customization Permissions Mode", "Permissions mode for customization. Whitelist: Only whitelisted players can customize. Blacklist: Only non-blacklisted players can customize.");
+        addConfig(MineraculousServerConfig.get().initialLookMode, "Initial Look Mode", "The way initial Miraculous looks are determined");
 
         addConfigSection(MineraculousServerConfig.ABILITIES, "Abilities", "Settings for abilities");
         addConfig(MineraculousServerConfig.get().enableMiraculousTimer, "Enable Miraculous Timer", "Enable the detransformation timer for miraculous holders before they reach full maturity");

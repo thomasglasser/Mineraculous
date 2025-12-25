@@ -24,7 +24,9 @@
   },
   "author": "Mineraculous",
   "metadata": {
-    "mineraculous:valid_miraculouses": "mineraculous:ladybug"
+    "mineraculous:valid_miraculouses": [
+      "mineraculous:ladybug"
+    ]
   },
   "name": "Ladybug"
 }

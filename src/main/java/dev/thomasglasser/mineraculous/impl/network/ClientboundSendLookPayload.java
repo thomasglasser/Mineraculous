@@ -24,14 +24,13 @@ public record ClientboundSendLookPayload(String hash, ServerLookManager.CachedLo
     // ON CLIENT
     @Override
     public void handle(Player player) {
-        // TODO: Check permissions
         try {
             LookUtils.ensureCacheExists(LookLoader.CACHE_DIR);
             Path path = LookLoader.CACHE_DIR.resolve(hash + ".look");
             Files.write(path, look.data());
             LookLoader.loadLoaded(path, look.equippable(), ClientLookManager::add);
         } catch (Exception e) {
-            MineraculousConstants.LOGGER.warn("Failed to parse look pack {}", hash, e);
+            MineraculousConstants.LOGGER.warn("Failed to parse look {}", hash, e);
         }
     }
 

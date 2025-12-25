@@ -6,7 +6,6 @@ import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.data.look.LookProvider;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.data.MineraculousDataGenerators;
@@ -23,7 +22,6 @@ public class MineraculousLookProvider extends LookProvider {
     @Override
     protected void registerLooks(HolderLookup.Provider provider) {
         HolderGetter<Miraculous> miraculouses = provider.lookupOrThrow(MineraculousRegistries.MIRACULOUS);
-        HolderGetter<Kamikotization> kamikotizations = provider.lookupOrThrow(MineraculousRegistries.KAMIKOTIZATION);
 
         // Miraculouses
         miraculousNoAnims(miraculouses.getOrThrow(Miraculouses.LADYBUG), "Ladybug");
@@ -48,8 +46,8 @@ public class MineraculousLookProvider extends LookProvider {
                 .asset(LookContexts.MIRACULOUS_TOOL_SPYGLASS, LookAssetTypes.TEXTURE, modString("textures/item/geo/butterfly_cane_spyglass.png"));
 
         // Kamikotizations
-        kamikotizationLook(kamikotizations.getOrThrow(MineraculousDataGenerators.STORMY_KAMIKOTIZATION), "Stormy");
-        kamikotizationLookNoAnims(kamikotizations.getOrThrow(MineraculousDataGenerators.CAT_KAMIKOTIZATION), "Kitty");
-        kamikotizationLookNoAnims(kamikotizations.getOrThrow(MineraculousDataGenerators.LADYBUG_KAMIKOTIZATION), "Bugaboo");
+        kamikotizationLook(MineraculousDataGenerators.STORMY_KAMIKOTIZATION, "Stormy");
+        kamikotizationLookNoAnims(MineraculousDataGenerators.CAT_KAMIKOTIZATION, "Kitty");
+        kamikotizationLookNoAnims(MineraculousDataGenerators.LADYBUG_KAMIKOTIZATION, "Bugaboo");
     }
 }

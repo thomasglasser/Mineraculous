@@ -24,7 +24,9 @@
   },
   "author": "Mineraculous",
   "metadata": {
-    "mineraculous:valid_miraculouses": "mineraculous:butterfly"
+    "mineraculous:valid_miraculouses": [
+      "mineraculous:butterfly"
+    ]
   },
   "name": "Hawk Moth"
 }

@@ -24,7 +24,6 @@ public record ClientboundRequestLooksPayload(Set<String> hashes) implements Exte
     // ON CLIENT
     @Override
     public void handle(Player player) {
-        // TODO: Check permissions for allowed
         for (String hash : hashes) {
             Path path = ClientLookManager.getEquippablePath(hash);
             if (path != null) {

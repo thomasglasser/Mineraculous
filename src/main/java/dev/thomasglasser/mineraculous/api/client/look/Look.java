@@ -37,6 +37,21 @@ public record Look<T extends AbstractLookAssets>(String name, String author, Loo
     /// The JSON key for the assets of the look.
     public static final String ASSETS_KEY = "assets";
     /**
+     * Gets metadata for the provided type.
+     * 
+     * @param type The type to get metadata for
+     * @return The metadata for the provided type
+     * @param <M> The type of the metadata
+     */
+    public <M> @Nullable M getMetadata(LookMetadataType<M> type) {
+        return metadata.get(type);
+    }
+
+    public <M> @Nullable M getMetadata(Supplier<LookMetadataType<M>> type) {
+        return getMetadata(type.get());
+    }
+
+    /**
      * Gets an asset for the provided context and asset type.
      * 
      * @param context   The context to use

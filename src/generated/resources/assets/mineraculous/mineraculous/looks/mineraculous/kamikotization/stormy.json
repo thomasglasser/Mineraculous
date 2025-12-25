@@ -8,7 +8,9 @@
   },
   "author": "Mineraculous",
   "metadata": {
-    "mineraculous:valid_kamikotizations": "mineraculous:stormy"
+    "mineraculous:valid_kamikotizations": [
+      "mineraculous:stormy"
+    ]
   },
   "name": "Stormy"
 }

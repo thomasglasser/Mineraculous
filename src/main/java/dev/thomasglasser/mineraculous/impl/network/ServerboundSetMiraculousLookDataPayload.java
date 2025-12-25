@@ -23,7 +23,6 @@ public record ServerboundSetMiraculousLookDataPayload(Holder<Miraculous> miracul
     // ON SERVER
     @Override
     public void handle(Player player) {
-        // TODO: Check permissions for allowed
         player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).withLookData(lookData).save(miraculous, player);
         ServerLookManager.requestMissingLooks(lookData, (ServerPlayer) player);
     }

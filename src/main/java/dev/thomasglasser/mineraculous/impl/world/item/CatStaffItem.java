@@ -26,6 +26,11 @@ import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.BiPredicate;
+import java.util.function.Supplier;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Position;
@@ -72,11 +77,6 @@ import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.BiPredicate;
-import java.util.function.Supplier;
 
 public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, ICurioItem, RadialMenuProvider<CatStaffItem.Mode>, LeftClickListener {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");

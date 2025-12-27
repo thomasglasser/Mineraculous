@@ -137,7 +137,7 @@ public class MineraculousClientUtils {
         return Minecraft.getInstance().screen == null;
     }
 
-    public static void renderEntityInInventorySpinning(
+    public static void renderEntityInInventory(
             GuiGraphics guiGraphics,
             int xStart,
             int yStart,

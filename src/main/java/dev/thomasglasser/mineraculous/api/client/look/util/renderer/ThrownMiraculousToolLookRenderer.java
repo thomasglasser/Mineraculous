@@ -20,7 +20,7 @@ public interface ThrownMiraculousToolLookRenderer<T extends AbstractArrow> exten
 
     @Override
     default Holder<LookContext> getContext() {
-        return LookContexts.MIRACULOUS_TOOL_THROWN;
+        return LookContexts.MIRACULOUS_TOOL;
     }
 
     @Override

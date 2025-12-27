@@ -20,7 +20,7 @@ public interface ThrownKamikotizationToolLookRenderer<T extends AbstractArrow> e
 
     @Override
     default Holder<LookContext> getContext() {
-        return LookContexts.KAMIKOTIZATION_TOOL_THROWN;
+        return LookContexts.KAMIKOTIZATION_TOOL;
     }
 
     @Override

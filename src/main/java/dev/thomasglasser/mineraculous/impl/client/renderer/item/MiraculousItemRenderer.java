@@ -69,7 +69,7 @@ public class MiraculousItemRenderer<T extends Item & GeoAnimatable> extends GeoI
         return powerState == MiraculousItem.PowerState.HIDDEN ? LookContexts.HIDDEN_MIRACULOUS : LookContexts.POWERED_MIRACULOUS;
     }
 
-    public static @Nullable Look getLook(ItemStack stack, Holder<LookContext> context) {
+    public static @Nullable Look<?> getLook(ItemStack stack, Holder<LookContext> context) {
         UUID owner = stack.get(MineraculousDataComponents.OWNER);
         Level level = ClientUtils.getLevel();
         if (owner != null && level != null && level.getEntities().get(owner) instanceof Player player) {

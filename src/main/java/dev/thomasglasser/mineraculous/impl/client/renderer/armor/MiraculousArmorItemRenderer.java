@@ -31,7 +31,7 @@ import software.bernie.geckolib.renderer.GeoArmorRenderer;
 public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoArmorRenderer<T> implements LookRenderer {
     private final GeoModel<T> model;
 
-    private @Nullable Look look = null;
+    private @Nullable Look<?> look = null;
 
     public MiraculousArmorItemRenderer() {
         super((GeoModel<T>) null);
@@ -55,7 +55,7 @@ public class MiraculousArmorItemRenderer<T extends Item & GeoItem> extends GeoAr
     }
 
     @Override
-    public @Nullable Look getLook() {
+    public @Nullable Look<?> getLook() {
         return look;
     }
 

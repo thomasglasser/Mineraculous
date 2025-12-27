@@ -31,7 +31,7 @@ public class KamikotizationLookToolClientExtensions<T extends BlockEntityWithout
 
     @Override
     public Holder<LookContext> getScopeContext(ItemStack stack) {
-        return LookContexts.KAMIKOTIZATION_TOOL_SPYGLASS;
+        return LookContexts.SPYGLASS_KAMIKOTIZATION_TOOL;
     }
 
     @Override

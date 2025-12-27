@@ -182,10 +182,9 @@ public abstract class LookProvider implements DataProvider {
                 .add(LookAssetTypes.GECKOLIB_ANIMATIONS, modString("animations/item/" + id + ".animation.json"));
         return look(LookUtils.getDefaultLookId(item).getPath(), name)
                 .assets(LookContexts.MIRACULOUS_TOOL, toolAssets.copy())
-                .assets(LookContexts.MIRACULOUS_TOOL_THROWN, toolAssets.copy())
-                .assets(LookContexts.MIRACULOUS_TOOL_BLOCKING, toolAssets.copy())
-                .assets(LookContexts.MIRACULOUS_TOOL_PHONE, toolAssets.copy())
-                .assets(LookContexts.MIRACULOUS_TOOL_SPYGLASS, toolAssets.copy()
+                .assets(LookContexts.BLOCKING_MIRACULOUS_TOOL, toolAssets.copy())
+                .assets(LookContexts.PHONE_MIRACULOUS_TOOL, toolAssets.copy())
+                .assets(LookContexts.SPYGLASS_MIRACULOUS_TOOL, toolAssets.copy()
                         .add(LookAssetTypes.SCOPE_TEXTURE, modString("textures/misc/" + id + "_spyglass_scope.png")));
     }
 

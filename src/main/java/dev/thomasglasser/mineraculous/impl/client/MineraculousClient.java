@@ -35,7 +35,7 @@ public class MineraculousClient {
         modBus.addListener(MineraculousClientEvents::onFMLClientSetup);
         modBus.addListener(MineraculousClientEvents::onBuildCreativeModeTabContents);
         modBus.addListener(MineraculousClientEvents::onRegisterAdditionalModels);
-        modBus.addListener(MineraculousClientEvents::onRegisterRenderer);
+        modBus.addListener(MineraculousClientEvents::onRegisterRenderers);
         modBus.addListener(MineraculousClientEvents::onRegisterParticleProviders);
         modBus.addListener(MineraculousClientEvents::onRegisterEntitySpectatorShaders);
         modBus.addListener(MineraculousClientEvents::onRegisterEntityRendererLayerDefinitions);

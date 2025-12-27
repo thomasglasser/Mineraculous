@@ -31,7 +31,7 @@ public class MiraculousLookToolClientExtensions<T extends BlockEntityWithoutLeve
 
     @Override
     public Holder<LookContext> getScopeContext(ItemStack stack) {
-        return LookContexts.MIRACULOUS_TOOL_SPYGLASS;
+        return LookContexts.SPYGLASS_MIRACULOUS_TOOL;
     }
 
     @Override

@@ -7,7 +7,6 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -15,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.At;
 public class EntityRenderDispatcherMixin {
     @ModifyReturnValue(method = "getRenderer", at = @At("TAIL"))
     private <T extends Entity> EntityRenderer<? super T> getRenderer(EntityRenderer<? super T> original, T entity) {
-        if (original == null && entity instanceof LivingEntity && entity instanceof PlayerLike playerLike && playerLike.getVisualSource() instanceof AbstractClientPlayer player)
+        if (original == null && entity instanceof PlayerLike playerLike && playerLike.getVisualSource() instanceof AbstractClientPlayer player)
             return (EntityRenderer<? super T>) PlayerLikeRenderer.get(player.getSkin().model());
         return original;
     }

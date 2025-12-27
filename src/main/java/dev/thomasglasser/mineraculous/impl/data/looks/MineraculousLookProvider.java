@@ -32,18 +32,18 @@ public class MineraculousLookProvider extends LookProvider {
 
         // Miraculous Tools
         miraculousTool(MineraculousItems.LADYBUG_YOYO.getKey(), "Ladybug")
-                .assets(LookContexts.MIRACULOUS_TOOL_BLOCKING, assets()
+                .assets(LookContexts.BLOCKING_MIRACULOUS_TOOL, assets()
                         .add(LookAssetTypes.TEXTURE, modString("textures/item/geo/ladybug_yoyo_blocking.png"))
                         .add(LookAssetTypes.GECKOLIB_MODEL, modString("geo/item/ladybug_yoyo_blocking.geo.json"))
                         .add(LookAssetTypes.GECKOLIB_ANIMATIONS, modString("animations/item/ladybug_yoyo_blocking.animation.json")))
-                .asset(LookContexts.MIRACULOUS_TOOL_PHONE, LookAssetTypes.TEXTURE, modString("textures/item/geo/ladybug_yoyo_phone.png"))
-                .asset(LookContexts.MIRACULOUS_TOOL_SPYGLASS, LookAssetTypes.TEXTURE, modString("textures/item/geo/ladybug_yoyo_spyglass.png"));
+                .asset(LookContexts.PHONE_MIRACULOUS_TOOL, LookAssetTypes.TEXTURE, modString("textures/item/geo/ladybug_yoyo_phone.png"))
+                .asset(LookContexts.SPYGLASS_MIRACULOUS_TOOL, LookAssetTypes.TEXTURE, modString("textures/item/geo/ladybug_yoyo_spyglass.png"));
         miraculousTool(MineraculousItems.CAT_STAFF.getKey(), "Cat Noir")
-                .asset(LookContexts.MIRACULOUS_TOOL_PHONE, LookAssetTypes.TEXTURE, modString("textures/item/geo/cat_staff_phone.png"));
+                .asset(LookContexts.PHONE_MIRACULOUS_TOOL, LookAssetTypes.TEXTURE, modString("textures/item/geo/cat_staff_phone.png"));
         miraculousTool(MineraculousItems.BUTTERFLY_CANE.getKey(), "Hawk Moth")
-                .asset(LookContexts.MIRACULOUS_TOOL_PHONE, LookAssetTypes.TEXTURE, modString("textures/item/geo/butterfly_cane_phone.png"))
-                .asset(LookContexts.MIRACULOUS_TOOL_PHONE, LookAssetTypes.GECKOLIB_MODEL, modString("geo/item/butterfly_cane_phone.geo.json"))
-                .asset(LookContexts.MIRACULOUS_TOOL_SPYGLASS, LookAssetTypes.TEXTURE, modString("textures/item/geo/butterfly_cane_spyglass.png"));
+                .asset(LookContexts.PHONE_MIRACULOUS_TOOL, LookAssetTypes.TEXTURE, modString("textures/item/geo/butterfly_cane_phone.png"))
+                .asset(LookContexts.PHONE_MIRACULOUS_TOOL, LookAssetTypes.GECKOLIB_MODEL, modString("geo/item/butterfly_cane_phone.geo.json"))
+                .asset(LookContexts.SPYGLASS_MIRACULOUS_TOOL, LookAssetTypes.TEXTURE, modString("textures/item/geo/butterfly_cane_spyglass.png"));
 
         // Kamikotizations
         kamikotizationLook(MineraculousDataGenerators.STORMY_KAMIKOTIZATION, "Stormy");

@@ -205,7 +205,7 @@ public class MineraculousClientEvents {
         }
     }
 
-    static void onRegisterRenderer(EntityRenderersEvent.RegisterRenderers event) {
+    static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(MineraculousEntityTypes.KWAMI.get(), KwamiRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.KAMIKO.get(), context -> new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(MineraculousConstants.modLoc("kamiko"))));
         event.registerEntityRenderer(MineraculousEntityTypes.LUCKY_CHARM_ITEM_SPAWNER.get(), LuckyCharmItemSpawnerRenderer::new);

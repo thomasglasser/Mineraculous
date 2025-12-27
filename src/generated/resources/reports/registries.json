@@ -297,18 +297,16 @@
     "mineraculous:stormy"
   ],
   "mineraculous:look_context": [
+    "mineraculous:blocking_miraculous_tool",
     "mineraculous:hidden_miraculous",
     "mineraculous:kamikotization_suit",
     "mineraculous:kamikotization_tool",
-    "mineraculous:kamikotization_tool_spyglass",
-    "mineraculous:kamikotization_tool_thrown",
     "mineraculous:miraculous_suit",
     "mineraculous:miraculous_tool",
-    "mineraculous:miraculous_tool_blocking",
-    "mineraculous:miraculous_tool_phone",
-    "mineraculous:miraculous_tool_spyglass",
-    "mineraculous:miraculous_tool_thrown",
-    "mineraculous:powered_miraculous"
+    "mineraculous:phone_miraculous_tool",
+    "mineraculous:powered_miraculous",
+    "mineraculous:spyglass_kamikotization_tool",
+    "mineraculous:spyglass_miraculous_tool"
   ],
   "mineraculous:look_metadata_type": [
     "mineraculous:valid_kamikotizations",

@@ -32,10 +32,10 @@ public class ButterflyCaneRenderer<T extends Item & GeoAnimatable> extends GeoIt
     public Holder<LookContext> getContext() {
         ItemStack stack = getCurrentItemStack();
         if (stack.has(MineraculousDataComponents.BLOCKING))
-            return LookContexts.MIRACULOUS_TOOL_BLOCKING;
+            return LookContexts.BLOCKING_MIRACULOUS_TOOL;
         return switch (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE)) {
-            case PHONE -> LookContexts.MIRACULOUS_TOOL_PHONE;
-            case SPYGLASS -> LookContexts.MIRACULOUS_TOOL_SPYGLASS;
+            case PHONE -> LookContexts.PHONE_MIRACULOUS_TOOL;
+            case SPYGLASS -> LookContexts.SPYGLASS_MIRACULOUS_TOOL;
             case null, default -> LookContexts.MIRACULOUS_TOOL;
         };
     }

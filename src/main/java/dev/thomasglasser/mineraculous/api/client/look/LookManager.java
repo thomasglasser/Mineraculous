@@ -66,6 +66,18 @@ public class LookManager {
     }
 
     /**
+     * Gets the look for the provided id.
+     * 
+     * @param lookId The id of the look
+     * @return The look, or null if not found
+     */
+    public static @Nullable Look<?> getLook(ResourceLocation lookId) {
+        if (!lookId.getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE))
+            return getBuiltInLook(lookId);
+        return ClientLookManager.getLoadedLook(lookId.getPath());
+    }
+
+    /**
      * Gets the appropriate look from the provided {@link LookData} for the provided {@link dev.thomasglasser.mineraculous.api.core.look.context.LookContext}.
      * 
      * @param data    The look data to use
@@ -75,9 +87,7 @@ public class LookManager {
     public static @Nullable Look<?> getLook(LookData data, ResourceKey<LookContext> context) {
         ResourceLocation lookId = data.looks().get(context);
         if (lookId != null) {
-            if (!lookId.getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE))
-                return getBuiltInLook(lookId);
-            return ClientLookManager.getLoadedLook(lookId.getPath());
+            return getLook(lookId);
         }
         return null;
     }

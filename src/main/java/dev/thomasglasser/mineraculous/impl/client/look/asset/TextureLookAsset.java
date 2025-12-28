@@ -5,8 +5,10 @@ import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.client.look.asset.LookAssetType;
 import dev.thomasglasser.mineraculous.api.core.look.LookUtils;
 import dev.thomasglasser.mineraculous.api.core.look.asset.LookAssetTypeKeys;
+import dev.thomasglasser.mineraculous.impl.client.renderer.texture.DynamicAutoGlowingTexture;
 import dev.thomasglasser.mineraculous.impl.core.look.LookLoader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Supplier;
@@ -46,6 +48,18 @@ public class TextureLookAsset implements LookAssetType<String, ResourceLocation>
 
         ResourceLocation texture = lookId.withPath(path -> "textures/" + LookUtils.toString(LookLoader.LOOKS_SUBPATH) + "/" + path + "/" + LookUtils.toShortPath(context) + "/" + LookUtils.toShortPath(key) + textureSuffix + ".png");
         Minecraft.getInstance().getTextureManager().register(texture, new DynamicTexture(image));
+
+        Path glowmaskPath = imagePath.resolveSibling(imagePath.getFileName().toString().replace(".png", "_glowmask.png"));
+        if (Files.exists(glowmaskPath)) {
+            try (InputStream glowmaskStream = Files.newInputStream(glowmaskPath)) {
+                byte[] glowmask = glowmaskStream.readAllBytes();
+                try (NativeImage glowmaskImage = NativeImage.read(glowmask)) {
+                    verifyImage(glowmaskImage);
+                }
+                Minecraft.getInstance().getTextureManager().register(texture.withPath(path -> path.replace(".png", "_glowmask.png")), new DynamicAutoGlowingTexture(texture, glowmask));
+            }
+        }
+
         return texture;
     }
 

@@ -67,6 +67,7 @@ import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
@@ -78,16 +79,19 @@ import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
 public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Mode>, ActiveItem, LeftClickListener, LuckyCharmSummoningItem {
     public static final String CONTROLLER_USE = "use_controller";
-    public static final String CONTROLLER_OPEN = "open_controller";
     public static final String ANIMATION_OPEN_OUT = "open_out";
     public static final String ANIMATION_OPEN_DOWN = "open_down";
     public static final String ANIMATION_CLOSE_IN = "close_in";
+    public static final String ANIMATION_CLOSE_IN_AND_OPEN_DOWN = "close_in_and_open_down";
     public static final String ANIMATION_CLOSE_UP = "close_up";
+    public static final String ANIMATION_CLOSE_UP_AND_OPEN_OUT = "close_up_and_open_out";
 
     private static final RawAnimation OPEN_OUT = RawAnimation.begin().thenPlay("misc.open_out");
     private static final RawAnimation OPEN_DOWN = RawAnimation.begin().thenPlay("misc.open_down");
     private static final RawAnimation CLOSE_IN = RawAnimation.begin().thenPlay("misc.close_in");
+    private static final RawAnimation CLOSE_IN_AND_OPEN_DOWN = RawAnimation.begin().then("misc.close_in", Animation.LoopType.PLAY_ONCE).thenPlay("misc.open_down");
     private static final RawAnimation CLOSE_UP = RawAnimation.begin().thenPlay("misc.close_up");
+    private static final RawAnimation CLOSE_UP_AND_OPEN_OUT = RawAnimation.begin().then("misc.close_up", Animation.LoopType.PLAY_ONCE).thenPlay("misc.open_out");
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -127,22 +131,27 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(new AnimationController<>(this, CONTROLLER_USE, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
-            if (stack != null && Active.isActive(stack) && stack.get(MineraculousDataComponents.LADYBUG_YOYO_MODE) == Mode.PURIFY && !state.isCurrentAnimation(OPEN_OUT)) {
-                return state.setAndContinue(DefaultAnimations.IDLE);
+            if (stack != null && Active.isActive(stack)) {
+                Mode mode = stack.get(MineraculousDataComponents.LADYBUG_YOYO_MODE);
+                if (mode == Mode.PURIFY)
+                    return state.setAndContinue(DefaultAnimations.IDLE);
+                else if (mode == Mode.PHONE || mode == Mode.SPYGLASS)
+                    return state.setAndContinue(OPEN_DOWN);
             }
             return PlayState.STOP;
-        }));
+        })
+                .triggerableAnim(ANIMATION_OPEN_OUT, OPEN_OUT)
+                .triggerableAnim(ANIMATION_OPEN_DOWN, OPEN_DOWN)
+                .triggerableAnim(ANIMATION_CLOSE_IN, CLOSE_IN)
+                .triggerableAnim(ANIMATION_CLOSE_IN_AND_OPEN_DOWN, CLOSE_IN_AND_OPEN_DOWN)
+                .triggerableAnim(ANIMATION_CLOSE_UP, CLOSE_UP)
+                .triggerableAnim(ANIMATION_CLOSE_UP_AND_OPEN_OUT, CLOSE_UP_AND_OPEN_OUT));
         controllers.add(new AnimationController<>(this, "blocking_controller", state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
             if (stack != null && stack.has(MineraculousDataComponents.BLOCKING))
                 return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
             return PlayState.STOP;
         }));
-        controllers.add(new AnimationController<>(this, CONTROLLER_OPEN, state -> PlayState.CONTINUE)
-                .triggerableAnim(ANIMATION_OPEN_OUT, OPEN_OUT)
-                .triggerableAnim(ANIMATION_OPEN_DOWN, OPEN_DOWN)
-                .triggerableAnim(ANIMATION_CLOSE_IN, CLOSE_IN)
-                .triggerableAnim(ANIMATION_CLOSE_UP, CLOSE_UP));
     }
 
     @Override
@@ -419,16 +428,21 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
         if (holder.level() instanceof ServerLevel level) {
             String anim = null;
             if (selected == Mode.PHONE || selected == Mode.SPYGLASS) {
-                anim = ANIMATION_OPEN_DOWN;
+                if (old == Mode.PURIFY)
+                    anim = ANIMATION_CLOSE_IN_AND_OPEN_DOWN;
+                else
+                    anim = ANIMATION_OPEN_DOWN;
             } else if (selected == Mode.PURIFY) {
-                anim = ANIMATION_OPEN_OUT;
-            } else if (old == Mode.PHONE || old == Mode.SPYGLASS) {
+                if (old == Mode.PHONE || old == Mode.SPYGLASS)
+                    anim = ANIMATION_CLOSE_UP_AND_OPEN_OUT;
+                else
+                    anim = ANIMATION_OPEN_OUT;
+            } else if (old == Mode.PHONE || old == Mode.SPYGLASS)
                 anim = ANIMATION_CLOSE_UP;
-            } else if (old == Mode.PURIFY) {
+            else if (old == Mode.PURIFY)
                 anim = ANIMATION_CLOSE_IN;
-            }
             if (anim != null) {
-                triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_OPEN, anim);
+                triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_USE, anim);
             }
         }
         return selected;
@@ -457,7 +471,7 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                     }
                 }
                 if (anim != null) {
-                    triggerAnim(holder, GeoItem.getOrAssignId(stack, (ServerLevel) holder.level()), CONTROLLER_OPEN, anim);
+                    triggerAnim(holder, GeoItem.getOrAssignId(stack, (ServerLevel) holder.level()), CONTROLLER_USE, anim);
                 }
             }
         }

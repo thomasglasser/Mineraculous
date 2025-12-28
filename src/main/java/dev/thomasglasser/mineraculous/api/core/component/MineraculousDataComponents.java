@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.api.core.component;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.world.item.component.ActiveSettings;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
@@ -33,8 +32,6 @@ public class MineraculousDataComponents {
     // Shared
     /// If present, allows toggling {@link Active#active()} via {@link dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings#TOGGLE_ITEM_ACTIVE}.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Active>> ACTIVE = DATA_COMPONENTS.register("active", Active.STREAM_CODEC, Active.CODEC, true);
-    /// Settings to use when toggling the {@link MineraculousDataComponents#ACTIVE} component.
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<ActiveSettings>> ACTIVE_SETTINGS = DATA_COMPONENTS.register("active_settings", ActiveSettings.STREAM_CODEC, ActiveSettings.CODEC, false);
     /// Automatically applied to {@link net.minecraft.world.entity.LivingEntity#getUseItem()} while {@link net.minecraft.world.entity.LivingEntity#isBlocking()} is true (i.e. the item is being used to block).
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Unit>> BLOCKING = DATA_COMPONENTS.registerUnit("blocking", false, true);
     /// If present, {@link net.minecraft.core.component.DataComponents#ENCHANTMENTS} is excluded from the item tooltip.

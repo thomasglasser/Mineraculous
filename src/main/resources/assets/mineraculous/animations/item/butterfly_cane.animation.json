@@ -16,6 +16,21 @@
 				}
 			}
 		},
+		"misc.idle": {
+			"loop": "hold_on_last_frame",
+			"bones": {
+				"cane": {
+					"rotation": {
+						"vector": [180, 0, 0]
+					}
+				},
+				"cover": {
+					"scale": {
+						"vector": [0, 0, 0]
+					}
+				}
+			}
+		},
 		"misc.open": {
 			"loop": "hold_on_last_frame",
 			"animation_length": 0.3333,
@@ -33,6 +48,7 @@
 			}
 		},
 		"misc.close": {
+			"loop": "hold_on_last_frame",
 			"animation_length": 0.3333,
 			"bones": {
 				"lid": {
@@ -80,6 +96,7 @@
 			}
 		},
 		"attack.sheathe": {
+			"loop": "hold_on_last_frame",
 			"animation_length": 0.75,
 			"bones": {
 				"cover": {

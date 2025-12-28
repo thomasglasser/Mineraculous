@@ -69,12 +69,12 @@ public class RegistryElementSelectionScreen<T> extends Screen {
         header.addChild(new StringWidget(this.getTitle(), this.font));
         this.list = this.layout.addToContents(new ElementList());
         LinearLayout footer = this.layout.addToFooter(LinearLayout.horizontal().spacing(SPACING));
-        this.doneButton = footer.addChild(Button.builder(CommonComponents.GUI_DONE, p_329718_ -> {
+        this.doneButton = footer.addChild(Button.builder(CommonComponents.GUI_DONE, button -> {
             this.applySettings.accept(this.selected);
             this.onClose(false);
         }).build());
-        footer.addChild(Button.builder(CommonComponents.GUI_CANCEL, p_329719_ -> this.onClose()).build());
-        this.list.setSelected(this.list.children().stream().filter(p_232738_ -> Objects.equals(p_232738_.element, this.selected)).findFirst().orElse(null));
+        footer.addChild(Button.builder(CommonComponents.GUI_CANCEL, button -> this.onClose()).build());
+        this.list.setSelected(this.list.children().stream().filter(entry -> Objects.equals(entry.element, this.selected)).findFirst().orElse(null));
         this.layout.visitWidgets(this::addRenderableWidget);
         this.repositionElements();
     }

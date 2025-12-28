@@ -113,9 +113,9 @@ public class ExtendedTabNavigationBar extends AbstractContainerEventHandler impl
                 .filter(AbstractWidget::isHovered)
                 .findFirst()
                 .or(() -> Optional.ofNullable(this.currentTabButton()));
-        optional.ifPresent(p_274663_ -> {
-            this.narrateListElementPosition(narrationElementOutput.nest(), p_274663_);
-            p_274663_.updateNarration(narrationElementOutput);
+        optional.ifPresent(tabButton -> {
+            this.narrateListElementPosition(narrationElementOutput.nest(), tabButton);
+            tabButton.updateNarration(narrationElementOutput);
         });
         if (this.isFocused()) {
             narrationElementOutput.add(NarratedElementType.USAGE, USAGE_NARRATION);
@@ -134,7 +134,7 @@ public class ExtendedTabNavigationBar extends AbstractContainerEventHandler impl
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         RenderSystem.enableBlend();
-        guiGraphics.blit(Screen.HEADER_SEPARATOR, 0, this.layout.getY() + this.layout.getHeight() - 2, 0.0F, 0.0F, this.tabButtons.get(0).getX(), 2, 32, 2);
+        guiGraphics.blit(Screen.HEADER_SEPARATOR, 0, this.layout.getY() + this.layout.getHeight() - 2, 0.0F, 0.0F, this.tabButtons.getFirst().getX(), 2, 32, 2);
         int i = this.tabButtons.get(this.tabButtons.size() - 1).getRight();
         guiGraphics.blit(Screen.HEADER_SEPARATOR, i, this.layout.getY() + this.layout.getHeight() - 2, 0.0F, 0.0F, this.width, 2, 32, 2);
         RenderSystem.disableBlend();

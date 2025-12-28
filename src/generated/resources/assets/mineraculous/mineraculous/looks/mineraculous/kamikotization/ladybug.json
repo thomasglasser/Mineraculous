@@ -5,11 +5,9 @@
       "mineraculous:texture": "mineraculous:textures/entity/equipment/humanoid/kamikotization/ladybug.png"
     }
   },
-  "author": "Mineraculous",
   "metadata": {
     "mineraculous:valid_kamikotizations": [
       "mineraculous:ladybug"
     ]
-  },
-  "name": "Bugaboo"
+  }
 }

@@ -69,11 +69,13 @@ public class LookCustomizationScreen<T> extends Screen {
 
     private ImmutableMultimap<ResourceKey<LookContext>, ResourceLocation> looks;
     private Map<ResourceKey<LookContext>, ResourceLocation> selectedLooks;
-    private Player leftPreview;
-    private Player centerPreview;
-    private Player rightPreview;
+    private PlayerPreview leftPreview;
+    private PlayerPreview centerPreview;
+    private PlayerPreview rightPreview;
     private ExtendedTabNavigationBar tabNavigationBar;
     private EditBox nameEdit;
+    private Button previousButton;
+    private Button nextButton;
 
     public LookCustomizationScreen(ImmutableSet<Holder<LookContext>> contextSet, LookMetadataType<Set<ResourceKey<T>>> metadataType, Holder<T> selected, Function<Player, LookData> lookDataGetter, BiConsumer<Player, LookData> lookDataSetter, BiConsumer<Player, LookData> onApply) {
         super(Component.empty());
@@ -107,11 +109,19 @@ public class LookCustomizationScreen<T> extends Screen {
         }
         this.tabNavigationBar = tabBuilder.build();
         this.addRenderableWidget(this.tabNavigationBar);
+        previousButton = Button.builder(Component.literal("<"), button -> previousLook())
+                .size(20, 20)
+                .build();
+        this.addRenderableWidget(previousButton);
+        nextButton = Button.builder(Component.literal(">"), button -> nextLook())
+                .size(20, 20)
+                .build();
+        this.addRenderableWidget(nextButton);
         LinearLayout footer = this.layout.addToFooter(LinearLayout.horizontal().spacing(8));
-        footer.addChild(Button.builder(APPLY, button -> apply()).width(100).build());
-        footer.addChild(Button.builder(UNDO, button -> undo()).width(100).build());
-        footer.addChild(Button.builder(RESET, button -> reset()).width(100).build());
-        footer.addChild(Button.builder(CommonComponents.GUI_CANCEL, button -> onClose()).width(100).build());
+        footer.addChild(Button.builder(APPLY, button -> apply()).width(80).build());
+        footer.addChild(Button.builder(UNDO, button -> undo()).width(80).build());
+        footer.addChild(Button.builder(RESET, button -> reset()).width(80).build());
+        footer.addChild(Button.builder(CommonComponents.GUI_CANCEL, button -> onClose()).width(80).build());
         this.layout.visitWidgets(widget -> {
             widget.setTabOrderGroup(1);
             this.addRenderableWidget(widget);
@@ -129,14 +139,8 @@ public class LookCustomizationScreen<T> extends Screen {
             int i = this.tabNavigationBar.getRectangle().bottom();
             ScreenRectangle tabArea = new ScreenRectangle(0, i, this.width, this.height - this.layout.getFooterHeight() - i);
             this.tabManager.setTabArea(tabArea);
-            addRenderableWidget(Button.builder(Component.literal("<"), button -> previousLook())
-                    .size(20, 20)
-                    .pos(150, 130)
-                    .build());
-            addRenderableWidget(Button.builder(Component.literal(">"), button -> nextLook())
-                    .size(20, 20)
-                    .pos(300, 130)
-                    .build());
+            this.previousButton.setPosition(this.width / 2 - 80, this.height / 2);
+            this.nextButton.setPosition(this.width / 2 + 60, this.height / 2);
             this.layout.arrangeElements();
         }
     }
@@ -196,6 +200,11 @@ public class LookCustomizationScreen<T> extends Screen {
             throw new IllegalStateException("Look Customization Screen has no player");
 
         ClientLevel level = player.clientLevel;
+        if (this.leftPreview != null) {
+            leftPreview.discard();
+            centerPreview.discard();
+            rightPreview.discard();
+        }
         this.leftPreview = new PlayerPreview(player);
         this.centerPreview = new PlayerPreview(player);
         this.rightPreview = new PlayerPreview(player);
@@ -212,15 +221,18 @@ public class LookCustomizationScreen<T> extends Screen {
 
             // Set looks on prepared previews
             ResourceKey<LookContext> contextKey = context.getKey();
-            Player[] previews = new Player[] { leftPreview, centerPreview, rightPreview };
+            PlayerPreview[] previews = new PlayerPreview[] { leftPreview, centerPreview, rightPreview };
             ResourceLocation[] previewLooks = new ResourceLocation[] { getPreviousLook(contextKey), selectedLooks.get(contextKey), getNextLook(contextKey) };
             for (int i = 0; i < previews.length; i++) {
+                PlayerPreview preview = previews[i];
+
                 Map<ResourceKey<LookContext>, ResourceLocation> looks = new Object2ObjectOpenHashMap<>(selectedLooks);
                 ResourceLocation lookId = previewLooks[i];
-                if (lookId != null)
+                if (lookId != null) {
                     looks.put(contextKey, lookId);
+                }
 
-                lookDataSetter.accept(previews[i], new LookData(Optional.empty(), ImmutableMap.copyOf(looks)));
+                lookDataSetter.accept(preview, new LookData(Optional.empty(), ImmutableMap.copyOf(looks)));
             }
         }
     }
@@ -305,7 +317,7 @@ public class LookCustomizationScreen<T> extends Screen {
         }
     }
 
-    protected static class PlayerPreview extends RemotePlayer {
+    public static class PlayerPreview extends RemotePlayer {
         private final PlayerSkin skin;
 
         public PlayerPreview(LocalPlayer player) {

@@ -6,6 +6,7 @@ import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.MineraculousGuiLayers;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.ExternalMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.tooltip.ClientLabeledItemTagsTooltip;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.look.LookCustomizationScreen;
 import dev.thomasglasser.mineraculous.api.client.look.util.item.MiraculousLookToolClientExtensions;
 import dev.thomasglasser.mineraculous.api.client.particle.FadingParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.FlourishingParticle;
@@ -113,9 +114,11 @@ import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderNameTagEvent;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
 import org.lwjgl.glfw.GLFW;
@@ -399,7 +402,7 @@ public class MineraculousClientEvents {
 
     private static final HashMap<UUID, CatStaffRenderer.PerchRenderer> playerPerchRendererMap = new HashMap<>();
 
-    public static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
+    static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
         Player player = event.getEntity();
         PoseStack poseStack = event.getPoseStack();
         MultiBufferSource bufferSource = event.getMultiBufferSource();
@@ -413,7 +416,7 @@ public class MineraculousClientEvents {
         player.noCulling = false;
     }
 
-    public static void onRenderLevelStage(RenderLevelStageEvent event) {
+    static void onRenderLevelStage(RenderLevelStageEvent event) {
         AbstractClientPlayer player = Minecraft.getInstance().player;
         RenderLevelStageEvent.Stage stage = event.getStage();
         EntityRenderDispatcher renderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
@@ -453,6 +456,11 @@ public class MineraculousClientEvents {
         if (Minecraft.getInstance().screen instanceof ExternalMenuScreen) {
             event.setCanceled(true);
         }
+    }
+
+    static void onRenderNameTag(RenderNameTagEvent event) {
+        if (event.getEntity() instanceof LookCustomizationScreen.PlayerPreview)
+            event.setCanRender(TriState.FALSE);
     }
 
     // Special Player Handling

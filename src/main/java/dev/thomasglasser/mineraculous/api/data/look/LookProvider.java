@@ -112,10 +112,10 @@ public abstract class LookProvider implements DataProvider {
      * @param id The id of the look
      * @return The {@link Builder} for the provided id
      */
-    protected Builder look(String id, String name) {
+    protected Builder look(String id) {
         if (looks.containsKey(id))
             throw new RuntimeException("Duplicate look id " + id);
-        Builder builder = new Builder(name);
+        Builder builder = new Builder();
         looks.put(id, builder);
         return builder;
     }
@@ -126,7 +126,7 @@ public abstract class LookProvider implements DataProvider {
      * @param miraculous The {@link Miraculous} to create the look for
      * @return The {@link Builder} for the look
      */
-    protected Builder miraculous(Holder<Miraculous> miraculous, String name) {
+    protected Builder miraculous(Holder<Miraculous> miraculous) {
         ResourceKey<Miraculous> key = miraculous.getKey();
         String id = key.location().getPath();
         String suitBase = modString("textures/entity/equipment/humanoid/miraculous/" + id + ".png");
@@ -134,7 +134,7 @@ public abstract class LookProvider implements DataProvider {
         String miraculousModel = modString("geo/item/miraculous/" + id + ".geo.json");
         String miraculousAnimations = modString("animations/item/miraculous/" + id + ".animation.json");
         String miraculousTransforms = modString("models/item/miraculous/" + id + ".json");
-        Builder look = look(LookUtils.getDefaultLookId(key).getPath(), name)
+        Builder look = look(LookUtils.getDefaultLookId(key).getPath())
                 .metadata(LookMetadataTypes.VALID_MIRACULOUSES, ObjectOpenHashSet.of(miraculous.getKey()))
                 .assets(LookContexts.MIRACULOUS_SUIT, assets()
                         .add(LookAssetTypes.TEXTURE, suitBase)
@@ -161,8 +161,8 @@ public abstract class LookProvider implements DataProvider {
      * @param miraculous The {@link Miraculous} to create the look for
      * @return The {@link Builder} for the look
      */
-    protected Builder miraculousNoAnims(Holder<Miraculous> miraculous, String name) {
-        return miraculous(miraculous, name)
+    protected Builder miraculousNoAnims(Holder<Miraculous> miraculous) {
+        return miraculous(miraculous)
                 .remove(LookContexts.MIRACULOUS_SUIT, LookAssetTypes.GECKOLIB_ANIMATIONS)
                 .remove(LookContexts.POWERED_MIRACULOUS, LookAssetTypes.GECKOLIB_ANIMATIONS)
                 .remove(LookContexts.HIDDEN_MIRACULOUS, LookAssetTypes.GECKOLIB_ANIMATIONS);
@@ -174,13 +174,13 @@ public abstract class LookProvider implements DataProvider {
      * @param item The {@link Item} to create the look for
      * @return The {@link Builder} for the look
      */
-    protected Builder miraculousTool(ResourceKey<Item> item, String name) {
+    protected Builder miraculousTool(ResourceKey<Item> item) {
         String id = item.location().getPath();
         AssetsBuilder toolAssets = assets()
                 .add(LookAssetTypes.TEXTURE, modString("textures/item/geo/" + id + ".png"))
                 .add(LookAssetTypes.GECKOLIB_MODEL, modString("geo/item/" + id + ".geo.json"))
                 .add(LookAssetTypes.GECKOLIB_ANIMATIONS, modString("animations/item/" + id + ".animation.json"));
-        return look(LookUtils.getDefaultLookId(item).getPath(), name)
+        return look(LookUtils.getDefaultLookId(item).getPath())
                 .assets(LookContexts.MIRACULOUS_TOOL, toolAssets.copy())
                 .assets(LookContexts.BLOCKING_MIRACULOUS_TOOL, toolAssets.copy())
                 .assets(LookContexts.PHONE_MIRACULOUS_TOOL, toolAssets.copy())
@@ -194,9 +194,9 @@ public abstract class LookProvider implements DataProvider {
      * @param kamikotization The {@link Kamikotization} to create the look for
      * @return The {@link Builder} for the look
      */
-    protected Builder kamikotizationLook(ResourceKey<Kamikotization> kamikotization, String name) {
+    protected Builder kamikotizationLook(ResourceKey<Kamikotization> kamikotization) {
         String id = kamikotization.location().getPath();
-        return look(LookUtils.getDefaultLookId(kamikotization).getPath(), name)
+        return look(LookUtils.getDefaultLookId(kamikotization).getPath())
                 .metadata(LookMetadataTypes.VALID_KAMIKOTIZATIONS, ObjectOpenHashSet.of(kamikotization))
                 .assets(LookContexts.KAMIKOTIZATION_SUIT, assets()
                         .add(LookAssetTypes.TEXTURE, modString("textures/entity/equipment/humanoid/kamikotization/" + id + ".png"))
@@ -210,8 +210,8 @@ public abstract class LookProvider implements DataProvider {
      * @param kamikotization The {@link Kamikotization} to create the look for
      * @return The {@link Builder} for the look
      */
-    protected Builder kamikotizationLookNoAnims(ResourceKey<Kamikotization> kamikotization, String name) {
-        return kamikotizationLook(kamikotization, name)
+    protected Builder kamikotizationLookNoAnims(ResourceKey<Kamikotization> kamikotization) {
+        return kamikotizationLook(kamikotization)
                 .remove(LookContexts.KAMIKOTIZATION_SUIT, LookAssetTypes.GECKOLIB_ANIMATIONS);
     }
 
@@ -230,8 +230,6 @@ public abstract class LookProvider implements DataProvider {
                     throw new IllegalStateException("Look " + id + " has no assets");
 
                 JsonObject json = new JsonObject();
-                json.addProperty(Look.NAME_KEY, builder.name);
-                json.addProperty(Look.AUTHOR_KEY, builder.author);
                 if (!builder.metadata.metadata.isEmpty()) {
                     JsonObject metadata = new JsonObject();
                     for (LookMetadataType<?> type : builder.metadata.metadata.keySet()) {
@@ -269,24 +267,7 @@ public abstract class LookProvider implements DataProvider {
 
     protected class Builder {
         protected Map<Holder<LookContext>, LookProvider.AssetsBuilder> assets = new Object2ObjectOpenHashMap<>();
-        protected final String name;
-        protected String author = defaultAuthor;
         protected MetadataBuilder metadata = new MetadataBuilder();
-
-        public Builder(String name) {
-            this.name = name;
-        }
-
-        /**
-         * Sets the author of the look to the provided string.
-         * 
-         * @param author The author of the look
-         * @return The builder
-         */
-        public Builder author(String author) {
-            this.author = author;
-            return this;
-        }
 
         /**
          * Adds the provided metadata for the provided type.

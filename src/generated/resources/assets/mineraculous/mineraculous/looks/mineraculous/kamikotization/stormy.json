@@ -6,11 +6,9 @@
       "mineraculous:texture": "mineraculous:textures/entity/equipment/humanoid/kamikotization/stormy.png"
     }
   },
-  "author": "Mineraculous",
   "metadata": {
     "mineraculous:valid_kamikotizations": [
       "mineraculous:stormy"
     ]
-  },
-  "name": "Stormy"
+  }
 }

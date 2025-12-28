@@ -5,11 +5,9 @@
       "mineraculous:texture": "mineraculous:textures/entity/equipment/humanoid/kamikotization/cat.png"
     }
   },
-  "author": "Mineraculous",
   "metadata": {
     "mineraculous:valid_kamikotizations": [
       "mineraculous:cat"
     ]
-  },
-  "name": "Kitty"
+  }
 }

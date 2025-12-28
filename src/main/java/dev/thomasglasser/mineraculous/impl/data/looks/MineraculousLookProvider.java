@@ -24,30 +24,30 @@ public class MineraculousLookProvider extends LookProvider {
         HolderGetter<Miraculous> miraculouses = provider.lookupOrThrow(MineraculousRegistries.MIRACULOUS);
 
         // Miraculouses
-        miraculousNoAnims(miraculouses.getOrThrow(Miraculouses.LADYBUG), "Ladybug");
-        miraculousNoAnims(miraculouses.getOrThrow(Miraculouses.CAT), "Cat Noir");
-        miraculousNoAnims(miraculouses.getOrThrow(Miraculouses.BUTTERFLY), "Hawk Moth")
+        miraculousNoAnims(miraculouses.getOrThrow(Miraculouses.LADYBUG));
+        miraculousNoAnims(miraculouses.getOrThrow(Miraculouses.CAT));
+        miraculousNoAnims(miraculouses.getOrThrow(Miraculouses.BUTTERFLY))
                 .asset(LookContexts.HIDDEN_MIRACULOUS, LookAssetTypes.GECKOLIB_MODEL, modString("geo/item/miraculous/butterfly_hidden.geo.json"))
                 .asset(LookContexts.HIDDEN_MIRACULOUS, LookAssetTypes.ITEM_TRANSFORMS, modString("models/item/miraculous/butterfly_hidden.json"));
 
         // Miraculous Tools
-        miraculousTool(MineraculousItems.LADYBUG_YOYO.getKey(), "Ladybug")
+        miraculousTool(MineraculousItems.LADYBUG_YOYO.getKey())
                 .assets(LookContexts.BLOCKING_MIRACULOUS_TOOL, assets()
                         .add(LookAssetTypes.TEXTURE, modString("textures/item/geo/ladybug_yoyo_blocking.png"))
                         .add(LookAssetTypes.GECKOLIB_MODEL, modString("geo/item/ladybug_yoyo_blocking.geo.json"))
                         .add(LookAssetTypes.GECKOLIB_ANIMATIONS, modString("animations/item/ladybug_yoyo_blocking.animation.json")))
                 .asset(LookContexts.PHONE_MIRACULOUS_TOOL, LookAssetTypes.TEXTURE, modString("textures/item/geo/ladybug_yoyo_phone.png"))
                 .asset(LookContexts.SPYGLASS_MIRACULOUS_TOOL, LookAssetTypes.TEXTURE, modString("textures/item/geo/ladybug_yoyo_spyglass.png"));
-        miraculousTool(MineraculousItems.CAT_STAFF.getKey(), "Cat Noir")
+        miraculousTool(MineraculousItems.CAT_STAFF.getKey())
                 .asset(LookContexts.PHONE_MIRACULOUS_TOOL, LookAssetTypes.TEXTURE, modString("textures/item/geo/cat_staff_phone.png"));
-        miraculousTool(MineraculousItems.BUTTERFLY_CANE.getKey(), "Hawk Moth")
+        miraculousTool(MineraculousItems.BUTTERFLY_CANE.getKey())
                 .asset(LookContexts.PHONE_MIRACULOUS_TOOL, LookAssetTypes.TEXTURE, modString("textures/item/geo/butterfly_cane_phone.png"))
                 .asset(LookContexts.PHONE_MIRACULOUS_TOOL, LookAssetTypes.GECKOLIB_MODEL, modString("geo/item/butterfly_cane_phone.geo.json"))
                 .asset(LookContexts.SPYGLASS_MIRACULOUS_TOOL, LookAssetTypes.TEXTURE, modString("textures/item/geo/butterfly_cane_spyglass.png"));
 
         // Kamikotizations
-        kamikotizationLook(MineraculousDataGenerators.STORMY_KAMIKOTIZATION, "Stormy");
-        kamikotizationLookNoAnims(MineraculousDataGenerators.CAT_KAMIKOTIZATION, "Kitty");
-        kamikotizationLookNoAnims(MineraculousDataGenerators.LADYBUG_KAMIKOTIZATION, "Bugaboo");
+        kamikotizationLook(MineraculousDataGenerators.STORMY_KAMIKOTIZATION);
+        kamikotizationLookNoAnims(MineraculousDataGenerators.CAT_KAMIKOTIZATION);
+        kamikotizationLookNoAnims(MineraculousDataGenerators.LADYBUG_KAMIKOTIZATION);
     }
 }

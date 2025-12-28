@@ -21,7 +21,5 @@
       "mineraculous:scope_texture": "mineraculous:textures/misc/butterfly_cane_spyglass_scope.png",
       "mineraculous:texture": "mineraculous:textures/item/geo/butterfly_cane_spyglass.png"
     }
-  },
-  "author": "Mineraculous",
-  "name": "Hawk Moth"
+  }
 }

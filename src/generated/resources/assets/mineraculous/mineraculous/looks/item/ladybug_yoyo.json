@@ -21,7 +21,5 @@
       "mineraculous:scope_texture": "mineraculous:textures/misc/ladybug_yoyo_spyglass_scope.png",
       "mineraculous:texture": "mineraculous:textures/item/geo/ladybug_yoyo_spyglass.png"
     }
-  },
-  "author": "Mineraculous",
-  "name": "Ladybug"
+  }
 }

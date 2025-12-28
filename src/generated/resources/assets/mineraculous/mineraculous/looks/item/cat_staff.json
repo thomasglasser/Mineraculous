@@ -21,7 +21,5 @@
       "mineraculous:scope_texture": "mineraculous:textures/misc/cat_staff_spyglass_scope.png",
       "mineraculous:texture": "mineraculous:textures/item/geo/cat_staff.png"
     }
-  },
-  "author": "Mineraculous",
-  "name": "Cat Noir"
+  }
 }

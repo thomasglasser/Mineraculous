@@ -275,6 +275,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousClientUtils.GUI_CHOOSE, "Choose");
         add(MineraculousClientUtils.GUI_NAME, "Name");
 
+        // Looks Button
+        add(MineraculousClientUtils.MIRACULOUS_LOOKS_BUTTON_TOOLTIP, "Miraculous Looks");
+
         // Registry Element Selection
         add(RegistryElementSelectionScreen.TITLE, "Select %s");
 

@@ -251,6 +251,7 @@ public class LookCustomizationScreen<T> extends Screen {
 
     protected void reset() {
         refreshLooks();
+        this.selectedLooks = new Object2ObjectOpenHashMap<>();
         refreshPreviews();
     }
 

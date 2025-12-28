@@ -7,10 +7,15 @@ import com.mojang.blaze3d.vertex.VertexMultiConsumer;
 import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.RegistryElementSelectionScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalCuriosInventoryScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.InventorySyncListener;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.look.LookCustomizationScreen;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContextSets;
+import dev.thomasglasser.mineraculous.api.core.look.metadata.LookMetadataTypes;
+import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
@@ -25,6 +30,7 @@ import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.Rec
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterCosmeticOptions;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.SpecialPlayerData;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetInventoryTrackedPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundSetMiraculousLookDataPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealCurioPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateSpecialPlayerDataPayload;
@@ -52,6 +58,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.ImageButton;
+import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -89,6 +99,11 @@ import top.theillusivec4.curios.common.inventory.CurioSlot;
 public class MineraculousClientUtils {
     public static final Component GUI_CHOOSE = Component.translatable("gui.choose");
     public static final Component GUI_NAME = Component.translatable("gui.name");
+    public static final Component MIRACULOUS_LOOKS_BUTTON_TOOLTIP = Component.translatable("gui.mineraculous.miraculous_looks.tooltip");
+
+    private static final WidgetSprites MIRACULOUS_LOOKS_BUTTON_SPRITES = new WidgetSprites(
+            MineraculousConstants.modLoc("miraculous_looks/button"),
+            MineraculousConstants.modLoc("miraculous_looks/button_highlighted"));
 
     private static final Map<Player, SpecialPlayerData> SPECIAL_PLAYER_DATA = new Reference2ReferenceOpenHashMap<>();
     private static final IntList CATACLYSM_PIXELS = new IntArrayList();
@@ -225,6 +240,18 @@ public class MineraculousClientUtils {
         if (Minecraft.getInstance().screen instanceof InventorySyncListener tracker) {
             tracker.onInventorySynced(player);
         }
+    }
+
+    public static ImageButton createMiraculousLooksButton(Screen parent) {
+        ImageButton button = new ImageButton((parent.width / 2) - 120, (parent.height / 2), 14, 14, MIRACULOUS_LOOKS_BUTTON_SPRITES, b -> parent.getMinecraft().setScreen(new RegistryElementSelectionScreen<>(parent, MineraculousRegistries.MIRACULOUS, selected -> parent.getMinecraft().setScreen(new LookCustomizationScreen<>(
+                LookContextSets.MIRACULOUS,
+                LookMetadataTypes.VALID_MIRACULOUSES,
+                selected,
+                player -> player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(selected).lookData(),
+                (player, lookData) -> player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(selected).withLookData(lookData).save(selected, player),
+                (player, lookData) -> TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousLookDataPayload(selected, lookData)))))));
+        button.setTooltip(Tooltip.create(MIRACULOUS_LOOKS_BUTTON_TOOLTIP));
+        return button;
     }
 
     // Camera

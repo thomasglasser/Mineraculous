@@ -423,6 +423,7 @@
   "gui.mineraculous.look_customization.reset": "Reset",
   "gui.mineraculous.look_customization.selected": "Selected: %s",
   "gui.mineraculous.look_customization.undo": "Undo",
+  "gui.mineraculous.miraculous_looks.tooltip": "Miraculous Looks",
   "gui.mineraculous.press_key": "(Press %s)",
   "gui.mineraculous.registry_element_selection.title": "Select %s",
   "gui.mineraculous.revoke": "Revoke Kamikotization",

@@ -88,27 +88,25 @@ public record Look<T extends AbstractLookAssets>(LookMetadata metadata, Immutabl
         for (String contextKey : contextKeys) {
             ResourceLocation contextId = ResourceLocation.parse(contextKey);
             Holder<LookContext> context = MineraculousBuiltInRegistries.LOOK_CONTEXT.getHolder(contextId).orElseThrow(() -> lookException(lookId, "has invalid context " + contextId));
-            if (context != null) {
-                JsonObject assets = contexts.getAsJsonObject(contextKey);
-                Set<String> assetKeys = assets.keySet();
-                if (assetKeys.isEmpty()) throw lookException(lookId, "has no assets for context " + contextId);
+            JsonObject assets = contexts.getAsJsonObject(contextKey);
+            Set<String> assetKeys = assets.keySet();
+            if (assetKeys.isEmpty()) throw lookException(lookId, "has no assets for context " + contextId);
 
-                AbstractLookAssets.Builder<T> assetsBuilder = builderSupplier.get();
-                for (String assetKey : assetKeys) {
-                    ResourceLocation assetLoc = ResourceLocation.parse(assetKey);
-                    if (!context.value().assetTypes().contains(assetLoc))
-                        throw lookException(lookId, "has invalid asset type " + assetLoc + " for context " + contextId);
-                    LookAssetType<?, ?> assetType = LookAssetTypes.get(assetLoc);
-                    if (assetType == null)
-                        throw lookException(lookId, "has invalid asset type " + assetLoc + " for context " + contextId);
-                    assetsBuilder.add(assetType, assets.get(assetKey), lookId, contextId);
-                }
-
-                T lookAssets = assetsBuilder.build();
-                if (lookAssets.isEmpty()) throw lookException(lookId, "has no assets for context " + contextId);
-
-                contextAssetsBuilder.put(context.getKey(), lookAssets);
+            AbstractLookAssets.Builder<T> assetsBuilder = builderSupplier.get();
+            for (String assetKey : assetKeys) {
+                ResourceLocation assetLoc = ResourceLocation.parse(assetKey);
+                if (!context.value().assetTypes().contains(assetLoc))
+                    throw lookException(lookId, "has invalid asset type " + assetLoc + " for context " + contextId);
+                LookAssetType<?, ?> assetType = LookAssetTypes.get(assetLoc);
+                if (assetType == null)
+                    throw lookException(lookId, "has invalid asset type " + assetLoc + " for context " + contextId);
+                assetsBuilder.add(assetType, assets.get(assetKey), lookId, contextId);
             }
+
+            T lookAssets = assetsBuilder.build();
+            if (lookAssets.isEmpty()) throw lookException(lookId, "has no assets for context " + contextId);
+
+            contextAssetsBuilder.put(context.getKey(), lookAssets);
         }
 
         ImmutableMap<ResourceKey<LookContext>, T> contextAssets = contextAssetsBuilder.build();

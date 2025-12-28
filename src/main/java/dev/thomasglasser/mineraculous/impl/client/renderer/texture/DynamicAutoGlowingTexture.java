@@ -41,7 +41,7 @@ public class DynamicAutoGlowingTexture extends AutoGlowingTexture {
         }
 
         if (baseImage != null && (glowImage.getWidth() != baseImage.getWidth() || glowImage.getHeight() != baseImage.getHeight()))
-            throw new IllegalStateException(String.format("Glowmask texture dimensions do not match base texture dimensions! Mask: %s, Base: %s", this.glowLayer, this.textureBase));
+            throw new IllegalStateException(String.format("Glowmask texture dimensions do not match base texture dimensions! Base: %s", this.textureBase));
 
         return () -> {
             uploadSimple(getId(), glowImage, blur, false);

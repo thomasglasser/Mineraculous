@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.api.client.gui.screens.look;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
@@ -189,7 +190,9 @@ public class LookCustomizationScreen<T> extends Screen {
 
         if (selectedLooks.isEmpty()) {
             for (Holder<LookContext> context : contextSet) {
-                selectedLooks.put(context.getKey(), this.looks.get(context.getKey()).asList().getFirst());
+                ImmutableList<ResourceLocation> contextLooks = this.looks.get(context.getKey()).asList();
+                if (!contextLooks.isEmpty())
+                    selectedLooks.put(context.getKey(), contextLooks.getFirst());
             }
         }
     }

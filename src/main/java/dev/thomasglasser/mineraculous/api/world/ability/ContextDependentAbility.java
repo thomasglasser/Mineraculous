@@ -6,7 +6,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.context.BlockAbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.context.EntityAbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
-import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import java.util.Optional;
 import java.util.SortedSet;
 import java.util.function.Predicate;
@@ -53,7 +53,7 @@ public record ContextDependentAbility(Optional<Holder<Ability>> blockAbility, Op
 
     @Override
     public SortedSet<Ability> getAll() {
-        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
+        SortedSet<Ability> abilities = new ObjectLinkedOpenHashSet<>();
         abilities.add(this);
         blockAbility.ifPresent(ability -> abilities.add(ability.value()));
         entityAbility.ifPresent(ability -> abilities.add(ability.value()));
@@ -65,7 +65,7 @@ public record ContextDependentAbility(Optional<Holder<Ability>> blockAbility, Op
 
     @Override
     public SortedSet<Ability> getMatching(Predicate<Ability> predicate) {
-        SortedSet<Ability> abilities = new ReferenceLinkedOpenHashSet<>();
+        SortedSet<Ability> abilities = new ObjectLinkedOpenHashSet<>();
         blockAbility.ifPresent(ability -> abilities.addAll(Ability.getMatching(predicate, ability.value())));
         entityAbility.ifPresent(ability -> abilities.addAll(Ability.getMatching(predicate, ability.value())));
         for (Holder<Ability> ability : passiveAbilities) {

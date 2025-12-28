@@ -58,8 +58,8 @@ public class MineraculousMathUtils {
     }
 
     // generates the positions of n points on a circle, equally spaced between each other.
-    public static ArrayList<Vector2d> generateCirclePoints(double rad, int n) {
-        ArrayList<Vector2d> points = new ArrayList<>();
+    public static List<Vector2d> generateCirclePoints(double rad, int n) {
+        ImmutableList.Builder<Vector2d> points = new ImmutableList.Builder<>();
         double angleStep = 2 * Math.PI / n;
 
         for (int i = 0; i < n; i++) {
@@ -69,7 +69,7 @@ public class MineraculousMathUtils {
             points.add(new Vector2d(x, y));
         }
 
-        return points;
+        return points.build();
     }
 
     public static void spawnBlockParticles(ServerLevel level, BlockPos pos, SimpleParticleType type, int particleCount) {

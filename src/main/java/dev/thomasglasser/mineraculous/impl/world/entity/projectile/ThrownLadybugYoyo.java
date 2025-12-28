@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.entity.projectile;
 
+import com.google.common.collect.ImmutableList;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousEntityTypeTags;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
@@ -18,7 +19,6 @@ import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import net.minecraft.core.Direction;
@@ -336,10 +336,11 @@ public class ThrownLadybugYoyo extends AbstractArrow implements GeoEntity {
                         if (storingData != null) {
                             CompoundTag tag = new CompoundTag();
                             entity.save(tag);
-                            List<CompoundTag> stored = storingData.storedEntities();
-                            stored.add(tag);
                             entity.discard();
-                            storingData.save(storingKey, yoyoOwner);
+                            ImmutableList.Builder<CompoundTag> stored = new ImmutableList.Builder<>();
+                            stored.addAll(storingData.storedEntities());
+                            stored.add(tag);
+                            storingData.withStoredEntities(stored.build()).save(storingKey, yoyoOwner);
                             discard();
                         }
                     }

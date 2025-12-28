@@ -1,8 +1,8 @@
 package dev.thomasglasser.mineraculous.api.client.gui.selection;
 
 import com.google.common.base.MoreObjects;
+import com.google.common.collect.ImmutableList;
 import dev.thomasglasser.mineraculous.api.client.gui.selection.categories.SelectionPage;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.spectator.SpectatorMenu;
@@ -59,13 +59,13 @@ public class SelectionMenu {
     }
 
     public List<SelectionMenuItem> getItems() {
-        List<SelectionMenuItem> list = new ReferenceArrayList<>();
+        ImmutableList.Builder<SelectionMenuItem> list = new ImmutableList.Builder<>();
 
         for (int i = 0; i <= 8; i++) {
             list.add(this.getItem(i));
         }
 
-        return list;
+        return list.build();
     }
 
     public SelectionMenuItem getSelectedItem() {

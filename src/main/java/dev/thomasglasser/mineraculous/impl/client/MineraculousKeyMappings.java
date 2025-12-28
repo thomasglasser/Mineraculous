@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.client;
 
+import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
@@ -27,7 +28,6 @@ import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.ExtendedKeyMapping;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -46,6 +46,7 @@ public class MineraculousKeyMappings {
     public static final String MIRACULOUS_CATEGORY = "key.categories.mineraculous";
 
     public static final ExtendedKeyMapping TRANSFORM = register("transform", InputConstants.KEY_U, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleTransform);
+    public static final ExtendedKeyMapping QUICK_TRANSFORM = register("quick_transform", InputConstants.KEY_I, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleQuickTransform);
     public static final ExtendedKeyMapping ACTIVATE_POWER = register("activate_power", InputConstants.KEY_Y, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleActivatePower);
     public static final ExtendedKeyMapping REVOKE_KAMIKOTIZATION = register("revoke_kamikotization", InputConstants.KEY_K, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleRevokeKamikotization);
     public static final ExtendedKeyMapping RENOUNCE_MIRACULOUS = register("renounce_miraculous", InputConstants.KEY_N, MIRACULOUS_CATEGORY, MineraculousKeyMappings::handleRenounceMiraculous);
@@ -74,43 +75,65 @@ public class MineraculousKeyMappings {
                 Holder<Miraculous> miraculous = transformed.getFirst();
                 TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), false));
             } else {
-                List<RadialMenuOption> options = new ReferenceArrayList<>();
-                Map<RadialMenuOption, Holder<Miraculous>> miraculousOptions = new Reference2ReferenceOpenHashMap<>();
-                for (ItemStack stack : CuriosUtils.getAllItems(player).values()) {
-                    Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-                    if (miraculous != null) {
-                        ResourceKey<Miraculous> key = miraculous.getKey();
-                        if (key != null) {
-                            RadialMenuOption option = new RadialMenuOption() {
-                                private Integer color;
+                selectMiraculous(miraculousesData, TRANSFORM);
+            }
+        }
+    }
 
-                                @Override
-                                public Component displayName() {
-                                    return Component.translatable(MineraculousConstants.toLanguageKey(key));
-                                }
+    private static void handleQuickTransform() {
+        Player player = Minecraft.getInstance().player;
+        if (player != null) {
+            MiraculousesData miraculousesData = player.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+            List<Holder<Miraculous>> transformed = miraculousesData.getTransformed();
+            if (!transformed.isEmpty()) {
+                Holder<Miraculous> miraculous = transformed.getFirst();
+                TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), false));
+            } else if (miraculousesData.getLastUsed().isPresent()) {
+                Holder<Miraculous> lastTransformed = miraculousesData.getLastUsed().get();
+                TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(lastTransformed, miraculousesData.get(lastTransformed), true));
+            } else {
+                selectMiraculous(miraculousesData, QUICK_TRANSFORM);
+            }
+        }
+    }
 
-                                @Override
-                                public Integer colorOverride() {
-                                    if (color == null)
-                                        color = miraculous.value().color().getValue();
-                                    return color;
-                                }
-                            };
-                            options.add(option);
-                            miraculousOptions.put(option, miraculous);
+    private static void selectMiraculous(MiraculousesData data, ExtendedKeyMapping keyMapping) {
+        ImmutableList.Builder<RadialMenuOption> optionsBuilder = new ImmutableList.Builder<>();
+        Map<RadialMenuOption, Holder<Miraculous>> miraculousOptions = new Reference2ReferenceOpenHashMap<>();
+        for (ItemStack stack : CuriosUtils.getAllItems(ClientUtils.getLocalPlayer()).values()) {
+            Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+            if (miraculous != null) {
+                ResourceKey<Miraculous> key = miraculous.getKey();
+                if (key != null) {
+                    RadialMenuOption option = new RadialMenuOption() {
+                        private Integer color;
+
+                        @Override
+                        public Component displayName() {
+                            return Component.translatable(MineraculousConstants.toLanguageKey(key));
                         }
-                    }
-                }
-                if (options.size() > 1) {
-                    Minecraft.getInstance().setScreen(new RadialMenuScreen<>(TRANSFORM.getKey().getValue(), options, -1, (selected, i) -> {
-                        Holder<Miraculous> miraculous = miraculousOptions.get(selected);
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), true));
-                    }));
-                } else if (options.size() == 1) {
-                    Holder<Miraculous> miraculous = miraculousOptions.get(options.getFirst());
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, miraculousesData.get(miraculous), true));
+
+                        @Override
+                        public Integer colorOverride() {
+                            if (color == null)
+                                color = miraculous.value().color().getValue();
+                            return color;
+                        }
+                    };
+                    optionsBuilder.add(option);
+                    miraculousOptions.put(option, miraculous);
                 }
             }
+        }
+        ImmutableList<RadialMenuOption> options = optionsBuilder.build();
+        if (options.size() > 1) {
+            Minecraft.getInstance().setScreen(new RadialMenuScreen<>(keyMapping.getKey().getValue(), options, -1, (selected, i) -> {
+                Holder<Miraculous> miraculous = miraculousOptions.get(selected);
+                TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, data.get(miraculous), true));
+            }));
+        } else if (options.size() == 1) {
+            Holder<Miraculous> miraculous = miraculousOptions.get(options.getFirst());
+            TommyLibServices.NETWORK.sendToServer(new ServerboundMiraculousTransformPayload(miraculous, data.get(miraculous), true));
         }
     }
 

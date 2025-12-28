@@ -33,7 +33,7 @@ import software.bernie.geckolib.renderer.GeoArmorRenderer;
 public class KamikotizationArmorItemRenderer<T extends Item & GeoItem> extends GeoArmorRenderer<T> implements LookRenderer {
     private final GeoModel<T> model;
 
-    private @Nullable Look look = null;
+    private @Nullable Look<?> look = null;
 
     public KamikotizationArmorItemRenderer() {
         super((GeoModel<T>) null);

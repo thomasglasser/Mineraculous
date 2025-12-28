@@ -3,11 +3,14 @@ package dev.thomasglasser.mineraculous.api.world.miraculous;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mojang.serialization.codecs.UnboundedMapCodec;
+import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import net.minecraft.core.Holder;
@@ -24,23 +27,29 @@ import org.jetbrains.annotations.Nullable;
 /// Holds all {@link MiraculousData}s for an entity
 public class MiraculousesData {
     public static final UnboundedMapCodec<Holder<Miraculous>, MiraculousData> MAP_CODEC = Codec.unboundedMap(Miraculous.CODEC, MiraculousData.CODEC);
-    public static final Codec<MiraculousesData> CODEC = MAP_CODEC.xmap(MiraculousesData::new, data -> data.map);
+    public static final Codec<MiraculousesData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            MAP_CODEC.fieldOf("map").forGetter(data -> data.map),
+            Miraculous.CODEC.optionalFieldOf("last_used").forGetter(MiraculousesData::getLastUsed)).apply(instance, MiraculousesData::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, MiraculousesData> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.map(
-                    Reference2ObjectOpenHashMap::new,
+                    Object2ObjectOpenHashMap::new,
                     Miraculous.STREAM_CODEC,
                     MiraculousData.STREAM_CODEC),
             set -> set.map,
+            ByteBufCodecs.optional(ByteBufCodecs.holderRegistry(MineraculousRegistries.MIRACULOUS)), MiraculousesData::getLastUsed,
             MiraculousesData::new);
 
     private final Map<Holder<Miraculous>, MiraculousData> map;
+    private Optional<Holder<Miraculous>> lastUsed;
 
     public MiraculousesData() {
-        this.map = new Reference2ObjectOpenHashMap<>();
+        this.map = new Object2ObjectOpenHashMap<>();
+        this.lastUsed = Optional.empty();
     }
 
-    public MiraculousesData(Map<Holder<Miraculous>, MiraculousData> map) {
-        this.map = new Reference2ObjectOpenHashMap<>(map);
+    public MiraculousesData(Map<Holder<Miraculous>, MiraculousData> map, Optional<Holder<Miraculous>> lastUsed) {
+        this.map = new Object2ObjectOpenHashMap<>(map);
+        this.lastUsed = lastUsed;
     }
 
     @ApiStatus.Internal
@@ -64,6 +73,14 @@ public class MiraculousesData {
         MiraculousData data = map.put(key, value);
         save(entity);
         return data;
+    }
+
+    public Optional<Holder<Miraculous>> getLastUsed() {
+        return lastUsed;
+    }
+
+    public void setLastUsed(Holder<Miraculous> lastUsed) {
+        this.lastUsed = Optional.of(lastUsed);
     }
 
     /**

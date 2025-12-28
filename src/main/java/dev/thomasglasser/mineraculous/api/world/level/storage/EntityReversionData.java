@@ -11,9 +11,8 @@ import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.nbt.MineraculousNbtUtils;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -161,7 +160,7 @@ public class EntityReversionData extends SavedData {
      */
     public Map<UUID, CompoundTag> getRevertibleAndConvertedAt(UUID cause, ResourceKey<Level> dimension, Vec3 pos) {
         EntityLocation location = new EntityLocation(dimension, pos);
-        Map<UUID, CompoundTag> data = new Reference2ReferenceOpenHashMap<>();
+        Map<UUID, CompoundTag> data = new Object2ObjectOpenHashMap<>();
         Set<RevertibleEntity> revertibles = revertibleEntities.get(cause, location);
         if (revertibles != null) {
             for (RevertibleEntity entity : revertibles) {
@@ -210,7 +209,7 @@ public class EntityReversionData extends SavedData {
      */
     public void revertRevertibleAndConverted(UUID cause, ServerLevel level, Vec3 pos) {
         EntityLocation location = new EntityLocation(level.dimension(), pos);
-        Set<RevertibleEntity> revertibles = new ReferenceOpenHashSet<>();
+        Set<RevertibleEntity> revertibles = new ObjectOpenHashSet<>();
         Set<RevertibleEntity> entities = this.revertibleEntities.remove(cause, location);
         if (entities != null) {
             revertibles.addAll(entities);
@@ -473,10 +472,10 @@ public class EntityReversionData extends SavedData {
         EntityReversionData data = new EntityReversionData();
         data.trackedAndRelatedEntities.putAll(MineraculousNbtUtils.readStringKeyedMultimap(HashMultimap::create, tag.getCompound("TrackedAndRelated"), UUID::fromString, NbtUtils::loadUUID));
         // Java gets weird about the generics in the set here, requires a more generic declaration
-        Table<UUID, EntityLocation, Set<RevertibleEntity>> table = MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Revertible"), UUID::fromString, locationDecoder, t -> MineraculousNbtUtils.readCollection(ReferenceOpenHashSet::new, (ListTag) t, revertibleDecoder));
+        Table<UUID, EntityLocation, Set<RevertibleEntity>> table = MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Revertible"), UUID::fromString, locationDecoder, t -> MineraculousNbtUtils.readCollection(ObjectOpenHashSet::new, (ListTag) t, revertibleDecoder));
         data.revertibleEntities.putAll(table);
         data.removableEntities.putAll(MineraculousNbtUtils.readStringKeyedMultimap(HashMultimap::create, tag.getCompound("Removable"), UUID::fromString, NbtUtils::loadUUID));
-        table = MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Converted"), UUID::fromString, locationDecoder, t -> MineraculousNbtUtils.readCollection(ReferenceOpenHashSet::new, (ListTag) t, revertibleDecoder));
+        table = MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Converted"), UUID::fromString, locationDecoder, t -> MineraculousNbtUtils.readCollection(ObjectOpenHashSet::new, (ListTag) t, revertibleDecoder));
         data.convertedEntities.putAll(table);
         data.copiedEntities.putAll(MineraculousNbtUtils.readStringKeyedMultimap(HashMultimap::create, tag.getCompound("Copied"), UUID::fromString, NbtUtils::loadUUID));
         return data;

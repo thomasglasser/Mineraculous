@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.ability;
 
+import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -11,12 +12,11 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.api.world.level.storage.BlockLocation;
 import dev.thomasglasser.mineraculous.api.world.level.storage.BlockReversionData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.PersistentAbilityEffectData;
+import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTargetCollector;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import it.unimi.dsi.fastutil.objects.ReferenceLinkedOpenHashSet;
 import java.util.ArrayDeque;
 import java.util.Optional;
 import java.util.Queue;
-import java.util.SequencedSet;
 import java.util.Set;
 import java.util.UUID;
 import net.minecraft.advancements.critereon.BlockPredicate;
@@ -74,17 +74,15 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean insta
             if (!isValidBlock(level, pos)) {
                 return State.CANCEL;
             }
-            SequencedSet<BlockPos> affected = getAffectedBlocks(level, pos, Math.max(data.powerLevel(), 1) * 100);
+            ImmutableSet<BlockPos> affected = getAffectedBlocks(level, pos, Math.max((int) Math.ceil(data.powerLevel() / 10.0), 1) * 100);
             if (instant) {
                 affected.forEach(affectedPos -> replace(new BlockLocation(level.dimension(), affectedPos), replacement, performer.getUUID(), level));
             } else {
-                ReferenceLinkedOpenHashSet<PersistentAbilityEffectData.DelayedBlockReplacement> replacements = new ReferenceLinkedOpenHashSet<>();
+                ImmutableSet.Builder<PersistentAbilityEffectData.DelayedBlockReplacement> replacements = new ImmutableSet.Builder<>();
                 for (BlockPos affectedPos : affected) {
                     replacements.add(new PersistentAbilityEffectData.DelayedBlockReplacement(new BlockLocation(level.dimension(), affectedPos), replacement));
                 }
-                PersistentAbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.PERSISTENT_ABILITY_EFFECTS);
-                abilityEffectData.delayedBlockReplacements().add(replacements);
-                abilityEffectData.save(performer);
+                performer.getData(MineraculousAttachmentTypes.PERSISTENT_ABILITY_EFFECTS).addDelayedBlockReplacements(replacements.build()).save(performer);
             }
             Ability.playSound(level, performer, replaceSound);
             return State.CONSUME;
@@ -103,10 +101,16 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean insta
         return !level.getBlockState(pos).isAir() && validBlocks.map(predicate -> predicate.matches(level, pos)).orElse(true) && invalidBlocks.map(predicate -> !predicate.matches(level, pos)).orElse(true);
     }
 
-    private SequencedSet<BlockPos> getAffectedBlocks(ServerLevel level, BlockPos pos, int max) {
+    @Override
+    public void revert(AbilityData data, ServerLevel level, LivingEntity performer, MiraculousLadybugTargetCollector targetCollector) {
+        performer.getData(MineraculousAttachmentTypes.PERSISTENT_ABILITY_EFFECTS).withDelayedBlockReplacements(ImmutableSet.of()).save(performer);
+    }
+
+    private ImmutableSet<BlockPos> getAffectedBlocks(ServerLevel level, BlockPos pos, int max) {
         Queue<BlockPos> queue = new ArrayDeque<>();
         Set<BlockPos> visited = new ObjectOpenHashSet<>();
-        SequencedSet<BlockPos> adjacent = new ReferenceLinkedOpenHashSet<>();
+        ImmutableSet.Builder<BlockPos> adjacent = new ImmutableSet.Builder<>();
+        int affected = 0;
         queue.add(pos);
         boolean requireSame = false;
         Block block = level.getBlockState(pos).getBlock();
@@ -119,7 +123,8 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean insta
         }
         while (!queue.isEmpty()) {
             BlockPos current = queue.poll();
-            if (adjacent.size() < max && visited.add(current) && isValidBlock(level, current) && (!requireSame || level.getBlockState(current).is(block))) {
+            if (affected < max && visited.add(current) && isValidBlock(level, current) && (!requireSame || level.getBlockState(current).is(block))) {
+                affected++;
                 adjacent.add(current);
                 for (Direction direction : Direction.values()) {
                     BlockPos relative = current.relative(direction);
@@ -129,7 +134,7 @@ public record ReplaceAdjacentBlocksAbility(BlockState replacement, boolean insta
                 }
             }
         }
-        return adjacent;
+        return adjacent.build();
     }
 
     @Override

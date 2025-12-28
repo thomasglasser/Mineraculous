@@ -21,6 +21,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerChoicesPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItemPayload;
 import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
+import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
@@ -35,7 +36,6 @@ import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -53,6 +53,7 @@ import net.minecraft.world.level.portal.DimensionTransition;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
 import net.neoforged.neoforge.event.entity.EntityTravelToDimensionEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
@@ -102,10 +103,7 @@ public class MineraculousEntityEvents {
     }
 
     public static void onServerPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        ServerPlayer player = (ServerPlayer) event.getEntity();
-        MinecraftServer server = player.getServer();
-
-        TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncSpecialPlayerChoicesPayload.INSTANCE, server);
+        TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncSpecialPlayerChoicesPayload.INSTANCE, event.getEntity().getServer());
     }
 
     /// Life
@@ -185,6 +183,12 @@ public class MineraculousEntityEvents {
         }
     }
 
+    public static void onEntityTeleport(EntityTeleportEvent event) {
+        Entity entity = event.getEntity();
+        if (entity.getData(MineraculousAttachmentTypes.YOYO_LEASH_OVERRIDE))
+            LadybugYoyoItem.removeLeashFrom(entity);
+    }
+
     // Abilities
     public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
         Player player = event.getEntity();
@@ -218,7 +222,7 @@ public class MineraculousEntityEvents {
     }
 
     public static void onBlockInteract(PlayerInteractEvent.RightClickBlock event) {
-        if (event.getLevel() instanceof ServerLevel level) {
+        if (event.getLevel() instanceof ServerLevel level && event.getHand() == InteractionHand.MAIN_HAND) {
             AbilityUtils.performBlockAbilities(level, event.getEntity(), event.getPos());
         }
     }
@@ -303,13 +307,16 @@ public class MineraculousEntityEvents {
         if (entity.level() instanceof ServerLevel level) {
             MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
             for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
+                if (stack.getItem() instanceof KwamiItem) {
+                    KwamiItem.summonKwami(stack, entity);
+                }
                 Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
                 if (stack.getItem() instanceof MiraculousItem && miraculous != null) {
                     MiraculousData data = miraculousesData.get(miraculous);
                     if (data.transformed()) {
                         data.detransform(entity, level, miraculous, stack, true);
                     } else {
-                        MineraculousEntityUtils.renounceKwami(stack.get(MineraculousDataComponents.KWAMI_ID), stack, level);
+                        MineraculousEntityUtils.renounceKwami(true, stack, level, entity);
                     }
                 }
                 entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {

@@ -181,6 +181,13 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
                         }
                     }
                 }
+            } else {
+                if (livingEntity.hasData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF)) {
+                    PerchingCatStaffData.remove(livingEntity);
+                }
+                if (livingEntity.hasData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF)) {
+                    TravelingCatStaffData.remove(livingEntity);
+                }
             }
         }
         MineraculousItemUtils.checkHelicopterSlowFall(stack, entity);

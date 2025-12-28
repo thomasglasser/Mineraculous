@@ -210,6 +210,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     private void addKeyMappings() {
         add(MineraculousKeyMappings.MIRACULOUS_CATEGORY, "Miraculous");
         add(MineraculousKeyMappings.TRANSFORM, "Transform");
+        add(MineraculousKeyMappings.QUICK_TRANSFORM, "Quick Transform");
         add(MineraculousKeyMappings.ACTIVATE_POWER, "Activate Power");
         add(MineraculousKeyMappings.REVOKE_KAMIKOTIZATION, "Revoke Kamikotization");
         add(MineraculousKeyMappings.RENOUNCE_MIRACULOUS, "Renounce Miraculous");

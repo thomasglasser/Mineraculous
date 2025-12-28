@@ -1,7 +1,7 @@
 package dev.thomasglasser.mineraculous.impl.client.gui.screens;
 
-import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
 public class MiraculousEligiblePlayerList extends ContainerObjectSelectionList<MiraculousEligiblePlayerEntry> {
-    private final List<MiraculousEligiblePlayerEntry> entries = new ReferenceArrayList<>();
+    private final List<MiraculousEligiblePlayerEntry> entries = new ObjectArrayList<>();
     private final int kwamiId;
     @Nullable
     private String filter;
@@ -36,7 +36,7 @@ public class MiraculousEligiblePlayerList extends ContainerObjectSelectionList<M
     }
 
     public void updatePlayerList(double scrollAmount) {
-        Set<MiraculousEligiblePlayerEntry> entries = new ReferenceOpenHashSet<>();
+        Set<MiraculousEligiblePlayerEntry> entries = new ObjectOpenHashSet<>();
         for (Player player : this.minecraft.level.players()) {
             PlayerInfo playerinfo = this.minecraft.player.connection.getPlayerInfo(player.getUUID());
             entries.add(new MiraculousEligiblePlayerEntry(this.minecraft, player.getUUID(), playerinfo.getProfile().getName(), playerinfo::getSkin, this.kwamiId));

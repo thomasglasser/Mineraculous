@@ -23,30 +23,22 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * Displays a list of {@link RadialMenuOption}s and allows selection while the provided key is held.
- * 
+ *
  * @param <T> The type of {@link RadialMenuOption} to display.
  */
 public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
     public static final float MAX_CIRCLE_SIZE = 89f;
     private static final float PRECISION = 2.5f / 360.0f;
-
+    private static float tickCircleSize = 0f;
+    private static float oldTickCircleSize = 0f;
     protected final int heldKey;
     protected final List<T> options;
     protected final int selectedColor;
     protected final BiConsumer<T, Integer> onSelected;
-
     private final double sliceAngle;
-
     protected double currentMouseX;
     protected double currentMouseY;
-
     private float circleSize = 0;
-    private static float tickCircleSize = 0f;
-    private static float oldTickCircleSize = 0f;
-
-    public static float getInterpolatedRadialCircleSize(float partialTicks) {
-        return Mth.lerp(partialTicks, oldTickCircleSize, tickCircleSize);
-    }
 
     public RadialMenuScreen(int heldKey, List<T> options, int selectedColor, BiConsumer<T, Integer> onSelected) {
         super(Component.empty());
@@ -62,6 +54,10 @@ public class RadialMenuScreen<T extends RadialMenuOption> extends Screen {
             if (stack.get(provider.getComponentType(stack, hand, ClientUtils.getLocalPlayer())) != selected)
                 TommyLibServices.NETWORK.sendToServer(new ServerboundSetRadialMenuProviderOptionPayload(hand, index));
         });
+    }
+
+    public static float getInterpolatedRadialCircleSize(float partialTicks) {
+        return Mth.lerp(partialTicks, oldTickCircleSize, tickCircleSize);
     }
 
     private double alpha(int x, int y) {

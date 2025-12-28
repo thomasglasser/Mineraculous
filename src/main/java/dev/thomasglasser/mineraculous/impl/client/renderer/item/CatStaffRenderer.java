@@ -13,9 +13,11 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
+import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
@@ -112,8 +114,8 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
             ItemStack offhandItem = player.getOffhandItem();
             ItemStack mainHandItem = player.getMainHandItem();
 
-            boolean lHCatStaffPerch = offhandItem.is(MineraculousItems.CAT_STAFF) && offhandItem.has(MineraculousDataComponents.ACTIVE) && offhandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.PERCH;
-            boolean rHCatStaffPerch = mainHandItem.is(MineraculousItems.CAT_STAFF) && mainHandItem.has(MineraculousDataComponents.ACTIVE) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.PERCH;
+            boolean lHCatStaffPerch = offhandItem.is(MineraculousItems.CAT_STAFF) && Active.isActive(offhandItem, false) && offhandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.PERCH;
+            boolean rHCatStaffPerch = mainHandItem.is(MineraculousItems.CAT_STAFF) && Active.isActive(mainHandItem, false) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.PERCH;
 
             if (lHCatStaffPerch || rHCatStaffPerch) {
                 PerchingCatStaffData perchData = player.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
@@ -161,8 +163,8 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
         ItemStack offhandItem = player.getOffhandItem();
         ItemStack mainHandItem = player.getMainHandItem();
 
-        boolean lHCatStaffTravel = offhandItem.is(MineraculousItems.CAT_STAFF) && offhandItem.has(MineraculousDataComponents.ACTIVE) && offhandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.TRAVEL;
-        boolean rHCatStaffTravel = mainHandItem.is(MineraculousItems.CAT_STAFF) && mainHandItem.has(MineraculousDataComponents.ACTIVE) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.TRAVEL;
+        boolean lHCatStaffTravel = offhandItem.is(MineraculousItems.CAT_STAFF) && Active.isActive(offhandItem, false) && offhandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.TRAVEL;
+        boolean rHCatStaffTravel = mainHandItem.is(MineraculousItems.CAT_STAFF) && Active.isActive(mainHandItem, false) && mainHandItem.get(MineraculousDataComponents.CAT_STAFF_MODE) == CatStaffItem.Mode.TRAVEL;
 
         if (lHCatStaffTravel || rHCatStaffTravel) {
             TravelingCatStaffData travelingCatStaffData = player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
@@ -228,7 +230,7 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
         float x2 = o[1] + bodyDirectionF.x();
         float z1 = o[2] + bodyDirectionF.z();
         float z2 = o[3] + bodyDirectionF.z();
-        int light = 15728880;
+        int light = LightTexture.FULL_BRIGHT;
         float uMin = 4 / 16f, uMax = 31 / 32f;
         float vMin = 0f, vMax = 11 / 16f;
         MineraculousClientUtils.vertex(vertexConsumer, pose, x1, pawTop, z1, uMin, vMin, light);
@@ -238,7 +240,7 @@ public class CatStaffRenderer<T extends Item & GeoAnimatable> extends GeoItemRen
         //LINES:
         float y1 = eyeY - PIXEL * 4f;
         float y2 = eyeY - PIXEL * 4.5f;
-        float offset = 0.0001f;
+        float offset = 0.0005f;
         float v = PIXEL * 11.5f;
         float u1 = PIXEL * 12;
         float u2 = 1;

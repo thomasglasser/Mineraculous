@@ -44,7 +44,7 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -105,35 +105,39 @@ public class MineraculousClientUtils {
             MineraculousConstants.modLoc("miraculous_looks/button"),
             MineraculousConstants.modLoc("miraculous_looks/button_highlighted"));
 
-    private static final Map<Player, SpecialPlayerData> SPECIAL_PLAYER_DATA = new Reference2ReferenceOpenHashMap<>();
+    private static final Map<UUID, SpecialPlayerData> SPECIAL_PLAYER_DATA = new Object2ReferenceOpenHashMap<>();
     private static final IntList CATACLYSM_PIXELS = new IntArrayList();
     private static boolean wasJumping = false;
 
     // Special Player Handling
-    public static void setSpecialPlayerData(Player player, SpecialPlayerData data) {
-        SPECIAL_PLAYER_DATA.put(player, data);
+    public static void setSpecialPlayerData(UUID id, SpecialPlayerData data) {
+        SPECIAL_PLAYER_DATA.put(id, data);
     }
 
     public static boolean renderBetaTesterLayer(AbstractClientPlayer player) {
         if (player != ClientUtils.getLocalPlayer() && !MineraculousClientConfig.get().displayOthersBetaTesterCosmetic.getAsBoolean())
             return false;
-        return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayBeta() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, betaChoice(player).slot());
+        SpecialPlayerData data = SPECIAL_PLAYER_DATA.get(player.getUUID());
+        return data != null && data.displayBeta() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, betaChoice(player.getUUID()).slot());
     }
 
-    public static BetaTesterCosmeticOptions betaChoice(AbstractClientPlayer player) {
-        return SPECIAL_PLAYER_DATA.get(player) != null ? SPECIAL_PLAYER_DATA.get(player).choice() : BetaTesterCosmeticOptions.DERBY_HAT;
+    public static BetaTesterCosmeticOptions betaChoice(UUID id) {
+        SpecialPlayerData data = SPECIAL_PLAYER_DATA.get(id);
+        return data != null ? data.choice() : BetaTesterCosmeticOptions.DERBY_HAT;
     }
 
     public static boolean renderDevLayer(AbstractClientPlayer player) {
         if (player != ClientUtils.getLocalPlayer() && !MineraculousClientConfig.get().displayOthersDevTeamCosmetic.getAsBoolean())
             return false;
-        return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
+        SpecialPlayerData data = SPECIAL_PLAYER_DATA.get(player.getUUID());
+        return data != null && data.displayDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
     }
 
     public static boolean renderLegacyDevLayer(AbstractClientPlayer player) {
         if (player != ClientUtils.getLocalPlayer() && !MineraculousClientConfig.get().displayOthersLegacyDevTeamCosmetic.getAsBoolean())
             return false;
-        return SPECIAL_PLAYER_DATA.get(player) != null && SPECIAL_PLAYER_DATA.get(player).displayLegacyDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
+        SpecialPlayerData data = SPECIAL_PLAYER_DATA.get(player.getUUID());
+        return data != null && data.displayLegacyDev() && SpecialPlayerUtils.renderCosmeticLayerInSlot(player, EquipmentSlot.HEAD);
     }
 
     public static void syncSpecialPlayerChoices() {

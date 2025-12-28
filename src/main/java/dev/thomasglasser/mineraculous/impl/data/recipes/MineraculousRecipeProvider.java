@@ -19,7 +19,7 @@ import dev.thomasglasser.mineraculous.impl.world.level.block.entity.OvenBlockEnt
 import dev.thomasglasser.tommylib.api.data.recipes.ExtendedRecipeProvider;
 import dev.thomasglasser.tommylib.api.registration.DeferredBlock;
 import dev.thomasglasser.tommylib.api.tags.ConventionalItemTags;
-import java.util.SortedMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -137,7 +137,7 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
         simpleTransmuteOvenCookingRecipe(recipeOutput, input, output, experience);
     }
 
-    protected static void cheeseWaxRecipes(RecipeOutput recipeOutput, SortedMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> waxables, SortedMap<AgeingCheese.Age, DeferredBlock<PieceBlock>> waxedBlocks) {
+    protected static void cheeseWaxRecipes(RecipeOutput recipeOutput, Map<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> waxables, Map<AgeingCheese.Age, DeferredBlock<PieceBlock>> waxedBlocks) {
         waxables.forEach((age, block) -> {
             DeferredBlock<PieceBlock> waxed = waxedBlocks.get(age);
             if (waxed.get().requiredFeatures().isSubsetOf(FeatureFlags.DEFAULT_FLAGS)) {

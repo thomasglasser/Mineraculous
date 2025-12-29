@@ -9,6 +9,7 @@ import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
+import dev.thomasglasser.mineraculous.api.event.MiraculousEvent;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.ability.AbilityData;
 import dev.thomasglasser.mineraculous.api.world.ability.AbilityUtils;
@@ -56,6 +57,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -129,12 +131,10 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
      * @param miraculous The miraculous to transform with
      */
     public void transform(LivingEntity entity, ServerLevel level, Holder<Miraculous> miraculous) {
-        if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
-            MineraculousConstants.LOGGER.error("Tried to transform currently powered entity {}", entity.getName().plainCopy().getString());
-            return;
-        }
         curiosData.ifPresentOrElse(curiosData -> {
             ItemStack miraculousStack = CuriosUtils.getStackInSlot(entity, curiosData);
+            if (NeoForge.EVENT_BUS.post(new MiraculousEvent.Transform.Pre(entity, miraculous, miraculousStack)).isCanceled())
+                return;
             UUID kwamiId = miraculousStack.get(MineraculousDataComponents.KWAMI_ID);
             if (kwamiId != null) {
                 for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
@@ -177,9 +177,7 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                         value.passiveAbilities().forEach(ability -> ability.value().transform(data, level, entity));
                         EntityReversionData.get(level).startTracking(entity.getUUID());
 
-                        transformationFrames.ifPresentOrElse(frames -> {
-                            startTransformation(frames).save(miraculous, entity);
-                        }, () -> finishTransformation(entity, level, miraculous));
+                        NeoForge.EVENT_BUS.post(new MiraculousEvent.Transform.Start(entity, miraculous, miraculousStack, transformationFrames)).getTransformationFrames().ifPresentOrElse(frames -> startTransformation(frames).save(miraculous, entity), () -> finishTransformation(entity, level, miraculous));
 
                         if (entity instanceof ServerPlayer player) {
                             MineraculousEntityUtils.refreshAndSyncDisplayName(player);
@@ -210,8 +208,6 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
      * @param removed    Whether the miraculous stack was removed to cause the detransformation
      */
     public void detransform(LivingEntity entity, ServerLevel level, Holder<Miraculous> miraculous, @Nullable ItemStack stack, boolean removed) {
-        Miraculous value = miraculous.value();
-        Optional<Integer> detransformationFrames = value.transformationFrames();
         ItemStack miraculousStack;
 
         if (stack != null) {
@@ -226,6 +222,12 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
             MineraculousConstants.LOGGER.error("Tried to detransform entity {} with no curios data", entity.getName().plainCopy().getString());
             return;
         }
+
+        if (NeoForge.EVENT_BUS.post(new MiraculousEvent.Detransform.Pre(entity, miraculous, miraculousStack, removed)).isCanceled())
+            return;
+
+        Miraculous value = miraculous.value();
+        Optional<Integer> detransformationFrames = value.transformationFrames();
 
         miraculousStack.remove(MineraculousDataComponents.REMAINING_TICKS);
         miraculousStack.set(MineraculousDataComponents.TEXTURE_STATE, removed ? MiraculousItem.TextureState.ACTIVE : MiraculousItem.TextureState.HIDDEN);
@@ -272,14 +274,16 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                 MineraculousConstants.LOGGER.error("Kwami could not be created for entity {}", entity.getName().plainCopy().getString());
             }
             miraculousStack.set(MineraculousDataComponents.KWAMI_ID, kwami == null ? null : kwami.getUUID());
+            detransformationFrames = NeoForge.EVENT_BUS.post(new MiraculousEvent.Detransform.Start(entity, miraculous, miraculousStack, detransformationFrames)).getDetransformationFrames();
             if (detransformationFrames.isEmpty()) {
-                finishDetransformation(entity, miraculous);
+                finishDetransformation(entity, miraculous, miraculousStack);
             } else {
                 startDetransformation(detransformationFrames.get()).save(miraculous, entity);
             }
         } else {
             ArmorData.restoreOrClear(entity);
             finishRemovedDetransformation().save(miraculous, entity);
+            NeoForge.EVENT_BUS.post(new MiraculousEvent.Detransform.Finish(entity, miraculous, miraculousStack, true));
         }
 
         if (stack == null) {
@@ -312,7 +316,8 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
                         decrementFrames().save(miraculous, entity);
                     }
                 } else {
-                    finishDetransformation(entity, miraculous);
+                    ItemStack stack = curiosData.map(data -> CuriosUtils.getStackInSlot(entity, data)).orElseThrow(() -> new IllegalStateException("Tried to tick detransformation without curios data"));
+                    finishDetransformation(entity, miraculous, stack);
                 }
             }
         }, () -> {
@@ -458,16 +463,19 @@ public record MiraculousData(Optional<CuriosData> curiosData, boolean transforme
         }
         int id = createAndEquipTool(entity, level, miraculous);
         if (id > -1) {
-            entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).setLastUsed(miraculous);
             finishTransformation(id).save(miraculous, entity);
         } else {
             MineraculousConstants.LOGGER.error("Tool could not be created for entity {}", entity.getName().plainCopy().getString());
         }
+        ItemStack miraculousStack = curiosData.map(data -> CuriosUtils.getStackInSlot(entity, data)).orElseThrow(() -> new IllegalStateException("Tried to finish transformation of entity " + entity.getName().plainCopy().getString() + " without curios data"));
+        if (NeoForge.EVENT_BUS.post(new MiraculousEvent.Transform.Finish(entity, miraculous, miraculousStack)).shouldSetLastUsed())
+            entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).setLastUsed(miraculous);
     }
 
-    private void finishDetransformation(LivingEntity entity, Holder<Miraculous> miraculous) {
+    private void finishDetransformation(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack) {
         ArmorData.restoreOrClear(entity);
         finishDetransformation().save(miraculous, entity);
+        NeoForge.EVENT_BUS.post(new MiraculousEvent.Detransform.Finish(entity, miraculous, stack, false));
     }
 
     /**

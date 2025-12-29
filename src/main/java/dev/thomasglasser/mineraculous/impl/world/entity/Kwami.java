@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.event.KwamiEvent;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityDataSerializers;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.behavior.SetWalkTargetToLikedPlayer;
@@ -61,6 +62,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
@@ -279,10 +281,10 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         if (eatTicks > 0 && (isTreat(mainHandItem) || isPreferredFood(mainHandItem) || isFood(mainHandItem))) {
             eatTicks--;
             if (eatTicks <= 1) {
-                if (isTreat(mainHandItem) || (isPreferredFood(mainHandItem) && random.nextInt(3) == 0) || (isFood(mainHandItem) && random.nextInt(10) == 0)) {
-                    setCharged(true);
+                if (!NeoForge.EVENT_BUS.post(new KwamiEvent.Eat.Finish.Pre(this)).isCanceled()) {
+                    setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                    setCharged(NeoForge.EVENT_BUS.post(new KwamiEvent.Eat.Finish.Post(this, isTreat(mainHandItem) || (isPreferredFood(mainHandItem) && random.nextInt(3) == 0) || (isFood(mainHandItem) && random.nextInt(10) == 0))).isCharged());
                 }
-                setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
             }
             if (!mainHandItem.has(DataComponents.FOOD) && shouldTriggerItemUseEffects(getDefaultEatTicks(), eatTicks)) {
                 this.playSound(
@@ -387,10 +389,14 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                         TommyLibServices.NETWORK.sendToClient(new ClientboundOpenMiraculousTransferScreenPayload(getId()), serverPlayer);
                     } else if (!isCharged() && getMainHandItem().isEmpty()) {
                         if (isTreat(stack) || isPreferredFood(stack) || isFood(stack)) {
-                            setItemInHand(InteractionHand.MAIN_HAND, stack.copyWithCount(1));
-                            eatTicks = getMaxEatTicks(stack);
+                            int eatTicks = getMaxEatTicks(stack);
                             if (eatTicks <= 0)
                                 eatTicks = getDefaultEatTicks();
+                            var event = NeoForge.EVENT_BUS.post(new KwamiEvent.Eat.Start(this, eatTicks));
+                            if (event.isCanceled())
+                                return InteractionResult.FAIL;
+                            this.eatTicks = event.getEatTicks();
+                            setItemInHand(InteractionHand.MAIN_HAND, stack.copyWithCount(1));
                             ItemUtils.safeShrink(1, stack, player);
                             startUsingItem(InteractionHand.MAIN_HAND);
                         }

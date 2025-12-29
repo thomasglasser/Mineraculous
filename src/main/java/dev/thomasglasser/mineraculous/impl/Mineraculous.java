@@ -27,6 +27,7 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.loot.parameters.Mi
 import dev.thomasglasser.mineraculous.impl.commands.MineraculousCommandEvents;
 import dev.thomasglasser.mineraculous.impl.core.MineraculousCoreEvents;
 import dev.thomasglasser.mineraculous.impl.data.MineraculousDataGenerators;
+import dev.thomasglasser.mineraculous.impl.event.MiraculousEvents;
 import dev.thomasglasser.mineraculous.impl.network.MineraculousPayloads;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.MineraculousEntityEvents;
@@ -105,6 +106,10 @@ public class Mineraculous {
         modBus.addListener(MineraculousEntityEvents::onEntityAttributeCreation);
 
         // Neo Bus
+        NeoForge.EVENT_BUS.addListener(MiraculousEvents::onCanEquipMiraculous);
+        NeoForge.EVENT_BUS.addListener(MiraculousEvents::onEquipMiraculous);
+        NeoForge.EVENT_BUS.addListener(MiraculousEvents::onPreTransformMiraculous);
+
         NeoForge.EVENT_BUS.addListener(MineraculousVillagerTrades::onRegisterVillagerTrades);
 
         NeoForge.EVENT_BUS.addListener(MineraculousCommandEvents::onCommandsRegister);
@@ -115,7 +120,7 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousBlockEvents::onBlockDrops);
 
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityJoinLevel);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onServerPlayerLoggedIn);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerLoggedIn);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPreEntityTick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPostEntityTick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingFall);

@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.api.world.entity;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.event.MiraculousEvent;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
@@ -36,6 +37,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.Nullable;
 
 public class MineraculousEntityUtils {
@@ -185,10 +187,16 @@ public class MineraculousEntityUtils {
      * @param level        The level to renounce the kwami in
      * @param entity       The entity renouncing the kwami
      */
-    public static void renounceKwami(boolean requireKwami, ItemStack stack, ServerLevel level, @Nullable LivingEntity entity) {
+    public static void renounceKwami(boolean requireKwami, ItemStack stack, ServerLevel level, LivingEntity entity) {
         UUID kwamiId = stack.get(MineraculousDataComponents.KWAMI_ID);
         Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
         Kwami kwami = kwamiId != null && level.getEntity(kwamiId) instanceof Kwami k ? k : null;
+
+        var event = NeoForge.EVENT_BUS.post(new MiraculousEvent.Renounce.Pre(entity, miraculous, stack, kwami, requireKwami));
+        if (event.isCanceled())
+            return;
+        requireKwami = event.shouldRequireKwami();
+
         if (!requireKwami || kwami != null) {
             if (kwami != null)
                 kwami.discard();
@@ -196,6 +204,8 @@ public class MineraculousEntityUtils {
             stack.set(MineraculousDataComponents.TEXTURE_STATE, MiraculousItem.TextureState.POWERED);
             stack.remove(MineraculousDataComponents.REMAINING_TICKS);
             stack.remove(MineraculousDataComponents.KWAMI_ID);
+
+            NeoForge.EVENT_BUS.post(new MiraculousEvent.Renounce.Post(entity, miraculous, stack, kwami));
         } else if (miraculous != null && entity instanceof Player player) {
             player.displayClientMessage(Component.translatable(MiraculousData.KWAMI_NOT_FOUND, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.getKey()))), true);
         } else if (kwamiId != null) {

@@ -281,9 +281,9 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         if (eatTicks > 0 && (isTreat(mainHandItem) || isPreferredFood(mainHandItem) || isFood(mainHandItem))) {
             eatTicks--;
             if (eatTicks <= 1) {
-                if (!NeoForge.EVENT_BUS.post(new KwamiEvent.Eat.Finish.Pre(this)).isCanceled()) {
+                if (!NeoForge.EVENT_BUS.post(new KwamiEvent.Eat.Finish.Pre(this, mainHandItem)).isCanceled()) {
                     setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                    setCharged(NeoForge.EVENT_BUS.post(new KwamiEvent.Eat.Finish.Post(this, isTreat(mainHandItem) || (isPreferredFood(mainHandItem) && random.nextInt(3) == 0) || (isFood(mainHandItem) && random.nextInt(10) == 0))).isCharged());
+                    setCharged(NeoForge.EVENT_BUS.post(new KwamiEvent.Eat.Finish.Post(this, mainHandItem, isTreat(mainHandItem) || (isPreferredFood(mainHandItem) && random.nextInt(3) == 0) || (isFood(mainHandItem) && random.nextInt(10) == 0))).isCharged());
                 }
             }
             if (!mainHandItem.has(DataComponents.FOOD) && shouldTriggerItemUseEffects(getDefaultEatTicks(), eatTicks)) {
@@ -392,7 +392,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
                             int eatTicks = getMaxEatTicks(stack);
                             if (eatTicks <= 0)
                                 eatTicks = getDefaultEatTicks();
-                            var event = NeoForge.EVENT_BUS.post(new KwamiEvent.Eat.Start(this, eatTicks));
+                            var event = NeoForge.EVENT_BUS.post(new KwamiEvent.Eat.Start(this, stack, eatTicks));
                             if (event.isCanceled())
                                 return InteractionResult.FAIL;
                             this.eatTicks = event.getEatTicks();

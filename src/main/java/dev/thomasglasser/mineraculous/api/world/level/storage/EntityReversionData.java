@@ -28,15 +28,21 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
 import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.attachment.AttachmentSync;
 import net.neoforged.neoforge.entity.PartEntity;
 import org.apache.commons.lang3.function.Consumers;
 import org.jetbrains.annotations.ApiStatus;
@@ -47,6 +53,7 @@ public class EntityReversionData extends SavedData {
     private static final String FILE_ID = "entity_reversion";
     private final SetMultimap<UUID, UUID> trackedAndRelatedEntities = HashMultimap.create();
     private final Table<UUID, EntityLocation, Set<RevertibleEntity>> revertibleEntities = HashBasedTable.create();
+    private final Table<UUID, EntityLocation, Set<RevertibleEntity>> revertiblePlayers = HashBasedTable.create();
     private final SetMultimap<UUID, UUID> removableEntities = HashMultimap.create();
     private final Table<UUID, EntityLocation, Set<RevertibleEntity>> convertedEntities = HashBasedTable.create();
     private final SetMultimap<UUID, UUID> copiedEntities = HashMultimap.create();
@@ -144,6 +151,9 @@ public class EntityReversionData extends SavedData {
         for (EntityLocation location : revertibleEntities.row(cause).keySet()) {
             positions.put(location.dimension(), location.pos());
         }
+        for (EntityLocation location : revertiblePlayers.row(cause).keySet()) {
+            positions.put(location.dimension(), location.pos());
+        }
         for (EntityLocation location : convertedEntities.row(cause).keySet()) {
             positions.put(location.dimension(), location.pos());
         }
@@ -167,9 +177,15 @@ public class EntityReversionData extends SavedData {
                 data.put(entity.uuid(), entity.data());
             }
         }
-        Set<RevertibleEntity> converted = convertedEntities.get(cause, location);
-        if (converted != null) {
-            for (RevertibleEntity entity : converted) {
+        revertibles = revertiblePlayers.get(cause, location);
+        if (revertibles != null) {
+            for (RevertibleEntity entity : revertibles) {
+                data.put(entity.uuid(), entity.data());
+            }
+        }
+        revertibles = convertedEntities.get(cause, location);
+        if (revertibles != null) {
+            for (RevertibleEntity entity : revertibles) {
                 data.put(entity.uuid(), entity.data());
             }
         }
@@ -179,25 +195,61 @@ public class EntityReversionData extends SavedData {
     private void revert(RevertibleEntity revertible, ResourceKey<Level> targetDimension, ServerLevel level, Consumer<Entity> onLoaded) {
         CompoundTag data = revertible.data();
         Entity entity = MineraculousEntityUtils.findEntity(level, revertible.uuid());
-        if (entity != null) {
-            entity.discard();
-        }
         level = level.getServer().getLevel(targetDimension);
         if (level == null) {
             MineraculousConstants.LOGGER.error("Tried to revert an entity in a level that does not exist: {}", targetDimension.location());
             return;
         }
-        entity = EntityType.loadEntityRecursive(data, level, loaded -> {
-            onLoaded.accept(loaded);
-            return loaded;
-        });
-        if (entity != null) {
-            level.addFreshEntity(entity);
+        if (data.contains("id")) {
+            if (entity != null) {
+                entity.discard();
+            }
+            entity = EntityType.loadEntityRecursive(data, level, loaded -> {
+                onLoaded.accept(loaded);
+                return loaded;
+            });
+            if (entity != null) {
+                level.addFreshEntity(entity);
+            }
+        } else if (entity instanceof ServerPlayer player) {
+            revertPlayer(player, data);
         }
     }
 
     private void revert(RevertibleEntity revertible, EntityLocation location, ServerLevel level) {
         revert(revertible, location.dimension(), level, Consumers.nop());
+    }
+
+    private void revertPlayer(ServerPlayer original, CompoundTag data) {
+        PlayerList playerList = original.server.getPlayerList();
+        ServerLevel level = original.serverLevel();
+
+        original.unRide();
+        level.removePlayerImmediately(original, Entity.RemovalReason.DISCARDED);
+        playerList.remove(original);
+
+        ServerPlayer reverted = new ServerPlayer(level.getServer(), level, original.getGameProfile(), original.clientInformation());
+        reverted.connection = original.connection;
+        reverted.load(data);
+        reverted.setId(original.getId());
+        reverted.setMainArm(original.getMainArm());
+
+        reverted.connection.send(new ClientboundRespawnPacket(reverted.createCommonSpawnInfo(level), (byte) 0));
+        reverted.connection.teleport(reverted.getX(), reverted.getY(), reverted.getZ(), reverted.getYRot(), reverted.getXRot());
+
+        playerList.sendActivePlayerEffects(reverted);
+        playerList.sendLevelInfo(reverted, level);
+        playerList.sendPlayerPermissionLevel(reverted);
+        reverted.connection.send(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(playerList.players));
+        playerList.players.add(reverted);
+        playerList.playersByUUID.put(reverted.getUUID(), reverted);
+        playerList.broadcastAll(ClientboundPlayerInfoUpdatePacket.createPlayerInitializing(List.of(reverted)));
+        level.addRespawnedPlayer(reverted);
+        reverted.initInventoryMenu();
+        reverted.setHealth(reverted.getHealth());
+        AttachmentSync.syncInitialPlayerAttachments(reverted);
+
+        reverted.connection.player = reverted;
     }
 
     /**
@@ -211,6 +263,10 @@ public class EntityReversionData extends SavedData {
         EntityLocation location = new EntityLocation(level.dimension(), pos);
         Set<RevertibleEntity> revertibles = new ObjectOpenHashSet<>();
         Set<RevertibleEntity> entities = this.revertibleEntities.remove(cause, location);
+        if (entities != null) {
+            revertibles.addAll(entities);
+        }
+        entities = this.revertiblePlayers.remove(cause, location);
         if (entities != null) {
             revertibles.addAll(entities);
         }
@@ -242,10 +298,11 @@ public class EntityReversionData extends SavedData {
             putRevertible(cause, partEntity.getParent());
             return;
         }
-        if (!entity.getType().canSerialize())
+        if (!entity.getType().canSerialize() && !(entity instanceof Player))
             return;
         if (!isMarkedForReversion(entity.getUUID())) {
-            getOrCreateRevertible(cause, EntityLocation.of(entity)).add(RevertibleEntity.of(entity));
+            RevertibleEntity revertible = entity instanceof Player player ? RevertibleEntity.of(player) : RevertibleEntity.of(entity);
+            getOrCreateRevertible(cause, EntityLocation.of(entity)).add(revertible);
             setDirty();
         }
     }
@@ -321,6 +378,12 @@ public class EntityReversionData extends SavedData {
      */
     public @Nullable UUID getCause(Entity entity) {
         for (Table.Cell<UUID, EntityLocation, Set<RevertibleEntity>> cell : revertibleEntities.cellSet()) {
+            for (RevertibleEntity revertible : cell.getValue()) {
+                if (revertible.uuid().equals(entity.getUUID()))
+                    return cell.getRowKey();
+            }
+        }
+        for (Table.Cell<UUID, EntityLocation, Set<RevertibleEntity>> cell : revertiblePlayers.cellSet()) {
             for (RevertibleEntity revertible : cell.getValue()) {
                 if (revertible.uuid().equals(entity.getUUID()))
                     return cell.getRowKey();
@@ -459,6 +522,7 @@ public class EntityReversionData extends SavedData {
         Function<RevertibleEntity, Tag> revertibleEncoder = MineraculousNbtUtils.codecEncoder(RevertibleEntity.CODEC, ops);
         tag.put("TrackedAndRelated", MineraculousNbtUtils.writeStringKeyedMultimap(trackedAndRelatedEntities, UUID::toString, NbtUtils::createUUID));
         tag.put("Revertible", MineraculousNbtUtils.writeStringRowKeyedTable(revertibleEntities, UUID::toString, locationEncoder, values -> MineraculousNbtUtils.writeCollection(values, revertibleEncoder)));
+        tag.put("RevertiblePlayers", MineraculousNbtUtils.writeStringRowKeyedTable(revertiblePlayers, UUID::toString, locationEncoder, values -> MineraculousNbtUtils.writeCollection(values, revertibleEncoder)));
         tag.put("Removable", MineraculousNbtUtils.writeStringKeyedMultimap(removableEntities, UUID::toString, NbtUtils::createUUID));
         tag.put("Converted", MineraculousNbtUtils.writeStringRowKeyedTable(convertedEntities, UUID::toString, locationEncoder, values -> MineraculousNbtUtils.writeCollection(values, revertibleEncoder)));
         tag.put("Copied", MineraculousNbtUtils.writeStringKeyedMultimap(copiedEntities, UUID::toString, NbtUtils::createUUID));
@@ -474,6 +538,8 @@ public class EntityReversionData extends SavedData {
         // Java gets weird about the generics in the set here, requires a more generic declaration
         Table<UUID, EntityLocation, Set<RevertibleEntity>> table = MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Revertible"), UUID::fromString, locationDecoder, t -> MineraculousNbtUtils.readCollection(ObjectOpenHashSet::new, (ListTag) t, revertibleDecoder));
         data.revertibleEntities.putAll(table);
+        table = MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("RevertiblePlayers"), UUID::fromString, locationDecoder, t -> MineraculousNbtUtils.readCollection(ObjectOpenHashSet::new, (ListTag) t, revertibleDecoder));
+        data.revertiblePlayers.putAll(table);
         data.removableEntities.putAll(MineraculousNbtUtils.readStringKeyedMultimap(HashMultimap::create, tag.getCompound("Removable"), UUID::fromString, NbtUtils::loadUUID));
         table = MineraculousNbtUtils.readStringRowKeyedTable(HashBasedTable::create, tag.getCompound("Converted"), UUID::fromString, locationDecoder, t -> MineraculousNbtUtils.readCollection(ObjectOpenHashSet::new, (ListTag) t, revertibleDecoder));
         data.convertedEntities.putAll(table);
@@ -503,6 +569,12 @@ public class EntityReversionData extends SavedData {
             CompoundTag tag = new CompoundTag();
             entity.save(tag);
             return new RevertibleEntity(entity.getUUID(), tag);
+        }
+
+        private static RevertibleEntity of(Player player) {
+            CompoundTag tag = new CompoundTag();
+            player.saveWithoutId(tag);
+            return new RevertibleEntity(player.getUUID(), tag);
         }
     }
 }

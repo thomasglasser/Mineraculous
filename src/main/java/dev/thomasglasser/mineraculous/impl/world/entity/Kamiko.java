@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.event.CanBeForceKamikotizedEvent;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousDamageTypeTags;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
@@ -66,6 +67,7 @@ import net.minecraft.world.entity.schedule.Activity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.common.NeoForge;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
 import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
 import net.tslat.smartbrainlib.api.core.SmartBrainProvider;
@@ -331,7 +333,7 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
                 new InvalidateAttackTarget<Kamiko>() {
                     @Override
                     protected boolean canAttack(Kamiko kamiko, LivingEntity target) {
-                        return kamiko.canBeSeenByAnyone() && (!kamiko.isReplica() || kamiko.canForceKamikotize(target));
+                        return target.canBeSeenByAnyone() && (!kamiko.isReplica() || kamiko.canForceKamikotize(target));
                     }
                 }.invalidateIf((EntityUtils.TARGET_TOO_FAR_PREDICATE::test)),
                 new SetWalkTargetToAttackTarget<Kamiko>().startCondition(kamiko -> {
@@ -353,11 +355,8 @@ public class Kamiko extends TamableAnimal implements SmartBrainOwner<Kamiko>, Ge
     public boolean canForceKamikotize(LivingEntity target) {
         UUID targetId = target.getUUID();
         if (targetId.equals(getOwnerUUID()) || getReplicaSource().map(targetId::equals).orElse(false)) return false;
-        if (target.getData(MineraculousAttachmentTypes.SYNCED_TRANSIENT_ABILITY_EFFECTS).spectatingId().isPresent()) return false;
-        // TODO: Convert to event
-        if (target instanceof Player player && player.getAbilities().instabuild && !MineraculousServerConfig.get().forceKamikotizeCreativePlayers.getAsBoolean())
-            return false;
-        return target.isAlive();
+        if (!target.canBeSeenByAnyone()) return false;
+        return NeoForge.EVENT_BUS.post(new CanBeForceKamikotizedEvent(target)).canBeKamikotized();
     }
 
     protected @Nullable LivingEntity findNearestForceKamikotizeTarget() {

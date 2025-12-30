@@ -64,6 +64,7 @@ public class MineraculousClient {
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderInventoryMobEffects);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onDetermineCurioRenderContext);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onPostContextDependentCurioRender);
+        NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderPlayerLikeCape);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientPlayerLoggingIn);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onPlayerHeartType);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientChatReceived);

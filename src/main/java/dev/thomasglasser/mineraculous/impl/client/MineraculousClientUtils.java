@@ -31,6 +31,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateSpecialPlaye
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
+import dev.thomasglasser.mineraculous.impl.world.entity.KamikotizedMinion;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -281,6 +282,12 @@ public class MineraculousClientUtils {
         else if (stack.has(MineraculousDataComponents.LUCKY_CHARM) && !stack.is(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE))
             return MineraculousRenderTypes.armorLuckyCharm();
         return null;
+    }
+
+    public static boolean shouldNotRenderCape(LivingEntity entity) {
+        if (entity instanceof KamikotizedMinion)
+            return true;
+        return entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent();
     }
 
     public static int getCataclysmPixel(RandomSource random) {

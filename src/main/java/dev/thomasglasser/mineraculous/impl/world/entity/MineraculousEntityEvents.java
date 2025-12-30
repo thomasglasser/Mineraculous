@@ -2,7 +2,9 @@ package dev.thomasglasser.mineraculous.impl.world.entity;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.event.CanBeForceKamikotizedEvent;
 import dev.thomasglasser.mineraculous.api.event.CollectMiraculousLadybugTargetsEvent;
+import dev.thomasglasser.mineraculous.api.event.ShouldTrackEntityEvent;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.ability.AbilityData;
 import dev.thomasglasser.mineraculous.api.world.ability.AbilityUtils;
@@ -24,6 +26,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerChoicesPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItemPayload;
+import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
@@ -254,6 +257,12 @@ public class MineraculousEntityEvents {
         }
     }
 
+    public static void onShouldTrackEntity(ShouldTrackEntityEvent event) {
+        Entity entity = event.getEntity();
+        if (entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent())
+            event.setShouldTrack(true);
+    }
+
     // Miraculous Ladybug
     public static void onCollectMiraculousLadybugTargets(CollectMiraculousLadybugTargetsEvent event) {
         ServerLevel level = event.getLevel();
@@ -381,6 +390,12 @@ public class MineraculousEntityEvents {
     public static void onLivingSwapHands(LivingSwapItemsEvent.Hands event) {
         if (event.getItemSwappedToMainHand().has(MineraculousDataComponents.KAMIKOTIZING) || event.getItemSwappedToOffHand().has(MineraculousDataComponents.KAMIKOTIZING))
             event.setCanceled(true);
+    }
+
+    public static void onCanBeForceKamikotized(CanBeForceKamikotizedEvent event) {
+        LivingEntity entity = event.getEntity();
+        if (entity instanceof Player player && player.getAbilities().instabuild && !MineraculousServerConfig.get().forceKamikotizeCreativePlayers.getAsBoolean())
+            event.setCanBeKamikotized(false);
     }
 
     /// Death

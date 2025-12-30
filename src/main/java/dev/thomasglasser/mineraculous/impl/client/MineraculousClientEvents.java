@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.event.ContextDependentCurioRenderEvent;
 import dev.thomasglasser.mineraculous.api.client.event.CreatePlayerMenuItemEvent;
+import dev.thomasglasser.mineraculous.api.client.event.RenderPlayerLikeEvent;
 import dev.thomasglasser.mineraculous.api.client.gui.MineraculousGuiLayers;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.ExternalMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.tooltip.ClientLabeledItemTagsTooltip;
@@ -524,6 +525,13 @@ public class MineraculousClientEvents {
             poseStack.mulPose(Axis.YP.rotationDegrees(180));
             poseStack.translate(0, 0, 1 / 16f);
             renderer.renderItem(entity, stack, MineraculousItemDisplayContexts.CURIOS_RIGHT_EARRING.getValue(), false, poseStack, renderTypeBuffer, light);
+        }
+    }
+
+    // Player-Like Rendering
+    public static void onRenderPlayerLikeCape(RenderPlayerLikeEvent.RenderCape<?> event) {
+        if (event.getPlayerLike() instanceof LivingEntity entity && MineraculousClientUtils.shouldNotRenderCape(entity)) {
+            event.setCanceled(true);
         }
     }
 

@@ -3,6 +3,8 @@ package dev.thomasglasser.mineraculous.api.client.event;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemDisplayContexts;
 import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -91,18 +93,52 @@ public abstract class ContextDependentCurioRenderEvent<T extends LivingEntity, M
     }
 
     public static class DetermineContext<T extends LivingEntity, M extends EntityModel<T>> extends ContextDependentCurioRenderEvent<T, M> {
-        private ItemDisplayContext context = MineraculousItemDisplayContexts.CURIOS_BODY.getValue();
+        private final HumanoidModel<?> model;
 
-        public DetermineContext(LivingEntity entity, ItemStack stack, String slot, PoseStack poseStack, RenderLayerParent<T, M> renderLayerParent, MultiBufferSource renderTypeBuffer, int light, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
+        private ItemDisplayContext context = MineraculousItemDisplayContexts.CURIOS_BODY.getValue();
+        private ModelPart modelPart;
+
+        public DetermineContext(LivingEntity entity, ItemStack stack, String slot, PoseStack poseStack, RenderLayerParent<T, M> renderLayerParent, MultiBufferSource renderTypeBuffer, int light, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, HumanoidModel<?> model) {
             super(entity, stack, slot, poseStack, renderLayerParent, renderTypeBuffer, light, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch);
+            this.model = model;
+            this.modelPart = model.body;
+        }
+
+        public HumanoidModel<?> getModel() {
+            return model;
         }
 
         public ItemDisplayContext getDisplayContext() {
             return context;
         }
 
+        public ModelPart getModelPart() {
+            return modelPart;
+        }
+
         public void setDisplayContext(ItemDisplayContext context) {
             this.context = context;
+            this.modelPart = getDefaultPart();
+        }
+
+        public void setDisplayContext(ItemDisplayContext context, ModelPart modelPart) {
+            this.context = context;
+            this.modelPart = modelPart;
+        }
+
+        public ModelPart getDefaultPart() {
+            if (context == MineraculousItemDisplayContexts.CURIOS_HEAD.getValue() || context == MineraculousItemDisplayContexts.CURIOS_LEFT_EARRING.getValue()) {
+                return model.head;
+            } else if (context == MineraculousItemDisplayContexts.CURIOS_RIGHT_ARM.getValue()) {
+                return model.rightArm;
+            } else if (context == MineraculousItemDisplayContexts.CURIOS_LEFT_ARM.getValue()) {
+                return model.leftArm;
+            } else if (context == MineraculousItemDisplayContexts.CURIOS_RIGHT_LEG.getValue()) {
+                return model.rightLeg;
+            } else if (context == MineraculousItemDisplayContexts.CURIOS_LEFT_LEG.getValue()) {
+                return model.leftLeg;
+            }
+            return model.body;
         }
     }
 

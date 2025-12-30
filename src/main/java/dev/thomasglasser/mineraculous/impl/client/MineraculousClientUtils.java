@@ -89,6 +89,7 @@ import top.theillusivec4.curios.common.inventory.CurioSlot;
 public class MineraculousClientUtils {
     public static final Component GUI_CHOOSE = Component.translatable("gui.choose");
     public static final Component GUI_NAME = Component.translatable("gui.name");
+    public static final Component STEALING_WARNING = Component.translatable("mineraculous.stealing_warning");
 
     private static final Map<UUID, SpecialPlayerData> SPECIAL_PLAYER_DATA = new Object2ReferenceOpenHashMap<>();
     private static final IntList CATACLYSM_PIXELS = new IntArrayList();

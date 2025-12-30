@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTrigg
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
+import dev.thomasglasser.mineraculous.api.event.KamikotizationEvent;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.ability.AbilityData;
@@ -45,6 +46,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
@@ -107,14 +109,10 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
      * @return The altered {@link ItemStack} used for transformation
      */
     public ItemStack transform(LivingEntity entity, ServerLevel level, ItemStack originalStack) {
-        originalStack.remove(MineraculousDataComponents.KAMIKOTIZING);
-
-        if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
-            MineraculousConstants.LOGGER.error("Tried to kamikotize currently powered entity: {}", entity.getName().plainCopy().getString());
-            return originalStack;
-        }
-
         Kamikotization value = kamikotization.value();
+
+        if (NeoForge.EVENT_BUS.post(new KamikotizationEvent.Transform.Pre(entity, this, originalStack)).isCanceled())
+            return originalStack;
 
         ItemStack kamikotizationStack = originalStack.copy();
 
@@ -150,7 +148,10 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
             }
         }
 
-        startTransformation(revertibleId, kamikotizedSlot, kamikotizationStack.getCount()).save(entity);
+        KamikotizationData transformed = startTransformation(revertibleId, kamikotizedSlot, kamikotizationStack.getCount());
+        Optional<Integer> transformationFrames = NeoForge.EVENT_BUS.post(new KamikotizationEvent.Transform.Start(entity, transformed, kamikotizationStack, Optional.of(TRANSFORMATION_FRAMES))).getTransformationFrames();
+        ItemStack finalKamikotizationStack = kamikotizationStack;
+        transformationFrames.ifPresentOrElse(frames -> transformed.withTransformationState(new MiraculousData.TransformationState(true, frames)).save(entity), () -> transformed.finishTransformation(entity, finalKamikotizationStack));
 
         if (entity instanceof ServerPlayer player) {
             MineraculousEntityUtils.refreshAndSyncDisplayName(player);
@@ -170,6 +171,9 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
      * @param kamikotizedStack The {@link ItemStack} used for detransformation, if present
      */
     public void detransform(LivingEntity entity, ServerLevel level, Vec3 kamikoSpawnPos, boolean revertKamiko, boolean instant, @Nullable ItemStack kamikotizedStack) {
+        if (NeoForge.EVENT_BUS.post(new KamikotizationEvent.Detransform.Pre(entity, this, kamikotizedStack)).isCanceled())
+            return;
+
         if (revertKamiko) {
             EntityReversionData.get(level).revertConversionOrCopy(kamikoData.uuid(), level, reverted -> reverted.moveTo(kamikoSpawnPos));
         } else {
@@ -197,7 +201,9 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         if (instant) {
             finishDetransformation(entity, kamikotizedStack);
         } else {
-            startDetransformation(kamikotizedStack).save(entity);
+            KamikotizationData detransformed = startDetransformation(kamikotizedStack);
+            Optional<Integer> detransformationFrames = NeoForge.EVENT_BUS.post(new KamikotizationEvent.Detransform.Start(entity, detransformed, kamikotizedStack, Optional.of(TRANSFORMATION_FRAMES))).getDetransformationFrames();
+            detransformationFrames.ifPresentOrElse(frames -> detransformed.withTransformationState(new MiraculousData.TransformationState(false, frames)).save(entity), () -> finishDetransformation(entity, kamikotizedStack));
         }
 
         if (entity instanceof ServerPlayer player) {
@@ -216,8 +222,7 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
                 level.sendParticles(MineraculousParticleTypes.KAMIKOTIZATION.get(), entity.getX(), entity.getY() + 2 - ((Kamikotization.TRANSFORMATION_FRAMES + 1) - frames) / 5.0, entity.getZ(), 100, Math.random() / 3.0, Math.random() / 3.0, Math.random() / 3.0, 0);
             } else {
                 if (state.transforming()) {
-                    finishTransformation(entity);
-                    clearTransformationFrames().save(entity);
+                    finishTransformation(entity, null);
                 } else {
                     finishDetransformation(entity, brokenKamikotizedStack.orElse(null));
                 }
@@ -275,9 +280,12 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
         }
     }
 
-    private void finishTransformation(LivingEntity entity) {
+    private void finishTransformation(LivingEntity entity, @Nullable ItemStack kamikotizedStack) {
         entity.setData(MineraculousAttachmentTypes.STORED_ARMOR, Optional.of(new ArmorData(entity)));
         equipKamikotizationArmor(entity, kamikotization);
+        KamikotizationData transformed = clearTransformationFrames();
+        transformed.save(entity);
+        NeoForge.EVENT_BUS.post(new KamikotizationEvent.Transform.Finish(entity, transformed, kamikotizedStack));
     }
 
     private void finishDetransformation(LivingEntity entity, @Nullable ItemStack kamikotizedStack) {
@@ -286,14 +294,19 @@ public record KamikotizationData(Holder<Kamikotization> kamikotization, KamikoDa
             ItemReversionData.get(level).revertKamikotized(entity, revertibleId, kamikotizedStack);
         }
         remove(entity);
+        NeoForge.EVENT_BUS.post(new KamikotizationEvent.Detransform.Finish(entity, kamikotizedStack));
     }
 
     private KamikotizationData startTransformation(UUID revertibleId, Optional<EquipmentSlot> kamikotizedSlot, int stackCount) {
-        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, Optional.of(new MiraculousData.TransformationState(true, TRANSFORMATION_FRAMES)), stackCount, stackCount, false, MineraculousServerConfig.get().enableBuffsOnTransformation.get(), Optional.empty());
+        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, Optional.empty(), stackCount, stackCount, false, MineraculousServerConfig.get().enableBuffsOnTransformation.get(), Optional.empty());
     }
 
     private KamikotizationData startDetransformation(@Nullable ItemStack brokenKamikotizedStack) {
-        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, Optional.of(new MiraculousData.TransformationState(false, TRANSFORMATION_FRAMES)), originalStackCount, 0, false, buffsActive, Optional.ofNullable(brokenKamikotizedStack).map(stack -> stack.copyWithCount(Math.max(1, stack.getCount()))));
+        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, Optional.empty(), originalStackCount, 0, false, buffsActive, Optional.ofNullable(brokenKamikotizedStack).map(stack -> stack.copyWithCount(Math.max(1, stack.getCount()))));
+    }
+
+    private KamikotizationData withTransformationState(MiraculousData.TransformationState state) {
+        return new KamikotizationData(kamikotization, kamikoData, name, revertibleId, kamikotizedSlot, Optional.of(state), originalStackCount, remainingStackCount, powerActive, buffsActive, brokenKamikotizedStack);
     }
 
     private KamikotizationData decrementFrames() {

@@ -36,7 +36,6 @@ import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.Rec
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.recipebook.OvenRecipeBookComponent;
 import dev.thomasglasser.mineraculous.impl.data.MineraculousDataGenerators;
 import dev.thomasglasser.mineraculous.impl.data.curios.MineraculousCuriosProvider;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.impl.plugins.jade.OvenProvider;
 import dev.thomasglasser.mineraculous.impl.plugins.jei.MineraculousJeiPlugin;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
@@ -265,7 +264,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(OvenRecipeBookComponent.FILTER_NAME, "Showing Oven Cookable");
 
         // Taking/Breaking
-        add(ServerboundWakeUpPayload.STEALING_WARNING, "You may not rest now, there are thieves nearby.");
+        add(MineraculousClientUtils.STEALING_WARNING, "You may not rest now, there are thieves nearby.");
         add(ExternalInventoryScreen.ITEM_BOUND_KEY, "This item is bound to the player.");
         add(MineraculousItemUtils.ITEM_UNBREAKABLE_KEY, "This item is unbreakable by normal means.");
         add(MineraculousItemUtils.KAMIKOTIZED_ITEM_UNBREAKABLE_KEY, "You may not break this item.");

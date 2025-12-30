@@ -27,7 +27,9 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.loot.parameters.Mi
 import dev.thomasglasser.mineraculous.impl.commands.MineraculousCommandEvents;
 import dev.thomasglasser.mineraculous.impl.core.MineraculousCoreEvents;
 import dev.thomasglasser.mineraculous.impl.data.MineraculousDataGenerators;
+import dev.thomasglasser.mineraculous.impl.event.KamikotizationEvents;
 import dev.thomasglasser.mineraculous.impl.event.MiraculousEvents;
+import dev.thomasglasser.mineraculous.impl.event.StealEvents;
 import dev.thomasglasser.mineraculous.impl.network.MineraculousPayloads;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.MineraculousEntityEvents;
@@ -106,9 +108,15 @@ public class Mineraculous {
         modBus.addListener(MineraculousEntityEvents::onEntityAttributeCreation);
 
         // Neo Bus
+        NeoForge.EVENT_BUS.addListener(KamikotizationEvents::onPreTransformKamikotization);
+
         NeoForge.EVENT_BUS.addListener(MiraculousEvents::onCanEquipMiraculous);
         NeoForge.EVENT_BUS.addListener(MiraculousEvents::onEquipMiraculous);
         NeoForge.EVENT_BUS.addListener(MiraculousEvents::onPreTransformMiraculous);
+
+        NeoForge.EVENT_BUS.addListener(StealEvents::onPreStartSteal);
+        NeoForge.EVENT_BUS.addListener(StealEvents::onTickStartSteal);
+        NeoForge.EVENT_BUS.addListener(StealEvents::onFinishSteal);
 
         NeoForge.EVENT_BUS.addListener(MineraculousVillagerTrades::onRegisterVillagerTrades);
 

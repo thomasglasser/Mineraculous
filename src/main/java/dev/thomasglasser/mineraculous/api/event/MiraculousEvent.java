@@ -18,10 +18,10 @@ public abstract class MiraculousEvent extends LivingEvent {
     private final MiraculousData miraculousData;
     private final ItemStack stack;
 
-    public MiraculousEvent(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack) {
+    public MiraculousEvent(LivingEntity entity, Holder<Miraculous> miraculous, MiraculousData miraculousData, ItemStack stack) {
         super(entity);
         this.miraculous = miraculous;
-        this.miraculousData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous);
+        this.miraculousData = miraculousData;
         this.stack = stack;
     }
 
@@ -42,8 +42,8 @@ public abstract class MiraculousEvent extends LivingEvent {
 
         private boolean canEquip = true;
 
-        public CanEquip(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack, CuriosData curiosData) {
-            super(entity, miraculous, stack);
+        public CanEquip(LivingEntity entity, Holder<Miraculous> miraculous, MiraculousData miraculousData, ItemStack stack, CuriosData curiosData) {
+            super(entity, miraculous, miraculousData, stack);
             this.curiosData = curiosData;
         }
 
@@ -61,33 +61,33 @@ public abstract class MiraculousEvent extends LivingEvent {
     }
 
     public static class Equip extends MiraculousEvent {
-        public Equip(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack) {
-            super(entity, miraculous, stack);
+        public Equip(LivingEntity entity, Holder<Miraculous> miraculous, MiraculousData miraculousData, ItemStack stack) {
+            super(entity, miraculous, miraculousData, stack);
         }
     }
 
     public static class Unequip extends MiraculousEvent {
-        public Unequip(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack) {
-            super(entity, miraculous, stack);
+        public Unequip(LivingEntity entity, Holder<Miraculous> miraculous, MiraculousData miraculousData, ItemStack stack) {
+            super(entity, miraculous, miraculousData, stack);
         }
     }
 
     public static abstract class Transform extends MiraculousEvent {
-        public Transform(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack) {
-            super(entity, miraculous, stack);
+        public Transform(LivingEntity entity, Holder<Miraculous> miraculous, MiraculousData miraculousData, ItemStack stack) {
+            super(entity, miraculous, miraculousData, stack);
         }
 
         public static class Pre extends Transform implements ICancellableEvent {
-            public Pre(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack) {
-                super(entity, miraculous, stack);
+            public Pre(LivingEntity entity, Holder<Miraculous> miraculous, MiraculousData miraculousData, ItemStack stack) {
+                super(entity, miraculous, miraculousData, stack);
             }
         }
 
         public static class Start extends Transform {
             private Optional<Integer> transformationFrames;
 
-            public Start(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack, Optional<Integer> transformationFrames) {
-                super(entity, miraculous, stack);
+            public Start(LivingEntity entity, Holder<Miraculous> miraculous, MiraculousData miraculousData, ItemStack stack, Optional<Integer> transformationFrames) {
+                super(entity, miraculous, miraculousData, stack);
                 this.transformationFrames = transformationFrames;
             }
 
@@ -103,8 +103,8 @@ public abstract class MiraculousEvent extends LivingEvent {
         public static class Finish extends Transform {
             private boolean shouldSetLastUsed = true;
 
-            public Finish(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack) {
-                super(entity, miraculous, stack);
+            public Finish(LivingEntity entity, Holder<Miraculous> miraculous, MiraculousData miraculousData, ItemStack stack) {
+                super(entity, miraculous, miraculousData, stack);
             }
 
             public boolean shouldSetLastUsed() {
@@ -120,8 +120,8 @@ public abstract class MiraculousEvent extends LivingEvent {
     public static abstract class Detransform extends MiraculousEvent {
         private final boolean removed;
 
-        public Detransform(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack, boolean removed) {
-            super(entity, miraculous, stack);
+        public Detransform(LivingEntity entity, Holder<Miraculous> miraculous, MiraculousData miraculousData, ItemStack stack, boolean removed) {
+            super(entity, miraculous, miraculousData, stack);
             this.removed = removed;
         }
 
@@ -130,16 +130,16 @@ public abstract class MiraculousEvent extends LivingEvent {
         }
 
         public static class Pre extends Detransform implements ICancellableEvent {
-            public Pre(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack, boolean removed) {
-                super(entity, miraculous, stack, removed);
+            public Pre(LivingEntity entity, Holder<Miraculous> miraculous, MiraculousData miraculousData, ItemStack stack, boolean removed) {
+                super(entity, miraculous, miraculousData, stack, removed);
             }
         }
 
         public static class Start extends Detransform {
             private Optional<Integer> detransformationFrames;
 
-            public Start(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack, Optional<Integer> detransformationFrames) {
-                super(entity, miraculous, stack, false);
+            public Start(LivingEntity entity, Holder<Miraculous> miraculous, MiraculousData miraculousData, ItemStack stack, Optional<Integer> detransformationFrames) {
+                super(entity, miraculous, miraculousData, stack, false);
                 this.detransformationFrames = detransformationFrames;
             }
 
@@ -153,8 +153,8 @@ public abstract class MiraculousEvent extends LivingEvent {
         }
 
         public static class Finish extends Detransform {
-            public Finish(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack, boolean removed) {
-                super(entity, miraculous, stack, removed);
+            public Finish(LivingEntity entity, Holder<Miraculous> miraculous, MiraculousData miraculousData, ItemStack stack, boolean removed) {
+                super(entity, miraculous, miraculousData, stack, removed);
             }
         }
     }
@@ -164,7 +164,7 @@ public abstract class MiraculousEvent extends LivingEvent {
         private final Kwami kwami;
 
         public Renounce(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack, @Nullable Kwami kwami) {
-            super(entity, miraculous, stack);
+            super(entity, miraculous, entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous), stack);
             this.kwami = kwami;
         }
 

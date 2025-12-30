@@ -244,4 +244,8 @@ public class MineraculousEntityUtils {
         }
         return null;
     }
+
+    public static @Nullable LivingEntity findLivingEntity(ServerLevel level, UUID uuid) {
+        return findEntity(level, uuid) instanceof LivingEntity entity ? entity : null;
+    }
 }

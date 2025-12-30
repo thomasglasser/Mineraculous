@@ -1,10 +1,11 @@
 package dev.thomasglasser.mineraculous.impl.world.item;
 
 import com.mojang.serialization.Codec;
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
-import dev.thomasglasser.mineraculous.api.event.MiraculousEvent;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
@@ -34,7 +35,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.NeoForge;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.client.GeoRenderProvider;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -112,10 +112,25 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
         LivingEntity entity = slotContext.entity();
         Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-        if (!entity.level().isClientSide() && miraculous != null && !(stack.is(prevStack.getItem()) && miraculous == prevStack.get(MineraculousDataComponents.MIRACULOUS))) {
-            MiraculousData equipped = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous).equip(new CuriosData(slotContext));
-            equipped.save(miraculous, entity);
-            NeoForge.EVENT_BUS.post(new MiraculousEvent.Equip(entity, miraculous, equipped, stack));
+        if (entity.level() instanceof ServerLevel level && miraculous != null && !(stack.is(prevStack.getItem()) && miraculous == prevStack.get(MineraculousDataComponents.MIRACULOUS))) {
+            MiraculousData data = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous);
+            if (!data.transformed()) {
+                UUID miraculousId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
+                if (miraculousId == null) {
+                    miraculousId = UUID.randomUUID();
+                    stack.set(MineraculousDataComponents.MIRACULOUS_ID, miraculousId);
+                }
+                if (stack.has(MineraculousDataComponents.POWERED)) {
+                    stack.remove(MineraculousDataComponents.POWERED);
+                    Kwami kwami = MineraculousEntityUtils.summonKwami(entity, stack.getOrDefault(MineraculousDataComponents.CHARGED, true), miraculousId, miraculous, true, null);
+                    if (kwami != null) {
+                        stack.set(MineraculousDataComponents.KWAMI_ID, kwami.getUUID());
+                    } else {
+                        MineraculousConstants.LOGGER.error("Kwami could not be created for entity {}", entity.getName().plainCopy().getString());
+                    }
+                }
+                data.equip(new CuriosData(slotContext)).save(miraculous, entity);
+            }
         }
     }
 
@@ -123,16 +138,13 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     public void onUnequip(SlotContext slotContext, ItemStack newStack, ItemStack stack) {
         LivingEntity entity = slotContext.entity();
         Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-        if (entity.level() instanceof ServerLevel level && miraculous != null && !(stack.is(newStack.getItem()) && miraculous == newStack.get(MineraculousDataComponents.MIRACULOUS))) {
+        if (miraculous != null && entity.level() instanceof ServerLevel level && !(stack.is(newStack.getItem()) && miraculous == newStack.get(MineraculousDataComponents.MIRACULOUS))) {
             MiraculousData data = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous);
             if (data.transformed()) {
                 data.detransform(entity, level, miraculous, stack, true);
-                data = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous);
             } else {
-                data = data.unequip();
-                data.save(miraculous, entity);
+                data.unequip().save(miraculous, entity);
             }
-            NeoForge.EVENT_BUS.post(new MiraculousEvent.Unequip(entity, miraculous, data, stack));
         }
     }
 
@@ -144,9 +156,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     @Override
     public boolean canEquip(SlotContext slotContext, ItemStack stack) {
         Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-        if (miraculous == null)
-            return false;
-        return NeoForge.EVENT_BUS.post(new MiraculousEvent.CanEquip(slotContext.entity(), miraculous, slotContext.entity().getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous), stack, new CuriosData(slotContext))).canEquip();
+        return miraculous != null && slotContext.identifier().equals(miraculous.value().acceptableSlot());
     }
 
     @Override

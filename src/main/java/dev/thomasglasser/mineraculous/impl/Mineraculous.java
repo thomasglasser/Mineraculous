@@ -28,6 +28,7 @@ import dev.thomasglasser.mineraculous.impl.commands.MineraculousCommandEvents;
 import dev.thomasglasser.mineraculous.impl.core.MineraculousCoreEvents;
 import dev.thomasglasser.mineraculous.impl.data.MineraculousDataGenerators;
 import dev.thomasglasser.mineraculous.impl.event.KamikotizationEvents;
+import dev.thomasglasser.mineraculous.impl.event.LuckyCharmEvents;
 import dev.thomasglasser.mineraculous.impl.event.MiraculousEvents;
 import dev.thomasglasser.mineraculous.impl.event.StealEvents;
 import dev.thomasglasser.mineraculous.impl.network.MineraculousPayloads;
@@ -110,8 +111,9 @@ public class Mineraculous {
         // Neo Bus
         NeoForge.EVENT_BUS.addListener(KamikotizationEvents::onPreTransformKamikotization);
 
-        NeoForge.EVENT_BUS.addListener(MiraculousEvents::onCanEquipMiraculous);
-        NeoForge.EVENT_BUS.addListener(MiraculousEvents::onEquipMiraculous);
+        NeoForge.EVENT_BUS.addListener(LuckyCharmEvents::onDetermineLuckyCharmSpawnPos);
+        NeoForge.EVENT_BUS.addListener(LuckyCharmEvents::onDetermineLuckyCharms);
+
         NeoForge.EVENT_BUS.addListener(MiraculousEvents::onPreTransformMiraculous);
 
         NeoForge.EVENT_BUS.addListener(StealEvents::onPreStartSteal);
@@ -139,6 +141,7 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onBlockInteract);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onBlockLeftClick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEmptyLeftClick);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onCollectMiraculousLadybugTargets);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEffectRemoved);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEffectAdded);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEffectExpired);
@@ -152,5 +155,7 @@ public class Mineraculous {
 
         NeoForge.EVENT_BUS.addListener(MineraculousItemEvents::onItemTooltip);
         NeoForge.EVENT_BUS.addListener(MineraculousItemEvents::onItemToss);
+        NeoForge.EVENT_BUS.addListener(MineraculousItemEvents::onPreItemBreak);
+        NeoForge.EVENT_BUS.addListener(MineraculousItemEvents::onDetermineItemBreakDamage);
     }
 }

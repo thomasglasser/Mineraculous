@@ -66,7 +66,6 @@
   ],
   "minecraft:data_component_type": [
     "mineraculous:active",
-    "mineraculous:active_settings",
     "mineraculous:blocking",
     "mineraculous:butterfly_cane_mode",
     "mineraculous:carrier",

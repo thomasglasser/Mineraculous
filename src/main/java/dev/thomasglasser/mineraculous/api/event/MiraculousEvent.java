@@ -1,7 +1,6 @@
 package dev.thomasglasser.mineraculous.api.event;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
@@ -35,41 +34,6 @@ public abstract class MiraculousEvent extends LivingEvent {
 
     public ItemStack getStack() {
         return stack;
-    }
-
-    public static class CanEquip extends MiraculousEvent {
-        private final CuriosData curiosData;
-
-        private boolean canEquip = true;
-
-        public CanEquip(LivingEntity entity, Holder<Miraculous> miraculous, MiraculousData miraculousData, ItemStack stack, CuriosData curiosData) {
-            super(entity, miraculous, miraculousData, stack);
-            this.curiosData = curiosData;
-        }
-
-        public CuriosData getCuriosData() {
-            return curiosData;
-        }
-
-        public boolean canEquip() {
-            return canEquip;
-        }
-
-        public void setCanEquip(boolean canEquip) {
-            this.canEquip = canEquip;
-        }
-    }
-
-    public static class Equip extends MiraculousEvent {
-        public Equip(LivingEntity entity, Holder<Miraculous> miraculous, MiraculousData miraculousData, ItemStack stack) {
-            super(entity, miraculous, miraculousData, stack);
-        }
-    }
-
-    public static class Unequip extends MiraculousEvent {
-        public Unequip(LivingEntity entity, Holder<Miraculous> miraculous, MiraculousData miraculousData, ItemStack stack) {
-            super(entity, miraculous, miraculousData, stack);
-        }
     }
 
     public static abstract class Transform extends MiraculousEvent {

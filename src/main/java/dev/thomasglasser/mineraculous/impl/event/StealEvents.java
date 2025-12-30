@@ -22,10 +22,14 @@ import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
 public class StealEvents {
+    private static boolean cantSteal(Player player, Player target) {
+        return !((MineraculousServerConfig.get().enableUniversalStealing.get() || player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || player.getData(MineraculousAttachmentTypes.MIRACULOUSES.get()).isTransformed()) && (MineraculousServerConfig.get().enableSleepStealing.get() || !target.isSleeping()));
+    }
+
     public static void onPreStartSteal(StealEvent.Start.Pre event) {
         Player player = event.getEntity();
         Player target = event.getTarget();
-        event.setCanceled(!((MineraculousServerConfig.get().enableUniversalStealing.get() || player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || player.getData(MineraculousAttachmentTypes.MIRACULOUSES.get()).isTransformed()) && (MineraculousServerConfig.get().enableSleepStealing.get() || !target.isSleeping())));
+        event.setCanceled(cantSteal(player, target));
     }
 
     public static void onTickStartSteal(StealEvent.Start.Tick event) {
@@ -40,6 +44,9 @@ public class StealEvents {
     public static void onFinishSteal(StealEvent.Finish event) {
         Player player = event.getEntity();
         Player target = event.getTarget();
+        if (cantSteal(player, target))
+            event.setCanceled(true);
+
         ItemStack stack = event.getStack();
         Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
         if (miraculous != null && stack.getItem() instanceof MiraculousItem && stack.has(MineraculousDataComponents.POWERED)) {

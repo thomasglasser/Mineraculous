@@ -11,7 +11,6 @@ import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.ActiveItem;
 import dev.thomasglasser.mineraculous.api.world.item.LeftClickListener;
-import dev.thomasglasser.mineraculous.api.world.item.LuckyCharmSummoningItem;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
@@ -29,7 +28,6 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
@@ -77,7 +75,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Mode>, ActiveItem, LeftClickListener, LuckyCharmSummoningItem {
+public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, RadialMenuProvider<LadybugYoyoItem.Mode>, ActiveItem, LeftClickListener {
     public static final String CONTROLLER_USE = "use_controller";
     public static final String ANIMATION_OPEN_OUT = "open_out";
     public static final String ANIMATION_OPEN_DOWN = "open_down";
@@ -475,21 +473,6 @@ public class LadybugYoyoItem extends Item implements GeoItem, ICurioItem, Radial
                 }
             }
         }
-    }
-
-    @Override
-    public @Nullable Optional<Vec3> getSummonPosition(ServerLevel level, LivingEntity performer, ItemStack stack) {
-        ThrownLadybugYoyoData yoyoData = performer.getData(MineraculousAttachmentTypes.THROWN_LADYBUG_YOYO);
-        if (yoyoData.getThrownYoyo(level) instanceof ThrownLadybugYoyo yoyo) {
-            if (performer.position().distanceTo(yoyo.position()) > 20 ||
-                    yoyo.inGround() ||
-                    performer.getXRot() > -70)
-                return null; // returns null so the ability gets cancelled!
-            yoyo.setDeltaMovement(Vec3.ZERO);
-            yoyoData.setSummonedLuckyCharm(true).save(performer);
-            return Optional.of(yoyo.position());
-        }
-        return Optional.empty();
     }
 
     public enum Mode implements RadialMenuOption, StringRepresentable {

@@ -5,21 +5,15 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
-import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.datamaps.LuckyCharms;
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
+import dev.thomasglasser.mineraculous.api.event.LuckyCharmEvent;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
-import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.api.world.item.LuckyCharmSummoningItem;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.loot.parameters.MineraculousLootContextParamSets;
 import dev.thomasglasser.mineraculous.api.world.level.storage.loot.parameters.MineraculousLootContextParams;
-import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
-import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.entity.LuckyCharmItemSpawner;
 import dev.thomasglasser.mineraculous.impl.world.item.component.LuckyCharm;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
@@ -38,6 +32,7 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -61,18 +56,16 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
         else if (handler.isActiveTool(offHand, performer))
             tool = offHand;
         if (!requireActiveToolInHand || tool != null) {
-            Optional<Vec3> spawnPos = Optional.empty();
-            if (tool != null && tool.getItem() instanceof LuckyCharmSummoningItem toolItem) {
-                spawnPos = toolItem.getSummonPosition(level, performer, tool);
-                if (spawnPos == null) return State.CANCEL;
-            }
+            var event = NeoForge.EVENT_BUS.post(new LuckyCharmEvent.DetermineSpawnPos(performer, tool, defaultLuckyCharmSpawnPosition(level, performer)));
+            if (event.isCanceled())
+                return State.CANCEL;
             EntityReversionData entityData = EntityReversionData.get(level);
-            Entity target = determineTarget(level, performer);
+            Entity target = NeoForge.EVENT_BUS.post(new LuckyCharmEvent.DetermineTarget(performer, tool, determineTarget(level, performer))).getTarget();
             if (target != null) {
                 entityData.putRelatedEntity(performer.getUUID(), target.getUUID());
                 entityData.putRelatedEntity(target.getUUID(), performer.getUUID());
             }
-            ItemStack stack = getLuckyCharms(level, target).items().map(lootTable -> {
+            ItemStack stack = NeoForge.EVENT_BUS.post(new LuckyCharmEvent.DetermineLuckyCharms(performer, tool, target, getLuckyCharms(target))).getLuckyCharms().items().map(lootTable -> {
                 LootParams.Builder paramsBuilder = new LootParams.Builder(level)
                         .withParameter(LootContextParams.THIS_ENTITY, performer)
                         .withParameter(LootContextParams.ORIGIN, performer.position())
@@ -93,7 +86,7 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             }
             stack.set(MineraculousDataComponents.LUCKY_CHARM, new LuckyCharm(Optional.ofNullable(target).map(Entity::getUUID), performer.getUUID(), LuckyCharmIdData.get(level).incrementLuckyCharmId(performer.getUUID())));
             LuckyCharmItemSpawner item = LuckyCharmItemSpawner.create(level, stack);
-            item.moveTo(spawnPos.orElseGet(() -> defaultLuckyCharmSpawnPosition(level, performer)));
+            item.moveTo(event.getSpawnPos());
             level.addFreshEntity(item);
             Ability.playSound(level, performer, summonSound);
             return State.CONSUME;
@@ -101,7 +94,6 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
         return State.CANCEL;
     }
 
-    // TODO: Move to event and add priority for kamikotized then miraculous holders then bosses
     private @Nullable Entity determineTarget(ServerLevel level, LivingEntity performer) {
         Entity target = performer.getKillCredit();
         if (target == null) {
@@ -116,26 +108,11 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
         return target;
     }
 
-    private LuckyCharms getLuckyCharms(ServerLevel level, Entity target) {
+    private LuckyCharms getLuckyCharms(Entity target) {
         if (target != null) {
-            Optional<Holder<Kamikotization>> kamikotization = target.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::kamikotization);
-            if (kamikotization.isPresent()) {
-                LuckyCharms data = level.registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).getData(MineraculousDataMaps.KAMIKOTIZATION_LUCKY_CHARMS, kamikotization.get().getKey());
-                if (data != null) {
-                    return data;
-                }
-            }
-            MiraculousesData miraculousesData = target.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-            if (miraculousesData.isTransformed()) {
-                Holder<Miraculous> miraculous = miraculousesData.getTransformed().getFirst();
-                LuckyCharms data = level.registryAccess().registryOrThrow(MineraculousRegistries.MIRACULOUS).getData(MineraculousDataMaps.MIRACULOUS_LUCKY_CHARMS, miraculous.getKey());
-                if (data != null) {
-                    return data;
-                }
-            }
-            LuckyCharms data = BuiltInRegistries.ENTITY_TYPE.getData(MineraculousDataMaps.ENTITY_LUCKY_CHARMS, target.getType().builtInRegistryHolder().key());
-            if (data != null) {
-                return data;
+            LuckyCharms luckyCharms = BuiltInRegistries.ENTITY_TYPE.getData(MineraculousDataMaps.ENTITY_LUCKY_CHARMS, target.getType().builtInRegistryHolder().key());
+            if (luckyCharms != null) {
+                return luckyCharms;
             }
         }
         return new LuckyCharms(Either.right(BuiltInRegistries.ITEM.getTag(MineraculousItemTags.GENERIC_LUCKY_CHARMS).orElseThrow()));

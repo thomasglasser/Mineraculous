@@ -1,6 +1,10 @@
 package dev.thomasglasser.mineraculous.impl.world.entity;
 
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.event.CanBeForceKamikotizedEvent;
+import dev.thomasglasser.mineraculous.api.event.CollectMiraculousLadybugTargetsEvent;
+import dev.thomasglasser.mineraculous.api.event.ShouldTrackEntityEvent;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
 import dev.thomasglasser.mineraculous.api.world.ability.AbilityData;
 import dev.thomasglasser.mineraculous.api.world.ability.AbilityUtils;
@@ -8,9 +12,11 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
+import dev.thomasglasser.mineraculous.api.world.item.EffectRevertingItem;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
+import dev.thomasglasser.mineraculous.api.world.level.storage.BlockReversionData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.ItemReversionData;
 import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.SyncedTransientAbilityEffectData;
@@ -20,21 +26,31 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerChoicesPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItemPayload;
+import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
+import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugBlockTarget;
+import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugEntityTarget;
+import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTargetCollector;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LuckyCharmIdData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ThrownLadybugYoyoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.ToolIdData;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundRemoveMobEffectPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -42,6 +58,7 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -49,6 +66,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
@@ -95,7 +113,7 @@ public class MineraculousEntityEvents {
         }
     }
 
-    public static void onServerPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         TommyLibServices.NETWORK.sendToAllClients(ClientboundSyncSpecialPlayerChoicesPayload.INSTANCE, event.getEntity().getServer());
     }
 
@@ -239,6 +257,86 @@ public class MineraculousEntityEvents {
         }
     }
 
+    public static void onShouldTrackEntity(ShouldTrackEntityEvent event) {
+        Entity entity = event.getEntity();
+        if (entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent())
+            event.setShouldTrack(true);
+    }
+
+    // Miraculous Ladybug
+    public static void onCollectMiraculousLadybugTargets(CollectMiraculousLadybugTargetsEvent event) {
+        ServerLevel level = event.getLevel();
+        UUID targetId = event.getTargetId();
+        MiraculousLadybugTargetCollector collector = event.getTargetCollector();
+
+        BlockReversionData blockData = BlockReversionData.get(level);
+        EntityReversionData entityData = EntityReversionData.get(level);
+        ItemReversionData itemData = ItemReversionData.get(level);
+
+        for (UUID relatedId : collectToRevert(targetId, entityData)) {
+            beginReversionAndGatherTargets(level, relatedId, collector, blockData, entityData, itemData);
+            if (level.getEntity(relatedId) instanceof LivingEntity related) {
+                related.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).or(() -> related.getData(MineraculousAttachmentTypes.OLD_KAMIKOTIZATION)).ifPresent(kamikotizationData -> {
+                    Kamikotization value = kamikotizationData.kamikotization().value();
+                    AbilityData abilityData = AbilityData.of(kamikotizationData);
+                    value.powerSource().ifLeft(tool -> {
+                        if (tool.getItem() instanceof EffectRevertingItem item) {
+                            item.revert(related, collector);
+                        }
+                    }).ifRight(ability -> ability.value().revert(abilityData, level, related, collector));
+                    value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related, collector));
+                });
+                MiraculousesData miraculousesData = related.getData(MineraculousAttachmentTypes.MIRACULOUSES);
+                for (Holder<Miraculous> miraculous : miraculousesData.keySet()) {
+                    Miraculous value = miraculous.value();
+                    AbilityData abilityData = AbilityData.of(miraculousesData.get(miraculous));
+                    value.activeAbility().value().revert(abilityData, level, related, collector);
+                    value.passiveAbilities().forEach(ability -> ability.value().revert(abilityData, level, related, collector));
+                }
+            }
+        }
+    }
+
+    private static void beginReversionAndGatherTargets(
+            ServerLevel level,
+            UUID relatedId,
+            MiraculousLadybugTargetCollector targetCollector,
+            BlockReversionData blockData,
+            EntityReversionData entityData,
+            ItemReversionData itemData) {
+        itemData.markReverted(relatedId);
+        entityData.revertRemovableAndCopied(relatedId, level);
+        for (Map.Entry<ResourceKey<Level>, BlockPos> location : blockData.getReversionPositions(relatedId).entries()) {
+            targetCollector.putClusterable(location.getKey(), new MiraculousLadybugBlockTarget(location.getValue(), relatedId));
+        }
+        for (Map.Entry<ResourceKey<Level>, Vec3> location : entityData.getReversionAndConversionPositions(relatedId).entries()) {
+            ResourceKey<Level> dimension = location.getKey();
+            Vec3 pos = location.getValue();
+            for (Map.Entry<UUID, CompoundTag> entry : entityData.getRevertibleAndConvertedAt(relatedId, dimension, pos).entrySet()) {
+                UUID entityId = entry.getKey();
+                Entity entity = MineraculousEntityUtils.findEntity(level, entityId);
+                if (entity != null) {
+                    targetCollector.put(dimension, new MiraculousLadybugEntityTarget(pos, relatedId, entity.getBbWidth(), entity.getBbHeight()));
+                } else {
+                    CompoundTag tag = entry.getValue();
+                    EntityType.by(tag).ifPresentOrElse(type -> targetCollector.put(dimension, new MiraculousLadybugEntityTarget(pos, relatedId, type.getWidth(), type.getHeight())), () -> MineraculousConstants.LOGGER.error("Invalid entity data passed to RevertLuckyCharmTargetsAbilityEffectsAbility: {}", tag));
+                }
+            }
+        }
+    }
+
+    private static Set<UUID> collectToRevert(UUID uuid, EntityReversionData entityData) {
+        Set<UUID> toRevert = new ReferenceOpenHashSet<>();
+        toRevert.add(uuid);
+        for (UUID related : entityData.getAndClearTrackedAndRelatedEntities(uuid)) {
+            if (!toRevert.contains(related)) {
+                toRevert.add(related);
+                collectToRevert(related, entityData);
+            }
+        }
+        return toRevert;
+    }
+
     // Cataclysm
     public static void onEffectRemoved(MobEffectEvent.Remove event) {
         LivingEntity entity = event.getEntity();
@@ -292,6 +390,12 @@ public class MineraculousEntityEvents {
     public static void onLivingSwapHands(LivingSwapItemsEvent.Hands event) {
         if (event.getItemSwappedToMainHand().has(MineraculousDataComponents.KAMIKOTIZING) || event.getItemSwappedToOffHand().has(MineraculousDataComponents.KAMIKOTIZING))
             event.setCanceled(true);
+    }
+
+    public static void onCanBeForceKamikotized(CanBeForceKamikotizedEvent event) {
+        LivingEntity entity = event.getEntity();
+        if (entity instanceof Player player && player.getAbilities().instabuild && !MineraculousServerConfig.get().forceKamikotizeCreativePlayers.getAsBoolean())
+            event.setCanBeKamikotized(false);
     }
 
     /// Death

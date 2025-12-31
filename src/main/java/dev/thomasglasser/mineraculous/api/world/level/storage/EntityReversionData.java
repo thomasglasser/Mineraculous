@@ -8,8 +8,8 @@ import com.google.common.collect.Table;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.event.ShouldTrackEntityEvent;
 import dev.thomasglasser.mineraculous.api.nbt.MineraculousNbtUtils;
-import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -43,6 +43,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.attachment.AttachmentSync;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.entity.PartEntity;
 import org.apache.commons.lang3.function.Consumers;
 import org.jetbrains.annotations.ApiStatus;
@@ -70,18 +71,13 @@ public class EntityReversionData extends SavedData {
     public void tick(Entity entity) {
         if (isBeingTracked(entity.getUUID()) && entity.tickCount % SharedConstants.TICKS_PER_SECOND * 5 == 0) {
             Set<UUID> alreadyRelated = getRelatedEntities(entity.getUUID());
-            List<Entity> newRelated = entity.level().getEntitiesOfClass(Entity.class, entity.getBoundingBox().inflate(16), target -> !alreadyRelated.contains(target.getUUID()) && shouldBeTracked(target));
+            List<Entity> newRelated = entity.level().getEntitiesOfClass(Entity.class, entity.getBoundingBox().inflate(16), target -> !alreadyRelated.contains(target.getUUID()) && NeoForge.EVENT_BUS.post(new ShouldTrackEntityEvent(target)).shouldTrack());
             for (Entity related : newRelated) {
                 if (related.getUUID() != entity.getUUID()) {
                     putRelatedEntity(entity.getUUID(), related.getUUID());
                 }
             }
         }
-    }
-
-    // TODO: Move to an event
-    protected boolean shouldBeTracked(Entity entity) {
-        return entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent();
     }
 
     /**

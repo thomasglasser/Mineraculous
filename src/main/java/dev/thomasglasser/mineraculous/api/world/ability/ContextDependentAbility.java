@@ -32,15 +32,15 @@ public record ContextDependentAbility(Optional<Holder<Ability>> blockAbility, Op
     @Override
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         switch (context) {
-            case BlockAbilityContext blockAbilityContext when blockAbility.isPresent() -> {
-                return blockAbility.get().value().perform(data, level, performer, handler, blockAbilityContext);
+            case BlockAbilityContext blockContext when blockAbility.isPresent() -> {
+                return AbilityUtils.performAbilityWithEvents(blockAbility.get(), level, performer, data, handler, blockContext);
             }
-            case EntityAbilityContext entityAbilityContext when entityAbility.isPresent() -> {
-                return entityAbility.get().value().perform(data, level, performer, handler, entityAbilityContext);
+            case EntityAbilityContext entityContext when entityAbility.isPresent() -> {
+                return AbilityUtils.performAbilityWithEvents(entityAbility.get(), level, performer, data, handler, entityContext);
             }
             case null -> {
                 for (Holder<Ability> holder : passiveAbilities) {
-                    State state = holder.value().perform(data, level, performer, handler, null);
+                    State state = AbilityUtils.performAbilityWithEvents(holder, level, performer, data, handler, null);
                     if (state.shouldStop()) {
                         return state;
                     }

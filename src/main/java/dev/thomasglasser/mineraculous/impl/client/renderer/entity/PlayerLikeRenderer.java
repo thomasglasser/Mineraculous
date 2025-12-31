@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.impl.client.renderer.entity;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import dev.thomasglasser.mineraculous.api.client.event.RenderPlayerLikeEvent;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.PlayerLikeCapeLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.PlayerLikeDeadmau5EarsLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.PlayerLikeItemInHandLayer;
@@ -14,10 +15,8 @@ import net.minecraft.client.model.HumanoidArmorModel;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayers;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.layers.ArrowLayer;
@@ -26,7 +25,6 @@ import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.ElytraLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.SpinAttackEffectLayer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -47,6 +45,7 @@ import net.minecraft.world.scores.Objective;
 import net.minecraft.world.scores.ReadOnlyScoreInfo;
 import net.minecraft.world.scores.Scoreboard;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import net.neoforged.neoforge.common.NeoForge;
 
 public class PlayerLikeRenderer<T extends LivingEntity & PlayerLike> extends LivingEntityRenderer<T, PlayerModel<T>> {
     private static final Map<PlayerSkin.Model, EntityRendererProvider<?>> PROVIDERS = ImmutableMap.of(
@@ -87,10 +86,9 @@ public class PlayerLikeRenderer<T extends LivingEntity & PlayerLike> extends Liv
     @Override
     public void render(T entity, float entityYaw, float partialTicks, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         this.setModelProperties(entity);
-        // TODO: Similar events
-        if (true/*!NeoForge.EVENT_BUS.post(new RenderPlayerEvent.Pre(entity, this, partialTicks, poseStack, buffer, packedLight)).isCanceled()*/) {
+        if (!NeoForge.EVENT_BUS.post(new RenderPlayerLikeEvent.Pre<>(entity, this, partialTicks, poseStack, buffer, packedLight)).isCanceled()) {
             super.render(entity, entityYaw, partialTicks, poseStack, buffer, packedLight);
-//            NeoForge.EVENT_BUS.post(new RenderPlayerEvent.Post(entity, this, partialTicks, poseStack, buffer, packedLight));
+            NeoForge.EVENT_BUS.post(new RenderPlayerLikeEvent.Post<>(entity, this, partialTicks, poseStack, buffer, packedLight));
         }
     }
 
@@ -214,36 +212,6 @@ public class PlayerLikeRenderer<T extends LivingEntity & PlayerLike> extends Liv
 
         super.renderNameTag(entity, displayName, poseStack, bufferSource, packedLight, partialTick);
         poseStack.popPose();
-    }
-
-    public void renderRightHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, T entity) {
-        // TODO: Similar event
-        if (true/*!ClientHooks.renderSpecificFirstPersonArm(poseStack, buffer, combinedLight, player, HumanoidArm.RIGHT)*/) {
-            this.renderHand(poseStack, buffer, combinedLight, entity, this.model.rightArm, this.model.rightSleeve);
-        }
-    }
-
-    public void renderLeftHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, T entity) {
-        // TODO: Similar event
-        if (true/*!ClientHooks.renderSpecificFirstPersonArm(poseStack, buffer, combinedLight, player, HumanoidArm.LEFT)*/) {
-            this.renderHand(poseStack, buffer, combinedLight, entity, this.model.leftArm, this.model.leftSleeve);
-        }
-    }
-
-    private void renderHand(PoseStack poseStack, MultiBufferSource buffer, int combinedLight, T entity, ModelPart rendererArm, ModelPart rendererArmwear) {
-        PlayerModel<T> playermodel = this.getModel();
-        this.setModelProperties(entity);
-        playermodel.attackTime = 0.0F;
-        playermodel.crouching = false;
-        playermodel.swimAmount = 0.0F;
-        playermodel.setupAnim(entity, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
-        rendererArm.xRot = 0.0F;
-        if (entity.getVisualSource() instanceof AbstractClientPlayer player) {
-            ResourceLocation resourcelocation = player.getSkin().texture();
-            rendererArm.render(poseStack, buffer.getBuffer(RenderType.entitySolid(resourcelocation)), combinedLight, OverlayTexture.NO_OVERLAY);
-            rendererArmwear.xRot = 0.0F;
-            rendererArmwear.render(poseStack, buffer.getBuffer(RenderType.entityTranslucent(resourcelocation)), combinedLight, OverlayTexture.NO_OVERLAY);
-        }
     }
 
     @Override

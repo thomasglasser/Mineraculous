@@ -26,6 +26,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -51,6 +52,7 @@ public interface Ability {
      * @param context   The context of the ability (null if passive)
      * @return Whether the ability should consume the active state (i.e., stop the ability and trigger completion)
      */
+    @ApiStatus.OverrideOnly
     State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context);
 
     /**

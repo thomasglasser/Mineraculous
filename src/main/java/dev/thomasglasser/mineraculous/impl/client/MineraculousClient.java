@@ -53,6 +53,7 @@ public class MineraculousClient {
         modBus.addListener(MineraculousRenderStateShards::onRegisterShaders);
 
         // Neo Bus
+        NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onCreatePlayerMenuItem);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientTick);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onKeyInput);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onMouseScrollingInput);
@@ -62,6 +63,9 @@ public class MineraculousClient {
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onPreRenderGuiLayer);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderInventoryMobEffects);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderNameTag);
+        NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onDetermineCurioRenderContext);
+        NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onPostContextDependentCurioRender);
+        NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onRenderPlayerLikeCape);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientPlayerLoggingIn);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onPlayerHeartType);
         NeoForge.EVENT_BUS.addListener(MineraculousClientEvents::onClientChatReceived);

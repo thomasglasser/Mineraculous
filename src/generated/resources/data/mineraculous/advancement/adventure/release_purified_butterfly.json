@@ -1,5 +1,5 @@
 {
-  "parent": "mineraculous:miraculous/transform_ladybug",
+  "parent": "minecraft:adventure/root",
   "criteria": {
     "release_purified_butterfly": {
       "conditions": {
@@ -20,14 +20,14 @@
   },
   "display": {
     "description": {
-      "translate": "advancement.mineraculous.miraculous.release_purified_butterfly.desc"
+      "translate": "advancement.mineraculous.adventure.release_purified_butterfly.desc"
     },
     "icon": {
       "count": 1,
       "id": "mineraculous:ladybug_yoyo"
     },
     "title": {
-      "translate": "advancement.mineraculous.miraculous.release_purified_butterfly.title"
+      "translate": "advancement.mineraculous.adventure.release_purified_butterfly.title"
     }
   },
   "requirements": [
@@ -35,5 +35,8 @@
       "release_purified_butterfly"
     ]
   ],
+  "rewards": {
+    "experience": 20
+  },
   "sends_telemetry_event": true
 }

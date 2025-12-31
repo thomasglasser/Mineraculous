@@ -41,6 +41,10 @@ public class MineraculousServerConfig {
     public final ModConfigSpec.BooleanValue enableSleepStealing;
     public final ModConfigSpec.IntValue wakeUpChance;
 
+    // Breaking
+    public static final String BREAKING = "breaking";
+    public final ModConfigSpec.IntValue breakDamage;
+
     public MineraculousServerConfig() {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
@@ -96,6 +100,11 @@ public class MineraculousServerConfig {
                 .define("enable_sleep_stealing", true);
         wakeUpChance = builder
                 .defineInRange("wake_up_chance", 10, 0, 100);
+        builder.pop();
+
+        builder.push(BREAKING);
+        breakDamage = builder
+                .defineInRange("break_damage", 100, 10, 1000);
         builder.pop();
 
         configSpec = builder.build();

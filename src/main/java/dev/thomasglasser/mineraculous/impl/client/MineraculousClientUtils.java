@@ -37,6 +37,7 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateSpecialPlaye
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
+import dev.thomasglasser.mineraculous.impl.world.entity.KamikotizedMinion;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KamikoData;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -99,6 +100,7 @@ import top.theillusivec4.curios.common.inventory.CurioSlot;
 public class MineraculousClientUtils {
     public static final Component GUI_CHOOSE = Component.translatable("gui.choose");
     public static final Component GUI_NAME = Component.translatable("gui.name");
+    public static final Component STEALING_WARNING = Component.translatable("mineraculous.stealing_warning");
     public static final Component MIRACULOUS_LOOKS_BUTTON_TOOLTIP = Component.translatable("gui.mineraculous.miraculous_looks.tooltip");
 
     private static final WidgetSprites MIRACULOUS_LOOKS_BUTTON_SPRITES = new WidgetSprites(
@@ -307,6 +309,12 @@ public class MineraculousClientUtils {
         else if (stack.has(MineraculousDataComponents.LUCKY_CHARM) && !stack.is(MineraculousItemTags.LUCKY_CHARM_SHADER_IMMUNE))
             return MineraculousRenderTypes.armorLuckyCharm();
         return null;
+    }
+
+    public static boolean shouldNotRenderCape(LivingEntity entity) {
+        if (entity instanceof KamikotizedMinion)
+            return true;
+        return entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent();
     }
 
     public static int getCataclysmPixel(RandomSource random) {

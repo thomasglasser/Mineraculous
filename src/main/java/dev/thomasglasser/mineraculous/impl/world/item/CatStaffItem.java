@@ -7,12 +7,12 @@ import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataCompone
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MiraculousTags;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.item.ActiveItem;
 import dev.thomasglasser.mineraculous.api.world.item.LeftClickListener;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousTiers;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
-import dev.thomasglasser.mineraculous.api.world.item.component.ActiveSettings;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
@@ -27,7 +27,6 @@ import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiPredicate;
 import java.util.function.Supplier;
@@ -41,6 +40,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -65,10 +65,12 @@ import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
+import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
@@ -78,26 +80,23 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
 
-public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, ICurioItem, RadialMenuProvider<CatStaffItem.Mode>, LeftClickListener {
+public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, ICurioItem, RadialMenuProvider<CatStaffItem.Mode>, LeftClickListener, ActiveItem {
     public static final ResourceLocation BASE_ENTITY_INTERACTION_RANGE_ID = ResourceLocation.withDefaultNamespace("base_entity_interaction_range");
     public static final String CONTROLLER_USE = "use_controller";
     public static final String CONTROLLER_EXTEND = "extend_controller";
     public static final String ANIMATION_EXTEND = "extend";
     public static final String ANIMATION_RETRACT = "retract";
     public static final String ANIMATION_OPEN = "open";
+    public static final String ANIMATION_RETRACT_AND_OPEN = "retract_and_open";
     public static final String ANIMATION_CLOSE = "close";
-
-    public static final ActiveSettings ACTIVE_SETTINGS = new ActiveSettings(
-            Optional.of(CatStaffItem.CONTROLLER_EXTEND),
-            Optional.of(CatStaffItem.ANIMATION_EXTEND),
-            Optional.of(CatStaffItem.ANIMATION_RETRACT),
-            Optional.of(MineraculousSoundEvents.CAT_STAFF_EXTEND),
-            Optional.of(MineraculousSoundEvents.CAT_STAFF_RETRACT));
+    public static final String ANIMATION_CLOSE_AND_EXTEND = "close_and_extend";
 
     private static final RawAnimation EXTEND = RawAnimation.begin().thenPlay("misc.extend");
     private static final RawAnimation RETRACT = RawAnimation.begin().thenPlay("misc.retract");
     private static final RawAnimation OPEN = RawAnimation.begin().thenPlay("misc.open");
+    private static final RawAnimation RETRACT_AND_OPEN = RawAnimation.begin().then("misc.retract", Animation.LoopType.PLAY_ONCE).thenPlay("misc.open");
     private static final RawAnimation CLOSE = RawAnimation.begin().thenPlay("misc.close");
+    private static final RawAnimation CLOSE_AND_EXTEND = RawAnimation.begin().then("misc.close", Animation.LoopType.PLAY_ONCE).thenPlay("misc.extend");
 
     private static final ItemAttributeModifiers EXTENDED_ATTRIBUTE_MODIFIERS = ItemAttributeModifiers.builder()
             .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 15, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
@@ -118,14 +117,13 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
         controllers.add(new AnimationController<>(this, CONTROLLER_USE, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
             if (stack != null) {
-                Integer carrierID = stack.get(MineraculousDataComponents.CARRIER);
-                if (carrierID != null) {
-                    Entity entity = ClientUtils.getEntityById(carrierID);
-                    if (entity instanceof Player player) {
-                        boolean travelEligible = player.getUseItem() == stack && !player.getCooldowns().isOnCooldown(stack.getItem()) && !player.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_MODE) == Mode.TRAVEL && !player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling();
-                        if (stack.has(MineraculousDataComponents.BLOCKING) || travelEligible) {
-                            return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
-                        }
+                if (stack.has(MineraculousDataComponents.BLOCKING))
+                    return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
+                Integer carrierId = stack.get(MineraculousDataComponents.CARRIER);
+                if (carrierId != null) {
+                    Entity entity = ClientUtils.getEntityById(carrierId);
+                    if (entity instanceof Player player && player.getUseItem() == stack && !player.getCooldowns().isOnCooldown(stack.getItem()) && !player.onGround() && stack.get(MineraculousDataComponents.CAT_STAFF_MODE) == Mode.TRAVEL && !player.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF).traveling()) {
+                        return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
                     }
                 }
             }
@@ -133,15 +131,21 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
         }));
         controllers.add(new AnimationController<>(this, CONTROLLER_EXTEND, state -> {
             ItemStack stack = state.getData(DataTickets.ITEMSTACK);
-            if (stack != null && !Active.isActive(stack) && !state.isCurrentAnimation(RETRACT)) {
-                return state.setAndContinue(DefaultAnimations.IDLE);
+            if (stack != null) {
+                if (!Active.isActive(stack))
+                    return state.setAndContinue(DefaultAnimations.IDLE);
+                Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
+                if (mode == Mode.PHONE || mode == Mode.SPYGLASS)
+                    return state.setAndContinue(OPEN);
             }
             return PlayState.STOP;
         })
                 .triggerableAnim(ANIMATION_EXTEND, EXTEND)
                 .triggerableAnim(ANIMATION_RETRACT, RETRACT)
                 .triggerableAnim(ANIMATION_OPEN, OPEN)
-                .triggerableAnim(ANIMATION_CLOSE, CLOSE));
+                .triggerableAnim(ANIMATION_RETRACT_AND_OPEN, RETRACT_AND_OPEN)
+                .triggerableAnim(ANIMATION_CLOSE, CLOSE)
+                .triggerableAnim(ANIMATION_CLOSE_AND_EXTEND, CLOSE_AND_EXTEND));
     }
 
     @Override
@@ -377,14 +381,22 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
         Mode selected = RadialMenuProvider.super.setOption(stack, hand, holder, index);
         if (holder.level() instanceof ServerLevel level) {
             String anim = null;
+            SoundEvent sound = null;
             if (selected == Mode.PHONE || selected == Mode.SPYGLASS) {
-                anim = ANIMATION_OPEN;
+                if (old == Mode.PHONE || old == Mode.SPYGLASS)
+                    anim = ANIMATION_OPEN;
+                else {
+                    anim = ANIMATION_RETRACT_AND_OPEN;
+                    sound = MineraculousSoundEvents.CAT_STAFF_RETRACT.get();
+                }
             } else if (old == Mode.PHONE || old == Mode.SPYGLASS) {
-                anim = ANIMATION_CLOSE;
+                anim = ANIMATION_CLOSE_AND_EXTEND;
+                sound = MineraculousSoundEvents.CAT_STAFF_EXTEND.get();
             }
-            if (anim != null) {
+            if (anim != null)
                 triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_EXTEND, anim);
-            }
+            if (sound != null)
+                level.playSound(null, holder.blockPosition(), sound, holder.getSoundSource(), 1.0F, 1.0F);
         }
         return selected;
     }
@@ -392,6 +404,30 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
         return slotChanged && super.shouldCauseReequipAnimation(oldStack, newStack, true);
+    }
+
+    @Override
+    public void onToggle(ItemStack stack, @Nullable Entity holder, Active active) {
+        Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
+        if (holder != null) {
+            String anim;
+            SoundEvent sound;
+            if (active.active()) {
+                if (mode == Mode.PHONE || mode == Mode.SPYGLASS)
+                    anim = ANIMATION_OPEN;
+                else
+                    anim = ANIMATION_EXTEND;
+                sound = MineraculousSoundEvents.CAT_STAFF_EXTEND.get();
+            } else {
+                if (mode == Mode.PHONE || mode == Mode.SPYGLASS)
+                    anim = ANIMATION_CLOSE;
+                else
+                    anim = ANIMATION_RETRACT;
+                sound = MineraculousSoundEvents.CAT_STAFF_RETRACT.get();
+            }
+            triggerAnim(holder, GeoItem.getOrAssignId(stack, (ServerLevel) holder.level()), CONTROLLER_EXTEND, anim);
+            holder.level().playSound(null, holder.blockPosition(), sound, holder.getSoundSource(), 1.0F, 1.0F);
+        }
     }
 
     public enum Mode implements RadialMenuOption, StringRepresentable {

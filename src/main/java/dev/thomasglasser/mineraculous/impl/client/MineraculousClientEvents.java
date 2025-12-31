@@ -2,7 +2,11 @@ package dev.thomasglasser.mineraculous.impl.client;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.client.event.ContextDependentCurioRenderEvent;
+import dev.thomasglasser.mineraculous.api.client.event.CreatePlayerMenuItemEvent;
+import dev.thomasglasser.mineraculous.api.client.event.RenderPlayerLikeEvent;
 import dev.thomasglasser.mineraculous.api.client.gui.MineraculousGuiLayers;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.ExternalMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.tooltip.ClientLabeledItemTagsTooltip;
@@ -22,6 +26,7 @@ import dev.thomasglasser.mineraculous.api.world.effect.MineraculousMobEffects;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.inventory.MineraculousMenuTypes;
 import dev.thomasglasser.mineraculous.api.world.inventory.tooltip.LabeledItemTagsTooltip;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemDisplayContexts;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
@@ -30,6 +35,7 @@ import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
 import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
 import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.SyncedTransientAbilityEffectData;
+import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.inventory.OvenScreen;
@@ -54,6 +60,7 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.item.KwamiItemRendere
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
 import dev.thomasglasser.mineraculous.impl.core.look.LookLoader;
+import dev.thomasglasser.mineraculous.impl.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRemoteDamagePayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
@@ -62,6 +69,7 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYo
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -71,11 +79,13 @@ import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.particle.FlyStraightTowardsParticle;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -89,6 +99,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.DyedItemColor;
@@ -320,6 +331,14 @@ public class MineraculousClientEvents {
         event.registerRecipeCategoryFinder(MineraculousRecipeTypes.OVEN_COOKING.get(), recipe -> MineraculousRecipeBookCategories.OVEN_FOOD.getValue());
     }
 
+    static void onCreatePlayerMenuItem(CreatePlayerMenuItemEvent event) {
+        Player player = event.getEntity();
+        List<Holder<Miraculous>> transformed = player.getData(MineraculousAttachmentTypes.MIRACULOUSES).getTransformed();
+        if (!transformed.isEmpty()) {
+            event.setDisplay(Miraculous.createMiraculousStack(transformed.getFirst()));
+        }
+    }
+
     // Tick
     static void onClientTick(ClientTickEvent.Post event) {
         if (MineraculousClientUtils.getCameraEntity() != null && MineraculousClientUtils.getCameraEntity().isRemoved())
@@ -457,9 +476,39 @@ public class MineraculousClientEvents {
         }
     }
 
+    static void onDetermineCurioRenderContext(ContextDependentCurioRenderEvent.DetermineContext<?, ?> event) {
+        String slot = event.getSlot();
+        if (slot.equals(MineraculousCuriosProvider.SLOT_RING))
+            event.setDisplayContext(MineraculousItemDisplayContexts.CURIOS_RIGHT_ARM.getValue());
+        else if (slot.equals(MineraculousCuriosProvider.SLOT_EARRINGS))
+            event.setDisplayContext(MineraculousItemDisplayContexts.CURIOS_LEFT_EARRING.getValue());
+    }
+
+    static void onPostContextDependentCurioRender(ContextDependentCurioRenderEvent.Post<?, ?> event) {
+        LivingEntity entity = event.getEntity();
+        ItemStack stack = event.getStack();
+        PoseStack poseStack = event.getPoseStack();
+        MultiBufferSource renderTypeBuffer = event.getRenderTypeBuffer();
+        int light = event.getLight();
+        ItemDisplayContext displayContext = event.getDisplayContext();
+        ItemInHandRenderer renderer = event.getItemInHandRenderer();
+        if (displayContext == MineraculousItemDisplayContexts.CURIOS_LEFT_EARRING.getValue()) {
+            poseStack.mulPose(Axis.YP.rotationDegrees(180));
+            poseStack.translate(0, 0, 1 / 16f);
+            renderer.renderItem(entity, stack, MineraculousItemDisplayContexts.CURIOS_RIGHT_EARRING.getValue(), false, poseStack, renderTypeBuffer, light);
+        }
+    }
+
     static void onRenderNameTag(RenderNameTagEvent event) {
         if (event.getEntity() instanceof LookCustomizationScreen.PlayerPreview)
             event.setCanRender(TriState.FALSE);
+    }
+
+    // Player-Like Rendering
+    public static void onRenderPlayerLikeCape(RenderPlayerLikeEvent.RenderCape<?> event) {
+        if (event.getPlayerLike() instanceof LivingEntity entity && MineraculousClientUtils.shouldNotRenderCape(entity)) {
+            event.setCanceled(true);
+        }
     }
 
     // Special Player Handling

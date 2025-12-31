@@ -16,7 +16,7 @@ public class KamikoPlayerMenuItem extends PlayerMenuItem {
     @Override
     public void selectItem(SelectionMenu menu) {
         if (MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko) {
-            TommyLibServices.NETWORK.sendToServer(new ServerboundSetPlayerAttackTargetPayload(kamiko.getId(), profile.getId()));
+            TommyLibServices.NETWORK.sendToServer(new ServerboundSetPlayerAttackTargetPayload(kamiko.getId(), id));
         }
     }
 }

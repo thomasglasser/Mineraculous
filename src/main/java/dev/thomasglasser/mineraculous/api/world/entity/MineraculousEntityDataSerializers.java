@@ -1,6 +1,7 @@
 package dev.thomasglasser.mineraculous.api.world.entity;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.world.entity.animal.ButterflyVariant;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
@@ -29,6 +30,7 @@ public class MineraculousEntityDataSerializers {
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<MiraculousLadybugTargetData>> MIRACULOUS_LADYBUG_TARGET_DATA = ENTITY_DATA_SERIALIZERS.register("miraculous_ladybug_target_data", () -> EntityDataSerializer.forValueType(MiraculousLadybugTargetData.STREAM_CODEC));
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Optional<Holder<Kamikotization>>>> OPTIONAL_KAMIKOTIZATION = ENTITY_DATA_SERIALIZERS.register("optional_kamikotization", () -> EntityDataSerializer.forValueType(ByteBufCodecs.optional(Kamikotization.STREAM_CODEC)));
     public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Optional<MinionKamikotizationData>>> MINION_KAMIKOTIZATION_DATA = ENTITY_DATA_SERIALIZERS.register("minion_kamikotization_data", () -> EntityDataSerializer.forValueType(ByteBufCodecs.optional(MinionKamikotizationData.STREAM_CODEC)));
+    public static final DeferredHolder<EntityDataSerializer<?>, EntityDataSerializer<Holder<ButterflyVariant>>> BUTTERFLY_VARIANT = ENTITY_DATA_SERIALIZERS.register("butterfly_variant", () -> EntityDataSerializer.forValueType(ButterflyVariant.STREAM_CODEC));
 
     @ApiStatus.Internal
     public static void init() {}

@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.api.world.item;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.food.MineraculousFoods;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheese;
 import dev.thomasglasser.mineraculous.api.world.level.block.AgeingCheeseEdibleFullBlock;
@@ -79,6 +80,9 @@ public class MineraculousItems {
     // Foods
     public static final DeferredItem<Item> RAW_MACARON = register("raw_macaron", () -> new Item(new Item.Properties().stacksTo(16).food(MineraculousFoods.RAW_MACARON)));
     public static final DeferredItem<Item> MACARON = register("macaron", () -> new Item(new Item.Properties().stacksTo(16).food(MineraculousFoods.MACARON)));
+
+    // Spawn Eggs
+    public static final DeferredItem<SpawnEggItem> BUTTERFLY_SPAWN_EGG = registerSpawnEgg(MineraculousEntityTypes.BUTTERFLY, 0xc8e5ea, 0x90bfd5);
 
     private static EnumMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> wedges(String name, FoodProperties foodProperties, EnumMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> blocks) {
         EnumMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> cheeses = new EnumMap<>(AgeingCheese.Age.class);

@@ -22,6 +22,9 @@ public class MineraculousEntityTypeTagsProvider extends ExtendedIntrinsicHolderT
         tag(MineraculousEntityTypeTags.CATACLYSM_IMMUNE)
                 .add(MineraculousEntityTypes.KWAMI.get());
 
+        tag(MineraculousEntityTypeTags.BUTTERFLIES)
+                .add(MineraculousEntityTypes.BUTTERFLY.get());
+
         tag(MineraculousEntityTypeTags.LADYBUG_YOYO_EXTENDED_RANGE)
                 .add(MineraculousEntityTypes.KAMIKO.get());
     }

@@ -95,6 +95,7 @@
     "mineraculous:kamikotization"
   ],
   "minecraft:entity_type": [
+    "mineraculous:butterfly",
     "mineraculous:kamiko",
     "mineraculous:kamikotized_minion",
     "mineraculous:kwami",
@@ -111,6 +112,7 @@
     "mineraculous:aged_cheese_wedge",
     "mineraculous:butterfly_armor_trim_smithing_template",
     "mineraculous:butterfly_cane",
+    "mineraculous:butterfly_spawn_egg",
     "mineraculous:cat_armor_trim_smithing_template",
     "mineraculous:cat_staff",
     "mineraculous:cataclysm_block",
@@ -294,6 +296,12 @@
     "mineraculous:summon_target_dependent_lucky_charm",
     "mineraculous:toggleable_night_vision"
   ],
+  "mineraculous:butterfly_variant": [
+    "mineraculous:cold",
+    "mineraculous:kamiko",
+    "mineraculous:temperate",
+    "mineraculous:warm"
+  ],
   "mineraculous:kamikotization": [
     "mineraculous:cat",
     "mineraculous:ladybug",
@@ -325,7 +333,11 @@
     "mineraculous:traveling_cat_staff",
     "mineraculous:yoyo_leash_override"
   ],
+  "neoforge:biome_modifier": [
+    "mineraculous:spawn_butterflies"
+  ],
   "neoforge:entity_data_serializers": [
+    "mineraculous:butterfly_variant",
     "mineraculous:minion_kamikotization_data",
     "mineraculous:miraculous",
     "mineraculous:miraculous_ladybug_target_data",

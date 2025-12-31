@@ -7,9 +7,11 @@ import dev.thomasglasser.mineraculous.api.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.api.world.ability.Abilities;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.damagesource.MineraculousDamageTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.animal.ButterflyVariants;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.data.advancements.MineraculousAdvancementProvider;
+import dev.thomasglasser.mineraculous.impl.data.biome.MineraculousBiomeModifiers;
 import dev.thomasglasser.mineraculous.impl.data.blockstates.MineraculousBlockStateProvider;
 import dev.thomasglasser.mineraculous.impl.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.impl.data.datamaps.MineraculousDataMapProvider;
@@ -21,6 +23,7 @@ import dev.thomasglasser.mineraculous.impl.data.modonomicons.MineraculousBookPro
 import dev.thomasglasser.mineraculous.impl.data.particles.MineraculousParticleDescriptionProvider;
 import dev.thomasglasser.mineraculous.impl.data.recipes.MineraculousRecipeProvider;
 import dev.thomasglasser.mineraculous.impl.data.sounds.MineraculousSoundDefinitionsProvider;
+import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousBiomeTagsProvider;
 import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousBlockTagsProvider;
 import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousDamageTypeTagsProvider;
 import dev.thomasglasser.mineraculous.impl.data.tags.MineraculousEntityTypeTagsProvider;
@@ -48,6 +51,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public class MineraculousDataGenerators {
     public static final ResourceKey<Kamikotization> CAT_KAMIKOTIZATION = ResourceKey.create(MineraculousRegistries.KAMIKOTIZATION, MineraculousConstants.modLoc("cat"));
@@ -60,6 +64,8 @@ public class MineraculousDataGenerators {
             .add(LithostitchedRegistryKeys.WORLDGEN_MODIFIER, MineraculousWorldgenModifiers::bootstrap)
             .add(MineraculousRegistries.ABILITY, Abilities::bootstrap)
             .add(MineraculousRegistries.MIRACULOUS, Miraculouses::bootstrap)
+            .add(MineraculousRegistries.BUTTERFLY_VARIANT, ButterflyVariants::bootstrap)
+            .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, MineraculousBiomeModifiers::bootstrap)
             .add(MineraculousRegistries.KAMIKOTIZATION, context -> {
                 // TODO: Remove when testing is done (don't forget to remove the assets)
                 HolderGetter<Ability> abilities = context.lookup(MineraculousRegistries.ABILITY);
@@ -101,6 +107,7 @@ public class MineraculousDataGenerators {
         DataGenerationUtils.createProvider(event, MineraculousPaintingVariantTagsProvider::new);
         DataGenerationUtils.createProvider(event, MineraculousEntityTypeTagsProvider::new);
         DataGenerationUtils.createProvider(event, MiraculousTagsProvider::new);
+        DataGenerationUtils.createProvider(event, MineraculousBiomeTagsProvider::new);
         event.createProvider(MineraculousDataMapProvider::new);
         DataGenerationUtils.createProvider(event, MineraculousCuriosProvider::new);
 

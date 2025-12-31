@@ -139,6 +139,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousItems.CATACLYSM_DUST.get(), "Cataclysm Dust");
         add(MineraculousItems.RAW_MACARON.get(), "Raw Macaron");
         add(MineraculousItems.MACARON.get(), "Macaron");
+        add(MineraculousItems.BUTTERFLY_SPAWN_EGG.get(), "Butterfly Spawn Egg");
         add(MineraculousBlocks.HIBISCUS_BUSH.asItem(), "Hibiscus");
 
         add(KwamiItem.CHARGED, "Charged");
@@ -174,6 +175,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     private void addEntityTypes() {
+        add(MineraculousEntityTypes.BUTTERFLY.get(), "Butterfly");
         add(MineraculousEntityTypes.KAMIKO.get(), "Kamiko");
         add(MineraculousEntityTypes.KWAMI.get(), "Kwami");
         add(MineraculousEntityTypes.LUCKY_CHARM_ITEM_SPAWNER.get(), "Lucky Charm Item Spawner");
@@ -392,6 +394,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousItemTags.CAT_KWAMI_TREATS, "Cat Kwami Treats");
         add(MineraculousItemTags.LADYBUG_KWAMI_PREFERRED_FOODS, "Ladybug Kwami Preferred Foods");
         add(MineraculousItemTags.LADYBUG_KWAMI_TREATS, "Ladybug Kwami Treats");
+        add(MineraculousItemTags.BUTTERFLY_FOOD, "Butterfly Food");
         add(MineraculousItemTags.CHEESES_FOODS, "Cheeses");
         add(MineraculousItemTags.CHEESE, "Cheese");
         add(MineraculousItemTags.CAMEMBERT, "Camembert");

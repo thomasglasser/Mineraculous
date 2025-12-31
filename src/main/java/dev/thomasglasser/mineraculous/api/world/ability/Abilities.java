@@ -24,7 +24,6 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EntityType;
 import org.jetbrains.annotations.ApiStatus;
 
 public class Abilities {
@@ -70,11 +69,8 @@ public class Abilities {
                 Optional.of(Holder.direct(new ConvertAndTameAbility(
                         MineraculousEntityTypes.KAMIKO.get(),
                         true,
-                        // TODO: Replace when butterflies
-//                        Optional.of(EntityPredicate.Builder.entity().of(MineraculousEntityTypeTags.BUTTERFLIES).build()),
-//                        Optional.empty(),
+                        Optional.of(EntityPredicate.Builder.entity().of(MineraculousEntityTypeTags.BUTTERFLIES).build()),
                         Optional.empty(),
-                        Optional.of(EntityPredicate.Builder.entity().of(EntityType.PLAYER).build()),
                         Optional.of(MineraculousSoundEvents.KAMIKOTIZATION_ACTIVATE)))),
                 HolderSet.direct(Holder.direct(new RightHandParticlesAbility(MineraculousParticleTypes.BLACK_ORB.get())))));
         context.register(KAMIKO_CONTROL, new SpectateEntityAbility(

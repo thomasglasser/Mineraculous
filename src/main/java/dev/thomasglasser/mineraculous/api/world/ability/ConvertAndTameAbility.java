@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.context.EntityAbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
+import dev.thomasglasser.mineraculous.impl.world.entity.TameableEntity;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,7 +20,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.TamableAnimal;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -60,7 +60,7 @@ public record ConvertAndTameAbility(EntityType<?> newType, boolean requireNoneSt
             if (!(requireNoneStored && hasStored) && !entityData.isConvertedOrCopied(target.getUUID())) {
                 Entity newEntity = newType.create(level);
                 if (newEntity != null) {
-                    if (newEntity instanceof TamableAnimal tamable) {
+                    if (newEntity instanceof TameableEntity tamable) {
                         tamable.setOwnerUUID(performer.getUUID());
                     }
                     newEntity.setUUID(target.getUUID());

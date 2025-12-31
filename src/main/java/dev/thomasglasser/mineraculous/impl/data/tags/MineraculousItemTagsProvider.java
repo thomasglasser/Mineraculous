@@ -104,6 +104,9 @@ public class MineraculousItemTagsProvider extends ExtendedItemTagsProvider {
     }
 
     private void addFoods() {
+        tag(MineraculousItemTags.BUTTERFLY_FOOD)
+                .addTag(ItemTags.SMALL_FLOWERS);
+
         tag(ConventionalItemTags.FOODS)
                 .add(MineraculousItems.RAW_MACARON)
                 .add(MineraculousItems.MACARON)

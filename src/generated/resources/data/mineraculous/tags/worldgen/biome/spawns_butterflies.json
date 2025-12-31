@@ -1,0 +1,9 @@
+{
+  "values": [
+    "#mineraculous:spawns_warm_variant_butterflies",
+    "#mineraculous:spawns_cold_variant_butterflies",
+    "#c:is_plains",
+    "#c:is_forest",
+    "#c:is_floral"
+  ]
+}

@@ -23,6 +23,9 @@ public class MineraculousItemTags {
     /// Items that can be used to immediately charge the ladybug kwami.
     public static final TagKey<Item> LADYBUG_KWAMI_TREATS = Miraculous.createTreatsTag(Miraculouses.LADYBUG);
 
+    /// Items that can feed {@link dev.thomasglasser.mineraculous.impl.world.entity.animal.Butterfly}s.
+    public static final TagKey<Item> BUTTERFLY_FOOD = create("butterfly_food");
+
     // Cheeses
     /// Items from any mod that can be considered cheese and food.
     public static final TagKey<Item> CHEESES_FOODS = createC("foods/cheeses");

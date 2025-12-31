@@ -20,6 +20,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerChoicesPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItemPayload;
+import dev.thomasglasser.mineraculous.impl.world.entity.animal.Butterfly;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
@@ -70,6 +71,7 @@ public class MineraculousEntityEvents {
     /// Registration
     public static void onEntityAttributeCreation(EntityAttributeCreationEvent event) {
         event.put(MineraculousEntityTypes.KWAMI.get(), Kwami.createAttributes().build());
+        event.put(MineraculousEntityTypes.BUTTERFLY.get(), Butterfly.createAttributes().build());
         event.put(MineraculousEntityTypes.KAMIKO.get(), Kamiko.createAttributes().build());
         event.put(MineraculousEntityTypes.KAMIKOTIZED_MINION.get(), PlayerLike.createDefaultAttributes().build());
     }

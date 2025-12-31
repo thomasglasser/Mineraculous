@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.api.core.registries;
 import com.mojang.serialization.MapCodec;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
+import dev.thomasglasser.mineraculous.api.world.entity.animal.ButterflyVariant;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.world.level.miraculousladybugtarget.MiraculousLadybugTargetType;
@@ -23,6 +24,8 @@ public class MineraculousRegistries {
     public static final ResourceKey<Registry<Miraculous>> MIRACULOUS = create("miraculous");
     /// Data-driven registry holding {@link Kamikotization}s containing {@link MineraculousRegistries#ABILITY} entries.
     public static final ResourceKey<Registry<Kamikotization>> KAMIKOTIZATION = create("kamikotization");
+    /// Data-driven registry holding {@link ButterflyVariant}s for use in {@link dev.thomasglasser.mineraculous.impl.world.entity.animal.Butterfly} visuals.
+    public static final ResourceKey<Registry<ButterflyVariant>> BUTTERFLY_VARIANT = create("butterfly_variant");
 
     private static <T> ResourceKey<Registry<T>> create(String name) {
         return ResourceKey.createRegistryKey(MineraculousConstants.modLoc(name));

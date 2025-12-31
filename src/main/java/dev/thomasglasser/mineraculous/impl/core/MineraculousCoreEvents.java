@@ -8,6 +8,7 @@ import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries
 import dev.thomasglasser.mineraculous.api.datamaps.MineraculousDataMaps;
 import dev.thomasglasser.mineraculous.api.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
+import dev.thomasglasser.mineraculous.api.world.entity.animal.ButterflyVariant;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.api.world.level.block.MineraculousBlocks;
@@ -54,6 +55,7 @@ public class MineraculousCoreEvents {
         event.dataPackRegistry(MineraculousRegistries.MIRACULOUS, Miraculous.DIRECT_CODEC, Miraculous.DIRECT_CODEC);
         event.dataPackRegistry(MineraculousRegistries.ABILITY, Ability.DIRECT_CODEC, Ability.DIRECT_CODEC);
         event.dataPackRegistry(MineraculousRegistries.KAMIKOTIZATION, Kamikotization.DIRECT_CODEC, Kamikotization.DIRECT_CODEC);
+        event.dataPackRegistry(MineraculousRegistries.BUTTERFLY_VARIANT, ButterflyVariant.DIRECT_CODEC, ButterflyVariant.DIRECT_CODEC);
     }
 
     public static void onAddPackFinders(AddPackFindersEvent event) {

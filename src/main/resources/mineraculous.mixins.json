@@ -18,6 +18,7 @@
     "minecraft.server.packs.repository.PackMixin",
     "minecraft.world.entity.EntityMixin",
     "minecraft.world.entity.LeashableMixin",
+    "minecraft.world.entity.TamableAnimalMixin",
     "minecraft.world.entity.player.PlayerMixin",
     "minecraft.world.inventory.AbstractContainerMenuMixin",
     "minecraft.world.item.BlockItemMixin",

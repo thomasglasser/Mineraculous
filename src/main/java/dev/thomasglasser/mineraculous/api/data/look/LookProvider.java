@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.api.data.look;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
@@ -39,16 +40,14 @@ public abstract class LookProvider implements DataProvider {
     private final Map<String, Builder> looks = new Object2ObjectOpenHashMap<>();
     private final PackOutput output;
     private final String modId;
-    private final String defaultAuthor;
     private final CompletableFuture<HolderLookup.Provider> lookupProvider;
 
     @Nullable
     private DynamicOps<JsonElement> ops;
 
-    protected LookProvider(PackOutput output, String modId, String defaultAuthor, CompletableFuture<HolderLookup.Provider> lookupProvider) {
+    protected LookProvider(PackOutput output, String modId, CompletableFuture<HolderLookup.Provider> lookupProvider) {
         this.output = output;
         this.modId = modId;
-        this.defaultAuthor = defaultAuthor;
         this.lookupProvider = lookupProvider;
     }
 
@@ -222,7 +221,9 @@ public abstract class LookProvider implements DataProvider {
             this.ops = provider.createSerializationContext(JsonOps.INSTANCE);
             this.registerLooks(provider);
 
-            return CompletableFuture.allOf(this.looks.entrySet().stream().map(entry -> {
+            JsonArray jsonarray = new JsonArray();
+            looks.keySet().stream().sorted().forEach(jsonarray::add);
+            var looks = CompletableFuture.allOf(this.looks.entrySet().stream().map(entry -> {
                 String id = entry.getKey();
                 Builder builder = entry.getValue();
 
@@ -257,6 +258,7 @@ public abstract class LookProvider implements DataProvider {
                 json.add(Look.ASSETS_KEY, contexts);
                 return DataProvider.saveStable(output, json, this.getOutput().getOutputFolder(PackOutput.Target.RESOURCE_PACK).resolve(getModId()).resolve(LookLoader.LOOKS_SUBPATH).resolve(id + ".json"));
             }).toArray(CompletableFuture[]::new));
+            return jsonarray.isEmpty() ? looks : CompletableFuture.allOf(looks, DataProvider.saveStable(output, jsonarray, getOutput().getOutputFolder(PackOutput.Target.REPORTS).resolve("looks.json")));
         });
     }
 

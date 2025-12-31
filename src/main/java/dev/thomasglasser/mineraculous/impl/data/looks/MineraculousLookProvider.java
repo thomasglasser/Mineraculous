@@ -16,7 +16,7 @@ import net.minecraft.data.PackOutput;
 
 public class MineraculousLookProvider extends LookProvider {
     public MineraculousLookProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> lookupProvider) {
-        super(output, MineraculousConstants.MOD_ID, MineraculousConstants.MOD_NAME, lookupProvider);
+        super(output, MineraculousConstants.MOD_ID, lookupProvider);
     }
 
     @Override

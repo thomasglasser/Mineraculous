@@ -75,10 +75,20 @@ public class MiraculousesData {
         return data;
     }
 
+    /**
+     * Returns the last miraculous used to transform.
+     * 
+     * @return The last miraculous used to transform
+     */
     public Optional<Holder<Miraculous>> getLastUsed() {
         return lastUsed;
     }
 
+    /**
+     * Sets the last miraculous used to transform
+     * 
+     * @param lastUsed The last miraculous used to transform
+     */
     public void setLastUsed(Holder<Miraculous> lastUsed) {
         this.lastUsed = Optional.of(lastUsed);
     }

@@ -110,11 +110,13 @@ public class Mineraculous {
 
         // Neo Bus
         NeoForge.EVENT_BUS.addListener(KamikotizationEvents::onPreTransformKamikotization);
+        NeoForge.EVENT_BUS.addListener(KamikotizationEvents::onPreDetransformKamikotization);
 
         NeoForge.EVENT_BUS.addListener(LuckyCharmEvents::onDetermineLuckyCharmSpawnPos);
         NeoForge.EVENT_BUS.addListener(LuckyCharmEvents::onDetermineLuckyCharms);
 
         NeoForge.EVENT_BUS.addListener(MiraculousEvents::onPreTransformMiraculous);
+        NeoForge.EVENT_BUS.addListener(MiraculousEvents::onPreDetransformMiraculous);
 
         NeoForge.EVENT_BUS.addListener(StealEvents::onPreStartSteal);
         NeoForge.EVENT_BUS.addListener(StealEvents::onTickStartSteal);

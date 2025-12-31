@@ -14,8 +14,14 @@ public class KamikotizationEvents {
         if (stack != null)
             stack.remove(MineraculousDataComponents.KAMIKOTIZING);
 
-        if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed()) {
+        if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).isTransformed() || MiraculousEvents.hasTransformationFrames(entity)) {
             event.setCanceled(true);
         }
+    }
+
+    public static void onPreDetransformKamikotization(KamikotizationEvent.Detransform.Pre event) {
+        LivingEntity entity = event.getEntity();
+        if (MiraculousEvents.hasTransformationFrames(entity))
+            event.setCanceled(true);
     }
 }

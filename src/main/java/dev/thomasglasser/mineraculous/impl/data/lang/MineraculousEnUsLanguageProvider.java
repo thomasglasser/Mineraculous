@@ -2,7 +2,11 @@ package dev.thomasglasser.mineraculous.impl.data.lang;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.RegistryElementSelectionScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.ExternalInventoryScreen;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.look.LookCustomizationScreen;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
+import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.packs.MineraculousPacks;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousBlockTags;
@@ -72,6 +76,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
     @Override
     protected void addTranslations() {
+        addRegistries();
         addItems();
         addComponents();
         addBlocks();
@@ -90,6 +95,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addPaintingVariants();
         addPotterySherds();
         addArmorTrims();
+        addLookContexts();
         addTags();
         addPacks();
         addConfigs();
@@ -120,12 +126,22 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
     }
 
     protected void add(IJadeProvider provider, String name) {
-        add("config.jade.plugin_" + provider.getUid().getNamespace() + "." + provider.getUid().getPath(), name);
+        add("config.jade.plugin_" + provider.getUid().toShortLanguageKey(), name);
     }
 
     private void add(MineraculousPackCompatibility compatibility, String description, String confirmation) {
         add(compatibility.getDescription(), description);
         add(compatibility.getConfirmation(), confirmation);
+    }
+
+    private void addRegistries() {
+        addCapitalized(MineraculousRegistries.ABILITY_SERIALIZER);
+        addCapitalized(MineraculousRegistries.MIRACULOUS_LADYBUG_TARGET_TYPE);
+        addCapitalized(MineraculousRegistries.LOOK_CONTEXT);
+        addCapitalized(MineraculousRegistries.LOOK_METADATA_TYPE);
+        addCapitalized(MineraculousRegistries.ABILITY);
+        addCapitalized(MineraculousRegistries.MIRACULOUS);
+        addCapitalized(MineraculousRegistries.KAMIKOTIZATION);
     }
 
     private void addItems() {
@@ -259,7 +275,13 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         add(MineraculousClientUtils.GUI_CHOOSE, "Choose");
         add(MineraculousClientUtils.GUI_NAME, "Name");
 
-        // Block Entity Screens
+        // Looks Button
+        add(MineraculousClientUtils.MIRACULOUS_LOOKS_BUTTON_TOOLTIP, "Miraculous Looks");
+
+        // Registry Element Selection
+        add(RegistryElementSelectionScreen.TITLE, "Select %s");
+
+        // Block Entities
         add(OvenBlockEntity.NAME, "Oven");
         add(OvenRecipeBookComponent.FILTER_NAME, "Showing Oven Cookable");
 
@@ -298,6 +320,13 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
         // Receiver Kamikotization Chat Screen
         add(ReceiverKamikotizationChatScreen.ACCEPT, "Accept Kamikotization");
+
+        // Look Customization Screen
+        add(LookCustomizationScreen.SELECTED, "Selected: %s");
+        add(LookCustomizationScreen.ENTER_NAME, "Enter Name...");
+        add(LookCustomizationScreen.APPLY, "Apply");
+        add(LookCustomizationScreen.UNDO, "Undo");
+        add(LookCustomizationScreen.RESET, "Reset");
 
         // Miraculous Transfer Screen
         add(MiraculousTransferScreen.TITLE, "Miraculous Transfer");
@@ -377,6 +406,20 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addArmorTrim(MineraculousTrimPatterns.BUTTERFLY, MineraculousItems.BUTTERFLY_ARMOR_TRIM_SMITHING_TEMPLATE.get(), "Butterfly");
     }
 
+    private void addLookContexts() {
+        add(LookContexts.MIRACULOUS_SUIT.getKey(), "Suit");
+        add(LookContexts.POWERED_MIRACULOUS.getKey(), "Powered");
+        add(LookContexts.HIDDEN_MIRACULOUS.getKey(), "Hidden");
+        add(LookContexts.MIRACULOUS_TOOL.getKey(), "Tool");
+        add(LookContexts.BLOCKING_MIRACULOUS_TOOL.getKey(), "Blocking");
+        add(LookContexts.PHONE_MIRACULOUS_TOOL.getKey(), "Phone");
+        add(LookContexts.SPYGLASS_MIRACULOUS_TOOL.getKey(), "Spyglass");
+
+        add(LookContexts.KAMIKOTIZATION_SUIT.getKey(), "Suit");
+        add(LookContexts.KAMIKOTIZATION_TOOL.getKey(), "Tool");
+        add(LookContexts.SPYGLASS_KAMIKOTIZATION_TOOL.getKey(), "Spyglass");
+    }
+
     private void addTags() {
         // Block Tags
         add(MineraculousBlockTags.CATACLYSM_IMMUNE, MineraculousItemTags.CATACLYSM_IMMUNE, "Cataclysm Immune");
@@ -407,13 +450,13 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfigTitle(MineraculousConstants.MOD_NAME);
 
         // Server
-        addConfigSection(MineraculousServerConfig.MIRACULOUS, "Miraculous", "Settings for miraculous");
+        addConfigSection(MineraculousServerConfig.LOOKS, "Looks", "Settings for looks");
+        addConfig(MineraculousServerConfig.get().enableClientProvidedLooks, "Enable Client Provided Looks", "Enable loading and using looks uploaded by clients");
+
+        addConfigSection(MineraculousServerConfig.MIRACULOUSES, "Miraculouses", "Settings for miraculouses");
         addConfig(MineraculousServerConfig.get().enableBuffsOnTransformation, "Enable Buffs on Transformation", "Enable having buffs when transforming");
         addConfig(MineraculousServerConfig.get().maxToolLength, "Maximum Tool Length", "Amount of blocks that tools can be extended to");
-
-        addConfigSection(MineraculousServerConfig.CUSTOMIZATION, "Customization", "Settings for customization");
-        addConfig(MineraculousServerConfig.get().enableCustomization, "Enable Customization", "Enable customization of miraculous suits and items. §4WARNING: This may lead to vulnerabilities. Only enable if you trust server members.");
-        addConfig(MineraculousServerConfig.get().customizationPermissionsMode, "Customization Permissions Mode", "Permissions mode for customization. Whitelist: Only whitelisted players can customize. Blacklist: Only non-blacklisted players can customize.");
+        addConfig(MineraculousServerConfig.get().initialLookMode, "Initial Look Mode", "The way initial Miraculous looks are determined");
 
         addConfigSection(MineraculousServerConfig.ABILITIES, "Abilities", "Settings for abilities");
         addConfig(MineraculousServerConfig.get().enableMiraculousTimer, "Enable Miraculous Timer", "Enable the detransformation timer for miraculous holders before they reach full maturity");

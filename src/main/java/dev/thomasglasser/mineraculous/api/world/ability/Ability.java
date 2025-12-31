@@ -44,6 +44,9 @@ public interface Ability {
 
     /**
      * Performs actions based on the given context.
+     * <p>
+     * Note that this method <b>should not be called directly.</b>
+     * Instead, use {@link AbilityUtils#performAbilityWithEvents(Holder, ServerLevel, LivingEntity, AbilityData, AbilityHandler, AbilityContext)} so the appropriate events are fired.
      *
      * @param data      The relevant {@link AbilityData} of the performer
      * @param level     The level the ability is being performed in

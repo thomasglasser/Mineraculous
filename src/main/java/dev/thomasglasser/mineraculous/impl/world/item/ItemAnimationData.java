@@ -1,12 +1,12 @@
-package dev.thomasglasser.mineraculous.impl.world.item.armor;
+package dev.thomasglasser.mineraculous.impl.world.item;
 
 import software.bernie.geckolib.animatable.GeoAnimatable;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.model.GeoModel;
 
-public record ArmorAnimationData(boolean flying, boolean swimming, boolean sprinting, boolean walking, boolean idle) {
-    public <T extends GeoAnimatable> ArmorAnimationData(GeoModel<T> model, T animatable) {
+public record ItemAnimationData(boolean flying, boolean swimming, boolean sprinting, boolean walking, boolean idle) {
+    public <T extends GeoAnimatable> ItemAnimationData(GeoModel<T> model, T animatable) {
         this(
                 hasAnimation(DefaultAnimations.FLY, model, animatable),
                 hasAnimation(DefaultAnimations.SWIM, model, animatable),

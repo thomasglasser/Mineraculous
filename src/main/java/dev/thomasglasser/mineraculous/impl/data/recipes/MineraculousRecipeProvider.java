@@ -29,7 +29,6 @@ import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.data.recipes.SpecialRecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Items;
@@ -147,7 +146,7 @@ public class MineraculousRecipeProvider extends ExtendedRecipeProvider {
                         .requires(Items.HONEYCOMB)
                         .group(getItemName(waxed))
                         .unlockedBy(getHasName(block), has(block))
-                        .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(waxed.getId().getNamespace(), getConversionRecipeName(waxed, Items.HONEYCOMB)));
+                        .save(recipeOutput, waxed.getId().withPath(getConversionRecipeName(waxed, Items.HONEYCOMB)));
             }
         });
     }

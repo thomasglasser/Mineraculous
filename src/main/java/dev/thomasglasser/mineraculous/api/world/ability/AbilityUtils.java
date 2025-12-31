@@ -20,6 +20,17 @@ import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.Nullable;
 
 public class AbilityUtils {
+    /**
+     * Performs the provided ability with the provided parameters, firing the appropriate events.
+     *
+     * @param ability     The ability to perform
+     * @param level       The level to perform the ability in
+     * @param performer   The performer of the ability
+     * @param abilityData The relevant {@link AbilityData} of the performer
+     * @param handler     The relevant {@link AbilityHandler}
+     * @param context     The context of the ability (null if passive)
+     * @return The resulting {@link Ability.State} of the performed ability
+     */
     public static Ability.State performAbilityWithEvents(Holder<Ability> ability, ServerLevel level, LivingEntity performer, AbilityData abilityData, AbilityHandler handler, @Nullable AbilityContext context) {
         Ability.State state = NeoForge.EVENT_BUS.post(new AbilityEvent.Perform.Pre(performer, ability, abilityData, handler, context)).getState();
         if (state != null)

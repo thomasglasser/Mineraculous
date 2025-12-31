@@ -70,14 +70,13 @@ public class MineraculousEntityUtils {
                     Holder<Miraculous> miraculous = transformed.getFirst();
                     MiraculousData data = miraculousesData.get(miraculous);
                     Style newStyle = style.withColor(miraculous.value().color());
-                    // TODO: Fix name
-                    if (/*!data.name().isEmpty()*/false)
-                        return Component.literal(/*data.name()*/"").setStyle(newStyle);
+                    if (data.lookData().name().isPresent())
+                        return Component.literal(data.lookData().name().get()).setStyle(newStyle);
                     return Entity.removeAction(original.copy().setStyle(newStyle.withObfuscated(true).withHoverEvent(null)));
                 } else if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
                     KamikotizationData data = entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
                     Style newStyle = style.withColor(data.kamikoData().nameColor());
-                    return Entity.removeAction(Component.literal(data.name()).setStyle(newStyle.withHoverEvent(null)));
+                    return Entity.removeAction(Component.literal(data.lookData().name().orElse("")).setStyle(newStyle.withHoverEvent(null)));
                 }
             }
         }
@@ -201,7 +200,7 @@ public class MineraculousEntityUtils {
             if (kwami != null)
                 kwami.discard();
             stack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
-            stack.set(MineraculousDataComponents.TEXTURE_STATE, MiraculousItem.TextureState.POWERED);
+            stack.set(MineraculousDataComponents.POWER_STATE, MiraculousItem.PowerState.POWERED);
             stack.remove(MineraculousDataComponents.REMAINING_TICKS);
             stack.remove(MineraculousDataComponents.KWAMI_ID);
 

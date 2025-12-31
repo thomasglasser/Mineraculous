@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.world.item.armor;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmorMaterials;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.renderer.armor.MiraculousArmorItemRenderer;
@@ -29,8 +30,13 @@ public class MiraculousArmorItem extends ArmorItem implements GeoArmorItem {
 
     public MiraculousArmorItem(Type type, Properties pProperties) {
         super(MineraculousArmorMaterials.MIRACULOUS, type, pProperties
-                .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, false)
                 .component(DataComponents.UNBREAKABLE, new Unbreakable(false)));
+        GeckoLibUtil.registerSyncedAnimatable(this);
+    }
+
+    @Override
+    public Component getName(ItemStack stack) {
+        return Miraculous.formatItemName(stack, super.getName(stack));
     }
 
     @Override
@@ -42,13 +48,8 @@ public class MiraculousArmorItem extends ArmorItem implements GeoArmorItem {
     }
 
     @Override
-    public Component getName(ItemStack stack) {
-        return Miraculous.formatItemName(stack, super.getName(stack));
-    }
-
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
+    public boolean isFoil(ItemStack stack) {
+        return false;
     }
 
     @Override
@@ -57,22 +58,27 @@ public class MiraculousArmorItem extends ArmorItem implements GeoArmorItem {
     }
 
     @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, 0, state -> MineraculousItemUtils.genericOptionalController(state, this, true)));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
+    }
+
+    @Override
     public void createGeoRenderer(Consumer<GeoRenderProvider> consumer) {
         consumer.accept(new GeoRenderProvider() {
-            private MiraculousArmorItemRenderer renderer;
+            private MiraculousArmorItemRenderer<?> renderer;
 
             @Override
             public <T extends LivingEntity> HumanoidModel<?> getGeoArmorRenderer(@Nullable T livingEntity, ItemStack itemStack, @Nullable EquipmentSlot equipmentSlot, @Nullable HumanoidModel<T> original) {
                 if (this.renderer == null)
-                    this.renderer = new MiraculousArmorItemRenderer();
+                    this.renderer = new MiraculousArmorItemRenderer<>();
 
                 return this.renderer;
             }
         });
-    }
-
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 0, state -> MineraculousArmorUtils.genericOptionalArmorController(state, this)));
     }
 }

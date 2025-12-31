@@ -52,8 +52,8 @@ public class MineraculousDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<MiraculousData.TransformationState>> TRANSFORMATION_STATE = DATA_COMPONENTS.register("transformation_state", MiraculousData.TransformationState.STREAM_CODEC, MiraculousData.TransformationState.CODEC, true);
     /// If present, the remaining ticks in an ongoing countdown.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> REMAINING_TICKS = DATA_COMPONENTS.register("remaining_ticks", ByteBufCodecs.VAR_INT, ExtraCodecs.NON_NEGATIVE_INT, true);
-    /// Determines the texture to use for a {@link MiraculousItem}.
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<MiraculousItem.TextureState>> TEXTURE_STATE = DATA_COMPONENTS.register("texture_state", MiraculousItem.TextureState.STREAM_CODEC, MiraculousItem.TextureState.CODEC, true);
+    /// Determines the state of the power of a {@link MiraculousItem}.
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<MiraculousItem.PowerState>> POWER_STATE = DATA_COMPONENTS.register("power_state", MiraculousItem.PowerState.STREAM_CODEC, MiraculousItem.PowerState.CODEC, true);
 
     // Kwami Item
     /// The food data of the {@link dev.thomasglasser.mineraculous.impl.world.entity.Kwami} of a {@link dev.thomasglasser.mineraculous.impl.world.item.KwamiItem}.

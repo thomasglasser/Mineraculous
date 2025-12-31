@@ -27,6 +27,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.network.ClientboundSyncSpecialPlayerChoicesPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEmptyLeftClickItemPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
+import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.LadybugYoyoItem;
 import dev.thomasglasser.mineraculous.impl.world.item.MiraculousItem;
@@ -110,6 +111,12 @@ public class MineraculousEntityEvents {
                 value.passiveAbilities().forEach(ability -> ability.value().joinLevel(abilityData, level, livingEntity));
                 value.powerSource().right().ifPresent(ability -> ability.value().joinLevel(abilityData, level, livingEntity));
             });
+        }
+
+        if (entity instanceof ServerPlayer player) {
+            player.getData(MineraculousAttachmentTypes.MIRACULOUSES).forEach((miraculous, data) -> ServerLookManager.requestMissingLooks(data.lookData(), player));
+            player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> ServerLookManager.requestMissingLooks(data.lookData(), player));
+            ServerLookManager.sendServerLooks(player);
         }
     }
 

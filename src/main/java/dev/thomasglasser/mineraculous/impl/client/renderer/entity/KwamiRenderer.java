@@ -10,7 +10,9 @@ import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.renderer.LightTexture;
@@ -40,6 +42,7 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
     public static final String LEFT_HAND = "left_hand";
     public static final String RIGHT_HAND = "right_hand";
 
+    private static final Set<KwamiRenderer<?>> INSTANCES = new ReferenceOpenHashSet<>();
     private static final ResourceLocation[] KWAMI_FALLBACK = new ResourceLocation[] {
             MineraculousConstants.modLoc("animations/entity/kwami.animation.json")
     };
@@ -62,6 +65,14 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
             default -> null;
         }));
         addRenderLayer(new MiniHolidayHatGeoLayer<>(this, HEAD));
+
+        INSTANCES.add(this);
+    }
+
+    public static void clearAssets() {
+        COLORS.clear();
+        INSTANCES.forEach(renderer -> renderer.models.clear());
+        INSTANCES.clear();
     }
 
     @Override

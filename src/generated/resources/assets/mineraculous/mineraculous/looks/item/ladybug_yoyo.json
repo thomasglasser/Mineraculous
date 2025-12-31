@@ -1,0 +1,25 @@
+{
+  "assets": {
+    "mineraculous:blocking_miraculous_tool": {
+      "mineraculous:geckolib_animations": "mineraculous:animations/item/ladybug_yoyo_blocking.animation.json",
+      "mineraculous:geckolib_model": "mineraculous:geo/item/ladybug_yoyo_blocking.geo.json",
+      "mineraculous:texture": "mineraculous:textures/item/geo/ladybug_yoyo_blocking.png"
+    },
+    "mineraculous:miraculous_tool": {
+      "mineraculous:geckolib_animations": "mineraculous:animations/item/ladybug_yoyo.animation.json",
+      "mineraculous:geckolib_model": "mineraculous:geo/item/ladybug_yoyo.geo.json",
+      "mineraculous:texture": "mineraculous:textures/item/geo/ladybug_yoyo.png"
+    },
+    "mineraculous:phone_miraculous_tool": {
+      "mineraculous:geckolib_animations": "mineraculous:animations/item/ladybug_yoyo.animation.json",
+      "mineraculous:geckolib_model": "mineraculous:geo/item/ladybug_yoyo.geo.json",
+      "mineraculous:texture": "mineraculous:textures/item/geo/ladybug_yoyo_phone.png"
+    },
+    "mineraculous:spyglass_miraculous_tool": {
+      "mineraculous:geckolib_animations": "mineraculous:animations/item/ladybug_yoyo.animation.json",
+      "mineraculous:geckolib_model": "mineraculous:geo/item/ladybug_yoyo.geo.json",
+      "mineraculous:scope_texture": "mineraculous:textures/misc/ladybug_yoyo_spyglass_scope.png",
+      "mineraculous:texture": "mineraculous:textures/item/geo/ladybug_yoyo_spyglass.png"
+    }
+  }
+}

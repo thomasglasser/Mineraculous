@@ -83,10 +83,10 @@
     "mineraculous:miraculous",
     "mineraculous:miraculous_id",
     "mineraculous:owner",
+    "mineraculous:power_state",
     "mineraculous:powered",
     "mineraculous:remaining_ticks",
     "mineraculous:revertible_item_id",
-    "mineraculous:texture_state",
     "mineraculous:tool_id",
     "mineraculous:transformation_state"
   ],
@@ -299,6 +299,22 @@
     "mineraculous:ladybug",
     "mineraculous:stormy"
   ],
+  "mineraculous:look_context": [
+    "mineraculous:blocking_miraculous_tool",
+    "mineraculous:hidden_miraculous",
+    "mineraculous:kamikotization_suit",
+    "mineraculous:kamikotization_tool",
+    "mineraculous:miraculous_suit",
+    "mineraculous:miraculous_tool",
+    "mineraculous:phone_miraculous_tool",
+    "mineraculous:powered_miraculous",
+    "mineraculous:spyglass_kamikotization_tool",
+    "mineraculous:spyglass_miraculous_tool"
+  ],
+  "mineraculous:look_metadata_type": [
+    "mineraculous:valid_kamikotizations",
+    "mineraculous:valid_miraculouses"
+  ],
   "mineraculous:miraculous": [
     "mineraculous:butterfly",
     "mineraculous:cat",
@@ -326,6 +342,7 @@
     "mineraculous:yoyo_leash_override"
   ],
   "neoforge:entity_data_serializers": [
+    "mineraculous:look_data",
     "mineraculous:minion_kamikotization_data",
     "mineraculous:miraculous",
     "mineraculous:miraculous_ladybug_target_data",

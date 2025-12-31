@@ -35,6 +35,7 @@
     "minecraft.client.MouseHandlerMixin",
     "minecraft.client.gui.GuiMixin",
     "minecraft.client.gui.components.spectator.SpectatorGuiMixin",
+    "minecraft.client.gui.screens.PauseScreenMixin",
     "minecraft.client.gui.screens.inventory.EffectRenderingInventoryScreenMixin",
     "minecraft.client.gui.screens.packs.PackSelectionModelEntryBaseMixin",
     "minecraft.client.gui.screens.packs.PackSelectionModelEntryMixin",

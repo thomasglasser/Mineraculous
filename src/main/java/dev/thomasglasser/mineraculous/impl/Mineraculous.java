@@ -5,6 +5,8 @@ import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTrigg
 import dev.thomasglasser.mineraculous.api.advancements.critereon.MineraculousEntitySubPredicates;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.MineraculousItemSubPredicates;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
+import dev.thomasglasser.mineraculous.api.core.look.metadata.LookMetadataTypes;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousBuiltInRegistries;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
@@ -94,6 +96,8 @@ public class Mineraculous {
         MineraculousMemoryModuleTypes.init();
         MiraculousLadybugTargetTypes.init();
         MineraculousItemSubPredicates.init();
+        LookContexts.init();
+        LookMetadataTypes.init();
     }
 
     private void addEventListeners(IEventBus modBus) {
@@ -128,6 +132,7 @@ public class Mineraculous {
 
         NeoForge.EVENT_BUS.addListener(MineraculousCommandEvents::onCommandsRegister);
 
+        NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onAddReloadListener);
         NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onServerStarted);
         NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onLootTableLoad);
 

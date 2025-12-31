@@ -1,0 +1,30 @@
+{
+  "assets": {
+    "mineraculous:hidden_miraculous": {
+      "mineraculous:geckolib_model": "mineraculous:geo/item/miraculous/butterfly_hidden.geo.json",
+      "mineraculous:item_transforms": "mineraculous:models/item/miraculous/butterfly_hidden.json",
+      "mineraculous:texture": "mineraculous:textures/item/miraculous/butterfly/hidden.png"
+    },
+    "mineraculous:miraculous_suit": {
+      "mineraculous:geckolib_model": "mineraculous:geo/item/armor/miraculous/butterfly.geo.json",
+      "mineraculous:texture": "mineraculous:textures/entity/equipment/humanoid/miraculous/butterfly.png",
+      "mineraculous:transformation_textures": {
+        "base": "mineraculous:textures/entity/equipment/humanoid/miraculous/butterfly.png",
+        "texture_count": 7
+      }
+    },
+    "mineraculous:powered_miraculous": {
+      "mineraculous:countdown_textures": {
+        "base": "mineraculous:textures/item/miraculous/butterfly/powered.png"
+      },
+      "mineraculous:geckolib_model": "mineraculous:geo/item/miraculous/butterfly.geo.json",
+      "mineraculous:item_transforms": "mineraculous:models/item/miraculous/butterfly.json",
+      "mineraculous:texture": "mineraculous:textures/item/miraculous/butterfly/powered.png"
+    }
+  },
+  "metadata": {
+    "mineraculous:valid_miraculouses": [
+      "mineraculous:butterfly"
+    ]
+  }
+}

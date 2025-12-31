@@ -10,6 +10,8 @@ import dev.thomasglasser.mineraculous.api.client.event.RenderPlayerLikeEvent;
 import dev.thomasglasser.mineraculous.api.client.gui.MineraculousGuiLayers;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.ExternalMenuScreen;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.inventory.tooltip.ClientLabeledItemTagsTooltip;
+import dev.thomasglasser.mineraculous.api.client.gui.screens.look.LookCustomizationScreen;
+import dev.thomasglasser.mineraculous.api.client.look.util.item.MiraculousLookToolClientExtensions;
 import dev.thomasglasser.mineraculous.api.client.particle.FadingParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.FlourishingParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
@@ -25,6 +27,7 @@ import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.inventory.MineraculousMenuTypes;
 import dev.thomasglasser.mineraculous.api.world.inventory.tooltip.LabeledItemTagsTooltip;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemDisplayContexts;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
 import dev.thomasglasser.mineraculous.api.world.item.crafting.MineraculousRecipeTypes;
@@ -36,11 +39,10 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousHeartTypes;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.inventory.OvenScreen;
+import dev.thomasglasser.mineraculous.impl.client.look.ClientLookManager;
 import dev.thomasglasser.mineraculous.impl.client.model.BeardModel;
 import dev.thomasglasser.mineraculous.impl.client.model.DerbyHatModel;
 import dev.thomasglasser.mineraculous.impl.client.model.FaceMaskModel;
-import dev.thomasglasser.mineraculous.impl.client.renderer.armor.KamikotizationArmorItemRenderer;
-import dev.thomasglasser.mineraculous.impl.client.renderer.armor.MiraculousArmorItemRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.LuckyCharmItemSpawnerRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.MiraculousLadybugRenderer;
@@ -54,14 +56,15 @@ import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.FaceMas
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.LegacyDevTeamLayer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.ButterflyCaneRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.CatStaffRenderer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.item.KwamiItemRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.LadybugYoyoRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
+import dev.thomasglasser.mineraculous.impl.core.look.LookLoader;
 import dev.thomasglasser.mineraculous.impl.data.curios.MineraculousCuriosProvider;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundRemoteDamagePayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoInputPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.inventory.MineraculousRecipeBookTypes;
-import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUtils;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
@@ -69,13 +72,13 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.particle.FlyStraightTowardsParticle;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
@@ -88,6 +91,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.FastColor;
+import net.minecraft.util.Unit;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Leashable;
 import net.minecraft.world.entity.LivingEntity;
@@ -120,10 +124,11 @@ import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 import net.neoforged.neoforge.client.event.RenderGuiLayerEvent;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderNameTagEvent;
 import net.neoforged.neoforge.client.event.RenderPlayerEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerHeartTypeEvent;
 import org.lwjgl.glfw.GLFW;
@@ -207,13 +212,13 @@ public class MineraculousClientEvents {
     static void onRegisterAdditionalModels(ModelEvent.RegisterAdditional event) {
         ResourceManager manager = Minecraft.getInstance().getResourceManager();
         Map<ResourceLocation, Resource> miraculous = manager.listResources("models/item/miraculous", (location -> location.getPath().endsWith(".json")));
-        for (ResourceLocation rl : miraculous.keySet()) {
-            ResourceLocation stripped = ResourceLocation.fromNamespaceAndPath(rl.getNamespace(), rl.getPath().substring("models/".length(), rl.getPath().indexOf(".json")));
+        for (ResourceLocation loc : miraculous.keySet()) {
+            ResourceLocation stripped = loc.withPath(path -> path.substring("models/".length(), path.indexOf(".json")));
             event.register(ModelResourceLocation.standalone(stripped));
         }
     }
 
-    static void onRegisterRenderer(EntityRenderersEvent.RegisterRenderers event) {
+    static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(MineraculousEntityTypes.KWAMI.get(), KwamiRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.KAMIKO.get(), context -> new GeoEntityRenderer<>(context, new DefaultedEntityGeoModel<>(MineraculousConstants.modLoc("kamiko"))));
         event.registerEntityRenderer(MineraculousEntityTypes.LUCKY_CHARM_ITEM_SPAWNER.get(), LuckyCharmItemSpawnerRenderer::new);
@@ -271,14 +276,19 @@ public class MineraculousClientEvents {
     static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
         // Clears old rendering data on reload
         event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
+            KwamiRenderer.clearAssets();
+            KwamiItemRenderer.clearAssets();
             MineraculousClientUtils.syncSpecialPlayerChoices();
-            MineraculousArmorUtils.clearAnimationData();
-            MiraculousItemRenderer.clearAssets();
-            MiraculousArmorItemRenderer.clearAssets();
-            KamikotizationArmorItemRenderer.clearModels();
+            MineraculousItemUtils.clearAnimationData();
             MineraculousClientUtils.refreshCataclysmPixels();
             ConditionalAutoGlowingGeoLayer.clearGlowmasks();
         });
+        event.registerReloadListener((preparationBarrier, resourceManager, preparationsProfiler, reloadProfiler, backgroundExecutor, gameExecutor) -> CompletableFuture.allOf(
+                LookLoader.loadBuiltIn(preparationBarrier, resourceManager, backgroundExecutor, gameExecutor),
+                preparationBarrier.wait(Unit.INSTANCE).thenRunAsync(() -> {
+                    ClientLookManager.refreshLoaded();
+                    LookLoader.loadLoaded(ClientLookManager::add);
+                }, gameExecutor)));
     }
 
     static void onRegisterRenderBuffers(RegisterRenderBuffersEvent event) {
@@ -294,48 +304,9 @@ public class MineraculousClientEvents {
 
     static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
         // Miraculous Tools
-        event.registerItem(new IClientItemExtensions() {
-            private BlockEntityWithoutLevelRenderer renderer;
-
-            @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                if (renderer == null) renderer = new LadybugYoyoRenderer();
-                return renderer;
-            }
-
-            @Override
-            public ResourceLocation getScopeOverlayTexture(ItemStack stack) {
-                return LadybugYoyoRenderer.SPYGLASS_SCOPE_LOCATION;
-            }
-        }, MineraculousItems.LADYBUG_YOYO);
-        event.registerItem(new IClientItemExtensions() {
-            private BlockEntityWithoutLevelRenderer renderer;
-
-            @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                if (renderer == null) renderer = new CatStaffRenderer();
-                return renderer;
-            }
-
-            @Override
-            public ResourceLocation getScopeOverlayTexture(ItemStack stack) {
-                return CatStaffRenderer.SPYGLASS_SCOPE_LOCATION;
-            }
-        }, MineraculousItems.CAT_STAFF);
-        event.registerItem(new IClientItemExtensions() {
-            private BlockEntityWithoutLevelRenderer renderer;
-
-            @Override
-            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
-                if (renderer == null) renderer = new ButterflyCaneRenderer();
-                return renderer;
-            }
-
-            @Override
-            public ResourceLocation getScopeOverlayTexture(ItemStack stack) {
-                return ButterflyCaneRenderer.SPYGLASS_SCOPE_LOCATION;
-            }
-        }, MineraculousItems.BUTTERFLY_CANE);
+        event.registerItem(new MiraculousLookToolClientExtensions<>(LadybugYoyoRenderer::new), MineraculousItems.LADYBUG_YOYO);
+        event.registerItem(new MiraculousLookToolClientExtensions<>(CatStaffRenderer::new), MineraculousItems.CAT_STAFF);
+        event.registerItem(new MiraculousLookToolClientExtensions<>(ButterflyCaneRenderer::new), MineraculousItems.BUTTERFLY_CANE);
     }
 
     static void onRegisterClientTooltipComponentFactories(RegisterClientTooltipComponentFactoriesEvent event) {
@@ -449,7 +420,7 @@ public class MineraculousClientEvents {
 
     private static final Map<UUID, CatStaffRenderer.PerchRenderer> playerPerchRendererMap = new Object2ObjectOpenHashMap<>();
 
-    public static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
+    static void onPlayerRendererPost(RenderPlayerEvent.Post event) {
         Player player = event.getEntity();
         PoseStack poseStack = event.getPoseStack();
         MultiBufferSource bufferSource = event.getMultiBufferSource();
@@ -463,7 +434,7 @@ public class MineraculousClientEvents {
         player.noCulling = false;
     }
 
-    public static void onRenderLevelStage(RenderLevelStageEvent event) {
+    static void onRenderLevelStage(RenderLevelStageEvent event) {
         AbstractClientPlayer player = Minecraft.getInstance().player;
         RenderLevelStageEvent.Stage stage = event.getStage();
         EntityRenderDispatcher renderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
@@ -526,6 +497,11 @@ public class MineraculousClientEvents {
             poseStack.translate(0, 0, 1 / 16f);
             renderer.renderItem(entity, stack, MineraculousItemDisplayContexts.CURIOS_RIGHT_EARRING.getValue(), false, poseStack, renderTypeBuffer, light);
         }
+    }
+
+    static void onRenderNameTag(RenderNameTagEvent event) {
+        if (event.getEntity() instanceof LookCustomizationScreen.PlayerPreview)
+            event.setCanRender(TriState.FALSE);
     }
 
     // Player-Like Rendering

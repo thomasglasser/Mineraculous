@@ -2,6 +2,7 @@ package dev.thomasglasser.mineraculous.impl.world.item.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.thomasglasser.mineraculous.api.core.look.LookData;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.memory.MineraculousMemoryModuleTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.ai.memory.ReplicationState;
@@ -51,7 +52,7 @@ public record KamikoData(UUID uuid, UUID owner, int powerLevel, int nameColor, O
         this(kamiko.getUUID(), kamiko.getOwnerUUID(), kamiko.getPowerLevel(), kamiko.getNameColor(), kamiko.getFaceMaskTexture());
     }
 
-    public Kamiko summon(ServerLevel level, Vec3 spawnPos, Holder<Kamikotization> kamikotization, String name, int toolCount, @Nullable LivingEntity replicaSource) {
+    public Kamiko summon(ServerLevel level, Vec3 spawnPos, Holder<Kamikotization> kamikotization, LookData lookData, int toolCount, @Nullable LivingEntity replicaSource) {
         Kamiko kamiko = MineraculousEntityTypes.KAMIKO.get().create(level);
         if (kamiko != null) {
             kamiko.moveTo(spawnPos);
@@ -60,7 +61,7 @@ public record KamikoData(UUID uuid, UUID owner, int powerLevel, int nameColor, O
             kamiko.setKamikotization(Optional.of(kamikotization));
             if (replicaSource != null && MineraculousServerConfig.get().enableKamikoReplication.getAsBoolean()) {
                 kamiko.setReplicaSource(Optional.of(replicaSource.getUUID()));
-                kamiko.setReplicaName(name);
+                kamiko.setReplicaLookData(lookData);
                 kamiko.setReplicaToolCount(toolCount);
                 BrainUtils.setMemory(kamiko, MineraculousMemoryModuleTypes.REPLICATION_STATUS.get(), ReplicationState.LOOKING_FOR_RESTING_LOCATION);
             }

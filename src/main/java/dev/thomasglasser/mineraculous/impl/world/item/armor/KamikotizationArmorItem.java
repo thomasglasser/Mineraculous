@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.impl.world.item.armor;
 
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmorMaterials;
 import dev.thomasglasser.mineraculous.impl.client.renderer.armor.KamikotizationArmorItemRenderer;
 import dev.thomasglasser.tommylib.api.world.item.armor.GeoArmorItem;
@@ -23,18 +24,28 @@ public class KamikotizationArmorItem extends ArmorItem implements GeoArmorItem {
 
     public KamikotizationArmorItem(Type type, Properties pProperties) {
         super(MineraculousArmorMaterials.MIRACULOUS, type, pProperties
-                .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, false)
                 .component(DataComponents.UNBREAKABLE, new Unbreakable(false)));
+        GeckoLibUtil.registerSyncedAnimatable(this);
     }
 
     @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
+    public boolean isFoil(ItemStack stack) {
+        return false;
     }
 
     @Override
     public boolean isSkintight() {
         return true;
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, 0, state -> MineraculousItemUtils.genericOptionalController(state, this, true)));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
     }
 
     @Override
@@ -50,10 +61,5 @@ public class KamikotizationArmorItem extends ArmorItem implements GeoArmorItem {
                 return this.renderer;
             }
         });
-    }
-
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 0, state -> MineraculousArmorUtils.genericOptionalArmorController(state, this)));
     }
 }

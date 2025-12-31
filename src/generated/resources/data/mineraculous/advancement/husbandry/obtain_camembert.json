@@ -1,0 +1,44 @@
+{
+  "parent": "minecraft:husbandry/root",
+  "criteria": {
+    "obtain_camembert_block": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#mineraculous:camembert_blocks"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "obtain_camembert_wedge": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#mineraculous:camembert"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.mineraculous.husbandry.obtain_camembert.desc"
+    },
+    "icon": {
+      "count": 1,
+      "id": "mineraculous:fresh_camembert_block"
+    },
+    "title": {
+      "translate": "advancement.mineraculous.husbandry.obtain_camembert.title"
+    }
+  },
+  "requirements": [
+    [
+      "obtain_camembert_wedge",
+      "obtain_camembert_block"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

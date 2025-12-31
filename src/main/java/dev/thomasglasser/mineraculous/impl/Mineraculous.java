@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.impl;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.MineraculousEntitySubPredicates;
+import dev.thomasglasser.mineraculous.api.advancements.critereon.MineraculousItemSubPredicates;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousBuiltInRegistries;
@@ -88,6 +89,7 @@ public class Mineraculous {
         MineraculousLootItemFunctionTypes.init();
         MineraculousMemoryModuleTypes.init();
         MiraculousLadybugTargetTypes.init();
+        MineraculousItemSubPredicates.init();
     }
 
     private void addEventListeners(IEventBus modBus) {

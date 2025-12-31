@@ -89,7 +89,7 @@ public class Abilities {
                 Optional.empty(),
                 Optional.empty()));
         context.register(KAMIKOTIZED_COMMUNICATION, new SpectateEntityAbility(
-                Optional.of(EntityPredicate.Builder.entity().subPredicate(KamikotizationPredicate.ANY).build()),
+                Optional.of(EntityPredicate.Builder.entity().subPredicate(KamikotizationPredicate.any()).build()),
                 Optional.empty(),
                 true,
                 true,

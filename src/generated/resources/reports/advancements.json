@@ -1,7 +1,4 @@
 [
-  "mineraculous:husbandry/obtain_camembert",
-  "mineraculous:adventure/release_purified_butterfly",
-  "mineraculous:adventure/perch_at_world_height",
   "mineraculous:miraculous/root",
   "mineraculous:miraculous/transform_ladybug",
   "mineraculous:miraculous/obtain_lucky_charm",
@@ -14,5 +11,8 @@
   "mineraculous:miraculous/kamikotize_butterfly",
   "mineraculous:miraculous/kamikotize_entity",
   "mineraculous:miraculous/kamikotize_self",
-  "mineraculous:miraculous/transform_kamikotization"
+  "mineraculous:miraculous/transform_kamikotization",
+  "mineraculous:adventure/release_purified_butterfly",
+  "mineraculous:adventure/perch_at_world_height",
+  "mineraculous:husbandry/obtain_camembert"
 ]

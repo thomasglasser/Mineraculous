@@ -14,6 +14,7 @@ public class ApisCategoryProvider extends IndexModeCategoryProvider {
 
     @Override
     protected void generateEntries() {
+        add(new LooksEntryProvider(this).generate());
         add(new AbilitiesEntryProvider(this).generate());
         add(new MiraculousEntryProvider(this).generate());
         add(new KamikotizationsEntryProvider(this).generate());

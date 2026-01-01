@@ -2,15 +2,12 @@
   "background_u_index": 0,
   "background_v_index": 0,
   "category": "apis",
-  "description": "book.mineraculous.wiki.apis.miraculous.description",
+  "description": "book.mineraculous.wiki.apis.looks.description",
   "hide_while_locked": false,
   "icon": {
-    "components": {
-      "mineraculous:miraculous": "mineraculous:cat"
-    },
-    "item": "mineraculous:miraculous"
+    "item": "minecraft:spyglass"
   },
-  "name": "book.mineraculous.wiki.apis.miraculous.name",
+  "name": "book.mineraculous.wiki.apis.looks.name",
   "pages": [
     {
       "type": "modonomicon:text",
@@ -19,8 +16,8 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.apis.miraculous.generator.text",
-      "title": "book.mineraculous.wiki.apis.miraculous.generator.title",
+      "text": "book.mineraculous.wiki.apis.looks.generator.text",
+      "title": "book.mineraculous.wiki.apis.looks.generator.title",
       "use_markdown_in_title": false
     },
     {
@@ -30,13 +27,13 @@
         "type": "modonomicon:none"
       },
       "show_title_separator": true,
-      "text": "book.mineraculous.wiki.apis.miraculous.guide.text",
-      "title": "book.mineraculous.wiki.apis.miraculous.guide.title",
+      "text": "book.mineraculous.wiki.apis.looks.guide.text",
+      "title": "book.mineraculous.wiki.apis.looks.guide.title",
       "use_markdown_in_title": false
     }
   ],
   "show_when_any_parent_unlocked": false,
-  "sort_number": 2,
+  "sort_number": 0,
   "x": 0,
   "y": 0
 }

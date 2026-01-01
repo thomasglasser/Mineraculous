@@ -59,11 +59,13 @@ import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUti
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.UUID;
+
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
@@ -461,8 +463,7 @@ public class MineraculousClientEvents {
 
         if (stage == RenderLevelStageEvent.Stage.AFTER_PARTICLES) {
             boolean kwamiGlowFlag = false;
-            ArrayList<Float> glowingPowers = new ArrayList<>();
-
+            FloatArrayList glowingPowers = new FloatArrayList();
             if (MineraculousClientUtils.shouldShowKwamiGlow()) {
                 MineraculousClientUtils.kwamiTarget.clear(Minecraft.ON_OSX);
                 MineraculousClientUtils.kwamiTarget.copyDepthFrom(Minecraft.getInstance().getMainRenderTarget()); // supposed to enable depth test
@@ -477,8 +478,8 @@ public class MineraculousClientEvents {
                     if (MineraculousClientUtils.shouldShowKwamiGlow() && entity instanceof Kwami kwami && kwami.isKwamiGlowing() && !kwami.isInOrbForm()) {
                         glowingPowers.add(kwami.getGlowingPower());
                         kwamiGlowFlag = true;
-                        KwamiBufferSource kwamiBufferSource = new KwamiBufferSource(multibuffersource$buffersource);
-                        kwamiBufferSource.setColor(kwami.getMiraculous().value().color().getValue());
+                        ColoredOutlineBufferSource coloredOutlineBufferSource = new ColoredOutlineBufferSource(multibuffersource$buffersource);
+                        coloredOutlineBufferSource.setColor(kwami.getMiraculous().value().color().getValue());
 
                         float trailWeight = Mth.clamp(kwami.getGlowingPower() / 200f, 0f, 1f);
 
@@ -490,7 +491,7 @@ public class MineraculousClientEvents {
                         double distanceTravelled = 0;
 
                         kwami.setTrailSize(1.0f);
-                        renderDispatcher.render(entity, currentPoint.x - camera.getPosition().x, currentPoint.y - camera.getPosition().y, currentPoint.z - camera.getPosition().z, entity.getYRot(), partialTick, poseStack, kwamiBufferSource, LightTexture.FULL_BRIGHT);
+                        renderDispatcher.render(entity, currentPoint.x - camera.getPosition().x, currentPoint.y - camera.getPosition().y, currentPoint.z - camera.getPosition().z, entity.getYRot(), partialTick, poseStack, coloredOutlineBufferSource, LightTexture.FULL_BRIGHT);
 
                         if (totalTrailLength > 0.01) {
                             int waypointIndex = 1;
@@ -510,7 +511,7 @@ public class MineraculousClientEvents {
                                             entity, currentPoint.x - camera.getPosition().x,
                                             currentPoint.y - camera.getPosition().y,
                                             currentPoint.z - camera.getPosition().z,
-                                            entity.getYRot(), partialTick, poseStack, kwamiBufferSource,
+                                            entity.getYRot(), partialTick, poseStack, coloredOutlineBufferSource,
                                             LightTexture.FULL_BRIGHT);
 
                                     distanceTravelled += stepDist;

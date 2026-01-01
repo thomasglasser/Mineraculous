@@ -36,10 +36,10 @@ public abstract class GameRendererMixin {
     }
 
     @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;doEntityOutline()V", shift = At.Shift.AFTER))
-    private void afterEntityOutline(
+    private void renderKwamiGlowAfterOutline(
             DeltaTracker deltaTracker,
             boolean renderLevel,
             CallbackInfo ci) {
-        MineraculousClientUtils.doKwamiGlow();
+        MineraculousClientUtils.blitKwamiGlow();
     }
 }

@@ -40,6 +40,7 @@ import dev.thomasglasser.mineraculous.impl.world.level.storage.SlotInfo;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import dev.thomasglasser.tommylib.api.world.entity.player.SpecialPlayerUtils;
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
@@ -126,8 +127,13 @@ public class MineraculousClientUtils {
         }
     }
 
-    public static void updateKwamiGlowUniforms(ArrayList<Float> values) {
-        kwamiGlowPower = values.stream().max(Float::compare).orElse(0.0f);
+    public static void updateKwamiGlowUniforms(FloatArrayList values) {
+        float kwamiGlowPower = 0.0f;
+        for (Float value : values) {
+            if (value > kwamiGlowPower) {
+                kwamiGlowPower = value;
+            }
+        }
         if (kwamiEffect != null) {
             kwamiEffect.setUniform("BlurSigma", kwamiGlowPower);
         }
@@ -137,7 +143,7 @@ public class MineraculousClientUtils {
         return !Minecraft.getInstance().gameRenderer.isPanoramicMode() && kwamiTarget != null && kwamiEffect != null && Minecraft.getInstance().player != null;
     }
 
-    public static void doKwamiGlow() {
+    public static void blitKwamiGlow() {
         if (shouldShowKwamiGlow()) {
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(

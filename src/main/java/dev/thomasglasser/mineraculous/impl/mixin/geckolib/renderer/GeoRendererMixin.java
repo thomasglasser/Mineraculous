@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.impl.mixin.geckolib.renderer;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.thomasglasser.mineraculous.impl.client.KwamiBufferSource;
+import dev.thomasglasser.mineraculous.impl.client.ColoredOutlineBufferSource;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -33,8 +33,8 @@ public interface GeoRendererMixin {
     }
 
     @ModifyReturnValue(method = "bufferNeedsRefresh", at = @At("RETURN"))
-    private boolean modifyBufferNeedsRefreshForKwami(boolean original, VertexConsumer buffer) {
-        if (buffer instanceof KwamiBufferSource.KwamiOutlineGenerator kwamiGlows) {
+    private boolean modifyBufferRefreshForKwamiOutline(boolean original, VertexConsumer buffer) {
+        if (buffer instanceof ColoredOutlineBufferSource.KwamiOutlineGenerator kwamiGlows) {
             return bufferNeedsRefresh(kwamiGlows.delegate());
         }
         if (original) {
@@ -44,7 +44,7 @@ public interface GeoRendererMixin {
     }
 
     @ModifyReturnValue(method = "checkAndRefreshBuffer", at = @At("RETURN"))
-    default VertexConsumer kwamiRefreshOutline(
+    default VertexConsumer refreshKwamiOutline(
             VertexConsumer original,
             boolean isReRender,
             VertexConsumer buffer,
@@ -53,9 +53,9 @@ public interface GeoRendererMixin {
         if (isReRender)
             return original;
 
-        if (original instanceof KwamiBufferSource.KwamiOutlineGenerator kwami
+        if (original instanceof ColoredOutlineBufferSource.KwamiOutlineGenerator kwami
                 && bufferNeedsRefresh(kwami.delegate())) {
-            return new KwamiBufferSource.KwamiOutlineGenerator(
+            return new ColoredOutlineBufferSource.KwamiOutlineGenerator(
                     bufferSource.getBuffer(renderType),
                     kwami.color());
         }

@@ -4,11 +4,11 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 
-public class KwamiBufferSource implements MultiBufferSource, AutoCloseable {
+public class ColoredOutlineBufferSource implements MultiBufferSource, AutoCloseable {
     private final MultiBufferSource.BufferSource kwamiBufferSource;
     private int color;
 
-    public KwamiBufferSource(BufferSource bufferSource) {
+    public ColoredOutlineBufferSource(BufferSource bufferSource) {
         kwamiBufferSource = bufferSource;
     }
 

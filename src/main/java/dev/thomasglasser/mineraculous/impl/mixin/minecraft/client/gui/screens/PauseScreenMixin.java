@@ -1,6 +1,8 @@
 package dev.thomasglasser.mineraculous.impl.mixin.minecraft.client.gui.screens;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
+import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -16,7 +18,7 @@ public abstract class PauseScreenMixin extends Screen {
     }
 
     @Inject(method = "createPauseMenu", at = @At(value = "TAIL"))
-    private void addLookScreenButton(CallbackInfo ci) {
-        addRenderableWidget(MineraculousClientUtils.createMiraculousLooksButton(this));
+    private void addLookScreenButton(CallbackInfo ci, @Local GridLayout gridLayout) {
+        addRenderableWidget(MineraculousClientUtils.createMiraculousLooksButton(this, gridLayout));
     }
 }

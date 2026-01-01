@@ -21,6 +21,7 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
+import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
 import dev.thomasglasser.mineraculous.impl.client.gui.MineraculousGuis;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.MiraculousTransferScreen;
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.AbstractKamikotizationChatScreen;
@@ -29,8 +30,11 @@ import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.Per
 import dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization.ReceiverKamikotizationChatScreen;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.BetaTesterCosmeticOptions;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.layers.SpecialPlayerData;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundRevertConvertedEntityPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetInventoryTrackedPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundSetMiraculousLookDataPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundSetSpectationInterruptedPayload;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundStartKamikotizationDetransformationPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealCurioPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundStealItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateSpecialPlayerDataPayload;
@@ -62,6 +66,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -248,8 +253,8 @@ public class MineraculousClientUtils {
         }
     }
 
-    public static ImageButton createMiraculousLooksButton(Screen parent) {
-        ImageButton button = new ImageButton((parent.width / 2) - 120, (parent.height / 2), 14, 14, MIRACULOUS_LOOKS_BUTTON_SPRITES, b -> parent.getMinecraft().setScreen(new RegistryElementSelectionScreen<>(parent, MineraculousRegistries.MIRACULOUS, selected -> parent.getMinecraft().setScreen(new LookCustomizationScreen<>(
+    public static ImageButton createMiraculousLooksButton(Screen parent, GridLayout gridLayout) {
+        ImageButton button = new ImageButton(gridLayout.getX() - 15, gridLayout.getY() + (gridLayout.getHeight() / 2) + 15, 14, 14, MIRACULOUS_LOOKS_BUTTON_SPRITES, b -> parent.getMinecraft().setScreen(new RegistryElementSelectionScreen<>(parent, MineraculousRegistries.MIRACULOUS, selected -> parent.getMinecraft().setScreen(new LookCustomizationScreen<>(
                 LookContextSets.MIRACULOUS,
                 LookMetadataTypes.VALID_MIRACULOUSES,
                 selected,
@@ -258,6 +263,19 @@ public class MineraculousClientUtils {
                 (player, lookData) -> TommyLibServices.NETWORK.sendToServer(new ServerboundSetMiraculousLookDataPayload(selected, lookData)))))));
         button.setTooltip(Tooltip.create(MIRACULOUS_LOOKS_BUTTON_TOOLTIP));
         return button;
+    }
+
+    public static void revokeCameraEntity() {
+        Entity cameraEntity = MineraculousClientUtils.getCameraEntity();
+        Player player = ClientUtils.getLocalPlayer();
+        if (cameraEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
+            KamikotizationData kamikotizationData = cameraEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
+            TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationDetransformationPayload(Optional.of(cameraEntity.getUUID()), true, false));
+            AbilityEffectUtils.removeFaceMaskTexture(cameraEntity, kamikotizationData.kamikoData().faceMaskTexture());
+        } else if (player != null) {
+            TommyLibServices.NETWORK.sendToServer(new ServerboundRevertConvertedEntityPayload(cameraEntity.getUUID()));
+        }
+        TommyLibServices.NETWORK.sendToServer(new ServerboundSetSpectationInterruptedPayload(Optional.empty()));
     }
 
     // Camera

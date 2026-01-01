@@ -34,7 +34,6 @@ import java.util.Optional;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -144,10 +143,7 @@ public class MineraculousKeyMappings {
 
     private static void handleRevokeKamikotization() {
         if (MineraculousGuis.checkRevokeButtonActive()) {
-            Button revokeButton = MineraculousGuis.getRevokeButton();
-            if (revokeButton.active) {
-                revokeButton.onPress();
-            }
+            MineraculousClientUtils.revokeCameraEntity();
         } else {
             Player player = ClientUtils.getLocalPlayer();
             if (player != null && player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION.get()).isPresent() && MineraculousServerConfig.get().enableKamikotizationRejection.get()) {

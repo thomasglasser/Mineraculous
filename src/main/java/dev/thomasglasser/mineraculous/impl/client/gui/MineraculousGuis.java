@@ -6,18 +6,10 @@ import dev.thomasglasser.mineraculous.api.client.gui.selection.SelectionMenuItem
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
-import dev.thomasglasser.mineraculous.api.world.level.storage.abilityeffects.AbilityEffectUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.client.gui.kamiko.categories.KamikoTargetPlayerMenuCategory;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundRevertConvertedEntityPayload;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundSetSpectationInterruptedPayload;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundStartKamikotizationDetransformationPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
-import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-import java.util.Optional;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -27,7 +19,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import org.lwjgl.glfw.GLFW;
 
 public class MineraculousGuis {
     public static final Component REVOKE = Component.translatable("gui.mineraculous.revoke");
@@ -55,29 +46,12 @@ public class MineraculousGuis {
 
     public static Button getRevokeButton() {
         if (revokeButton == null) {
-            revokeButton = new Button(Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 - 100, Minecraft.getInstance().getWindow().getGuiScaledHeight() - 35, 200, 20, REVOKE, button -> {
-                Entity cameraEntity = MineraculousClientUtils.getCameraEntity();
-                Player player = ClientUtils.getLocalPlayer();
-                if (cameraEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent()) {
-                    KamikotizationData kamikotizationData = cameraEntity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).get();
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationDetransformationPayload(Optional.of(cameraEntity.getUUID()), true, false));
-                    AbilityEffectUtils.removeFaceMaskTexture(cameraEntity, kamikotizationData.kamikoData().faceMaskTexture());
-                } else if (player != null) {
-                    TommyLibServices.NETWORK.sendToServer(new ServerboundRevertConvertedEntityPayload(cameraEntity.getUUID()));
-                }
-                TommyLibServices.NETWORK.sendToServer(new ServerboundSetSpectationInterruptedPayload(Optional.empty()));
-            }, Button.DEFAULT_NARRATION) {
-                @Override
-                public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-                    if (active) {
-                        if (keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
-                            revokeButton.onPress();
-                            return true;
-                        }
-                    }
-                    return super.keyPressed(keyCode, scanCode, modifiers);
-                }
-            };
+            revokeButton = Button.builder(REVOKE, button -> {
+                if (!MineraculousClientUtils.hasNoScreenOpen())
+                    MineraculousClientUtils.revokeCameraEntity();
+            })
+                    .size(200, 20)
+                    .build();
             revokeButton.active = false;
         }
         return revokeButton;
@@ -106,13 +80,13 @@ public class MineraculousGuis {
     public static void renderRevokeButton(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
         Button revokeButton = getRevokeButton();
         if (checkRevokeButtonActive()) {
+            revokeButton.setX(Minecraft.getInstance().getWindow().getGuiScaledWidth() / 2 - 100);
+            revokeButton.active = true;
             if (MineraculousClientUtils.hasNoScreenOpen()) {
-                revokeButton.setPosition(revokeButton.getX(), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 60);
-                revokeButton.active = true;
+                revokeButton.setY(Minecraft.getInstance().getWindow().getGuiScaledHeight() - 60);
                 revokeButton.setMessage(REVOKE.copy().append(" ").append(Component.translatable(PRESS_KEY, MineraculousKeyMappings.REVOKE_KAMIKOTIZATION.getKey().getDisplayName())));
             } else if (Minecraft.getInstance().screen instanceof ChatScreen) {
-                revokeButton.setPosition(revokeButton.getX(), Minecraft.getInstance().getWindow().getGuiScaledHeight() - 35);
-                revokeButton.active = true;
+                revokeButton.setY(Minecraft.getInstance().getWindow().getGuiScaledHeight() - 35);
                 revokeButton.setMessage(REVOKE);
             } else {
                 revokeButton.active = false;

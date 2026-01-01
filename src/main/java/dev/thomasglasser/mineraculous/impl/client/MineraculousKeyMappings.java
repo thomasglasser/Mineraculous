@@ -6,6 +6,7 @@ import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuOption;
 import dev.thomasglasser.mineraculous.api.client.gui.screens.RadialMenuScreen;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.event.StealEvent;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.item.RadialMenuProvider;
@@ -22,7 +23,6 @@ import dev.thomasglasser.mineraculous.impl.network.ServerboundToggleBuffsPayload
 import dev.thomasglasser.mineraculous.impl.network.ServerboundToggleNightVisionPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundTryBreakItemPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateYoyoLengthPayload;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundWakeUpPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.client.ExtendedKeyMapping;
@@ -41,6 +41,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.common.NeoForge;
 
 public class MineraculousKeyMappings {
     public static final String MIRACULOUS_CATEGORY = "key.categories.mineraculous";
@@ -210,14 +211,27 @@ public class MineraculousKeyMappings {
         if (player != null) {
             ItemStack mainHandItem = player.getMainHandItem();
             if (mainHandItem.isEmpty()) {
-                if (MineraculousClientUtils.getLookEntity() instanceof Player target && (MineraculousServerConfig.get().enableUniversalStealing.get() || player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).isPresent() || player.getData(MineraculousAttachmentTypes.MIRACULOUSES.get()).isTransformed()) && (MineraculousServerConfig.get().enableSleepStealing.get() || !target.isSleeping())) {
-                    takeTicks++;
-                    if (target.isSleeping() && MineraculousServerConfig.get().wakeUpChance.get() > 0 && (MineraculousServerConfig.get().wakeUpChance.get() >= 100 || player.getRandom().nextFloat() < MineraculousServerConfig.get().wakeUpChance.get() / (SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().stealingDuration.getAsInt() * 100F))) {
-                        TommyLibServices.NETWORK.sendToServer(new ServerboundWakeUpPayload(target.getUUID(), true));
+                if (MineraculousClientUtils.getLookEntity() instanceof Player target) {
+                    int maxTakeTicks = SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().stealingDuration.get();
+                    StealEvent.Start event;
+                    if (takeTicks == 0) {
+                        event = NeoForge.EVENT_BUS.post(new StealEvent.Start.Pre(player, target, 0, maxTakeTicks));
+                    } else {
+                        event = NeoForge.EVENT_BUS.post(new StealEvent.Start.Tick(player, target, takeTicks, maxTakeTicks));
                     }
-                    if (takeTicks > (SharedConstants.TICKS_PER_SECOND * MineraculousServerConfig.get().stealingDuration.get())) {
-                        MineraculousClientUtils.openExternalCuriosInventoryScreenForStealing(target);
-                        takeTicks = 0;
+                    if (!event.isCanceled()) {
+                        takeTicks = event.getTakeTicks();
+                        maxTakeTicks = event.getMaxTakeTicks();
+                        if (takeTicks > maxTakeTicks) {
+                            event = NeoForge.EVENT_BUS.post(new StealEvent.Start.Post(player, target, takeTicks, maxTakeTicks));
+                            if (event.isCanceled()) {
+                                takeTicks = event.getTakeTicks();
+                            } else {
+                                MineraculousClientUtils.openExternalCuriosInventoryScreenForStealing(target);
+                                takeTicks = 0;
+                            }
+                        }
+                        takeTicks++;
                     }
                 } else if (takeTicks > 0) {
                     takeTicks = 0;

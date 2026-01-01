@@ -1,5 +1,6 @@
 package dev.thomasglasser.mineraculous.api.world.ability;
 
+import dev.thomasglasser.mineraculous.api.event.AbilityEvent;
 import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.context.BlockAbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.context.EntityAbilityContext;
@@ -15,9 +16,29 @@ import net.minecraft.core.HolderSet;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.Nullable;
 
 public class AbilityUtils {
+    /**
+     * Performs the provided ability with the provided parameters, firing the appropriate events.
+     *
+     * @param ability     The ability to perform
+     * @param level       The level to perform the ability in
+     * @param performer   The performer of the ability
+     * @param abilityData The relevant {@link AbilityData} of the performer
+     * @param handler     The relevant {@link AbilityHandler}
+     * @param context     The context of the ability (null if passive)
+     * @return The resulting {@link Ability.State} of the performed ability
+     */
+    public static Ability.State performAbilityWithEvents(Holder<Ability> ability, ServerLevel level, LivingEntity performer, AbilityData abilityData, AbilityHandler handler, @Nullable AbilityContext context) {
+        Ability.State state = NeoForge.EVENT_BUS.post(new AbilityEvent.Perform.Pre(performer, ability, abilityData, handler, context)).getState();
+        if (state != null)
+            return state;
+        state = ability.value().perform(abilityData, level, performer, handler, context);
+        return NeoForge.EVENT_BUS.post(new AbilityEvent.Perform.Post(performer, ability, abilityData, handler, context, state)).getState();
+    }
+
     /**
      * Performs all provided abilities with the given context until one consumes.
      *
@@ -31,7 +52,7 @@ public class AbilityUtils {
      */
     public static Ability.State performPassiveAbilities(ServerLevel level, LivingEntity performer, AbilityData data, AbilityHandler handler, @Nullable AbilityContext context, HolderSet<Ability> passiveAbilities) {
         for (Holder<Ability> ability : passiveAbilities) {
-            Ability.State state = ability.value().perform(data, level, performer, handler, context);
+            Ability.State state = performAbilityWithEvents(ability, level, performer, data, handler, context);
             if (state.shouldStop()) {
                 return state;
             }
@@ -53,7 +74,7 @@ public class AbilityUtils {
      */
     public static Ability.State performActiveAbility(ServerLevel level, LivingEntity performer, AbilityData abilityData, AbilityHandler handler, @Nullable AbilityContext context, Optional<Holder<Ability>> activeAbility) {
         if (abilityData.powerActive()) {
-            return activeAbility.map(ability -> ability.value().perform(abilityData, level, performer, handler, context)).orElse(Ability.State.CANCEL);
+            return activeAbility.map(ability -> performAbilityWithEvents(ability, level, performer, abilityData, handler, context)).orElse(Ability.State.CANCEL);
         }
         return Ability.State.CANCEL;
     }

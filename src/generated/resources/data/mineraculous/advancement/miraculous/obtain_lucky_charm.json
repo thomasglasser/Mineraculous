@@ -1,0 +1,48 @@
+{
+  "parent": "mineraculous:miraculous/transform_ladybug",
+  "criteria": {
+    "obtain_lucky_charm": {
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "mineraculous:lucky_charm": {
+                "self": false
+              }
+            }
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.mineraculous.miraculous.obtain_lucky_charm.desc"
+    },
+    "icon": {
+      "components": {
+        "mineraculous:lucky_charm": {
+          "id": 0,
+          "owner": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "count": 1,
+      "id": "minecraft:prize_pottery_sherd"
+    },
+    "title": {
+      "translate": "advancement.mineraculous.miraculous.obtain_lucky_charm.title"
+    }
+  },
+  "requirements": [
+    [
+      "obtain_lucky_charm"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

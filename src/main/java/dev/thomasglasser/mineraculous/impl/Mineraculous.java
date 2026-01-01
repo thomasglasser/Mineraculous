@@ -3,7 +3,10 @@ package dev.thomasglasser.mineraculous.impl;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.advancements.MineraculousCriteriaTriggers;
 import dev.thomasglasser.mineraculous.api.advancements.critereon.MineraculousEntitySubPredicates;
+import dev.thomasglasser.mineraculous.api.advancements.critereon.MineraculousItemSubPredicates;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
+import dev.thomasglasser.mineraculous.api.core.look.metadata.LookMetadataTypes;
 import dev.thomasglasser.mineraculous.api.core.particles.MineraculousParticleTypes;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousBuiltInRegistries;
 import dev.thomasglasser.mineraculous.api.sounds.MineraculousSoundEvents;
@@ -27,6 +30,10 @@ import dev.thomasglasser.mineraculous.api.world.level.storage.loot.parameters.Mi
 import dev.thomasglasser.mineraculous.impl.commands.MineraculousCommandEvents;
 import dev.thomasglasser.mineraculous.impl.core.MineraculousCoreEvents;
 import dev.thomasglasser.mineraculous.impl.data.MineraculousDataGenerators;
+import dev.thomasglasser.mineraculous.impl.event.KamikotizationEvents;
+import dev.thomasglasser.mineraculous.impl.event.LuckyCharmEvents;
+import dev.thomasglasser.mineraculous.impl.event.MiraculousEvents;
+import dev.thomasglasser.mineraculous.impl.event.StealEvents;
 import dev.thomasglasser.mineraculous.impl.network.MineraculousPayloads;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.world.entity.MineraculousEntityEvents;
@@ -88,6 +95,9 @@ public class Mineraculous {
         MineraculousLootItemFunctionTypes.init();
         MineraculousMemoryModuleTypes.init();
         MiraculousLadybugTargetTypes.init();
+        MineraculousItemSubPredicates.init();
+        LookContexts.init();
+        LookMetadataTypes.init();
     }
 
     private void addEventListeners(IEventBus modBus) {
@@ -105,17 +115,31 @@ public class Mineraculous {
         modBus.addListener(MineraculousEntityEvents::onEntityAttributeCreation);
 
         // Neo Bus
+        NeoForge.EVENT_BUS.addListener(KamikotizationEvents::onPreTransformKamikotization);
+        NeoForge.EVENT_BUS.addListener(KamikotizationEvents::onPreDetransformKamikotization);
+
+        NeoForge.EVENT_BUS.addListener(LuckyCharmEvents::onDetermineLuckyCharmSpawnPos);
+        NeoForge.EVENT_BUS.addListener(LuckyCharmEvents::onDetermineLuckyCharms);
+
+        NeoForge.EVENT_BUS.addListener(MiraculousEvents::onPreTransformMiraculous);
+        NeoForge.EVENT_BUS.addListener(MiraculousEvents::onPreDetransformMiraculous);
+
+        NeoForge.EVENT_BUS.addListener(StealEvents::onPreStartSteal);
+        NeoForge.EVENT_BUS.addListener(StealEvents::onTickStartSteal);
+        NeoForge.EVENT_BUS.addListener(StealEvents::onFinishSteal);
+
         NeoForge.EVENT_BUS.addListener(MineraculousVillagerTrades::onRegisterVillagerTrades);
 
         NeoForge.EVENT_BUS.addListener(MineraculousCommandEvents::onCommandsRegister);
 
+        NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onAddReloadListener);
         NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onServerStarted);
         NeoForge.EVENT_BUS.addListener(MineraculousCoreEvents::onLootTableLoad);
 
         NeoForge.EVENT_BUS.addListener(MineraculousBlockEvents::onBlockDrops);
 
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityJoinLevel);
-        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onServerPlayerLoggedIn);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPlayerLoggedIn);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPreEntityTick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onPostEntityTick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingFall);
@@ -126,12 +150,15 @@ public class Mineraculous {
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onBlockInteract);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onBlockLeftClick);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEmptyLeftClick);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onShouldTrackEntity);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onCollectMiraculousLadybugTargets);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEffectRemoved);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEffectAdded);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEffectExpired);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingHeal);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityTravelToDimension);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingSwapHands);
+        NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onCanBeForceKamikotized);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingDeath);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onLivingDrops);
         NeoForge.EVENT_BUS.addListener(MineraculousEntityEvents::onEntityLeaveLevel);
@@ -139,5 +166,7 @@ public class Mineraculous {
 
         NeoForge.EVENT_BUS.addListener(MineraculousItemEvents::onItemTooltip);
         NeoForge.EVENT_BUS.addListener(MineraculousItemEvents::onItemToss);
+        NeoForge.EVENT_BUS.addListener(MineraculousItemEvents::onPreItemBreak);
+        NeoForge.EVENT_BUS.addListener(MineraculousItemEvents::onDetermineItemBreakDamage);
     }
 }

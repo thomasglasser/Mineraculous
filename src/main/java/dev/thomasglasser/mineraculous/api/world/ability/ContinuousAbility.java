@@ -42,7 +42,7 @@ public record ContinuousAbility(Holder<Ability> ability, int ticks, Optional<Hol
 
     @Override
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
-        State state = ability.value().perform(data, level, performer, handler, context);
+        State state = AbilityUtils.performAbilityWithEvents(ability, level, performer, data, handler, context);
         PersistentAbilityEffectData abilityEffectData = performer.getData(MineraculousAttachmentTypes.PERSISTENT_ABILITY_EFFECTS);
         if (context == null && abilityEffectData.continuousTicks().isPresent()) {
             int continuousTicks = abilityEffectData.continuousTicks().get();

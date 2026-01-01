@@ -1,17 +1,17 @@
 package dev.thomasglasser.mineraculous.api.world.item;
 
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.event.ItemBreakEvent;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousItemTags;
-import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
-import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
+import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
+import dev.thomasglasser.mineraculous.impl.world.item.ItemAnimationData;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import net.minecraft.Util;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentType;
@@ -25,7 +25,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.animal.FlyingAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeItem;
@@ -34,12 +36,55 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.animatable.GeoAnimatable;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.constant.DataTickets;
+import software.bernie.geckolib.constant.DefaultAnimations;
+import software.bernie.geckolib.model.GeoModel;
+import software.bernie.geckolib.util.RenderUtil;
 
 public class MineraculousItemUtils {
     public static final Component ITEM_UNBREAKABLE_KEY = Component.translatable("mineraculous.item_unbreakable");
     public static final Component KAMIKOTIZED_ITEM_UNBREAKABLE_KEY = Component.translatable("mineraculous.kamikotized_item_unbreakable");
+    private static final Map<? super GeoAnimatable, ItemAnimationData> ANIMATION_DATA = new Object2ObjectOpenHashMap<>();
+
+    /**
+     * Determines the animation to use based on what the entity is doing and what animations the item has.
+     *
+     * @param state      The current {@link AnimationState}
+     * @param animatable The animatable item
+     * @return The updated {@link PlayState}
+     * @param <T> The type of the animatable
+     */
+    public static <T extends GeoAnimatable> PlayState genericOptionalController(AnimationState<T> state, T animatable, boolean armor) {
+        Entity entity = state.getData(DataTickets.ENTITY);
+        if (entity != null) {
+            boolean flying = entity instanceof Player player ? player.getAbilities().flying : entity instanceof FlyingAnimal flyingAnimal ? flyingAnimal.isFlying() : entity instanceof FlyingMob || entity.isFlapping();
+            boolean swimming = entity.isSwimming();
+            boolean sprinting = entity.isSprinting();
+            boolean walking = state.isMoving();
+            ItemStack stack = state.getData(DataTickets.ITEMSTACK);
+            GeoModel<T> model = (GeoModel<T>) (armor ? RenderUtil.getGeoModelForArmor(stack) : RenderUtil.getGeoModelForItem(stack));
+            if (model != null) {
+                ItemAnimationData data = ANIMATION_DATA.computeIfAbsent(animatable, a -> new ItemAnimationData(model, animatable));
+                if (flying && data.flying())
+                    return state.setAndContinue(DefaultAnimations.FLY);
+                else if (swimming && data.swimming())
+                    return state.setAndContinue(DefaultAnimations.SWIM);
+                else if (sprinting && data.sprinting())
+                    return state.setAndContinue(DefaultAnimations.RUN);
+                else if (walking && data.walking())
+                    return state.setAndContinue(DefaultAnimations.WALK);
+                else if (data.idle())
+                    return state.setAndContinue(DefaultAnimations.IDLE);
+            }
+        }
+        return PlayState.STOP;
+    }
 
     /**
      * Tries to break the provided {@link ItemStack}, checking its {@link Kamikotization}.
@@ -51,16 +96,13 @@ public class MineraculousItemUtils {
      * @return A pair of the broken stack and remainder stack
      */
     public static BreakResult tryBreakItem(ItemStack stack, ServerLevel level, Vec3 pos, @Nullable LivingEntity breaker) {
+        if (NeoForge.EVENT_BUS.post(new ItemBreakEvent.Pre(stack, level, pos, breaker)).isCanceled())
+            return BreakResult.fail(stack);
         if (stack.has(DataComponents.UNBREAKABLE)) {
             if (breaker instanceof Player player) {
                 player.displayClientMessage(ITEM_UNBREAKABLE_KEY, true);
             }
-            return BreakResult.fail(stack);
-        } else if (stack.has(MineraculousDataComponents.KAMIKOTIZING) || breaker != null && stack.has(MineraculousDataComponents.KAMIKOTIZATION) && stack.getOrDefault(MineraculousDataComponents.OWNER, Util.NIL_UUID).equals(breaker.getUUID())) {
-            if (breaker instanceof Player player) {
-                player.displayClientMessage(KAMIKOTIZED_ITEM_UNBREAKABLE_KEY, true);
-            }
-            return BreakResult.fail(stack);
+            return MineraculousItemUtils.BreakResult.fail(stack);
         }
         ItemStack remainder = ItemStack.EMPTY;
         if (!stack.isDamageableItem()) {
@@ -90,40 +132,24 @@ public class MineraculousItemUtils {
                 stack.set(DataComponents.MAX_STACK_SIZE, 1);
             }
         }
-        if (stack.has(DataComponents.UNBREAKABLE)) {
-            if (breaker instanceof Player player) {
-                player.displayClientMessage(ITEM_UNBREAKABLE_KEY, true);
+        if (stack.isDamageableItem()) {
+            int damage = NeoForge.EVENT_BUS.post(new ItemBreakEvent.DetermineDamage(stack, level, pos, breaker, MineraculousServerConfig.get().breakDamage.getAsInt())).getDamage();
+            if (damage <= 0)
+                return BreakResult.fail(stack);
+            if (stack.getCount() > 1) {
+                remainder = stack.copyWithCount(stack.getCount() - 1);
+                stack = stack.copyWithCount(1);
             }
-            return BreakResult.fail(stack);
+            hurtAndBreak(stack, damage, level, breaker, EquipmentSlot.MAINHAND);
+            return NeoForge.EVENT_BUS.post(new ItemBreakEvent.Post(stack, level, pos, breaker, BreakResult.hurtSuccess(stack, remainder))).getBreakResult();
         } else {
-            if (stack.isDamageableItem()) {
-                int damage = 100;
-                if (breaker != null) {
-                    MiraculousesData miraculousesData = breaker.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                    if (miraculousesData.isTransformed()) {
-                        damage += 100 * miraculousesData.getMaxTransformedPowerLevel();
-                    } else {
-                        Optional<KamikotizationData> kamikotizationData = breaker.getData(MineraculousAttachmentTypes.KAMIKOTIZATION);
-                        if (kamikotizationData.isPresent()) {
-                            damage += 100 * kamikotizationData.get().kamikoData().powerLevel();
-                        }
-                    }
-                }
-                if (stack.getCount() > 1) {
-                    remainder = stack.copyWithCount(stack.getCount() - 1);
-                    stack = stack.copyWithCount(1);
-                }
-                hurtAndBreak(stack, damage, level, breaker, EquipmentSlot.MAINHAND);
-                return BreakResult.hurtSuccess(stack, remainder);
-            } else {
-                if (breaker != null) {
-                    breaker.onEquippedItemBroken(stack.getItem(), EquipmentSlot.MAINHAND);
-                }
-                level.playSound(null, new BlockPos((int) pos.x, (int) pos.y, (int) pos.z), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1f, 1f);
-                Kamikotization.checkBroken(stack, level, pos);
-                stack.shrink(1);
-                return BreakResult.shrinkSuccess(stack);
+            if (breaker != null) {
+                breaker.onEquippedItemBroken(stack.getItem(), EquipmentSlot.MAINHAND);
             }
+            level.playSound(null, new BlockPos((int) pos.x, (int) pos.y, (int) pos.z), SoundEvents.ITEM_BREAK, SoundSource.PLAYERS, 1f, 1f);
+            Kamikotization.checkBroken(stack, level, pos);
+            stack.shrink(1);
+            return NeoForge.EVENT_BUS.post(new ItemBreakEvent.Post(stack, level, pos, breaker, BreakResult.shrinkSuccess(stack))).getBreakResult();
         }
     }
 
@@ -265,6 +291,11 @@ public class MineraculousItemUtils {
         boolean flag = dyeditemcolor == null || dyeditemcolor.showInTooltip();
         itemstack.set(DataComponents.DYED_COLOR, new DyedItemColor(l3, flag));
         return itemstack;
+    }
+
+    @ApiStatus.Internal
+    public static void clearAnimationData() {
+        ANIMATION_DATA.clear();
     }
 
     /**

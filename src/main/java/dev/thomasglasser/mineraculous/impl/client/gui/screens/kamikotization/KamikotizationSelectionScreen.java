@@ -1,7 +1,9 @@
 package dev.thomasglasser.mineraculous.impl.client.gui.screens.kamikotization;
 
+import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Either;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.core.look.LookData;
 import dev.thomasglasser.mineraculous.api.world.ability.Ability;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.item.armor.MineraculousArmors;
@@ -162,7 +164,7 @@ public class KamikotizationSelectionScreen extends Screen {
                     components.add(Component.translatable(MineraculousConstants.toLanguageKey(ability.getKey())).withStyle(ChatFormatting.GRAY));
                 }
             }
-            MineraculousClientUtils.renderEntityInInventorySpinning(guiGraphics, topLeftX + 15, topLeftY + 15, topLeftX + 113, topLeftY + 145, 60, (Minecraft.getInstance().player.tickCount % 360) * 2, targetPreview);
+            MineraculousClientUtils.renderEntityInInventory(guiGraphics, topLeftX + 15, topLeftY + 15, topLeftX + 113, topLeftY + 145, 60, (Minecraft.getInstance().player.tickCount % 360) * 2, targetPreview);
             guiGraphics.drawString(this.font, Component.literal("---------------"), topLeftX + 131, topLeftY + 22, Optional.ofNullable(ChatFormatting.WHITE.getColor()).orElseThrow(), false);
             for (int i = 0; i < components.size(); i++) {
                 MutableComponent component = components.get(i);
@@ -331,7 +333,8 @@ public class KamikotizationSelectionScreen extends Screen {
             TommyLibServices.NETWORK.sendToServer(new ServerboundSetItemKamikotizingPayload(Optional.of(target.getUUID()), false, slotInfo));
             AbilityEffectUtils.removeFaceMaskTexture(player, kamikoData.faceMaskTexture());
         } else {
-            KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, name.getValue());
+            // TODO: Kamikotization looks in selection
+            KamikotizationData kamikotizationData = new KamikotizationData(selectedKamikotization, kamikoData, new LookData(Optional.of(name.getValue()), ImmutableMap.of()));
             if (target == minecraft.player) {
                 TommyLibServices.NETWORK.sendToServer(new ServerboundStartKamikotizationTransformationPayload(kamikotizationData, slotInfo));
                 TommyLibServices.NETWORK.sendToServer(new ServerboundTriggerKamikotizationAdvancementsPayload(target.getUUID(), target.getUUID(), kamikotizationData.kamikotization().getKey()));

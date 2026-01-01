@@ -12,6 +12,7 @@ public class MineraculousEntitySubPredicates {
     private static final DeferredRegister<MapCodec<? extends EntitySubPredicate>> ENTITY_SUB_PREDICATES = DeferredRegister.create(Registries.ENTITY_SUB_PREDICATE_TYPE, MineraculousConstants.MOD_ID);
 
     public static final DeferredHolder<MapCodec<? extends EntitySubPredicate>, MapCodec<KamikotizationPredicate>> KAMIKOTIZATION = ENTITY_SUB_PREDICATES.register("kamikotization", () -> KamikotizationPredicate.CODEC);
+    public static final DeferredHolder<MapCodec<? extends EntitySubPredicate>, MapCodec<CatStaffPredicate>> CAT_STAFF = ENTITY_SUB_PREDICATES.register("cat_staff", () -> CatStaffPredicate.CODEC);
 
     @ApiStatus.Internal
     public static void init() {}

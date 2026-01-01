@@ -50,7 +50,7 @@ public class MineraculousItems {
     /// Default properties for Miraculous tools with the {@link MineraculousDataComponents#ACTIVE} component
     public static final UnaryOperator<Item.Properties> MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE = properties -> MIRACULOUS_TOOL_PROPERTIES.apply(properties).component(MineraculousDataComponents.ACTIVE, Active.DEFAULT);
     public static final DeferredItem<LadybugYoyoItem> LADYBUG_YOYO = register("ladybug_yoyo", () -> new LadybugYoyoItem(MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE.apply(new Item.Properties())));
-    public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE.apply(new Item.Properties()).component(MineraculousDataComponents.ACTIVE_SETTINGS, CatStaffItem.ACTIVE_SETTINGS)));
+    public static final DeferredItem<CatStaffItem> CAT_STAFF = register("cat_staff", () -> new CatStaffItem(MIRACULOUS_TOOL_PROPERTIES_WITH_ACTIVE.apply(new Item.Properties())));
     public static final DeferredItem<ButterflyCaneItem> BUTTERFLY_CANE = register("butterfly_cane", () -> new ButterflyCaneItem(MIRACULOUS_TOOL_PROPERTIES.apply(new Item.Properties())));
 
     // Miraculous
@@ -64,6 +64,8 @@ public class MineraculousItems {
 
     // Pottery Sherds
     public static final DeferredItem<Item> LADYBUG_POTTERY_SHERD = registerSherd("ladybug", new Item.Properties());
+    public static final DeferredItem<Item> CAT_POTTERY_SHERD = registerSherd("cat", new Item.Properties());
+    public static final DeferredItem<Item> BUTTERFLY_POTTERY_SHERD = registerSherd("butterfly", new Item.Properties());
 
     // Smithing Templates
     public static final DeferredItem<SmithingTemplateItem> LADYBUG_ARMOR_TRIM_SMITHING_TEMPLATE = registerSmithingTemplate(MineraculousTrimPatterns.LADYBUG);

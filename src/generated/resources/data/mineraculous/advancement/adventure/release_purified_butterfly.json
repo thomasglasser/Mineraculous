@@ -1,0 +1,42 @@
+{
+  "parent": "minecraft:adventure/root",
+  "criteria": {
+    "release_purified_butterfly": {
+      "conditions": {
+        "released": [
+          [
+            {
+              "condition": "minecraft:entity_properties",
+              "entity": "this",
+              "predicate": {
+                "type": "#c:butterflies"
+              }
+            }
+          ]
+        ]
+      },
+      "trigger": "mineraculous:released_purified_entities"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancement.mineraculous.adventure.release_purified_butterfly.desc"
+    },
+    "icon": {
+      "count": 1,
+      "id": "mineraculous:ladybug_yoyo"
+    },
+    "title": {
+      "translate": "advancement.mineraculous.adventure.release_purified_butterfly.title"
+    }
+  },
+  "requirements": [
+    [
+      "release_purified_butterfly"
+    ]
+  ],
+  "rewards": {
+    "experience": 20
+  },
+  "sends_telemetry_event": true
+}

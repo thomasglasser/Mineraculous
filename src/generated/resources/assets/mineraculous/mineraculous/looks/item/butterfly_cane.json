@@ -1,0 +1,25 @@
+{
+  "assets": {
+    "mineraculous:blocking_miraculous_tool": {
+      "mineraculous:geckolib_animations": "mineraculous:animations/item/butterfly_cane.animation.json",
+      "mineraculous:geckolib_model": "mineraculous:geo/item/butterfly_cane.geo.json",
+      "mineraculous:texture": "mineraculous:textures/item/geo/butterfly_cane.png"
+    },
+    "mineraculous:miraculous_tool": {
+      "mineraculous:geckolib_animations": "mineraculous:animations/item/butterfly_cane.animation.json",
+      "mineraculous:geckolib_model": "mineraculous:geo/item/butterfly_cane.geo.json",
+      "mineraculous:texture": "mineraculous:textures/item/geo/butterfly_cane.png"
+    },
+    "mineraculous:phone_miraculous_tool": {
+      "mineraculous:geckolib_animations": "mineraculous:animations/item/butterfly_cane.animation.json",
+      "mineraculous:geckolib_model": "mineraculous:geo/item/butterfly_cane_phone.geo.json",
+      "mineraculous:texture": "mineraculous:textures/item/geo/butterfly_cane_phone.png"
+    },
+    "mineraculous:spyglass_miraculous_tool": {
+      "mineraculous:geckolib_animations": "mineraculous:animations/item/butterfly_cane.animation.json",
+      "mineraculous:geckolib_model": "mineraculous:geo/item/butterfly_cane.geo.json",
+      "mineraculous:scope_texture": "mineraculous:textures/misc/butterfly_cane_spyglass_scope.png",
+      "mineraculous:texture": "mineraculous:textures/item/geo/butterfly_cane_spyglass.png"
+    }
+  }
+}

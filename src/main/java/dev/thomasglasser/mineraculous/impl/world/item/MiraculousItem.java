@@ -8,6 +8,7 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosData;
 import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
+import dev.thomasglasser.mineraculous.api.world.item.MineraculousItemUtils;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.impl.client.renderer.item.MiraculousItemRenderer;
@@ -39,6 +40,7 @@ import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.client.GeoRenderProvider;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.type.capability.ICurioItem;
@@ -57,19 +59,6 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     @Override
     public Component getName(ItemStack stack) {
         return Miraculous.formatItemName(stack, super.getName(stack));
-    }
-
-    @Override
-    public List<Component> getSlotsTooltip(List<Component> tooltips, TooltipContext context, ItemStack stack) {
-        MutableComponent slotsTooltip = Component.translatable("curios.tooltip.slot").append(" ").withStyle(ChatFormatting.GOLD);
-        Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-        if (miraculous != null) {
-            slotsTooltip.append(Component.translatable("curios.identifier." + miraculous.value().acceptableSlot()).withStyle(ChatFormatting.YELLOW));
-        }
-        List<Component> newTooltips = new ReferenceArrayList<>(tooltips);
-        newTooltips.removeLast();
-        newTooltips.add(slotsTooltip);
-        return newTooltips;
     }
 
     @Override
@@ -98,7 +87,7 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
                 stack.set(MineraculousDataComponents.POWERED, Unit.INSTANCE);
             }
             if (entity instanceof LivingEntity livingEntity && !CuriosUtils.isEquipped(livingEntity, stack)) {
-                stack.set(MineraculousDataComponents.TEXTURE_STATE, stack.has(MineraculousDataComponents.POWERED) ? TextureState.POWERED : TextureState.ACTIVE);
+                stack.set(MineraculousDataComponents.POWER_STATE, stack.has(MineraculousDataComponents.POWERED) ? PowerState.POWERED : PowerState.ACTIVE);
             }
         }
     }
@@ -109,10 +98,23 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     }
 
     @Override
+    public List<Component> getSlotsTooltip(List<Component> tooltips, TooltipContext context, ItemStack stack) {
+        MutableComponent slotsTooltip = Component.translatable("curios.tooltip.slot").append(" ").withStyle(ChatFormatting.GOLD);
+        Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
+        if (miraculous != null) {
+            slotsTooltip.append(Component.translatable("curios.identifier." + miraculous.value().acceptableSlot()).withStyle(ChatFormatting.YELLOW));
+        }
+        List<Component> newTooltips = new ReferenceArrayList<>(tooltips);
+        newTooltips.removeLast();
+        newTooltips.add(slotsTooltip);
+        return newTooltips;
+    }
+
+    @Override
     public void onEquip(SlotContext slotContext, ItemStack prevStack, ItemStack stack) {
         LivingEntity entity = slotContext.entity();
         Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
-        if (entity.level() instanceof ServerLevel level && miraculous != null && !(stack.is(prevStack.getItem()) && miraculous == prevStack.get(MineraculousDataComponents.MIRACULOUS))) {
+        if (!entity.level().isClientSide() && miraculous != null && !(stack.is(prevStack.getItem()) && miraculous == prevStack.get(MineraculousDataComponents.MIRACULOUS))) {
             MiraculousData data = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous);
             if (!data.transformed()) {
                 UUID miraculousId = stack.get(MineraculousDataComponents.MIRACULOUS_ID);
@@ -160,7 +162,9 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     }
 
     @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {}
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, 0, state -> MineraculousItemUtils.genericOptionalController(state, this, false)));
+    }
 
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
@@ -170,37 +174,37 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
     @Override
     public void createGeoRenderer(Consumer<GeoRenderProvider> consumer) {
         consumer.accept(new GeoRenderProvider() {
-            private MiraculousItemRenderer renderer;
+            private MiraculousItemRenderer<?> renderer;
 
             @Override
             public BlockEntityWithoutLevelRenderer getGeoItemRenderer() {
                 if (this.renderer == null)
-                    this.renderer = new MiraculousItemRenderer();
+                    this.renderer = new MiraculousItemRenderer<>();
 
                 return this.renderer;
             }
         });
     }
 
-    public enum TextureState implements StringRepresentable {
+    public enum PowerState implements StringRepresentable {
         HIDDEN,
-        ACTIVE,
+        ACTIVE(0),
         POWERED_1(1),
         POWERED_2(2),
         POWERED_3(3),
         POWERED_4(4),
         POWERED;
 
-        public static final Codec<TextureState> CODEC = StringRepresentable.fromEnum(TextureState::values);
-        public static final StreamCodec<ByteBuf, TextureState> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(TextureState::of, TextureState::getSerializedName);
+        public static final Codec<PowerState> CODEC = StringRepresentable.fromEnum(PowerState::values);
+        public static final StreamCodec<ByteBuf, PowerState> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(PowerState::of, PowerState::getSerializedName);
 
         private final int frame;
 
-        TextureState(int frame) {
+        PowerState(int frame) {
             this.frame = frame;
         }
 
-        TextureState() {
+        PowerState() {
             this(-1);
         }
 
@@ -213,11 +217,11 @@ public class MiraculousItem extends Item implements ICurioItem, GeoItem {
             return name().toLowerCase();
         }
 
-        public static TextureState of(String name) {
+        public static PowerState of(String name) {
             return valueOf(name.toUpperCase());
         }
 
-        public static TextureState forFrame(int frame) {
+        public static PowerState forFrame(int frame) {
             return switch (frame) {
                 case -1 -> HIDDEN;
                 case 0 -> ACTIVE;

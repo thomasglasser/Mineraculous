@@ -11,7 +11,9 @@ import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.EatingItem;
 import dev.thomasglasser.mineraculous.impl.world.item.component.KwamiFoods;
 import it.unimi.dsi.fastutil.objects.Object2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.Map;
+import java.util.Set;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -24,6 +26,8 @@ import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 
 public class KwamiItemRenderer extends GeoItemRenderer<KwamiItem> {
+    private static final Set<KwamiItemRenderer> INSTANCES = new ReferenceOpenHashSet<>();
+
     private final Map<Holder<Miraculous>, GeoModel<KwamiItem>> models = new Object2ReferenceOpenHashMap<>();
 
     public KwamiItemRenderer() {
@@ -44,6 +48,13 @@ public class KwamiItemRenderer extends GeoItemRenderer<KwamiItem> {
             return null;
         }));
         addRenderLayer(new MiniHolidayHatGeoLayer<>(this, KwamiRenderer.HEAD));
+
+        INSTANCES.add(this);
+    }
+
+    public static void clearAssets() {
+        INSTANCES.forEach(renderer -> renderer.models.clear());
+        INSTANCES.clear();
     }
 
     @Override

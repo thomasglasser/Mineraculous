@@ -1,29 +1,44 @@
 package dev.thomasglasser.mineraculous.impl.client.renderer.armor;
 
+import dev.thomasglasser.mineraculous.api.client.look.Look;
+import dev.thomasglasser.mineraculous.api.client.look.LookManager;
+import dev.thomasglasser.mineraculous.api.client.look.util.renderer.LookRenderer;
+import dev.thomasglasser.mineraculous.api.client.model.LookGeoModel;
 import dev.thomasglasser.mineraculous.api.client.renderer.layer.ConditionalAutoGlowingGeoLayer;
 import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
+import dev.thomasglasser.mineraculous.api.core.look.LookUtils;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
+import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
-import dev.thomasglasser.mineraculous.impl.world.item.armor.KamikotizationArmorItem;
+import dev.thomasglasser.mineraculous.api.world.kamikotization.KamikotizationData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import java.util.Map;
+import java.util.UUID;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animation.Animation;
-import software.bernie.geckolib.model.DefaultedItemGeoModel;
+import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoArmorRenderer;
 
-public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<KamikotizationArmorItem> {
-    private static final Map<Holder<Kamikotization>, GeoModel<KamikotizationArmorItem>> DEFAULT_MODELS = new Object2ObjectOpenHashMap<>();
+public class KamikotizationArmorItemRenderer<T extends Item & GeoItem> extends GeoArmorRenderer<T> implements LookRenderer {
+    private final GeoModel<T> model;
+
+    private @Nullable Look<?> look = null;
 
     public KamikotizationArmorItemRenderer() {
-        super((GeoModel<KamikotizationArmorItem>) null);
+        super((GeoModel<T>) null);
         addRenderLayer(new ConditionalAutoGlowingGeoLayer<>(this));
+        this.model = new LookGeoModel<>(this);
     }
 
     public static Holder<Kamikotization> getKamikotizationOrDefault(ItemStack stack) {
@@ -38,32 +53,42 @@ public class KamikotizationArmorItemRenderer extends GeoArmorRenderer<Kamikotiza
         return kamikotization;
     }
 
-    public static void clearModels() {
-        DEFAULT_MODELS.clear();
+    public static ResourceLocation getDefaultLookId(ItemStack stack) {
+        return LookUtils.getDefaultLookId(getKamikotizationOrDefault(stack).getKey());
+    }
+
+    public static @Nullable Look getLook(ItemStack stack, Holder<LookContext> context) {
+        UUID owner = stack.get(MineraculousDataComponents.OWNER);
+        Level level = ClientUtils.getLevel();
+        if (owner != null && level != null && level.getEntities().get(owner) instanceof Player player) {
+            return player.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::lookData).map(lookData -> LookManager.getLook(lookData, context.getKey())).orElse(null);
+        }
+        return null;
     }
 
     @Override
-    public GeoModel<KamikotizationArmorItem> getGeoModel() {
-        return DEFAULT_MODELS.computeIfAbsent(getKamikotizationOrDefault(getCurrentStack()), this::createDefaultGeoModel);
+    public GeoModel<T> getGeoModel() {
+        return model;
     }
 
-    private GeoModel<KamikotizationArmorItem> createDefaultGeoModel(Holder<Kamikotization> kamikotization) {
-        return new DefaultedItemGeoModel<>(kamikotization.getKey().location().withPrefix("armor/kamikotization/")) {
-            private final ResourceLocation texture = kamikotization.getKey().location().withPath(path -> "textures/entity/equipment/humanoid/kamikotization/" + path + ".png");
+    @Override
+    public ResourceLocation getDefaultLookId() {
+        return getDefaultLookId(getCurrentStack());
+    }
 
-            @Override
-            public ResourceLocation getTextureResource(KamikotizationArmorItem animatable) {
-                return texture;
-            }
+    @Override
+    public Holder<LookContext> getContext() {
+        return LookContexts.KAMIKOTIZATION_SUIT;
+    }
 
-            @Override
-            public @Nullable Animation getAnimation(KamikotizationArmorItem animatable, String name) {
-                try {
-                    return super.getAnimation(animatable, name);
-                } catch (RuntimeException e) {
-                    return null;
-                }
-            }
-        };
+    @Override
+    public @Nullable Look getLook() {
+        return look;
+    }
+
+    @Override
+    public void prepForRender(Entity entity, ItemStack stack, EquipmentSlot slot, HumanoidModel<?> baseModel, MultiBufferSource bufferSource, float partialTick, float limbSwing, float limbSwingAmount, float netHeadYaw, float headPitch) {
+        super.prepForRender(entity, stack, slot, baseModel, bufferSource, partialTick, limbSwing, limbSwingAmount, netHeadYaw, headPitch);
+        look = getLook(getCurrentStack(), getContext());
     }
 }

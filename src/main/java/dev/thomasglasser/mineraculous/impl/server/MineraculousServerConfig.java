@@ -7,14 +7,15 @@ public class MineraculousServerConfig {
 
     public final ModConfigSpec configSpec;
 
+    // Looks
+    public static final String LOOKS = "looks";
+    public final ModConfigSpec.BooleanValue enableClientProvidedLooks;
+
     // Miraculous
-    public static final String MIRACULOUS = "miraculous";
+    public static final String MIRACULOUSES = "miraculouses";
     public final ModConfigSpec.BooleanValue enableBuffsOnTransformation;
     public final ModConfigSpec.IntValue maxToolLength;
-
-    public static final String CUSTOMIZATION = "customization";
-    public final ModConfigSpec.BooleanValue enableCustomization;
-    public final ModConfigSpec.EnumValue<PermissionMode> customizationPermissionsMode;
+    public final ModConfigSpec.EnumValue<InitialLookMode> initialLookMode;
 
     public static final String ABILITIES = "abilities";
     public final ModConfigSpec.BooleanValue enableMiraculousTimer;
@@ -40,20 +41,24 @@ public class MineraculousServerConfig {
     public final ModConfigSpec.BooleanValue enableSleepStealing;
     public final ModConfigSpec.IntValue wakeUpChance;
 
+    // Breaking
+    public static final String BREAKING = "breaking";
+    public final ModConfigSpec.IntValue breakDamage;
+
     public MineraculousServerConfig() {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
 
-        builder.push(MIRACULOUS);
+        builder.push(LOOKS);
+        enableClientProvidedLooks = builder
+                .define("enable_client_provided_looks", false);
+        builder.pop();
+        builder.push(MIRACULOUSES);
         enableBuffsOnTransformation = builder
                 .define("enable_buffs_on_transformation", true);
         maxToolLength = builder
                 .defineInRange("max_tool_length", 128, 32, 512);
-        builder.push(CUSTOMIZATION);
-        enableCustomization = builder
-                .define("enable_customization", false);
-        customizationPermissionsMode = builder
-                .defineEnum("customization_permission_mode", PermissionMode.WHITELIST);
-        builder.pop();
+        initialLookMode = builder
+                .defineEnum("first_look_mode", InitialLookMode.DEFAULT);
         builder.push(ABILITIES);
         enableMiraculousTimer = builder
                 .define("enable_miraculous_timer", true);
@@ -97,6 +102,11 @@ public class MineraculousServerConfig {
                 .defineInRange("wake_up_chance", 10, 0, 100);
         builder.pop();
 
+        builder.push(BREAKING);
+        breakDamage = builder
+                .defineInRange("break_damage", 100, 10, 1000);
+        builder.pop();
+
         configSpec = builder.build();
     }
 
@@ -108,9 +118,12 @@ public class MineraculousServerConfig {
         return INSTANCE;
     }
 
-    public enum PermissionMode {
-        WHITELIST,
-        BLACKLIST
+    public enum InitialLookMode {
+        DEFAULT,
+        OPEN_SCREEN_ON_JOIN,
+        OPEN_SCREEN_ON_TRANSFORM,
+        RANDOM,
+        RANDOM_MIX
     }
 
     public enum MiraculousLadybugReversionMode {

@@ -1,0 +1,30 @@
+package dev.thomasglasser.mineraculous.api.client.look.util.renderer;
+
+import dev.thomasglasser.mineraculous.api.client.look.Look;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContext;
+import dev.thomasglasser.mineraculous.api.core.look.context.LookContexts;
+import dev.thomasglasser.mineraculous.impl.client.renderer.armor.KamikotizationArmorItemRenderer;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
+
+/// Represents a renderer for a kamikotization tool that uses the look system.
+public interface KamikotizationToolLookRenderer extends LookRenderer {
+    ItemStack getCurrentItemStack();
+
+    @Override
+    default ResourceLocation getDefaultLookId() {
+        return MiraculousToolLookRenderer.getDefaultLookId(getCurrentItemStack());
+    }
+
+    @Override
+    default Holder<LookContext> getContext() {
+        return LookContexts.KAMIKOTIZATION_TOOL;
+    }
+
+    @Override
+    default @Nullable Look<?> getLook() {
+        return KamikotizationArmorItemRenderer.getLook(getCurrentItemStack(), getContext());
+    }
+}

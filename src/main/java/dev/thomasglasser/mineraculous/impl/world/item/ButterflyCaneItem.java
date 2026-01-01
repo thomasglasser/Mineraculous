@@ -19,6 +19,7 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
 import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownButterflyCane;
+import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ReferenceArrayList;
 import java.util.List;
@@ -65,6 +66,7 @@ import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.Animation;
 import software.bernie.geckolib.animation.AnimationController;
 import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
@@ -78,14 +80,16 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
     public static final String ANIMATION_OPEN = "open";
     public static final String ANIMATION_CLOSE = "close";
     public static final String ANIMATION_SHEATHE = "sheathe";
+    public static final String ANIMATION_SHEATHE_AND_OPEN = "sheathe_and_open";
     public static final String ANIMATION_UNSHEATHE = "unsheathe";
-
-    public static final RawAnimation BLADE_IDLE = RawAnimation.begin().thenPlay("misc.blade_idle");
+    public static final String ANIMATION_CLOSE_AND_UNSHEATHE = "close_and_unsheathe";
 
     private static final RawAnimation OPEN = RawAnimation.begin().thenPlay("misc.open");
     private static final RawAnimation CLOSE = RawAnimation.begin().thenPlay("misc.close");
-    private static final RawAnimation SHEATH = RawAnimation.begin().thenPlay("attack.sheathe");
+    private static final RawAnimation SHEATHE = RawAnimation.begin().thenPlay("attack.sheathe");
+    private static final RawAnimation SHEATHE_AND_OPEN = RawAnimation.begin().then("attack.sheathe", Animation.LoopType.PLAY_ONCE).thenPlay("misc.open");
     private static final RawAnimation UNSHEATHE = RawAnimation.begin().thenPlay("attack.unsheathe");
+    private static final RawAnimation CLOSE_AND_UNSHEATHE = RawAnimation.begin().then("misc.close", Animation.LoopType.PLAY_ONCE).thenPlay("attack.unsheathe");
 
     private static final ItemAttributeModifiers BLADE = ItemAttributeModifiers.builder()
             .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Item.BASE_ATTACK_DAMAGE_ID, 15, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
@@ -111,15 +115,33 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
             if (stack != null) {
                 if (stack.has(MineraculousDataComponents.BLOCKING))
                     return state.setAndContinue(DefaultAnimations.ATTACK_BLOCK);
-                else if (stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE) == Mode.BLADE && !state.isCurrentAnimation(UNSHEATHE))
-                    return state.setAndContinue(BLADE_IDLE);
+                else {
+                    Mode mode = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
+                    if (mode == Mode.BLADE)
+                        return state.setAndContinue(DefaultAnimations.IDLE);
+                    else if (mode == Mode.PHONE || mode == Mode.SPYGLASS)
+                        return state.setAndContinue(OPEN);
+                    else if (mode == Mode.KAMIKO_STORE) {
+                        boolean hasNoStoredEntities = true;
+                        Level level = ClientUtils.getLevel();
+                        UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
+                        if (ownerId != null && level != null) {
+                            Entity owner = level.getEntities().get(ownerId);
+                            hasNoStoredEntities = owner != null && !owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).hasStoredEntities(MiraculousTags.CAN_USE_BUTTERFLY_CANE);
+                        }
+                        if (hasNoStoredEntities)
+                            return state.setAndContinue(OPEN);
+                    }
+                }
             }
             return PlayState.STOP;
         })
                 .triggerableAnim(ANIMATION_OPEN, OPEN)
                 .triggerableAnim(ANIMATION_CLOSE, CLOSE)
-                .triggerableAnim(ANIMATION_SHEATHE, SHEATH)
-                .triggerableAnim(ANIMATION_UNSHEATHE, UNSHEATHE));
+                .triggerableAnim(ANIMATION_SHEATHE, SHEATHE)
+                .triggerableAnim(ANIMATION_SHEATHE_AND_OPEN, SHEATHE_AND_OPEN)
+                .triggerableAnim(ANIMATION_UNSHEATHE, UNSHEATHE)
+                .triggerableAnim(ANIMATION_CLOSE_AND_UNSHEATHE, CLOSE_AND_UNSHEATHE));
     }
 
     @Override
@@ -304,37 +326,29 @@ public class ButterflyCaneItem extends SwordItem implements GeoItem, ProjectileI
         Mode old = stack.get(MineraculousDataComponents.BUTTERFLY_CANE_MODE);
         Mode selected = RadialMenuProvider.super.setOption(stack, hand, holder, index);
         if (holder.level() instanceof ServerLevel level) {
+            String anim = null;
+            boolean hasNoStoredEntities = false;
             UUID ownerId = stack.get(MineraculousDataComponents.OWNER);
             if (ownerId != null) {
                 Entity owner = level.getEntities().get(ownerId);
-                if (owner != null) {
-                    MiraculousesData miraculousesData = owner.getData(MineraculousAttachmentTypes.MIRACULOUSES);
-                    String anim = null;
-                    if (selected == Mode.BLADE)
-                        anim = ANIMATION_UNSHEATHE;
-                    else if ((selected == Mode.KAMIKO_STORE && !miraculousesData.hasStoredEntities(MiraculousTags.CAN_USE_BUTTERFLY_CANE)) || selected == Mode.SPYGLASS || selected == Mode.PHONE)
-                        anim = ANIMATION_OPEN;
-                    else if ((old == Mode.KAMIKO_STORE && !miraculousesData.hasStoredEntities(MiraculousTags.CAN_USE_BUTTERFLY_CANE)) || old == Mode.SPYGLASS || old == Mode.PHONE)
-                        anim = ANIMATION_CLOSE;
-                    else if (old == Mode.BLADE)
-                        anim = ANIMATION_SHEATHE;
-                    if (anim != null) {
-                        triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_USE, anim);
-                    }
-                }
-            } else {
-                String anim = null;
-                if (selected == Mode.BLADE)
+                hasNoStoredEntities = owner != null && !owner.getData(MineraculousAttachmentTypes.MIRACULOUSES).hasStoredEntities(MiraculousTags.CAN_USE_BUTTERFLY_CANE);
+            }
+            if (selected == Mode.BLADE) {
+                if ((old == Mode.KAMIKO_STORE && hasNoStoredEntities) || old == Mode.SPYGLASS || old == Mode.PHONE)
+                    anim = ANIMATION_CLOSE_AND_UNSHEATHE;
+                else
                     anim = ANIMATION_UNSHEATHE;
-                else if (selected == Mode.SPYGLASS || selected == Mode.PHONE)
+            } else if ((selected == Mode.KAMIKO_STORE && hasNoStoredEntities) || selected == Mode.SPYGLASS || selected == Mode.PHONE) {
+                if (old == Mode.BLADE)
+                    anim = ANIMATION_SHEATHE_AND_OPEN;
+                else
                     anim = ANIMATION_OPEN;
-                else if (old == Mode.SPYGLASS || old == Mode.PHONE)
-                    anim = ANIMATION_CLOSE;
-                else if (old == Mode.BLADE)
-                    anim = ANIMATION_SHEATHE;
-                if (anim != null) {
-                    triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_USE, anim);
-                }
+            } else if ((old == Mode.KAMIKO_STORE && hasNoStoredEntities) || old == Mode.SPYGLASS || old == Mode.PHONE)
+                anim = ANIMATION_CLOSE;
+            else if (old == Mode.BLADE)
+                anim = ANIMATION_SHEATHE;
+            if (anim != null) {
+                triggerAnim(holder, GeoItem.getOrAssignId(stack, level), CONTROLLER_USE, anim);
             }
         }
         return selected;

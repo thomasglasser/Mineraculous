@@ -1,0 +1,35 @@
+package dev.thomasglasser.mineraculous.impl.network;
+
+import dev.thomasglasser.mineraculous.api.MineraculousConstants;
+import dev.thomasglasser.mineraculous.api.core.look.LookUtils;
+import dev.thomasglasser.mineraculous.impl.core.look.LookLoader;
+import dev.thomasglasser.mineraculous.impl.server.look.ServerLookManager;
+import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.world.entity.player.Player;
+
+public record ServerboundSendLookPayload(String hash, byte[] data) implements ExtendedPacketPayload {
+    public static final Type<ServerboundSendLookPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_send_look"));
+    public static final StreamCodec<ByteBuf, ServerboundSendLookPayload> CODEC = StreamCodec.composite(
+            ByteBufCodecs.STRING_UTF8, ServerboundSendLookPayload::hash,
+            ByteBufCodecs.byteArray(LookLoader.MAX_FILE_SIZE), ServerboundSendLookPayload::data,
+            ServerboundSendLookPayload::new);
+
+    // ON SERVER
+    @Override
+    public void handle(Player player) {
+        if (LookUtils.disableClientLooks())
+            return;
+        ServerLookManager.add(hash, data, false);
+        TommyLibServices.NETWORK.sendToAllClients(new ClientboundSendLookPayload(hash, new ServerLookManager.CachedLook(data, false)), player.getServer());
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
+}

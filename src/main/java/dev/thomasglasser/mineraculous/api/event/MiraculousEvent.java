@@ -1,9 +1,9 @@
 package dev.thomasglasser.mineraculous.api.event;
 
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
+import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
-import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import java.util.Optional;
 import net.minecraft.core.Holder;
 import net.minecraft.world.entity.LivingEntity;
@@ -276,10 +276,10 @@ public abstract class MiraculousEvent extends LivingEvent {
      */
     public static abstract class Renounce extends MiraculousEvent {
         @Nullable
-        private final Kwami kwami;
+        private final MineraculousEntityUtils.KwamiLike kwami;
 
         @ApiStatus.Internal
-        public Renounce(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack, @Nullable Kwami kwami) {
+        public Renounce(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack, @Nullable MineraculousEntityUtils.KwamiLike kwami) {
             super(entity, miraculous, entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(miraculous), stack);
             this.kwami = kwami;
         }
@@ -290,7 +290,7 @@ public abstract class MiraculousEvent extends LivingEvent {
          * @return The kwami being renounced
          */
         @Nullable
-        public Kwami getKwami() {
+        public MineraculousEntityUtils.KwamiLike getKwami() {
             return kwami;
         }
 
@@ -309,7 +309,7 @@ public abstract class MiraculousEvent extends LivingEvent {
             private boolean shouldRequireKwami;
 
             @ApiStatus.Internal
-            public Pre(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack, @Nullable Kwami kwami, boolean shouldRequireKwami) {
+            public Pre(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack, @Nullable MineraculousEntityUtils.KwamiLike kwami, boolean shouldRequireKwami) {
                 super(entity, miraculous, stack, kwami);
                 this.shouldRequireKwami = shouldRequireKwami;
             }
@@ -344,7 +344,7 @@ public abstract class MiraculousEvent extends LivingEvent {
          */
         public static class Post extends Renounce {
             @ApiStatus.Internal
-            public Post(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack, @Nullable Kwami kwami) {
+            public Post(LivingEntity entity, Holder<Miraculous> miraculous, ItemStack stack, @Nullable MineraculousEntityUtils.KwamiLike kwami) {
                 super(entity, miraculous, stack, kwami);
             }
         }

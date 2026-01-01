@@ -10,7 +10,6 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Holder;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -36,7 +35,7 @@ public class ServerboundRenounceMiraculousPayload implements ExtendedPacketPaylo
     private void renounceMiraculous(ItemStack stack, Player player) {
         Holder<Miraculous> miraculous = stack.get(MineraculousDataComponents.MIRACULOUS);
         if (miraculous != null) {
-            MineraculousEntityUtils.renounceKwami(true, stack, (ServerLevel) player.level(), player);
+            MineraculousEntityUtils.renounceKwami(true, stack, player);
         }
     }
 

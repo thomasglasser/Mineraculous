@@ -7,17 +7,13 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import dev.thomasglasser.mineraculous.api.core.component.MineraculousDataComponents;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
 import dev.thomasglasser.mineraculous.api.world.entity.MineraculousEntityUtils;
-import dev.thomasglasser.mineraculous.api.world.entity.curios.CuriosUtils;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousData;
 import dev.thomasglasser.mineraculous.api.world.miraculous.MiraculousesData;
-import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.item.KwamiItem;
-import java.util.UUID;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
@@ -26,8 +22,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 public class MiraculousCommand {
     public static final int COMMANDS_ENABLED_PERMISSION_LEVEL = 2;
@@ -90,48 +84,6 @@ public class MiraculousCommand {
                                                 }))))));
     }
 
-    private interface KwamiLike {
-        boolean isCharged();
-
-        void setCharged(boolean charged);
-    }
-
-    private static @Nullable KwamiLike findKwami(LivingEntity entity, MiraculousData data) {
-        UUID kwamiId = data.curiosData().map(curiosData -> CuriosUtils.getStackInSlot(entity, curiosData).get(MineraculousDataComponents.KWAMI_ID)).orElse(null);
-        if (kwamiId == null)
-            return null;
-        if (entity.level().getEntities().get(kwamiId) instanceof Kwami kwami) {
-            return new KwamiLike() {
-                @Override
-                public boolean isCharged() {
-                    return kwami.isCharged();
-                }
-
-                @Override
-                public void setCharged(boolean charged) {
-                    kwami.setCharged(charged);
-                }
-            };
-        } else {
-            for (ItemStack stack : MineraculousEntityUtils.getInventoryAndCurios(entity)) {
-                if (stack.getItem() instanceof KwamiItem && kwamiId.equals(stack.get(MineraculousDataComponents.KWAMI_ID))) {
-                    return new KwamiLike() {
-                        @Override
-                        public boolean isCharged() {
-                            return stack.getOrDefault(MineraculousDataComponents.CHARGED, true);
-                        }
-
-                        @Override
-                        public void setCharged(boolean charged) {
-                            stack.set(MineraculousDataComponents.CHARGED, charged);
-                        }
-                    };
-                }
-            }
-        }
-        return null;
-    }
-
     private static int getKwamiCharged(Entity entity, CommandContext<CommandSourceStack> context, boolean self) throws CommandSyntaxException {
         Holder.Reference<Miraculous> miraculous = resolveMiraculous(context, "miraculous");
         MiraculousesData miraculousesData = entity.getData(MineraculousAttachmentTypes.MIRACULOUSES);
@@ -140,7 +92,7 @@ public class MiraculousCommand {
             context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_TRANSFORMED, entity.getDisplayName()));
             return 0;
         } else if (entity instanceof LivingEntity livingEntity) {
-            KwamiLike kwami = findKwami(livingEntity, data);
+            MineraculousEntityUtils.KwamiLike kwami = MineraculousEntityUtils.findKwami(livingEntity, data);
             if (kwami != null) {
                 context.getSource().sendSuccess(() -> self ? Component.translatable(CHARGED_QUERY_SUCCESS_SELF, Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), kwami.isCharged() ? KwamiItem.CHARGED : KwamiItem.NOT_CHARGED) : Component.translatable(CHARGED_QUERY_SUCCESS_OTHER, entity.getDisplayName(), Component.translatable(MineraculousConstants.toLanguageKey(miraculous.key())), kwami.isCharged() ? KwamiItem.CHARGED : KwamiItem.NOT_CHARGED), true);
                 return 1;
@@ -161,7 +113,7 @@ public class MiraculousCommand {
             context.getSource().sendFailure(Component.translatable(CHARGED_FAILURE_TRANSFORMED, entity.getDisplayName()));
             return 0;
         } else if (entity instanceof LivingEntity livingEntity) {
-            KwamiLike kwami = findKwami(livingEntity, data);
+            MineraculousEntityUtils.KwamiLike kwami = MineraculousEntityUtils.findKwami(livingEntity, data);
             if (kwami != null) {
                 boolean charged = BoolArgumentType.getBool(context, "charged");
                 kwami.setCharged(charged);

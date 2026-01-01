@@ -420,7 +420,7 @@ public class MineraculousEntityEvents {
                     if (data.transformed()) {
                         data.detransform(entity, level, miraculous, stack, true);
                     } else {
-                        MineraculousEntityUtils.renounceKwami(true, stack, level, entity);
+                        MineraculousEntityUtils.renounceKwami(true, stack, entity);
                     }
                 }
                 entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).ifPresent(data -> {

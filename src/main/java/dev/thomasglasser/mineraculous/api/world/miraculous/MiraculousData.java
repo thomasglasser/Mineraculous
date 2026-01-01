@@ -239,7 +239,7 @@ public record MiraculousData(LookData lookData, Optional<CuriosData> curiosData,
         miraculousStack.set(MineraculousDataComponents.POWER_STATE, removed ? MiraculousItem.PowerState.ACTIVE : MiraculousItem.PowerState.HIDDEN);
 
         if (removed) {
-            MineraculousEntityUtils.renounceKwami(false, miraculousStack, level, entity);
+            MineraculousEntityUtils.renounceKwami(false, miraculousStack, entity);
         } else {
             miraculousStack.remove(MineraculousDataComponents.POWERED);
         }

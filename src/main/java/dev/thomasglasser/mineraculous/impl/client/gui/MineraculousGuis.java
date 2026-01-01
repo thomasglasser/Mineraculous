@@ -9,7 +9,11 @@ import dev.thomasglasser.mineraculous.api.world.kamikotization.Kamikotization;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
 import dev.thomasglasser.mineraculous.impl.client.gui.kamiko.categories.KamikoTargetPlayerMenuCategory;
+import dev.thomasglasser.mineraculous.impl.network.ServerboundSetPlayerAttackTargetPayload;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
+import dev.thomasglasser.mineraculous.impl.world.entity.Kamiko;
+import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
+import java.util.Optional;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -36,6 +40,8 @@ public class MineraculousGuis {
                     if (selectionMenuItem != SelectionMenu.CLOSE_ITEM && Minecraft.getInstance().level.registryAccess().registryOrThrow(MineraculousRegistries.KAMIKOTIZATION).size() == 0) {
                         Minecraft.getInstance().player.displayClientMessage(Kamikotization.NO_KAMIKOTIZATIONS, true);
                     } else {
+                        if (selectionMenuItem == SelectionMenu.CLOSE_ITEM && MineraculousClientUtils.getCameraEntity() instanceof Kamiko kamiko)
+                            TommyLibServices.NETWORK.sendToServer(new ServerboundSetPlayerAttackTargetPayload(kamiko.getId(), Optional.empty()));
                         super.selectSlot(slot);
                     }
                 }

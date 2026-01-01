@@ -59,13 +59,11 @@ import dev.thomasglasser.mineraculous.impl.world.item.armor.MineraculousArmorUti
 import dev.thomasglasser.mineraculous.impl.world.level.storage.LeashingLadybugYoyoData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
-
+import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.UUID;
-
-import it.unimi.dsi.fastutil.floats.FloatArrayList;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;

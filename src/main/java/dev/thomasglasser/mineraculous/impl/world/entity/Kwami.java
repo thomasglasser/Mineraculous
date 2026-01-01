@@ -111,6 +111,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private static final double SUMMON_ORB_MAX_RADIUS = 1.5;
     private static final double SUMMON_TRAIL_ANGLE_STEP = Math.toRadians(26);
     private static final double SUMMON_TRAIL_MAX_RADIUS = 0.89;
+    private static final double OWNER_HEIGHT_ADJUSTMENT = 2.5d / 4d;
 
     private static final EntityDataAccessor<Integer> DATA_SUMMON_TICKS = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(Kwami.class, EntityDataSerializers.BOOLEAN);
@@ -663,7 +664,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
         if (level() instanceof ServerLevel level) {
             if (isTransforming() && player.getUUID().equals(getOwnerUUID())) {
                 Vec3 middlePos = this.getBoundingBox().getCenter();
-                Vec3 ownerMiddlePos = owner.getBoundingBox().getCenter();
+                Vec3 ownerMiddlePos = owner.position().add(0, owner.getBbHeight() * OWNER_HEIGHT_ADJUSTMENT, 0);
                 if (middlePos.distanceTo(ownerMiddlePos) < 0.3) {
                     player.getData(MineraculousAttachmentTypes.MIRACULOUSES).get(getMiraculous()).transform(player, level, getMiraculous());
                     discard();
@@ -702,7 +703,7 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     public static void applySummoningAppearance(SummoningAppearance appearance, Kwami kwami, Entity owner) {
         switch (appearance) {
             case Kwami.SummoningAppearance.TRAIL:
-                kwami.moveTo(owner.position().add(new Vec3(0, owner.getBbHeight() * 3d / 4d, 0)));
+                kwami.moveTo(owner.position().add(new Vec3(0, owner.getBbHeight() * OWNER_HEIGHT_ADJUSTMENT, 0)));
                 kwami.setSummonTicks(SharedConstants.TICKS_PER_SECOND * 3 / 2);
                 kwami.setSummoningAppearance(appearance);
                 break;

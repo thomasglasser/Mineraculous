@@ -621,7 +621,7 @@
   "miraculous.mineraculous.cat": "Cat",
   "miraculous.mineraculous.ladybug": "Ladybug",
   "miraculous_data.kwami_not_found": "%s Kwami not found in the world.",
-  "miraculous_data.name.not_set": "You haven't set your %s hero name yet! Use '/miraculous %s customize' to set.",
+  "miraculous_data.name.not_set": "You haven't set your %s hero name yet! Use the Miraculous Looks Screen to set it.",
   "mode.mineraculous.butterfly_cane.blade": "Blade",
   "mode.mineraculous.butterfly_cane.block": "Block",
   "mode.mineraculous.butterfly_cane.kamiko_store": "Kamiko Store",

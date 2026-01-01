@@ -38,14 +38,16 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Summons an {@link ItemStack} from a {@link LuckyCharms} pool based on related entities.
  *
- * @param requireActiveToolInHand Whether the performer must have their tool in-hand to summon the lucky charm
- * @param summonSound             The sound to play when summoning the lucky charm successfully
+ * @param requireActiveToolInHand     Whether the performer must have their tool in-hand to summon the lucky charm
+ * @param disappearOnDetransformation Whether the lucky charm should disappear when the performer detransforms
+ * @param summonSound                 The sound to play when summoning the lucky charm successfully
  */
-public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolInHand, Optional<Holder<SoundEvent>> summonSound) implements Ability {
+public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolInHand, boolean disappearOnDetransformation, Optional<Holder<SoundEvent>> summonSound) implements Ability {
+
     public static final MapCodec<SummonTargetDependentLuckyCharmAbility> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Codec.BOOL.optionalFieldOf("require_active_tool_in_hand", false).forGetter(SummonTargetDependentLuckyCharmAbility::requireActiveToolInHand),
+            Codec.BOOL.optionalFieldOf("disappear_on_detransformation", false).forGetter(SummonTargetDependentLuckyCharmAbility::disappearOnDetransformation),
             SoundEvent.CODEC.optionalFieldOf("summon_sound").forGetter(SummonTargetDependentLuckyCharmAbility::summonSound)).apply(instance, SummonTargetDependentLuckyCharmAbility::new));
-
     @Override
     public State perform(AbilityData data, ServerLevel level, LivingEntity performer, AbilityHandler handler, @Nullable AbilityContext context) {
         ItemStack mainHand = performer.getMainHandItem();
@@ -92,6 +94,12 @@ public record SummonTargetDependentLuckyCharmAbility(boolean requireActiveToolIn
             return State.CONSUME;
         }
         return State.CANCEL;
+    }
+
+    @Override
+    public void detransform(AbilityData data, ServerLevel level, LivingEntity performer) {
+        if (disappearOnDetransformation)
+            LuckyCharmIdData.get(level).incrementLuckyCharmId(performer.getUUID());
     }
 
     private @Nullable Entity determineTarget(ServerLevel level, LivingEntity performer) {

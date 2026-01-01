@@ -135,7 +135,7 @@ public class Abilities {
         context.register(PASSIVE_UNLUCK, new PassiveEffectsAbility(HolderSet.direct(MobEffects.UNLUCK), 0));
 
         // Ladybug
-        context.register(LUCKY_CHARM, new SummonTargetDependentLuckyCharmAbility(true, Optional.of(MineraculousSoundEvents.LUCKY_CHARM_ACTIVATE)));
+        context.register(LUCKY_CHARM, new SummonTargetDependentLuckyCharmAbility(true, true, Optional.of(MineraculousSoundEvents.LUCKY_CHARM_ACTIVATE)));
         context.register(MIRACULOUS_LADYBUG, new RevertLuckyCharmTargetsAbilityEffectsAbility(Optional.of(MineraculousSoundEvents.MIRACULOUS_LADYBUG_ACTIVATE)));
         context.register(PASSIVE_LUCK, new PassiveEffectsAbility(HolderSet.direct(MobEffects.LUCK), 0));
     }

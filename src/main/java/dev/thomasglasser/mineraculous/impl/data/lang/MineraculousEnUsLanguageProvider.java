@@ -224,7 +224,7 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
 
     private void addCommands() {
         // Miraculous
-        add(MiraculousData.NAME_NOT_SET, "You haven't set your %s hero name yet! Use '/miraculous %s customize' to set.");
+        add(MiraculousData.NAME_NOT_SET, "You haven't set your %s hero name yet! Use the Miraculous Looks Screen to set it.");
         // Customize
         add(MiraculousCommand.CUSTOMIZE_OPEN_SUCCESS_SELF, "Opening %s miraculous look customization screen.");
         add(MiraculousCommand.CUSTOMIZE_OPEN_SUCCESS_OTHER, "Opening %s miraculous look customization screen for %s.");

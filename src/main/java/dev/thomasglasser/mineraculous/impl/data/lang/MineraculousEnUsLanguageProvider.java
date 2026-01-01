@@ -481,6 +481,9 @@ public class MineraculousEnUsLanguageProvider extends ExtendedEnUsLanguageProvid
         addConfig(MineraculousServerConfig.get().enableSleepStealing, "Enable Sleep Stealing", "Enable item stealing from players while they sleep");
         addConfig(MineraculousServerConfig.get().wakeUpChance, "Wake Up Chance", "Percent chance that a player will wake up while being stolen from");
 
+        addConfigSection(MineraculousServerConfig.BREAKING, "Breaking", "Settings for item breaking");
+        addConfig(MineraculousServerConfig.get().breakDamage, "Break Damage", "The base amount of damage dealt to an item when breaking it");
+
         // Client
         addConfigSection(MineraculousClientConfig.COSMETICS, "Player Cosmetics", "Settings for player cosmetics");
         addConfigSection(MineraculousClientConfig.SELF, "Self", "Settings for your own player cosmetics");

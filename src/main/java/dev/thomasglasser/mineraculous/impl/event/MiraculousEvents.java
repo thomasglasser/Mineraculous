@@ -8,7 +8,7 @@ import net.minecraft.world.entity.LivingEntity;
 
 public class MiraculousEvents {
     public static boolean hasTransformationFrames(LivingEntity entity) {
-        if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).map(KamikotizationData::transformationState).isPresent())
+        if (entity.getData(MineraculousAttachmentTypes.KAMIKOTIZATION).flatMap(KamikotizationData::transformationState).isPresent())
             return true;
         for (MiraculousData data : entity.getData(MineraculousAttachmentTypes.MIRACULOUSES).values()) {
             if (data.transformationState().isPresent())

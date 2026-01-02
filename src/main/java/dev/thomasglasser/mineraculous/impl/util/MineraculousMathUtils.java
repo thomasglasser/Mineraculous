@@ -11,11 +11,15 @@ import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector2d;
 
 public class MineraculousMathUtils {
+    public static final double FULL_ROTATION_DEGREES = 360.0;
+
     public static Vec3 rotateYaw(Vec3 vec3, double yaw) {
         return new Vec3(vec3.x * Math.cos(yaw) - vec3.z * Math.sin(yaw), vec3.y, vec3.x * Math.sin(yaw) + vec3.z * Math.cos(yaw));
     }
@@ -33,6 +37,19 @@ public class MineraculousMathUtils {
         t = t.normalize().scale(tln);
 
         return t;
+    }
+
+    public static Vec2 getHorizontalFacingVector(Entity entity) {
+        float yaw = entity.getYRot();
+        if (yaw < 0) {
+            yaw += FULL_ROTATION_DEGREES;
+        }
+        if (yaw >= FULL_ROTATION_DEGREES) {
+            yaw -= FULL_ROTATION_DEGREES;
+        }
+        float cos = (float) Math.cos(Math.toRadians(yaw));
+        float sin = (float) -Math.sin(Math.toRadians(yaw));
+        return new Vec2(sin, cos).normalized();
     }
 
     public static Vec3 getMovementVector(LivingEntity livingEntity, boolean... inputs) {

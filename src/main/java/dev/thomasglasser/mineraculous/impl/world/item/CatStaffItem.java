@@ -17,11 +17,10 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
-import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelHandler;
+import dev.thomasglasser.mineraculous.impl.world.item.ability.newCatStaffPerchHandler;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.TravelingCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
 import dev.thomasglasser.tommylib.api.platform.TommyLibServices;
 import io.netty.buffer.ByteBuf;
@@ -157,41 +156,14 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         super.inventoryTick(stack, level, entity, slotId, isSelected);
         if (entity instanceof LivingEntity livingEntity) {
-            if (Active.isActive(stack)) {
-                boolean inHand = livingEntity.getMainHandItem() == stack || livingEntity.getOffhandItem() == stack;
-                Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
-                if (mode != null) {
-                    PerchingCatStaffData perchingData = livingEntity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-                    TravelingCatStaffData travelingData = livingEntity.getData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF);
-                    if (inHand) {
-                        switch (mode) {
-                            case PERCH -> CatStaffPerchHandler.tick(level, livingEntity);
-                            case TRAVEL -> CatStaffTravelHandler.tick(stack, level, livingEntity);
-                            default -> {
-                                if (!level.isClientSide) {
-                                    if (!perchingData.equals(PerchingCatStaffData.DEFAULT))
-                                        PerchingCatStaffData.remove(livingEntity);
-                                    if (!travelingData.equals(TravelingCatStaffData.DEFAULT))
-                                        TravelingCatStaffData.remove(livingEntity);
-                                }
-                            }
-                        }
-                    } else {
-                        if (!level.isClientSide) {
-                            if (perchingData != PerchingCatStaffData.DEFAULT)
-                                PerchingCatStaffData.remove(livingEntity);
-                            if (travelingData != TravelingCatStaffData.DEFAULT)
-                                TravelingCatStaffData.remove(livingEntity);
-                        }
-                    }
-                }
-            } else {
-                if (livingEntity.hasData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF)) {
-                    PerchingCatStaffData.remove(livingEntity);
-                }
-                if (livingEntity.hasData(MineraculousAttachmentTypes.TRAVELING_CAT_STAFF)) {
-                    TravelingCatStaffData.remove(livingEntity);
-                }
+            Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
+            boolean inHand = livingEntity.getMainHandItem() == stack || livingEntity.getOffhandItem() == stack;
+            newCatStaffPerchHandler.tick(level, entity);
+            if (mode != Mode.PERCH) {
+                newPerchingCatStaffData.remove(entity);
+            }
+            if (!inHand || !Active.isActive(stack)) {
+                newPerchingCatStaffData.remove(entity);
             }
         }
         MineraculousItemUtils.checkHelicopterSlowFall(stack, entity);
@@ -207,8 +179,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
             if (mode == Mode.BLOCK || mode == Mode.THROW || mode == Mode.TRAVEL)
                 player.startUsingItem(hand);
             else if (mode == Mode.PERCH) {
-                PerchingCatStaffData perchingCatStaffData = player.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-                CatStaffPerchHandler.itemUsed(level, player, perchingCatStaffData);
+                newCatStaffPerchHandler.itemUsed(level, player);
                 player.awardStat(Stats.ITEM_USED.get(this));
             } else if (mode == Mode.SPYGLASS) {
                 level.playSound(null, player, SoundEvents.SPYGLASS_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -281,8 +252,8 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
             Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE.get());
             Level level = livingEntity.level();
             if (mode == Mode.PERCH) {
-                PerchingCatStaffData perchingCatStaffData = livingEntity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
-                CatStaffPerchHandler.itemLeftClicked(level, livingEntity, perchingCatStaffData);
+                //PerchingCatStaffData perchingCatStaffData = livingEntity.getData(MineraculousAttachmentTypes.PERCHING_CAT_STAFF);
+                //CatStaffPerchHandler.itemLeftClicked(level, livingEntity, perchingCatStaffData);
                 if (livingEntity instanceof Player player) {
                     player.awardStat(Stats.ITEM_USED.get(this));
                     return true;

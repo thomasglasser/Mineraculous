@@ -4,7 +4,6 @@ import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmen
 import dev.thomasglasser.mineraculous.api.world.item.MineraculousItems;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousKeyMappings;
-import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateStaffInputPayload;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundUpdateStaffPerchLength;
 import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
@@ -276,6 +275,6 @@ public class CatStaffPerchHandler {
     private static void handleMovementInput(PerchingCatStaffData perchData) {
         MineraculousClientUtils.InputState input = MineraculousClientUtils.captureInput();
         int packedInput = input.packInputs();
-        TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateStaffInputPayload(packedInput, perchData));
+        //TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateStaffInputPayload(packedInput, perchData));
     }
 }

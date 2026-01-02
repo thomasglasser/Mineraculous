@@ -12,6 +12,8 @@ import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 public class MineraculousPayloads {
     public static List<PayloadInfo<?>> PAYLOADS = ImmutableList.of(
             // Serverbound
+            new PayloadInfo<>(ServerboundPerchVerticalInputPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundPerchVerticalInputPayload.CODEC),
+
             new PayloadInfo<>(ServerboundUpdateStaffPerchLength.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateStaffPerchLength.CODEC),
             new PayloadInfo<>(ServerboundUpdateStaffInputPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateStaffInputPayload.CODEC),
             new PayloadInfo<>(ServerboundUpdateYoyoInputPayload.TYPE, ExtendedPacketPayload.Direction.CLIENT_TO_SERVER, ServerboundUpdateYoyoInputPayload.CODEC),

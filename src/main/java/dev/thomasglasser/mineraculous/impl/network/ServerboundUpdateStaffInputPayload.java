@@ -2,8 +2,8 @@ package dev.thomasglasser.mineraculous.impl.network;
 
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.impl.util.MineraculousMathUtils;
-import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchHandler;
-import dev.thomasglasser.mineraculous.impl.world.level.storage.PerchingCatStaffData;
+import dev.thomasglasser.mineraculous.impl.world.item.ability.newCatStaffPerchHandler;
+import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.network.ExtendedPacketPayload;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -11,13 +11,12 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Vector3f;
 
-public record ServerboundUpdateStaffInputPayload(int input, PerchingCatStaffData perchData) implements ExtendedPacketPayload {
+public record ServerboundUpdateStaffInputPayload(int input, newPerchingCatStaffData perchingData) implements ExtendedPacketPayload {
     public static final Type<ServerboundUpdateStaffInputPayload> TYPE = new Type<>(MineraculousConstants.modLoc("serverbound_update_staff_input"));
     public static final StreamCodec<ByteBuf, ServerboundUpdateStaffInputPayload> CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT, ServerboundUpdateStaffInputPayload::input,
-            PerchingCatStaffData.STREAM_CODEC, ServerboundUpdateStaffInputPayload::perchData,
+            newPerchingCatStaffData.STREAM_CODEC, ServerboundUpdateStaffInputPayload::perchingData,
             ServerboundUpdateStaffInputPayload::new);
 
     // helpers
@@ -47,7 +46,20 @@ public record ServerboundUpdateStaffInputPayload(int input, PerchingCatStaffData
 
     @Override
     public void handle(Player player) {
-        boolean isFalling = perchData.isFalling();
+        if (perchingData.perchState() == newPerchingCatStaffData.PerchingState.STAND) {
+            if (hasInput()) {
+                Vec3 playerToStaffHorizontal = new Vec3(perchingData.staffOrigin().x - player.getX(), 0, perchingData.staffOrigin().z - player.getZ());
+                Vec3 movement = MineraculousMathUtils.getMovementVector(player, up(), down(), left(), right());
+                movement = MineraculousMathUtils.projectOnCircle(playerToStaffHorizontal, movement);
+                if (movement.length() > newCatStaffPerchHandler.HORIZONTAL_MOVEMENT_THRESHOLD) {
+                    movement = movement.scale(newCatStaffPerchHandler.HORIZONTAL_MOVEMENT_SCALE);
+                }
+                player.setDeltaMovement(movement);
+                player.hurtMarked = true;
+            }
+        }
+
+        /*boolean isFalling = perchData.isFalling();
         boolean fastDescending = perchData.fastDescending();
         if (fastDescending) {
             player.hurtMarked = true;
@@ -76,7 +88,7 @@ public record ServerboundUpdateStaffInputPayload(int input, PerchingCatStaffData
                 player.hurtMarked = true;
                 player.resetFallDistance();
             }
-        }
+        }*/
     }
 
     @Override

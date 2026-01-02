@@ -134,22 +134,9 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
     private double summonRadius = 0;
     private int eatTicks = 0;
 
-    // CLIENT-USAGE ONLY
     private final Vec3[] tickPositions = new Vec3[8];
     private boolean tickPositionsInitialized = false;
     private double trailSize = 1;
-
-    public Vec3[] getTickPositionsCopy() {
-        return tickPositions.clone();
-    }
-
-    public double getTrailSize() {
-        return trailSize;
-    }
-
-    public void setTrailSize(double scale) {
-        trailSize = scale;
-    }
 
     public Kwami(EntityType<? extends Kwami> entityType, Level level) {
         super(entityType, level);
@@ -246,6 +233,18 @@ public class Kwami extends TamableAnimal implements SmartBrainOwner<Kwami>, GeoE
 
     public void setSummoningAppearance(SummoningAppearance appearance) {
         entityData.set(DATA_SUMMONING_APPEARANCE, appearance);
+    }
+
+    public Vec3[] getTickPositionsCopy() {
+        return tickPositions.clone();
+    }
+
+    public double getTrailSize() {
+        return trailSize;
+    }
+
+    public void setTrailSize(double scale) {
+        trailSize = scale;
     }
 
     @Override

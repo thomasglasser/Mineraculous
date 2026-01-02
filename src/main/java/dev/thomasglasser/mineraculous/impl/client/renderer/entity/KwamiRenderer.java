@@ -172,7 +172,7 @@ public class KwamiRenderer<T extends Kwami> extends GeoEntityRenderer<T> {
     @Override
     public RenderType getRenderType(T animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
         if (animatable.isKwamiGlowing()) {
-            return MineraculousRenderTypes.kwamiGlowColor(texture);
+            return MineraculousRenderTypes.kwamiGlow(texture);
         } else {
             return super.getRenderType(animatable, texture, bufferSource, partialTick);
         }

@@ -30,12 +30,7 @@ public class MineraculousRenderTypes {
     private static final RenderType MIRACULOUS_LADYBUG_BODY = createMiraculousLadybugBody();
     private static final RenderType MIRACULOUS_LADYBUG_OUTLINE = createMiraculousLadybugOutline();
 
-    public static final RenderStateShard.OutputStateShard KWAMI_TARGET = new RenderStateShard.OutputStateShard(
-            "kwami_target",
-            () -> MineraculousClientUtils.kwamiTarget.bindWrite(false),
-            () -> Minecraft.getInstance().getMainRenderTarget().bindWrite(false));
-
-    static final BiFunction<ResourceLocation, RenderStateShard.CullStateShard, RenderType> KWAMI_GLOW = Util.memoize(
+    private static final BiFunction<ResourceLocation, RenderStateShard.CullStateShard, RenderType> KWAMI_GLOW = Util.memoize(
             (textureLocation, cullState) -> RenderType.create(
                     "kwami_glow",
                     DefaultVertexFormat.POSITION_TEX_COLOR,
@@ -46,7 +41,7 @@ public class MineraculousRenderTypes {
                             .setTextureState(new RenderStateShard.TextureStateShard(textureLocation, false, false))
                             .setCullState(cullState)
                             .setDepthTestState(RenderStateShard.NO_DEPTH_TEST)
-                            .setOutputState(KWAMI_TARGET)
+                            .setOutputState(MineraculousRenderStateShards.KWAMI_TARGET)
                             .createCompositeState(RenderType.OutlineProperty.IS_OUTLINE)));
 
     public static RenderType itemLuckyCharm() {
@@ -222,7 +217,7 @@ public class MineraculousRenderTypes {
                         .createCompositeState(false));
     }
 
-    public static RenderType kwamiGlowColor(ResourceLocation location) {
+    public static RenderType kwamiGlow(ResourceLocation location) {
         return KWAMI_GLOW.apply(location, RenderStateShard.NO_CULL);
     }
 }

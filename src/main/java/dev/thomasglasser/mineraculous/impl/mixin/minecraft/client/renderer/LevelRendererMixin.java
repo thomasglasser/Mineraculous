@@ -16,15 +16,15 @@ public class LevelRendererMixin {
 
     @Inject(method = "resize", at = @At("TAIL"))
     private void resizeKwamiEffect(int width, int height, CallbackInfo ci) {
-        if (MineraculousClientUtils.kwamiEffect != null) {
-            MineraculousClientUtils.kwamiEffect.resize(width, height);
+        if (MineraculousClientUtils.getKwamiEffect() != null) {
+            MineraculousClientUtils.getKwamiEffect().resize(width, height);
         }
     }
 
     @Inject(method = "close", at = @At("TAIL"))
     private void closeKwamiEffect(CallbackInfo ci) {
-        if (MineraculousClientUtils.kwamiEffect != null) {
-            MineraculousClientUtils.kwamiEffect.close();
+        if (MineraculousClientUtils.getKwamiEffect() != null) {
+            MineraculousClientUtils.getKwamiEffect().close();
         }
     }
 }

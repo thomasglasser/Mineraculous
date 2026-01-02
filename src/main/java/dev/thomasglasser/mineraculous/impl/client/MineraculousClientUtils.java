@@ -97,32 +97,51 @@ public class MineraculousClientUtils {
 
     private static final Map<Player, SpecialPlayerData> SPECIAL_PLAYER_DATA = new Reference2ReferenceOpenHashMap<>();
     private static final IntList CATACLYSM_PIXELS = new IntArrayList();
+    private static final String KWAMI_GLOW_SHADER_PATH = "shaders/post/kwami_glow.json";
+    private static final String KWAMI_GLOW_SHADER_TARGET = "kwami";
+    private static final String KWAMI_GLOW_SHADER_STRENGTH_UNIFORM = "BlurSigma";
+
     private static boolean wasJumping = false;
 
     public static PostChain kwamiEffect;
     public static RenderTarget kwamiTarget;
 
-    public static float kwamiGlowPower = 0.0f;
+    public static PostChain getKwamiEffect() {
+        return kwamiEffect;
+    }
 
+    public static void setKwamiEffect(PostChain postChain) {
+        kwamiEffect = postChain;
+    }
+
+    public static RenderTarget getKwamiTarget() {
+        return kwamiTarget;
+    }
+
+    public static void setKwamiTarget(RenderTarget renderTarget) {
+        kwamiTarget = renderTarget;
+    }
+
+    //public static float kwamiGlowPower = 0.0f;
     public static void initKwami() {
-        if (kwamiEffect != null) {
-            kwamiEffect.close();
+        if (getKwamiEffect() != null) {
+            getKwamiEffect().close();
         }
 
-        ResourceLocation resourcelocation = MineraculousConstants.modLoc("shaders/post/kwami_glow.json");
+        ResourceLocation resourcelocation = MineraculousConstants.modLoc(KWAMI_GLOW_SHADER_PATH);
 
         try {
-            kwamiEffect = new PostChain(
+            setKwamiEffect(new PostChain(
                     Minecraft.getInstance().getTextureManager(),
                     Minecraft.getInstance().getResourceManager(),
                     Minecraft.getInstance().getMainRenderTarget(),
-                    resourcelocation);
-            kwamiEffect.resize(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
-            kwamiTarget = kwamiEffect.getTempTarget("kwami");
+                    resourcelocation));
+            getKwamiEffect().resize(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
+            setKwamiTarget(getKwamiEffect().getTempTarget(KWAMI_GLOW_SHADER_TARGET));
         } catch (IOException | JsonSyntaxException e) {
             MineraculousConstants.LOGGER.warn("Failed to load or parse shader: {}", resourcelocation, e);
-            kwamiEffect = null;
-            kwamiTarget = null;
+            setKwamiEffect(null);
+            setKwamiTarget(null);
         }
     }
 
@@ -133,13 +152,13 @@ public class MineraculousClientUtils {
                 kwamiGlowPower = value;
             }
         }
-        if (kwamiEffect != null) {
-            kwamiEffect.setUniform("BlurSigma", kwamiGlowPower);
+        if (getKwamiEffect() != null) {
+            getKwamiEffect().setUniform(KWAMI_GLOW_SHADER_STRENGTH_UNIFORM, kwamiGlowPower);
         }
     }
 
     public static boolean shouldShowKwamiGlow() {
-        return !Minecraft.getInstance().gameRenderer.isPanoramicMode() && kwamiTarget != null && kwamiEffect != null && Minecraft.getInstance().player != null;
+        return !Minecraft.getInstance().gameRenderer.isPanoramicMode() && getKwamiTarget() != null && getKwamiEffect() != null && Minecraft.getInstance().player != null;
     }
 
     public static void blitKwamiGlow() {
@@ -150,7 +169,7 @@ public class MineraculousClientUtils {
                     GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
                     GlStateManager.SourceFactor.ZERO,
                     GlStateManager.DestFactor.ONE);
-            kwamiTarget.blitToScreen(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight(), false);
+            getKwamiTarget().blitToScreen(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight(), false);
             RenderSystem.disableBlend();
             RenderSystem.defaultBlendFunc();
         }

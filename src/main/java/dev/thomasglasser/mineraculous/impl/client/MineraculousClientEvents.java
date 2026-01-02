@@ -463,9 +463,9 @@ public class MineraculousClientEvents {
             boolean kwamiGlowFlag = false;
             FloatArrayList glowingPowers = new FloatArrayList();
             if (MineraculousClientUtils.shouldShowKwamiGlow()) {
-                MineraculousClientUtils.kwamiTarget.clear(Minecraft.ON_OSX);
-                MineraculousClientUtils.kwamiTarget.copyDepthFrom(Minecraft.getInstance().getMainRenderTarget()); // supposed to enable depth test
-                MineraculousClientUtils.kwamiTarget.bindWrite(true);
+                MineraculousClientUtils.getKwamiTarget().clear(Minecraft.ON_OSX);
+                MineraculousClientUtils.getKwamiTarget().copyDepthFrom(Minecraft.getInstance().getMainRenderTarget()); // supposed to enable depth test
+                MineraculousClientUtils.getKwamiTarget().bindWrite(true);
             }
 
             MultiBufferSource.BufferSource multibuffersource$buffersource = Minecraft.getInstance().renderBuffers().bufferSource();
@@ -525,11 +525,11 @@ public class MineraculousClientEvents {
             multibuffersource$buffersource.endBatch();
 
             if (MineraculousClientUtils.shouldShowKwamiGlow()) {
-                MineraculousClientUtils.kwamiTarget.unbindWrite();
+                MineraculousClientUtils.getKwamiTarget().unbindWrite();
             }
             if (kwamiGlowFlag) {
                 MineraculousClientUtils.updateKwamiGlowUniforms(glowingPowers);
-                MineraculousClientUtils.kwamiEffect.process(partialTick);
+                MineraculousClientUtils.getKwamiEffect().process(partialTick);
             }
             Minecraft.getInstance().getMainRenderTarget().bindWrite(false);
         }

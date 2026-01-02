@@ -87,6 +87,7 @@ public class MineraculousItemModelProvider extends ExtendedItemModelProvider {
         basicItem(MineraculousItems.RAW_MACARON);
         basicItem(MineraculousItems.MACARON);
         spawnEggItem(MineraculousItems.BUTTERFLY_SPAWN_EGG);
+        spawnEggItem(MineraculousItems.CATERPILLAR_SPAWN_EGG);
         basicItem(MineraculousBlocks.HIBISCUS_BUSH.asItem());
 
         basicBlockItem(MineraculousBlocks.CATACLYSM_BLOCK);

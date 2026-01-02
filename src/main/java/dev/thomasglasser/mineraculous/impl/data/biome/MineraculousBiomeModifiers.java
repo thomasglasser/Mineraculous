@@ -17,16 +17,16 @@ import net.neoforged.neoforge.common.world.BiomeModifiers;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public class MineraculousBiomeModifiers {
-    public static void bootstrap(BootstrapContext<BiomeModifier> context) {
-        HolderGetter<Biome> biomes = context.lookup(Registries.BIOME);
-        addSpawns(context, "spawn_butterflies", MineraculousEntityTypes.BUTTERFLY, biomes.getOrThrow(MineraculousBiomeTags.SPAWNS_BUTTERFLIES));
-    }
-
     private static ResourceKey<BiomeModifier> create(String name) {
         return ResourceKey.create(NeoForgeRegistries.Keys.BIOME_MODIFIERS, MineraculousConstants.modLoc(name));
     }
 
-    private static void addSpawns(BootstrapContext<BiomeModifier> context, String name, Holder<EntityType<?>> type, HolderSet<Biome> biomes) {
-        context.register(create(name), BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(biomes, new MobSpawnSettings.SpawnerData(type.value(), 10, 4, 8)));
+    public static void bootstrap(BootstrapContext<BiomeModifier> context) {
+        HolderGetter<Biome> biomes = context.lookup(Registries.BIOME);
+        addSpawns(context, "spawn_butterflies", biomes.getOrThrow(MineraculousBiomeTags.SPAWNS_BUTTERFLIES), MineraculousEntityTypes.BUTTERFLY, 10, 5, 15);
+    }
+
+    private static void addSpawns(BootstrapContext<BiomeModifier> context, String name, HolderSet<Biome> biomes, Holder<EntityType<?>> type, int weight, int minCount, int maxCount) {
+        context.register(create(name), BiomeModifiers.AddSpawnsBiomeModifier.singleSpawn(biomes, new MobSpawnSettings.SpawnerData(type.value(), weight, minCount, maxCount)));
     }
 }

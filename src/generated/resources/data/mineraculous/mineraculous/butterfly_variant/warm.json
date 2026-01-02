@@ -1,4 +1,5 @@
 {
   "biomes": "#mineraculous:spawns_warm_variant_butterflies",
+  "caterpillar_texture": "mineraculous:entity/caterpillar/warm",
   "texture": "mineraculous:entity/butterfly/warm"
 }

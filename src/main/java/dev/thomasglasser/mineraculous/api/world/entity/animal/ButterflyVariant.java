@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import java.util.Objects;
+import java.util.Optional;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
@@ -20,11 +21,14 @@ import org.jetbrains.annotations.ApiStatus;
 public final class ButterflyVariant {
     public static final Codec<ButterflyVariant> DIRECT_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.fieldOf("texture").forGetter(variant -> variant.texture),
+            ResourceLocation.CODEC.optionalFieldOf("caterpillar_texture").forGetter(variant -> variant.caterpillarTexture),
             RegistryCodecs.homogeneousList(Registries.BIOME).optionalFieldOf("biomes", HolderSet.empty()).forGetter(ButterflyVariant::biomes))
             .apply(instance, ButterflyVariant::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, ButterflyVariant> DIRECT_STREAM_CODEC = StreamCodec.composite(
             ResourceLocation.STREAM_CODEC,
             ButterflyVariant::texture,
+            ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC),
+            ButterflyVariant::caterpillarTexture,
             ByteBufCodecs.holderSet(Registries.BIOME),
             ButterflyVariant::biomes,
             ButterflyVariant::new);
@@ -33,11 +37,15 @@ public final class ButterflyVariant {
             MineraculousRegistries.BUTTERFLY_VARIANT, DIRECT_STREAM_CODEC);
     private final ResourceLocation texture;
     private final ResourceLocation textureFull;
+    private final Optional<ResourceLocation> caterpillarTexture;
+    private final Optional<ResourceLocation> caterpillarTextureFull;
     private final HolderSet<Biome> biomes;
 
-    public ButterflyVariant(ResourceLocation texture, HolderSet<Biome> biomes) {
+    public ButterflyVariant(ResourceLocation texture, Optional<ResourceLocation> caterpillarTexture, HolderSet<Biome> biomes) {
         this.texture = texture;
         this.textureFull = fullTextureId(texture);
+        this.caterpillarTexture = caterpillarTexture;
+        this.caterpillarTextureFull = caterpillarTexture.map(ButterflyVariant::fullTextureId);
         this.biomes = biomes;
     }
 
@@ -48,6 +56,11 @@ public final class ButterflyVariant {
     @ApiStatus.Internal
     public ResourceLocation texture() {
         return this.textureFull;
+    }
+
+    @ApiStatus.Internal
+    public Optional<ResourceLocation> caterpillarTexture() {
+        return this.caterpillarTextureFull;
     }
 
     @ApiStatus.Internal
@@ -62,6 +75,7 @@ public final class ButterflyVariant {
         } else {
             return other instanceof ButterflyVariant butterflyVariant
                     && Objects.equals(this.texture, butterflyVariant.texture)
+                    && Objects.equals(this.caterpillarTexture, butterflyVariant.caterpillarTexture)
                     && Objects.equals(this.biomes, butterflyVariant.biomes);
         }
     }
@@ -70,6 +84,7 @@ public final class ButterflyVariant {
     public int hashCode() {
         int i = 1;
         i = 31 * i + this.texture.hashCode();
+        i = 31 * i + this.caterpillarTexture.hashCode();
         return 31 * i + this.biomes.hashCode();
     }
 }

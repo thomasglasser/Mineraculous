@@ -96,6 +96,7 @@
   ],
   "minecraft:entity_type": [
     "mineraculous:butterfly",
+    "mineraculous:caterpillar",
     "mineraculous:kamiko",
     "mineraculous:kamikotized_minion",
     "mineraculous:kwami",
@@ -117,6 +118,7 @@
     "mineraculous:cat_staff",
     "mineraculous:cataclysm_block",
     "mineraculous:cataclysm_dust",
+    "mineraculous:caterpillar_spawn_egg",
     "mineraculous:cheese_pot",
     "mineraculous:exquisite_camembert_block",
     "mineraculous:exquisite_camembert_wedge",

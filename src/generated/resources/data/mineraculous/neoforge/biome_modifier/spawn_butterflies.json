@@ -3,8 +3,8 @@
   "biomes": "#mineraculous:spawns_butterflies",
   "spawners": {
     "type": "mineraculous:butterfly",
-    "maxCount": 8,
-    "minCount": 4,
+    "maxCount": 15,
+    "minCount": 5,
     "weight": 10
   }
 }

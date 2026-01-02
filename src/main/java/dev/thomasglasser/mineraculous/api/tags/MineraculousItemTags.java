@@ -25,6 +25,8 @@ public class MineraculousItemTags {
 
     /// Items that can feed {@link dev.thomasglasser.mineraculous.impl.world.entity.animal.Butterfly}s.
     public static final TagKey<Item> BUTTERFLY_FOOD = create("butterfly_food");
+    /// Items that can feed {@link dev.thomasglasser.mineraculous.impl.world.entity.animal.Caterpillar}s.
+    public static final TagKey<Item> CATERPILLAR_FOOD = create("caterpillar_food");
 
     // Cheeses
     /// Items from any mod that can be considered cheese and food.

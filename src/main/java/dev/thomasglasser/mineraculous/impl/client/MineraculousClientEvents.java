@@ -35,6 +35,7 @@ import dev.thomasglasser.mineraculous.impl.client.model.FaceMaskModel;
 import dev.thomasglasser.mineraculous.impl.client.renderer.armor.KamikotizationArmorItemRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.armor.MiraculousArmorItemRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.ButterflyRenderer;
+import dev.thomasglasser.mineraculous.impl.client.renderer.entity.CaterpillarRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.KwamiRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.LuckyCharmItemSpawnerRenderer;
 import dev.thomasglasser.mineraculous.impl.client.renderer.entity.MiraculousLadybugRenderer;
@@ -177,6 +178,7 @@ public class MineraculousClientEvents {
         } else if (event.getTabKey() == CreativeModeTabs.SPAWN_EGGS) {
             // Must be in alphabetical order
             event.insertAfter(Items.BREEZE_SPAWN_EGG.getDefaultInstance(), MineraculousItems.BUTTERFLY_SPAWN_EGG.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
+            event.insertAfter(Items.CAT_SPAWN_EGG.getDefaultInstance(), MineraculousItems.CATERPILLAR_SPAWN_EGG.toStack(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         } else if (event.getTabKey() == CreativeModeTabs.OP_BLOCKS) {
 
         }
@@ -204,6 +206,7 @@ public class MineraculousClientEvents {
     static void onRegisterRenderer(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(MineraculousEntityTypes.KWAMI.get(), KwamiRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.BUTTERFLY.get(), ButterflyRenderer::new);
+        event.registerEntityRenderer(MineraculousEntityTypes.CATERPILLAR.get(), CaterpillarRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.KAMIKO.get(), ButterflyRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.LUCKY_CHARM_ITEM_SPAWNER.get(), LuckyCharmItemSpawnerRenderer::new);
         event.registerEntityRenderer(MineraculousEntityTypes.THROWN_CAT_STAFF.get(), ThrownCatStaffRenderer::new);

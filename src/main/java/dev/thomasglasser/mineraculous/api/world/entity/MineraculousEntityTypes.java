@@ -7,6 +7,7 @@ import dev.thomasglasser.mineraculous.impl.world.entity.Kwami;
 import dev.thomasglasser.mineraculous.impl.world.entity.LuckyCharmItemSpawner;
 import dev.thomasglasser.mineraculous.impl.world.entity.MiraculousLadybug;
 import dev.thomasglasser.mineraculous.impl.world.entity.animal.Butterfly;
+import dev.thomasglasser.mineraculous.impl.world.entity.animal.Caterpillar;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownButterflyCane;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownLadybugYoyo;
@@ -25,6 +26,8 @@ public class MineraculousEntityTypes {
             .sized(0.3F, 0.4F));
     public static final DeferredHolder<EntityType<?>, EntityType<Butterfly>> BUTTERFLY = ENTITY_TYPES.register("butterfly", Butterfly::new, MobCategory.CREATURE, builder -> builder
             .sized(0.25F, 0.25F));
+    public static final DeferredHolder<EntityType<?>, EntityType<Caterpillar>> CATERPILLAR = ENTITY_TYPES.register("caterpillar", Caterpillar::new, MobCategory.CREATURE, builder -> builder
+            .sized(0.05625F, 0.0125F));
     public static final DeferredHolder<EntityType<?>, EntityType<Kamiko>> KAMIKO = ENTITY_TYPES.register("kamiko", Kamiko::new, MobCategory.CREATURE, builder -> builder
             .clientTrackingRange(Integer.MAX_VALUE / 16)
             .sized(0.25F, 0.25F));

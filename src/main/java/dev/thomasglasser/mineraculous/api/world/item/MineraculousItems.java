@@ -83,6 +83,8 @@ public class MineraculousItems {
 
     // Spawn Eggs
     public static final DeferredItem<SpawnEggItem> BUTTERFLY_SPAWN_EGG = registerSpawnEgg(MineraculousEntityTypes.BUTTERFLY, 0xc8e5ea, 0x90bfd5);
+    // TODO: Proper color
+    public static final DeferredItem<SpawnEggItem> CATERPILLAR_SPAWN_EGG = registerSpawnEgg(MineraculousEntityTypes.CATERPILLAR, 0xFFFFFF, 0x000000);
 
     private static EnumMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> wedges(String name, FoodProperties foodProperties, EnumMap<AgeingCheese.Age, DeferredBlock<AgeingCheeseEdibleFullBlock>> blocks) {
         EnumMap<AgeingCheese.Age, DeferredItem<ItemNameBlockItem>> cheeses = new EnumMap<>(AgeingCheese.Age.class);

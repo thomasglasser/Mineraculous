@@ -3,6 +3,7 @@ package dev.thomasglasser.mineraculous.api.world.entity.animal;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
 import dev.thomasglasser.mineraculous.api.core.registries.MineraculousRegistries;
 import dev.thomasglasser.mineraculous.api.tags.MineraculousBiomeTags;
+import java.util.Optional;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderSet;
@@ -11,7 +12,6 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.Biome;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -44,10 +44,10 @@ public class ButterflyVariants {
     public static void bootstrap(BootstrapContext<ButterflyVariant> context) {
         HolderGetter<Biome> biomes = context.lookup(Registries.BIOME);
 
-        register(context, TEMPERATE, HolderSet.empty());
-        register(context, KAMIKO, HolderSet.empty());
-        register(context, WARM, biomes.getOrThrow(MineraculousBiomeTags.SPAWNS_WARM_VARIANT_BUTTERFLIES));
-        register(context, COLD, biomes.getOrThrow(MineraculousBiomeTags.SPAWNS_COLD_VARIANT_BUTTERFLIES));
+        register(context, TEMPERATE, true, HolderSet.empty());
+        register(context, KAMIKO, false, HolderSet.empty());
+        register(context, WARM, true, biomes.getOrThrow(MineraculousBiomeTags.SPAWNS_WARM_VARIANT_BUTTERFLIES));
+        register(context, COLD, true, biomes.getOrThrow(MineraculousBiomeTags.SPAWNS_COLD_VARIANT_BUTTERFLIES));
     }
 
     /**
@@ -57,8 +57,7 @@ public class ButterflyVariants {
      * @param variant The variant to register
      * @param biomes  The biomes the variant should spawn in
      */
-    public static void register(BootstrapContext<ButterflyVariant> context, ResourceKey<ButterflyVariant> variant, HolderSet<Biome> biomes) {
-        ResourceLocation textureLoc = variant.location().withPath(path -> "entity/butterfly/" + path);
-        context.register(variant, new ButterflyVariant(textureLoc, biomes));
+    public static void register(BootstrapContext<ButterflyVariant> context, ResourceKey<ButterflyVariant> variant, boolean hasCaterpillar, HolderSet<Biome> biomes) {
+        context.register(variant, new ButterflyVariant(variant.location().withPath(path -> "entity/butterfly/" + path), hasCaterpillar ? Optional.of(variant.location().withPath(path -> "entity/caterpillar/" + path)) : Optional.empty(), biomes));
     }
 }

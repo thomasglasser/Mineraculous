@@ -1,4 +1,5 @@
 {
   "biomes": "#mineraculous:spawns_cold_variant_butterflies",
+  "caterpillar_texture": "mineraculous:entity/caterpillar/cold",
   "texture": "mineraculous:entity/butterfly/cold"
 }

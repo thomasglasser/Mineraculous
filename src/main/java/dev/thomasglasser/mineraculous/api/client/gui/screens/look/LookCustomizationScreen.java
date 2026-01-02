@@ -27,6 +27,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.tabs.GridLayoutTab;
@@ -44,6 +45,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 
 /**
@@ -57,6 +59,9 @@ public class LookCustomizationScreen<T> extends Screen {
     public static final Component APPLY = Component.translatable("gui.mineraculous.look_customization.apply");
     public static final Component UNDO = Component.translatable("gui.mineraculous.look_customization.undo");
     public static final Component RESET = Component.translatable("gui.mineraculous.look_customization.reset");
+
+    private static final double MOUSE_SENSITIVITY_ROTATION_FACTOR = 1.5;
+    private static final double ROTATION_SPEED = 1.3;
 
     private final HeaderAndFooterLayout layout = new HeaderAndFooterLayout(this);
     private final TabManager tabManager = new TabManager(this::addRenderableWidget, this::removeWidget);
@@ -77,6 +82,12 @@ public class LookCustomizationScreen<T> extends Screen {
     private EditBox nameEdit;
     private Button previousButton;
     private Button nextButton;
+
+    private boolean mouseDragging = false;
+    private double oldMouseX = 0;
+    private double startRotation = 0;
+    private double selectedRotation = 0;
+    private double oldTickRotation = 0;
 
     public LookCustomizationScreen(ImmutableSet<Holder<LookContext>> contextSet, LookMetadataType<Set<ResourceKey<T>>> metadataType, Holder<T> selected, Function<Player, LookData> lookDataGetter, BiConsumer<Player, LookData> lookDataSetter, BiConsumer<Player, LookData> onApply) {
         super(Component.empty());
@@ -147,14 +158,54 @@ public class LookCustomizationScreen<T> extends Screen {
     }
 
     @Override
+    public void tick() {
+        super.tick();
+        oldTickRotation = selectedRotation;
+        if (!mouseDragging) {
+            selectedRotation -= ROTATION_SPEED;
+            startRotation = selectedRotation;
+        }
+    }
+
+    @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         int top = this.tabNavigationBar.getRectangle().bottom();
         int width = this.width / 3;
         int bottom = this.height - this.layout.getFooterHeight();
+
+        float rotation = (float) Mth.lerp(partialTick, oldTickRotation, selectedRotation);
+
         MineraculousClientUtils.renderEntityInInventory(guiGraphics, 0, top, width, bottom, 80, 0, leftPreview);
-        MineraculousClientUtils.renderEntityInInventory(guiGraphics, width, top, 2 * width, bottom, 80, 0, centerPreview);
+        MineraculousClientUtils.renderEntityInInventory(guiGraphics, width, top, 2 * width, bottom, 80, rotation, centerPreview);
         MineraculousClientUtils.renderEntityInInventory(guiGraphics, 2 * width, top, 3 * width, bottom, 80, 0, rightPreview);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (button == 0 && !isMouseOverInteractive(mouseX, mouseY)) {
+            oldMouseX = mouseX;
+            mouseDragging = true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+        if (button == 0) {
+            mouseDragging = false;
+        }
+        return super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (mouseDragging && button == 0) {
+            selectedRotation = oldMouseX - mouseX;
+            selectedRotation /= MOUSE_SENSITIVITY_ROTATION_FACTOR;
+            selectedRotation += startRotation;
+        }
+        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
 
     @Override
@@ -162,6 +213,17 @@ public class LookCustomizationScreen<T> extends Screen {
         if (this.tabNavigationBar.keyPressed(keyCode)) {
             return true;
         } else return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    private boolean isMouseOverInteractive(double mouseX, double mouseY) {
+        for (var child : this.children()) {
+            if (child instanceof AbstractWidget widget) {
+                if (widget.isMouseOver(mouseX, mouseY) && widget.active && widget.visible) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     protected void refreshLooks() {

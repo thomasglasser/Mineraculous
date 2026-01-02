@@ -27,6 +27,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.tabs.GridLayoutTab;
@@ -160,7 +161,10 @@ public class LookCustomizationScreen<T> extends Screen {
     public void tick() {
         super.tick();
         oldTickRotation = selectedRotation;
-        selectedRotation -= mouseDragging ? 0 : ROTATION_SPEED;
+        if (!mouseDragging) {
+            selectedRotation -= ROTATION_SPEED;
+            startRotation = selectedRotation;
+        }
     }
 
     @Override
@@ -179,7 +183,7 @@ public class LookCustomizationScreen<T> extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0) {
+        if (button == 0 && !isMouseOverInteractive(mouseX, mouseY)) {
             oldMouseX = mouseX;
             mouseDragging = true;
         }
@@ -190,7 +194,6 @@ public class LookCustomizationScreen<T> extends Screen {
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if (button == 0) {
             mouseDragging = false;
-            startRotation = selectedRotation;
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
@@ -210,6 +213,17 @@ public class LookCustomizationScreen<T> extends Screen {
         if (this.tabNavigationBar.keyPressed(keyCode)) {
             return true;
         } else return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    private boolean isMouseOverInteractive(double mouseX, double mouseY) {
+        for (var child : this.children()) {
+            if (child instanceof AbstractWidget widget) {
+                if (widget.isMouseOver(mouseX, mouseY) && widget.active && widget.visible) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     protected void refreshLooks() {

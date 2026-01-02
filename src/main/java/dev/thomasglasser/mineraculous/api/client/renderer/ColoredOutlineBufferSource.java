@@ -1,4 +1,4 @@
-package dev.thomasglasser.mineraculous.impl.client;
+package dev.thomasglasser.mineraculous.api.client.renderer;
 
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;

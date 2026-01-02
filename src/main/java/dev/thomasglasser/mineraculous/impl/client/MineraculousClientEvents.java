@@ -10,6 +10,7 @@ import dev.thomasglasser.mineraculous.api.client.particle.FadingParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.FlourishingParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.HoveringOrbParticle;
 import dev.thomasglasser.mineraculous.api.client.particle.StaticParticle;
+import dev.thomasglasser.mineraculous.api.client.renderer.ColoredOutlineBufferSource;
 import dev.thomasglasser.mineraculous.api.client.renderer.MineraculousRenderTypes;
 import dev.thomasglasser.mineraculous.api.client.renderer.item.MineraculousItemProperties;
 import dev.thomasglasser.mineraculous.api.client.renderer.item.curio.ContextDependentCurioRenderer;

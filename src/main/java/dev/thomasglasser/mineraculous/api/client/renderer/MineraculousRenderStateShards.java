@@ -3,9 +3,8 @@ package dev.thomasglasser.mineraculous.api.client.renderer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import dev.thomasglasser.mineraculous.api.MineraculousConstants;
-import java.io.IOException;
-
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
+import java.io.IOException;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderStateShard;

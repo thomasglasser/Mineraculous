@@ -3,7 +3,7 @@ package dev.thomasglasser.mineraculous.impl.mixin.geckolib.renderer;
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import dev.thomasglasser.mineraculous.impl.client.ColoredOutlineBufferSource;
+import dev.thomasglasser.mineraculous.api.client.renderer.ColoredOutlineBufferSource;
 import dev.thomasglasser.mineraculous.impl.client.MineraculousClientUtils;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;

@@ -79,7 +79,7 @@ import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
 import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 
-public class Kamiko extends Butterfly implements TameableEntity {
+public class Kamiko extends Butterfly implements TamableEntity {
     public static final ResourceLocation SPECTATOR_SHADER = MineraculousConstants.modLoc("shaders/post/kamiko.json");
     public static final Component DETRANSFORM_TO_TRANSFORM = Component.translatable("entity.mineraculous.kamiko.detransform_to_transform");
     public static final Component CANT_KAMIKOTIZE_TRANSFORMED = Component.translatable("entity.mineraculous.kamiko.cant_kamikotize_transformed");
@@ -191,7 +191,7 @@ public class Kamiko extends Butterfly implements TameableEntity {
             this.owner = null;
 
         if (this.owner == null)
-            this.owner = TameableEntity.super.getOwner();
+            this.owner = TamableEntity.super.getOwner();
 
         return this.owner;
     }

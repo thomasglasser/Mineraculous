@@ -7,7 +7,7 @@ import dev.thomasglasser.mineraculous.api.world.ability.context.AbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.context.EntityAbilityContext;
 import dev.thomasglasser.mineraculous.api.world.ability.handler.AbilityHandler;
 import dev.thomasglasser.mineraculous.api.world.level.storage.EntityReversionData;
-import dev.thomasglasser.mineraculous.impl.world.entity.TameableEntity;
+import dev.thomasglasser.mineraculous.impl.world.entity.TamableEntity;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -60,7 +60,7 @@ public record ConvertAndTameAbility(EntityType<?> newType, boolean requireNoneSt
             if (!(requireNoneStored && hasStored) && !entityData.isConvertedOrCopied(target.getUUID())) {
                 Entity newEntity = newType.create(level);
                 if (newEntity != null) {
-                    if (newEntity instanceof TameableEntity tamable) {
+                    if (newEntity instanceof TamableEntity tamable) {
                         tamable.setOwnerUUID(performer.getUUID());
                     }
                     newEntity.setUUID(target.getUUID());

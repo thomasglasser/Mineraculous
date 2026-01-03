@@ -17,8 +17,8 @@ import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculous;
 import dev.thomasglasser.mineraculous.api.world.miraculous.Miraculouses;
 import dev.thomasglasser.mineraculous.impl.network.ServerboundEquipToolPayload;
 import dev.thomasglasser.mineraculous.impl.world.entity.projectile.ThrownCatStaff;
+import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffPerchCommander;
 import dev.thomasglasser.mineraculous.impl.world.item.ability.CatStaffTravelHandler;
-import dev.thomasglasser.mineraculous.impl.world.item.ability.newCatStaffPerchHandler;
 import dev.thomasglasser.mineraculous.impl.world.item.component.Active;
 import dev.thomasglasser.mineraculous.impl.world.level.storage.newPerchingCatStaffData;
 import dev.thomasglasser.tommylib.api.client.ClientUtils;
@@ -90,7 +90,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     public static final String ANIMATION_CLOSE = "close";
     public static final String ANIMATION_CLOSE_AND_EXTEND = "close_and_extend";
 
-    public static final float DISTANCE_BETWEEN_STAFF_AND_USER = 0.5f;
+    public static final float DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS = 0.5f;
     public static final float STAFF_HEAD_ABOVE_USER_HEAD_OFFSET = 0.2f;
     public static final float USER_VERTICAL_MOVEMENT_SPEED = 0.5f;
     public static final double HORIZONTAL_MOVEMENT_THRESHOLD = 0.15d;
@@ -165,7 +165,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
         if (entity instanceof LivingEntity livingEntity) {
             Mode mode = stack.get(MineraculousDataComponents.CAT_STAFF_MODE);
             boolean inHand = livingEntity.getMainHandItem() == stack || livingEntity.getOffhandItem() == stack;
-            newCatStaffPerchHandler.tick(level, entity);
+            CatStaffPerchCommander.tick(level, entity);
             if (mode != Mode.PERCH) {
                 newPerchingCatStaffData.remove(entity);
             }
@@ -186,7 +186,7 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
             if (mode == Mode.BLOCK || mode == Mode.THROW || mode == Mode.TRAVEL)
                 player.startUsingItem(hand);
             else if (mode == Mode.PERCH) {
-                newCatStaffPerchHandler.itemUsed(level, player);
+                CatStaffPerchCommander.itemUsed(level, player);
                 player.awardStat(Stats.ITEM_USED.get(this));
             } else if (mode == Mode.SPYGLASS) {
                 level.playSound(null, player, SoundEvents.SPYGLASS_USE, SoundSource.PLAYERS, 1.0F, 1.0F);

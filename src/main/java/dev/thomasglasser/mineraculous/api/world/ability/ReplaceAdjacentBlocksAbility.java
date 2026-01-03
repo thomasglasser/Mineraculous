@@ -33,7 +33,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Replaces adjacent blocks with the provided {@link BlockState} in a diamond shape,
- * preferring the same {@link Block} when enabled.
+ * preferring the same {@link Block} when isModeActive.
  *
  * @param replacement   The {@link BlockState} to replace the target blocks with
  * @param preferSame    Whether the algorithm should choose blocks of the same kind as the target when adjacent

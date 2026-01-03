@@ -20,7 +20,7 @@ public record ServerboundPerchVerticalInputPayload(boolean ascend, boolean desce
     @Override
     public void handle(Player player) {
         newPerchingCatStaffData perchingData = player.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
-        if (perchingData.enabled() && perchingData.perchState() == newPerchingCatStaffData.PerchingState.STAND) {
+        if (perchingData.isModeActive() && perchingData.perchState() == newPerchingCatStaffData.PerchingState.STAND) {
             newPerchingCatStaffData.VerticalMovement newMovement = newPerchingCatStaffData.getVerticalMovement(ascend, descend);
             perchingData.withVerticalMovement(newMovement).save(player);
         }

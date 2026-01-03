@@ -51,7 +51,7 @@ public record ServerboundUpdateStaffInputPayload(int input) implements ExtendedP
                 perchingData.perchState() == newPerchingCatStaffData.PerchingState.LAUNCH ||
                 perchingData.perchState() == newPerchingCatStaffData.PerchingState.RELEASE;
 
-        if (perchingData.enabled() && properState && hasInput()) {
+        if (perchingData.isModeActive() && properState && hasInput()) {
             Vec3 playerToStaffHorizontal = new Vec3(perchingData.staffOrigin().x - player.getX(), 0, perchingData.staffOrigin().z - player.getZ());
             Vec3 movement = MineraculousMathUtils.getMovementVector(player, up(), down(), left(), right());
             movement = MineraculousMathUtils.projectOnCircle(playerToStaffHorizontal, movement);

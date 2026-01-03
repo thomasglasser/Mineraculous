@@ -2,8 +2,6 @@ package dev.thomasglasser.mineraculous.impl.world.level.storage;
 
 import com.mojang.serialization.Codec;
 import dev.thomasglasser.mineraculous.api.world.attachment.MineraculousAttachmentTypes;
-import dev.thomasglasser.mineraculous.impl.server.MineraculousServerConfig;
-import dev.thomasglasser.mineraculous.impl.world.item.CatStaffItem;
 import dev.thomasglasser.tommylib.api.util.TommyLibExtraStreamCodecs;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Direction;
@@ -11,17 +9,32 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+
+/**
+ * This record is meant to hold data related to cat staff perch mode.
+ * See CatStaffPerchCommander to see how the perch mode works.
+ * This record does not get any additional context related to the game.
+ *
+ * @param perchState             The current state of the mode, see CatStaffPerchCommander for more details
+ * @param verticalMovement       The movement of the player during STAND state.
+ * @param pawDirection           The direction the user was facing when perch mode became active.
+ * @param userPositionBeforeLean The coordinates of the player before transitioning to LEAN state
+ * @param staffOrigin            The lower extremity's coordinates of the staff.
+ * @param staffTip               The upper extremity's coordinates of the staff.
+ * @param isModeActive           Weather or not the perch mode is active.
+ * @param onGround               Weather or not the staff is anchored.
+ * @param userGravity            Weather or not the user should be affected by gravity.
+ */
 
 public record newPerchingCatStaffData(
         PerchingState perchState,
         VerticalMovement verticalMovement,
         Direction pawDirection,
-        Vec3 userPositionBeforeFall,
+        Vec3 userPositionBeforeLean,
         Vec3 staffOrigin,
-        Vec3 staffHead, // changed only to a bigger value when in launch state
-        boolean enabled,
+        Vec3 staffTip,
+        boolean isModeActive,
         boolean onGround,
         boolean userGravity) {
 
@@ -29,44 +42,40 @@ public record newPerchingCatStaffData(
             PerchingState.STREAM_CODEC, newPerchingCatStaffData::perchState,
             VerticalMovement.STREAM_CODEC, newPerchingCatStaffData::verticalMovement,
             Direction.STREAM_CODEC, newPerchingCatStaffData::pawDirection,
-            TommyLibExtraStreamCodecs.VEC_3, newPerchingCatStaffData::userPositionBeforeFall,
+            TommyLibExtraStreamCodecs.VEC_3, newPerchingCatStaffData::userPositionBeforeLean,
             TommyLibExtraStreamCodecs.VEC_3, newPerchingCatStaffData::staffOrigin,
-            TommyLibExtraStreamCodecs.VEC_3, newPerchingCatStaffData::staffHead,
-            ByteBufCodecs.BOOL, newPerchingCatStaffData::enabled,
+            TommyLibExtraStreamCodecs.VEC_3, newPerchingCatStaffData::staffTip,
+            ByteBufCodecs.BOOL, newPerchingCatStaffData::isModeActive,
             ByteBufCodecs.BOOL, newPerchingCatStaffData::onGround,
             ByteBufCodecs.BOOL, newPerchingCatStaffData::userGravity,
             newPerchingCatStaffData::new);
 
     public newPerchingCatStaffData() {
-        this(PerchingState.LAUNCH, VerticalMovement.NETURAL, Direction.NORTH, Vec3.ZERO, Vec3.ZERO, Vec3.ZERO, false, false, true);
+        this(PerchingState.LAUNCH, VerticalMovement.NEUTRAL, Direction.NORTH, Vec3.ZERO, Vec3.ZERO, Vec3.ZERO, false, false, true);
         this.validate();
     }
 
-    public double getStaffLength() {
-        return staffHead.subtract(staffOrigin).length();
+    public double staffLength() {
+        return staffTip.subtract(staffOrigin).length();
     }
 
     private void validate() {
-        if (staffHead.y < staffOrigin.y) {
+        if (staffTip.y < staffOrigin.y) {
             throw new IllegalStateException(
                     "Cat Staff has impossible geometry:\n" + this);
-        }
-        if (getStaffLength() < 0) {
-            throw new IllegalStateException(
-                    "Cat Staff has negative length:\n" + this);
         }
     }
 
     public newPerchingCatStaffData withStaffLength(double newLength, boolean head) {
         Vec3 newHead;
         if (head) {
-            Vec3 staffUnit = staffHead.subtract(staffOrigin).normalize();
+            Vec3 staffUnit = staffTip.subtract(staffOrigin).normalize();
             newHead = staffUnit.scale(newLength).add(staffOrigin);
         } else {
-            Vec3 staffUnit = staffOrigin.subtract(staffHead).normalize();
-            newHead = staffUnit.scale(newLength).add(staffHead);
+            Vec3 staffUnit = staffOrigin.subtract(staffTip).normalize();
+            newHead = staffUnit.scale(newLength).add(staffTip);
         }
-        newPerchingCatStaffData toReturn = withStaffHead(newHead);
+        newPerchingCatStaffData toReturn = withStaffTip(newHead);
         toReturn.validate();
         return toReturn;
     }
@@ -76,31 +85,35 @@ public record newPerchingCatStaffData(
                 perchState,
                 newVerticalMovement,
                 pawDirection,
-                userPositionBeforeFall,
+                userPositionBeforeLean,
                 staffOrigin,
-                staffHead,
-                enabled,
+                staffTip,
+                isModeActive,
                 onGround,
                 userGravity);
     }
 
-    public newPerchingCatStaffData withStaffHeadY(double y) {
-        return withStaffHead(new Vec3(staffHead.x, y, staffHead.z));
+    public newPerchingCatStaffData withStaffTipY(double y) {
+        return withStaffTip(new Vec3(staffTip.x, y, staffTip.z));
     }
 
-    public newPerchingCatStaffData withStaffHead(Vec3 newStaffHead) {
+    public newPerchingCatStaffData withStaffTip(Vec3 newStaffTip) {
         newPerchingCatStaffData toReturn = new newPerchingCatStaffData(
                 perchState,
                 verticalMovement,
                 pawDirection,
-                userPositionBeforeFall,
+                userPositionBeforeLean,
                 staffOrigin,
-                newStaffHead,
-                enabled,
+                newStaffTip,
+                isModeActive,
                 onGround,
                 userGravity);
         toReturn.validate();
         return toReturn;
+    }
+
+    public newPerchingCatStaffData withStaffOriginY(double y) {
+        return withStaffOrigin(new Vec3(staffOrigin.x, y, staffOrigin.z));
     }
 
     public newPerchingCatStaffData withStaffOrigin(Vec3 newStaffOrigin) {
@@ -108,10 +121,10 @@ public record newPerchingCatStaffData(
                 perchState,
                 verticalMovement,
                 pawDirection,
-                userPositionBeforeFall,
+                userPositionBeforeLean,
                 newStaffOrigin,
-                staffHead,
-                enabled,
+                staffTip,
+                isModeActive,
                 onGround,
                 userGravity);
         toReturn.validate();
@@ -123,10 +136,10 @@ public record newPerchingCatStaffData(
                 perchState,
                 verticalMovement,
                 pawDirection,
-                userPositionBeforeFall,
+                userPositionBeforeLean,
                 staffOrigin,
-                staffHead,
-                enabled,
+                staffTip,
+                isModeActive,
                 onGround,
                 newGravity);
     }
@@ -136,10 +149,10 @@ public record newPerchingCatStaffData(
                 newState,
                 verticalMovement,
                 pawDirection,
-                userPositionBeforeFall,
+                userPositionBeforeLean,
                 staffOrigin,
-                staffHead,
-                enabled,
+                staffTip,
+                isModeActive,
                 onGround,
                 userGravity);
     }
@@ -149,10 +162,10 @@ public record newPerchingCatStaffData(
                 perchState,
                 verticalMovement,
                 pawDirection,
-                userPositionBeforeFall,
+                userPositionBeforeLean,
                 staffOrigin,
-                staffHead,
-                enabled,
+                staffTip,
+                isModeActive,
                 hitGround,
                 userGravity);
     }
@@ -162,109 +175,16 @@ public record newPerchingCatStaffData(
                 perchState,
                 verticalMovement,
                 pawDirection,
-                userPositionBeforeFall,
+                userPositionBeforeLean,
                 staffOrigin,
-                staffHead,
+                staffTip,
                 enable,
                 onGround,
                 userGravity);
     }
 
-    public newPerchingCatStaffData release() {
-        if (perchState == PerchingState.STAND && onGround) {
-            return withState(PerchingState.RELEASE).withGravity(true);
-        }
-        return this;
-    }
-
-    public newPerchingCatStaffData launch(Vec3 userPosition, double userHeight, float yHeadRot, Vec2 horizontalFacing) {
-        Vec3 staffHead = getInitializedStaffHead(userPosition, userHeight, horizontalFacing);
-        Vec3 staffOrigin = getStaffOrigin(userPosition.y, staffHead);
-        newPerchingCatStaffData toReturn = new newPerchingCatStaffData(
-                PerchingState.LAUNCH,
-                VerticalMovement.NETURAL,
-                Direction.fromYRot(yHeadRot),
-                userPosition,
-                staffOrigin,
-                staffHead,
-                true,
-                false,
-                true);
-        return toReturn;
-    }
-
-    public newPerchingCatStaffData applyGravity() {
-        return withGravity(hasGravity());
-    }
-
-    public newPerchingCatStaffData updateLength(boolean airBelow, double apexStaffHeadY) {
-        return switch (perchState) {
-            case STAND -> updateLengthStanding();
-            case LAUNCH -> updateLengthLaunching(airBelow, apexStaffHeadY);
-            default -> this;
-        };
-    }
-
-    private newPerchingCatStaffData updateLengthStanding() {
-        double yMovement = switch (verticalMovement()) {
-            case NETURAL -> 0.0;
-            case ASCENDING -> CatStaffItem.USER_VERTICAL_MOVEMENT_SPEED;
-            case DESCENDING -> -CatStaffItem.USER_VERTICAL_MOVEMENT_SPEED;
-        };
-
-        if (yMovement == 0.0) {
-            return this;
-        }
-
-        double length = getStaffLength() + yMovement;
-        double minLength = 2.0;
-        double maxLength = MineraculousServerConfig.get().maxToolLength.get();
-        if (length < minLength || length > maxLength) {
-            return this;
-        }
-
-        return withStaffLength(length, true);
-    }
-
-    private newPerchingCatStaffData updateLengthLaunching(boolean airBelow, double apexStaffHeadY) {
-        newPerchingCatStaffData result = this;
-
-        result = result.withStaffHeadY(apexStaffHeadY);
-        if (airBelow) {
-            if (result.onGround()) {
-                result = result.withGround(false);
-            }
-            double maxLength = MineraculousServerConfig.get().maxToolLength.get();
-            if (result.getStaffLength() < maxLength) {
-                result = result.withStaffOrigin(new Vec3(staffOrigin.x, staffOrigin.y - CatStaffItem.STAFF_GROWTH_SPEED, staffOrigin.z));
-            }
-        } else if (!result.onGround()) {
-            result = result.withGround(true);
-        }
-        return result;
-    }
-
-    public newPerchingCatStaffData updateState(double userY, double staffHeadYExpectation) {
-        switch (perchState) {
-            case LAUNCH -> {
-                boolean userFalling = staffHeadYExpectation < staffHead.y;
-                if (userFalling && onGround) {
-                    return withStaffHeadY(staffHeadYExpectation)
-                            .withState(PerchingState.STAND)
-                            .withGravity(false);
-                }
-            }
-            case RELEASE -> {
-                if (userY - staffOrigin.y < 0.5) {
-                    return withEnabled(false);
-                }
-            }
-        }
-        return this;
-    }
-
-    public boolean hasGravity() {
-        return perchState != PerchingState.STAND;
+    public Vec3 horizontalPosition() {
+        return new Vec3(staffOrigin.x, 0, staffOrigin.z);
     }
 
     public boolean shouldCancelFallDamage() {
@@ -273,13 +193,21 @@ public record newPerchingCatStaffData(
                 perchState == PerchingState.RELEASE;
     }
 
+    // TODO remove the following 2 cuz wtf
     public boolean hasTetheringState() {
-        return perchState == PerchingState.STAND ||
-                perchState == PerchingState.RELEASE;
+        return perchState == PerchingState.STAND;
+    }
+
+    public boolean perchingStateHasGravity() {
+        return perchState != newPerchingCatStaffData.PerchingState.STAND;
+    }
+
+    public boolean isStaffReleaseable() {
+        return perchState == newPerchingCatStaffData.PerchingState.STAND && onGround;
     }
 
     public static VerticalMovement getVerticalMovement(boolean ascend, boolean descend) {
-        return ascend && !descend ? VerticalMovement.ASCENDING : descend && !ascend ? VerticalMovement.DESCENDING : VerticalMovement.NETURAL;
+        return ascend && !descend ? VerticalMovement.ASCENDING : descend && !ascend ? VerticalMovement.DESCENDING : VerticalMovement.NEUTRAL;
     }
 
     public void update(Entity entity, newPerchingCatStaffData newData) {
@@ -317,7 +245,7 @@ public record newPerchingCatStaffData(
     public enum VerticalMovement implements StringRepresentable {
         ASCENDING,
         DESCENDING,
-        NETURAL;
+        NEUTRAL;
 
         public static final StreamCodec<ByteBuf, VerticalMovement> STREAM_CODEC = ByteBufCodecs.STRING_UTF8.map(VerticalMovement::of, VerticalMovement::getSerializedName);
         public static final Codec<VerticalMovement> CODEC = StringRepresentable.fromEnum(VerticalMovement::values);
@@ -332,20 +260,6 @@ public record newPerchingCatStaffData(
         }
     }
 
-    private static Vec3 getInitializedStaffHead(Vec3 userPosition, double userHeight, Vec2 horizontalFacing) {
-        //Vec2 horizontalFacingVector = MineraculousMathUtils.getHorizontalFacingVector(user).scale(newCatStaffPerchHandler.DISTANCE_BETWEEN_STAFF_AND_USER);
-        Vec3 staffHead = new Vec3(
-                userPosition.x + horizontalFacing.x,
-                userPosition.y + userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET,
-                userPosition.z + horizontalFacing.y);
-        return staffHead;
-    }
-
-    private static Vec3 getStaffOrigin(double userY, Vec3 staffHead) {
-        Vec3 staffOrigin = new Vec3(staffHead.x, userY, staffHead.z);
-        return staffOrigin;
-    }
-
     @Override
     public String toString() {
         return """
@@ -357,16 +271,14 @@ public record newPerchingCatStaffData(
                   gravity      = %s
                   origin       = %s
                   head         = %s
-                  length       = %.3f
                 }
                 """.formatted(
                 perchState,
                 verticalMovement,
-                enabled,
+                isModeActive,
                 onGround,
                 userGravity,
                 staffOrigin,
-                staffHead,
-                getStaffLength());
+                staffTip);
     }
 }

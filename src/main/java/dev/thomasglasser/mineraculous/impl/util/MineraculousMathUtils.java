@@ -41,11 +41,11 @@ public class MineraculousMathUtils {
 
     public static Vec2 getHorizontalFacingVector(Entity entity) {
         float yaw = entity.getYRot();
-        if (yaw < 0) {
-            yaw += FULL_ROTATION_DEGREES;
+        while (yaw < 0.0f) {
+            yaw += 360.0f;
         }
-        if (yaw >= FULL_ROTATION_DEGREES) {
-            yaw -= FULL_ROTATION_DEGREES;
+        while (yaw >= 360.0f) {
+            yaw -= 360.0f;
         }
         float cos = (float) Math.cos(Math.toRadians(yaw));
         float sin = (float) -Math.sin(Math.toRadians(yaw));

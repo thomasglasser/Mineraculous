@@ -90,6 +90,13 @@ public class CatStaffItem extends SwordItem implements GeoItem, ProjectileItem, 
     public static final String ANIMATION_CLOSE = "close";
     public static final String ANIMATION_CLOSE_AND_EXTEND = "close_and_extend";
 
+    public static final float DISTANCE_BETWEEN_STAFF_AND_USER = 0.5f;
+    public static final float STAFF_HEAD_ABOVE_USER_HEAD_OFFSET = 0.2f;
+    public static final float USER_VERTICAL_MOVEMENT_SPEED = 0.5f;
+    public static final double HORIZONTAL_MOVEMENT_THRESHOLD = 0.15d;
+    public static final double HORIZONTAL_MOVEMENT_SCALE = 0.1d;
+    public static final int STAFF_GROWTH_SPEED = 8;
+
     private static final RawAnimation EXTEND = RawAnimation.begin().thenPlay("misc.extend");
     private static final RawAnimation RETRACT = RawAnimation.begin().thenPlay("misc.retract");
     private static final RawAnimation OPEN = RawAnimation.begin().thenPlay("misc.open");

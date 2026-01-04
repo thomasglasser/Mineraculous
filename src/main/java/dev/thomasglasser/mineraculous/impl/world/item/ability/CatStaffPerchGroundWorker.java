@@ -31,7 +31,7 @@ public class CatStaffPerchGroundWorker {
     }
 
     protected static newPerchingCatStaffData applyGravity(Entity user, newPerchingCatStaffData data) {
-        boolean stateHasGravity = data.perchingStateHasGravity();
+        boolean stateHasGravity = data.state() != newPerchingCatStaffData.PerchingState.STAND;
         user.setNoGravity(!data.userGravity());
         return data.withGravity(stateHasGravity);
     }
@@ -96,7 +96,7 @@ public class CatStaffPerchGroundWorker {
     protected static newPerchingCatStaffData transitionState(Entity user, newPerchingCatStaffData data) {
         switch (data.state()) {
             case LAUNCH -> {
-                boolean userFalling = user.getDeltaMovement().y < 0;;
+                boolean userFalling = user.getDeltaMovement().y < 0;
                 if (userFalling && data.onGround()) {
                     return data.withStaffTipY(expectedStaffTipY(user))
                             .withState(newPerchingCatStaffData.PerchingState.STAND)
@@ -104,7 +104,9 @@ public class CatStaffPerchGroundWorker {
                 }
             }
             case RELEASE -> {
-                if (user.getY() - data.staffOrigin().y < 0.5) {
+                boolean userFellTooMuch = user.getY() - data.staffOrigin().y < 0.5;
+                boolean userGotTooFar = data.horizontalPosition().subtract(user.getX(), 0, user.getZ()).length() > CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS + 0.5d;
+                if (userFellTooMuch || userGotTooFar) {
                     return data.withEnabled(false);
                 }
             }

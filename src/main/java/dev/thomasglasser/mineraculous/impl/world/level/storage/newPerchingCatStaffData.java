@@ -195,15 +195,6 @@ public record newPerchingCatStaffData(
                 state == PerchingState.RELEASE;
     }
 
-    // TODO remove the following 2 cuz wtf
-    public boolean hasTetheringState() {
-        return state == PerchingState.STAND;
-    }
-
-    public boolean perchingStateHasGravity() {
-        return state != newPerchingCatStaffData.PerchingState.STAND;
-    }
-
     public boolean isStaffReleaseable() {
         return state == newPerchingCatStaffData.PerchingState.STAND && onGround;
     }

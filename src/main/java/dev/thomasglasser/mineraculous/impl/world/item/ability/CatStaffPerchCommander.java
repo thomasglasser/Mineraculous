@@ -103,7 +103,7 @@ public class CatStaffPerchCommander {
      * @param data The user's perching data.
      */
     private static void decideToConstrainUserPosition(Entity user, newPerchingCatStaffData data) {
-        if (data.hasTetheringState()) {
+        if (data.state() == newPerchingCatStaffData.PerchingState.STAND) {
             Vec3 userToStaff = CatStaffPerchGroundWorker.userToStaff(user, data);
             if (shouldConstrainPositon(userToStaff)) {
                 CatStaffPerchGroundWorker.constrainUserToRadius(user, data);
@@ -134,7 +134,7 @@ public class CatStaffPerchCommander {
      * @param data The user's perching data, used only to check if the client can signal the server.
      */
     private static void sendVerticalInput(newPerchingCatStaffData data) {
-        if (!data.perchingStateHasGravity()) {
+        if (data.state() == newPerchingCatStaffData.PerchingState.STAND) {
             boolean ascend = MineraculousKeyMappings.ASCEND_TOOL.isDown();
             boolean descend = MineraculousKeyMappings.DESCEND_TOOL.isDown();
             newPerchingCatStaffData.VerticalMovement suggestedMovement = newPerchingCatStaffData.getVerticalMovement(ascend, descend);

@@ -47,9 +47,9 @@ public record ServerboundUpdateStaffInputPayload(int input) implements ExtendedP
     @Override
     public void handle(Player player) {
         newPerchingCatStaffData perchingData = player.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
-        boolean properState = perchingData.perchState() == newPerchingCatStaffData.PerchingState.STAND ||
-                perchingData.perchState() == newPerchingCatStaffData.PerchingState.LAUNCH ||
-                perchingData.perchState() == newPerchingCatStaffData.PerchingState.RELEASE;
+        boolean properState = perchingData.state() == newPerchingCatStaffData.PerchingState.STAND ||
+                perchingData.state() == newPerchingCatStaffData.PerchingState.LAUNCH ||
+                perchingData.state() == newPerchingCatStaffData.PerchingState.RELEASE;
 
         if (perchingData.isModeActive() && properState && hasInput()) {
             Vec3 playerToStaffHorizontal = new Vec3(perchingData.staffOrigin().x - player.getX(), 0, perchingData.staffOrigin().z - player.getZ());

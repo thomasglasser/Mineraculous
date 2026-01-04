@@ -30,19 +30,13 @@ public class CatStaffPerchGroundWorker {
                 .save(user);
     }
 
-    protected static newPerchingCatStaffData updateGravity(Entity user, newPerchingCatStaffData data) {
+    protected static newPerchingCatStaffData applyGravity(Entity user, newPerchingCatStaffData data) {
         boolean stateHasGravity = data.perchingStateHasGravity();
         user.setNoGravity(!data.userGravity());
         return data.withGravity(stateHasGravity);
     }
 
-    protected static newPerchingCatStaffData updateStateAndLength(Level level, Entity user, newPerchingCatStaffData data) {
-        data = updateState(user, data);
-        data = CatStaffPerchGroundWorker.updateLength(level, user, data);
-        return data;
-    }
-
-    protected static void setUserVerticalPosition(Entity user, newPerchingCatStaffData data) {
+    protected static void alignUserVerticalPosition(Entity user, newPerchingCatStaffData data) {
         if (user.isNoGravity()) {
             double verticalPosition = expectedUserY(user, data);
             double positionCorrection = verticalPosition - user.getY();
@@ -54,11 +48,12 @@ public class CatStaffPerchGroundWorker {
 
     /**
      * This method constrains the user movement to a circle.
+     * The radius is CatStaffItem.DISTANCE_BETWEEN_STAFF_AND_USER_IN_BLOCKS.
      *
      * @param user The constrained movement entity.
      * @param data The user's perching data.
      */
-    protected static void constrainUserPosition(Entity user, newPerchingCatStaffData data) {
+    protected static void constrainUserToRadius(Entity user, newPerchingCatStaffData data) {
         Vec3 userToStaff = userToStaff(user, data);
         double distance = userToStaff.length();
         Vec3 constrain = userToStaff
@@ -71,6 +66,50 @@ public class CatStaffPerchGroundWorker {
         Vec3 staffHorizontalPosition = data.horizontalPosition();
         Vec3 userHorizontalPosition = new Vec3(user.getX(), 0, user.getZ());
         return staffHorizontalPosition.subtract(userHorizontalPosition);
+    }
+
+    protected static double expectedUserY(Entity user, newPerchingCatStaffData data) {
+        double userHeight = user.getBbHeight();
+        return data.staffTip().y - (userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET);
+    }
+
+    protected static newPerchingCatStaffData adjustLength(Level level, Entity user, newPerchingCatStaffData data) {
+        BlockPos belowStaff = BlockPos.containing(data.staffOrigin()).below();
+        boolean onGround = !level.getBlockState(belowStaff).isAir();
+        double expectedStaffTipY = expectedStaffTipY(user);
+
+        data = data.withGround(onGround);
+
+        if (onGround && data.state() == newPerchingCatStaffData.PerchingState.STAND) {
+            data = applyVerticalInput(user, data);
+        } else {
+            data = data.withStaffTipY(expectedStaffTipY);
+        }
+
+        if (!onGround) {
+            data = extendDownward(level, expectedStaffTipY, data);
+        }
+
+        return data;
+    }
+
+    protected static newPerchingCatStaffData transitionState(Entity user, newPerchingCatStaffData data) {
+        switch (data.state()) {
+            case LAUNCH -> {
+                boolean userFalling = user.getDeltaMovement().y < 0;;
+                if (userFalling && data.onGround()) {
+                    return data.withStaffTipY(expectedStaffTipY(user))
+                            .withState(newPerchingCatStaffData.PerchingState.STAND)
+                            .withGravity(false);
+                }
+            }
+            case RELEASE -> {
+                if (user.getY() - data.staffOrigin().y < 0.5) {
+                    return data.withEnabled(false);
+                }
+            }
+        }
+        return data;
     }
 
     private static void launchUser(Entity user) {
@@ -122,21 +161,25 @@ public class CatStaffPerchGroundWorker {
         return entity.getY() + entity.getBbHeight() + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
     }
 
-    protected static double expectedUserY(Entity user, newPerchingCatStaffData data) {
-        double userHeight = user.getBbHeight();
-        return data.staffTip().y - (userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET);
+    private static newPerchingCatStaffData extendDownward(Level level, double expectedStaffTipY, newPerchingCatStaffData data) {
+        double maxLength = MineraculousServerConfig.get().maxToolLength.get();
+        BlockPos targetPosition = BlockPos.containing(data.staffOrigin().subtract(0, CatStaffItem.STAFF_GROWTH_SPEED, 0)).below();
+        int numberOfCheckedBlocks = 0;
+        while (!level.getBlockState(targetPosition).isAir() && numberOfCheckedBlocks < maxLength) {
+            targetPosition = targetPosition.above();
+            numberOfCheckedBlocks++;
+        }
+        if (level.getBlockState(targetPosition).isAir()) {
+            Vec3 newStaffOrigin = data.withStaffOriginY(targetPosition.getY()).staffOrigin();
+            double newLength = expectedStaffTipY - newStaffOrigin.y;
+            if (newLength < maxLength) {
+                data = data.withStaffLength(newLength, false);
+            }
+        }
+        return data;
     }
 
-    private static newPerchingCatStaffData updateLength(Level level, Entity user, newPerchingCatStaffData data) {
-        return switch (data.perchState()) {
-            case STAND -> updateLengthStanding(user.getBbHeight(), data);
-            case LAUNCH -> updateLengthLaunching(level, expectedStaffTipY(user), data);
-            default -> data;
-        };
-    }
-
-    // TODO refactor the following 2 because the block on which the staff is anchored might get broken
-    private static newPerchingCatStaffData updateLengthStanding(double userHeight, newPerchingCatStaffData data) {
+    private static newPerchingCatStaffData applyVerticalInput(Entity user, newPerchingCatStaffData data) {
         double yMovement = switch (data.verticalMovement()) {
             case NEUTRAL -> 0.0;
             case ASCENDING -> CatStaffItem.USER_VERTICAL_MOVEMENT_SPEED;
@@ -147,54 +190,12 @@ public class CatStaffPerchGroundWorker {
             return data;
         }
 
-        double length = data.staffLength() + yMovement;
-        double minLength = userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
         double maxLength = MineraculousServerConfig.get().maxToolLength.get();
-
+        double minLength = user.getBbHeight() + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
+        double length = data.staffLength();
+        length += length + yMovement < maxLength ? yMovement : 0;
         length = Math.max(minLength, length);
-        length = Math.min(maxLength, length);
 
         return data.withStaffLength(length, true);
-    }
-
-    private static newPerchingCatStaffData updateLengthLaunching(Level level, double expectedStaffTipY, newPerchingCatStaffData data) {
-        newPerchingCatStaffData result = data;
-
-        result = result.withStaffTipY(expectedStaffTipY);
-        BlockPos targetPosition = BlockPos.containing(data.staffOrigin().subtract(0, CatStaffItem.STAFF_GROWTH_SPEED, 0)).below();
-        boolean airBelow = level.getBlockState(targetPosition).isAir();
-        if (airBelow) {
-            if (result.onGround()) {
-                result = result.withGround(false);
-            }
-            Vec3 newStaffOrigin = result.withStaffOriginY(data.staffOrigin().y - CatStaffItem.STAFF_GROWTH_SPEED).staffOrigin();
-            double newLength = expectedStaffTipY - newStaffOrigin.y;
-            double maxLength = MineraculousServerConfig.get().maxToolLength.get();
-            if (newLength < maxLength) {
-                result = result.withStaffLength(newLength, false);
-            }
-        } else if (!result.onGround()) {
-            result = result.withGround(true);
-        }
-        return result;
-    }
-
-    private static newPerchingCatStaffData updateState(Entity user, newPerchingCatStaffData data) {
-        switch (data.perchState()) {
-            case LAUNCH -> {
-                boolean userFalling = expectedStaffTipY(user) < data.staffTip().y;
-                if (userFalling && data.onGround()) {
-                    return data.withStaffTipY(expectedStaffTipY(user))
-                            .withState(newPerchingCatStaffData.PerchingState.STAND)
-                            .withGravity(false);
-                }
-            }
-            case RELEASE -> {
-                if (user.getY() - data.staffOrigin().y < 0.5) {
-                    return data.withEnabled(false);
-                }
-            }
-        }
-        return data;
     }
 }

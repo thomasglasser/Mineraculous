@@ -73,15 +73,16 @@ public class CatStaffPerchCommander {
         newPerchingCatStaffData originalData = user.getData(MineraculousAttachmentTypes.newPERCHING_CAT_STAFF);
         newPerchingCatStaffData data = originalData;
 
-        data = CatStaffPerchGroundWorker.updateGravity(user, data);
+        data = CatStaffPerchGroundWorker.applyGravity(user, data);
         if (data.isModeActive()) {
             cancelFallDamage(user, data);
-            CatStaffPerchGroundWorker.setUserVerticalPosition(user, data);
+            CatStaffPerchGroundWorker.alignUserVerticalPosition(user, data);
             decideToConstrainUserPosition(user, data);
             if (level.isClientSide()) {
                 signalMovementInputToServer(data);
             } else {
-                data = CatStaffPerchGroundWorker.updateStateAndLength(level, user, data);
+                data = CatStaffPerchGroundWorker.adjustLength(level, user, data);
+                data = CatStaffPerchGroundWorker.transitionState(user, data);
             }
         }
         originalData.update(user, data);
@@ -105,7 +106,7 @@ public class CatStaffPerchCommander {
         if (data.hasTetheringState()) {
             Vec3 userToStaff = CatStaffPerchGroundWorker.userToStaff(user, data);
             if (shouldConstrainPositon(userToStaff)) {
-                CatStaffPerchGroundWorker.constrainUserPosition(user, data);
+                CatStaffPerchGroundWorker.constrainUserToRadius(user, data);
             }
         }
     }

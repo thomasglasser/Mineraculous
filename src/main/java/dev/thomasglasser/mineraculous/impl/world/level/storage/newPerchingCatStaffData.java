@@ -16,7 +16,7 @@ import net.minecraft.world.phys.Vec3;
  * See CatStaffPerchCommander to see how the perch mode works.
  * This record does not get any additional context related to the game.
  *
- * @param perchState             The current state of the mode, see CatStaffPerchCommander for more details
+ * @param state                  The current state of the mode, see CatStaffPerchCommander for more details
  * @param verticalMovement       The movement of the player during STAND state.
  * @param pawDirection           The direction the user was facing when perch mode became active.
  * @param userPositionBeforeLean The coordinates of the player before transitioning to LEAN state
@@ -28,7 +28,7 @@ import net.minecraft.world.phys.Vec3;
  */
 
 public record newPerchingCatStaffData(
-        PerchingState perchState,
+        PerchingState state,
         VerticalMovement verticalMovement,
         Direction pawDirection,
         Vec3 userPositionBeforeLean,
@@ -39,7 +39,7 @@ public record newPerchingCatStaffData(
         boolean userGravity) {
 
     public static final StreamCodec<ByteBuf, newPerchingCatStaffData> STREAM_CODEC = TommyLibExtraStreamCodecs.composite(
-            PerchingState.STREAM_CODEC, newPerchingCatStaffData::perchState,
+            PerchingState.STREAM_CODEC, newPerchingCatStaffData::state,
             VerticalMovement.STREAM_CODEC, newPerchingCatStaffData::verticalMovement,
             Direction.STREAM_CODEC, newPerchingCatStaffData::pawDirection,
             TommyLibExtraStreamCodecs.VEC_3, newPerchingCatStaffData::userPositionBeforeLean,
@@ -84,7 +84,7 @@ public record newPerchingCatStaffData(
 
     public newPerchingCatStaffData withVerticalMovement(VerticalMovement newVerticalMovement) {
         return new newPerchingCatStaffData(
-                perchState,
+                state,
                 newVerticalMovement,
                 pawDirection,
                 userPositionBeforeLean,
@@ -101,7 +101,7 @@ public record newPerchingCatStaffData(
 
     public newPerchingCatStaffData withStaffTip(Vec3 newStaffTip) {
         newPerchingCatStaffData toReturn = new newPerchingCatStaffData(
-                perchState,
+                state,
                 verticalMovement,
                 pawDirection,
                 userPositionBeforeLean,
@@ -120,7 +120,7 @@ public record newPerchingCatStaffData(
 
     public newPerchingCatStaffData withStaffOrigin(Vec3 newStaffOrigin) {
         newPerchingCatStaffData toReturn = new newPerchingCatStaffData(
-                perchState,
+                state,
                 verticalMovement,
                 pawDirection,
                 userPositionBeforeLean,
@@ -135,7 +135,7 @@ public record newPerchingCatStaffData(
 
     public newPerchingCatStaffData withGravity(boolean newGravity) {
         return new newPerchingCatStaffData(
-                perchState,
+                state,
                 verticalMovement,
                 pawDirection,
                 userPositionBeforeLean,
@@ -161,7 +161,7 @@ public record newPerchingCatStaffData(
 
     public newPerchingCatStaffData withGround(boolean hitGround) {
         return new newPerchingCatStaffData(
-                perchState,
+                state,
                 verticalMovement,
                 pawDirection,
                 userPositionBeforeLean,
@@ -174,7 +174,7 @@ public record newPerchingCatStaffData(
 
     public newPerchingCatStaffData withEnabled(boolean enable) {
         return new newPerchingCatStaffData(
-                perchState,
+                state,
                 verticalMovement,
                 pawDirection,
                 userPositionBeforeLean,
@@ -190,22 +190,22 @@ public record newPerchingCatStaffData(
     }
 
     public boolean shouldCancelFallDamage() {
-        return perchState == PerchingState.STAND ||
-                perchState == PerchingState.LAUNCH ||
-                perchState == PerchingState.RELEASE;
+        return state == PerchingState.STAND ||
+                state == PerchingState.LAUNCH ||
+                state == PerchingState.RELEASE;
     }
 
     // TODO remove the following 2 cuz wtf
     public boolean hasTetheringState() {
-        return perchState == PerchingState.STAND;
+        return state == PerchingState.STAND;
     }
 
     public boolean perchingStateHasGravity() {
-        return perchState != newPerchingCatStaffData.PerchingState.STAND;
+        return state != newPerchingCatStaffData.PerchingState.STAND;
     }
 
     public boolean isStaffReleaseable() {
-        return perchState == newPerchingCatStaffData.PerchingState.STAND && onGround;
+        return state == newPerchingCatStaffData.PerchingState.STAND && onGround;
     }
 
     public static VerticalMovement getVerticalMovement(boolean ascend, boolean descend) {
@@ -275,7 +275,7 @@ public record newPerchingCatStaffData(
                   tip         = %s
                 }
                 """.formatted(
-                perchState,
+                state,
                 verticalMovement,
                 isModeActive,
                 onGround,

@@ -66,16 +66,18 @@ public record newPerchingCatStaffData(
         }
     }
 
-    public newPerchingCatStaffData withStaffLength(double newLength, boolean head) {
-        Vec3 newHead;
-        if (head) {
+    public newPerchingCatStaffData withStaffLength(double newLength, boolean tip) {
+        Vec3 extendedExtremity;
+        newPerchingCatStaffData toReturn;
+        if (tip) {
             Vec3 staffUnit = staffTip.subtract(staffOrigin).normalize();
-            newHead = staffUnit.scale(newLength).add(staffOrigin);
+            extendedExtremity = staffUnit.scale(newLength).add(staffOrigin);
+            toReturn = withStaffTip(extendedExtremity);
         } else {
             Vec3 staffUnit = staffOrigin.subtract(staffTip).normalize();
-            newHead = staffUnit.scale(newLength).add(staffTip);
+            extendedExtremity = staffUnit.scale(newLength).add(staffTip);
+            toReturn = withStaffOrigin(extendedExtremity);
         }
-        newPerchingCatStaffData toReturn = withStaffTip(newHead);
         toReturn.validate();
         return toReturn;
     }
@@ -270,7 +272,7 @@ public record newPerchingCatStaffData(
                   onGround     = %s
                   gravity      = %s
                   origin       = %s
-                  head         = %s
+                  tip         = %s
                 }
                 """.formatted(
                 perchState,

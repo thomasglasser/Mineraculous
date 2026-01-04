@@ -37,17 +37,13 @@ public class CatStaffPerchGroundWorker {
     }
 
     protected static newPerchingCatStaffData updateStateAndLength(Level level, Entity user, newPerchingCatStaffData data) {
-        BlockPos targetPosition = BlockPos.containing(data.staffOrigin().subtract(0, CatStaffItem.STAFF_GROWTH_SPEED, 0)).below();
-        boolean airBelowTarget = level.getBlockState(targetPosition).isAir();
-        double expectedHeadY = expectedStaffTipY(user);
-
-        data = updateState(data, user.getY(), expectedHeadY);
-        data = CatStaffPerchGroundWorker.updateLength(airBelowTarget, user.getBbHeight(), expectedHeadY, data);
+        data = updateState(user, data);
+        data = CatStaffPerchGroundWorker.updateLength(level, user, data);
         return data;
     }
 
     protected static void setUserVerticalPosition(Entity user, newPerchingCatStaffData data) {
-        if (/*!perchingStateHasGravity(user, data)*/ user.isNoGravity()) { //TODO account only the server result but execute on both
+        if (user.isNoGravity()) {
             double verticalPosition = expectedUserY(user, data);
             double positionCorrection = verticalPosition - user.getY();
             Vec3 movement = new Vec3(0, positionCorrection, 0);
@@ -131,10 +127,10 @@ public class CatStaffPerchGroundWorker {
         return data.staffTip().y - (userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET);
     }
 
-    private static newPerchingCatStaffData updateLength(boolean airBelow, double userHeight, double expectedStaffTipY, newPerchingCatStaffData data) {
+    private static newPerchingCatStaffData updateLength(Level level, Entity user, newPerchingCatStaffData data) {
         return switch (data.perchState()) {
-            case STAND -> updateLengthStanding(userHeight, data);
-            case LAUNCH -> updateLengthLaunching(data, airBelow, expectedStaffTipY);
+            case STAND -> updateLengthStanding(user.getBbHeight(), data);
+            case LAUNCH -> updateLengthLaunching(level, expectedStaffTipY(user), data);
             default -> data;
         };
     }
@@ -152,29 +148,30 @@ public class CatStaffPerchGroundWorker {
         }
 
         double length = data.staffLength() + yMovement;
-        double minLength = data.staffOrigin().y + userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
+        double minLength = userHeight + CatStaffItem.STAFF_HEAD_ABOVE_USER_HEAD_OFFSET;
         double maxLength = MineraculousServerConfig.get().maxToolLength.get();
-        /*if (length < minLength) {
-            return data.withStaffLength(minLength, true);
-        }
-        if (length > maxLength) {
-            return data.withStaffLength(maxLength, true);
-        }*/
+
+        length = Math.max(minLength, length);
+        length = Math.min(maxLength, length);
 
         return data.withStaffLength(length, true);
     }
 
-    private static newPerchingCatStaffData updateLengthLaunching(newPerchingCatStaffData data, boolean airBelow, double apexStaffTipY) {
+    private static newPerchingCatStaffData updateLengthLaunching(Level level, double expectedStaffTipY, newPerchingCatStaffData data) {
         newPerchingCatStaffData result = data;
 
-        result = result.withStaffTipY(apexStaffTipY);
+        result = result.withStaffTipY(expectedStaffTipY);
+        BlockPos targetPosition = BlockPos.containing(data.staffOrigin().subtract(0, CatStaffItem.STAFF_GROWTH_SPEED, 0)).below();
+        boolean airBelow = level.getBlockState(targetPosition).isAir();
         if (airBelow) {
             if (result.onGround()) {
                 result = result.withGround(false);
             }
+            Vec3 newStaffOrigin = result.withStaffOriginY(data.staffOrigin().y - CatStaffItem.STAFF_GROWTH_SPEED).staffOrigin();
+            double newLength = expectedStaffTipY - newStaffOrigin.y;
             double maxLength = MineraculousServerConfig.get().maxToolLength.get();
-            if (result.staffLength() < maxLength) {
-                result = result.withStaffOriginY(data.staffOrigin().y - CatStaffItem.STAFF_GROWTH_SPEED);
+            if (newLength < maxLength) {
+                result = result.withStaffLength(newLength, false);
             }
         } else if (!result.onGround()) {
             result = result.withGround(true);
@@ -182,18 +179,18 @@ public class CatStaffPerchGroundWorker {
         return result;
     }
 
-    private static newPerchingCatStaffData updateState(newPerchingCatStaffData data, double userY, double staffTipYExpectation) {
+    private static newPerchingCatStaffData updateState(Entity user, newPerchingCatStaffData data) {
         switch (data.perchState()) {
             case LAUNCH -> {
-                boolean userFalling = staffTipYExpectation < data.staffTip().y;
+                boolean userFalling = expectedStaffTipY(user) < data.staffTip().y;
                 if (userFalling && data.onGround()) {
-                    return data.withStaffTipY(staffTipYExpectation)
+                    return data.withStaffTipY(expectedStaffTipY(user))
                             .withState(newPerchingCatStaffData.PerchingState.STAND)
                             .withGravity(false);
                 }
             }
             case RELEASE -> {
-                if (userY - data.staffOrigin().y < 0.5) {
+                if (user.getY() - data.staffOrigin().y < 0.5) {
                     return data.withEnabled(false);
                 }
             }

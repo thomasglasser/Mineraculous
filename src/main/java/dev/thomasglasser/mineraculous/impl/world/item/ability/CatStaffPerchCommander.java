@@ -121,8 +121,10 @@ public class CatStaffPerchCommander {
 
     private static void sendHorizontalInput() {
         MineraculousClientUtils.InputState input = MineraculousClientUtils.captureInput();
-        int packedInput = input.packInputs();
-        TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateStaffInputPayload(packedInput));
+        if (input.hasInput()) {
+            int packedInput = input.packInputs();
+            TommyLibServices.NETWORK.sendToServer(new ServerboundUpdateStaffInputPayload(packedInput));
+        }
     }
 
     /**

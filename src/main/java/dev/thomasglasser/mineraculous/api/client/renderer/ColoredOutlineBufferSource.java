@@ -4,6 +4,10 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 
+/**
+ * This class is used for rendering the special glowing appearance for kwamis.
+ * Its purpose is to render the kwamis fully colored in their miraculous color.
+ */
 public class ColoredOutlineBufferSource implements MultiBufferSource, AutoCloseable {
     private final MultiBufferSource.BufferSource kwamiBufferSource;
     private int color;
@@ -33,7 +37,6 @@ public class ColoredOutlineBufferSource implements MultiBufferSource, AutoClosea
             final int r = (color >> 16) & 0xFF;
             final int g = (color >> 8) & 0xFF;
             final int b = (color >> 0) & 0xFF;
-            // Set a solid alpha (e.g., 255/0xFF for fully opaque)
             final int a = 0xFF;
             this.delegate.setColor(r, g, b, a);
             return this;

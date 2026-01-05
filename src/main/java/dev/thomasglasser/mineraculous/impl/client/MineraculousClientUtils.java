@@ -97,14 +97,14 @@ public class MineraculousClientUtils {
 
     private static final Map<Player, SpecialPlayerData> SPECIAL_PLAYER_DATA = new Reference2ReferenceOpenHashMap<>();
     private static final IntList CATACLYSM_PIXELS = new IntArrayList();
-    private static final String KWAMI_GLOW_SHADER_PATH = "shaders/post/kwami_glow.json";
+    private static final ResourceLocation KWAMI_GLOW_SHADER = MineraculousConstants.modLoc("shaders/post/kwami_glow.json");
     private static final String KWAMI_GLOW_SHADER_TARGET = "kwami";
     private static final String KWAMI_GLOW_SHADER_STRENGTH_UNIFORM = "BlurSigma";
 
     private static boolean wasJumping = false;
 
-    public static PostChain kwamiEffect;
-    public static RenderTarget kwamiTarget;
+    private static PostChain kwamiEffect;
+    private static RenderTarget kwamiTarget;
 
     public static PostChain getKwamiEffect() {
         return kwamiEffect;
@@ -127,19 +127,16 @@ public class MineraculousClientUtils {
         if (getKwamiEffect() != null) {
             getKwamiEffect().close();
         }
-
-        ResourceLocation resourcelocation = MineraculousConstants.modLoc(KWAMI_GLOW_SHADER_PATH);
-
         try {
             setKwamiEffect(new PostChain(
                     Minecraft.getInstance().getTextureManager(),
                     Minecraft.getInstance().getResourceManager(),
                     Minecraft.getInstance().getMainRenderTarget(),
-                    resourcelocation));
+                    KWAMI_GLOW_SHADER));
             getKwamiEffect().resize(Minecraft.getInstance().getWindow().getWidth(), Minecraft.getInstance().getWindow().getHeight());
             setKwamiTarget(getKwamiEffect().getTempTarget(KWAMI_GLOW_SHADER_TARGET));
         } catch (IOException | JsonSyntaxException e) {
-            MineraculousConstants.LOGGER.warn("Failed to load or parse shader: {}", resourcelocation, e);
+            MineraculousConstants.LOGGER.warn("Failed to load or parse shader: {}", KWAMI_GLOW_SHADER, e);
             setKwamiEffect(null);
             setKwamiTarget(null);
         }
